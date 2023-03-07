@@ -1,0 +1,71 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:timeline="clr-namespace:FramePFX.Timeline"
+                    xmlns:local="clr-namespace:FramePFX">
+    <Style TargetType="{x:Type timeline:TimelineControl}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type timeline:TimelineControl}">
+                    <!-- A collection of TimelineLayerControls -->
+                    <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type timeline:TimelineLayerControl}">
+        <Setter Property="Focusable" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type timeline:TimelineLayerControl}">
+                    <!--
+                        IsItemHost must be true in order for it's items
+                        to sync with the TimelineLayerControl's items
+                     -->
+                    <Grid IsItemsHost="True" Background="{TemplateBinding Background}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type timeline:TimelineElementControl}">
+        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
+        <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="Focusable" Value="True"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type timeline:TimelineElementControl}">
+                    <Grid>
+                        <Grid x:Name="FullElementContent">
+                            <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">
+                                <Grid>
+                                    <TextBlock Text="Clip Name Here" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1"/>
+                                </Grid>
+                            </Border>
+                            <Grid Margin="0,20,0,0" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                            </Grid>
+                        </Grid>
+                        <Border x:Name="OutlineBorder"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="OutlineBorder" Property="BorderBrush" Value="GreenYellow"/>
+                            <Setter TargetName="OutlineBorder" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter TargetName="OutlineBorder" Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
+                            <Setter TargetName="OutlineBorder" Property="BorderThickness" Value="1"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

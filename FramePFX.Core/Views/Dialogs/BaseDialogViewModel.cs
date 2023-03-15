@@ -1,4 +1,4 @@
-namespace FrameControl.Core.Views.Dialogs {
+namespace FramePFX.Core.Views.Dialogs {
     public abstract class BaseDialogViewModel : BaseViewModel {
         public IDialog Dialog { get; }
 

@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace FrameControl.Converters {
+namespace FramePFX.Converters {
     public class NullConverter : IValueConverter {
         public object NullValue { get; set; }
         public object NonNullValue { get; set; }

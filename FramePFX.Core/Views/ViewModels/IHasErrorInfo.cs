@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FrameControl.Core.Views.ViewModels {
+namespace FramePFX.Core.Views.ViewModels {
     public interface IHasErrorInfo {
         /// <summary>
         /// A dictionary of errors currently present. The default behaviour is that a view is prevented from

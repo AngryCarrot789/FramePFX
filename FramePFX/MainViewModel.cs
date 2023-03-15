@@ -1,5 +1,5 @@
-﻿using FrameControl.Core;
-using FramePFX.Core.Timeline;
+﻿using FramePFX.Core;
+using FramePFX.Timeline;
 
 namespace FramePFX {
     public class MainViewModel : BaseViewModel {

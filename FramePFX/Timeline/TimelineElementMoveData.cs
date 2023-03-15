@@ -10,87 +10,77 @@ namespace FramePFX.Timeline {
 
         /// <summary>
         /// The drag copied an element at the cursor location and also moved the
-        /// original clip somewhere; <see cref="FrameBegin"/> is no longer in use
+        /// original clip somewhere; <see cref="OriginalFrameBegin"/> is no longer in use
         /// </summary>
         public bool IsCopyDropAndMoveOriginal { get; set; }
 
         /// <summary>
         /// The frame at which the drag was started
         /// </summary>
-        public int FrameBegin { get; set; }
+        public long OriginalFrameBegin { get; set; }
 
         /// <summary>
-        /// A copy of the original clip that was dragged, which would be located at <see cref="FrameBegin"/>
+        /// A copy of the original clip that was dragged, which would be located at <see cref="OriginalFrameBegin"/>
         /// </summary>
-        public TimelineElementControl CopiedElement { get; set; }
+        public TimelineClipControl CopiedClip { get; set; }
 
         /// <summary>
         /// The element that started this drag
         /// </summary>
-        public TimelineElementControl OriginalElement { get; }
+        public TimelineClipControl OriginalClip { get; }
 
-        /// <summary>
-        /// The items that were selected at the time that this drag was started
-        /// </summary>
-        public List<TimelineElementControl> SelectedItems { get; set; }
+        public List<TimelineElementMoveData> Children { get; }
 
-        public bool IsMultiMove => this.SelectedItems != null && this.SelectedItems.Count > 1;
-
-        public TimelineElementMoveData Parent { get; set; }
-
-        public TimelineElementMoveData(TimelineElementControl originalElement) {
-            this.OriginalElement = originalElement;
+        public TimelineElementMoveData(TimelineClipControl originalClip) {
+            this.OriginalClip = originalClip;
+            this.Children = new List<TimelineElementMoveData>();
         }
 
         public void OnDragComplete() {
             if (this.IsCopyDropAndLeaveOriginal) {
                 if (this.IsCopyDropAndMoveOriginal) {
                     // Swap original and copy's positions
-                    int copyFrameBegin = this.CopiedElement.FrameBegin;
-                    this.CopiedElement.FrameBegin = this.OriginalElement.FrameBegin;
-                    this.OriginalElement.FrameBegin = copyFrameBegin;
+                    long copyFrameBegin = this.CopiedClip.FrameBegin;
+                    this.CopiedClip.FrameBegin = this.OriginalClip.FrameBegin;
+                    this.OriginalClip.FrameBegin = copyFrameBegin;
                 }
                 else {
                     // Move the copied clip to where the mouse is, and put the
                     // original clip back to where it originally was
-                    this.CopiedElement.FrameBegin = this.OriginalElement.FrameBegin;
-                    this.OriginalElement.FrameBegin = this.FrameBegin;
+                    this.CopiedClip.FrameBegin = this.OriginalClip.FrameBegin;
+                    this.OriginalClip.FrameBegin = this.OriginalFrameBegin;
                 }
 
-                this.FrameBegin = this.FrameBegin;
-                this.OriginalElement.TimelineLayer.OnClipDragged(this.CopiedElement, this);
+                this.OriginalFrameBegin = this.OriginalFrameBegin;
+                // this.OriginalClip.TimelineLayer.OnClipDragged(this.CopiedClip, this);
             }
-            else {
-                this.OriginalElement.TimelineLayer.OnClipDragged(this.OriginalElement, this);
-            }
+            // else {
+            //     this.OriginalClip.TimelineLayer.OnClipDragged(this.OriginalClip, this);
+            // }
 
-            if (this.IsMultiMove && this.Parent != null) {
-                foreach (TimelineElementControl element in this.SelectedItems) {
-                    if (element.moveDrag != this) {
-                        element.moveDrag.OnDragComplete();
-                        element.moveDrag = null;
-                    }
-                }
+            foreach (TimelineElementMoveData data in this.Children) {
+                data.OnDragComplete();
             }
         }
 
         public void OnDragCancelled() {
-            this.DestroyCopiedClip();
-            this.OriginalElement.FrameBegin = this.FrameBegin;
-            if (this.IsMultiMove && this.Parent != null) {
-                foreach (TimelineElementControl element in this.SelectedItems) {
-                    if (element.moveDrag != this) {
-                        element.moveDrag.OnDragCancelled();
-                        element.moveDrag = null;
-                    }
-                }
+            this.DestroyCopiedClip(false);
+            this.OriginalClip.FrameBegin = this.OriginalFrameBegin;
+            foreach (TimelineElementMoveData data in this.Children) {
+                data.OnDragCancelled();
             }
         }
 
-        public void DestroyCopiedClip() {
-            if (this.CopiedElement != null) {
-                this.OriginalElement.TimelineLayer.RemoveElement(this.CopiedElement);
-                this.CopiedElement = null;
+        public void DestroyCopiedClip(bool fireChildrenEvents = true) {
+            if (this.CopiedClip != null) {
+                this.OriginalClip.TimelineLayer.RemoveElement(this.CopiedClip);
+                this.CopiedClip = null;
+            }
+
+            if (fireChildrenEvents) {
+                foreach (TimelineElementMoveData data in this.Children) {
+                    data.DestroyCopiedClip();
+                }
             }
         }
     }

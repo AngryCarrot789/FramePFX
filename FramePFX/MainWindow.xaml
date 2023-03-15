@@ -5,6 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FramePFX"
         xmlns:timeline="clr-namespace:FramePFX.Timeline"
+        xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
+        xmlns:controls="clr-namespace:FramePFX.Controls"
+        xmlns:clips="clr-namespace:FramePFX.Timeline.Layer.Clips"
+        xmlns:layer="clr-namespace:FramePFX.Timeline.Layer"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainViewModel}"
         Title="MainWindow" Height="576" Width="1024"
@@ -61,7 +65,7 @@
                                         <Thumb DragDelta="ThumbTop" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                         <Rectangle Margin="0 4 0 0" Width="18" Fill="Orange" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                         <Grid Margin="23,4,0,4">
-                                            <TextBlock Text="{Binding Name}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
+                                            <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
                                             <Grid Margin="0,20,0,0">
                                                 <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Top"/>
                                                 <Slider Margin="51,0,0,0" />
@@ -72,14 +76,25 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <timeline:TimelineControl ItemsSource="{Binding Layers, Mode=OneTime}" Grid.Column="2" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Deep.1.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}">
+                        <timeline:TimelineControl DataContext="{Binding .}" ItemsSource="{Binding Layers, Mode=OneTime}"
+                                                  Grid.Column="2" BorderThickness="0 0 0 0"
+                                                  Background="{DynamicResource AREghZyBrush.Deep.1.Background.Static}"
+                                                  BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}"
+                                                  MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}">
                             <timeline:TimelineControl.ItemContainerStyle>
-                                <Style TargetType="timeline:TimelineLayerControl" BasedOn="{StaticResource {x:Type timeline:TimelineLayerControl}}">
+                                <Style TargetType="{x:Type layer:TimelineLayerControl}" BasedOn="{StaticResource {x:Type layer:TimelineLayerControl}}">
+                                    <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Setter Property="ItemsSource" Value="{Binding Items, Mode=OneTime}"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
-                                            <Style TargetType="timeline:TimelineElementControl" BasedOn="{StaticResource {x:Type timeline:TimelineElementControl}}">
-                                                
+                                            <Style TargetType="{x:Type timeline:TimelineClipControl}" BasedOn="{StaticResource {x:Type timeline:TimelineClipControl}}">
+                                                <Setter Property="FrameBegin" Value="{Binding FrameBegin, UpdateSourceTrigger=PropertyChanged}"/>
+                                                <Setter Property="FrameDuration" Value="{Binding FrameDuration, UpdateSourceTrigger=PropertyChanged}"/>
+                                                <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
                                             </Style>
                                         </Setter.Value>
                                     </Setter>

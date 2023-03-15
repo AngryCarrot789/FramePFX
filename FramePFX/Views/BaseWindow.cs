@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using FrameControl.Core.Views.Windows;
+using FramePFX.Core.Views.Windows;
 
-namespace FrameControl.Views {
+namespace FramePFX.Views {
     public class BaseWindow : BaseWindowCore, IWindow {
         public void CloseWindow() {
             this.Close();

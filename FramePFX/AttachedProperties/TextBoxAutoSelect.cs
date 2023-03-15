@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
-namespace FrameControl.AttachedProperties {
+namespace FramePFX.AttachedProperties {
     public static class TextBoxAutoSelect {
         private static readonly RoutedEventHandler Handler = ControlOnLoaded;
 

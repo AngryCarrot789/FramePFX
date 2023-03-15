@@ -1,4 +1,4 @@
-﻿namespace FrameControl.Themes {
+﻿namespace FramePFX.Themes {
     public enum ThemeType {
         Dark,
         Red,

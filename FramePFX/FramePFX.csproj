@@ -58,10 +58,12 @@
     </ApplicationDefinition>
     <Compile Include="AttachedProperties\AttachedControls.cs" />
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
-    <Compile Include="AttachedProperties\ItemNavigation.cs" />
+    <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
+    <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
     <Compile Include="AttachedProperties\PasswordAttachedProperty.cs" />
     <Compile Include="AttachedProperties\TextBoxAutoSelect.cs" />
     <Compile Include="AttachedProperties\TextHinting.cs" />
+    <Compile Include="Controls\InfiniteScrollViewer.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="MainViewModel.cs" />
@@ -71,17 +73,26 @@
     </Compile>
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
+    <Compile Include="Timeline\ClipDragData.cs" />
+    <Compile Include="Timeline\Layer\Clips\ClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\VideoClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\LayerViewModel.cs" />
+    <Compile Include="Timeline\Layer\TimelineLayerControl.cs" />
+    <Compile Include="Timeline\Layer\VideoLayerViewModel.cs" />
     <Compile Include="Timeline\TimelineControl.cs" />
-    <Compile Include="Timeline\TimelineElementControl.cs" />
+    <Compile Include="Timeline\TimelineClipControl.cs" />
+    <Compile Include="Timeline\TimelineClipDragData.cs" />
     <Compile Include="Timeline\TimelineElementMoveData.cs" />
-    <Compile Include="Timeline\TimelineLayerControl.cs" />
     <Compile Include="Timeline\TimelineUtils.cs" />
+    <Compile Include="Timeline\TimelineViewModel.cs" />
+    <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Views\BaseDialog.cs" />
     <Compile Include="Views\BaseWindow.cs" />
     <Compile Include="Views\BaseWindowCore.cs" />
     <Compile Include="Views\Dialogs\FilePicking\FilePickDialogService.cs" />
     <Compile Include="Views\Dialogs\FilePicking\FolderPicker.cs" />
     <Compile Include="Views\Dialogs\Message\MessageDialogService.cs" />
+    <Compile Include="Views\Dialogs\UserInputs\SingleInputValidationRule.cs" />
     <Compile Include="Views\Dialogs\UserInputs\SingleInputViewModel.cs" />
     <Compile Include="Views\Dialogs\UserInputs\SingleUserInputWindow.xaml.cs">
       <DependentUpon>SingleUserInputWindow.xaml</DependentUpon>

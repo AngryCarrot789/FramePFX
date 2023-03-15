@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FrameControl.AttachedProperties {
+namespace FramePFX.AttachedProperties {
     public class PasswordAttachedProperty {
         public static readonly DependencyProperty ListenToLengthProperty =
             DependencyProperty.RegisterAttached(

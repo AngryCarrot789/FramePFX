@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using FrameControl.Core.Views.Dialogs;
+using FramePFX.Core.Views.Dialogs;
 
-namespace FrameControl.Views {
+namespace FramePFX.Views {
     public class BaseDialog : BaseWindowCore, IDialog {
         public void CloseDialog(bool result) {
             this.DialogResult = result;

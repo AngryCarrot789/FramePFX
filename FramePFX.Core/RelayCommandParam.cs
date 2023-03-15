@@ -1,6 +1,6 @@
 using System;
 
-namespace FrameControl.Core {
+namespace FramePFX.Core {
     /// <summary>
     /// A relay command, that allows passing a parameter to the command
     /// </summary>

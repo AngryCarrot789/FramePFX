@@ -1,4 +1,4 @@
-namespace FrameControl.Core.Views.Windows {
+namespace FramePFX.Core.Views.Windows {
     public abstract class BaseWindowViewModel : BaseViewModel {
         public IWindow Window { get; }
 

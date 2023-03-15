@@ -1,10 +1,10 @@
 using System;
-using FrameControl.Core.Services;
-using FrameControl.Core.Views.Dialogs.FilePicking;
-using FrameControl.Core.Views.Dialogs.Message;
-using FrameControl.Core.Views.Dialogs.UserInputs;
+using FramePFX.Core.Services;
+using FramePFX.Core.Views.Dialogs.FilePicking;
+using FramePFX.Core.Views.Dialogs.Message;
+using FramePFX.Core.Views.Dialogs.UserInputs;
 
-namespace FrameControl.Core {
+namespace FramePFX.Core {
     public static class IoC {
         public static SimpleIoC Instance { get; } = new SimpleIoC();
 

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using FrameControl.Core;
-using FrameControl.Core.Services;
-using FrameControl.Services;
-using FrameControl.Views.Dialogs.FilePicking;
-using FrameControl.Views.Dialogs.Message;
-using FrameControl.Views.Dialogs.UserInputs;
+using FramePFX.Core;
+using FramePFX.Core.Services;
+using FramePFX.Services;
+using FramePFX.Views.Dialogs.FilePicking;
+using FramePFX.Views.Dialogs.Message;
+using FramePFX.Views.Dialogs.UserInputs;
 
 namespace FramePFX {
     /// <summary>

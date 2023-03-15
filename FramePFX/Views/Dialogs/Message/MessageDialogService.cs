@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using System.Windows;
-using FrameControl.Core.Views.Dialogs.Message;
+using FramePFX.Core.Views.Dialogs.Message;
 
-namespace FrameControl.Views.Dialogs.Message {
+namespace FramePFX.Views.Dialogs.Message {
     public class MessageDialogService : IMessageDialogService {
         public async Task ShowMessageAsync(string caption, string message) {
             await Application.Current.Dispatcher.InvokeAsync(() => {

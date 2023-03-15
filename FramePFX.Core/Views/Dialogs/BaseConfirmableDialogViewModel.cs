@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using FrameControl.Core.Views.ViewModels;
+using FramePFX.Core.Views.ViewModels;
 
-namespace FrameControl.Core.Views.Dialogs {
+namespace FramePFX.Core.Views.Dialogs {
     public abstract class BaseConfirmableDialogViewModel : BaseDialogViewModel {
         public RelayCommand ConfirmCommand { get; }
         public RelayCommand CancelCommand { get; }

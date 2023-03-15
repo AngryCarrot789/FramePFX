@@ -1,4 +1,4 @@
-namespace FrameControl.Core.Views.Dialogs.Message {
+namespace FramePFX.Core.Views.Dialogs.Message {
     public enum MsgDialogType {
         OK = 0,
         OKCancel = 1,

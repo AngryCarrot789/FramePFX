@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FrameControl.Core {
+namespace FramePFX.Core {
     public class SimpleIoC {
         private readonly Dictionary<Type, object> services;
 

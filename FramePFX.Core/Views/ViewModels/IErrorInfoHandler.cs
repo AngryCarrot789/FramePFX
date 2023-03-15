@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FrameControl.Core.Views.ViewModels {
+namespace FramePFX.Core.Views.ViewModels {
     /// <summary>
     /// An interface added to a view model to indicate that it wants to listen for when errors in the view have changed
     /// </summary>

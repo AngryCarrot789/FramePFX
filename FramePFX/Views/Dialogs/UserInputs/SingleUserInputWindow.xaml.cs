@@ -1,10 +1,12 @@
 ﻿using System.Windows;
 
-namespace FrameControl.Views.Dialogs.UserInputs {
+namespace FramePFX.Views.Dialogs.UserInputs {
     /// <summary>
     /// Interaction logic for SingleUserInputWindow.xaml
     /// </summary>
     public partial class SingleUserInputWindow : BaseDialog {
+        public SingleInputValidationRule InputValidationRule => (SingleInputValidationRule) this.Resources["SIVR"];
+
         public SingleUserInputWindow() {
             this.InitializeComponent();
             this.Loaded += this.SingleUserInputWindow_Loaded;

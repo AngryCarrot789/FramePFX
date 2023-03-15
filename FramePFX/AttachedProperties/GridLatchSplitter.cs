@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
-namespace FrameControl.AttachedProperties {
+namespace FramePFX.AttachedProperties {
     /// <summary>
     /// A class for implementing a "latching" <see cref="GridSplitter"/>, where a column has a minimum width, but once the
     /// grid splitter is dragged a certain threshold, it closes the column (by setting its width or height to 0)

@@ -1,9 +1,9 @@
-﻿<ResourceDictionary x:Class="FrameControl.Themes.Controls"
+﻿<ResourceDictionary x:Class="FramePFX.Themes.Controls"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-                    xmlns:ap="clr-namespace:FrameControl.AttachedProperties">
+                    xmlns:ap="clr-namespace:FramePFX.AttachedProperties">
     <Style x:Key="FocusVisual">
         <Setter Property="Control.Template">
             <Setter.Value>
@@ -3467,5 +3467,20 @@
                 </Setter>
             </Trigger>
         </Style.Triggers>
+    </Style>
+    <Style TargetType="{x:Type Thumb}">
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+        <Setter Property="Background" Value="{DynamicResource Button.Static.Background}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

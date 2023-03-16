@@ -30,11 +30,11 @@ namespace FramePFX.AttachedProperties {
                 typeof(HorizontalScrolling),
                 new PropertyMetadata(3)); // Forms.SystemInformation.MouseWheelScrollLines == 3 by default
 
-        public static bool GetUseHorizontalScrollingValue(DependencyObject d) {
+        public static bool GetUseHorizontalScrolling(DependencyObject d) {
             return (bool) d.GetValue(UseHorizontalScrollingProperty);
         }
 
-        public static void SetUseHorizontalScrollingValue(DependencyObject d, bool value) {
+        public static void SetUseHorizontalScrolling(DependencyObject d, bool value) {
             d.SetValue(UseHorizontalScrollingProperty, value);
         }
 
@@ -57,7 +57,9 @@ namespace FramePFX.AttachedProperties {
         public static void OnHorizontalScrollingValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is UIElement element) {
                 element.PreviewMouseWheel -= OnPreviewMouseWheel;
-                element.PreviewMouseWheel += OnPreviewMouseWheel;
+                if ((bool) e.NewValue) {
+                    element.PreviewMouseWheel += OnPreviewMouseWheel;
+                }
             }
             else {
                 throw new Exception("Attached property must be used with UIElement");
@@ -97,17 +99,21 @@ namespace FramePFX.AttachedProperties {
             if (d == null) {
                 return null;
             }
-
-            int count = VisualTreeHelper.GetChildrenCount(d);
-            for (int i = 0; i < count; i++) {
-                DependencyObject child = VisualTreeHelper.GetChild(d, i);
-                T result = child as T ?? FindDescendant<T>(child);
-                if (result != null) {
-                    return result;
-                }
+            else if (d is T t) {
+                return t;
             }
+            else {
+                int count = VisualTreeHelper.GetChildrenCount(d);
+                for (int i = 0; i < count; i++) {
+                    DependencyObject child = VisualTreeHelper.GetChild(d, i);
+                    T result = child as T ?? FindDescendant<T>(child);
+                    if (result != null) {
+                        return result;
+                    }
+                }
 
-            return null;
+                return null;
+            }
         }
     }
 }

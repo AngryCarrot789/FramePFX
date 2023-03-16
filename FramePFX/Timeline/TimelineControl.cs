@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using FramePFX.Timeline.Layer;
+using System.Windows.Input;
 
 namespace FramePFX.Timeline {
     public class TimelineControl : ItemsControl {
@@ -28,7 +29,7 @@ namespace FramePFX.Timeline {
                 typeof(long),
                 typeof(TimelineControl),
                 new FrameworkPropertyMetadata(
-                    1000L,
+                    100L,
                     FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
                     (d, e) => ((TimelineControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
@@ -46,12 +47,14 @@ namespace FramePFX.Timeline {
             set => this.SetValue(UnitZoomProperty, value);
         }
 
-        public double MaxDuration {
-            get => (double) this.GetValue(MaxDurationProperty);
+        public long MaxDuration {
+            get => (long) this.GetValue(MaxDurationProperty);
             set => this.SetValue(MaxDurationProperty, value);
         }
 
         private ScrollViewer PART_ScrollViewer;
+        private ItemsPresenter PART_ItemsPresenter;
+        private TimelinePlayheadControl PART_PlayHead;
 
         public TimelineClipDragData DragData;
 
@@ -66,7 +69,9 @@ namespace FramePFX.Timeline {
         }
 
         private void OnMaxDurationChanged(long oldValue, long newValue) {
-            throw new NotImplementedException();
+            if (this.PART_ItemsPresenter != null) {
+                this.PART_ItemsPresenter.Width = TimelineUtils.FrameToPixel(newValue, this.UnitZoom);
+            }
         }
 
         public bool GetViewModel(out TimelineViewModel timeline) {
@@ -89,9 +94,71 @@ namespace FramePFX.Timeline {
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.PART_ScrollViewer = this.GetTemplateElement<ScrollViewer>("PART_ScrollViewer");
+            this.PART_ItemsPresenter = this.GetTemplateElement<ItemsPresenter>("PART_ItemsPresenter");
+            this.PART_PlayHead = this.GetTemplateElement<TimelinePlayheadControl>("PART_PlayHead");
+            if (this.PART_PlayHead != null) {
+                this.PART_PlayHead.Timeline = this;
+            }
+
             if (this.PART_ScrollViewer != null) {
                 // this.PART_ScrollViewer.ScrollChanged += this.PART_ScrollViewerOnScrollChanged;
                 // this.PART_ScrollViewer.PreviewMouseWheel += this.PART_ScrollViewerOnMouseWheel;
+            }
+        }
+
+        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
+            base.OnPreviewMouseWheel(e);
+
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+                double offset = e.Delta / 120d;
+                if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {
+                    offset /= 2d;
+                }
+
+                // offset = 1d / offset;
+                this.UnitZoom = Math.Max(this.UnitZoom + offset, 1);
+                ScrollViewer scroller = this.PART_ScrollViewer;
+                if (scroller != null) {
+                    this.Dispatcher.Invoke(() => {
+                        // scrollable = 10,000
+                        // viewport   =  1,000
+                        // Mouse X    =    500
+                        // multiplier =    0.5
+                        // CurrOffset =  6,000
+                        // NewOffset  =  6,250
+
+                        double scrollable = scroller.ExtentWidth; // 10,000
+                        double viewport = scroller.ViewportWidth; //  1,000
+                        double currOffset = scroller.HorizontalOffset; //  6,000
+                        double mouseX = e.GetPosition(scroller).X; //    500
+                        double scrollMultiplier = (mouseX / viewport); //    0.5
+                        scrollMultiplier *= offset;
+                        double targetZoomX = scrollMultiplier * viewport; //    250
+                        double offsetH = currOffset + targetZoomX;
+
+
+                        // double percent = mouseX / scroller.ViewportWidth;
+                        // percent = Maths.Map(percent, 0d, 1d, -1d, 1d);
+                        // double offsetH = scroller.HorizontalOffset + (scroller.ViewportWidth * percent);
+                        if (double.IsNaN(offsetH)) {
+                            offsetH = 0d;
+                        }
+
+                        scroller.ScrollToHorizontalOffset(offsetH);
+                    });
+                }
+            }
+            else if (this.PART_ScrollViewer != null && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {
+                if (e.Delta < 0) {
+                    this.PART_ScrollViewer.LineRight();
+                    this.PART_ScrollViewer.LineRight();
+                    this.PART_ScrollViewer.LineRight();
+                }
+                else if (e.Delta > 0) {
+                    this.PART_ScrollViewer.LineLeft();
+                    this.PART_ScrollViewer.LineLeft();
+                    this.PART_ScrollViewer.LineLeft();
+                }
             }
         }
 
@@ -153,6 +220,10 @@ namespace FramePFX.Timeline {
             if (Math.Abs(oldZoom - newZoom) > TimelineUtils.MinUnitZoom) {
                 foreach (TimelineLayerControl element in this.GetLayers()) {
                     element.UnitZoom = newZoom;
+                }
+
+                if (this.PART_ItemsPresenter != null) {
+                    this.PART_ItemsPresenter.Width = TimelineUtils.FrameToPixel(this.MaxDuration, this.UnitZoom);
                 }
             }
         }

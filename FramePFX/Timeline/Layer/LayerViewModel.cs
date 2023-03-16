@@ -53,7 +53,6 @@ namespace FramePFX.Timeline.Layer {
                     this.Name = result;
                 }
             });
-
         }
 
         public VideoClipViewModel CloneVideoClip(VideoClipViewModel clip) {
@@ -78,6 +77,12 @@ namespace FramePFX.Timeline.Layer {
             }
 
             this.Items.Move(index, endIndex);
+        }
+
+        public void RemoveRegion(long frameBegin, long frameEnd, Action<ClipViewModel> onModified, Action<ClipViewModel> onRemoved) {
+            foreach (ClipViewModel clip in this.Items) {
+
+            }
         }
     }
 }

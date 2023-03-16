@@ -11,5 +11,13 @@ namespace FramePFX.Timeline {
         public static bool IsZoomEqual(double a, double b) {
             return Math.Abs(a - b) <= MinUnitZoom;
         }
+
+        public static long PixelToFrame(double pixels, double zoom) {
+            return (long) (pixels / zoom);
+        }
+
+        public static double FrameToPixel(long pixels, double zoom) {
+            return pixels * zoom;
+        }
     }
 }

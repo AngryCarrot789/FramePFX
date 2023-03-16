@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Reflection;
 using System.Windows.Controls.Primitives;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -307,7 +305,7 @@ namespace FramePFX.Timeline {
                 return;
             }
 
-            long duration = this.FrameDuration + (long) e.HorizontalChange;
+            long duration = this.FrameDuration + TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
             if (duration < 1) {
                 return;
             }

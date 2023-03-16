@@ -4,6 +4,23 @@
                     xmlns:local="clr-namespace:FramePFX"
                     xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
                     xmlns:layer="clr-namespace:FramePFX.Timeline.Layer">
+    <Style TargetType="{x:Type timeline:TimelinePlayheadControl}">
+        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.3.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.4.Border.Static}"/>
+        <Setter Property="Width" Value="4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type timeline:TimelinePlayheadControl}">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <Thumb x:Name="PART_Thumb" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="-3,0" Height="10" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+
+                        </Thumb>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="{x:Type timeline:TimelineControl}">
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
@@ -15,9 +32,13 @@
                 <ControlTemplate TargetType="{x:Type timeline:TimelineControl}">
                     <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                         <!-- A collection of TimelineLayerControls -->
-                        <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}" HorizontalScrollBarVisibility="Visible" ap:HorizontalScrolling.UseHorizontalScrollingValue="True">
+                        <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" 
+                                      Padding="{TemplateBinding Padding}" 
+                                      HorizontalScrollBarVisibility="Visible" 
+                                      ap:HorizontalScrolling.UseHorizontalScrolling="True">
                             <Grid>
-                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="Stretch"/>
+                                <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="Left"/>
+                                <timeline:TimelinePlayheadControl x:Name="PART_PlayHead" Timeline="{TemplateBinding}" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"/>
                             </Grid>
                         </ScrollViewer>
                     </Border>

@@ -14,9 +14,15 @@ namespace FramePFX.Timeline {
             set => this.RaisePropertyChanged(ref this.maxDuration, value);
         }
 
+        private long playHeadFrame;
+        public long PlayHeadFrame {
+            get => this.playHeadFrame;
+            set => this.RaisePropertyChanged(ref this.playHeadFrame, value);
+        }
+
         public TimelineViewModel() {
             this.Layers = new ObservableCollection<LayerViewModel>();
-            this.MaxDuration = 1000;
+            this.MaxDuration = 10000;
             LayerViewModel l1 = this.CreateLayer("Layer 1");
             l1.CreateVideoClip(0, 50);
             l1.CreateVideoClip(100, 150);

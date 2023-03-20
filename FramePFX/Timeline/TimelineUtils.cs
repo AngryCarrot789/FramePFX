@@ -19,5 +19,17 @@ namespace FramePFX.Timeline {
         public static double FrameToPixel(long pixels, double zoom) {
             return pixels * zoom;
         }
+
+        public static void ValidateNonNegative(double value) {
+            if (value < 0d) {
+                throw new Exception("New value cannot be null");
+            }
+        }
+
+        public static void ValidateNonNegative(long value) {
+            if (value < 0d) {
+                throw new Exception("New value cannot be null");
+            }
+        }
     }
 }

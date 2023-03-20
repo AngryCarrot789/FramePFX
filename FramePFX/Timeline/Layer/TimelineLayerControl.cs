@@ -13,7 +13,7 @@ namespace FramePFX.Timeline.Layer {
                 typeof(TimelineLayerControl),
                 new FrameworkPropertyMetadata(
                     1d,
-                    FrameworkPropertyMetadataOptions.None,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineLayerControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
                     (d, v) => TimelineUtils.ClampUnitZoom(v)));
 
@@ -86,6 +86,22 @@ namespace FramePFX.Timeline.Layer {
             };
         }
 
+        public IEnumerable<TimelineClipControl> GetSelectedClipControls() {
+            foreach (object item in this.SelectedItems) {
+                if (ICGenUtils.GetContainerForItem<ClipViewModel, TimelineClipControl>(item, this.ItemContainerGenerator, x => x.Control) is TimelineClipControl clip) {
+                    yield return clip;
+                }
+            }
+        }
+
+        public IEnumerable<ClipViewModel> GetSelectedClipModels() {
+            foreach (object item in this.SelectedItems) {
+                if (ICGenUtils.GetContainerForItem<TimelineClipControl, ClipViewModel>(item, this.ItemContainerGenerator, x => x.DataContext as ClipViewModel) is ClipViewModel clip) {
+                    yield return clip;
+                }
+            }
+        }
+
         public bool GetViewModel(out LayerViewModel layer) {
             return (layer = this.DataContext as LayerViewModel) != null;
         }
@@ -104,14 +120,20 @@ namespace FramePFX.Timeline.Layer {
                 if (item is ClipViewModel viewModel) {
                     viewModel.Control = clip;
                 }
+                // else {
+                //     throw new Exception($"Expected item of type {nameof(ClipViewModel)}, got {item?.GetType()}");
+                // }
 
                 clip.TimelineLayer = this;
             }
+            // else {
+            //     throw new Exception($"Expected element of type {nameof(TimelineClipControl)}, got {element?.GetType()}");
+            // }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);
-            List<TimelineClipControl> clips = this.timeline.GetSelectedClips().ToList();
+            List<TimelineClipControl> clips = this.timeline.GetAllSelectedClipControls().ToList();
             if (clips.Any(clip => clip.TimelineLayer == this && clip.IsMouseOver)) {
                 return;
             }
@@ -217,7 +239,7 @@ namespace FramePFX.Timeline.Layer {
 
             if (e.ChangedButton == MouseButton.Left) {
                 if (e.ButtonState == MouseButtonState.Pressed) {
-                    if (this.Timeline.GetSelectedClips().ToList().Count >= 2) {
+                    if (this.Timeline.GetAllSelectedClipControls().ToList().Count >= 2) {
                         if (!clip.IsSelected) {
                             this.Timeline.SetPrimarySelection(this, clip);
                         }
@@ -226,7 +248,7 @@ namespace FramePFX.Timeline.Layer {
                         this.Timeline.SetPrimarySelection(this, clip);
                     }
                 }
-                else if (!wasDragging && this.Timeline.GetSelectedClips().ToList().Count > 1) {
+                else if (!wasDragging && this.Timeline.GetAllSelectedClipControls().ToList().Count > 1) {
                     this.Timeline.SetPrimarySelection(this, clip);
                 }
             }

@@ -1,5 +1,9 @@
 namespace FramePFX.Render {
-    public class IRenderHandler {
-        
+    public interface IRenderHandler {
+        void Setup();
+
+        void Render();
+
+        void Tick(double interval);
     }
 }

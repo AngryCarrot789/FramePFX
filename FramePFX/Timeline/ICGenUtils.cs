@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Controls;
-using FramePFX.Timeline.Layer;
 
 namespace FramePFX.Timeline {
-    public static class ICUtils {
+    public static class ICGenUtils {
         public static IEnumerable<TResult> Select<TSource, TResult>(ItemCollection collection, Func<TSource, TResult> converter) {
             foreach (object x in collection) {
                 if (x is TResult result) {
@@ -16,7 +15,7 @@ namespace FramePFX.Timeline {
             }
         }
 
-        public static TResult GetContainerFromItem<TResult>(ItemContainerGenerator generator, object src) where TResult : class {
+        public static TResult GetContainerForItem<TResult>(ItemContainerGenerator generator, object src) where TResult : class {
             if (src is TResult result) {
                 return result;
             }
@@ -28,14 +27,14 @@ namespace FramePFX.Timeline {
             }
         }
 
-        public static T GetContainerForItem<T>(ItemContainerGenerator generator, object x) where T : class {
-            if (x is T a) {
+        public static TResult GetContainerForItem<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter) where TResult : class {
+            if (input is TResult a) {
                 return a;
             }
-            else if (x is LayerViewModel vm && vm.Control is T b) {
+            else if (input is TSource src && converter(src) is TResult b) {
                 return b;
             }
-            else if (generator.ContainerFromItem(x) is T c) {
+            else if (generator.ContainerFromItem(input) is TResult c) {
                 return c;
             }
             else {

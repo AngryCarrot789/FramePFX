@@ -1,5 +1,7 @@
+using System.Windows.Controls;
+
 namespace FramePFX.Timeline {
-    public class TimelineScrollViewer {
-        
+    public class TimelineScrollViewer : ScrollViewer {
+
     }
 }

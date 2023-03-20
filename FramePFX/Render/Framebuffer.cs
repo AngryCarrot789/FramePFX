@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 
-namespace FrameControl.IO.Rendering {
+namespace FramePFX.Render {
     public class Framebuffer : IDisposable {
         private bool isDisposed;
 

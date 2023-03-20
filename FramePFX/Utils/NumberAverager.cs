@@ -1,4 +1,4 @@
-namespace FrameControl.IO {
+namespace FramePFX.Utils {
     public class NumberAverager {
         private readonly double[] averages;
 

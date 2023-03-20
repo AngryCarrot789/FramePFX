@@ -7,15 +7,20 @@
     <Style TargetType="{x:Type timeline:TimelinePlayheadControl}">
         <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.3.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.4.Border.Static}"/>
-        <Setter Property="Width" Value="4"/>
+        <Setter Property="MinWidth" Value="15"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type timeline:TimelinePlayheadControl}">
-                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                        <Thumb x:Name="PART_Thumb" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="-3,0" Height="10" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-
-                        </Thumb>
-                    </Border>
+                    <Grid Margin="-7,0,7,0" MinHeight="15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="17"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Width="1" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="7,16,0,0" Background="{TemplateBinding Foreground}" Grid.Row="0" Grid.RowSpan="2"/>
+                        <Polygon Points="0,0 15,0 15,10 8,17 7,17 0,10" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Left" Width="15" />
+                        <Thumb x:Name="PART_ThumbHead" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Cursor="SizeWE"/>
+                        <Thumb x:Name="PART_ThumbBody" Width="5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5,0" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Cursor="SizeWE" Grid.Row="1"/>
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

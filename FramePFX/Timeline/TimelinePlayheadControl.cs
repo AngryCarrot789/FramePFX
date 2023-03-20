@@ -1,8 +1,10 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace FramePFX.Timeline {
-    public class TimelinePlayheadControl : Control {
+    public class TimelinePlayheadControl : Control, INativePlayHead {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",
@@ -10,7 +12,7 @@ namespace FramePFX.Timeline {
                 typeof(TimelinePlayheadControl),
                 new FrameworkPropertyMetadata(
                     0L,
-                    FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelinePlayheadControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
@@ -27,6 +29,11 @@ namespace FramePFX.Timeline {
         public long FrameBegin {
             get => (long) this.GetValue(FrameBeginProperty);
             set => this.SetValue(FrameBeginProperty, value);
+        }
+
+        public long PlayHeadFrame {
+            get => this.FrameBegin;
+            set => this.FrameBegin = value;
         }
 
         public TimelineControl Timeline {
@@ -48,8 +55,52 @@ namespace FramePFX.Timeline {
 
         private bool isUpdatingFrameBegin;
 
+        private Thumb PART_ThumbHead;
+        private Thumb PART_ThumbBody;
+        private bool isDraggingThumb;
+
         public TimelinePlayheadControl() {
 
+        }
+
+        private T GetTemplateElement<T>(string name) where T : DependencyObject {
+            return this.GetTemplateChild(name) is T value ? value : throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
+        }
+
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            this.PART_ThumbHead = GetTemplateElement<Thumb>("PART_ThumbHead");
+            this.PART_ThumbBody = GetTemplateElement<Thumb>("PART_ThumbBody");
+            if (this.PART_ThumbHead != null) {
+                this.PART_ThumbHead.DragDelta += PART_ThumbOnDragDelta;
+            }
+            if (this.PART_ThumbBody != null) {
+                this.PART_ThumbBody.DragDelta += PART_ThumbOnDragDelta;
+            }
+        }
+
+        private void PART_ThumbOnDragDelta(object sender, DragDeltaEventArgs e) {
+            if (this.isDraggingThumb) {
+                return;
+            }
+
+            long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.Timeline.UnitZoom);
+            if (change == 0) {
+                return;
+            }
+
+            long duration = this.FrameBegin + change;
+            if (duration < 0) {
+                return;
+            }
+
+            try {
+                this.isDraggingThumb = true;
+                this.FrameBegin = duration;
+            }
+            finally {
+                this.isDraggingThumb = false;
+            }
         }
 
         private void OnFrameBeginChanged(long oldStart, long newStart) {

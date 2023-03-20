@@ -9,7 +9,7 @@ using FramePFX.Timeline.Layer;
 using FramePFX.Timeline.Layer.Clips;
 
 namespace FramePFX.Timeline {
-    public class TimelineClipControl : ContentControl {
+    public class TimelineClipControl : ContentControl, INativeClip {
         #region Dependency Properties
 
         public static readonly DependencyProperty UnitZoomProperty =
@@ -17,7 +17,7 @@ namespace FramePFX.Timeline {
                 typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     1d,
-                    FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineClipControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
                     (d, v) => TimelineUtils.ClampUnitZoom(v)));
 
@@ -28,7 +28,7 @@ namespace FramePFX.Timeline {
                 typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     0L,
-                    FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineClipControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
@@ -39,7 +39,7 @@ namespace FramePFX.Timeline {
                 typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     0L,
-                    FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineClipControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
@@ -279,7 +279,11 @@ namespace FramePFX.Timeline {
                 return;
             }
 
-            long change = (long) e.HorizontalChange;
+            long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
+            if (change == 0) {
+                return;
+            }
+
             long begin = this.FrameBegin + change;
             if (begin < 0) {
                 return;
@@ -305,7 +309,12 @@ namespace FramePFX.Timeline {
                 return;
             }
 
-            long duration = this.FrameDuration + TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
+            long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
+            if (change == 0) {
+                return;
+            }
+
+            long duration = this.FrameDuration + change;
             if (duration < 1) {
                 return;
             }
@@ -330,6 +339,7 @@ namespace FramePFX.Timeline {
         }
 
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {
+            TimelineUtils.ValidateNonNegative(newZoom);
             if (this.isUpdatingUnitZoom)
                 return;
 
@@ -340,6 +350,7 @@ namespace FramePFX.Timeline {
         }
 
         private void OnFrameBeginChanged(long oldStart, long newStart) {
+            TimelineUtils.ValidateNonNegative(newStart);
             if (this.isUpdatingFrameBegin)
                 return;
             this.isUpdatingFrameBegin = true;
@@ -349,6 +360,7 @@ namespace FramePFX.Timeline {
         }
 
         private void OnFrameDurationChanged(long oldDuration, long newDuration) {
+            TimelineUtils.ValidateNonNegative(newDuration);
             if (this.isUpdatingFrameDuration)
                 return;
             this.isUpdatingFrameDuration = true;

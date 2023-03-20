@@ -1,5 +1,6 @@
 namespace FramePFX.Timeline.Layer.Clips {
-    public class Vec2d {
-        
+    public struct Vec2d {
+        public double x;
+        public double y;
     }
 }

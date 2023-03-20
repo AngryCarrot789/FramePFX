@@ -8,13 +8,13 @@ namespace FramePFX.Timeline.Layer.Clips {
         private long frameBegin;
         public long FrameBegin {
             get => this.frameBegin;
-            set => this.RaisePropertyChanged(ref this.frameBegin, value);
+            set => this.RaisePropertyChanged(ref this.frameBegin, value, this.MarkForRender);
         }
 
         private long frameDuration;
         public long FrameDuration {
             get => this.frameDuration;
-            set => this.RaisePropertyChanged(ref this.frameDuration, value);
+            set => this.RaisePropertyChanged(ref this.frameDuration, value, this.MarkForRender);
         }
 
         public long FrameEndIndex {
@@ -29,10 +29,26 @@ namespace FramePFX.Timeline.Layer.Clips {
             }
         }
 
+        private string name;
+        public string Name {
+            get => this.name;
+            set => this.RaisePropertyChanged(ref this.name, value);
+        }
+
         public TimelineClipControl Control { get; set; }
 
         public ClipViewModel(LayerViewModel layer) {
             this.Layer = layer;
+        }
+
+        public bool IntersectsFrameAt(long frame) {
+            long begin = this.FrameBegin;
+            long duration = this.FrameDuration;
+            return frame >= begin && frame < (begin + duration);
+        }
+
+        private void MarkForRender() {
+            this.Layer.Timeline.IsRenderDirty = true;
         }
     }
 }

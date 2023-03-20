@@ -38,9 +38,13 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -70,6 +74,10 @@
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="MainViewModel.cs" />
+    <Compile Include="Render\Framebuffer.cs" />
+    <Compile Include="Render\IRenderHandler.cs" />
+    <Compile Include="Render\OGLContext.cs" />
+    <Compile Include="Render\TKRenderThread.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Themes\Controls.xaml.cs">
       <DependentUpon>Controls.xaml</DependentUpon>
@@ -77,7 +85,12 @@
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
     <Compile Include="Timeline\ClipDragData.cs" />
+    <Compile Include="Timeline\ICGenUtils.cs" />
+    <Compile Include="Timeline\INativePlayHead.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\INativeClip.cs" />
+    <Compile Include="Timeline\Layer\Clips\SquareClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\Vec2d.cs" />
     <Compile Include="Timeline\Layer\Clips\VideoClipViewModel.cs" />
     <Compile Include="Timeline\Layer\LayerViewModel.cs" />
     <Compile Include="Timeline\Layer\TimelineLayerControl.cs" />
@@ -87,10 +100,16 @@
     <Compile Include="Timeline\TimelineClipDragData.cs" />
     <Compile Include="Timeline\TimelineElementMoveData.cs" />
     <Compile Include="Timeline\TimelinePlayheadControl.cs" />
+    <Compile Include="Timeline\TimelineScrollViewer.cs" />
     <Compile Include="Timeline\TimelineUtils.cs" />
     <Compile Include="Timeline\TimelineViewModel.cs" />
+    <Compile Include="Utils\CASLock.cs" />
+    <Compile Include="Utils\CASLockType.cs" />
     <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Utils\Maths.cs" />
+    <Compile Include="Utils\NumberAverager.cs" />
+    <Compile Include="Utils\ThreadTimer.cs" />
+    <Compile Include="Utils\Time.cs" />
     <Compile Include="Views\BaseDialog.cs" />
     <Compile Include="Views\BaseWindow.cs" />
     <Compile Include="Views\BaseWindowCore.cs" />
@@ -166,6 +185,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

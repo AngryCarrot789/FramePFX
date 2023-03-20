@@ -36,12 +36,12 @@ namespace FramePFX.Timeline.Layer {
 
         public ICommand RenameLayerCommand { get; }
 
-        public ObservableCollection<ClipViewModel> Items { get; }
+        public ObservableCollection<ClipViewModel> Clips { get; }
 
         public TimelineLayerControl Control { get; set; }
 
         public LayerViewModel(TimelineViewModel timeline) {
-            this.Items = new ObservableCollection<ClipViewModel>();
+            this.Clips = new ObservableCollection<ClipViewModel>();
             this.Timeline = timeline;
             this.MaxHeight = 200d;
             this.MinHeight = 40;
@@ -59,28 +59,28 @@ namespace FramePFX.Timeline.Layer {
             return this.CreateVideoClip(clip.FrameBegin, clip.FrameDuration);
         }
 
-        public VideoClipViewModel CreateVideoClip(long begin, long duration) {
-            VideoClipViewModel clip = new VideoClipViewModel(this) {
+        public SquareClipViewModel CreateVideoClip(long begin, long duration) {
+            SquareClipViewModel clip = new SquareClipViewModel(this) {
                 FrameBegin = begin,
                 FrameDuration = duration
             };
 
-            this.Items.Add(clip);
+            this.Clips.Add(clip);
             return clip;
         }
 
         public void MakeTopMost(ClipViewModel clip) {
-            int endIndex = this.Items.Count - 1;
-            int index = this.Items.IndexOf(clip);
+            int endIndex = this.Clips.Count - 1;
+            int index = this.Clips.IndexOf(clip);
             if (index == -1 || index == endIndex) {
                 return;
             }
 
-            this.Items.Move(index, endIndex);
+            this.Clips.Move(index, endIndex);
         }
 
         public void RemoveRegion(long frameBegin, long frameEnd, Action<ClipViewModel> onModified, Action<ClipViewModel> onRemoved) {
-            foreach (ClipViewModel clip in this.Items) {
+            foreach (ClipViewModel clip in this.Clips) {
 
             }
         }

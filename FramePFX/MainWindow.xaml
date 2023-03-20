@@ -21,11 +21,11 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="7*"/>
                 <RowDefinition Height="5"/>
-                <RowDefinition Height="5*"/>
+                <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
             <Grid>
                 <Viewbox>
-                    <Image Width="1920" Height="1080"/>
+                    <Image Width="1920" Height="1080" x:Name="GLViewport"/>
                 </Viewbox>
             </Grid>
             <Grid Grid.Row="2">
@@ -79,11 +79,11 @@
                         <timeline:TimelineControl DataContext="{Binding .}" 
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0 0 0 0"
-                                                  Background="{DynamicResource AREghZyBrush.Deep.1.Background.Static}"
                                                   BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}"
                                                   MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}">
                             <timeline:TimelineControl.Style>
                                 <Style TargetType="{x:Type timeline:TimelineControl}">
+                                    <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"/>
                                     <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
                                     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
                                     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -91,14 +91,18 @@
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type timeline:TimelineControl}">
-                                                <Border Background="{DynamicResource AREghZyBrush.Primary.2.Background.Static}">
+                                                <Grid>
+                                                    <Border Background="{DynamicResource AREghZyBrush.Deep.1.Background.Static}"/>
                                                     <!-- A collection of TimelineLayerControls -->
                                                     <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" 
                                                                   Padding="{TemplateBinding Padding}" 
                                                                   HorizontalScrollBarVisibility="Visible">
-                                                        <Grid>
-                                                            <Border Margin="0,10,0,0" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" HorizontalAlignment="Left">
-                                                                <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="Left"/>
+                                                        <Grid HorizontalAlignment="Left" RequestBringIntoView="FrameworkElement_OnRequestBringIntoView">
+                                                            <Border Margin="0,17,0,0" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                                                <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                            </Border>
+                                                            <Border x:Name="PART_TimestampBoard" Margin="0" Height="17" VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}">
+
                                                             </Border>
                                                             <timeline:TimelinePlayheadControl x:Name="PART_PlayHead"
                                                                                               VerticalAlignment="Stretch"
@@ -107,7 +111,7 @@
                                                                                               FrameBegin="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" Width="1"/>
                                                         </Grid>
                                                     </ScrollViewer>
-                                                </Border>
+                                                </Grid>
                                             </ControlTemplate>
                                         </Setter.Value>
                                     </Setter>
@@ -119,7 +123,7 @@
                                     <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Setter Property="ItemsSource" Value="{Binding Items, Mode=OneTime}"/>
+                                    <Setter Property="ItemsSource" Value="{Binding Clips, Mode=OneTime}"/>
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                     <Setter Property="Focusable" Value="True"/>
@@ -142,7 +146,7 @@
                                                                 <Grid x:Name="FullElementContent">
                                                                     <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">
                                                                         <Grid>
-                                                                            <TextBlock Text="Clip Name Here" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1"/>
+                                                                            <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1"/>
                                                                         </Grid>
                                                                     </Border>
                                                                     <Grid Margin="2,20,2,0" Background="{TemplateBinding Background}">

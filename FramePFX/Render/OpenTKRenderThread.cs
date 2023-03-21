@@ -9,10 +9,10 @@ using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Render {
     public class TKRenderThread : IDisposable {
-        public const double TARGET_FPS = 60;
-        public const double TARGET_FPS_MS = 1000d / TARGET_FPS; // 16.666666666666
-        public const double TARGET_FPS_TICKS = 10000000 / TARGET_FPS; // 16.666666666666
-        public const double TARGET_FPS_DELTA = 1 / TARGET_FPS; // 0.01666666666
+        public const double TARGET_FPS = 30d;
+        public const double TARGET_FPS_MS = 1000d / TARGET_FPS;       // 60FPS = 16.666666666666
+        public const double TARGET_FPS_TICKS = 10000000 / TARGET_FPS; // 60FPS = 16.666666666666
+        public const double TARGET_FPS_DELTA = 1 / TARGET_FPS;        // 60FPS = 0.01666666666
 
         private readonly ThreadTimer thread;
         private readonly NumberAverager averager;
@@ -31,6 +31,8 @@ namespace FramePFX.Render {
         private readonly List<Action> actions;
         private readonly List<Task> tasks;
 
+        public volatile bool isPaused;
+
         public int Width { get; set; } = 1;
 
         public int Height { get; set; } = 1;
@@ -42,6 +44,8 @@ namespace FramePFX.Render {
         // public LockedObject<IntPtr> Bitmap { get; set; }
         // public Action BitmapWriteCallback { get; set; }
         public CASLock BitmapLock { get; }
+
+        public ThreadTimer Thread => this.thread;
 
         public TKRenderThread() {
             this.thread = new ThreadTimer(TimeSpan.FromMilliseconds(TARGET_FPS_MS)) {
@@ -62,15 +66,16 @@ namespace FramePFX.Render {
 
         public void Start() {
             this.thread.Start();
+            this.isPaused = false;
         }
 
         public void Pause() {
-            this.thread.Stop();
+            this.isPaused = true;
         }
 
-        public void Stop() {
+        public void StopAndDispose() {
+            this.isPaused = true;
             this.thread.Stop();
-            this.window?.Dispose();
         }
 
         public void Invoke(Action action) {
@@ -129,6 +134,14 @@ namespace FramePFX.Render {
             this.context = this.window.Context;
             this.contextLock.Lock(out CASLockType type);
             this.MakeContextCurrent(true);
+
+            // GL.BlendFunc(BlendingFactor.DstColor, BlendingFactor.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthFunc(DepthFunction.Less);
+            GL.DepthMask(true);
+
             if (this.framebuffer != null && !this.framebuffer.IsDisposed) {
                 this.framebuffer.Dispose();
             }
@@ -157,6 +170,10 @@ namespace FramePFX.Render {
         }
 
         private void OnGLThreadTick() {
+            if (this.isPaused) {
+                return;
+            }
+
             // calc interval time
             long time = Time.GetSystemTicks();
             double delta = (double) (time - this.lastTickTime) / Time.TICK_PER_SECOND;
@@ -169,7 +186,7 @@ namespace FramePFX.Render {
             this.MakeContextCurrent(true);
             this.framebuffer.Use();
 
-            this.RenderHandler.Render();
+            this.RenderHandler.RenderGLThread();
             this.RenderHandler.Tick(delta);
 
             // IntPtr ptr;
@@ -186,7 +203,7 @@ namespace FramePFX.Render {
         }
 
         private void OnThreadStopped() {
-            this.contextLock.Lock(out _);
+            this.contextLock.Lock(out CASLockType type);
             this.isGLReady = false;
             this.MakeContextCurrent(true);
 
@@ -194,7 +211,7 @@ namespace FramePFX.Render {
                 this.framebuffer.Dispose();
 
             this.MakeContextCurrent(false);
-            this.contextLock.Unlock();
+            this.contextLock.Unlock(type);
         }
 
         private void HandleCallbacks() {
@@ -243,6 +260,10 @@ namespace FramePFX.Render {
         }
 
         public void Dispose() {
+            if (this.thread.IsRunning) {
+                this.thread.Stop();
+            }
+
             this.framebuffer?.Dispose();
             this.window?.Dispose();
         }

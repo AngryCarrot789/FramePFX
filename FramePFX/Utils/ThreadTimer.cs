@@ -15,8 +15,14 @@ namespace FramePFX.Utils {
         private ThreadPriority priority;
         private volatile bool isRunning;
         private string threadName;
+        private volatile bool isMarkedForSlowSleep;
 
         public bool IsRunning => this.isRunning;
+
+        public bool IsMarkedForSlowSleep {
+            get => this.isMarkedForSlowSleep;
+            set => this.isMarkedForSlowSleep = value;
+        }
 
         public TimeSpan Interval {
             get => this.interval;
@@ -82,10 +88,15 @@ namespace FramePFX.Utils {
         }
 
         private void MainThread() {
+            Action action = this.tickAction ?? throw new Exception("No tick action was set");
             this.startedAction?.Invoke();
-            Action action = this.tickAction;
             long interval_ticks = this.interval.Ticks;
             while (this.isRunning) {
+                if (this.isMarkedForSlowSleep) {
+                    // try to save lots of CPU time, at the cost of bad timing (+- 16ms)
+                    Thread.Sleep(15);
+                }
+
                 // Get the target time that the action should be executed
                 long targetTime = Time.GetSystemTicks() + interval_ticks;
 
@@ -98,16 +109,17 @@ namespace FramePFX.Utils {
                 // targetTime will likely be larger than GetSystemTicks(), e.g the interval is 20ms
                 // and we delayed for about 16ms, so extraWaitTime is about 4ms
                 while ((targetTime - Time.GetSystemTicks()) > FIVE_MILLIS_IN_TICKS) {
+                    // Thread.Sleep(1);
+
+                    // Yield may result in more precise timing
                     Thread.Yield();
                 }
-
-                // while ((targetTime - Time.GetSystemTicks()) > HALF_MILLI_IN_TICKS) {
-                //     Thread.Yield();
-                // }
 
                 // CPU intensive wait
                 while (Time.GetSystemTicks() < targetTime) {
                     Thread.SpinWait(32);
+                    // SpinWait may result in more precise timing
+                    // Thread.Yield();
                 }
 
                 if (this.isRunning) {
@@ -116,6 +128,7 @@ namespace FramePFX.Utils {
             }
 
             this.stoppedAction?.Invoke();
+            this.Thread = null;
         }
 
         public void Start(bool join = true) {
@@ -154,6 +167,7 @@ namespace FramePFX.Utils {
             // wait for thread to stop
             if (join) {
                 this.Thread.Join();
+                this.Thread = null;
             }
         }
 

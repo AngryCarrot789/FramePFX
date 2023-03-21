@@ -22,7 +22,7 @@ namespace FramePFX.Timeline {
                     1d,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
-                    (d, v) => TimelineUtils.ClampUnitZoom(v)));
+                    (d, v) => TimelineUtils.ClampUnit(v)));
 
         public static readonly DependencyProperty MaxDurationProperty =
             DependencyProperty.Register(
@@ -34,6 +34,15 @@ namespace FramePFX.Timeline {
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
+
+        public static readonly DependencyProperty PlayHeadAreaHeightProperty =
+            DependencyProperty.Register(
+                "PlayHeadAreaHeight",
+                typeof(double),
+                typeof(TimelineControl),
+                new FrameworkPropertyMetadata(
+                    40d,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         #endregion
 
@@ -51,6 +60,11 @@ namespace FramePFX.Timeline {
         public long MaxDuration {
             get => (long) this.GetValue(MaxDurationProperty);
             set => this.SetValue(MaxDurationProperty, value);
+        }
+
+        public double PlayHeadAreaHeight {
+            get => (double) this.GetValue(PlayHeadAreaHeightProperty);
+            set => this.SetValue(PlayHeadAreaHeightProperty, value);
         }
 
         public TimelineViewModel ViewModel => this.DataContext as TimelineViewModel;
@@ -119,23 +133,27 @@ namespace FramePFX.Timeline {
             }
 
             if (this.PART_TimestampBoard != null) {
-                this.PART_TimestampBoard.MouseLeftButtonDown += this.PART_TimestampBoard_MouseLeftButtonDown;
+                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => MovePlayheadForEvent(e.GetPosition((IInputElement) s), e, true);
             }
 
             if (this.DataContext is TimelineViewModel timeline) {
                 timeline.PlayHead = this.PART_PlayHead;
             }
+
+            this.MouseLeftButtonDown += (s,e) => MovePlayheadForEvent(e.GetPosition((IInputElement) s), e, false);
         }
 
-        private void PART_TimestampBoard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            double mouseX = e.GetPosition((IInputElement) sender).X;
-            if (mouseX < 0d) {
-                return;
-            }
+        private void MovePlayheadForEvent(Point mouse, MouseButtonEventArgs e, bool enableThumbDragging = true) {
+            if (mouse.X >= 0d) {
+                long frameX = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
+                if (frameX >= 0 && this.GetViewModel(out TimelineViewModel vm) && frameX < vm.MaxDuration) {
+                    vm.PlayHeadFrame = frameX;
+                }
 
-            long frameX = TimelineUtils.PixelToFrame(mouseX, this.UnitZoom);
-            if (frameX >= 0 && this.GetViewModel(out TimelineViewModel vm) && frameX < vm.MaxDuration) {
-                vm.PlayHeadFrame = frameX;
+                e.Handled = true;
+                if (enableThumbDragging) {
+                    this.PART_PlayHead.EnableDragging(mouse);
+                }
             }
         }
 
@@ -149,7 +167,7 @@ namespace FramePFX.Timeline {
 
                 double oldZoom = this.UnitZoom;
                 double zoom = Math.Max(oldZoom + offset, 1);
-                if (TimelineUtils.IsZoomEqual(zoom, oldZoom)) {
+                if (TimelineUtils.IsUnitEqual(zoom, oldZoom)) {
                     return;
                 }
 
@@ -199,6 +217,12 @@ namespace FramePFX.Timeline {
                     this.PART_ScrollViewer.LineLeft();
                 }
             }
+            // else {
+            //     int value = e.Delta / 120;
+            //     if (value != 0) {
+            //         this.PART_PlayHead.PlayHeadFrame = Maths.Clamp(this.PART_PlayHead.PlayHeadFrame + value, 0L, this.MaxDuration - 1);
+            //     }
+            // }
         }
 
         // private void PART_ScrollViewerOnMouseWheel(object sender, MouseWheelEventArgs e) {
@@ -258,7 +282,7 @@ namespace FramePFX.Timeline {
         }
 
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {
-            if (TimelineUtils.IsZoomEqual(oldZoom, newZoom)) {
+            if (TimelineUtils.IsUnitEqual(oldZoom, newZoom)) {
                 return;
             }
 
@@ -277,17 +301,25 @@ namespace FramePFX.Timeline {
             }
         }
 
+        public bool GetLayerControl(object item, out TimelineLayerControl layer) {
+            return (layer = ICGenUtils.GetContainerForItem<LayerViewModel, TimelineLayerControl>(item, this.ItemContainerGenerator, x => x.Control as TimelineLayerControl)) != null;
+        }
+
+        public bool GetLayerViewModel(object item, out LayerViewModel layer) {
+            return ICGenUtils.GetItemForContainer<TimelineLayerControl, LayerViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out layer);
+        }
+
         public IEnumerable<TimelineLayerControl> GetLayerControls() {
             foreach (object item in this.Items) {
-                if (ICGenUtils.GetContainerForItem<LayerViewModel, TimelineLayerControl>(item, this.ItemContainerGenerator, x => x.Control) is TimelineLayerControl layer) {
+                if (this.GetLayerControl(item, out var layer)) {
                     yield return layer;
                 }
             }
         }
 
-        public IEnumerable<LayerViewModel> GetLayerModels() {
+        public IEnumerable<LayerViewModel> GetLayerViewModels() {
             foreach (object item in this.Items) {
-                if (ICGenUtils.GetContainerForItem<TimelineLayerControl, LayerViewModel>(item, this.ItemContainerGenerator, x => x.DataContext as LayerViewModel) is LayerViewModel layer) {
+                if (this.GetLayerViewModel(item, out var layer)) {
                     yield return layer;
                 }
             }
@@ -303,10 +335,21 @@ namespace FramePFX.Timeline {
 
         public IEnumerable<ClipViewModel> GetAllSelectedClipModels() {
             foreach (TimelineLayerControl layer in this.GetLayerControls()) {
-                foreach (ClipViewModel clip in layer.GetSelectedClipModels()) {
+                foreach (ClipViewModel clip in layer.GetSelectedClipViewModels()) {
                     yield return clip;
                 }
             }
+        }
+
+        public IEnumerable<TimelineClipControl> GetClipsInArea(FrameSpan span) {
+            List<TimelineClipControl> list = new List<TimelineClipControl>();
+            foreach (TimelineLayerControl layer in this.GetLayerControls()) {
+                foreach (TimelineClipControl clip in layer.GetClipsInArea(span)) {
+                    list.Add(clip);
+                }
+            }
+
+            return list;
         }
 
         private T GetTemplateElement<T>(string name) where T : DependencyObject {

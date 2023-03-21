@@ -11,48 +11,69 @@
         xmlns:layer="clr-namespace:FramePFX.Timeline.Layer"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainViewModel}"
-        Title="MainWindow" Height="576" Width="1024"
-        Style="{StaticResource CustomWindowStyle}" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}">
+        Title="MainWindow" Width="1408" Height="792"
+        Style="{StaticResource CustomWindowStyle}" 
+        Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"
+        BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}">
     <Grid>
         <Menu VerticalAlignment="Top">
             <MenuItem Header="File"/>
         </Menu>
         <Grid Margin="0,18,0,0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="7*"/>
+                <RowDefinition Height="70*"/>
                 <RowDefinition Height="5"/>
-                <RowDefinition Height="6*"/>
+                <RowDefinition Height="75*"/>
             </Grid.RowDefinitions>
+            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 1"/>
             <Grid>
-                <Viewbox>
-                    <Image Width="1920" Height="1080" x:Name="GLViewport"/>
-                </Viewbox>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="7*"/>
+                </Grid.ColumnDefinitions>
+                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" Grid.Column="1" Margin="0,0,0,-1"/>
+                <Grid Grid.Column="2">
+                    <Border VerticalAlignment="Bottom" Height="36" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 0">
+                        <Grid>
+                            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Content="Play" Padding="5,2"/>
+                        </Grid>
+                    </Border>
+                    <Viewbox Margin="0,0,0,36">
+                        <Image Width="1920" Height="1080" x:Name="GLViewport"/>
+                    </Viewbox>
+                </Grid>
             </Grid>
             <Grid Grid.Row="2">
-                <Border VerticalAlignment="Bottom" Height="45" BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}" BorderThickness="0 1 0 0">
-                    <Grid>
-                        <!-- Buttons bar -->
-                        <Grid Margin="0,0,0,20">
-                            <Button HorizontalAlignment="Left" Width="20" Background="Transparent" Margin="2,2,0,2">
-                                <TextBlock Text="+" Margin="0,-1,0,0"/>
-                            </Button>
-                        </Grid>
-                        <!-- Status bar -->
-                        <Border Height="20" VerticalAlignment="Bottom" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 0" Background="{DynamicResource AREghZyBrush.Primary.2.Background.Static}">
-                            <Grid>
-
-                            </Grid>
-                        </Border>
-                    </Grid>
+                <Border VerticalAlignment="Bottom" Height="20" BorderBrush="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderThickness="0 1 0 0">
+                    <!-- Status bar -->
+                    <Border Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" Margin="0,-1,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="WPF FPS:"/>
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="FPS_WPF" Margin="5 0 0 0" MinWidth="40"/>
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="OpenGL FPS:" Margin="5 0 0 0"/>
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="FPS_OGL" Margin="5 0 0 0"  MinWidth="40"/>
+                        </StackPanel>
+                    </Border>
                 </Border>
-                <Border Margin="0,0,0,45" Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}">
+                <Border Margin="0,0,0,20">
                     <Grid DataContext="{Binding Timeline}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="5*"/>
                             <ColumnDefinition Width="5"/>
                             <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
-                        <ItemsControl ItemsSource="{Binding Layers, Mode=OneTime}" Grid.Column="0" BorderThickness="0 0 0 0" Background="Transparent" BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2">
+                        <Border x:Name="PART_TimestampBoard" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}">
+                            <Grid>
+                                <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0"/>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" Grid.Row="1"/>
+                        <ItemsControl ItemsSource="{Binding Layers, Mode=OneTime}" Grid.Column="0" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" Grid.Row="1">
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ContentPresenter">
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged, FallbackValue=60}"/>
@@ -62,25 +83,26 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
-                                        <Thumb DragDelta="ThumbTop" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
-                                        <Rectangle Margin="0 4 0 0" Width="18" Fill="Orange" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
-                                        <Grid Margin="23,4,0,4">
+                                        <Rectangle Margin="0" Width="18" Fill="Orange" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
+                                        <Grid Margin="23,4,6,4">
                                             <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
                                             <Grid Margin="0,20,0,0">
                                                 <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                                <Slider Margin="51,0,0,0" />
+                                                <Slider Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" TickPlacement="BottomRight" SmallChange="0.1" TickFrequency="0.1"/>
                                             </Grid>
                                         </Grid>
+                                        <Thumb DragDelta="ThumbTop" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                         <Thumb DragDelta="ThumbBottom" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <timeline:TimelineControl DataContext="{Binding .}" 
+                        <Border BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
+                        <timeline:TimelineControl x:Name="TheTimeline" DataContext="{Binding .}" 
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0 0 0 0"
                                                   BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}"
-                                                  MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}">
+                                                  MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2">
                             <timeline:TimelineControl.Style>
                                 <Style TargetType="{x:Type timeline:TimelineControl}">
                                     <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"/>
@@ -98,17 +120,19 @@
                                                                   Padding="{TemplateBinding Padding}" 
                                                                   HorizontalScrollBarVisibility="Visible">
                                                         <Grid HorizontalAlignment="Left" RequestBringIntoView="FrameworkElement_OnRequestBringIntoView">
-                                                            <Border Margin="0,17,0,0" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="40"/>
+                                                                <RowDefinition Height="*"/>
+                                                            </Grid.RowDefinitions>
+                                                            <Border Margin="0" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.Row="1">
                                                                 <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                                             </Border>
-                                                            <Border x:Name="PART_TimestampBoard" Margin="0" Height="17" VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}">
-
-                                                            </Border>
+                                                            <Border x:Name="PART_TimestampBoard" Margin="0" VerticalAlignment="Stretch" BorderThickness="0 0 0 1" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.1.Border.Static}"/>
                                                             <timeline:TimelinePlayheadControl x:Name="PART_PlayHead"
                                                                                               VerticalAlignment="Stretch"
                                                                                               VerticalContentAlignment="Stretch"
                                                                                               HorizontalAlignment="Left"
-                                                                                              FrameBegin="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" Width="1"/>
+                                                                                              FrameBegin="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" Width="1" Background="{DynamicResource AREghZyBrush.Primary.4.Border.Static}" Grid.RowSpan="2"/>
                                                         </Grid>
                                                     </ScrollViewer>
                                                 </Grid>
@@ -187,11 +211,10 @@
                                 </Style>
                             </timeline:TimelineControl.ItemContainerStyle>
                         </timeline:TimelineControl>
-                        <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="Transparent"/>
+                        <GridSplitter Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0"/>
                     </Grid>
                 </Border>
             </Grid>
-            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource AREghZyBrush.Deep.2.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}" BorderThickness="0 1"/>
         </Grid>
     </Grid>
 </Window>

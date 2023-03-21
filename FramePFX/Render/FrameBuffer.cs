@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Render {
-    public class Framebuffer : IDisposable {
+    public class FrameBuffer : IDisposable {
         private bool isDisposed;
 
         public readonly int width;
@@ -20,14 +20,14 @@ namespace FramePFX.Render {
 
         public bool IsDisposed => this.isDisposed;
 
-        public Framebuffer(int w, int h, int fb_id, int txt_id) {
+        public FrameBuffer(int w, int h, int fb_id, int txt_id) {
             this.width = w;
             this.height = h;
             this.fbId = fb_id;
             this.txId = txt_id;
         }
 
-        public static Framebuffer Create(int width, int height) {
+        public static FrameBuffer Create(int width, int height) {
             int framebufferId = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
 
@@ -46,7 +46,7 @@ namespace FramePFX.Render {
                 throw new Exception($"Failed to create frame buffer ({width} x {height}): " + status);
             }
 
-            return new Framebuffer(width, height, framebufferId, textureId);
+            return new FrameBuffer(width, height, framebufferId, textureId);
         }
 
         public void Use() {
@@ -58,7 +58,6 @@ namespace FramePFX.Render {
         }
 
         public void Dispose() {
-            this.Unuse();
             GL.DeleteTexture(this.txId);
             GL.DeleteFramebuffer(this.fbId);
             this.isDisposed = true;

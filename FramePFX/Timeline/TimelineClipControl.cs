@@ -19,7 +19,7 @@ namespace FramePFX.Timeline {
                     1d,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineClipControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
-                    (d, v) => TimelineUtils.ClampUnitZoom(v)));
+                    (d, v) => TimelineUtils.ClampUnit(v)));
 
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
@@ -85,6 +85,14 @@ namespace FramePFX.Timeline {
         }
 
         /// <summary>
+        /// The zero-based frame index where this element begins (relative to the parent timeline layer)
+        /// </summary>
+        public long FrameBegin {
+            get => (long) this.GetValue(FrameBeginProperty);
+            set => this.SetValue(FrameBeginProperty, value);
+        }
+
+        /// <summary>
         /// This element's duration, in frames
         /// </summary>
         public long FrameDuration {
@@ -92,12 +100,24 @@ namespace FramePFX.Timeline {
             set => this.SetValue(FrameDurationProperty, value);
         }
 
-        /// <summary>
-        /// The zero-based frame index where this element begins (relative to the parent timeline layer)
-        /// </summary>
-        public long FrameBegin {
-            get => (long) this.GetValue(FrameBeginProperty);
-            set => this.SetValue(FrameBeginProperty, value);
+        public long FrameEndIndex {
+            get => this.FrameBegin + this.FrameDuration;
+            set {
+                long duration = value - this.FrameBegin;
+                if (duration < 0) {
+                    throw new ArgumentException($"FrameEndIndex cannot be below FrameBegin ({value} < {this.FrameBegin})");
+                }
+
+                this.FrameDuration = duration;
+            }
+        }
+
+        public FrameSpan Span {
+            get => new FrameSpan(this.FrameBegin, this.FrameDuration);
+            set {
+                this.FrameBegin = value.Begin;
+                this.FrameDuration = value.Duration;
+            }
         }
 
         [Category("Appearance")]
@@ -142,6 +162,8 @@ namespace FramePFX.Timeline {
 
         public TimelineControl Timeline => this.TimelineLayer.Timeline;
 
+        public ClipViewModel ViewModel => this.DataContext as ClipViewModel;
+
         public bool IsMovingControl { get; set; }
 
         private bool isUpdatingUnitZoom;
@@ -169,7 +191,7 @@ namespace FramePFX.Timeline {
         }
 
         public bool GetViewModel(out ClipViewModel clip) {
-            return (clip = this.DataContext as ClipViewModel) != null;
+            return (clip = this.ViewModel) != null;
         }
 
         public override void OnApplyTemplate() {
@@ -253,7 +275,11 @@ namespace FramePFX.Timeline {
                         if (Math.Abs(difference) >= 1.0d) {
                             long offset = (long) (difference / this.UnitZoom);
                             if (offset != 0) {
-                                if ((this.FrameBegin + offset) >= 0) {
+                                if ((this.FrameBegin + offset) < 0) {
+                                    offset = -this.FrameBegin;
+                                }
+
+                                if (offset != 0) {
                                     this.Timeline.DragData.OnMouseMove(offset);
                                 }
                             }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace FramePFX.Timeline {
@@ -27,7 +28,7 @@ namespace FramePFX.Timeline {
             }
         }
 
-        public static TResult GetContainerForItem<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter) where TResult : class {
+        public static TResult GetContainerForItem<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter) where TResult : DependencyObject {
             if (input is TResult a) {
                 return a;
             }
@@ -40,6 +41,26 @@ namespace FramePFX.Timeline {
             else {
                 return null;
             }
+        }
+
+        public static bool GetItemForContainer<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter, out TResult result) where TSource : DependencyObject {
+            if (input is TResult a) {
+                result = a;
+                return true;
+            }
+            else if (input is TSource src) {
+                if (converter(src) is TResult b) {
+                    result = b;
+                    return true;
+                }
+                else if (generator.ItemFromContainer(src) is TResult c) {
+                    result = c;
+                    return true;
+                }
+            }
+
+            result = default;
+            return false;
         }
     }
 }

@@ -1,19 +1,30 @@
 using FramePFX.Render;
-using FramePFX.Timeline.Layer.Clips.Resizable;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Timeline.Layer.Clips.Resizable {
     public class SquareClipViewModel : ResizableVideoClipViewModel {
-        public SquareClipViewModel(LayerViewModel layer) : base(layer) {
-            this.PosX = 10f;
-            this.PosY = 10f;
-            this.Width = 250f;
-            this.PosX = 100f;
+        private float r;
+        private float g;
+        private float b;
+        private float a;
+
+        public float Red { get => this.r; set => this.RaisePropertyChanged(ref this.r, value); }
+
+        public float Green { get => this.g; set => this.RaisePropertyChanged(ref this.g, value); }
+
+        public float Blue { get => this.b; set => this.RaisePropertyChanged(ref this.b, value); }
+
+        public float Alpha { get => this.a; set => this.RaisePropertyChanged(ref this.a, value); }
+
+        public SquareClipViewModel(LayerViewModel layer) {
+            this.Layer = layer;
+            this.Red = this.Green = this.Blue = 1f;
+            this.Alpha = 1f;
         }
 
-        public override void RenderCore(OGLContext context) {
+        public override void RenderCore(OGLViewPortContext context, long frame) {
             GL.Begin(PrimitiveType.Quads);
-            GL.Color3(0.1f, 0.1f, 0.4f);
+            GL.Color4(this.r, this.g, this.b, this.a * this.Layer.Opacity);
             GL.Vertex3(0, 0, 0);
             GL.Vertex3(1, 0, 0);
             GL.Vertex3(1, 1, 0);

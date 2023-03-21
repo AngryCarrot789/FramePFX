@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using FramePFX.Core;
@@ -10,6 +13,7 @@ using FramePFX.Render;
 using FramePFX.Timeline;
 using FramePFX.Timeline.Layer;
 using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX {
@@ -21,81 +25,92 @@ namespace FramePFX {
 
         public MainWindow() {
             this.InitializeComponent();
-            IoC.Instance.Register<OGLContext>(this.ogl = new OGLContextImpl(this, this.GLViewport) {
-                Width = 1920,
-                Height = 1080
-            });
+            this.ogl = new OGLContextImpl(this, this.GLViewport, 1920, 1080);
+            IoC.Instance.Register<OGLViewPortContext>(this.ogl);
             this.DataContext = new MainViewModel();
-
-            this.Closed += OnClosed;
+            this.Closed += this.OnClosed;
         }
 
         private void OnClosed(object sender, EventArgs e) {
             this.ogl.Stop();
         }
 
-        public class OGLContextImpl : OGLContext, IRenderHandler {
+        public class OGLContextImpl : OGLViewPortContext, IRenderHandler {
             private readonly MainWindow window;
             private readonly Image image;
             private readonly object locker = new object();
             private int width;
             private int height;
-            private volatile bool isUpdating;
-            private volatile bool isReady;
+            private volatile bool isUpdatingViewPort;
+            private volatile bool isReadyToRender;
             private volatile WriteableBitmap bitmap;
-            private TKRenderThread openTk;
+            private volatile IntPtr backBuffer;
+            private OpenTKRenderThread openTk;
 
-            public long lastTickTime;
+            public long last_tick_time;
             public long interval_ticks;
-            public DispatcherTimer timer;
+            public readonly DispatcherTimer timer;
+            public volatile bool hasFreshFrame;
 
-            public int Width {
+            public WriteableBitmap CurrentFrame => this.bitmap;
+            public IntPtr CurrentFramePtr => this.backBuffer;
+
+            public readonly NumberAverager wpf_averager = new NumberAverager(10);
+
+            public bool HasFreshFrame {
+                get => this.hasFreshFrame;
+                set => this.hasFreshFrame = value;
+            }
+
+            public int ViewportWidth {
                 get => this.width;
-                set => this.UpdateSize(value, this.height);
+                set => this.UpdateViewport(value, this.height);
             }
 
-            public int Height {
+            public int ViewportHeight {
                 get => this.height;
-                set => this.UpdateSize(this.width, value);
+                set => this.UpdateViewport(this.width, value);
             }
 
-            public bool IsReady {
-                get => this.isReady;
+            public bool IsOGLReady {
+                get => this.isReadyToRender;
             }
 
-            public OGLContextImpl(MainWindow window, Image image) {
+            public OGLContextImpl(MainWindow window, Image image, int w, int h) {
+                this.width = w;
+                this.height = h;
                 this.window = window;
                 this.image = image;
-                this.openTk = new TKRenderThread();
-                this.openTk.RenderHandler = this;
-                this.timer = new DispatcherTimer(DispatcherPriority.Render);
-                this.timer.Interval = TimeSpan.FromMilliseconds(1);
+                this.openTk = new OpenTKRenderThread {
+                    Width = w, Height = h,
+                    RenderHandler = this
+                };
+                this.timer = new DispatcherTimer(DispatcherPriority.Render) {
+                    Interval = TimeSpan.FromMilliseconds(1)
+                };
                 this.timer.Tick += this.Timer_Tick;
                 this.timer.Start();
-
                 image.Loaded += this.ImageOnLoaded;
+                this.UpdateViewport(w, h);
             }
 
             private void Timer_Tick(object sender, EventArgs e) {
-                if (this.isReady && this.openTk.IsGLEnabled) {
+                if (this.isReadyToRender && this.openTk.IsGLEnabled) {
                     long time = DateTime.Now.Ticks;
-                    long diff = time - this.lastTickTime;
+                    long diff = time - this.last_tick_time;
                     this.interval_ticks = diff;
-                    this.lastTickTime = time;
-                    this.Render_WPF();
+                    this.last_tick_time = time;
+                    this.UpdateImageForRenderedBitmap();
                 }
             }
 
-            public void Render_WPF() {
-                // if (TKRenderThread.Instance.BitmapLock.TryLock(out CASLockType bitmapLockType)) {
-                this.bitmap.Lock();
-                int w = this.bitmap.PixelWidth;
-                int h = this.bitmap.PixelHeight;
-                if (this.openTk.DrawViewportIntoBitmap(this.bitmap.BackBuffer, w, h))
-                    this.bitmap.AddDirtyRect(new Int32Rect(0, 0, w, h));
-                this.bitmap.Unlock();
-                // TKRenderThread.Instance.BitmapLock.Unlock(bitmapLockType);
-                // }
+            public void UpdateImageForRenderedBitmap() {
+                if (this.hasFreshFrame) {
+                    this.bitmap.Lock();
+                    this.bitmap.AddDirtyRect(new Int32Rect(0, 0, this.width, this.height));
+                    this.bitmap.Unlock();
+                    this.hasFreshFrame = false;
+                }
             }
 
             private void ImageOnLoaded(object sender, RoutedEventArgs e) {
@@ -103,26 +118,43 @@ namespace FramePFX {
                 this.openTk.Width = this.width;
                 this.openTk.Height = this.height;
                 this.openTk.Start();
+
+                Task.Run(async () => {
+                    while (true) {
+                        this.wpf_averager.PushValue(this.interval_ticks);
+                        if (this.wpf_averager.NextIndex % this.wpf_averager.Count == 0) {
+                            await this.window.Dispatcher.InvokeAsync(() => {
+                                double wpfItv = this.wpf_averager.GetAverage() / TimeSpan.TicksPerMillisecond;
+                                double oglItv = 1d / this.openTk.AverageDelta;
+
+                                this.window.FPS_WPF.Text = Math.Round(IntervalToFPS(wpfItv), 2).ToString();
+                                this.window.FPS_OGL.Text = Math.Round(oglItv, 2).ToString();
+                            });
+                        }
+
+                        await Task.Delay(10);
+                    }
+                });
             }
 
-            public void UpdateSize(int w, int h) {
-                w = Math.Max(w, 1);
-                h = Math.Max(h, 1);
+            public static double IntervalToFPS(double itv_ms) {
+                return 1000d / itv_ms;
+            }
 
-                if (this.width == w && this.height == h) {
-                    return;
-                }
-
-                // this.openTk.Pause();
+            public void UpdateViewport(int w, int h) {
                 lock (this.locker) {
-                    this.width = w;
-                    this.height = h;
-                    if (this.isUpdating) {
+                    if ((w = Math.Max(w, 1)) == this.width && (h = Math.Max(h, 1)) == this.height) {
                         return;
                     }
 
-                    this.isUpdating = true;
-                    this.isReady = false;
+                    this.width = w;
+                    this.height = h;
+                    if (this.isUpdatingViewPort) {
+                        return;
+                    }
+
+                    this.isReadyToRender = false;
+                    this.isUpdatingViewPort = true;
                     this.image.Dispatcher.Invoke(() => {
                         lock (this.locker) {
                             this.RecreateBitmap();
@@ -135,26 +167,32 @@ namespace FramePFX {
             private void RecreateBitmap() {
                 this.bitmap = new WriteableBitmap(this.width, this.height, 96, 96, PixelFormats.Rgb24, null);
                 this.image.Source = this.bitmap;
+                this.backBuffer = this.bitmap.BackBuffer;
                 this.openTk.UpdateViewportSie(this.width, this.height);
-
-                this.isUpdating = false;
-                this.isReady = true;
+                this.isUpdatingViewPort = false;
+                this.isReadyToRender = true;
             }
 
             public void Setup() {
 
             }
 
-            public void Render() {
-                if (TimelineViewModel.Instance != null && TimelineViewModel.Instance.IsRenderDirty) {
+            public void RenderGLThread() {
+                if (TimelineViewModel.Instance != null && TimelineViewModel.Instance.IsRenderDirty && !this.hasFreshFrame) {
+                    OGLViewPortContext ogl = IoC.Instance.Provide<OGLViewPortContext>();
                     GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-                    foreach (ClipViewModel clip in TimelineViewModel.Instance.GetClipsIntersectingFrame(TimelineViewModel.Instance.PlayHeadFrame)) {
+                    long playHead = TimelineViewModel.Instance.PlayHeadFrame;
+                    foreach (ClipViewModel clip in TimelineViewModel.Instance.GetClipsIntersectingFrame(playHead)) {
                         if (clip is VideoClipViewModel videoClip) {
-                            videoClip.Render();
+                            videoClip.Render(ogl, playHead);
                         }
                     }
 
+                    // this.bitmap = new WriteableBitmap(this.width, this.height, 96, 96, PixelFormats.Rgb24, null);
+                    this.openTk.DrawViewportIntoBitmap(this.backBuffer, this.width, this.height);
+                    // this.bitmap.Freeze();
                     TimelineViewModel.Instance.IsRenderDirty = false;
+                    this.hasFreshFrame = true;
                 }
             }
 
@@ -164,9 +202,8 @@ namespace FramePFX {
 
             public void Stop() {
                 lock (this.locker) {
-                    this.isReady = false;
-                    this.openTk.Stop();
-                    this.openTk.Dispose();
+                    this.isReadyToRender = false;
+                    this.openTk.StopAndDispose();
                 }
             }
         }

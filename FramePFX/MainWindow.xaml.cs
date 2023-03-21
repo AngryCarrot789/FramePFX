@@ -33,6 +33,10 @@ namespace FramePFX {
 
         private void OnClosed(object sender, EventArgs e) {
             this.ogl.Stop();
+
+            if (this.DataContext is MainViewModel mvm) {
+                mvm.isPlaybackThreadRunning = false;
+            }
         }
 
         public class OGLContextImpl : OGLViewPortContext, IRenderHandler {

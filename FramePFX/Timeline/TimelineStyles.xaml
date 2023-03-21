@@ -86,7 +86,7 @@
                                     <TextBlock Text="Clip Name Here" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1"/>
                                 </Grid>
                             </Border>
-                            <Grid Margin="2,20,2,0" Background="{TemplateBinding Background}">
+                            <Grid Margin="1,20,1,0" Background="{TemplateBinding Background}">
                                 <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                             </Grid>
                         </Grid>

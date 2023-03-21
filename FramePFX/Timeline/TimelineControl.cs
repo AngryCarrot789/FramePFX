@@ -133,26 +133,26 @@ namespace FramePFX.Timeline {
             }
 
             if (this.PART_TimestampBoard != null) {
-                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => MovePlayheadForEvent(e.GetPosition((IInputElement) s), e, true);
+                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForEvent(e.GetPosition((IInputElement) s).X, e, true);
             }
 
             if (this.DataContext is TimelineViewModel timeline) {
                 timeline.PlayHead = this.PART_PlayHead;
             }
 
-            this.MouseLeftButtonDown += (s,e) => MovePlayheadForEvent(e.GetPosition((IInputElement) s), e, false);
+            this.MouseLeftButtonDown += (s,e) => this.MovePlayheadForEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
         }
 
-        private void MovePlayheadForEvent(Point mouse, MouseButtonEventArgs e, bool enableThumbDragging = true) {
-            if (mouse.X >= 0d) {
-                long frameX = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
+        private void MovePlayheadForEvent(double x, MouseButtonEventArgs e, bool enableThumbDragging = true) {
+            if (x >= 0d) {
+                long frameX = TimelineUtils.PixelToFrame(x, this.UnitZoom);
                 if (frameX >= 0 && this.GetViewModel(out TimelineViewModel vm) && frameX < vm.MaxDuration) {
                     vm.PlayHeadFrame = frameX;
                 }
 
                 e.Handled = true;
                 if (enableThumbDragging) {
-                    this.PART_PlayHead.EnableDragging(mouse);
+                    this.PART_PlayHead.EnableDragging(new Point(x, 0));
                 }
             }
         }
@@ -193,7 +193,7 @@ namespace FramePFX.Timeline {
                     // double currOffset = scroller.HorizontalOffset; //  6,000
                     double oldFrameScrolled = scroller.HorizontalOffset / oldZoom;
                     double newFrameScrolled = oldFrameScrolled * zoom;
-                    newFrameScrolled = (offset < 0 ? (newFrameScrolled - (frameWidth / 2d)) : (newFrameScrolled + offsetFrameX));
+                    newFrameScrolled = offset < 0 ? (newFrameScrolled - (frameWidth / 2d)) : (newFrameScrolled + offsetFrameX);
 
                     if (double.IsNaN(newFrameScrolled)) {
                         newFrameScrolled = 0d;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -101,7 +100,7 @@ namespace FramePFX.Timeline {
         }
 
         private void PART_ThumbOnDragDelta(object sender, DragDeltaEventArgs e) {
-            if (this.isDraggingThumb) {
+            if (this.isDraggingThumb || this.Timeline == null) {
                 return;
             }
 
@@ -120,6 +119,7 @@ namespace FramePFX.Timeline {
                 long closestFrame = begin;
                 List<TimelineClipControl> clips = this.Timeline.GetClipsInArea(new FrameSpan(begin - 10, 20)).ToList();
                 foreach (TimelineClipControl clip in clips) {
+                    // this code is still broken and doesn't latch to the nearest when the clips list is 
                     FrameSpan span = clip.Span;
                     long a = Math.Abs(begin - span.Begin);
                     long b = Math.Abs(begin - span.EndIndex);
@@ -194,18 +194,18 @@ namespace FramePFX.Timeline {
         }
 
         public void EnableDragging(Point point) {
-            this.PART_ThumbHead.Focus();
-            this.PART_ThumbHead.CaptureMouse();
+            this.PART_ThumbBody.Focus();
+            this.PART_ThumbBody.CaptureMouse();
             FieldInfo key = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
-            this.PART_ThumbHead.SetValue((DependencyPropertyKey) key.GetValue(null), true);
+            this.PART_ThumbBody.SetValue((DependencyPropertyKey) key.GetValue(null), true);
             bool flag = true;
             try {
-                this.PART_ThumbHead.RaiseEvent(new DragStartedEventArgs(point.X, point.Y));
+                this.PART_ThumbBody.RaiseEvent(new DragStartedEventArgs(point.X, point.Y));
                 flag = false;
             }
             finally {
                 if (flag) {
-                    this.PART_ThumbHead.CancelDrag();
+                    this.PART_ThumbBody.CancelDrag();
                 }
             }
         }

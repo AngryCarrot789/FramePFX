@@ -29,6 +29,10 @@ namespace FramePFX.Timeline {
                     return;
                 }
 
+                if (value >= this.MaxDuration) {
+                    value = this.MaxDuration - 1;
+                }
+
                 this.RaisePropertyChanged(ref this.playHeadFrame, value);
                 this.OnPlayHeadMoved(oldValue, value);
             }

@@ -2,7 +2,7 @@ namespace FramePFX.Render {
     public interface IRenderHandler {
         void Setup();
 
-        void Render();
+        void RenderGLThread();
 
         void Tick(double interval);
     }

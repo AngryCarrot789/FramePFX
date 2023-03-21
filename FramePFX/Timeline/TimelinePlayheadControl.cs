@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using FramePFX.Utils;
+using Keyboard = System.Windows.Input.Keyboard;
 
 namespace FramePFX.Timeline {
     public class TimelinePlayheadControl : Control, INativePlayHead {
@@ -33,7 +40,7 @@ namespace FramePFX.Timeline {
 
         public long PlayHeadFrame {
             get => this.FrameBegin;
-            set => this.FrameBegin = value;
+            set => this.FrameBegin = Maths.Clamp(value, 0, this.Timeline.MaxDuration - 1);
         }
 
         public TimelineControl Timeline {
@@ -69,13 +76,27 @@ namespace FramePFX.Timeline {
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            this.PART_ThumbHead = GetTemplateElement<Thumb>("PART_ThumbHead");
-            this.PART_ThumbBody = GetTemplateElement<Thumb>("PART_ThumbBody");
+            this.PART_ThumbHead = this.GetTemplateElement<Thumb>("PART_ThumbHead");
+            this.PART_ThumbBody = this.GetTemplateElement<Thumb>("PART_ThumbBody");
             if (this.PART_ThumbHead != null) {
-                this.PART_ThumbHead.DragDelta += PART_ThumbOnDragDelta;
+                this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
             }
             if (this.PART_ThumbBody != null) {
-                this.PART_ThumbBody.DragDelta += PART_ThumbOnDragDelta;
+                this.PART_ThumbBody.DragDelta += this.PART_ThumbOnDragDelta;
+            }
+        }
+
+        public static long GetClosestEdge(FrameSpan span, long frame, out bool isEndIndex) {
+            long endIndex = span.EndIndex;
+            long beginDifferenceA = Math.Abs(span.Begin - frame);
+            long endDifferenceB = Math.Abs(endIndex - frame);
+            if (beginDifferenceA <= endDifferenceB) {
+                isEndIndex = false;
+                return span.Begin;
+            }
+            else {
+                isEndIndex = true;
+                return endIndex;
             }
         }
 
@@ -89,17 +110,73 @@ namespace FramePFX.Timeline {
                 return;
             }
 
-            long duration = this.FrameBegin + change;
-            if (duration < 0) {
+            long begin = this.FrameBegin + change;
+            if (begin < 0 || begin >= this.Timeline.MaxDuration) {
                 return;
             }
 
-            try {
-                this.isDraggingThumb = true;
-                this.FrameBegin = duration;
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
+                TimelineClipControl closestClip = null;
+                long closestFrame = begin;
+                List<TimelineClipControl> clips = this.Timeline.GetClipsInArea(new FrameSpan(begin - 10, 20)).ToList();
+                foreach (TimelineClipControl clip in clips) {
+                    FrameSpan span = clip.Span;
+                    long a = Math.Abs(begin - span.Begin);
+                    long b = Math.Abs(begin - span.EndIndex);
+
+                    if (a <= closestFrame || b < closestFrame) {
+                        if (a <= b) {
+                            closestClip = clip;
+                            closestFrame = span.Begin;
+                        }
+                        else {
+                            closestClip = clip;
+                            closestFrame = span.EndIndex;
+                        }
+                    }
+
+                    // if (a < closestFrame) {
+                    //     closestClip = clip;
+                    //     closestFrame = span.Begin;
+                    // }
+                    // if (b < closestFrame) {
+                    //     closestClip = clip;
+                    //     closestFrame = span.EndIndex;
+                    // }
+                }
+
+                if (closestClip != null) {
+                    if (closestFrame == begin) {
+                        e.Handled = true;
+                    }
+                    else {
+                        try {
+                            this.isDraggingThumb = true;
+                            this.FrameBegin = closestFrame;
+                        }
+                        finally {
+                            this.isDraggingThumb = false;
+                        }
+                    }
+                }
+                else {
+                    try {
+                        this.isDraggingThumb = true;
+                        this.FrameBegin = begin;
+                    }
+                    finally {
+                        this.isDraggingThumb = false;
+                    }
+                }
             }
-            finally {
-                this.isDraggingThumb = false;
+            else {
+                try {
+                    this.isDraggingThumb = true;
+                    this.FrameBegin = begin;
+                }
+                finally {
+                    this.isDraggingThumb = false;
+                }
             }
         }
 
@@ -114,6 +191,23 @@ namespace FramePFX.Timeline {
 
         public void UpdatePosition() {
             this.RealPixelX = this.FrameBegin * (this.Timeline?.UnitZoom ?? 1d);
+        }
+
+        public void EnableDragging(Point point) {
+            this.PART_ThumbHead.Focus();
+            this.PART_ThumbHead.CaptureMouse();
+            FieldInfo key = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
+            this.PART_ThumbHead.SetValue((DependencyPropertyKey) key.GetValue(null), true);
+            bool flag = true;
+            try {
+                this.PART_ThumbHead.RaiseEvent(new DragStartedEventArgs(point.X, point.Y));
+                flag = false;
+            }
+            finally {
+                if (flag) {
+                    this.PART_ThumbHead.CancelDrag();
+                }
+            }
         }
     }
 }

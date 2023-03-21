@@ -1,17 +1,12 @@
-﻿using System.Drawing.Design;
-using OpenTK.Graphics.OpenGL;
+﻿using FramePFX.Render;
 
 namespace FramePFX.Timeline.Layer.Clips {
     public class VideoClipViewModel : ClipViewModel {
-        public VideoClipViewModel(LayerViewModel layer) : base(layer) {
+        public VideoClipViewModel() {
 
         }
 
-        public void RenderCore() {
-            this.Render();
-        }
-
-        public virtual void Render() {
+        public virtual void Render(OGLViewPortContext ogl, long frame) {
 
         }
     }

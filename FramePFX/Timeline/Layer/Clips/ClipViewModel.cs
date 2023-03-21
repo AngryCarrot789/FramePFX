@@ -3,7 +3,7 @@ using FramePFX.Core;
 
 namespace FramePFX.Timeline.Layer.Clips {
     public class ClipViewModel : BaseViewModel {
-        public LayerViewModel Layer { get; }
+        public LayerViewModel Layer { get; set; }
 
         private long frameBegin;
         public long FrameBegin {
@@ -35,10 +35,10 @@ namespace FramePFX.Timeline.Layer.Clips {
             set => this.RaisePropertyChanged(ref this.name, value);
         }
 
-        public TimelineClipControl Control { get; set; }
+        public INativeClip Control { get; set; }
 
-        public ClipViewModel(LayerViewModel layer) {
-            this.Layer = layer;
+        public ClipViewModel() {
+
         }
 
         public bool IntersectsFrameAt(long frame) {
@@ -48,7 +48,9 @@ namespace FramePFX.Timeline.Layer.Clips {
         }
 
         private void MarkForRender() {
-            this.Layer.Timeline.IsRenderDirty = true;
+            if (this.Layer != null) {
+                this.Layer.Timeline.IsRenderDirty = true;
+            }
         }
     }
 }

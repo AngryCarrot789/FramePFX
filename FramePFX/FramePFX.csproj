@@ -71,13 +71,15 @@
     <Compile Include="AttachedProperties\TextBoxAutoSelect.cs" />
     <Compile Include="AttachedProperties\TextHinting.cs" />
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
+    <Compile Include="Controls\ViewportControl.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="MainViewModel.cs" />
-    <Compile Include="Render\Framebuffer.cs" />
+    <Compile Include="Render\FrameBuffer.cs" />
     <Compile Include="Render\IRenderHandler.cs" />
     <Compile Include="Render\OGLContext.cs" />
-    <Compile Include="Render\TKRenderThread.cs" />
+    <Compile Include="Render\OGLViewPortContext.cs" />
+    <Compile Include="Render\OpenTKRenderThread.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Themes\Controls.xaml.cs">
       <DependentUpon>Controls.xaml</DependentUpon>
@@ -85,13 +87,16 @@
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
     <Compile Include="Timeline\ClipDragData.cs" />
+    <Compile Include="Timeline\FrameSpan.cs" />
     <Compile Include="Timeline\ICGenUtils.cs" />
     <Compile Include="Timeline\INativePlayHead.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\INativeClip.cs" />
-    <Compile Include="Timeline\Layer\Clips\SquareClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\Resizable\ResizableVideoClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\Resizable\SquareClipViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\Vec2d.cs" />
     <Compile Include="Timeline\Layer\Clips\VideoClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\INativeLayer.cs" />
     <Compile Include="Timeline\Layer\LayerViewModel.cs" />
     <Compile Include="Timeline\Layer\TimelineLayerControl.cs" />
     <Compile Include="Timeline\Layer\VideoLayerViewModel.cs" />
@@ -108,6 +113,7 @@
     <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Utils\Maths.cs" />
     <Compile Include="Utils\NumberAverager.cs" />
+    <Compile Include="Utils\UsageCounter.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
     <Compile Include="Utils\Time.cs" />
     <Compile Include="Views\BaseDialog.cs" />

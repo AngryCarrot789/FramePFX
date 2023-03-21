@@ -2,7 +2,10 @@ using System;
 using System.Windows.Media.Imaging;
 
 namespace FramePFX.Render {
-    public interface OGLContext {
+    /// <summary>
+    /// A context for a specific OpenGL viewport, e.g. main view port, clip renderers, etc
+    /// </summary>
+    public interface OGLViewPortContext {
         /// <summary>
         /// The actual width of the view port
         /// </summary>

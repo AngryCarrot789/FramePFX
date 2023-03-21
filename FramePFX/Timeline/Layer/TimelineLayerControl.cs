@@ -7,7 +7,7 @@ using System.Windows.Input;
 using FramePFX.Timeline.Layer.Clips;
 
 namespace FramePFX.Timeline.Layer {
-    public class TimelineLayerControl : MultiSelector {
+    public class TimelineLayerControl : MultiSelector, INativeLayer {
         public static readonly DependencyProperty UnitZoomProperty =
             TimelineControl.UnitZoomProperty.AddOwner(
                 typeof(TimelineLayerControl),
@@ -15,7 +15,7 @@ namespace FramePFX.Timeline.Layer {
                     1d,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineLayerControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
-                    (d, v) => TimelineUtils.ClampUnitZoom(v)));
+                    (d, v) => TimelineUtils.ClampUnit(v)));
 
         public static readonly DependencyProperty LayerTypeProperty =
             DependencyProperty.Register(
@@ -76,6 +76,8 @@ namespace FramePFX.Timeline.Layer {
         private bool isUpdatingLayerType;
         private TimelineControl timeline;
 
+        public LayerViewModel ViewModel => this.DataContext as LayerViewModel;
+
         public TimelineLayerControl() {
             this.LayerType = "Any";
             this.CanSelectMultipleItems = true;
@@ -86,24 +88,61 @@ namespace FramePFX.Timeline.Layer {
             };
         }
 
-        public IEnumerable<TimelineClipControl> GetSelectedClipControls() {
-            foreach (object item in this.SelectedItems) {
-                if (ICGenUtils.GetContainerForItem<ClipViewModel, TimelineClipControl>(item, this.ItemContainerGenerator, x => x.Control) is TimelineClipControl clip) {
+        public bool GetClipControl(object item, out TimelineClipControl clip) {
+            return (clip = ICGenUtils.GetContainerForItem<ClipViewModel, TimelineClipControl>(item, this.ItemContainerGenerator, x => x.Control as TimelineClipControl)) != null;
+        }
+
+        public bool GetClipViewModel(object item, out ClipViewModel clip) {
+            return ICGenUtils.GetItemForContainer<TimelineClipControl, ClipViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out clip);
+        }
+
+        public IEnumerable<TimelineClipControl> GetClipControls() {
+            foreach (object item in this.Items) {
+                if (this.GetClipControl(item, out TimelineClipControl clip)) {
                     yield return clip;
                 }
             }
         }
 
-        public IEnumerable<ClipViewModel> GetSelectedClipModels() {
-            foreach (object item in this.SelectedItems) {
-                if (ICGenUtils.GetContainerForItem<TimelineClipControl, ClipViewModel>(item, this.ItemContainerGenerator, x => x.DataContext as ClipViewModel) is ClipViewModel clip) {
+        public IEnumerable<ClipViewModel> GetClipViewModels() {
+            foreach (object item in this.Items) {
+                if (this.GetClipViewModel(item, out ClipViewModel clip)) {
                     yield return clip;
                 }
             }
+        }
+
+        public IEnumerable<TimelineClipControl> GetSelectedClipControls() {
+            foreach (object item in this.SelectedItems) {
+                if (this.GetClipControl(item, out TimelineClipControl clip)) {
+                    yield return clip;
+                }
+            }
+        }
+
+        public IEnumerable<ClipViewModel> GetSelectedClipViewModels() {
+            foreach (object item in this.SelectedItems) {
+                if (this.GetClipViewModel(item, out ClipViewModel clip)) {
+                    yield return clip;
+                }
+            }
+        }
+
+        public IEnumerable<TimelineClipControl> GetClipsInArea(FrameSpan span) {
+            List<TimelineClipControl> list = new List<TimelineClipControl>();
+            foreach (object item in this.Items) {
+                if (this.GetClipControl(item, out TimelineClipControl clip)) {
+                    if (clip.Span.Intersects(span)) {
+                        list.Add(clip);
+                    }
+                }
+            }
+
+            return list;
         }
 
         public bool GetViewModel(out LayerViewModel layer) {
-            return (layer = this.DataContext as LayerViewModel) != null;
+            return (layer = this.ViewModel) != null;
         }
 
         protected override DependencyObject GetContainerForItemOverride() {
@@ -146,7 +185,7 @@ namespace FramePFX.Timeline.Layer {
 
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {
             if (this.isUpdatingUnitZoom) {
-                if (!TimelineUtils.IsZoomEqual(oldZoom, newZoom)) {
+                if (!TimelineUtils.IsUnitEqual(oldZoom, newZoom)) {
                     throw new Exception("Recursive update of FrameOffset. Old = " + oldZoom + ", New = " + newZoom);
                 }
 

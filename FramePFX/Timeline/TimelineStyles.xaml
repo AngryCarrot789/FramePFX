@@ -5,7 +5,7 @@
                     xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
                     xmlns:layer="clr-namespace:FramePFX.Timeline.Layer">
     <Style TargetType="{x:Type timeline:TimelinePlayheadControl}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.3.Background.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.4.Border.Static}"/>
         <Setter Property="MinWidth" Value="15"/>
         <Setter Property="Template">
@@ -16,8 +16,8 @@
                             <RowDefinition Height="17"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Border Width="1" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="7,16,0,0" Background="{TemplateBinding Foreground}" Grid.Row="0" Grid.RowSpan="2"/>
-                        <Polygon Points="0,0 15,0 15,10 8,17 7,17 0,10" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Left" Width="15" />
+                        <Border Width="1" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="7,16,0,0" Background="{TemplateBinding Background}" Grid.Row="0" Grid.RowSpan="2"/>
+                        <Polygon Points="0,0 15,0 15,10 8,17 7,17 0,10" Fill="{TemplateBinding Background}" HorizontalAlignment="Left" Width="15" />
                         <Thumb x:Name="PART_ThumbHead" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Cursor="SizeWE"/>
                         <Thumb x:Name="PART_ThumbBody" Width="5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5,0" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Cursor="SizeWE" Grid.Row="1"/>
                     </Grid>

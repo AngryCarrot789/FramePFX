@@ -1,7 +1,7 @@
 using System;
 
 namespace FramePFX.Utils {
-    public class StackedObjectUsage {
+    public class UsageCounter {
         private uint deep;
 
         public bool IsInUse => this.deep > 0;
@@ -20,12 +20,11 @@ namespace FramePFX.Utils {
         }
 
         /// <summary>
-        /// Decrements the coutner
+        /// Decrements the counter
         /// </summary>
         /// <returns>
-        /// True if there are no more objects in use
+        /// True if there are no more objects in use, otherwise false if there are still usages
         /// </returns>
-        /// <exception cref="Exception"></exception>
         public bool Free() {
             if (this.deep == 0) {
                 throw new Exception("Too many calls to Free()");

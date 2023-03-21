@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using FramePFX.Core;
 using FramePFX.Timeline.Layer;
 using FramePFX.Timeline.Layer.Clips;
-using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline {
     public class TimelineViewModel : BaseViewModel {
@@ -43,14 +41,14 @@ namespace FramePFX.Timeline {
             this.MaxDuration = 10000;
             this.PlayHeadFrame = 0;
             LayerViewModel l1 = this.CreateLayer("Layer 1");
-            l1.CreateVideoClip(0, 50).SetShape(5f, 5f, 50f, 50f).Name = "00";
-            l1.CreateVideoClip(100, 150).SetShape(55f, 5f, 50f, 50f).Name = "01";
-            l1.CreateVideoClip(275, 50).SetShape(110f, 5f, 50f, 50f).Name = "02";
+            l1.CreateSquareClip(0, 50).SetShape(5f, 5f, 50f, 50f).Name = "00";
+            l1.CreateSquareClip(100, 150).SetShape(55f, 5f, 50f, 50f).Name = "01";
+            l1.CreateSquareClip(275, 50).SetShape(110f, 5f, 50f, 50f).Name = "02";
 
             LayerViewModel l2 = this.CreateLayer("Layer 2");
-            l2.CreateVideoClip(0, 100).SetShape(5f, 55f, 50f, 50f).Name = "03";
-            l2.CreateVideoClip(100, 50).SetShape(55f, 55f, 50f, 50f).Name = "04";
-            l2.CreateVideoClip(175, 75).SetShape(110f, 55f, 50f, 50f).Name = "05";
+            l2.CreateSquareClip(0, 100).SetShape(5f, 55f, 50f, 50f).Name = "03";
+            l2.CreateSquareClip(100, 50).SetShape(55f, 55f, 50f, 50f).Name = "04";
+            l2.CreateSquareClip(175, 75).SetShape(110f, 55f, 50f, 50f).Name = "05";
 
             Instance = this;
             this.IsRenderDirty = true;

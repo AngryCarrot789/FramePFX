@@ -8,7 +8,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Render {
-    public class TKRenderThread : IDisposable {
+    public class OpenTKRenderThread : IDisposable {
         public const double TARGET_FPS = 30d;
         public const double TARGET_FPS_MS = 1000d / TARGET_FPS;       // 60FPS = 16.666666666666
         public const double TARGET_FPS_TICKS = 10000000 / TARGET_FPS; // 60FPS = 16.666666666666
@@ -18,10 +18,7 @@ namespace FramePFX.Render {
         private readonly NumberAverager averager;
         private long lastTickTime;
 
-        private GameWindow window;
-        private IGraphicsContext context;
-        private Framebuffer framebuffer;
-        private readonly CASLock contextLock;
+        private OGLContext oglContext;
 
         private volatile bool isGLReady;
         public bool IsGLEnabled => this.isGLReady;
@@ -47,7 +44,7 @@ namespace FramePFX.Render {
 
         public ThreadTimer Thread => this.thread;
 
-        public TKRenderThread() {
+        public OpenTKRenderThread() {
             this.thread = new ThreadTimer(TimeSpan.FromMilliseconds(TARGET_FPS_MS)) {
                 StartedAction = this.OnThreadStarted,
                 StoppedAction = this.OnThreadStopped,
@@ -60,7 +57,6 @@ namespace FramePFX.Render {
             this.tasks = new List<Task>();
             this.actionLock = new CASLock();
             this.taskLock = new CASLock();
-            this.contextLock = new CASLock();
             this.BitmapLock = new CASLock();
         }
 
@@ -95,75 +91,17 @@ namespace FramePFX.Render {
         }
 
         public void UpdateViewportSie(int width, int height) {
-            if (width <= 0 || height <= 0 || this.window == null)
+            if (width <= 0 || height <= 0 || this.oglContext == null)
                 return;
 
             this.isGLReady = false;
-            this.contextLock.Lock(out CASLockType type);
-            this.MakeContextCurrent(true);
-            if (this.framebuffer != null && !this.framebuffer.IsDisposed) {
-                this.framebuffer.Dispose();
-            }
-
-            this.window.Size = new Size(width, height);
-            this.framebuffer = Framebuffer.Create(width, height);
-            GL.Viewport(0, 0, width, height);
-
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            GL.Ortho(0, width, 0, height, -1d, 1d);
-            // Fix OpenGL flipped image
-            // GL.Rotate(180, 0, 0, 1);
-            // GL.Scale(-1f, 1f, 1f);
-            // GL.Ortho(0, ViewportScaleX, ViewportScaleY, 0, -1d, 1d);
-
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-
-            this.MakeContextCurrent(false);
-            this.contextLock.Unlock(type);
+            this.oglContext.UpdateViewportSize(width, height);
             this.isGLReady = true;
         }
 
         private void OnThreadStarted() {
             this.isGLReady = false;
-            this.window = new GameWindow(this.Width, this.Height, GraphicsMode.Default, "OpenTK Hidden Render Window", GameWindowFlags.Default, DisplayDevice.Default, 1, 0, GraphicsContextFlags.Offscreen, null, true) {
-                VSync = VSyncMode.Off
-            };
-
-            this.context = this.window.Context;
-            this.contextLock.Lock(out CASLockType type);
-            this.MakeContextCurrent(true);
-
-            // GL.BlendFunc(BlendingFactor.DstColor, BlendingFactor.OneMinusSrcAlpha);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
-            GL.Enable(EnableCap.DepthTest);
-            GL.DepthFunc(DepthFunction.Less);
-            GL.DepthMask(true);
-
-            if (this.framebuffer != null && !this.framebuffer.IsDisposed) {
-                this.framebuffer.Dispose();
-            }
-
-            this.window.Size = new Size(this.Width, this.Height);
-            this.framebuffer = Framebuffer.Create(this.Width, this.Height);
-            GL.Viewport(0, 0, this.Width, this.Height);
-
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            GL.Ortho(0, this.Width, 0, this.Height, -1d, 1d);
-            // Fix OpenGL flipped image
-            // GL.Rotate(180, 0, 0, 1);
-            // GL.Scale(-1f, 1f, 1f);
-            // GL.Ortho(0, ViewportScaleX, ViewportScaleY, 0, -1d, 1d);
-
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-
-            this.MakeContextCurrent(false);
-            this.contextLock.Unlock(type);
-
+            this.oglContext = OGLContext.Create(this.Width, this.Height);
             this.RenderHandler.Setup();
             this.lastTickTime = GetCurrentTime();
             this.isGLReady = true;
@@ -182,36 +120,15 @@ namespace FramePFX.Render {
 
             this.HandleCallbacks();
 
-            this.contextLock.Lock(out _);
-            this.MakeContextCurrent(true);
-            this.framebuffer.Use();
-
-            this.RenderHandler.RenderGLThread();
-            this.RenderHandler.Tick(delta);
-
-            // IntPtr ptr;
-            // if (this.Bitmap != null && (ptr = this.Bitmap.Value) != IntPtr.Zero) {
-            //     this.Bitmap.Lock(out CASLockType lockType);
-            //     GL.ReadBuffer(ReadBufferMode.Back);
-            //     GL.ReadPixels(0, 0, this.framebuffer.width, this.framebuffer.height, PixelFormat.Rgb, PixelType.UnsignedByte, ptr);
-            //     this.Bitmap.Unlock(lockType);
-            //     this.BitmapWriteCallback?.Invoke();
-            // }
-
-            this.MakeContextCurrent(false);
-            this.contextLock.Unlock();
+            this.oglContext.UseContext(() => {
+                this.oglContext.Framebuffer.Use();
+                this.RenderHandler.RenderGLThread();
+                this.RenderHandler.Tick(delta);
+            }, true);
         }
 
         private void OnThreadStopped() {
-            this.contextLock.Lock(out CASLockType type);
-            this.isGLReady = false;
-            this.MakeContextCurrent(true);
-
-            if (this.framebuffer != null && !this.framebuffer.IsDisposed)
-                this.framebuffer.Dispose();
-
-            this.MakeContextCurrent(false);
-            this.contextLock.Unlock(type);
+            this.oglContext.Dispose();
         }
 
         private void HandleCallbacks() {
@@ -234,29 +151,8 @@ namespace FramePFX.Render {
             return Time.GetSystemTicks();
         }
 
-        private void MakeContextCurrent(bool valid) {
-            if (valid) {
-                this.window.MakeCurrent();
-            }
-            else {
-                this.context.MakeCurrent(null);
-            }
-        }
-
-        public bool DrawViewportIntoBitmap(IntPtr bitmap, int w, int h) {
-            if (this.contextLock.TryLock(out CASLockType ctxLockType)) {
-                this.MakeContextCurrent(true);
-                GL.ReadBuffer(ReadBufferMode.Back);
-                GL.ReadPixels(0, 0, w, h, PixelFormat.Rgb, PixelType.UnsignedByte, bitmap);
-                if (ctxLockType != CASLockType.Thread) {
-                    this.MakeContextCurrent(false);
-                    this.contextLock.Unlock(ctxLockType);
-                }
-
-                return true;
-            }
-
-            return false;
+        public bool DrawViewportIntoBitmap(IntPtr bitmap, int w, int h, bool force = false) {
+            return this.oglContext.DrawViewportIntoBitmap(bitmap, w, h, force);
         }
 
         public void Dispose() {
@@ -264,8 +160,7 @@ namespace FramePFX.Render {
                 this.thread.Stop();
             }
 
-            this.framebuffer?.Dispose();
-            this.window?.Dispose();
+            this.oglContext.Dispose();
         }
     }
 }

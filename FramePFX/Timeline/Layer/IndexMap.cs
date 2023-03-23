@@ -1,23 +1,39 @@
 using System.Collections.Generic;
 
 namespace FramePFX.Timeline.Layer {
-    public class ClipIndexMap<T> {
-        public Dictionary<T, long> ClipToFrame { get; }
-        public Dictionary<long, T> FrameToClip { get; }
-        public Dictionary<T, int> ClipToIndex { get; }
-        public Dictionary<int, T> IndexToClip { get; }
-        public List<T> OrderedClips { get; }
+    public class IndexMap<T> {
+        public Dictionary<T, int> ValueToRealIndex { get; }
+        public Dictionary<T, int> ValueToOrderedIndex { get; }
+        public Dictionary<int, T> RealIndexToValue { get; }
+        public List<T> OrderedValues { get; }
 
-        public ClipIndexMap(Dictionary<T, long> clipToFrame, Dictionary<long, T> frameToClip, Dictionary<T, int> clipToIndex, Dictionary<int, T> indexToClip, List<T> orderedClips) {
-            this.ClipToFrame = clipToFrame;
-            this.FrameToClip = frameToClip;
-            this.ClipToIndex = clipToIndex;
-            this.IndexToClip = indexToClip;
-            this.OrderedClips = orderedClips;
+        public IndexMap(Dictionary<T, int> valueToRealIndex, Dictionary<int, T> realIndexToValue, Dictionary<T, int> valueToOrderedIndex, List<T> orderedValues) {
+            this.ValueToRealIndex = valueToRealIndex;
+            this.RealIndexToValue = realIndexToValue;
+            this.ValueToOrderedIndex = valueToOrderedIndex;
+            this.OrderedValues = orderedValues;
         }
 
-        public int IndexOf(T clip) {
-            return this.ClipToIndex.TryGetValue(clip, out int index) ? index : -1;
+        public int RealIndexOf(T value) {
+            return this.ValueToRealIndex.TryGetValue(value, out int index) ? index : -1;
+        }
+
+        public int OrderedIndexOf(T value) {
+            return this.ValueToOrderedIndex.TryGetValue(value, out int index) ? index : -1;
+        }
+
+        public int OrderedIndexToRealIndex(int ordered) {
+            return ordered < 0 || ordered >= this.OrderedValues.Count ? -1 : this.RealIndexOf(this.OrderedValues[ordered]);
+        }
+
+        public bool OrderedIndexToValue(int ordered, out T value) {
+            if (ordered < 0 || ordered >= this.OrderedValues.Count) {
+                value = default;
+                return false;
+            }
+
+            value = this.OrderedValues[ordered];
+            return true;
         }
     }
 }

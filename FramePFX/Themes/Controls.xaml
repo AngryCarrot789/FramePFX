@@ -1245,7 +1245,7 @@
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
         <Setter Property="Background" Value="{DynamicResource TabItem.Static.Background}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Static.Border}" />
+        <Setter Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TabControl}, Path=BorderBrush}" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="Padding" Value="10,4,10,4" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -1255,7 +1255,7 @@
                 <ControlTemplate TargetType="{x:Type TabItem}">
                     <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
                         <Border x:Name="mainBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" Margin="0">
-                            <Border x:Name="innerBorder" BorderBrush="{DynamicResource TabItem.Selected.Border}" BorderThickness="1,1,1,0" Background="{DynamicResource TabItem.Selected.Background}" Margin="-1" Opacity="0" />
+                            <Border x:Name="innerBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{DynamicResource TabItem.Selected.Background}" Margin="-1" Opacity="0" />
                         </Border>
                         <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
                     </Grid>

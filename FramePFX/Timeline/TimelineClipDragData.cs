@@ -46,6 +46,7 @@ namespace FramePFX.Timeline {
         public void OnCancel() {
             this.ValidateFinalizationState();
             this.DragClips.ForEach(x => x.OnCancel());
+            this.IsCompleted = true;
         }
 
         public void OnEnterCopyMove() {

@@ -4,6 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 
 namespace FramePFX.Timeline {
+    /// <summary>
+    /// <see cref="ItemContainerGenerator"/> utility functions
+    /// </summary>
     public static class ICGenUtils {
         public static IEnumerable<TResult> Select<TSource, TResult>(ItemCollection collection, Func<TSource, TResult> converter) {
             foreach (object x in collection) {

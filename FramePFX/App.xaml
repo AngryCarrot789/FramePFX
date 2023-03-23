@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="Themes/ControlColours.xaml"/>
                 <ResourceDictionary Source="Themes/Controls.xaml"/>
                 <ResourceDictionary Source="Timeline/TimelineStyles.xaml"/>
+                <ResourceDictionary Source="ResourceManaging/ResManagerStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

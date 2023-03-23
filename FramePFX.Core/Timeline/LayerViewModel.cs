@@ -3,15 +3,12 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
-using FramePFX.Core;
 using FramePFX.Core.ResourceManaging.Items;
-using FramePFX.Core.Timeline;
+using FramePFX.Core.Timeline.Resizable;
+using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
-using FramePFX.Timeline.Layer.Clips;
-using FramePFX.Timeline.Layer.Clips.Resizable;
-using FramePFX.Utils;
 
-namespace FramePFX.Timeline.Layer {
+namespace FramePFX.Core.Timeline {
     public class LayerViewModel : BaseViewModel {
         private string name;
         public string Name {
@@ -44,7 +41,7 @@ namespace FramePFX.Timeline.Layer {
         /// </summary>
         public float Opacity {
             get => this.opacity;
-            set => this.RaisePropertyChanged(ref this.opacity, Maths.Clamp(value, 0f, 1f), () => this.Timeline.IsRenderDirty = true);
+            set => this.RaisePropertyChanged(ref this.opacity, Maths.Clamp(value, 0f, 1f), () => this.Timeline.MarkRenderDirty());
         }
 
         public TimelineViewModel Timeline { get; }

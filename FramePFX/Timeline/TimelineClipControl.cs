@@ -5,11 +5,11 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows;
 using System.Windows.Media;
+using FramePFX.Core.Timeline;
 using FramePFX.Timeline.Layer;
-using FramePFX.Timeline.Layer.Clips;
 
 namespace FramePFX.Timeline {
-    public class TimelineClipControl : ContentControl, INativeClip {
+    public class TimelineClipControl : ContentControl, IClipHandle {
         #region Dependency Properties
 
         public static readonly DependencyProperty UnitZoomProperty =
@@ -158,7 +158,8 @@ namespace FramePFX.Timeline {
         /// </summary>
         public double PixelStart => this.FrameBegin * this.UnitZoom;
 
-        public TimelineLayerControl TimelineLayer { get; set; }
+        public Selector ParentSelector => ItemsControl.ItemsControlFromItemContainer(this) as Selector;
+        public TimelineLayerControl TimelineLayer => this.ParentSelector as TimelineLayerControl;
 
         public TimelineControl Timeline => this.TimelineLayer.Timeline;
 
@@ -174,6 +175,8 @@ namespace FramePFX.Timeline {
         private Thumb PART_ThumbRight;
         private Thumb PART_MainThumb;
         private bool isDraggingThumb;
+        private bool isClipDragActivated;
+        private bool isCancellingDragAction;
 
         private bool isProcessingMouseAction;
 
@@ -206,6 +209,10 @@ namespace FramePFX.Timeline {
             return Math.Abs(this.lastLeftClickPoint.X - mouseX);
         }
 
+        public void CancelDrag() {
+
+        }
+
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
             this.TimelineLayer.MakeTopElement(this);
@@ -217,8 +224,10 @@ namespace FramePFX.Timeline {
             if (!e.Handled) {
                 if (this.IsFocused || this.Focus()) {
                     e.Handled = true;
-                    this.TimelineLayer.OnClipMouseAction(this, e);
+                    this.TimelineLayer.OnClipMouseButton(this, e);
                 }
+
+                this.isClipDragActivated = true;
             }
 
             base.OnMouseLeftButtonDown(e);
@@ -226,11 +235,8 @@ namespace FramePFX.Timeline {
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
-            if (e.Handled) {
-                return;
-            }
-
             this.isProcessingMouseAction = true;
+            this.isClipDragActivated = false;
             if (this.IsMouseCaptured) {
                 this.ReleaseMouseCapture();
             }
@@ -238,12 +244,13 @@ namespace FramePFX.Timeline {
             bool hasDrag = false;
             if (this.Timeline.HasActiveDrag()) {
                 this.Timeline.DragData.OnCompleted();
+                this.Timeline.DragData = null;
                 hasDrag = true;
             }
 
             if (!e.Handled) {
                 e.Handled = true;
-                this.TimelineLayer.OnClipMouseAction(this, e, hasDrag);
+                this.TimelineLayer.OnClipMouseButton(this, e, hasDrag);
             }
 
             base.OnMouseLeftButtonUp(e);
@@ -251,7 +258,11 @@ namespace FramePFX.Timeline {
         }
 
         protected override void OnMouseMove(MouseEventArgs e) {
-            if (this.IsMovingControl || this.isProcessingMouseAction) {
+            if (this.IsMovingControl || this.isProcessingMouseAction || this.isCancellingDragAction) {
+                return;
+            }
+
+            if (!this.isClipDragActivated) {
                 return;
             }
 
@@ -297,6 +308,29 @@ namespace FramePFX.Timeline {
                 if (this.GetMouseDifference(mousePoint.X) > 5d) {
                     this.BeginDragMovement();
                 }
+            }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e) {
+            base.OnKeyDown(e);
+            if (e.Key == Key.Escape) {
+                this.isCancellingDragAction = true;
+                this.isClipDragActivated = false;
+                if (this.IsMouseCaptured) {
+                    this.ReleaseMouseCapture();
+                }
+
+                this.isCancellingDragAction = false;
+                if (this.Timeline.HasActiveDrag() && this.Timeline.DragData.IsBeingDragged(this)) {
+                    this.Timeline.DragData.OnCancel();
+                    this.Timeline.DragData = null;
+                    e.Handled = true;
+                }
+
+                base.OnKeyDown(e);
+            }
+            else if (e.Key == Key.Delete && this.IsSelected) {
+                this.TimelineLayer.RemoveClip(this);
             }
         }
 
@@ -439,6 +473,10 @@ namespace FramePFX.Timeline {
 
         private T GetTemplateElement<T>(string name) where T : DependencyObject {
             return this.GetTemplateChild(name) is T value ? value : throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
+        }
+
+        public override string ToString() {
+            return $"TimelineClipControl({this.Span})";
         }
     }
 }

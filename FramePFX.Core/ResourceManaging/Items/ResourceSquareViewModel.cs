@@ -1,4 +1,4 @@
-namespace FramePFX.Core.ResourceManaging {
+namespace FramePFX.Core.ResourceManaging.Items {
     public class ResourceSquareViewModel : ResourceItemViewModel {
         private float r;
         private float g;

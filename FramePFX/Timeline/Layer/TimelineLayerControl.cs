@@ -4,10 +4,10 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Core.Timeline;
 
 namespace FramePFX.Timeline.Layer {
-    public class TimelineLayerControl : MultiSelector, INativeLayer {
+    public class TimelineLayerControl : MultiSelector, ILayerHandle {
         public static readonly DependencyProperty UnitZoomProperty =
             TimelineControl.UnitZoomProperty.AddOwner(
                 typeof(TimelineLayerControl),
@@ -70,11 +70,10 @@ namespace FramePFX.Timeline.Layer {
             set => this.timeline = value;
         }
 
-        internal Selector ParentSelector => ItemsControlFromItemContainer(this) as Selector;
-
         private bool isUpdatingUnitZoom;
         private bool isUpdatingLayerType;
         private TimelineControl timeline;
+        private TimelineClipControl lastSelectedItem;
 
         public LayerViewModel ViewModel => this.DataContext as LayerViewModel;
 
@@ -86,6 +85,94 @@ namespace FramePFX.Timeline.Layer {
                     vm.Control = this;
                 }
             };
+        }
+
+        // public IndexMap<TimelineClipControl> CreateIndexMap() {
+        //     // Dictionary<TimelineClipControl, long> clipToFrame = new Dictionary<TimelineClipControl, long>(this.Items.Count);
+        //     // Dictionary<long, TimelineClipControl> frameToClip = new Dictionary<long, TimelineClipControl>(this.Items.Count);
+        //     int count = this.Items.Count;
+        //     Dictionary<TimelineClipControl, int> clipToIndex = new Dictionary<TimelineClipControl, int>(count);
+        //     Dictionary<int, TimelineClipControl> indexToClip = new Dictionary<int, TimelineClipControl>(count);
+        //     Dictionary<TimelineClipControl, int> clipToOrder = new Dictionary<TimelineClipControl, int>(count);
+        //     List<TimelineClipControl> orderedClips = new List<TimelineClipControl>(count);
+        //     IndexMap<TimelineClipControl> map = new IndexMap<TimelineClipControl>(clipToIndex, indexToClip, clipToOrder, orderedClips);
+        //     List<TimelineClipControl> clips = new List<TimelineClipControl>(count);
+        //     foreach (object item in this.Items) {
+        //         if (this.GetClipControl(item, out TimelineClipControl clip)) {
+        //             clips.Add(clip);
+        //         }
+        //     }
+        //     switch (clips.Count) {
+        //         case 0: return map;
+        //         case 1:
+        //             // clipToFrame[clips[0]] = clips[0].FrameBegin;
+        //             // frameToClip[clips[0].FrameBegin] = clips[0];
+        //             clipToIndex[clips[0]] = 0;
+        //             indexToClip[0] = clips[0];
+        //             clipToOrder[clips[0]] = 0;
+        //             orderedClips.Add(clips[0]);
+        //             return map;
+        //     }
+        //     for (int i = 0; i < clips.Count; i++) {
+        //         TimelineClipControl clipA = clips[i];
+        //         TimelineClipControl clipMin = clips[0];
+        //         long beginMin = clips[0].FrameBegin;
+        //         for (int j = 1; j < clips.Count; j++) { // start at 1 because of the above code indexing at 0 first
+        //             TimelineClipControl clipB = clips[j];
+        //             if (i == j) {
+        //                 continue;
+        //             }
+        //             long begin = clipB.FrameBegin;
+        //             // These should never equal once dragging clips actually deletes sections of other clips
+        //             // However for now, just fallback to natural ordering based on insertion index
+        //             if (begin <= beginMin) {
+        //                 beginMin = begin;
+        //                 clipMin = clipB;
+        //             }
+        //         }
+        //         // clipToFrame[clipMin] = beginMin; // useless
+        //         // frameToClip[beginMin] = clipMin; // pretty much useless... for now, while speed isn't an issue
+        //         clipToIndex[clipMin] = i; // actually useful; convert clip to it's real index
+        //         indexToClip[i] = clipMin; // convert real index to clip
+        //         clipToOrder[clipMin] = orderedClips.Count;
+        //         orderedClips.Add(clipMin);
+        //     }
+        //     return map;
+        // }
+
+        /// <summary>
+        /// Creates an index map of this layer's clips. The order of this Layer's Items changes when a clip
+        /// is selected, and also when clips are dragged around. This functions will create a sorted list of the items,
+        /// and cache the unordered and ordered indices for fast access in dictionaries
+        /// </summary>
+        /// <returns></returns>
+        public IndexMap<TimelineClipControl> CreateIndexMap() {
+            // Dictionary<TimelineClipControl, long> clipToFrame = new Dictionary<TimelineClipControl, long>(this.Items.Count);
+            // Dictionary<long, TimelineClipControl> frameToClip = new Dictionary<long, TimelineClipControl>(this.Items.Count);
+            int count = this.Items.Count;
+            Dictionary<TimelineClipControl, int> clipToRealIndex = new Dictionary<TimelineClipControl, int>(count);
+            Dictionary<int, TimelineClipControl> realIndexToClip = new Dictionary<int, TimelineClipControl>(count);
+            Dictionary<TimelineClipControl, int> clipToFakeIndex = new Dictionary<TimelineClipControl, int>(count);
+            // only named it clipToFakeIndex because it lines up with the other names :3
+            List<TimelineClipControl> clips = new List<TimelineClipControl>(count);
+            IndexMap<TimelineClipControl> map = new IndexMap<TimelineClipControl>(clipToRealIndex, realIndexToClip, clipToFakeIndex, clips);
+            int i = 0;
+            foreach (object item in this.Items) {
+                if (this.GetClipControl(item, out TimelineClipControl clip)) {
+                    clipToRealIndex[clip] = i;
+                    realIndexToClip[i++] = clip;
+                    clips.Add(clip);
+                }
+                else {
+                    // !!! wot to do here??? this shouldn't be reachable but...
+                    return map;
+                }
+            }
+
+            clips.Sort((a, b) => a.FrameBegin.CompareTo(b.FrameBegin));
+            for (int j = 0; j < clips.Count; j++)
+                clipToFakeIndex[clips[j]] = j;
+            return map;
         }
 
         public bool GetClipControl(object item, out TimelineClipControl clip) {
@@ -146,7 +233,7 @@ namespace FramePFX.Timeline.Layer {
         }
 
         protected override DependencyObject GetContainerForItemOverride() {
-            return new TimelineClipControl() { TimelineLayer = this };
+            return new TimelineClipControl();
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item) {
@@ -163,7 +250,7 @@ namespace FramePFX.Timeline.Layer {
                 //     throw new Exception($"Expected item of type {nameof(ClipViewModel)}, got {item?.GetType()}");
                 // }
 
-                clip.TimelineLayer = this;
+                // clip.TimelineLayer = this;
             }
             // else {
             //     throw new Exception($"Expected element of type {nameof(TimelineClipControl)}, got {element?.GetType()}");
@@ -178,8 +265,9 @@ namespace FramePFX.Timeline.Layer {
             }
 
             clips.ForEach(x => {
-                x.TimelineLayer.SelectedItems.Clear();
-                x.IsSelected = false;
+                if (x.TimelineLayer.SelectedItems.Count > 0) {
+                    x.TimelineLayer.UnselectAll();
+                }
             });
         }
 
@@ -259,26 +347,28 @@ namespace FramePFX.Timeline.Layer {
         /// Removes the given clip from this timeline layer
         /// </summary>
         /// <param name="clip"></param>
-        public bool RemoveElement(TimelineClipControl clip) {
+        public bool RemoveClip(TimelineClipControl clip) {
             int index = this.Items.IndexOf(clip);
             if (index == -1) {
                 return false;
             }
 
             this.Items.RemoveAt(index);
+            // TODO: post process clip removal, maybe check if there are no more references to a resource
+            // that the clip used, and then delete the resource?
             return true;
         }
 
-        public void OnClipMouseAction(TimelineClipControl clip, MouseButtonEventArgs e, bool wasDragging = false) {
-            if (e.ChangedButton == MouseButton.Left && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
-                clip.IsSelected = true;
-                this.SelectedItem = clip;
-                return;
-            }
-
+        public void OnClipMouseButton(TimelineClipControl clip, MouseButtonEventArgs e, bool wasDragging = false) {
             if (e.ChangedButton == MouseButton.Left) {
                 if (e.ButtonState == MouseButtonState.Pressed) {
-                    if (this.Timeline.GetAllSelectedClipControls().ToList().Count >= 2) {
+                    if (AreModifiersPressed(ModifierKeys.Control)) {
+                        this.SetItemSelectedProperty(clip, true);
+                    }
+                    else if (AreModifiersPressed(ModifierKeys.Shift) && this.lastSelectedItem != null && this.SelectedItems.Count > 0) {
+                        this.MakeRangedSelection(this.lastSelectedItem, clip);
+                    }
+                    else if (this.Timeline.GetAllSelectedClipControls().ToList().Count > 1) {
                         if (!clip.IsSelected) {
                             this.Timeline.SetPrimarySelection(this, clip);
                         }
@@ -287,7 +377,7 @@ namespace FramePFX.Timeline.Layer {
                         this.Timeline.SetPrimarySelection(this, clip);
                     }
                 }
-                else if (!wasDragging && this.Timeline.GetAllSelectedClipControls().ToList().Count > 1) {
+                else if (!wasDragging && clip.IsSelected && !AreModifiersPressed(ModifierKeys.Control) && !AreModifiersPressed(ModifierKeys.Shift) && this.Timeline.GetAllSelectedClipControls().ToList().Count > 1) {
                     this.Timeline.SetPrimarySelection(this, clip);
                 }
             }
@@ -315,6 +405,105 @@ namespace FramePFX.Timeline.Layer {
             if (this.GetViewModel(out LayerViewModel layer) && control.GetViewModel(out ClipViewModel clip)) {
                 layer.MakeTopMost(clip);
             }
+        }
+
+        // TODO: Implement cross-layer selection. The timeline can cache the last layer that make a single selection (aka the anchor)
+        // public void MakeRangedSelection(FrameSpan span) {
+        //     IndexMap<TimelineClipControl> map = this.CreateIndexMap();
+        //
+        // }
+
+        public void MakeRangedSelection(TimelineClipControl a, TimelineClipControl b) {
+            if (a == b) {
+                this.MakeSingleSelection(a);
+            }
+            else {
+                IndexMap<TimelineClipControl> map = this.CreateIndexMap();
+                int indexA = map.OrderedIndexOf(a);
+                if (indexA == -1)
+                    return;
+                int indexB = map.OrderedIndexOf(b);
+                if (indexB == -1)
+                    return;
+
+                if (indexA < indexB) {
+                    this.UnselectAll();
+                    for (int i = indexA; i <= indexB; i++) {
+                        int index = map.OrderedIndexToRealIndex(i);
+                        if (index != -1) {
+                            // using RealIndexToClip may be faster than using ItemContainerGenerator indexing... maybe
+                            this.SetItemSelectedProperty(map.RealIndexToValue[index], true);
+                            // this.SetItemSelectedPropertyAtIndex(index, true);
+                        }
+                    }
+                }
+                else if (indexA > indexB) {
+                    this.UnselectAll();
+                    for (int i = indexB; i <= indexA; i++) {
+                        int index = map.OrderedIndexToRealIndex(i);
+                        if (index != -1) {
+                            this.SetItemSelectedProperty(map.RealIndexToValue[index], true);
+                            // this.SetItemSelectedPropertyAtIndex(index, true);
+                        }
+                    }
+                }
+                else {
+                    this.MakeSingleSelection(a);
+                }
+            }
+        }
+
+        public void MakeSingleSelection(TimelineClipControl item) {
+            this.UnselectAll();
+            this.SetItemSelectedProperty(item, true);
+            this.lastSelectedItem = item;
+        }
+
+        public void SetItemSelectedProperty(TimelineClipControl item, bool selected) {
+            item.IsSelected = selected;
+            object x = this.ItemContainerGenerator.ItemFromContainer(item);
+            if (x == null || x == DependencyProperty.UnsetValue)
+                x = item;
+
+            if (selected) {
+                this.SelectedItems.Add(x);
+            }
+            else {
+                this.SelectedItems.Remove(x);
+            }
+        }
+
+        public bool SetItemSelectedPropertyAtIndex(int index, bool selected) {
+            if (index < 0 || index >= this.Items.Count) {
+                return false;
+            }
+
+            if (this.ItemContainerGenerator.ContainerFromIndex(index) is TimelineClipControl resource) {
+                this.SetItemSelectedProperty(resource, true);
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        public static bool AreModifiersPressed(ModifierKeys key1) {
+            return (Keyboard.Modifiers & key1) == key1;
+        }
+
+        public static bool AreModifiersPressed(ModifierKeys key1, ModifierKeys key2) {
+            return (Keyboard.Modifiers & (key1 | key2)) == key1;
+        }
+
+        public static bool AreModifiersPressed(ModifierKeys key1, ModifierKeys key2, ModifierKeys key3) {
+            return (Keyboard.Modifiers & (key1 | key2 | key3)) == key1;
+        }
+
+        public static bool AreModifiersPressed(params ModifierKeys[] keys) {
+            ModifierKeys modifiers = ModifierKeys.None;
+            foreach (ModifierKeys modifier in keys)
+                modifiers |= modifier;
+            return (Keyboard.Modifiers & modifiers) == modifiers;
         }
     }
 }

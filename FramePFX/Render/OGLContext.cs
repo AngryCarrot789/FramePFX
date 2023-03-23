@@ -1,27 +1,30 @@
 using System;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Channels;
+using FramePFX.Core.Render;
 using FramePFX.Utils;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Platform.Windows;
 
 namespace FramePFX.Render {
-    public class OGLContext : IDisposable {
+    public class OGLContext : IDisposable, IOGLContext {
+        private readonly UsageCounter contextUsageCounter = new UsageCounter();
+        private volatile FrameBuffer framebuffer;
+        private volatile bool isReady;
+        private CASLockType lastRenderLockType;
+
         public GameWindow Window { get; }
         public IGraphicsContext Context { get; }
 
-        public FrameBuffer Framebuffer => this.framebuffer;
+        public FrameBuffer Framebuffer {
+            get => this.framebuffer;
+        }
 
-        public bool IsReady { get => this.isReady; }
+        public bool IsReady {
+            get => this.isReady;
+        }
 
         public CASLock ContextLock { get; }
-        private readonly UsageCounter contextUsageCounter = new UsageCounter();
-
-        private volatile FrameBuffer framebuffer;
-        private volatile bool isReady;
 
         public OGLContext(GameWindow window, FrameBuffer framebuffer) {
             this.Window = window;
@@ -68,7 +71,7 @@ namespace FramePFX.Render {
 
         public void UpdateViewportSize(int width, int height) {
             this.ContextLock.Lock(out var lockType);
-            this.MakeContextCurrent(true);
+            this.MakeCurrent(true);
             if (this.framebuffer != null && !this.framebuffer.IsDisposed) {
                 this.framebuffer.Dispose();
             }
@@ -83,8 +86,19 @@ namespace FramePFX.Render {
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
 
-            this.MakeContextCurrent(false);
+            this.MakeCurrent(false);
             this.ContextLock.Unlock(lockType);
+        }
+
+        public void BeginRender() {
+            this.ContextLock.Lock(out this.lastRenderLockType);
+            this.MakeCurrent(true);
+            this.framebuffer.Use();
+        }
+
+        public void EndRender() {
+            this.MakeCurrent(false);
+            this.ContextLock.Unlock(this.lastRenderLockType);
         }
 
         public bool UseContext(Action action, bool force = false) {
@@ -96,14 +110,14 @@ namespace FramePFX.Render {
                 return false;
             }
 
-            this.MakeContextCurrent(true);
+            this.MakeCurrent(true);
             action();
-            this.MakeContextCurrent(false);
+            this.MakeCurrent(false);
             this.ContextLock.Unlock(type);
             return true;
         }
 
-        public void MakeContextCurrent(bool valid) {
+        public void MakeCurrent(bool valid) {
             if (valid) {
                 if (this.contextUsageCounter.Use()) {
                     this.Window.MakeCurrent();
@@ -123,7 +137,7 @@ namespace FramePFX.Render {
 
         public void Dispose() {
             this.ContextLock.Lock(out CASLockType type);
-            this.MakeContextCurrent(true);
+            this.MakeCurrent(true);
             this.framebuffer?.Dispose();
             this.Window?.Dispose();
             this.ContextLock.Unlock(type);

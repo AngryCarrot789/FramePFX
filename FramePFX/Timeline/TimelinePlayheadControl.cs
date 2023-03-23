@@ -6,11 +6,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Utils;
+using FramePFX.Core.Timeline;
+using FramePFX.Core.Utils;
 using Keyboard = System.Windows.Input.Keyboard;
 
 namespace FramePFX.Timeline {
-    public class TimelinePlayheadControl : Control, INativePlayHead {
+    public class TimelinePlayheadControl : Control, IPlayHeadHandle {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",

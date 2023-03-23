@@ -1,5 +1,5 @@
 namespace FramePFX.Core.Timeline {
-    public interface INativePlayHead {
+    public interface IPlayHeadHandle {
         long PlayHeadFrame { get; set; }
     }
 }

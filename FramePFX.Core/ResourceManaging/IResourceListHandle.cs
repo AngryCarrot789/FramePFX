@@ -1,5 +1,5 @@
 namespace FramePFX.Core.ResourceManaging {
-    public interface INativeResourceManager {
+    public interface IResourceListHandle {
 
     }
 }

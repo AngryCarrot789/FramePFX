@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Services;
 using FramePFX.Services;
@@ -35,6 +36,10 @@ namespace FramePFX {
 
             public DispatcherDelegate(App app) {
                 this.app = app;
+            }
+
+            public void InvokeLater(Action action) {
+                this.app.Dispatcher.Invoke(action, DispatcherPriority.Normal);
             }
 
             public void Invoke(Action action) {

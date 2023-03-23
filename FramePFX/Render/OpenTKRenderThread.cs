@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Threading.Tasks;
+using FramePFX.Core;
+using FramePFX.Core.Render;
 using FramePFX.Utils;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Render {
+    // TODO: Get rid of a ticking render and instead just render directly when needed (e.g playhead moved or progressed while playing)
     public class OpenTKRenderThread : IDisposable {
         public const double TARGET_FPS = 30d;
         public const double TARGET_FPS_MS = 1000d / TARGET_FPS;       // 60FPS = 16.666666666666
@@ -17,24 +16,22 @@ namespace FramePFX.Render {
         private readonly ThreadTimer thread;
         private readonly NumberAverager averager;
         private long lastTickTime;
-
-        private OGLContext oglContext;
-
         private volatile bool isGLReady;
-        public bool IsGLEnabled => this.isGLReady;
-
         private readonly CASLock actionLock;
         private readonly CASLock taskLock;
         private readonly List<Action> actions;
         private readonly List<Task> tasks;
+        public OGLContext oglContext;
 
         public volatile bool isPaused;
+
+        public bool IsGLEnabled => this.isGLReady;
 
         public int Width { get; set; } = 1;
 
         public int Height { get; set; } = 1;
 
-        public IRenderHandler RenderHandler { get; set; }
+        public IRenderTarget MainViewPort { get; set; }
 
         public double AverageDelta => this.averager.GetAverage();
 
@@ -43,6 +40,7 @@ namespace FramePFX.Render {
         public CASLock BitmapLock { get; }
 
         public ThreadTimer Thread => this.thread;
+        public static OGLContext GlobalContext { get; private set; }
 
         public OpenTKRenderThread() {
             this.thread = new ThreadTimer(TimeSpan.FromMilliseconds(TARGET_FPS_MS)) {
@@ -102,9 +100,12 @@ namespace FramePFX.Render {
         private void OnThreadStarted() {
             this.isGLReady = false;
             this.oglContext = OGLContext.Create(this.Width, this.Height);
-            this.RenderHandler.Setup();
+            GlobalContext = this.oglContext;
+            // this.MainViewPort?.Setup();
             this.lastTickTime = GetCurrentTime();
             this.isGLReady = true;
+
+            IoC.Timeline.ScheduleRender(false);
         }
 
         private void OnGLThreadTick() {
@@ -114,17 +115,21 @@ namespace FramePFX.Render {
 
             // calc interval time
             long time = Time.GetSystemTicks();
-            double delta = (double) (time - this.lastTickTime) / Time.TICK_PER_SECOND;
-            this.averager.PushValue(delta);
+            this.averager.PushValue((double) (time - this.lastTickTime) / Time.TICK_PER_SECOND);
             this.lastTickTime = time;
 
             this.HandleCallbacks();
 
-            this.oglContext.UseContext(() => {
-                this.oglContext.Framebuffer.Use();
-                this.RenderHandler.RenderGLThread();
-                this.RenderHandler.Tick(delta);
-            }, true);
+            System.Threading.Thread.Sleep(100);
+
+            // if (!TimelineViewModel.Instance?.IsRenderDirty ?? false) {
+            //     return;
+            // }
+            // this.oglContext.UseContext(() => {
+            //     this.RenderHandler.RenderGLThread();
+            //     TimelineViewModel.Instance.IsRenderDirty = false;
+            //     this.RenderHandler.Tick(delta);
+            // }, true);
         }
 
         private void OnThreadStopped() {

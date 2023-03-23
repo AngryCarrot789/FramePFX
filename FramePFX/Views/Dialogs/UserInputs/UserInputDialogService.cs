@@ -13,7 +13,10 @@ namespace FramePFX.Views.Dialogs.UserInputs {
             };
 
             window.DataContext = vm;
-            window.InputValidationRule.Validator = validator;
+            if (validator != null && window.InputValidationRule != null) {
+                window.InputValidationRule.Validator = validator;
+            }
+
             return window.ShowDialog() == true ? (vm.Input ?? "") : null;
         }
     }

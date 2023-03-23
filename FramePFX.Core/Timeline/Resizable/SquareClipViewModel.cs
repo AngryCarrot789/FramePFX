@@ -1,8 +1,8 @@
+using FramePFX.Core.Render;
 using FramePFX.Core.ResourceManaging.Items;
-using FramePFX.Render;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Timeline.Layer.Clips.Resizable {
+namespace FramePFX.Core.Timeline.Resizable {
     public class SquareClipViewModel : ResizableVideoClipViewModel {
         private ResourceSquareViewModel resource;
         public ResourceSquareViewModel Resource {

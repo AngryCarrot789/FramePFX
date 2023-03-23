@@ -1,10 +1,9 @@
 ﻿using System;
 using FramePFX.Core;
+using FramePFX.Core.Timeline;
 
 namespace FramePFX.Timeline.Layer.Clips {
     public class ClipViewModel : BaseViewModel {
-        public LayerViewModel Layer { get; set; }
-
         private long frameBegin;
         public long FrameBegin {
             get => this.frameBegin;
@@ -35,7 +34,9 @@ namespace FramePFX.Timeline.Layer.Clips {
             set => this.RaisePropertyChanged(ref this.name, value);
         }
 
-        public INativeClip Control { get; set; }
+        public IClipHandle Control { get; set; }
+
+        public LayerViewModel Layer { get; set; }
 
         public ClipViewModel() {
 

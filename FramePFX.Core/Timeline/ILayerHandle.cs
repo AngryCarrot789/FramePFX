@@ -1,4 +1,4 @@
-namespace FramePFX.Timeline.Layer {
+namespace FramePFX.Core.Timeline {
     public interface INativeLayer {
         
     }

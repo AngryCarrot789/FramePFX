@@ -1,4 +1,4 @@
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Core.Timeline {
     public interface INativeClip {
         
     }

@@ -4,6 +4,8 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 using FramePFX.Core;
+using FramePFX.Core.ResourceManaging.Items;
+using FramePFX.Core.Timeline;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Timeline.Layer.Clips.Resizable;
@@ -51,7 +53,7 @@ namespace FramePFX.Timeline.Layer {
 
         public ObservableCollection<ClipViewModel> Clips { get; }
 
-        public INativeLayer Control { get; set; }
+        public ILayerHandle Control { get; set; }
 
         public LayerViewModel(TimelineViewModel timeline) {
             this.Clips = new ObservableCollection<ClipViewModel>();
@@ -63,7 +65,7 @@ namespace FramePFX.Timeline.Layer {
             this.Opacity = 1f;
 
             this.RenameLayerCommand = new RelayCommand(() => {
-                string result = IoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", new InputValidator((x) => this.Timeline.Layers.Any(b => b.Name == x), "Layer already exists with that name"));
+                string result = IoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", InputValidator.SingleError(x => this.Timeline.Layers.Any(b => b.Name == x), "Layer already exists with that name"));
                 if (result != null) {
                     this.Name = result;
                 }
@@ -80,8 +82,9 @@ namespace FramePFX.Timeline.Layer {
             }
         }
 
-        public SquareClipViewModel CreateSquareClip(long begin, long duration) {
+        public SquareClipViewModel CreateSquareClip(long begin, long duration, ResourceSquareViewModel square) {
             SquareClipViewModel clip = new SquareClipViewModel(this) {
+                Resource = square,
                 FrameBegin = begin,
                 FrameDuration = duration
             };

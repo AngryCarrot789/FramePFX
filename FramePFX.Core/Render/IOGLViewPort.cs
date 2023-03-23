@@ -1,11 +1,10 @@
 using System;
-using System.Windows.Media.Imaging;
 
 namespace FramePFX.Render {
     /// <summary>
-    /// A context for a specific OpenGL viewport, e.g. main view port, clip renderers, etc
+    /// A viewport that can be rendered into via OpenGL, e.g. main view port, clip renderers, etc
     /// </summary>
-    public interface OGLViewPortContext {
+    public interface IOGLViewPort {
         /// <summary>
         /// The actual width of the view port
         /// </summary>
@@ -19,17 +18,18 @@ namespace FramePFX.Render {
         /// <summary>
         /// Whether OpenGL is ready to be rendered. When false, rendering may result in a crash
         /// </summary>
-        bool IsOGLReady { get; }
-
-        WriteableBitmap CurrentFrame { get; }
-
-        IntPtr CurrentFramePtr { get; }
+        bool IsReadyForRender { get; }
 
         /// <summary>
-        /// Sets the width and height of the OpenGL view port. This may result in <see cref="IsOGLReady"/> being false until the WPF thread sets up the view port
+        /// The context that this view port uses
+        /// </summary>
+        IOGLContext Context { get; }
+
+        /// <summary>
+        /// Sets the width and height of the OpenGL view port. This may result in <see cref="IsReadyForRender"/> being false until the WPF thread sets up the view port
         /// </summary>
         /// <param name="w"></param>
         /// <param name="h"></param>
-        void UpdateViewport(int w, int h);
+        void UpdateViewportSize(int w, int h);
     }
 }

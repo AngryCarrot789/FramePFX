@@ -45,7 +45,7 @@ namespace FramePFX.Timeline.Layer.Clips.Resizable {
             this.UseScaledRender = true;
         }
 
-        public void TranslateForScaledRender(OGLViewPortContext ogl) {
+        public void TranslateForScaledRender(IOGLViewPort ogl) {
             GL.Translate(this.posX, this.posY, 0f);
             GL.Scale(ogl.ViewportWidth * (this.Width / ogl.ViewportWidth), ogl.ViewportHeight * (this.Height / ogl.ViewportHeight), 1f);
             GL.Rotate(this.rotZ, 0, 0, 1);
@@ -59,7 +59,7 @@ namespace FramePFX.Timeline.Layer.Clips.Resizable {
             return this;
         }
 
-        public sealed override void Render(OGLViewPortContext ogl, long frame) {
+        public sealed override void Render(IOGLViewPort ogl, long frame) {
             GL.PushMatrix();
             if (this.UseScaledRender) {
                 this.TranslateForScaledRender(ogl);
@@ -69,6 +69,6 @@ namespace FramePFX.Timeline.Layer.Clips.Resizable {
             GL.PopMatrix();
         }
 
-        public abstract void RenderCore(OGLViewPortContext context, long frame);
+        public abstract void RenderCore(IOGLViewPort context, long frame);
     }
 }

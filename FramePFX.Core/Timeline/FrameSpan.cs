@@ -38,5 +38,9 @@ namespace FramePFX.Timeline {
         public static bool Intersects(in FrameSpan a, in FrameSpan b) {
             return a.Begin < b.EndIndex && a.EndIndex > b.Begin;
         }
+
+        public override string ToString() {
+            return $"{this.Begin} -> {this.EndIndex} ({this.Duration})";
+        }
     }
 }

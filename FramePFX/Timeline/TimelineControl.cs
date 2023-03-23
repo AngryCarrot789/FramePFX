@@ -6,10 +6,10 @@ using System.ComponentModel;
 using System.Linq;
 using FramePFX.Timeline.Layer;
 using System.Windows.Input;
-using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Core.Timeline;
 
 namespace FramePFX.Timeline {
-    public class TimelineControl : ItemsControl {
+    public class TimelineControl : ItemsControl, ITimelineHandle {
 
         #region Dependency Properties
 
@@ -74,14 +74,19 @@ namespace FramePFX.Timeline {
         private TimelinePlayheadControl PART_PlayHead;
         private Border PART_TimestampBoard;
 
-        public TimelineClipDragData DragData;
+        private TimelineClipDragData dragData;
+
+        public TimelineClipDragData DragData { 
+            get => this.dragData; 
+            set => this.dragData = value; 
+        }
 
         public TimelineControl() {
             this.HorizontalContentAlignment = HorizontalAlignment.Stretch;
             ScrollViewer.SetCanContentScroll(this, false);
             this.DataContextChanged += (sender, args) => {
                 if (args.NewValue is TimelineViewModel vm) {
-                    vm.Control = this;
+                    vm.Handle = this;
                 }
             };
 
@@ -90,7 +95,7 @@ namespace FramePFX.Timeline {
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
             if (this.DataContext is TimelineViewModel vm) {
-                vm.PlayHead = this.PART_PlayHead;
+                vm.PlayHeadHandle = this.PART_PlayHead;
             }
         }
 
@@ -137,7 +142,7 @@ namespace FramePFX.Timeline {
             }
 
             if (this.DataContext is TimelineViewModel timeline) {
-                timeline.PlayHead = this.PART_PlayHead;
+                timeline.PlayHeadHandle = this.PART_PlayHead;
             }
 
             this.MouseLeftButtonDown += (s,e) => this.MovePlayheadForEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
@@ -281,6 +286,17 @@ namespace FramePFX.Timeline {
             // }
         }
 
+        protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
+            base.ClearContainerForItemOverride(element, item);
+            if (element is TimelineLayerControl layer && ReferenceEquals(layer.Timeline, this)) {
+                if (item is LayerViewModel viewModel && ReferenceEquals(viewModel.Control, element)) {
+                    viewModel.Control = null;
+                }
+
+                layer.Timeline = null;
+            }
+        }
+
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {
             if (TimelineUtils.IsUnitEqual(oldZoom, newZoom)) {
                 return;
@@ -366,10 +382,10 @@ namespace FramePFX.Timeline {
 
         public void SetPrimarySelection(TimelineLayerControl layer, TimelineClipControl clip) {
             foreach (TimelineLayerControl layerControl in this.GetLayerControls()) {
-                layerControl.SelectedItems.Clear();
+                layerControl.UnselectAll();
             }
 
-            clip.IsSelected = true;
+            clip.TimelineLayer.MakeSingleSelection(clip);
         }
 
         public void BeginDragAction() {

@@ -1,18 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using FramePFX.Core;
-using FramePFX.Core.Timeline;
-using FramePFX.Timeline.Layer;
-using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Core.Render;
+using FramePFX.Core.Utils;
 
-namespace FramePFX.Timeline {
+namespace FramePFX.Core.Timeline {
     public class TimelineViewModel : BaseViewModel {
         private readonly ObservableCollection<LayerViewModel> layers;
 
-        private volatile bool isSteppingFrame;
+        private volatile bool ignorePlayHeadPropertyChange;
         public volatile bool isFramePropertyChangeScheduled;
-
-        public static TimelineViewModel Instance { get; set; }
 
         /// <summary>
         /// This timeline's layer collection
@@ -48,36 +45,70 @@ namespace FramePFX.Timeline {
                     value = this.MaxDuration - 1;
                 }
 
-                if (this.isSteppingFrame) {
+                if (this.ignorePlayHeadPropertyChange) {
                     this.playHeadFrame = value;
                 }
                 else {
                     this.RaisePropertyChanged(ref this.playHeadFrame, value);
-                    this.OnPlayHeadMoved(oldValue, value);
+                    this.OnPlayHeadMoved(oldValue, value, true);
                 }
             }
         }
 
         public bool IsAtLastFrame => this.PlayHeadFrame >= (this.MaxDuration - 1);
 
-        public bool IsRenderDirty { get; set; }
+        public bool IsRenderDirty { get; private set; }
 
-        public VideoEditorViewModel VideoEditorView { get; }
+        private readonly RapidDispatchCallback renderDispatch = new RapidDispatchCallback();
 
-        public TimelineViewModel(VideoEditorViewModel videoEditorView) {
-            this.VideoEditorView = videoEditorView;
+        public TimelineViewModel() {
             this.layers = new ObservableCollection<LayerViewModel>();
             this.Layers = new ReadOnlyObservableCollection<LayerViewModel>(this.layers);
             this.MaxDuration = 10000;
             this.PlayHeadFrame = 0;
-            this.IsRenderDirty = true;
-            Instance = this;
+            this.MarkRenderDirty();
         }
 
-        private void OnPlayHeadMoved(long oldFrame, long frame) {
-            if (oldFrame != frame) {
+        public bool CanRender() {
+            return IoC.Editor?.MainViewPort?.IsReadyForRender ?? false;
+        }
+
+        public void MarkRenderDirty() {
+            this.IsRenderDirty = true;
+            if (this.CanRender()) {
+                this.ScheduleRender(true);
+            }
+        }
+
+        public void OnPlayHeadMoved(long oldFrame, long frame, bool render) {
+            if (oldFrame == frame) {
+                return;
+            }
+
+            if (render && this.CanRender()) {
+                this.RenderViewPort();
+            }
+            else {
                 this.IsRenderDirty = true;
             }
+        }
+
+        public void ScheduleRender(bool useCurrentThread = true) {
+            if (useCurrentThread) {
+                this.RenderViewPort();
+            }
+            else {
+                this.renderDispatch.Invoke(this.RenderViewPort);
+            }
+        }
+
+        private void RenderViewPort() {
+            this.IsRenderDirty = false;
+            IoC.Editor.RenderViewPort();
+        }
+
+        public IEnumerable<ClipViewModel> GetClipsOnPlayHead() {
+            return this.GetClipsIntersectingFrame(this.playHeadFrame);
         }
 
         public IEnumerable<ClipViewModel> GetClipsIntersectingFrame(long frame) {
@@ -104,17 +135,23 @@ namespace FramePFX.Timeline {
         }
 
         public static long WrapIndex(long index, long endIndex) {
+            // only works properly if index is less than (endIndex * 2)
+            // e.g. if index is 2005 and endIndex is 1000, this function will return 1005, not 5
+            // Assume that will never be the case though...
             return index >= endIndex ? (index - endIndex) : index;
         }
 
         /// <summary>
-        /// Steps the play head for the next frame
+        /// Steps the play head for the next frame (typically from the playback thread)
         /// </summary>
-        public void StepFrame() {
-            this.isSteppingFrame = true;
+        public void StepFrame(long change = 1L) {
+            this.ignorePlayHeadPropertyChange = true;
+            long duration = this.maxDuration;
             long oldFrame = this.playHeadFrame;
-            this.playHeadFrame = WrapIndex(this.playHeadFrame + 1, this.maxDuration);
-            this.OnPlayHeadMoved(oldFrame, this.playHeadFrame);
+            // Clamp between 0 and max duration. also clamp change in safe duration range
+            long newFrame = Math.Max(this.playHeadFrame + Maths.Clamp(change, -duration, duration), 0);
+            this.playHeadFrame = WrapIndex(newFrame, duration);
+            this.OnPlayHeadMoved(oldFrame, this.playHeadFrame, false);
             if (!this.isFramePropertyChangeScheduled) {
                 this.isFramePropertyChangeScheduled = true;
                 IoC.Dispatcher.Invoke(() => {
@@ -123,7 +160,7 @@ namespace FramePFX.Timeline {
                 });
             }
 
-            this.isSteppingFrame = false;
+            this.ignorePlayHeadPropertyChange = false;
         }
     }
 }

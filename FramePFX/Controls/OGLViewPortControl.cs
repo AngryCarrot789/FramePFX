@@ -3,15 +3,16 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using FramePFX.Core.Render;
 using FramePFX.Render;
 
 namespace FramePFX.Controls {
-    public class ViewportControl : Image, OGLViewPortContext {
+    public class OGLViewPortControl : Image, IOGLViewPort {
         public static readonly DependencyProperty ViewportWidthProperty =
             DependencyProperty.Register(
                 "ViewportWidth",
                 typeof(int),
-                typeof(ViewportControl),
+                typeof(OGLViewPortControl),
                 new FrameworkPropertyMetadata(
                     0,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
@@ -21,20 +22,20 @@ namespace FramePFX.Controls {
             DependencyProperty.Register(
                 "ViewportHeight",
                 typeof(int),
-                typeof(ViewportControl),
+                typeof(OGLViewPortControl),
                 new FrameworkPropertyMetadata(
                     0,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     OnViewportHeightPropertyChanged));
 
         private static void OnViewportWidthPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (e.OldValue != e.NewValue && d is ViewportControl viewport && !viewport.isUpdatingProperties) {
+            if (e.OldValue != e.NewValue && d is OGLViewPortControl viewport && !viewport.isUpdatingProperties) {
                 viewport.UpdateViewportSize((int) e.NewValue, viewport.ViewportHeight, false);
             }
         }
 
         private static void OnViewportHeightPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (e.OldValue != e.NewValue && d is ViewportControl viewport && !viewport.isUpdatingProperties) {
+            if (e.OldValue != e.NewValue && d is OGLViewPortControl viewport && !viewport.isUpdatingProperties) {
                 viewport.UpdateViewportSize(viewport.ViewportWidth, (int) e.NewValue, false);
             }
         }
@@ -43,16 +44,13 @@ namespace FramePFX.Controls {
         private volatile bool isUpdatingViewPort;
         private volatile bool isReadyToRender;
         private volatile WriteableBitmap bitmap;
-        private volatile IntPtr backBuffer;
         private volatile bool hasFreshFrame;
 
         private volatile int targetWidth;
         private volatile int targetHeight;
         private volatile bool isUpdatingProperties;
 
-        public WriteableBitmap CurrentFrame => this.bitmap;
-
-        public IntPtr CurrentFramePtr => this.backBuffer;
+        public IOGLContext Context => OpenTKRenderThread.GlobalContext;
 
         public bool IsReadyForRender {
             get => this.isReadyToRender && !this.isUpdatingViewPort;
@@ -75,7 +73,7 @@ namespace FramePFX.Controls {
 
         private volatile bool isLoaded;
 
-        public ViewportControl() {
+        public OGLViewPortControl() {
             this.Loaded += this.OnLoaded;
             this.Unloaded += this.ViewportControl_Unloaded;
         }
@@ -84,7 +82,6 @@ namespace FramePFX.Controls {
             this.isLoaded = false;
             this.bitmap = null;
             this.Source = this.bitmap;
-            this.backBuffer = IntPtr.Zero;
             this.isUpdatingViewPort = false;
             this.isReadyToRender = false;
         }
@@ -141,7 +138,7 @@ namespace FramePFX.Controls {
             this.ValidateTargetSize();
             this.bitmap = new WriteableBitmap(this.targetWidth, this.targetHeight, 96, 96, PixelFormats.Rgb24, null);
             this.Source = this.bitmap;
-            this.backBuffer = this.bitmap.BackBuffer;
+            // this.backBuffer = this.bitmap.BackBuffer;
             this.isUpdatingViewPort = false;
             this.isReadyToRender = true;
         }

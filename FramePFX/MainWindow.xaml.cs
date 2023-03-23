@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using FramePFX.Core;
+using FramePFX.Core.Render;
+using FramePFX.Core.ResourceManaging.Items;
+using FramePFX.Core.Timeline;
 using FramePFX.Render;
-using FramePFX.Timeline;
-using FramePFX.Timeline.Layer;
-using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 
@@ -21,25 +19,62 @@ namespace FramePFX {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        private readonly OGLContextImpl ogl;
+        private readonly OGLMainViewPortImpl oglMainViewPort;
+        public VideoEditorViewModel Editor => this.DataContext as VideoEditorViewModel;
 
         public MainWindow() {
             this.InitializeComponent();
-            this.ogl = new OGLContextImpl(this, this.GLViewport, 1920, 1080);
-            IoC.Instance.Register<OGLViewPortContext>(this.ogl);
-            this.DataContext = new MainViewModel();
+            this.oglMainViewPort = new OGLMainViewPortImpl(this, this.GLViewport, 1920, 1080);
+            VideoEditorViewModel editor = new VideoEditorViewModel {
+                MainViewPort = this.oglMainViewPort
+            };
+
+            IoC.Editor = editor;
+            this.DataContext = editor;
             this.Closed += this.OnClosed;
+
+            ResourceSquareViewModel redSquare = new ResourceSquareViewModel {
+                Red = 0.9f,
+                Green = 0.1f,
+                Blue = 0.1f
+            };
+
+            ResourceSquareViewModel greenSquare = new ResourceSquareViewModel {
+                Red = 0.1f,
+                Green = 0.9f,
+                Blue = 0.1f
+            };
+
+            ResourceSquareViewModel blueSquare = new ResourceSquareViewModel {
+                Red = 0.1f,
+                Green = 0.1f,
+                Blue = 0.9f
+            };
+
+            editor.ResourceManager.AddResource("Resource_RED", redSquare);
+            editor.ResourceManager.AddResource("Resource_GREEN", greenSquare);
+            editor.ResourceManager.AddResource("Resource_BLUE", blueSquare);
+
+            LayerViewModel l1 = editor.Timeline.CreateLayer("Layer 1");
+            l1.CreateSquareClip(0, 50, redSquare).SetShape(5f, 5f, 50f, 50f).Name = "Red_0";
+            l1.CreateSquareClip(100, 150, redSquare).SetShape(55f, 5f, 50f, 50f).Name = "Red_1";
+            l1.CreateSquareClip(275, 50, greenSquare).SetShape(110f, 5f, 50f, 50f).Name = "Green_0";
+
+            LayerViewModel l2 = editor.Timeline.CreateLayer("Layer 2");
+            l2.CreateSquareClip(0, 100, greenSquare).SetShape(5f, 55f, 50f, 50f).Name = "Green_1";
+            l2.CreateSquareClip(100, 50, blueSquare).SetShape(55f, 55f, 50f, 50f).Name = "Blue_0";
+            l2.CreateSquareClip(175, 75, blueSquare).SetShape(110f, 55f, 50f, 50f).Name = "Blue_1";
         }
 
         private void OnClosed(object sender, EventArgs e) {
-            this.ogl.Stop();
+            this.oglMainViewPort.Stop();
 
-            if (this.DataContext is MainViewModel mvm) {
-                mvm.isPlaybackThreadRunning = false;
+            if (this.Editor is VideoEditorViewModel editor) {
+                editor.isPlaybackThreadRunning = false;
             }
         }
 
-        public class OGLContextImpl : OGLViewPortContext, IRenderHandler {
+        public class OGLMainViewPortImpl : IRenderTarget {
             private readonly MainWindow window;
             private readonly Image image;
             private readonly object locker = new object();
@@ -59,6 +94,8 @@ namespace FramePFX {
             public WriteableBitmap CurrentFrame => this.bitmap;
             public IntPtr CurrentFramePtr => this.backBuffer;
 
+            public IOGLContext Context => this.openTk.oglContext;
+
             public readonly NumberAverager wpf_averager = new NumberAverager(10);
 
             public bool HasFreshFrame {
@@ -68,26 +105,26 @@ namespace FramePFX {
 
             public int ViewportWidth {
                 get => this.width;
-                set => this.UpdateViewport(value, this.height);
+                set => this.UpdateViewportSize(value, this.height);
             }
 
             public int ViewportHeight {
                 get => this.height;
-                set => this.UpdateViewport(this.width, value);
+                set => this.UpdateViewportSize(this.width, value);
             }
 
-            public bool IsOGLReady {
+            public bool IsReadyForRender {
                 get => this.isReadyToRender;
             }
 
-            public OGLContextImpl(MainWindow window, Image image, int w, int h) {
+            public OGLMainViewPortImpl(MainWindow window, Image image, int w, int h) {
                 this.width = w;
                 this.height = h;
                 this.window = window;
                 this.image = image;
                 this.openTk = new OpenTKRenderThread {
                     Width = w, Height = h,
-                    RenderHandler = this
+                    MainViewPort = this
                 };
                 this.timer = new DispatcherTimer(DispatcherPriority.Render) {
                     Interval = TimeSpan.FromMilliseconds(1)
@@ -95,7 +132,7 @@ namespace FramePFX {
                 this.timer.Tick += this.Timer_Tick;
                 this.timer.Start();
                 image.Loaded += this.ImageOnLoaded;
-                this.UpdateViewport(w, h);
+                this.UpdateViewportSize(w, h);
             }
 
             private void Timer_Tick(object sender, EventArgs e) {
@@ -130,9 +167,11 @@ namespace FramePFX {
                             await this.window.Dispatcher.InvokeAsync(() => {
                                 double wpfItv = this.wpf_averager.GetAverage() / TimeSpan.TicksPerMillisecond;
                                 double oglItv = 1d / this.openTk.AverageDelta;
+                                double pbkItv = 1000d / ((VideoEditorViewModel) this.window.DataContext).PlaybackAverageIntervalMS.GetAverage();
 
                                 this.window.FPS_WPF.Text = Math.Round(IntervalToFPS(wpfItv), 2).ToString();
                                 this.window.FPS_OGL.Text = Math.Round(oglItv, 2).ToString();
+                                this.window.PLAYBACK_FPS.Text = Math.Round(pbkItv, 2).ToString();
                             });
                         }
 
@@ -145,7 +184,7 @@ namespace FramePFX {
                 return 1000d / itv_ms;
             }
 
-            public void UpdateViewport(int w, int h) {
+            public void UpdateViewportSize(int w, int h) {
                 lock (this.locker) {
                     if ((w = Math.Max(w, 1)) == this.width && (h = Math.Max(h, 1)) == this.height) {
                         return;
@@ -181,27 +220,23 @@ namespace FramePFX {
 
             }
 
-            public void RenderGLThread() {
-                if (TimelineViewModel.Instance != null && TimelineViewModel.Instance.IsRenderDirty && !this.hasFreshFrame) {
-                    OGLViewPortContext ogl = IoC.Instance.Provide<OGLViewPortContext>();
+            public void Render() {
+                if (!this.hasFreshFrame) {
+                    this.openTk.oglContext.Framebuffer.Use();
                     GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-                    long playHead = TimelineViewModel.Instance.PlayHeadFrame;
-                    foreach (ClipViewModel clip in TimelineViewModel.Instance.GetClipsIntersectingFrame(playHead)) {
+                    TimelineViewModel timeline = IoC.Timeline;
+                    long playHead = timeline.PlayHeadFrame;
+                    foreach (ClipViewModel clip in timeline.GetClipsOnPlayHead()) {
                         if (clip is VideoClipViewModel videoClip) {
-                            videoClip.Render(ogl, playHead);
+                            videoClip.Render(this, playHead);
                         }
                     }
 
                     // this.bitmap = new WriteableBitmap(this.width, this.height, 96, 96, PixelFormats.Rgb24, null);
                     this.openTk.DrawViewportIntoBitmap(this.backBuffer, this.width, this.height);
                     // this.bitmap.Freeze();
-                    TimelineViewModel.Instance.IsRenderDirty = false;
                     this.hasFreshFrame = true;
                 }
-            }
-
-            public void Tick(double interval) {
-
             }
 
             public void Stop() {

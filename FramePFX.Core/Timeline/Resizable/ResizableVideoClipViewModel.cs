@@ -1,7 +1,7 @@
-using FramePFX.Render;
+using FramePFX.Core.Render;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Timeline.Layer.Clips.Resizable {
+namespace FramePFX.Core.Timeline.Resizable {
     public abstract class ResizableVideoClipViewModel : VideoClipViewModel {
         protected float posX;
         public float PosX {

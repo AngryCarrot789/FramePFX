@@ -1,5 +1,5 @@
 namespace FramePFX.Core.Timeline {
-    public interface INativeLayer {
+    public interface ILayerHandle {
         
     }
 }

@@ -8,9 +8,9 @@
         xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
         xmlns:controls="clr-namespace:FramePFX.Controls"
         xmlns:clips="clr-namespace:FramePFX.Timeline.Layer.Clips"
-        xmlns:layer="clr-namespace:FramePFX.Timeline.Layer"
+        xmlns:layer="clr-namespace:FramePFX.Timeline.Layer" xmlns:res="clr-namespace:FramePFX.ResourceManaging"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance local:MainViewModel}"
+        d:DataContext="{d:DesignInstance local:VideoEditorViewModel}"
         Title="MainWindow" Width="1408" Height="792"
         Style="{StaticResource CustomWindowStyle}" 
         Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"
@@ -25,14 +25,14 @@
                 <RowDefinition Height="5"/>
                 <RowDefinition Height="75*"/>
             </Grid.RowDefinitions>
-            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 1"/>
+            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 1" SnapsToDevicePixels="True"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*"/>
                     <ColumnDefinition Width="5"/>
                     <ColumnDefinition Width="7*"/>
                 </Grid.ColumnDefinitions>
-                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" Grid.Column="1" Margin="0,-1"/>
+                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" Grid.Column="1" Margin="0,-1" SnapsToDevicePixels="True"/>
                 <Grid Grid.Column="2">
                     <Border VerticalAlignment="Bottom" Height="36" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
@@ -43,7 +43,45 @@
                         <Image Width="1920" Height="1080" x:Name="GLViewport"/>
                     </Viewbox>
                 </Grid>
-                <Border Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"/>
+                <Border Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}">
+                    <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}">
+                        <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
+                            <Grid>
+                                <res:ResourceListControl FileDropNotifier="{Binding}" ItemsSource="{Binding Items, Mode=OneTime}" BorderThickness="0">
+                                    <res:ResourceListControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </res:ResourceListControl.ItemsPanel>
+                                    <res:ResourceListControl.ItemContainerStyle>
+                                        <Style TargetType="{x:Type res:ResourceItemControl}" BasedOn="{StaticResource {x:Type res:ResourceItemControl}}">
+                                            <Setter Property="UniqueIDHeader" Value="{Binding UniqueID, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <Setter Property="ContextMenu">
+                                                <Setter.Value>
+                                                    <ContextMenu>
+                                                        <MenuItem Header="Rename" Command="{Binding RenameCommand, Mode=OneTime}"/>
+                                                        <MenuItem Background="DarkRed" Header="Delete" Command="{Binding DeleteCommand, Mode=OneTime}"/>
+                                                    </ContextMenu>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </res:ResourceListControl.ItemContainerStyle>
+                                    <res:ResourceListControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=UniqueID}"/>
+                                        </DataTemplate>
+                                    </res:ResourceListControl.ItemTemplate>
+                                </res:ResourceListControl>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Clip Properties">
+                            <Grid>
+                                <!-- use ItemTemplate based on data context type... or ItemTemplateSelector -->
+                                <ContentPresenter/>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                </Border>
             </Grid>
             <Grid Grid.Row="2">
                 <Border VerticalAlignment="Bottom" Height="20" BorderBrush="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderThickness="0 1 0 0">
@@ -52,8 +90,10 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="WPF FPS:" Margin="5 0 0 0"/>
                             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="FPS_WPF" Margin="5 0 0 0" MinWidth="40"/>
-                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="OpenGL FPS:" Margin="5 0 0 0"/>
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="OpenGL FPS (GL thread to be removed):" Margin="5 0 0 0"/>
                             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="FPS_OGL" Margin="5 0 0 0"  MinWidth="40"/>
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="Playback FPS:" Margin="5 0 0 0"/>
+                            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" x:Name="PLAYBACK_FPS" Margin="5 0 0 0"  MinWidth="40"/>
                         </StackPanel>
                     </Border>
                 </Border>
@@ -83,18 +123,20 @@
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Rectangle Margin="0" Width="18" Fill="Orange" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
-                                        <Grid Margin="23,4,6,4">
-                                            <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
-                                            <Grid Margin="0,20,0,0">
-                                                <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                                <Slider Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" TickPlacement="BottomRight" SmallChange="0.1" TickFrequency="0.1"/>
+                                    <Border BorderBrush="{DynamicResource AREghZyBrush.Primary.2.Border.Static}" BorderThickness="0 0 0 1">
+                                        <Grid>
+                                            <Rectangle Margin="0" Width="18" Fill="Orange" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
+                                            <Grid Margin="23,4,6,4">
+                                                <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
+                                                <Grid Margin="0,20,0,0">
+                                                    <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                                    <Slider Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" TickPlacement="BottomRight" SmallChange="0.1" TickFrequency="0.1"/>
+                                                </Grid>
                                             </Grid>
+                                            <Thumb DragDelta="ThumbTop" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
+                                            <Thumb DragDelta="ThumbBottom" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                         </Grid>
-                                        <Thumb DragDelta="ThumbTop" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
-                                        <Thumb DragDelta="ThumbBottom" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
-                                    </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -214,7 +256,7 @@
                                 </Style>
                             </timeline:TimelineControl.ItemContainerStyle>
                         </timeline:TimelineControl>
-                        <GridSplitter Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0"/>
+                        <GridSplitter Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
             </Grid>

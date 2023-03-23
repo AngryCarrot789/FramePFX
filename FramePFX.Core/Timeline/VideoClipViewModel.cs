@@ -1,7 +1,6 @@
-﻿using FramePFX.Core.Timeline;
-using FramePFX.Render;
+﻿using FramePFX.Core.Render;
 
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Core.Timeline {
     public abstract class VideoClipViewModel : ClipViewModel {
         protected VideoClipViewModel() {
 

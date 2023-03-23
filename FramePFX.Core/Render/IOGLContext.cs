@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.Render {
+namespace FramePFX.Core.Render {
     /// <summary>
     /// An implementation for an OpenGL context. Usually, there's only 1 of these
     /// </summary>
@@ -21,5 +21,15 @@ namespace FramePFX.Render {
         bool DrawViewportIntoBitmap(IntPtr bitmap, int w, int h, bool force = false);
 
         void UpdateViewportSize(int width, int height);
+
+        /// <summary>
+        /// Marks the beginning of a new render
+        /// </summary>
+        void BeginRender();
+
+        /// <summary>
+        /// Marks the end of a render
+        /// </summary>
+        void EndRender();
     }
 }

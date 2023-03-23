@@ -1,8 +1,6 @@
 ﻿using System;
-using FramePFX.Core;
-using FramePFX.Core.Timeline;
 
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Core.Timeline {
     public class ClipViewModel : BaseViewModel {
         private long frameBegin;
         public long FrameBegin {
@@ -49,8 +47,8 @@ namespace FramePFX.Timeline.Layer.Clips {
         }
 
         private void MarkForRender() {
-            if (this.Layer != null) {
-                this.Layer.Timeline.IsRenderDirty = true;
+            if (this.Layer != null && (IoC.Editor.MainViewPort?.IsReadyForRender ?? false)) {
+                this.Layer.Timeline.ScheduleRender(true);
             }
         }
     }

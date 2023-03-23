@@ -1,6 +1,4 @@
-using System;
-
-namespace FramePFX.Render {
+namespace FramePFX.Core.Render {
     /// <summary>
     /// A viewport that can be rendered into via OpenGL, e.g. main view port, clip renderers, etc
     /// </summary>

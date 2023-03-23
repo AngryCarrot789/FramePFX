@@ -1,4 +1,4 @@
-namespace FramePFX.Core.ResourceManaging {
+namespace FramePFX.Core.ResourceManaging.Items {
     public class ResourceImageViewModel : ResourceItemViewModel {
         private string filePath;
         public string FilePath {

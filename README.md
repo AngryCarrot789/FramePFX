@@ -25,3 +25,7 @@ Then, you just create a DispatcherTimer to Lock, Mark the dirty region and then 
 `ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)
 
 Oh and uh... don't drag drop something like your C:\ drive or a folder which contains 100,000s of files in the hierarchy into the ResourceListControl, otherwise the app will probably freeze as it recursively loads all of those files
+
+# Rendering/Encoding
+TODO... but it won't modify the UI at all, in order to help render times. It will probably just setup a view port based on the render output resolution,
+draw the clips each frame, and then copy the pixels from OpenGL to an encoder. Maybe FFMPEG?

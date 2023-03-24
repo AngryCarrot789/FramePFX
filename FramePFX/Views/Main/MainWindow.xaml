@@ -10,14 +10,33 @@
         xmlns:clips="clr-namespace:FramePFX.Timeline.Layer.Clips"
         xmlns:layer="clr-namespace:FramePFX.Timeline.Layer" xmlns:res="clr-namespace:FramePFX.ResourceManaging"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance local:VideoEditorViewModel}"
+        d:DataContext="{d:DesignInstance local:PlaybackViewportViewModel}"
         Title="MainWindow" Width="1408" Height="792"
         Style="{StaticResource CustomWindowStyle}" 
         Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"
         BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}">
     <Grid>
         <Menu VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1">
-            <MenuItem Header="File"/>
+            <MenuItem Header="File">
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+                <MenuItem Header="Weeeeeeeeeeeeeeeeeeeeeeeeeeeeee"/>
+            </MenuItem>
+            <MenuItem Header="Another drop down here"/>
+            <MenuItem Header="Unused"/>
         </Menu>
         <Grid Margin="0,19,0,0">
             <Grid.RowDefinitions>
@@ -34,12 +53,22 @@
                 </Grid.ColumnDefinitions>
                 <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" Grid.Column="1" Margin="0,-1" SnapsToDevicePixels="True"/>
                 <Grid Grid.Column="2">
-                    <Border VerticalAlignment="Bottom" Height="36" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 0">
+                    <Border VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
-                            <Button HorizontalAlignment="Center" VerticalAlignment="Center" Content="Play" Padding="5,2" Command="{Binding PlayPauseCommand, Mode=OneTime}"/>
+                            <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayPauseCommand, Mode=OneTime}" Margin="5,5,0,5"/>
+                            <Button Width="26" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="80,5,0,5">
+                                <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                            </Button>
+                            <Button Width="26" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="111,5,0,5">
+                                <Grid Width="14" Height="16">
+                                    <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                                    <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                                </Grid>
+                            </Button>
+                            <Button Content="Settings (coming soon)" Width="150" HorizontalAlignment="Right" Padding="3,0,2,0" Command="{Binding PlayPauseCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>
-                    <Viewbox Margin="0,0,0,36">
+                    <Viewbox Margin="0,0,0,35">
                         <Image Width="1920" Height="1080" x:Name="GLViewport"/>
                     </Viewbox>
                 </Grid>
@@ -141,7 +170,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <Border BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
-                        <timeline:TimelineControl x:Name="TheTimeline" DataContext="{Binding .}" 
+                        <timeline:TimelineControl x:Name="TheTimeline"
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0 0 0 0"
                                                   BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}"
@@ -162,6 +191,8 @@
                                                     <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" 
                                                                   Padding="{TemplateBinding Padding}" 
                                                                   HorizontalScrollBarVisibility="Visible">
+                                                        <!-- Handle RequestBringIntoView in the grid because there is no preview version of the event -->
+                                                        <!-- Handling the event will stop the ScrollViewer scrolling to offscreen values -->
                                                         <Grid HorizontalAlignment="Left" RequestBringIntoView="FrameworkElement_OnRequestBringIntoView">
                                                             <Grid.RowDefinitions>
                                                                 <RowDefinition Height="40"/>
@@ -170,12 +201,14 @@
                                                             <Border Margin="0" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.Row="1">
                                                                 <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                                             </Border>
-                                                            <Border x:Name="PART_TimestampBoard" Margin="0" VerticalAlignment="Stretch" BorderThickness="0 0 0 1" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.1.Border.Static}"/>
-                                                            <timeline:TimelinePlayheadControl x:Name="PART_PlayHead"
+                                                            <Border Grid.Row="0" x:Name="PART_TimestampBoard" Margin="0" VerticalAlignment="Stretch" BorderThickness="0 0 0 1" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.1.Border.Static}"/>
+                                                            <timeline:TimelinePlayheadControl x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2"
                                                                                               VerticalAlignment="Stretch"
                                                                                               VerticalContentAlignment="Stretch"
                                                                                               HorizontalAlignment="Left"
-                                                                                              FrameBegin="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" Width="1" Background="{DynamicResource AREghZyBrush.Primary.4.Border.Static}" Grid.RowSpan="2"/>
+                                                                                              Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                                                                              FrameBegin="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" Width="1"
+                                                                                              Background="{DynamicResource AREghZyBrush.Primary.4.Border.Static}"/>
                                                         </Grid>
                                                     </ScrollViewer>
                                                 </Grid>
@@ -197,7 +230,7 @@
                                     <Setter Property="Focusable" Value="True"/>
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
-                                            <Style TargetType="{x:Type timeline:TimelineClipControl}">
+                                            <Style TargetType="{x:Type clips:TimelineClipControl}">
                                                 <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
                                                 <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
@@ -210,7 +243,7 @@
                                                 <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
-                                                        <ControlTemplate TargetType="{x:Type timeline:TimelineClipControl}">
+                                                        <ControlTemplate TargetType="{x:Type clips:TimelineClipControl}">
                                                             <Grid>
                                                                 <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
                                                                     <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">

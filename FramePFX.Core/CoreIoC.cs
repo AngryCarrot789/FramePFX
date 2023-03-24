@@ -15,11 +15,6 @@ namespace FramePFX.Core {
             set => Instance.Register(value ?? throw new ArgumentNullException(nameof(value), "Value cannot be null"));
         }
 
-        public static ResourceManagerViewModel ResourceManager {
-            get => Instance.Provide<ResourceManagerViewModel>();
-            set => Instance.Register(value ?? throw new ArgumentNullException(nameof(value), "Value cannot be null"));
-        }
-
         public static IEditor Editor {
             get => Instance.Provide<IEditor>();
             set => Instance.Register(value ?? throw new ArgumentNullException(nameof(value), "Value cannot be null"));

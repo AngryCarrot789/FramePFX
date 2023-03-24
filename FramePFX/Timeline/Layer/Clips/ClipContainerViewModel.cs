@@ -1,6 +1,7 @@
 ﻿using System;
+using FramePFX.Core;
 
-namespace FramePFX.Core.Timeline {
+namespace FramePFX.Timeline.Layer.Clips {
     public class ClipViewModel : BaseViewModel {
         private long frameBegin;
         public long FrameBegin {
@@ -40,7 +41,7 @@ namespace FramePFX.Core.Timeline {
             set => this.RaisePropertyChanged(ref this.name, value);
         }
 
-        public IClipHandle Control { get; set; }
+        public IClipContainerHandle Handle { get; set; }
 
         public LayerViewModel Layer { get; set; }
 

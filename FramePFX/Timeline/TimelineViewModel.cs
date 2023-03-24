@@ -86,7 +86,7 @@ namespace FramePFX.Core.Timeline {
             }
 
             if (render && this.CanRender()) {
-                this.RenderViewPort();
+                this.RenderViewPortAndMarkNotDirty();
             }
             else {
                 this.IsRenderDirty = true;
@@ -95,14 +95,14 @@ namespace FramePFX.Core.Timeline {
 
         public void ScheduleRender(bool useCurrentThread = true) {
             if (useCurrentThread) {
-                this.RenderViewPort();
+                this.RenderViewPortAndMarkNotDirty();
             }
             else {
-                this.renderDispatch.Invoke(this.RenderViewPort);
+                this.renderDispatch.Invoke(this.RenderViewPortAndMarkNotDirty);
             }
         }
 
-        private void RenderViewPort() {
+        private void RenderViewPortAndMarkNotDirty() {
             this.IsRenderDirty = false;
             IoC.Editor.RenderViewPort();
         }

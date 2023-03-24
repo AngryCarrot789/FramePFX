@@ -20,3 +20,8 @@ Rendering the main view port (and soon the clip/text resource previews) is done 
 Basically, OpenGL is just rendering into a framebuffer, and then copying the framebuffer pixels to a WritableBitmap's BackBuffer (all on another thread). The BackBuffer can be access even if the bitmap isn't locked, but you need to store the bitmap BackBuffer pointer as a field to access it off the WPF thread
 
 Then, you just create a DispatcherTimer to Lock, Mark the dirty region and then unlock, which lets WPF render. This means you can draw OpenGL and copy that into the pointer, and render the WPF side at the same time
+
+## Resource list
+`ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)
+
+Oh and uh... don't drag drop something like your C:\ drive or a folder which contains 100,000s of files in the hierarchy into the ResourceListControl, otherwise the app will probably freeze as it recursively loads all of those files

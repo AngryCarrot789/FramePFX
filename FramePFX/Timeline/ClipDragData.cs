@@ -66,7 +66,8 @@ namespace FramePFX.Timeline {
             this.Clip.IsMovingControl = true;
             this.Clip.FrameBegin = newFrameBegin;
             this.Clip.IsMovingControl = false;
-            this.Clip.Content = $"{this.buffer} | {newFrameBegin} ({this.incremented})";
+            // this.Clip.Content = $"{this.buffer} | {newFrameBegin} ({this.incremented})";
+            this.Clip.Content = $"{this.Clip.Span}";
         }
 
         public void OnCompleted() {

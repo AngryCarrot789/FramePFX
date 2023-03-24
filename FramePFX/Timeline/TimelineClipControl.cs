@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using FramePFX.Core.Timeline;
 using FramePFX.Timeline.Layer;
+using FramePFX.Core;
 
 namespace FramePFX.Timeline {
     public class TimelineClipControl : ContentControl, IClipHandle {
@@ -293,6 +294,12 @@ namespace FramePFX.Timeline {
                                 if (offset != 0) {
                                     this.Timeline.DragData.OnMouseMove(offset);
                                 }
+                            }
+
+                            // force re-render view port. Without this code, if the playhead is at 0, then sometimes
+                            // the clips won't be rendered if you very quickly drag the clip to the very start
+                            if (IoC.Editor.MainViewPort?.IsReadyForRender ?? false) {
+                                IoC.Editor.RenderViewPort();
                             }
                         }
 

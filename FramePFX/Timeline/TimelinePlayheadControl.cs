@@ -111,8 +111,12 @@ namespace FramePFX.Timeline {
             }
 
             long begin = this.FrameBegin + change;
-            if (begin < 0 || begin >= this.Timeline.MaxDuration) {
+            if (begin >= this.Timeline.MaxDuration) {
                 return;
+            }
+
+            if (begin < 0) {
+                begin = 0;
             }
 
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {

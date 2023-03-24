@@ -26,6 +26,14 @@ namespace FramePFX.Core.Timeline {
             }
         }
 
+        public FrameSpan Span {
+            get => new FrameSpan(this.FrameBegin, this.FrameDuration);
+            set {
+                this.FrameBegin = value.Begin;
+                this.FrameDuration = value.Duration;
+            }
+        }
+
         private string name;
         public string Name {
             get => this.name;

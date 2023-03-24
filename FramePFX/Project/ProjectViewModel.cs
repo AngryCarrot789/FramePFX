@@ -81,7 +81,7 @@ namespace FramePFX.Project {
         }
 
         public static void CreateSquare(LayerViewModel layer, long begin, long duration, ResourceColourViewModel colour, float x, float y, float w, float h, string name) {
-            ColouredShapeClipViewModel clip = layer.CreateSquareClip(begin, duration, colour);
+            ShapeClipViewModel clip = layer.CreateSquareClip(begin, duration, colour);
             clip.SetShape(x, y, w, h);
             clip.Container.Name = name;
         }

@@ -100,11 +100,15 @@ namespace FramePFX.Controls {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            if (this.Width == 0)
-                this.Width = this.ActualWidth;
-            if (this.Height == 0)
-                this.Height = this.ActualHeight;
             this.isLoaded = true;
+            if (this.targetWidth < 1) {
+                this.targetWidth = 1;
+            }
+
+            if (this.targetHeight < 1) {
+                this.targetHeight = 1;
+            }
+
             this.CreateBitmap();
             lock (TICKING_CONTROLS) {
                 TICKING_CONTROLS.Add(this);
@@ -125,13 +129,13 @@ namespace FramePFX.Controls {
 
         private static void OnViewportWidthPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             if (e.OldValue != e.NewValue && d is OGLViewPortControl viewport && !viewport.isUpdatingDependencyProperties) {
-                viewport.UpdateViewportSize((int) e.NewValue, viewport.ViewportHeight, false);
+                viewport.UpdateViewportSize(Math.Max(1, (int) e.NewValue), viewport.ViewportHeight, false);
             }
         }
 
         private static void OnViewportHeightPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             if (e.OldValue != e.NewValue && d is OGLViewPortControl viewport && !viewport.isUpdatingDependencyProperties) {
-                viewport.UpdateViewportSize(viewport.ViewportWidth, (int) e.NewValue, false);
+                viewport.UpdateViewportSize(viewport.ViewportWidth, Math.Max(1, (int) e.NewValue), false);
             }
         }
 
@@ -161,8 +165,8 @@ namespace FramePFX.Controls {
 
         public void UpdateViewportSize(int w, int h, bool updateDependencProperties) {
             lock (this.locker) {
-                this.targetWidth = w;
-                this.targetHeight = h;
+                this.targetWidth = Math.Max(1, w);
+                this.targetHeight = Math.Max(1, h);
                 if (this.isUpdatingViewPort || !this.isLoaded) {
                     return;
                 }

@@ -7,7 +7,7 @@ namespace FramePFX.Timeline.Layer.Clips {
         public DataTemplate ColouredSquareTemplate { get; set; }
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container) {
-            if (item is ColouredShapeClipViewModel) {
+            if (item is ShapeClipViewModel) {
                 return this.ColouredSquareTemplate;
             }
             else {

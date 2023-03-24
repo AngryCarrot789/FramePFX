@@ -2,7 +2,7 @@ using FramePFX.ResourceManaging.Items;
 using FramePFX.Timeline.Layer.Clips.Data;
 
 namespace FramePFX.Timeline.Layer.Clips.Resizable {
-    public class ColouredShapeClipViewModel : UIResizableVideoClipViewModel, IColourData {
+    public class ShapeClipViewModel : UIResizableVideoClipViewModel, IColourData {
         private ResourceColourViewModel resource;
         public ResourceColourViewModel Resource {
             get => this.resource;
@@ -29,7 +29,7 @@ namespace FramePFX.Timeline.Layer.Clips.Resizable {
             set => this.resource.Alpha = value;
         }
 
-        public ColouredShapeClipViewModel() {
+        public ShapeClipViewModel() {
             this.Resource = new ResourceColourViewModel() {
                 Red = 1f,
                 Green = 1f,

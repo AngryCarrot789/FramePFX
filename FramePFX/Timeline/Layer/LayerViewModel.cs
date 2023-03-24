@@ -89,14 +89,13 @@ namespace FramePFX.Timeline.Layer {
             };
         }
 
-        public ColouredShapeClipViewModel CreateSquareClip(long begin, long duration, ResourceColourViewModel colour) {
+        public ShapeClipViewModel CreateSquareClip(long begin, long duration, ResourceColourViewModel colour) {
             VideoClipContainerViewModel container = this.CreateVideoClipContainer(begin, duration);
-            ColouredShapeClipViewModel clip = new ColouredShapeClipViewModel {
-                Resource = colour,
-                Container = container
+            ShapeClipViewModel clip = new ShapeClipViewModel {
+                Resource = colour
             };
 
-            container.ClipContent = clip;
+            ClipContainerViewModel.SetClipContent(container, clip);
             this.Clips.Add(container);
             return clip;
         }

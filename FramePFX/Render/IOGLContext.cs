@@ -1,10 +1,12 @@
 using System;
 
-namespace FramePFX.Core.Render {
+namespace FramePFX.Render {
     /// <summary>
     /// An implementation for an OpenGL context. Usually, there's only 1 of these
     /// </summary>
     public interface IOGLContext : IDisposable {
+        bool IsReady { get; }
+
         /// <summary>
         /// Attempts to use the context. This can be called from any thread
         /// <para>
@@ -20,7 +22,7 @@ namespace FramePFX.Core.Render {
 
         bool DrawViewportIntoBitmap(IntPtr bitmap, int w, int h, bool force = false);
 
-        void UpdateViewportSize(int width, int height);
+        void SetViewportSize(int width, int height);
 
         /// <summary>
         /// Marks the beginning of a new render

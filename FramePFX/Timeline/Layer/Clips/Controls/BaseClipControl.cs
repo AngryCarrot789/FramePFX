@@ -1,5 +1,7 @@
+using System.Windows.Controls;
+
 namespace FramePFX.Timeline.Layer.Clips.Controls {
-    public class BaseClipControl {
-        
+    public class BaseClipControl : Control {
+
     }
 }

@@ -3,12 +3,13 @@ using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Project;
 using FramePFX.Render;
-using FramePFX.ResourceManaging;
 using FramePFX.Timeline;
+using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Utils;
+using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX {
-    public class ViewportViewModel : BaseViewModel, IEditor {
+    public class PlaybackViewportViewModel : BaseViewModel {
         private volatile bool isPlaying;
         public bool IsPlaying {
             get => this.isPlaying;
@@ -25,9 +26,9 @@ namespace FramePFX {
         public RelayCommand PauseCommand { get; set; }
 
         /// <summary>
-        /// A handle to the actual view port
+        /// A handle to the main view port
         /// </summary>
-        public IAutoRenderTarget ViewportHandle { get; set; }
+        public IOGLViewPort ViewPortHandle { get; set; }
 
         private readonly Thread playbackThread;
         private long nextPlaybackTick;
@@ -35,8 +36,7 @@ namespace FramePFX {
         public volatile bool isPlaybackThreadRunning;
         public readonly NumberAverager playbackAverageIntervalMS = new NumberAverager(10);
 
-        public ViewportViewModel() {
-            IoC.Editor = this;
+        public PlaybackViewportViewModel() {
             this.PlayPauseCommand = new RelayCommand(() => {
                 if (this.IsPlaying) {
                     this.PauseAction();
@@ -54,11 +54,43 @@ namespace FramePFX {
             this.playbackThread.Start();
         }
 
-        public void RenderViewPort() {
-            IAutoRenderTarget view = this.ViewportHandle;
-            if (view != null && view.IsReadyForRender) {
+        private bool hasFreshFrame;
+
+        public bool IsReadyForRender() {
+            return this.ViewPortHandle != null && this.ViewPortHandle.IsReadyForRender && this.ViewPortHandle.Context.IsReady;
+        }
+
+        public void RenderTimeline(TimelineViewModel timeline) {
+            if (this.IsReadyForRender()) {
+                IOGLViewPort view = this.ViewPortHandle;
                 view.Context.BeginRender();
-                view.Render();
+                    GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+                    long playHead = timeline.PlayHeadFrame;
+                    // foreach (LayerViewModel layer in timeline.Layers) {
+                    //     foreach (ClipContainerViewModel clip in layer.Clips) {
+                    //         if (clip.IntersectsFrameAt(playHead)) {
+                    //
+                    //         }
+                    //     }
+                    // }
+
+                    // TODO: change this to support layer opacity. And also move to shaders because this glVertex3f old stuff it no good
+                    foreach (ClipContainerViewModel clip in timeline.GetClipsOnPlayHead()) {
+                        IClipContainerHandle handle = clip.ContainerHandle;
+                        if (handle == null) {
+                            continue;
+                        }
+
+                        if (handle.ClipHandle is IClipRenderTarget target) {
+                            target.Render(view, playHead);
+                        }
+                        // TODO: add audio... somehow. I have no idea how to do audio lololol
+                        // else if (handle.ClipHandle is IAudioRenderTarget) {
+                        //
+                        // }
+                    }
+
+                    view.FlushFrame();
                 view.Context.EndRender();
             }
         }
@@ -87,7 +119,7 @@ namespace FramePFX {
                     // Directly render clips here, instead of waiting for the GL thread to do it (and also
                     // the GL thread needs to be removed because it just chews CPU for no reason)
                     if (timeline.IsRenderDirty) {
-                        this.RenderViewPort();
+                        this.RenderTimeline(timeline);
                     }
 
                     // yield results in a generally higher CPU usage due to the fact that

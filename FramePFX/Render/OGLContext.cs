@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using FramePFX.Core.Render;
 using FramePFX.Utils;
 using OpenTK;
 using OpenTK.Graphics;
@@ -14,6 +13,7 @@ namespace FramePFX.Render {
         private CASLockType lastRenderLockType;
 
         public GameWindow Window { get; }
+
         public IGraphicsContext Context { get; }
 
         public FrameBuffer Framebuffer {
@@ -31,6 +31,7 @@ namespace FramePFX.Render {
             this.Context = window.Context;
             this.framebuffer = framebuffer;
             this.ContextLock = new CASLock();
+            this.isReady = true;
         }
 
         /// <summary>
@@ -69,14 +70,18 @@ namespace FramePFX.Render {
             return new OGLContext(window, buffer);
         }
 
-        public void UpdateViewportSize(int width, int height) {
+        public void SetViewportSize(int width, int height) {
+            this.isReady = false;
             this.ContextLock.Lock(out var lockType);
             this.MakeCurrent(true);
             if (this.framebuffer != null && !this.framebuffer.IsDisposed) {
                 this.framebuffer.Dispose();
             }
 
-            this.Window.Size = new Size(width, height);
+            OpenGLMainThread.Instance.InvokeAsync(() => {
+                this.Window.Size = new Size(width, height);
+            }).Wait();
+
             this.framebuffer = FrameBuffer.Create(width, height);
 
             GL.Viewport(0, 0, width, height);
@@ -88,10 +93,16 @@ namespace FramePFX.Render {
 
             this.MakeCurrent(false);
             this.ContextLock.Unlock(lockType);
+            this.isReady = true;
         }
 
         public void BeginRender() {
             this.ContextLock.Lock(out this.lastRenderLockType);
+            if (!this.isReady) {
+                this.ContextLock.Unlock(this.lastRenderLockType);
+                throw new Exception("Not ready");
+            }
+
             this.MakeCurrent(true);
             this.framebuffer.Use();
         }

@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
 using System.Windows.Input;
-using FramePFX.Core.ResourceManaging.Items;
+using FramePFX.Core;
+using FramePFX.ResourceManaging.Items;
 
-namespace FramePFX.Core.ResourceManaging {
+namespace FramePFX.ResourceManaging {
     public class ResourceItemViewModel : BaseViewModel {
         private string uniqueId;
         private bool isRegistered;

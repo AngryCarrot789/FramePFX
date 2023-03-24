@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\SixLabors.ImageSharp.3.0.0\build\SixLabors.ImageSharp.props" Condition="Exists('..\packages\SixLabors.ImageSharp.3.0.0\build\SixLabors.ImageSharp.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -77,10 +76,49 @@
     <Compile Include="Controls\OGLViewPortControl.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
+    <Compile Include="IoC.cs" />
+    <Compile Include="Project\ProjectViewModel.cs" />
+    <Compile Include="Render\IClipRenderTarget.cs" />
+    <Compile Include="Render\IOGLContext.cs" />
+    <Compile Include="Render\IOGLViewPort.cs" />
+    <Compile Include="Render\IAutoRenderTarget.cs" />
+    <Compile Include="ResourceManaging\IFileDropNotifier.cs" />
+    <Compile Include="ResourceManaging\IResourceListHandle.cs" />
+    <Compile Include="ResourceManaging\Items\INativeImageResource.cs" />
+    <Compile Include="ResourceManaging\Items\INativeResource.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceImageViewModel.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceColourViewModel.cs" />
+    <Compile Include="ResourceManaging\ResourceItemViewModel.cs" />
+    <Compile Include="ResourceManaging\ResourceManagerViewModel.cs" />
+    <Compile Include="Timeline\FrameSpan.cs" />
+    <Compile Include="Timeline\IPlayHeadHandle.cs" />
+    <Compile Include="Timeline\ITimelineHandle.cs" />
+    <Compile Include="Timeline\Layer\Clips\ClipDragData.cs" />
+    <Compile Include="Timeline\Layer\Clips\ClipContainerViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\ClipTemplateSelector.cs" />
+    <Compile Include="Timeline\Layer\Clips\ClipType.cs" />
+    <Compile Include="Timeline\Layer\Clips\ClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\Controls\BaseClipControl.cs" />
+    <Compile Include="Timeline\Layer\Clips\Controls\ResizableClipControl.cs" />
+    <Compile Include="Timeline\Layer\Clips\Controls\SquareClipControl.cs" />
+    <Compile Include="Timeline\Layer\Clips\Data\IColourData.cs" />
+    <Compile Include="Timeline\Layer\Clips\Data\IResizableClipData.cs" />
+    <Compile Include="Timeline\Layer\Clips\IClipContainerHandle.cs" />
+    <Compile Include="Timeline\Layer\Clips\IClipHandle.cs" />
+    <Compile Include="Timeline\Layer\Clips\Resizable\UIResizableVideoClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\Resizable\ColouredShapeClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\TimelineClipControl.cs" />
+    <Compile Include="Timeline\Layer\Clips\VideoClipContainerViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\VideoClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\ILayerHandle.cs" />
+    <Compile Include="Timeline\Layer\LayerViewModel.cs" />
+    <Compile Include="Timeline\TimelineUtils.cs" />
+    <Compile Include="Timeline\TimelineViewModel.cs" />
     <Compile Include="VideoEditorViewModel.cs" />
+    <Compile Include="PlaybackViewportViewModel.cs" />
     <Compile Include="Render\FrameBuffer.cs" />
     <Compile Include="Render\OGLContext.cs" />
-    <Compile Include="Render\OpenTKRenderThread.cs" />
+    <Compile Include="Render\OpenGLMainThread.cs" />
     <Compile Include="ResourceManaging\ResourceItemControl.cs" />
     <Compile Include="ResourceManaging\ResourceListControl.cs" />
     <Compile Include="Services\ClipboardService.cs" />
@@ -89,14 +127,10 @@
     </Compile>
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
-    <Compile Include="Timeline\ClipDragData.cs" />
     <Compile Include="Timeline\ICGenUtils.cs" />
     <Compile Include="Timeline\Layer\IndexMap.cs" />
-    <Compile Include="Timeline\Layer\Clips\Vec2d.cs" />
     <Compile Include="Timeline\Layer\TimelineLayerControl.cs" />
-    <Compile Include="Timeline\Layer\VideoLayerViewModel.cs" />
     <Compile Include="Timeline\TimelineControl.cs" />
-    <Compile Include="Timeline\TimelineClipControl.cs" />
     <Compile Include="Timeline\TimelineClipDragData.cs" />
     <Compile Include="Timeline\TimelinePlayheadControl.cs" />
     <Compile Include="Timeline\TimelineScrollViewer.cs" />
@@ -118,15 +152,11 @@
       <DependentUpon>SingleUserInputWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Dialogs\UserInputs\UserInputDialogService.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\Main\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -163,6 +193,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Dialogs\UserInputs\SingleUserInputWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Main\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -203,12 +237,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Timeline\Layer\Clips\ViewModels" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SixLabors.ImageSharp.3.0.0\build\SixLabors.ImageSharp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SixLabors.ImageSharp.3.0.0\build\SixLabors.ImageSharp.props'))" />
-  </Target>
 </Project>

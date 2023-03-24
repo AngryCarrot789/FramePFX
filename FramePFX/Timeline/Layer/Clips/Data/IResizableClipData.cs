@@ -1,4 +1,4 @@
-namespace FramePFX.Timeline.Layer.Clips.Resizable {
+namespace FramePFX.Timeline.Layer.Clips.Data {
     /// <summary>
     /// Contains data about a clip that can resize
     /// </summary>

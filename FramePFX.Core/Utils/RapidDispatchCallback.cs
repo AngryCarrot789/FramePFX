@@ -14,7 +14,7 @@ namespace FramePFX.Core.Utils {
                 }
 
                 this.isScheduled = true;
-                IoC.Dispatcher.Invoke(() => {
+                CoreIoC.Dispatcher.Invoke(() => {
                     action();
                     this.isScheduled = false;
                 });

@@ -7,9 +7,10 @@ using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.ResourceManaging.Items;
-using FramePFX.Timeline.Resizable;
+using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Timeline.Layer.Clips.Resizable;
 
-namespace FramePFX.Timeline {
+namespace FramePFX.Timeline.Layer {
     public class LayerViewModel : BaseViewModel {
         private string name;
         public string Name {
@@ -38,7 +39,7 @@ namespace FramePFX.Timeline {
         private float opacity;
 
         /// <summary>
-        /// The opacity of this layer. Between 0f and 1f
+        /// The opacity of this layer. Between 0f and 1f (not yet implemented properly)
         /// </summary>
         public float Opacity {
             get => this.opacity;
@@ -49,12 +50,12 @@ namespace FramePFX.Timeline {
 
         public ICommand RenameLayerCommand { get; }
 
-        public ObservableCollection<ClipViewModel> Clips { get; }
+        public ObservableCollection<ClipContainerViewModel> Clips { get; }
 
         public ILayerHandle Control { get; set; }
 
         public LayerViewModel(TimelineViewModel timeline) {
-            this.Clips = new ObservableCollection<ClipViewModel>();
+            this.Clips = new ObservableCollection<ClipContainerViewModel>();
             this.Clips.CollectionChanged += this.ClipsOnCollectionChanged;
             this.Timeline = timeline;
             this.MaxHeight = 200d;
@@ -73,25 +74,34 @@ namespace FramePFX.Timeline {
         private void ClipsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             if (e.NewItems != null) {
                 foreach (object x in e.NewItems) {
-                    if (x is ClipViewModel clip) {
+                    if (x is ClipContainerViewModel clip) {
                         clip.Layer = this;
                     }
                 }
             }
         }
 
-        public SquareClipViewModel CreateSquareClip(long begin, long duration, ResourceSquareViewModel square) {
-            SquareClipViewModel clip = new SquareClipViewModel(this) {
-                Resource = square,
-                FrameBegin = begin,
-                FrameDuration = duration
+        public VideoClipContainerViewModel CreateVideoClipContainer(long frameBegin, long frameDuration) {
+            return new VideoClipContainerViewModel() {
+                Layer = this,
+                FrameBegin = frameBegin,
+                FrameDuration = frameDuration
+            };
+        }
+
+        public ColouredShapeClipViewModel CreateSquareClip(long begin, long duration, ResourceColourViewModel colour) {
+            VideoClipContainerViewModel container = this.CreateVideoClipContainer(begin, duration);
+            ColouredShapeClipViewModel clip = new ColouredShapeClipViewModel {
+                Resource = colour,
+                Container = container
             };
 
-            this.Clips.Add(clip);
+            container.ClipContent = clip;
+            this.Clips.Add(container);
             return clip;
         }
 
-        public void MakeTopMost(ClipViewModel clip) {
+        public void MakeTopMost(ClipContainerViewModel clip) {
             int endIndex = this.Clips.Count - 1;
             int index = this.Clips.IndexOf(clip);
             if (index == -1 || index == endIndex) {
@@ -101,8 +111,8 @@ namespace FramePFX.Timeline {
             this.Clips.Move(index, endIndex);
         }
 
-        public void RemoveRegion(long frameBegin, long frameEnd, Action<ClipViewModel> onModified, Action<ClipViewModel> onRemoved) {
-            foreach (ClipViewModel clip in this.Clips) {
+        public void RemoveRegion(long frameBegin, long frameEnd, Action<ClipContainerViewModel> onModified, Action<ClipContainerViewModel> onRemoved) {
+            foreach (ClipContainerViewModel clip in this.Clips) {
 
             }
         }

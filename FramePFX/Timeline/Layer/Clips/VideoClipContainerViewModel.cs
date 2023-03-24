@@ -1,5 +1,7 @@
 namespace FramePFX.Timeline.Layer.Clips {
-    public class VideoClipContainerViewModel {
-        
+    public class VideoClipContainerViewModel : ClipContainerViewModel {
+        public VideoClipContainerViewModel() {
+
+        }
     }
 }

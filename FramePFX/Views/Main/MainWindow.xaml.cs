@@ -6,44 +6,54 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using FramePFX.Project;
 using FramePFX.Render;
-using FramePFX.ResourceManaging.Items;
-using FramePFX.Timeline;
 using FramePFX.Timeline.Layer;
-using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Utils;
-using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX {
+namespace FramePFX.Views.Main {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        private readonly OGLMainViewPortImpl oglMainViewPort;
-        public PlaybackViewportViewModel Editor => this.DataContext as PlaybackViewportViewModel;
+        public readonly OGLMainViewPortImpl oglPort;
+
+        public VideoEditorViewModel Editor => this.DataContext as VideoEditorViewModel;
 
         public MainWindow() {
             this.InitializeComponent();
-            this.oglMainViewPort = new OGLMainViewPortImpl(this, this.GLViewport, 1920, 1080);
-            PlaybackViewportViewModel editor = new PlaybackViewportViewModel {
-                ViewportHandle = this.oglMainViewPort
-            };
-
-            this.DataContext = editor;
+            this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             this.Closed += this.OnClosed;
+            this.Loaded += this.OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e) {
+            Task.Run(async () => {
+                while (true) {
+                    this.oglPort.wpf_averager.PushValue(this.oglPort.interval_ticks);
+                    if (this.oglPort.wpf_averager.NextIndex % this.oglPort.wpf_averager.Count == 0) {
+                        await this.Dispatcher.InvokeAsync(() => {
+                            double wpfItv = this.oglPort.wpf_averager.GetAverage() / TimeSpan.TicksPerMillisecond;
+                            double oglItv = 1d / this.oglPort.openTk.AverageDelta;
+                            double pbkItv = 1000d / ((VideoEditorViewModel) this.DataContext).Viewport.playbackAverageIntervalMS.GetAverage();
+                            this.FPS_WPF.Text = Math.Round(1000d / wpfItv, 2).ToString();
+                            this.FPS_OGL.Text = Math.Round(oglItv, 2).ToString();
+                            this.PLAYBACK_FPS.Text = Math.Round(pbkItv, 2).ToString();
+                        });
+                    }
+
+                    await Task.Delay(10);
+                }
+            });
         }
 
         private void OnClosed(object sender, EventArgs e) {
-            this.oglMainViewPort.Stop();
-
-            if (this.Editor is PlaybackViewportViewModel editor) {
-                editor.isPlaybackThreadRunning = false;
+            this.oglPort.Stop();
+            if (this.Editor is VideoEditorViewModel editor) {
+                editor.Viewport.isPlaybackThreadRunning = false;
             }
         }
 
-        public class OGLMainViewPortImpl : IAutoRenderTarget {
-            private readonly MainWindow window;
+        public class OGLMainViewPortImpl : IOGLViewPort {
             private readonly Image image;
             private readonly object locker = new object();
             private int width;
@@ -52,15 +62,12 @@ namespace FramePFX {
             private volatile bool isReadyToRender;
             private volatile WriteableBitmap bitmap;
             private volatile IntPtr backBuffer;
-            private OpenTKRenderThread openTk;
+            public readonly OpenGLMainThread openTk;
 
             public long last_tick_time;
             public long interval_ticks;
             public readonly DispatcherTimer timer;
             public volatile bool hasFreshFrame;
-
-            public WriteableBitmap CurrentFrame => this.bitmap;
-            public IntPtr CurrentFramePtr => this.backBuffer;
 
             public IOGLContext Context => this.openTk.oglContext;
 
@@ -85,26 +92,21 @@ namespace FramePFX {
                 get => this.isReadyToRender;
             }
 
-            public OGLMainViewPortImpl(MainWindow window, Image image, int w, int h) {
-                this.width = w;
-                this.height = h;
-                this.window = window;
+            public OGLMainViewPortImpl(Image image) {
                 this.image = image;
-                this.openTk = new OpenTKRenderThread {
-                    Width = w, Height = h,
-                    MainViewPort = this
-                };
+                this.width = 1;
+                this.height = 1;
+                this.openTk = OpenGLMainThread.Instance;
                 this.timer = new DispatcherTimer(DispatcherPriority.Render) {
                     Interval = TimeSpan.FromMilliseconds(1)
                 };
-                this.timer.Tick += this.Timer_Tick;
+
+                this.timer.Tick += this.OnTickRender;
                 this.timer.Start();
-                image.Loaded += this.ImageOnLoaded;
-                this.UpdateViewportSize(w, h);
             }
 
-            private void Timer_Tick(object sender, EventArgs e) {
-                if (this.isReadyToRender && this.openTk.IsGLEnabled) {
+            private void OnTickRender(object sender, EventArgs e) {
+                if (this.isReadyToRender && this.Context.IsReady) {
                     long time = DateTime.Now.Ticks;
                     long diff = time - this.last_tick_time;
                     this.interval_ticks = diff;
@@ -120,36 +122,6 @@ namespace FramePFX {
                     this.bitmap.Unlock();
                     this.hasFreshFrame = false;
                 }
-            }
-
-            private void ImageOnLoaded(object sender, RoutedEventArgs e) {
-                this.RecreateBitmap();
-                this.openTk.Width = this.width;
-                this.openTk.Height = this.height;
-                this.openTk.Start();
-
-                Task.Run(async () => {
-                    while (true) {
-                        this.wpf_averager.PushValue(this.interval_ticks);
-                        if (this.wpf_averager.NextIndex % this.wpf_averager.Count == 0) {
-                            await this.window.Dispatcher.InvokeAsync(() => {
-                                double wpfItv = this.wpf_averager.GetAverage() / TimeSpan.TicksPerMillisecond;
-                                double oglItv = 1d / this.openTk.AverageDelta;
-                                double pbkItv = 1000d / ((PlaybackViewportViewModel) this.window.DataContext).playbackAverageIntervalMS.GetAverage();
-
-                                this.window.FPS_WPF.Text = Math.Round(IntervalToFPS(wpfItv), 2).ToString();
-                                this.window.FPS_OGL.Text = Math.Round(oglItv, 2).ToString();
-                                this.window.PLAYBACK_FPS.Text = Math.Round(pbkItv, 2).ToString();
-                            });
-                        }
-
-                        await Task.Delay(10);
-                    }
-                });
-            }
-
-            public static double IntervalToFPS(double itv_ms) {
-                return 1000d / itv_ms;
             }
 
             public void UpdateViewportSize(int w, int h) {
@@ -175,6 +147,10 @@ namespace FramePFX {
                 }
             }
 
+            public bool FlushFrame() {
+                return this.hasFreshFrame = this.openTk.DrawViewportIntoBitmap(this.backBuffer, this.width, this.height);
+            }
+
             private void RecreateBitmap() {
                 this.bitmap = new WriteableBitmap(this.width, this.height, 96, 96, PixelFormats.Rgb24, null);
                 this.image.Source = this.bitmap;
@@ -182,52 +158,6 @@ namespace FramePFX {
                 this.openTk.UpdateViewportSie(this.width, this.height);
                 this.isUpdatingViewPort = false;
                 this.isReadyToRender = true;
-            }
-
-            public void Setup() {
-
-            }
-
-            public void Render() {
-                if (!this.hasFreshFrame) {
-                    ProjectViewModel project = IoC.ActiveProject;
-                    if (project == null) {
-                        return;
-                    }
-
-                    this.openTk.oglContext.Framebuffer.Use();
-                    GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-
-                    long playHead = project.Timeline.PlayHeadFrame;
-                    // foreach (LayerViewModel layer in timeline.Layers) {
-                    //     foreach (ClipContainerViewModel clip in layer.Clips) {
-                    //         if (clip.IntersectsFrameAt(playHead)) {
-                    //
-                    //         }
-                    //     }
-                    // }
-
-                    // TODO: change this to support layer opacity. And also move to shaders because this glVertex3f old stuff it no good
-                    foreach (ClipContainerViewModel clip in project.Timeline.GetClipsOnPlayHead()) {
-                        IClipContainerHandle handle = clip.ContainerHandle;
-                        if (handle == null) {
-                            continue;
-                        }
-
-                        if (handle.ClipHandle is IClipRenderTarget target) {
-                            target.Render(this, playHead);
-                        }
-                        // TODO: add audio... somehow. I have no idea how to do audio lololol
-                        // else if (handle.ClipHandle is IAudioRenderTarget) {
-                        //
-                        // }
-                    }
-
-                    // this.bitmap = new WriteableBitmap(this.width, this.height, 96, 96, PixelFormats.Rgb24, null);
-                    this.openTk.DrawViewportIntoBitmap(this.backBuffer, this.width, this.height);
-                    // this.bitmap.Freeze();
-                    this.hasFreshFrame = true;
-                }
             }
 
             public void Stop() {

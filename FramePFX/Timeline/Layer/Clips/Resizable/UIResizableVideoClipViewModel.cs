@@ -1,44 +1,42 @@
+using FramePFX.Timeline.Layer.Clips.Data;
+
 namespace FramePFX.Timeline.Layer.Clips.Resizable {
-    public abstract class ResizableVideoClipViewModel : VideoClipViewModel {
-        protected float posX;
-        public float PosX {
-            get => this.posX;
-            set => this.RaisePropertyChanged(ref this.posX, value);
+    public abstract class UIResizableVideoClipViewModel : VideoClipViewModel, IResizableClipData {
+        protected float shapeX;
+        public float ShapeX {
+            get => this.shapeX;
+            set => this.RaisePropertyChanged(ref this.shapeX, value);
         }
 
-        protected float posY;
-        public float PosY {
-            get => this.posY;
-            set => this.RaisePropertyChanged(ref this.posY, value);
+        protected float shapeY;
+        public float ShapeY {
+            get => this.shapeY;
+            set => this.RaisePropertyChanged(ref this.shapeY, value);
         }
 
-        protected float width;
-        public float Width {
-            get => this.width;
-            set => this.RaisePropertyChanged(ref this.width, value);
+        protected float shapeWidth;
+        public float ShapeWidth {
+            get => this.shapeWidth;
+            set => this.RaisePropertyChanged(ref this.shapeWidth, value);
         }
 
-        protected float height;
-        public float Height {
-            get => this.height;
-            set => this.RaisePropertyChanged(ref this.height, value);
+        protected float shapeHeight;
+        public float ShapeHeight {
+            get => this.shapeHeight;
+            set => this.RaisePropertyChanged(ref this.shapeHeight, value);
         }
 
-        protected float rotZ;
-        public float RotZ {
-            get => this.rotZ;
-            set => this.RaisePropertyChanged(ref this.rotZ, value);
-        }
+        public bool UseScaledRender { get; set; }
 
-        protected ResizableVideoClipViewModel() {
-
+        protected UIResizableVideoClipViewModel() {
+            this.UseScaledRender = true;
         }
 
         public void SetShape(float x, float y, float w, float h) {
-            this.PosX = x;
-            this.PosY = y;
-            this.Width = w;
-            this.Height = h;
+            this.ShapeX = x;
+            this.ShapeY = y;
+            this.ShapeWidth = w;
+            this.ShapeHeight = h;
         }
     }
 }

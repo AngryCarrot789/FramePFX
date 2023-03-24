@@ -1,4 +1,4 @@
-namespace FramePFX.Core.Render {
+namespace FramePFX.Render {
     /// <summary>
     /// A viewport that can be rendered into via OpenGL, e.g. main view port, clip renderers, etc
     /// </summary>
@@ -29,5 +29,11 @@ namespace FramePFX.Core.Render {
         /// <param name="w"></param>
         /// <param name="h"></param>
         void UpdateViewportSize(int w, int h);
+
+        /// <summary>
+        /// Attempt to flush the current drawn frame to WPF
+        /// </summary>
+        /// <returns></returns>
+        bool FlushFrame();
     }
 }

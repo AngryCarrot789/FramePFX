@@ -62,7 +62,7 @@ namespace FramePFX.Core {
             postCallback?.Invoke(property);
         }
 
-        public void RaisePropertyChangedCheckEqual<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+        public void RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null) {
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
             }

@@ -1,5 +1,5 @@
 namespace FramePFX.Render {
-    public interface IRenderTarget : IOGLViewPort {
+    public interface IAutoRenderTarget : IOGLViewPort {
         void Render();
     }
 }

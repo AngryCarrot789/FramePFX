@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using FramePFX.Timeline.Layer;
 using System.Windows.Input;
-using FramePFX.Core.Timeline;
+using FramePFX.Timeline.Layer.Clips;
 
 namespace FramePFX.Timeline {
     public class TimelineControl : ItemsControl, ITimelineHandle {
@@ -128,9 +128,9 @@ namespace FramePFX.Timeline {
             this.PART_ItemsPresenter = this.GetTemplateElement<ItemsPresenter>("PART_ItemsPresenter");
             this.PART_PlayHead = this.GetTemplateElement<TimelinePlayheadControl>("PART_PlayHead");
             this.PART_TimestampBoard = this.GetTemplateElement<Border>("PART_TimestampBoard");
-            if (this.PART_PlayHead != null) {
-                this.PART_PlayHead.Timeline = this;
-            }
+            // if (this.PART_PlayHead != null) {
+            //     this.PART_PlayHead.Timeline = this;
+            // }
 
             if (this.PART_ScrollViewer != null) {
                 // this.PART_ScrollViewer.ScrollChanged += this.PART_ScrollViewerOnScrollChanged;
@@ -138,17 +138,17 @@ namespace FramePFX.Timeline {
             }
 
             if (this.PART_TimestampBoard != null) {
-                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForEvent(e.GetPosition((IInputElement) s).X, e, true);
+                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X, e, true);
             }
 
             if (this.DataContext is TimelineViewModel timeline) {
                 timeline.PlayHeadHandle = this.PART_PlayHead;
             }
 
-            this.MouseLeftButtonDown += (s,e) => this.MovePlayheadForEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
+            this.MouseLeftButtonDown += (s,e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
         }
 
-        private void MovePlayheadForEvent(double x, MouseButtonEventArgs e, bool enableThumbDragging = true) {
+        private void MovePlayheadForMouseButtonEvent(double x, MouseButtonEventArgs e, bool enableThumbDragging = true) {
             if (x >= 0d) {
                 long frameX = TimelineUtils.PixelToFrame(x, this.UnitZoom);
                 if (frameX >= 0 && this.GetViewModel(out TimelineViewModel vm) && frameX < vm.MaxDuration) {
@@ -349,9 +349,9 @@ namespace FramePFX.Timeline {
             }
         }
 
-        public IEnumerable<ClipViewModel> GetAllSelectedClipModels() {
+        public IEnumerable<ClipContainerViewModel> GetAllSelectedClipModels() {
             foreach (TimelineLayerControl layer in this.GetLayerControls()) {
-                foreach (ClipViewModel clip in layer.GetSelectedClipViewModels()) {
+                foreach (ClipContainerViewModel clip in layer.GetSelectedClipViewModels()) {
                     yield return clip;
                 }
             }

@@ -28,4 +28,16 @@ namespace FramePFX.Converters {
             set => base.NonNullValue = value;
         }
     }
+
+    public class NullToBoolConverter : NullConverter {
+        public new bool NullValue {
+            get => (bool) base.NullValue;
+            set => base.NullValue = value;
+        }
+
+        public new bool NonNullValue {
+            get => (bool) base.NonNullValue;
+            set => base.NonNullValue = value;
+        }
+    }
 }

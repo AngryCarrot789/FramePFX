@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FramePFX.Core;
-using FramePFX.Core.Render;
 using FramePFX.Utils;
 
 namespace FramePFX.Render {
@@ -16,7 +14,6 @@ namespace FramePFX.Render {
         private readonly ThreadTimer thread;
         private readonly NumberAverager averager;
         private long lastTickTime;
-        private volatile bool isGLReady;
         private readonly CASLock actionLock;
         private readonly CASLock taskLock;
         private readonly List<Action> actions;
@@ -25,13 +22,8 @@ namespace FramePFX.Render {
 
         public volatile bool isPaused;
 
-        public bool IsGLEnabled => this.isGLReady;
-
         public int Width { get; set; } = 1;
-
         public int Height { get; set; } = 1;
-
-        public IRenderTarget MainViewPort { get; set; }
 
         public double AverageDelta => this.averager.GetAverage();
 
@@ -41,6 +33,15 @@ namespace FramePFX.Render {
 
         public ThreadTimer Thread => this.thread;
         public static OGLContext GlobalContext { get; private set; }
+
+        public static OpenTKRenderThread Instance { get; private set; }
+
+        public static void Setup(int width, int height) {
+            Instance = new OpenTKRenderThread() {
+                Width = width,
+                Height = height
+            };
+        }
 
         public OpenTKRenderThread() {
             this.thread = new ThreadTimer(TimeSpan.FromMilliseconds(TARGET_FPS_MS)) {
@@ -92,20 +93,14 @@ namespace FramePFX.Render {
             if (width <= 0 || height <= 0 || this.oglContext == null)
                 return;
 
-            this.isGLReady = false;
             this.oglContext.UpdateViewportSize(width, height);
-            this.isGLReady = true;
         }
 
         private void OnThreadStarted() {
-            this.isGLReady = false;
             this.oglContext = OGLContext.Create(this.Width, this.Height);
-            GlobalContext = this.oglContext;
-            // this.MainViewPort?.Setup();
             this.lastTickTime = GetCurrentTime();
-            this.isGLReady = true;
-
-            IoC.Timeline.ScheduleRender(false);
+            GlobalContext = this.oglContext;
+            IoC.VideoEditor?.ActiveProject?.Timeline?.ScheduleRender(false);
         }
 
         private void OnGLThreadTick() {

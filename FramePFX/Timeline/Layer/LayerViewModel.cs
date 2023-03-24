@@ -3,12 +3,13 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
-using FramePFX.Core.ResourceManaging.Items;
-using FramePFX.Core.Timeline.Resizable;
+using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
+using FramePFX.ResourceManaging.Items;
+using FramePFX.Timeline.Resizable;
 
-namespace FramePFX.Core.Timeline {
+namespace FramePFX.Timeline {
     public class LayerViewModel : BaseViewModel {
         private string name;
         public string Name {
@@ -62,7 +63,7 @@ namespace FramePFX.Core.Timeline {
             this.Opacity = 1f;
 
             this.RenameLayerCommand = new RelayCommand(() => {
-                string result = IoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", InputValidator.SingleError(x => this.Timeline.Layers.Any(b => b.Name == x), "Layer already exists with that name"));
+                string result = CoreIoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", InputValidator.SingleError(x => this.Timeline.Layers.Any(b => b.Name == x), "Layer already exists with that name"));
                 if (result != null) {
                     this.Name = result;
                 }

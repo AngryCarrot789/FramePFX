@@ -1,4 +1,4 @@
-namespace FramePFX.Core.Timeline {
+namespace FramePFX.Timeline {
     public interface ILayerHandle {
         
     }

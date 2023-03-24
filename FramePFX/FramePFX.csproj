@@ -99,6 +99,7 @@
     <Compile Include="Timeline\Layer\Clips\ClipType.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\Controls\BaseClipControl.cs" />
+    <Compile Include="Timeline\Layer\Clips\Controls\OGLRenderPreviewClip.cs" />
     <Compile Include="Timeline\Layer\Clips\Controls\ResizableClipControl.cs" />
     <Compile Include="Timeline\Layer\Clips\Controls\SquareClipControl.cs" />
     <Compile Include="Timeline\Layer\Clips\Data\IColourData.cs" />
@@ -106,7 +107,7 @@
     <Compile Include="Timeline\Layer\Clips\IClipContainerHandle.cs" />
     <Compile Include="Timeline\Layer\Clips\IClipHandle.cs" />
     <Compile Include="Timeline\Layer\Clips\Resizable\UIResizableVideoClipViewModel.cs" />
-    <Compile Include="Timeline\Layer\Clips\Resizable\ColouredShapeClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\Resizable\ShapeClipViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\TimelineClipControl.cs" />
     <Compile Include="Timeline\Layer\Clips\VideoClipContainerViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\VideoClipViewModel.cs" />
@@ -237,7 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
-    <Folder Include="Timeline\Layer\Clips\ViewModels" />
+    <Folder Include="Timeline\Layer\Clips\ViewModels\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -31,7 +31,7 @@ namespace FramePFX.Timeline.Layer.Clips.Controls {
             // GL.Rotate(this.rotZ, 0, 0, 1);
         }
 
-        public void Render(IOGLViewPort ogl, long frame) {
+        public virtual void Render(IOGLViewPort ogl, long frame) {
             GL.PushMatrix();
             if (this.resizeData.UseScaledRender) {
                 this.TranslateForScaledRender(ogl);

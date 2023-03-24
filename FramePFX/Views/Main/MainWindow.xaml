@@ -21,6 +21,9 @@
     <Window.Resources>
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True"/>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="Space" Command="{Binding Viewport.PlayPauseCommand}"/>
+    </Window.InputBindings>
     <Grid>
         <Menu VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1">
             <MenuItem Header="File">

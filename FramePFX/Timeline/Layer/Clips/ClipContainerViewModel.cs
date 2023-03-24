@@ -60,6 +60,31 @@ namespace FramePFX.Timeline.Layer.Clips {
 
         }
 
+        public static void SetClipContent(ClipContainerViewModel container, ClipViewModel clip) {
+            ClipViewModel oldClip = container.ClipContent;
+            if (oldClip != null) {
+                container.ClipContent = null;
+                container.OnRemovedFromContainer(oldClip, clip != null);
+            }
+
+            if (clip != null) {
+                container.ClipContent = clip;
+                container.OnAddedToContainer(clip);
+            }
+        }
+
+        public virtual void OnRemovedFromContainer(ClipViewModel clip, bool isReplace) {
+            if (clip.Container != null) {
+                ClipViewModel.SetContainer(clip, null);
+            }
+        }
+
+        public virtual void OnAddedToContainer(ClipViewModel clip) {
+            if (clip.Container != this) {
+                ClipViewModel.SetContainer(clip, this);
+            }
+        }
+
         public bool IntersectsFrameAt(long frame) {
             long begin = this.FrameBegin;
             long duration = this.FrameDuration;

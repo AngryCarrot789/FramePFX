@@ -1,3 +1,5 @@
 namespace FramePFX.Timeline.Layer.Clips {
-    public enum ClipType {  }
+    public enum ClipType {
+        Video, Audio
+    }
 }

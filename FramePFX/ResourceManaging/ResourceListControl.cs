@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
-using FramePFX.Core.ResourceManaging;
 using FramePFX.Timeline;
 
 namespace FramePFX.ResourceManaging {
@@ -86,7 +85,7 @@ namespace FramePFX.ResourceManaging {
 
         protected override async void OnDrop(DragEventArgs e) {
             if (this.FileDropNotifier == null) {
-                await IoC.MessageDialogs.ShowMessageAsync("Error", "Could not handle drag drop. No drag drop handler found");
+                await CoreIoC.MessageDialogs.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
                 return;
             }
 
@@ -95,7 +94,7 @@ namespace FramePFX.ResourceManaging {
                 this.FileDropNotifier.OnFilesDropped(files);
             }
             else {
-                await IoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown drag drop data type");
+                await CoreIoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown drag drop data type");
             }
         }
 

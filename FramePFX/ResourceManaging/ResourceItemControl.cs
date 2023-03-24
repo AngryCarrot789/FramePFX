@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using FramePFX.Core.ResourceManaging.Items;
+using FramePFX.ResourceManaging.Items;
 
 namespace FramePFX.ResourceManaging {
     public class ResourceItemControl : ContentControl, INativeResource {

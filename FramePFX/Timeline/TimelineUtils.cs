@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FramePFX.Core.Timeline {
+namespace FramePFX.Timeline {
     public static class TimelineUtils {
         public const double MinUnitZoom = 0.0001d;
 

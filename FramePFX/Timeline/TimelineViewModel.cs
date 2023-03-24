@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using FramePFX.Core.Render;
+using FramePFX.Core;
 using FramePFX.Core.Utils;
+using FramePFX.Project;
+using FramePFX.Timeline.Layer;
+using FramePFX.Timeline.Layer.Clips;
 
-namespace FramePFX.Core.Timeline {
+namespace FramePFX.Timeline {
     public class TimelineViewModel : BaseViewModel {
         private readonly ObservableCollection<LayerViewModel> layers;
 
@@ -29,7 +32,7 @@ namespace FramePFX.Core.Timeline {
         private long maxDuration;
         public long MaxDuration {
             get => this.maxDuration;
-            set => this.RaisePropertyChanged(ref this.maxDuration, value);
+            set => this.RaisePropertyChangedIfChanged(ref this.maxDuration, value);
         }
 
         private long playHeadFrame;
@@ -43,6 +46,10 @@ namespace FramePFX.Core.Timeline {
 
                 if (value >= this.MaxDuration) {
                     value = this.MaxDuration - 1;
+                }
+
+                if (value < 0) {
+                    value = 0;
                 }
 
                 if (this.ignorePlayHeadPropertyChange) {
@@ -61,21 +68,21 @@ namespace FramePFX.Core.Timeline {
 
         private readonly RapidDispatchCallback renderDispatch = new RapidDispatchCallback();
 
-        public TimelineViewModel() {
+        public ProjectViewModel Project { get; }
+
+        public TimelineViewModel(ProjectViewModel project) {
+            this.Project = project;
             this.layers = new ObservableCollection<LayerViewModel>();
             this.Layers = new ReadOnlyObservableCollection<LayerViewModel>(this.layers);
-            this.MaxDuration = 10000;
-            this.PlayHeadFrame = 0;
-            this.MarkRenderDirty();
         }
 
-        public bool CanRender() {
-            return IoC.Editor?.MainViewPort?.IsReadyForRender ?? false;
+        public static bool CanRender() {
+            return IoC.VideoEditor?.Viewport?.ViewPortHandle?.IsReadyForRender ?? false;
         }
 
         public void MarkRenderDirty() {
             this.IsRenderDirty = true;
-            if (this.CanRender()) {
+            if (CanRender()) {
                 this.ScheduleRender(true);
             }
         }
@@ -85,7 +92,7 @@ namespace FramePFX.Core.Timeline {
                 return;
             }
 
-            if (render && this.CanRender()) {
+            if (render && CanRender()) {
                 this.RenderViewPortAndMarkNotDirty();
             }
             else {
@@ -104,16 +111,16 @@ namespace FramePFX.Core.Timeline {
 
         private void RenderViewPortAndMarkNotDirty() {
             this.IsRenderDirty = false;
-            IoC.Editor.RenderViewPort();
+            IoC.VideoEditor.Viewport.RenderTimeline(this);
         }
 
-        public IEnumerable<ClipViewModel> GetClipsOnPlayHead() {
+        public IEnumerable<ClipContainerViewModel> GetClipsOnPlayHead() {
             return this.GetClipsIntersectingFrame(this.playHeadFrame);
         }
 
-        public IEnumerable<ClipViewModel> GetClipsIntersectingFrame(long frame) {
-            foreach (LayerViewModel layer in this.Layers) {
-                foreach (ClipViewModel clip in layer.Clips) {
+        public IEnumerable<ClipContainerViewModel> GetClipsIntersectingFrame(long frame) {
+            foreach (LayerViewModel layer in this.layers) {
+                foreach (ClipContainerViewModel clip in layer.Clips) {
                     if (clip.IntersectsFrameAt(frame)) {
                         yield return clip;
                     }
@@ -154,7 +161,7 @@ namespace FramePFX.Core.Timeline {
             this.OnPlayHeadMoved(oldFrame, this.playHeadFrame, false);
             if (!this.isFramePropertyChangeScheduled) {
                 this.isFramePropertyChangeScheduled = true;
-                IoC.Dispatcher.Invoke(() => {
+                CoreIoC.Dispatcher.Invoke(() => {
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isFramePropertyChangeScheduled = false;
                 });

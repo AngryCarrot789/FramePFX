@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
+using FramePFX.Core;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
+using FramePFX.Project;
 
-namespace FramePFX.Core.ResourceManaging {
+namespace FramePFX.ResourceManaging {
     /// <summary>
     /// Used to manage project resources, e.g. images, videos, text, etc. This is basically just to map a unique key
     /// to a file path which may need to be changed without having to change every clip that uses the resource
@@ -27,9 +29,13 @@ namespace FramePFX.Core.ResourceManaging {
         /// </summary>
         public IResourceListHandle Handle { get; set; }
 
+        public ProjectViewModel Project { get; }
+
+        // Used to validate resource renaming input
         private readonly InputValidator validator;
 
-        public ResourceManagerViewModel() {
+        public ResourceManagerViewModel(ProjectViewModel project) {
+            this.Project = project;
             this.uuidToItem = new Dictionary<string, ResourceItemViewModel>();
             this.items = new ObservableCollection<ResourceItemViewModel>();
             this.Items = new ReadOnlyObservableCollection<ResourceItemViewModel>(this.items);
@@ -52,13 +58,13 @@ namespace FramePFX.Core.ResourceManaging {
         }
 
         public async Task RenameResourceAction(ResourceItemViewModel item) {
-            string uuid = IoC.UserInput.ShowSingleInputDialog("Rename resource UUID", "Input a new UUID for the resource", string.IsNullOrWhiteSpace(item.UniqueID) ? "UUID here..." : item.UniqueID, this.validator);
+            string uuid = CoreIoC.UserInput.ShowSingleInputDialog("Rename resource UUID", "Input a new UUID for the resource", string.IsNullOrWhiteSpace(item.UniqueID) ? "UUID here..." : item.UniqueID, this.validator);
             if (uuid != null) {
                 if (string.IsNullOrWhiteSpace(uuid)) {
-                    await IoC.MessageDialogs.ShowMessageAsync("Invalid UUID", "UUID cannot be an empty string or consist of only whitespaces");
+                    await CoreIoC.MessageDialogs.ShowMessageAsync("Invalid UUID", "UUID cannot be an empty string or consist of only whitespaces");
                 }
                 else if (this.uuidToItem.ContainsKey(uuid)) {
-                    await IoC.MessageDialogs.ShowMessageAsync("Resource already exists", "Resource already exists with the UUID: " + uuid);
+                    await CoreIoC.MessageDialogs.ShowMessageAsync("Resource already exists", "Resource already exists with the UUID: " + uuid);
                 }
                 else if (item.UniqueID != uuid) {
                     this.uuidToItem.Remove(item.UniqueID);
@@ -74,12 +80,12 @@ namespace FramePFX.Core.ResourceManaging {
 
         public async Task DeleteResourceAction(ResourceItemViewModel item, bool skipDialog) {
             if (string.IsNullOrWhiteSpace(item.UniqueID)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Error", "Resource has an invalid UUID... this shouldn't be possible wtf?!?!");
+                await CoreIoC.MessageDialogs.ShowMessageAsync("Error", "Resource has an invalid UUID... this shouldn't be possible wtf?!?!");
             }
             else if (this.uuidToItem.TryGetValue(item.UniqueID, out ResourceItemViewModel resource)) {
                 if (item == resource) {
                     if (!skipDialog) {
-                        MsgDialogResult result = await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource: {item.UniqueID}?", MsgDialogType.OKCancel, MsgDialogResult.OK);
+                        MsgDialogResult result = await CoreIoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource: {item.UniqueID}?", MsgDialogType.OKCancel, MsgDialogResult.OK);
                         if (result != MsgDialogResult.OK) {
                             return;
                         }
@@ -91,11 +97,11 @@ namespace FramePFX.Core.ResourceManaging {
                     this.uuidToItem.Remove(item.UniqueID);
                 }
                 else {
-                    await IoC.MessageDialogs.ShowMessageAsync("Error", "Resource does not match the dictionary item... this shouldn't be possible wtf?!?!");
+                    await CoreIoC.MessageDialogs.ShowMessageAsync("Error", "Resource does not match the dictionary item... this shouldn't be possible wtf?!?!");
                 }
             }
             else {
-                await IoC.MessageDialogs.ShowMessageAsync("Error", "Resource does not exist/not cached in the dictionary... this shouldn't be possible wtf?!?!");
+                await CoreIoC.MessageDialogs.ShowMessageAsync("Error", "Resource does not exist/not cached in the dictionary... this shouldn't be possible wtf?!?!");
             }
         }
 

@@ -131,7 +131,7 @@ namespace FramePFX.Utils {
             this.Thread = null;
         }
 
-        public void Start(bool join = true) {
+        public void Start(bool joinIfRunning = true) {
             if (this.isRunning) {
                 throw new InvalidOperationException("Timer is already running");
             }
@@ -142,7 +142,7 @@ namespace FramePFX.Utils {
 
             // isRunning is already false, so it should
             if (this.Thread != null) {
-                if (join)
+                if (joinIfRunning)
                     this.Thread.Join();
                 this.Thread = null;
             }

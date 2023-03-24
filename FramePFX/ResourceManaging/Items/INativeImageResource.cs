@@ -1,4 +1,4 @@
-namespace FramePFX.Core.ResourceManaging.Items {
+namespace FramePFX.ResourceManaging.Items {
     public interface INativeImageResource : INativeResource {
         /// <summary>
         /// Called when the image for this resource changed

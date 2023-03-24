@@ -4,9 +4,8 @@
                     xmlns:controls="clr-namespace:FramePFX.Controls"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:resourceManaging="clr-namespace:FramePFX.Core.ResourceManaging;assembly=FramePFX.Core"
                     mc:Ignorable="d">
-    <ContextMenu x:Key="SharedResourceItemContextMenu" x:Shared="True" d:DataContext="{d:DesignInstance resourceManaging:ResourceItemViewModel}">
+    <ContextMenu x:Key="SharedResourceItemContextMenu" x:Shared="True" d:DataContext="{d:DesignInstance local:ResourceItemViewModel}">
         <MenuItem Header="Rename" Command="{Binding RenameCommand, Mode=OneTime}"/>
         <MenuItem Header="Delete" Command="{Binding DeleteCommand, Mode=OneTime}"/>
     </ContextMenu>

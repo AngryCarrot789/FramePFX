@@ -5,7 +5,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Render {
     // TODO: Get rid of a ticking render and instead just render directly when needed (e.g playhead moved or progressed while playing)
-    public class OpenTKRenderThread : IDisposable {
+    public class OpenGLMainThread : IDisposable {
         public const double TARGET_FPS = 30d;
         public const double TARGET_FPS_MS = 1000d / TARGET_FPS;       // 60FPS = 16.666666666666
         public const double TARGET_FPS_TICKS = 10000000 / TARGET_FPS; // 60FPS = 16.666666666666
@@ -22,9 +22,6 @@ namespace FramePFX.Render {
 
         public volatile bool isPaused;
 
-        public int Width { get; set; } = 1;
-        public int Height { get; set; } = 1;
-
         public double AverageDelta => this.averager.GetAverage();
 
         // public LockedObject<IntPtr> Bitmap { get; set; }
@@ -32,18 +29,16 @@ namespace FramePFX.Render {
         public CASLock BitmapLock { get; }
 
         public ThreadTimer Thread => this.thread;
+
+        public static OpenGLMainThread Instance { get; private set; }
+
         public static OGLContext GlobalContext { get; private set; }
 
-        public static OpenTKRenderThread Instance { get; private set; }
-
-        public static void Setup(int width, int height) {
-            Instance = new OpenTKRenderThread() {
-                Width = width,
-                Height = height
-            };
+        public static void Setup() {
+            Instance = new OpenGLMainThread();
         }
 
-        public OpenTKRenderThread() {
+        public OpenGLMainThread() {
             this.thread = new ThreadTimer(TimeSpan.FromMilliseconds(TARGET_FPS_MS)) {
                 StartedAction = this.OnThreadStarted,
                 StoppedAction = this.OnThreadStopped,
@@ -93,14 +88,13 @@ namespace FramePFX.Render {
             if (width <= 0 || height <= 0 || this.oglContext == null)
                 return;
 
-            this.oglContext.UpdateViewportSize(width, height);
+            this.oglContext.SetViewportSize(width, height);
         }
 
         private void OnThreadStarted() {
-            this.oglContext = OGLContext.Create(this.Width, this.Height);
+            this.oglContext = OGLContext.Create(1, 1);
             this.lastTickTime = GetCurrentTime();
-            GlobalContext = this.oglContext;
-            IoC.VideoEditor?.ActiveProject?.Timeline?.ScheduleRender(false);
+            GlobalContext = Instance.oglContext;
         }
 
         private void OnGLThreadTick() {

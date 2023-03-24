@@ -1,4 +1,4 @@
-namespace FramePFX.Core.ResourceManaging {
+namespace FramePFX.ResourceManaging {
     public interface IResourceListHandle {
 
     }

@@ -2,7 +2,10 @@
 using FramePFX.Core;
 
 namespace FramePFX.Timeline.Layer.Clips {
-    public class ClipViewModel : BaseViewModel {
+    /// <summary>
+    /// A container for a clip
+    /// </summary>
+    public abstract class ClipContainerViewModel : BaseViewModel {
         private long frameBegin;
         public long FrameBegin {
             get => this.frameBegin;
@@ -41,11 +44,19 @@ namespace FramePFX.Timeline.Layer.Clips {
             set => this.RaisePropertyChanged(ref this.name, value);
         }
 
-        public IClipContainerHandle Handle { get; set; }
+        public IClipContainerHandle ContainerHandle { get; set; }
 
+        /// <summary>
+        /// The layer that this clip container is currently in. Should be null if the clip is not yet in a layer
+        /// </summary>
         public LayerViewModel Layer { get; set; }
 
-        public ClipViewModel() {
+        /// <summary>
+        /// The content of this clip
+        /// </summary>
+        public ClipViewModel ClipContent { get; set; }
+
+        protected ClipContainerViewModel() {
 
         }
 
@@ -55,8 +66,8 @@ namespace FramePFX.Timeline.Layer.Clips {
             return frame >= begin && frame < (begin + duration);
         }
 
-        private void MarkForRender() {
-            if (this.Layer != null && (IoC.Editor.MainViewPort?.IsReadyForRender ?? false)) {
+        public void MarkForRender() {
+            if (this.Layer != null && (IoC.VideoEditor?.IsReadyForRender() ?? false)) {
                 this.Layer.Timeline.ScheduleRender(true);
             }
         }

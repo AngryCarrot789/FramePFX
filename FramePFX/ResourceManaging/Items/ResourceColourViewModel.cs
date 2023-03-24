@@ -1,5 +1,5 @@
 namespace FramePFX.ResourceManaging.Items {
-    public class ResourceSquareViewModel : ResourceItemViewModel {
+    public class ResourceColourViewModel : ResourceItemViewModel {
         private float r;
         private float g;
         private float b;

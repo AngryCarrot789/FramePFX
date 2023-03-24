@@ -25,7 +25,7 @@ namespace FramePFX.Core.Utils {
                 return;
             }
 
-            IoC.Dispatcher.InvokeLater(this.AttemptExecuteOrRegisterTask);
+            CoreIoC.Dispatcher.InvokeLater(this.AttemptExecuteOrRegisterTask);
         }
 
         public void AttemptExecuteOrRegisterTask() {

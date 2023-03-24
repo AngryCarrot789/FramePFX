@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.Timeline {
+namespace FramePFX.Timeline.Layer.Clips {
     public class ClipDragData {
         public TimelineControl Timeline { get; }
         public TimelineClipControl Clip { get; }
@@ -67,7 +67,7 @@ namespace FramePFX.Timeline {
             this.Clip.FrameBegin = newFrameBegin;
             this.Clip.IsMovingControl = false;
             // this.Clip.Content = $"{this.buffer} | {newFrameBegin} ({this.incremented})";
-            this.Clip.Content = $"{this.Clip.Span}";
+            this.Clip.ToolTip = $"{this.Clip.Span}";
         }
 
         public void OnCompleted() {

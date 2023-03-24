@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.Core.Timeline {
+namespace FramePFX.Timeline {
     public readonly struct FrameSpan {
         /// <summary>
         /// The beginning of this span (inclusive index). This value may be negative (which isn't a valid span value, but is allowed anyway)

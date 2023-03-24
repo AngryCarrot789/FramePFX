@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Services;
+using FramePFX.Render;
 using FramePFX.Services;
 using FramePFX.Views.Dialogs.FilePicking;
 using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.UserInputs;
+using FramePFX.Views.Main;
 
 namespace FramePFX {
     /// <summary>
@@ -15,16 +18,35 @@ namespace FramePFX {
     /// </summary>
     public partial class App : Application {
         private void Application_Startup(object sender, StartupEventArgs e) {
-            IoC.MessageDialogs = new MessageDialogService();
-            IoC.Dispatcher = new DispatcherDelegate(this);
-            IoC.Clipboard = new ClipboardService();
-            IoC.FilePicker = new FilePickDialogService();
-            IoC.UserInput = new UserInputDialogService();
+            CoreIoC.MessageDialogs = new MessageDialogService();
+            CoreIoC.Dispatcher = new DispatcherDelegate(this);
+            CoreIoC.Clipboard = new ClipboardService();
+            CoreIoC.FilePicker = new FilePickDialogService();
+            CoreIoC.UserInput = new UserInputDialogService();
 
-            this.MainWindow = new MainWindow();
+            OpenGLMainThread.Setup();
+            OpenGLMainThread.Instance.Start();
+            while (true) {
+                Thread.Sleep(50);
+                if (OpenGLMainThread.Instance.Thread.IsRunning && OpenGLMainThread.GlobalContext != null) {
+                    break;
+                }
+            }
+
+            IoC.VideoEditor = new VideoEditorViewModel();
+            this.MainWindow = new MainWindow {
+                DataContext = IoC.VideoEditor
+            };
+
             this.MainWindow.Show();
-
+            IoC.VideoEditor.Viewport.ViewPortHandle = ((MainWindow) this.MainWindow).oglPort;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            IoC.VideoEditor.NewProjectAction();
+            this.Dispatcher.Invoke(() => {
+                IoC.ActiveProject.RenderTimeline();
+                // Loaded, to allow ICG to generate content and assign the handles
+            }, DispatcherPriority.Loaded);
         }
 
         protected override void OnExit(ExitEventArgs e) {

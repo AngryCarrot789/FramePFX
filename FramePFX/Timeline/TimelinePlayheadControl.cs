@@ -6,8 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Core.Timeline;
 using FramePFX.Core.Utils;
+using FramePFX.Timeline.Layer.Clips;
 using Keyboard = System.Windows.Input.Keyboard;
 
 namespace FramePFX.Timeline {
@@ -101,17 +101,18 @@ namespace FramePFX.Timeline {
         }
 
         private void PART_ThumbOnDragDelta(object sender, DragDeltaEventArgs e) {
-            if (this.isDraggingThumb || this.Timeline == null) {
+            TimelineControl timeline;
+            if (this.isDraggingThumb || (timeline = this.Timeline) == null) {
                 return;
             }
 
-            long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.Timeline.UnitZoom);
+            long change = TimelineUtils.PixelToFrame(e.HorizontalChange, timeline.UnitZoom);
             if (change == 0) {
                 return;
             }
 
             long begin = this.FrameBegin + change;
-            if (begin >= this.Timeline.MaxDuration) {
+            if (begin >= timeline.MaxDuration) {
                 return;
             }
 
@@ -122,7 +123,7 @@ namespace FramePFX.Timeline {
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                 TimelineClipControl closestClip = null;
                 long closestFrame = begin;
-                List<TimelineClipControl> clips = this.Timeline.GetClipsInArea(new FrameSpan(begin - 10, 20)).ToList();
+                List<TimelineClipControl> clips = timeline.GetClipsInArea(new FrameSpan(begin - 10, 20)).ToList();
                 foreach (TimelineClipControl clip in clips) {
                     // this code is still broken and doesn't latch to the nearest when the clips list is 
                     FrameSpan span = clip.Span;
@@ -201,6 +202,7 @@ namespace FramePFX.Timeline {
         public void EnableDragging(Point point) {
             this.PART_ThumbBody.Focus();
             this.PART_ThumbBody.CaptureMouse();
+            // lazy... could create custom control extending Thumb to modify this but this works so :D
             FieldInfo key = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
             this.PART_ThumbBody.SetValue((DependencyPropertyKey) key.GetValue(null), true);
             bool flag = true;

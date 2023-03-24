@@ -5,62 +5,62 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using FramePFX.Render;
+using FramePFX.Timeline.Layer.Clips.Controls;
 
 namespace FramePFX.Timeline.Layer.Clips {
-    public class TimelineClipContainerControl : ContentControl, IClipHandle, IClipRenderTarget {
+    public class TimelineClipControl : ContentControl, IClipContainerHandle {
         #region Dependency Properties
 
         public static readonly DependencyProperty UnitZoomProperty =
             TimelineLayerControl.UnitZoomProperty.AddOwner(
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     1d,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipContainerControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
+                    (d, e) => ((TimelineClipControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
                     (d, v) => TimelineUtils.ClampUnit(v)));
 
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",
                 typeof(long),
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipContainerControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
+                    (d, e) => ((TimelineClipControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
         public static readonly DependencyProperty FrameDurationProperty =
             DependencyProperty.Register(
                 "FrameDuration",
                 typeof(long),
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipContainerControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
+                    (d, e) => ((TimelineClipControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
         public static readonly DependencyProperty IsSelectedProperty =
             Selector.IsSelectedProperty.AddOwner(
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     false,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
-                    (d, e) => ((TimelineClipContainerControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
+                    (d, e) => ((TimelineClipControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
 
         public static readonly DependencyProperty HeaderBrushProperty =
             DependencyProperty.Register(
                 "HeaderBrush",
                 typeof(Brush),
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineClipControl),
                 new PropertyMetadata(null));
 
         #endregion
 
-        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipContainerControl));
-        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipContainerControl));
+        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
+        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
 
         public event RoutedEventHandler Selected {
             add => this.AddHandler(SelectedEvent, value);
@@ -162,7 +162,12 @@ namespace FramePFX.Timeline.Layer.Clips {
 
         public TimelineControl Timeline => this.TimelineLayer.Timeline;
 
-        public ClipViewModel ViewModel => this.DataContext as ClipViewModel;
+        public ClipContainerViewModel ViewModel => this.DataContext as ClipContainerViewModel;
+
+        /// <summary>
+        /// Access to this clip content. This may be accessed from any thread
+        /// </summary>
+        public IClipHandle ClipHandle { get; private set; }
 
         public bool IsMovingControl { get; set; }
 
@@ -172,26 +177,39 @@ namespace FramePFX.Timeline.Layer.Clips {
         private Point lastLeftClickPoint;
         private Thumb PART_ThumbLeft;
         private Thumb PART_ThumbRight;
+        private ContentPresenter PART_Presenter;
         private bool isDraggingThumb;
         private bool isClipDragActivated;
         private bool isCancellingDragAction;
 
         private bool isProcessingMouseAction;
+        private BaseClipControl generatedChild;
 
         public ClipDragData DragData { get; set; }
 
-        public TimelineClipContainerControl() {
+        public TimelineClipControl() {
             this.Focusable = true;
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is ClipViewModel vm) {
-                    vm.Handle = this;
+                if (args.NewValue is ClipContainerViewModel vm) {
+                    vm.ContainerHandle = this;
                 }
             };
+
+            this.Loaded += OnLoaded;
         }
 
-        public bool GetViewModel(out ClipViewModel clip) {
+        private void OnLoaded(object sender, RoutedEventArgs e) {
+            if (this.PART_Presenter != null && VisualTreeHelper.GetChildrenCount(this.PART_Presenter) > 0) {
+                this.generatedChild = VisualTreeHelper.GetChild(this.PART_Presenter, 0) as BaseClipControl;
+                if (this.generatedChild is IClipHandle h2) {
+                    this.ClipHandle = h2;
+                }
+            }
+        }
+
+        public bool GetViewModel(out ClipContainerViewModel clip) {
             return (clip = this.ViewModel) != null;
         }
 
@@ -203,6 +221,20 @@ namespace FramePFX.Timeline.Layer.Clips {
             this.PART_ThumbRight = this.GetTemplateElement<Thumb>("PART_ThumbRight");
             this.PART_ThumbLeft.DragDelta += this.OnDragLeftThumb;
             this.PART_ThumbRight.DragDelta += this.OnDragRightThumb;
+            this.PART_Presenter = this.GetTemplateElement<ContentPresenter>("PART_Presenter");
+        }
+
+        // Accessing the clip here is required, because you cannot access the Content dependency property
+        // while not on the WPF main thread. Rendering accesses the IClipHandle off the main thread
+        protected override void OnContentChanged(object oldContent, object newContent) {
+            base.OnContentChanged(oldContent, newContent);
+            if (oldContent is IClipHandle) {
+                // TODO: maybe cache the handle's parent container here?
+            }
+
+            if (newContent is IClipHandle h1) {
+                this.ClipHandle = h1;
+            }
         }
 
         public double GetMouseDifference(double mouseX) {
@@ -298,7 +330,7 @@ namespace FramePFX.Timeline.Layer.Clips {
 
                             // force re-render view port. Without this code, if the playhead is at 0, then sometimes
                             // the clips won't be rendered if you very quickly drag the clip to the very start
-                            IoC.Editor.RenderViewPort();
+                            IoC.VideoEditor.Viewport.RenderTimeline(this.Timeline.ViewModel);
                         }
 
                         this.isProcessingMouseAction = false;
@@ -482,12 +514,6 @@ namespace FramePFX.Timeline.Layer.Clips {
 
         public override string ToString() {
             return $"TimelineClipControl({this.Span})";
-        }
-
-        public void Render(IOGLViewPort ogl, long frame) {
-            if (this.Content is IClipRenderTarget target) {
-                target.Render(ogl, frame);
-            }
         }
     }
 }

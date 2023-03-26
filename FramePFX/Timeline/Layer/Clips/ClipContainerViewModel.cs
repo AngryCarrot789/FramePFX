@@ -92,6 +92,10 @@ namespace FramePFX.Timeline.Layer.Clips {
         }
 
         public void MarkForRender() {
+            if (IoC.VideoEditor?.Viewport?.IsPlaying ?? false) {
+                return;
+            }
+
             if (this.Layer != null && (IoC.VideoEditor?.IsReadyForRender() ?? false)) {
                 this.Layer.Timeline.ScheduleRender(true);
             }

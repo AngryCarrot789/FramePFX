@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,11 +6,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using FramePFX.Core.Utils;
-using FramePFX.Render;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
-namespace FramePFX.RenderV2 {
+namespace FramePFX.Render {
     /// <summary>
     /// A control that can be rendered into via OpenGL
     /// </summary>
@@ -142,8 +140,8 @@ namespace FramePFX.RenderV2 {
                 }
             }
 
-            public bool BeginRender() {
-                return this.IsReady && this.Context.BeginUse(false);
+            public bool BeginRender(bool force = false) {
+                return this.IsReady && this.Context.BeginUse(force);
             }
 
             public void EndRender() {
@@ -155,7 +153,7 @@ namespace FramePFX.RenderV2 {
                     GL.ReadBuffer(ReadBufferMode.Back);
                     GL.ReadPixels(0, 0, this.vpWidth, this.vpHeight, PixelFormat.Rgb, PixelType.UnsignedByte, this.control.backBuffer);
                     this.control.hasFreshFrame = true;
-                }, true);
+                }, false);
             }
         }
     }

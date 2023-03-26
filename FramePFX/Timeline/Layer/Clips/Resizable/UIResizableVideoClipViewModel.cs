@@ -1,4 +1,6 @@
+using FramePFX.Render;
 using FramePFX.Timeline.Layer.Clips.Data;
+using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline.Layer.Clips.Resizable {
     public abstract class UIResizableVideoClipViewModel : VideoClipViewModel, IResizableClipData {
@@ -38,5 +40,23 @@ namespace FramePFX.Timeline.Layer.Clips.Resizable {
             this.ShapeWidth = w;
             this.ShapeHeight = h;
         }
+
+        public void TranslateForScaledRender(IViewPort ogl) {
+            GL.Translate(this.ShapeX, this.ShapeY, 0f);
+            GL.Scale(ogl.Width * (this.ShapeWidth / ogl.Width), ogl.Height * (this.ShapeHeight / ogl.Height), 1f);
+            // GL.Rotate(this.rotZ, 0, 0, 1);
+        }
+
+        public override void Render(IViewPort ogl, long frame) {
+            GL.PushMatrix();
+            if (this.UseScaledRender) {
+                this.TranslateForScaledRender(ogl);
+            }
+
+            this.RenderCore(ogl, frame);
+            GL.PopMatrix();
+        }
+
+        public abstract void RenderCore(IViewPort ogl, long frame);
     }
 }

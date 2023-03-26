@@ -73,7 +73,7 @@ namespace FramePFX.Timeline.Layer {
         private bool isUpdatingUnitZoom;
         private bool isUpdatingLayerType;
         private TimelineControl timeline;
-        private TimelineClipControl lastSelectedItem;
+        private TimelineClipContainerControl lastSelectedItem;
 
         public LayerViewModel ViewModel => this.DataContext as LayerViewModel;
 
@@ -93,19 +93,19 @@ namespace FramePFX.Timeline.Layer {
         /// and cache the unordered and ordered indices for fast access in dictionaries
         /// </summary>
         /// <returns></returns>
-        public IndexMap<TimelineClipControl> CreateIndexMap() {
+        public IndexMap<TimelineClipContainerControl> CreateIndexMap() {
             // Dictionary<TimelineClipControl, long> clipToFrame = new Dictionary<TimelineClipControl, long>(this.Items.Count);
             // Dictionary<long, TimelineClipControl> frameToClip = new Dictionary<long, TimelineClipControl>(this.Items.Count);
             int count = this.Items.Count;
-            Dictionary<TimelineClipControl, int> clipToRealIndex = new Dictionary<TimelineClipControl, int>(count);
-            Dictionary<int, TimelineClipControl> realIndexToClip = new Dictionary<int, TimelineClipControl>(count);
-            Dictionary<TimelineClipControl, int> clipToFakeIndex = new Dictionary<TimelineClipControl, int>(count);
+            Dictionary<TimelineClipContainerControl, int> clipToRealIndex = new Dictionary<TimelineClipContainerControl, int>(count);
+            Dictionary<int, TimelineClipContainerControl> realIndexToClip = new Dictionary<int, TimelineClipContainerControl>(count);
+            Dictionary<TimelineClipContainerControl, int> clipToFakeIndex = new Dictionary<TimelineClipContainerControl, int>(count);
             // only named it clipToFakeIndex because it lines up with the other names :3
-            List<TimelineClipControl> clips = new List<TimelineClipControl>(count);
-            IndexMap<TimelineClipControl> map = new IndexMap<TimelineClipControl>(clipToRealIndex, realIndexToClip, clipToFakeIndex, clips);
+            List<TimelineClipContainerControl> clips = new List<TimelineClipContainerControl>(count);
+            IndexMap<TimelineClipContainerControl> map = new IndexMap<TimelineClipContainerControl>(clipToRealIndex, realIndexToClip, clipToFakeIndex, clips);
             int i = 0;
             foreach (object item in this.Items) {
-                if (this.GetClipControl(item, out TimelineClipControl clip)) {
+                if (this.GetClipControl(item, out TimelineClipContainerControl clip)) {
                     clipToRealIndex[clip] = i;
                     realIndexToClip[i++] = clip;
                     clips.Add(clip);
@@ -122,17 +122,17 @@ namespace FramePFX.Timeline.Layer {
             return map;
         }
 
-        public bool GetClipControl(object item, out TimelineClipControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<ClipContainerViewModel, TimelineClipControl>(item, this.ItemContainerGenerator, x => x.ContainerHandle as TimelineClipControl)) != null;
+        public bool GetClipControl(object item, out TimelineClipContainerControl clip) {
+            return (clip = ICGenUtils.GetContainerForItem<ClipContainerViewModel, TimelineClipContainerControl>(item, this.ItemContainerGenerator, x => x.ContainerHandle as TimelineClipContainerControl)) != null;
         }
 
         public bool GetClipViewModel(object item, out ClipContainerViewModel clip) {
-            return ICGenUtils.GetItemForContainer<TimelineClipControl, ClipContainerViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out clip);
+            return ICGenUtils.GetItemForContainer<TimelineClipContainerControl, ClipContainerViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out clip);
         }
 
-        public IEnumerable<TimelineClipControl> GetClipControls() {
+        public IEnumerable<TimelineClipContainerControl> GetClipControls() {
             foreach (object item in this.Items) {
-                if (this.GetClipControl(item, out TimelineClipControl clip)) {
+                if (this.GetClipControl(item, out TimelineClipContainerControl clip)) {
                     yield return clip;
                 }
             }
@@ -146,9 +146,9 @@ namespace FramePFX.Timeline.Layer {
             }
         }
 
-        public IEnumerable<TimelineClipControl> GetSelectedClipControls() {
+        public IEnumerable<TimelineClipContainerControl> GetSelectedClipControls() {
             foreach (object item in this.SelectedItems) {
-                if (this.GetClipControl(item, out TimelineClipControl clip)) {
+                if (this.GetClipControl(item, out TimelineClipContainerControl clip)) {
                     yield return clip;
                 }
             }
@@ -162,10 +162,10 @@ namespace FramePFX.Timeline.Layer {
             }
         }
 
-        public IEnumerable<TimelineClipControl> GetClipsInArea(FrameSpan span) {
-            List<TimelineClipControl> list = new List<TimelineClipControl>();
+        public IEnumerable<TimelineClipContainerControl> GetClipsInArea(FrameSpan span) {
+            List<TimelineClipContainerControl> list = new List<TimelineClipContainerControl>();
             foreach (object item in this.Items) {
-                if (this.GetClipControl(item, out TimelineClipControl clip)) {
+                if (this.GetClipControl(item, out TimelineClipContainerControl clip)) {
                     if (clip.Span.Intersects(span)) {
                         list.Add(clip);
                     }
@@ -180,16 +180,16 @@ namespace FramePFX.Timeline.Layer {
         }
 
         protected override DependencyObject GetContainerForItemOverride() {
-            return new TimelineClipControl();
+            return new TimelineClipContainerControl();
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item) {
-            return item is TimelineClipControl;
+            return item is TimelineClipContainerControl;
         }
 
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
-            if (element is TimelineClipControl clip) {
+            if (element is TimelineClipContainerControl clip) {
                 if (item is ClipContainerViewModel viewModel) {
                     viewModel.ContainerHandle = clip;
                 }
@@ -206,7 +206,7 @@ namespace FramePFX.Timeline.Layer {
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);
-            List<TimelineClipControl> clips = this.timeline.GetAllSelectedClipControls().ToList();
+            List<TimelineClipContainerControl> clips = this.timeline.GetAllSelectedClipControls().ToList();
             if (clips.Any(clip => clip.TimelineLayer == this && clip.IsMouseOver)) {
                 return;
             }
@@ -229,7 +229,7 @@ namespace FramePFX.Timeline.Layer {
 
             this.isUpdatingUnitZoom = true;
             if (Math.Abs(oldZoom - newZoom) > TimelineUtils.MinUnitZoom) {
-                foreach (TimelineClipControl element in this.GetElements()) {
+                foreach (TimelineClipContainerControl element in this.GetElements()) {
                     element.UnitZoom = newZoom;
                 }
             }
@@ -244,49 +244,49 @@ namespace FramePFX.Timeline.Layer {
             this.isUpdatingLayerType = true;
 
             // Maybe invalidate all of the elements?
-            foreach (TimelineClipControl element in this.GetElements()) {
+            foreach (TimelineClipContainerControl element in this.GetElements()) {
                 element.OnLayerTypeChanged(oldType, newType);
             }
 
             this.isUpdatingLayerType = false;
         }
 
-        public double GetRenderX(TimelineClipControl control) {
+        public double GetRenderX(TimelineClipContainerControl control) {
             return control.Margin.Left;
         }
 
-        public void SetRenderX(TimelineClipControl control, double value) {
+        public void SetRenderX(TimelineClipContainerControl control, double value) {
             Thickness margin = control.Margin;
             margin.Left = value;
             control.Margin = margin;
         }
 
-        public double GetRenderY(TimelineClipControl control) {
+        public double GetRenderY(TimelineClipContainerControl control) {
             return control.Margin.Top;
         }
 
-        public void SetRenderY(TimelineClipControl control, double value) {
+        public void SetRenderY(TimelineClipContainerControl control, double value) {
             Thickness margin = control.Margin;
             margin.Top = value;
             control.Margin = margin;
         }
 
-        public IEnumerable<TimelineClipControl> GetElements() {
+        public IEnumerable<TimelineClipContainerControl> GetElements() {
             foreach (object item in this.Items) {
-                if (item is TimelineClipControl clip) {
+                if (item is TimelineClipContainerControl clip) {
                     yield return clip;
                 }
-                else if (this.ItemContainerGenerator.ContainerFromItem(item) is TimelineClipControl clip2) {
+                else if (this.ItemContainerGenerator.ContainerFromItem(item) is TimelineClipContainerControl clip2) {
                     yield return clip2;
                 }
             }
         }
 
-        public TimelineClipControl CreateClonedElement(TimelineClipControl clipToCopy) {
+        public TimelineClipContainerControl CreateClonedElement(TimelineClipContainerControl clipToCopy) {
             throw new Exception();
         }
 
-        public TimelineClipControl CreateElement(int startFrame, int durationFrames) {
+        public TimelineClipContainerControl CreateElement(int startFrame, int durationFrames) {
             throw new Exception();
         }
 
@@ -294,7 +294,7 @@ namespace FramePFX.Timeline.Layer {
         /// Removes the given clip from this timeline layer
         /// </summary>
         /// <param name="clip"></param>
-        public bool RemoveClip(TimelineClipControl clip) {
+        public bool RemoveClip(TimelineClipContainerControl clip) {
             int index = this.Items.IndexOf(clip);
             if (index == -1) {
                 return false;
@@ -306,7 +306,7 @@ namespace FramePFX.Timeline.Layer {
             return true;
         }
 
-        public void OnClipMouseButton(TimelineClipControl clip, MouseButtonEventArgs e, bool wasDragging = false) {
+        public void OnClipMouseButton(TimelineClipContainerControl clip, MouseButtonEventArgs e, bool wasDragging = false) {
             if (e.ChangedButton == MouseButton.Left) {
                 if (e.ButtonState == MouseButtonState.Pressed) {
                     if (AreModifiersPressed(ModifierKeys.Control)) {
@@ -348,7 +348,7 @@ namespace FramePFX.Timeline.Layer {
             // }
         }
 
-        public void MakeTopElement(TimelineClipControl control) {
+        public void MakeTopElement(TimelineClipContainerControl control) {
             if (this.GetViewModel(out LayerViewModel layer) && control.GetViewModel(out ClipContainerViewModel clip)) {
                 layer.MakeTopMost(clip);
             }
@@ -360,12 +360,12 @@ namespace FramePFX.Timeline.Layer {
         //
         // }
 
-        public void MakeRangedSelection(TimelineClipControl a, TimelineClipControl b) {
+        public void MakeRangedSelection(TimelineClipContainerControl a, TimelineClipContainerControl b) {
             if (a == b) {
                 this.MakeSingleSelection(a);
             }
             else {
-                IndexMap<TimelineClipControl> map = this.CreateIndexMap();
+                IndexMap<TimelineClipContainerControl> map = this.CreateIndexMap();
                 int indexA = map.OrderedIndexOf(a);
                 if (indexA == -1)
                     return;
@@ -400,13 +400,13 @@ namespace FramePFX.Timeline.Layer {
             }
         }
 
-        public void MakeSingleSelection(TimelineClipControl item) {
+        public void MakeSingleSelection(TimelineClipContainerControl item) {
             this.UnselectAll();
             this.SetItemSelectedProperty(item, true);
             this.lastSelectedItem = item;
         }
 
-        public void SetItemSelectedProperty(TimelineClipControl item, bool selected) {
+        public void SetItemSelectedProperty(TimelineClipContainerControl item, bool selected) {
             item.IsSelected = selected;
             object x = this.ItemContainerGenerator.ItemFromContainer(item);
             if (x == null || x == DependencyProperty.UnsetValue)
@@ -418,6 +418,8 @@ namespace FramePFX.Timeline.Layer {
             else {
                 this.SelectedItems.Remove(x);
             }
+
+            this.Timeline.ViewModel.MainSelectedClip = item.ViewModel.ClipContent;
         }
 
         public bool SetItemSelectedPropertyAtIndex(int index, bool selected) {
@@ -425,7 +427,7 @@ namespace FramePFX.Timeline.Layer {
                 return false;
             }
 
-            if (this.ItemContainerGenerator.ContainerFromIndex(index) is TimelineClipControl resource) {
+            if (this.ItemContainerGenerator.ContainerFromIndex(index) is TimelineClipContainerControl resource) {
                 this.SetItemSelectedProperty(resource, true);
                 return true;
             }

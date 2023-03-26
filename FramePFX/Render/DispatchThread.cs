@@ -4,13 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Utils;
 
-namespace FramePFX.RenderV2 {
+namespace FramePFX.Render {
     /// <summary>
     /// Represents a thread that actions can be dispatched to
     /// </summary>
     public class DispatchThread {
-        private readonly CASLock actionLock;
-        private readonly CASLock taskLock;
+        private readonly CASLockV2 actionLock;
+        private readonly CASLockV2 taskLock;
         private readonly List<Action> actions;
         private readonly List<Task> tasks;
         private volatile bool isThreadRunning;
@@ -29,8 +29,8 @@ namespace FramePFX.RenderV2 {
         public bool IsFullyStopped => this.isFullyStopped;
 
         public DispatchThread() {
-            this.actionLock = new CASLock();
-            this.taskLock = new CASLock();
+            this.actionLock = new CASLockV2();
+            this.taskLock = new CASLockV2();
             this.actions = new List<Action>();
             this.tasks = new List<Task>();
             this.Thread = new Thread(this.ThreadMain);
@@ -59,9 +59,9 @@ namespace FramePFX.RenderV2 {
             if (forceInvokeLater || Thread.CurrentThread != this.Thread) {
                 // The tick thread may call Invoke() or InvokeAsync(), so
                 // it's still a good idea to take into account the lock type
-                this.actionLock.Lock(out CASLockType type);
+                this.actionLock.Lock(true);
                 this.actions.Add(action);
-                this.actionLock.Unlock(type);
+                this.actionLock.Unlock();
             }
             else {
                 action();
@@ -71,9 +71,9 @@ namespace FramePFX.RenderV2 {
         public Task InvokeAsync(Action action, bool forceInvokeLater = false) {
             if (forceInvokeLater || Thread.CurrentThread != this.Thread) {
                 Task task = new Task(action);
-                this.taskLock.Lock(out CASLockType type);
+                this.actionLock.Lock(true);
                 this.tasks.Add(task);
-                this.taskLock.Unlock(type);
+                this.actionLock.Unlock();
                 return task;
             }
             else {
@@ -111,18 +111,18 @@ namespace FramePFX.RenderV2 {
         }
 
         protected virtual void ProcessPendingActions() {
-            if (this.actionLock.TryLock(out CASLockType actionLockType)) {
+            if (this.actionLock.Lock(false)) {
                 foreach (Action action in this.actions)
                     action();
                 this.actions.Clear();
-                this.actionLock.Unlock(actionLockType);
+                this.actionLock.Unlock();
             }
 
-            if (this.taskLock.TryLock(out CASLockType taskLockType)) {
+            if (this.taskLock.Lock(false)) {
                 foreach (Task action in this.tasks)
                     action.RunSynchronously();
                 this.tasks.Clear();
-                this.taskLock.Unlock(taskLockType);
+                this.taskLock.Unlock();
             }
         }
     }

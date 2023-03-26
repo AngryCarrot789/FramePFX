@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading;
 
 namespace FramePFX.Utils {
@@ -8,6 +9,8 @@ namespace FramePFX.Utils {
         private volatile int state;
         private volatile int thread;
 
+        public StackTrace LockTrace { get; set; }
+
         private bool TryTakeLock() {
             return Interlocked.CompareExchange(ref this.state, Used, Free) == Free;
         }
@@ -17,12 +20,14 @@ namespace FramePFX.Utils {
             if (this.thread == threadId) {
                 this.state = Used;
                 lockType = CASLockType.Thread;
+                this.LockTrace = new StackTrace();
                 return true;
             }
 
             if (this.TryTakeLock()) {
                 this.thread = threadId;
                 lockType = CASLockType.WasNotLocked;
+                this.LockTrace = new StackTrace();
                 return true;
             }
 
@@ -38,6 +43,7 @@ namespace FramePFX.Utils {
             if (this.thread == threadId) {
                 this.state = Used;
                 lockType = CASLockType.Thread;
+                this.LockTrace = new StackTrace();
                 return;
             }
 
@@ -45,6 +51,7 @@ namespace FramePFX.Utils {
             do {
                 if (Interlocked.CompareExchange(ref this.state, Used, Free) == Free) {
                     this.thread = threadId;
+                    this.LockTrace = new StackTrace();
                     return;
                 }
 

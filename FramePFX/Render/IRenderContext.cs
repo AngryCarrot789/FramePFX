@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.RenderV2 {
+namespace FramePFX.Render {
     /// <summary>
     /// A context for one or more viewports. This defines behaviour for using the context
     /// </summary>

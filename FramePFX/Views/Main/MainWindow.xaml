@@ -12,14 +12,27 @@
         xmlns:converters="clr-namespace:FramePFX.Converters"
         xmlns:resizable="clr-namespace:FramePFX.Timeline.Layer.Clips.Resizable"
         xmlns:controls1="clr-namespace:FramePFX.Timeline.Layer.Clips.Controls"
+        xmlns:render="clr-namespace:FramePFX.Render"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:VideoEditorViewModel}"
-        Title="MainWindow" Width="1408" Height="792"
+        Title="Bootleg sony vegas" Width="1408" Height="792"
         Style="{StaticResource CustomWindowStyle}" 
         Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"
         BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}">
     <Window.Resources>
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True"/>
+        <Style TargetType="{x:Type Slider}">
+            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.Foreground}" />
+            <Setter Property="Template" Value="{StaticResource SliderHorizontal}" />
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Template" Value="{DynamicResource SliderVertical}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Key="Space" Command="{Binding Viewport.PlayPauseCommand}"/>
@@ -77,7 +90,10 @@
                         </Grid>
                     </Border>
                     <Viewbox Margin="0,0,0,35">
+                        <render:OGLViewportControl x:Name="GLViewport"/>
+                        <!--
                         <Image Width="1920" Height="1080" x:Name="GLViewport"/>
+                        -->
                     </Viewbox>
                 </Grid>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Converter={StaticResource NullToDisabledConverter}}" Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}">
@@ -112,10 +128,23 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="Clip Properties">
-                            <Grid>
+                            <Grid DataContext="{Binding Timeline.MainSelectedClip, UpdateSourceTrigger=PropertyChanged}" d:DataContext="{d:DesignInstance Type=resizable:ShapeClipViewModel}">
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="X:" Width="60"/>
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="Y:" Width="60" Margin="0,26,0,0"/>
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="Width:" Width="60" Margin="0,52,0,0"/>
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="Height:" Width="60" Margin="0,78,0,0"/>
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="R:" Width="60" Margin="0,104,0,0"/>
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="G:" Width="60" Margin="0,130,0,0"/>
+                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="B:" Width="60" Margin="0,156,0,0"/>
+                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,0,0,0" Height="26" Minimum="0" Maximum="1920" Value="{Binding ShapeX, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,26,0,0" Height="26" Minimum="0" Maximum="1080" Value="{Binding ShapeY, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,52,0,0" Height="26" Minimum="0" Maximum="1920" Value="{Binding ShapeWidth, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,78,0,0" Height="26" Minimum="0" Maximum="1080" Value="{Binding ShapeHeight, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,104,0,0" Height="26" SmallChange="0.01" LargeChange="0.1" Minimum="0" Maximum="1" Value="{Binding R, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,130,0,0" Height="26" SmallChange="0.01" LargeChange="0.1" Minimum="0" Maximum="1" Value="{Binding G, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,156,0,0" Height="26" SmallChange="0.01" LargeChange="0.1" Minimum="0" Maximum="1" Value="{Binding B, UpdateSourceTrigger=PropertyChanged}"/>
                                 <!-- use ItemTemplate based on data context type... or ItemTemplateSelector -->
                                 <!-- <ContentPresenter/> -->
-                                <controls:OGLViewPortControl x:Name="TestViewPort" ViewportWidth="500" ViewportHeight="500"/>
                             </Grid>
                         </TabItem>
                     </TabControl>
@@ -239,7 +268,7 @@
                                     <Setter Property="Focusable" Value="True"/>
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
-                                            <Style TargetType="{x:Type clips:TimelineClipControl}">
+                                            <Style TargetType="{x:Type clips:TimelineClipContainerControl}">
                                                 <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
                                                 <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
@@ -253,7 +282,7 @@
                                                 <Setter Property="Content" Value="{Binding ClipContent}"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
-                                                        <ControlTemplate TargetType="{x:Type clips:TimelineClipControl}">
+                                                        <ControlTemplate TargetType="{x:Type clips:TimelineClipContainerControl}">
                                                             <Grid d:DataContext="{d:DesignInstance clips:ClipContainerViewModel}">
                                                                 <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
                                                                     <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">

@@ -1,4 +1,4 @@
-namespace FramePFX.RenderV2 {
+namespace FramePFX.Render {
     /// <summary>
     /// An interface that defines a view port that things can be rendered into
     /// </summary>
@@ -33,8 +33,9 @@ namespace FramePFX.RenderV2 {
         /// <summary>
         /// Attempts to begin a render phase. Returns false if not ready or a render could not be started
         /// </summary>
+        /// <param name="force"></param>
         /// <returns></returns>
-        bool BeginRender();
+        bool BeginRender(bool force = false);
 
         /// <summary>
         /// Ends the current render phase

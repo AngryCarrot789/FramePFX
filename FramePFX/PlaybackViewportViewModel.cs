@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Project;
@@ -28,7 +30,7 @@ namespace FramePFX {
         /// <summary>
         /// A handle to the main view port
         /// </summary>
-        public IOGLViewPort ViewPortHandle { get; set; }
+        public IViewPort ViewPortHandle { get; set; }
 
         private readonly Thread playbackThread;
         private long nextPlaybackTick;
@@ -54,44 +56,35 @@ namespace FramePFX {
             this.playbackThread.Start();
         }
 
-        private bool hasFreshFrame;
-
         public bool IsReadyForRender() {
-            return this.ViewPortHandle != null && this.ViewPortHandle.IsReadyForRender && this.ViewPortHandle.Context.IsReady;
+            return this.ViewPortHandle != null && this.ViewPortHandle.IsReady && this.ViewPortHandle.Context.IsReady;
         }
 
         public void RenderTimeline(TimelineViewModel timeline) {
             if (this.IsReadyForRender()) {
-                IOGLViewPort view = this.ViewPortHandle;
-                view.Context.BeginRender();
-                    GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-                    long playHead = timeline.PlayHeadFrame;
-                    // foreach (LayerViewModel layer in timeline.Layers) {
-                    //     foreach (ClipContainerViewModel clip in layer.Clips) {
-                    //         if (clip.IntersectsFrameAt(playHead)) {
-                    //
-                    //         }
-                    //     }
-                    // }
+                // Render main view port
+                long playHead = timeline.PlayHeadFrame;
+                IViewPort view = this.ViewPortHandle;
+                if (!view.BeginRender(true)) {
+                    return;
+                }
 
-                    // TODO: change this to support layer opacity. And also move to shaders because this glVertex3f old stuff it no good
-                    foreach (ClipContainerViewModel clip in timeline.GetClipsOnPlayHead()) {
-                        IClipContainerHandle handle = clip.ContainerHandle;
-                        if (handle == null) {
-                            continue;
-                        }
-
-                        if (handle.ClipHandle is IClipRenderTarget target) {
-                            target.Render(view, playHead);
-                        }
-                        // TODO: add audio... somehow. I have no idea how to do audio lololol
-                        // else if (handle.ClipHandle is IAudioRenderTarget) {
-                        //
-                        // }
+                List<ClipContainerViewModel> clips = timeline.GetClipsOnPlayHead().ToList();
+                GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+                // TODO: change this to support layer opacity. And also move to shaders because this glVertex3f old stuff it no good
+                foreach (ClipContainerViewModel clip in clips) {
+                    if (clip.ClipContent is IClipRenderTarget target) {
+                        target.Render(view, playHead);
                     }
 
-                    view.FlushFrame();
-                view.Context.EndRender();
+                    // TODO: add audio... somehow. I have no idea how to do audio lololol
+                    // else if (handle.ClipHandle is IAudioRenderTarget) {
+                    //
+                    // }
+                }
+
+                view.FlushFrame();
+                view.EndRender();
             }
         }
 

@@ -3,11 +3,11 @@ using System.Threading;
 
 namespace FramePFX.Utils {
     public class UsageCounter {
-        private volatile int deep;
+        private volatile int count;
 
-        public bool IsInUse => this.deep > 0;
+        public bool IsInUse => this.count > 0;
 
-        public bool IsFree => this.deep <= 0;
+        public bool IsFree => this.count <= 0;
 
         /// <summary>
         /// Increments the usage counter
@@ -15,10 +15,8 @@ namespace FramePFX.Utils {
         /// <returns>
         /// True if it was originally not in use, otherwise false if it was already in use
         /// </returns>
-        public bool Use() {
-            lock (this) {
-                return Interlocked.Increment(ref this.deep) == 1;
-            }
+        public bool Increment() {
+            return Interlocked.Increment(ref this.count) > 0;
         }
 
         /// <summary>
@@ -27,13 +25,16 @@ namespace FramePFX.Utils {
         /// <returns>
         /// True if there are no more objects in use, otherwise false if there are still usages
         /// </returns>
-        public bool Free() {
-            lock (this) {
-                if (this.deep == 0) {
-                    throw new Exception("Too many calls to Free()");
-                }
-
-                return Interlocked.Decrement(ref this.deep) == 0;
+        public bool Decrement() {
+            int result = Interlocked.Decrement(ref this.count);
+            if (result == 0) {
+                return true;
+            }
+            else if (result < 0) {
+                throw new Exception("Too many calls to Free()");
+            }
+            else {
+                return false;
             }
         }
     }

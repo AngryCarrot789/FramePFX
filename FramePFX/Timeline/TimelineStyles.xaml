@@ -72,7 +72,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type clips:TimelineClipControl}">
+    <Style TargetType="{x:Type clips:TimelineClipContainerControl}">
         <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
         <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
@@ -82,7 +82,7 @@
         <Setter Property="Height" Value="40"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type clips:TimelineClipControl}">
+                <ControlTemplate TargetType="{x:Type clips:TimelineClipContainerControl}">
                     <Grid>
                         <Grid x:Name="FullElementContent">
                             <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">
@@ -119,13 +119,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:SquareClipControl}">
-                    <TextBlock Text="Clip!!!" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas"/>
-                    <!--
                     <controls1:OGLViewPortControl HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                   x:Name="PART_ViewPort"
-                                                  ViewportWidth="160"
-                                                  ViewportHeight="90"/>
+                                                  ViewportWidth="{TemplateBinding ActualWidth}"
+                                                  ViewportHeight="{TemplateBinding ActualHeight}"/>
+                    <!--
+                    <TextBlock Text="Clip!!!" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas"/>
                     -->
                 </ControlTemplate>
             </Setter.Value>
@@ -133,10 +133,10 @@
     </Style>
 
     <clips:ClipTemplateSelector x:Key="ClipContentSelector">
-        <clips:ClipTemplateSelector.ColouredSquareTemplate>
-            <DataTemplate DataType="{x:Type resizable:ShapeClipViewModel}">
-                <controls:SquareClipControl ResizeData="{Binding}" ShapeColour="{Binding}" Background="Red" Visibility="Visible" IsEnabled="True"/>
-            </DataTemplate>
-        </clips:ClipTemplateSelector.ColouredSquareTemplate>
+        <!-- <clips:ClipTemplateSelector.ColouredSquareTemplate> -->
+        <!--     <DataTemplate DataType="{x:Type resizable:ShapeClipViewModel}"> -->
+        <!--         <controls:SquareClipControl Background="Red" Visibility="Visible" IsEnabled="True"/> -->
+        <!--     </DataTemplate> -->
+        <!-- </clips:ClipTemplateSelector.ColouredSquareTemplate> -->
     </clips:ClipTemplateSelector>
 </ResourceDictionary>

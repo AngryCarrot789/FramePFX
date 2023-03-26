@@ -15,43 +15,46 @@ namespace FramePFX.Views.Main {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        public readonly OGLMainViewPortImpl oglPort;
+        // public readonly OGLMainViewPortImpl oglPort;
+        public readonly OGLViewportControl oglPort;
 
         public VideoEditorViewModel Editor => this.DataContext as VideoEditorViewModel;
 
         public MainWindow() {
             this.InitializeComponent();
-            this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
+            // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             this.Closed += this.OnClosed;
             this.Loaded += this.OnLoaded;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            Task.Run(async () => {
-                while (true) {
-                    this.oglPort.wpf_averager.PushValue(this.oglPort.interval_ticks);
-                    if (this.oglPort.wpf_averager.NextIndex % this.oglPort.wpf_averager.Count == 0) {
-                        await this.Dispatcher.InvokeAsync(() => {
-                            double wpfItv = this.oglPort.wpf_averager.GetAverage() / TimeSpan.TicksPerMillisecond;
-                            double oglItv = 1d / this.oglPort.openTk.AverageDelta;
-                            double pbkItv = 1000d / ((VideoEditorViewModel) this.DataContext).Viewport.playbackAverageIntervalMS.GetAverage();
-                            this.FPS_WPF.Text = Math.Round(1000d / wpfItv, 2).ToString();
-                            this.FPS_OGL.Text = Math.Round(oglItv, 2).ToString();
-                            this.PLAYBACK_FPS.Text = Math.Round(pbkItv, 2).ToString();
-                        });
-                    }
-
-                    await Task.Delay(10);
-                }
-            });
+            // Task.Run(async () => {
+            //     while (true) {
+            //         this.oglPort.wpf_averager.PushValue(this.oglPort.interval_ticks);
+            //         if (this.oglPort.wpf_averager.NextIndex % this.oglPort.wpf_averager.Count == 0) {
+            //             await this.Dispatcher.InvokeAsync(() => {
+            //                 double wpfItv = this.oglPort.wpf_averager.GetAverage() / TimeSpan.TicksPerMillisecond;
+            //                 double oglItv = 1d / this.oglPort.openTk.AverageDelta;
+            //                 double pbkItv = 1000d / ((VideoEditorViewModel) this.DataContext).Viewport.playbackAverageIntervalMS.GetAverage();
+            //                 this.FPS_WPF.Text = Math.Round(1000d / wpfItv, 2).ToString();
+            //                 this.FPS_OGL.Text = Math.Round(oglItv, 2).ToString();
+            //                 this.PLAYBACK_FPS.Text = Math.Round(pbkItv, 2).ToString();
+            //             });
+            //         }
+            //         await Task.Delay(10);
+            //     }
+            // });
         }
 
         private void OnClosed(object sender, EventArgs e) {
-            this.oglPort.Stop();
+            OGLUtils.ShutdownMainThread();
+            // this.oglPort.Stop();
             if (this.Editor is VideoEditorViewModel editor) {
                 editor.Viewport.isPlaybackThreadRunning = false;
             }
         }
+
+        /*
 
         public class OGLMainViewPortImpl : IOGLViewPort {
             private readonly Image image;
@@ -147,8 +150,16 @@ namespace FramePFX.Views.Main {
                 }
             }
 
+            public void BeginRender() {
+                this.Context.BeginRender();
+            }
+
             public bool FlushFrame() {
                 return this.hasFreshFrame = this.openTk.DrawViewportIntoBitmap(this.backBuffer, this.width, this.height);
+            }
+
+            public void EndRender() {
+                this.Context.EndRender();
             }
 
             private void RecreateBitmap() {
@@ -167,6 +178,8 @@ namespace FramePFX.Views.Main {
                 }
             }
         }
+
+        */
 
         private void ThumbTop(object sender, DragDeltaEventArgs e) {
             if ((sender as Thumb)?.DataContext is LayerViewModel layer) {

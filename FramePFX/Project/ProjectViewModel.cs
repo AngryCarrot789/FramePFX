@@ -1,4 +1,3 @@
-using System;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.ResourceManaging;

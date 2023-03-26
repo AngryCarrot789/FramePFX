@@ -341,9 +341,9 @@ namespace FramePFX.Timeline {
             }
         }
 
-        public IEnumerable<TimelineClipControl> GetAllSelectedClipControls() {
+        public IEnumerable<TimelineClipContainerControl> GetAllSelectedClipControls() {
             foreach (TimelineLayerControl layer in this.GetLayerControls()) {
-                foreach (TimelineClipControl clip in layer.GetSelectedClipControls()) {
+                foreach (TimelineClipContainerControl clip in layer.GetSelectedClipControls()) {
                     yield return clip;
                 }
             }
@@ -357,10 +357,10 @@ namespace FramePFX.Timeline {
             }
         }
 
-        public IEnumerable<TimelineClipControl> GetClipsInArea(FrameSpan span) {
-            List<TimelineClipControl> list = new List<TimelineClipControl>();
+        public IEnumerable<TimelineClipContainerControl> GetClipsInArea(FrameSpan span) {
+            List<TimelineClipContainerControl> list = new List<TimelineClipContainerControl>();
             foreach (TimelineLayerControl layer in this.GetLayerControls()) {
-                foreach (TimelineClipControl clip in layer.GetClipsInArea(span)) {
+                foreach (TimelineClipContainerControl clip in layer.GetClipsInArea(span)) {
                     list.Add(clip);
                 }
             }
@@ -380,7 +380,7 @@ namespace FramePFX.Timeline {
             }
         }
 
-        public void SetPrimarySelection(TimelineLayerControl layer, TimelineClipControl clip) {
+        public void SetPrimarySelection(TimelineLayerControl layer, TimelineClipContainerControl clip) {
             foreach (TimelineLayerControl layerControl in this.GetLayerControls()) {
                 layerControl.UnselectAll();
             }
@@ -393,7 +393,7 @@ namespace FramePFX.Timeline {
                 return;
             }
 
-            List<TimelineClipControl> list = this.GetAllSelectedClipControls().ToList();
+            List<TimelineClipContainerControl> list = this.GetAllSelectedClipControls().ToList();
             if (list.Count < 1) {
                 return;
             }

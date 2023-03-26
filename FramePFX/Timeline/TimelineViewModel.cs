@@ -19,6 +19,12 @@ namespace FramePFX.Timeline {
         /// </summary>
         public ReadOnlyObservableCollection<LayerViewModel> Layers { get; }
 
+        private ClipViewModel mainSelectedClip;
+        public ClipViewModel MainSelectedClip {
+            get => this.mainSelectedClip;
+            set => this.RaisePropertyChanged(ref this.mainSelectedClip, value);
+        }
+
         /// <summary>
         /// A handle to the actual timeline UI control
         /// </summary>
@@ -77,7 +83,7 @@ namespace FramePFX.Timeline {
         }
 
         public static bool CanRender() {
-            return IoC.VideoEditor?.Viewport?.ViewPortHandle?.IsReadyForRender ?? false;
+            return IoC.VideoEditor?.Viewport?.ViewPortHandle?.IsReady ?? false;
         }
 
         public void MarkRenderDirty() {

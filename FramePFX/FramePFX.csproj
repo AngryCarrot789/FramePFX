@@ -78,10 +78,14 @@
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Project\ProjectViewModel.cs" />
+    <Compile Include="Render\DispatchThread.cs" />
+    <Compile Include="Render\FrameBuffer.cs" />
     <Compile Include="Render\IClipRenderTarget.cs" />
-    <Compile Include="Render\IOGLContext.cs" />
-    <Compile Include="Render\IOGLViewPort.cs" />
-    <Compile Include="Render\IAutoRenderTarget.cs" />
+    <Compile Include="Render\IRenderContext.cs" />
+    <Compile Include="Render\IViewPort.cs" />
+    <Compile Include="Render\OGLRenderContext.cs" />
+    <Compile Include="Render\OGLUtils.cs" />
+    <Compile Include="Render\OGLViewportControl.cs" />
     <Compile Include="ResourceManaging\IFileDropNotifier.cs" />
     <Compile Include="ResourceManaging\IResourceListHandle.cs" />
     <Compile Include="ResourceManaging\Items\INativeImageResource.cs" />
@@ -99,7 +103,6 @@
     <Compile Include="Timeline\Layer\Clips\ClipType.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\Controls\BaseClipControl.cs" />
-    <Compile Include="Timeline\Layer\Clips\Controls\OGLRenderPreviewClip.cs" />
     <Compile Include="Timeline\Layer\Clips\Controls\ResizableClipControl.cs" />
     <Compile Include="Timeline\Layer\Clips\Controls\SquareClipControl.cs" />
     <Compile Include="Timeline\Layer\Clips\Data\IColourData.cs" />
@@ -108,18 +111,17 @@
     <Compile Include="Timeline\Layer\Clips\IClipHandle.cs" />
     <Compile Include="Timeline\Layer\Clips\Resizable\UIResizableVideoClipViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\Resizable\ShapeClipViewModel.cs" />
-    <Compile Include="Timeline\Layer\Clips\TimelineClipControl.cs" />
+    <Compile Include="Timeline\Layer\Clips\TimelineClipContainerControl.cs" />
     <Compile Include="Timeline\Layer\Clips\VideoClipContainerViewModel.cs" />
     <Compile Include="Timeline\Layer\Clips\VideoClipViewModel.cs" />
     <Compile Include="Timeline\Layer\ILayerHandle.cs" />
     <Compile Include="Timeline\Layer\LayerViewModel.cs" />
     <Compile Include="Timeline\TimelineUtils.cs" />
     <Compile Include="Timeline\TimelineViewModel.cs" />
+    <Compile Include="Utils\CASLockV2.cs" />
+    <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="VideoEditorViewModel.cs" />
     <Compile Include="PlaybackViewportViewModel.cs" />
-    <Compile Include="Render\FrameBuffer.cs" />
-    <Compile Include="Render\OGLContext.cs" />
-    <Compile Include="Render\OpenGLMainThread.cs" />
     <Compile Include="ResourceManaging\ResourceItemControl.cs" />
     <Compile Include="ResourceManaging\ResourceListControl.cs" />
     <Compile Include="Services\ClipboardService.cs" />
@@ -238,6 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Timeline\Layer\Clips\Impl" />
     <Folder Include="Timeline\Layer\Clips\ViewModels\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

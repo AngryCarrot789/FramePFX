@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.RenderV2 {
+namespace FramePFX.Render {
     public static class OGLUtils {
         public static DispatchThread OGLThread { get; private set; }
 

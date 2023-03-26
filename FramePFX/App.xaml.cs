@@ -24,14 +24,16 @@ namespace FramePFX {
             CoreIoC.FilePicker = new FilePickDialogService();
             CoreIoC.UserInput = new UserInputDialogService();
 
-            OpenGLMainThread.Setup();
-            OpenGLMainThread.Instance.Start();
-            while (true) {
-                Thread.Sleep(50);
-                if (OpenGLMainThread.Instance.Thread.IsRunning && OpenGLMainThread.GlobalContext != null) {
-                    break;
-                }
-            }
+            OGLUtils.SetupOGLThread();
+            OGLUtils.WaitForContextCompletion();
+            // OpenGLMainThread.Setup();
+            // OpenGLMainThread.Instance.Start();
+            // while (true) {
+            //     Thread.Sleep(50);
+            //     if (OpenGLMainThread.Instance.Thread.IsRunning && OpenGLMainThread.GlobalContext != null) {
+            //         break;
+            //     }
+            // }
 
             IoC.VideoEditor = new VideoEditorViewModel();
             this.MainWindow = new MainWindow {
@@ -39,7 +41,9 @@ namespace FramePFX {
             };
 
             this.MainWindow.Show();
-            IoC.VideoEditor.Viewport.ViewPortHandle = ((MainWindow) this.MainWindow).oglPort;
+            IViewPort port = ((MainWindow) this.MainWindow).GLViewport.ViewPort;
+            port.SetSize(1920, 1080);
+            IoC.VideoEditor.Viewport.ViewPortHandle = port;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             IoC.VideoEditor.NewProjectAction();

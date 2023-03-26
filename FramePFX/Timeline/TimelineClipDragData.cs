@@ -15,7 +15,7 @@ namespace FramePFX.Timeline {
             this.DragClips = new List<ClipDragData>();
         }
 
-        public bool IsBeingDragged(TimelineClipControl clip) {
+        public bool IsBeingDragged(TimelineClipContainerControl clip) {
             return clip != null && this.IsBeingDragged(clip.DragData);
         }
 
@@ -23,9 +23,9 @@ namespace FramePFX.Timeline {
             return clip != null && this.DragClips.Contains(clip);
         }
 
-        public void OnBegin(IEnumerable<TimelineClipControl> selectedClips) {
+        public void OnBegin(IEnumerable<TimelineClipContainerControl> selectedClips) {
             this.IsCompleted = false;
-            foreach (TimelineClipControl clip in selectedClips) {
+            foreach (TimelineClipContainerControl clip in selectedClips) {
                 this.DragClips.Add(new ClipDragData(clip));
             }
 

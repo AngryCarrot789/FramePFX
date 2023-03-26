@@ -8,7 +8,7 @@ using System.Windows.Threading;
 using FramePFX.Render;
 
 namespace FramePFX.Controls {
-    public class OGLViewPortControl : Image, IOGLViewPort {
+    public class OGLViewPortControl : Image { // IOGLViewPort
         public static readonly DependencyProperty ViewportWidthProperty =
             DependencyProperty.Register(
                 "ViewportWidth",
@@ -40,8 +40,6 @@ namespace FramePFX.Controls {
         private volatile int targetHeight;
         private volatile bool isUpdatingDependencyProperties;
         private volatile bool isLoaded;
-
-        public IOGLContext Context => OpenGLMainThread.GlobalContext;
 
         public bool IsReadyForRender {
             get => this.isReadyToRender && !this.isUpdatingViewPort;
@@ -94,7 +92,7 @@ namespace FramePFX.Controls {
         }
 
         private void TickRenderMainThread() {
-            if (this.isReadyToRender && (this.Context?.IsReady ?? false)) {
+            if (this.isReadyToRender) { // (this.Context?.IsReady ?? false)
                 this.UpdateImageForRenderedBitmap();
             }
         }
@@ -154,13 +152,22 @@ namespace FramePFX.Controls {
             this.UpdateViewportSize(w, h, true);
         }
 
+        public void BeginRender() {
+        }
+
         public bool FlushFrame() {
             if (this.isReadyToRender && !this.isUpdatingViewPort) {
-                return this.hasFreshFrame = this.Context.DrawViewportIntoBitmap(this.backBuffer, this.targetWidth, this.targetHeight);
+                // return this.hasFreshFrame = this.Context.DrawViewportIntoBitmap(this.backBuffer, this.targetWidth, this.targetHeight);
+                return false;
             }
             else {
                 return false;
             }
+        }
+
+        public void EndRender() {
+            this.FlushFrame();
+            // this.Context.EndRender();
         }
 
         public void UpdateViewportSize(int w, int h, bool updateDependencProperties) {

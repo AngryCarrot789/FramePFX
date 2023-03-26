@@ -3,8 +3,8 @@ using System;
 namespace FramePFX.Timeline.Layer.Clips {
     public class ClipDragData {
         public TimelineControl Timeline { get; }
-        public TimelineClipControl Clip { get; }
-        public TimelineClipControl CopiedClip { get; set; }
+        public TimelineClipContainerControl Clip { get; }
+        public TimelineClipContainerControl CopiedClip { get; set; }
 
         public bool HasCopy { get; set; }
 
@@ -14,7 +14,7 @@ namespace FramePFX.Timeline.Layer.Clips {
 
         private long buffer;
 
-        public ClipDragData(TimelineClipControl clip) {
+        public ClipDragData(TimelineClipContainerControl clip) {
             this.Clip = clip;
             this.Clip.DragData = this;
             this.Timeline = clip.Timeline;

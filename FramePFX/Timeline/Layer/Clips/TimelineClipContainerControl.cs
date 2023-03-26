@@ -8,59 +8,59 @@ using System.Windows.Media;
 using FramePFX.Timeline.Layer.Clips.Controls;
 
 namespace FramePFX.Timeline.Layer.Clips {
-    public class TimelineClipControl : ContentControl, IClipContainerHandle {
+    public class TimelineClipContainerControl : ContentControl, IClipContainerHandle {
         #region Dependency Properties
 
         public static readonly DependencyProperty UnitZoomProperty =
             TimelineLayerControl.UnitZoomProperty.AddOwner(
-                typeof(TimelineClipControl),
+                typeof(TimelineClipContainerControl),
                 new FrameworkPropertyMetadata(
                     1d,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
+                    (d, e) => ((TimelineClipContainerControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
                     (d, v) => TimelineUtils.ClampUnit(v)));
 
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",
                 typeof(long),
-                typeof(TimelineClipControl),
+                typeof(TimelineClipContainerControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
+                    (d, e) => ((TimelineClipContainerControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
         public static readonly DependencyProperty FrameDurationProperty =
             DependencyProperty.Register(
                 "FrameDuration",
                 typeof(long),
-                typeof(TimelineClipControl),
+                typeof(TimelineClipContainerControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
+                    (d, e) => ((TimelineClipContainerControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
         public static readonly DependencyProperty IsSelectedProperty =
             Selector.IsSelectedProperty.AddOwner(
-                typeof(TimelineClipControl),
+                typeof(TimelineClipContainerControl),
                 new FrameworkPropertyMetadata(
                     false,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
-                    (d, e) => ((TimelineClipControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
+                    (d, e) => ((TimelineClipContainerControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
 
         public static readonly DependencyProperty HeaderBrushProperty =
             DependencyProperty.Register(
                 "HeaderBrush",
                 typeof(Brush),
-                typeof(TimelineClipControl),
+                typeof(TimelineClipContainerControl),
                 new PropertyMetadata(null));
 
         #endregion
 
-        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
-        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
+        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipContainerControl));
+        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipContainerControl));
 
         public event RoutedEventHandler Selected {
             add => this.AddHandler(SelectedEvent, value);
@@ -187,7 +187,7 @@ namespace FramePFX.Timeline.Layer.Clips {
 
         public ClipDragData DragData { get; set; }
 
-        public TimelineClipControl() {
+        public TimelineClipContainerControl() {
             this.Focusable = true;
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
@@ -239,10 +239,6 @@ namespace FramePFX.Timeline.Layer.Clips {
 
         public double GetMouseDifference(double mouseX) {
             return Math.Abs(this.lastLeftClickPoint.X - mouseX);
-        }
-
-        public void CancelDrag() {
-
         }
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {

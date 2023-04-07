@@ -1,100 +1,65 @@
-using System.Diagnostics;
 using System.Threading;
 
 namespace FramePFX.Utils {
-    public sealed class CASLock {
-        private const int Free = 0;
-        private const int Used = 1;
-
-        private volatile int state;
-        private volatile int thread;
-
-        public StackTrace LockTrace { get; set; }
-
-        private bool TryTakeLock() {
-            return Interlocked.CompareExchange(ref this.state, Used, Free) == Free;
-        }
-
-        public bool TryLock(out CASLockType lockType) {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            if (this.thread == threadId) {
-                this.state = Used;
-                lockType = CASLockType.Thread;
-                this.LockTrace = new StackTrace();
-                return true;
-            }
-
-            if (this.TryTakeLock()) {
-                this.thread = threadId;
-                lockType = CASLockType.WasNotLocked;
-                this.LockTrace = new StackTrace();
-                return true;
-            }
-
-            lockType = CASLockType.Failed;
-            return false;
-        }
+    public sealed class CASLoc {
+        private readonly object locker;
+        private volatile int counter;
 
         /// <summary>
-        /// Spin-wait lock
+        /// The amount of locks taken in the current call stack. When this is 0, the lock is released allowing other threads to take the lock
         /// </summary>
-        public void Lock(out CASLockType lockType) {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            if (this.thread == threadId) {
-                this.state = Used;
-                lockType = CASLockType.Thread;
-                this.LockTrace = new StackTrace();
-                return;
-            }
+        public int Count => this.counter;
 
-            lockType = CASLockType.WasNotLocked;
-            do {
-                if (Interlocked.CompareExchange(ref this.state, Used, Free) == Free) {
-                    this.thread = threadId;
-                    this.LockTrace = new StackTrace();
-                    return;
+        public CASLoc() {
+            this.locker = new object();
+        }
+
+        // public bool Lock(bool force, out bool lockTaken) {
+        //     if (Monitor.IsEntered(this.locker)) {
+        //         lockTaken = false;
+        //     }
+        //     else if (Monitor.TryEnter(this.locker)) {
+        //         lockTaken = true;
+        //     }
+        //     else if (force) {
+        //         bool taken = false;
+        //         Monitor.Enter(this.locker, ref taken);
+        //         lockTaken = taken;
+        //     }
+        //     else {
+        //         lockTaken = false;
+        //         return false;
+        //     }
+        //     Interlocked.Increment(ref this.counter);
+        //     return true;
+        // }
+
+        /// <summary>
+        /// Attempts to take the lock. When force is true, this function always returns true
+        /// </summary>
+        /// <param name="force">Whether to force take the lock</param>
+        /// <returns>True if the lock was successfully taken or already taken previously</returns>
+        public bool Lock(bool force) {
+            if (!Monitor.IsEntered(this.locker) && !Monitor.TryEnter(this.locker)) {
+                if (force) {
+                    Monitor.Enter(this.locker);
                 }
+                else {
+                    return false;
+                }
+            }
 
-                lockType = CASLockType.Normal;
-                Thread.SpinWait(16);
-            } while (true);
-        }
-
-        public void LockUnsafe() {
-            this.thread = Thread.CurrentThread.ManagedThreadId;
-            this.state = Used;
-        }
-
-        public void Unlock() {
-            this.thread = 0;
-            this.state = Free;
+            Interlocked.Increment(ref this.counter);
+            return true;
         }
 
         /// <summary>
-        /// Tries to safely unlock this <see cref="CASLock"/>. Typically, it will only be unlocked if the type
-        /// is not <see cref="Thread"/> (because the thread already locked it, so force unlocking may be unsafe)
+        /// Unlocks this <see cref="CASLoc"/>. If this function is called before <see cref="Lock"/>, it may corrupt the state of this <see cref="CASLoc"/>
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns>True if unlocked, otherwise false</returns>
-        public bool Unlock(CASLockType type) {
-            if (type != CASLockType.Thread && type != CASLockType.Failed) {
-                this.Unlock();
-                return true;
+        public void Unlock() {
+            if (Interlocked.Decrement(ref this.counter) <= 0) {
+                Monitor.Exit(this.locker);
             }
-
-            return false;
-        }
-
-        public bool IsLocked() {
-            return this.state == Used && Thread.CurrentThread.ManagedThreadId != this.thread;
-        }
-
-        public bool IsFree() {
-            return this.state == Free || Thread.CurrentThread.ManagedThreadId == this.thread;
-        }
-
-        public override string ToString() {
-            return $"{nameof(CASLock)} ({(this.state == Free ? "Free" : "Used")}) ({this.thread})";
         }
     }
 }

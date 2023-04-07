@@ -12,6 +12,13 @@ namespace FramePFX.Render {
 
         public static event GLThreadTickEventArgs OnGLThreadTick;
 
+        private static volatile bool isInTickMode;
+
+        public static bool IsGLThreadInTickMode {
+            get => isInTickMode;
+            set => isInTickMode = value;
+        }
+
         public static void SetupOGLThread() {
             OGLThread = new OGLThreadImpl();
             OGLThread.Start();
@@ -40,8 +47,14 @@ namespace FramePFX.Render {
         }
 
         private class OGLThreadImpl : DispatchThread {
-            public OGLThreadImpl() {
+            private readonly EventWaitHandle handle;
 
+            public OGLThreadImpl() {
+                this.handle = new AutoResetEvent(true);
+            }
+
+            public void WakeThread() {
+                this.handle.Set();
             }
 
             protected override void OnThreadStart() {
@@ -49,8 +62,14 @@ namespace FramePFX.Render {
             }
 
             protected override void OnThreadTick() {
-                OnGLThreadTick?.Invoke();
-                Thread.Sleep(100);
+                if (isInTickMode) {
+                    OnGLThreadTick?.Invoke();
+                    Thread.Sleep(10);
+                }
+                else {
+                    Thread.Sleep(100);
+                    // this.handle.WaitOne();
+                }
             }
 
             protected override void OnThreadStop() {
@@ -58,6 +77,14 @@ namespace FramePFX.Render {
                     GlobalContext.Dispose();
                     GlobalContext = null;
                 }
+            }
+
+            protected override void OnActionEnqueued(Action action, bool invokeLater) {
+                this.WakeThread();
+            }
+
+            protected override void OnAsyncActionEnqueued(Action action, bool invokeLater) {
+                this.WakeThread();
             }
         }
     }

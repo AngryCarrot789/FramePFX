@@ -7,13 +7,11 @@ using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Project;
-using FramePFX.Timeline.Layer;
-using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Timeline.ViewModels.ClipProperties;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 
-namespace FramePFX.Timeline {
+namespace FramePFX.Timeline.ViewModels.Timeline {
     public class TimelineViewModel : BaseViewModel {
         private readonly RapidDispatchCallback renderDispatch;
         private readonly ObservableCollection<LayerViewModel> layers;
@@ -35,7 +33,7 @@ namespace FramePFX.Timeline {
             set => this.RaisePropertyChanged(ref this.selectedLayer, value);
         }
 
-        public ObservableCollection<BaseClipPropertyItemViewModel> GeneratedProperties { get; }
+        public ObservableCollection<PropertyGroupViewModel> GeneratedProperties { get; }
 
         private ClipViewModel mainSelectedClip;
         public ClipViewModel MainSelectedClip {
@@ -97,12 +95,44 @@ namespace FramePFX.Timeline {
             this.Project = project;
             this.layers = new ObservableCollection<LayerViewModel>();
             this.Layers = new ReadOnlyObservableCollection<LayerViewModel>(this.layers);
-            this.GeneratedProperties = new ObservableCollection<BaseClipPropertyItemViewModel>();
+            this.GeneratedProperties = new ObservableCollection<PropertyGroupViewModel>();
             this.renderDispatch = new RapidDispatchCallback(this.RenderViewPortAndMarkNotDirty) {
                 InvokeLater = true
             };
             this.DeleteSelectedClipsCommand = new RelayCommandParam<string>(async (x) => await this.DeleteSelectedClipsAction(x));
             this.DeleteSelectedLayerCommand = new RelayCommand(this.DeleteSelectedLayerAction);
+        }
+
+        public void OnUpdateSelection(IEnumerable<ClipContainerViewModel> clips) {
+            this.GenerateProperties(clips.ToList());
+        }
+
+        public void GenerateProperties(List<ClipContainerViewModel> clips) {
+            // List<List<PropertyGroupViewModel>> groupTypes = new List<List<PropertyGroupViewModel>>();
+            // for (int i = 0; i < clips.Count; i++) {
+            //     ClipContainerViewModel clip = clips[i];
+            //     if (clip.Content != null) {
+            //         groupTypes.Add(new List<PropertyGroupViewModel>());
+            //         clip.Content.AccumulatePropertyGroups(groupTypes[i]);
+            //     }
+            //     else {
+            //         groupTypes.Add(null);
+            //     }
+            // }
+            // foreach (List<PropertyGroupViewModel> groups in groupTypes) {
+            //     if (groups == null) {
+            //         continue;
+            //     }
+            // }
+            // this.GeneratedProperties.Clear();
+            // foreach (PropertyGroupViewModel entry in common) {
+            //     this.GeneratedProperties.Add(entry);
+            // }
+
+            this.GeneratedProperties.Clear();
+            if (clips.Count == 1) {
+                clips[0].Content?.AccumulatePropertyGroups(this.GeneratedProperties);
+            }
         }
 
         public void DeleteSelectedLayerAction() {

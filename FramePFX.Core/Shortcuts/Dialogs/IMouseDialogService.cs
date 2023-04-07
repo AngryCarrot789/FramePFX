@@ -1,6 +1,6 @@
-using MCNBTViewer.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace MCNBTViewer.Core.Shortcuts.Dialogs {
+namespace FramePFX.Core.Shortcuts.Dialogs {
     public interface IMouseDialogService {
         MouseStroke? ShowGetMouseStrokeDialog();
     }

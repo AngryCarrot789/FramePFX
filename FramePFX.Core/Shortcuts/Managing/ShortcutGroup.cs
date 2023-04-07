@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Serialization;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Serialization;
 
-namespace MCNBTViewer.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
     /// A collection of shortcuts
     /// </summary>
@@ -33,7 +33,7 @@ namespace MCNBTViewer.Core.Shortcuts.Managing {
         /// <summary>
         /// Whether this focus group runs globally (across the entire application). Global focus groups contain shortcuts that can be run, irregardless of what group is focused
         /// </summary>
-        public bool IsGlobal { get; }
+        public bool IsGlobal { get; set; }
 
         /// <summary>
         /// Inherits shortcuts from the parent group
@@ -51,7 +51,7 @@ namespace MCNBTViewer.Core.Shortcuts.Managing {
         public IEnumerable<ShortcutGroup> Groups => this.groups;
 
         public ShortcutGroup(ShortcutGroup parent, string name, bool isGlobal = false, bool inherit = false) {
-            this.FocusGroupPath = (parent != null && name != null) ? parent.GetPathForName(name) : null;
+            this.FocusGroupPath = (parent != null && name != null) ? parent.GetPathForName(name) : name;
             this.FocusGroupName = name;
             this.InheritFromParent = inherit;
             this.IsGlobal = isGlobal;

@@ -1,11 +1,11 @@
 using System;
 using System.Text;
 using System.Windows.Input;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Serialization;
-using MCNBTViewer.Core.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Serialization;
+using FramePFX.Core.Utils;
 
-namespace MCNBTViewer.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class WPFKeyMapDeserialiser : KeyMapDeserialiser {
         public static WPFKeyMapDeserialiser Instance { get; } = new WPFKeyMapDeserialiser();
 

@@ -7,11 +7,12 @@ using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.ResourceManaging.Items;
-using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Timeline.Layer;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Clips.Resizable;
+using FramePFX.Timeline.ViewModels.Timeline;
 
-namespace FramePFX.Timeline.Layer {
+namespace FramePFX.Timeline.ViewModels.Layer {
     public class LayerViewModel : BaseViewModel {
         private string name;
         public string Name {

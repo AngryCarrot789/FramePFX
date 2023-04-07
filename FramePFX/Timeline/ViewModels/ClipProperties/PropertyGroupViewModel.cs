@@ -1,13 +1,18 @@
-using System.Collections.ObjectModel;
+using System;
+using FramePFX.Core;
 
 namespace FramePFX.Timeline.ViewModels.ClipProperties {
-    public class ClipPropertyGroupViewModel : BaseClipPropertyViewModel {
-        private readonly ObservableCollection<BaseClipPropertyViewModel> items;
-        public ReadOnlyObservableCollection<BaseClipPropertyViewModel> Items { get; }
+    public class PropertyGroupViewModel : BaseViewModel {
+        public string Header { get; }
 
-        public ClipPropertyGroupViewModel() {
-            this.items = new ObservableCollection<BaseClipPropertyViewModel>();
-            this.Items = new ReadOnlyObservableCollection<BaseClipPropertyViewModel>(this.items);
+        public PropertyGroupViewModel Parent { get; set; }
+
+        public PropertyGroupViewModel(string header) {
+            this.Header = string.IsNullOrWhiteSpace(header) ? throw new ArgumentNullException(nameof(header), "Value cannot be null/empty or whitespaces") : header;
+        }
+
+        public virtual void OnModified() {
+
         }
     }
 }

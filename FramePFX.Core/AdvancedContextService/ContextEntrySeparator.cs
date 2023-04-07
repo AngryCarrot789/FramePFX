@@ -1,6 +1,6 @@
-using MCNBTViewer.Core.AdvancedContextService.Base;
+using FramePFX.Core.AdvancedContextService.Base;
 
-namespace MCNBTViewer.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     /// <summary>
     /// A separator element between menu items
     /// </summary>

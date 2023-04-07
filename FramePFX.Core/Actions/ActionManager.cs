@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MCNBTViewer.Core.Actions {
+namespace FramePFX.Core.Actions {
     public class ActionManager {
         public static ActionManager Instance { get; }
 

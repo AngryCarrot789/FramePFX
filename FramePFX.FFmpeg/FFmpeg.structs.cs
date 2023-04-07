@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
+// ReSharper disable once CheckNamespace
 namespace FFmpeg.AutoGen
 {
     public unsafe struct _iobuf

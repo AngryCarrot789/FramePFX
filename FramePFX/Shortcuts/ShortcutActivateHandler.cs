@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using MCNBTViewer.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace MCNBTViewer.Shortcuts {
+namespace FramePFX.Shortcuts {
     public delegate Task<bool> ShortcutActivateHandler(ShortcutProcessor processor, ManagedShortcut shortcut);
 }

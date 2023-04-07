@@ -1,11 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace MCNBTViewer.Core.Utils {
+namespace FramePFX.Core.Utils {
     public class EfficientObservableCollection<T> : ObservableCollection<T> {
         /// <summary>
         /// Whether to use range actions or not. Range actions are not supported by some things (e.g. WPF CollectionView)

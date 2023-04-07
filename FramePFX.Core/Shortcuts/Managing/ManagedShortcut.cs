@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace MCNBTViewer.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
     /// A class used to store a reference to a <see cref="Shortcut"/> and its
     /// owning <see cref="ShortcutGroup"/>, and also other shortcut data

@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 
-namespace MCNBTViewer.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class UIFocusGroup {
         public static readonly DependencyProperty FocusGroupPathProperty =
             DependencyProperty.RegisterAttached(

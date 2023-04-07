@@ -8,6 +8,7 @@ namespace FramePFX.Utils {
         private static readonly long FIVE_MILLIS_IN_TICKS = 5L * Time.TICK_PER_MILLIS;
         private static readonly long HALF_MILLI_IN_TICKS = Time.TICK_PER_MILLIS / 2;
 
+        private static int nextId;
         private TimeSpan interval;
         private Action tickAction;
         private Action startedAction;
@@ -150,7 +151,7 @@ namespace FramePFX.Utils {
             this.isRunning = true;
             this.Thread = new Thread(this.MainThread) {
                 Priority = this.Priority,
-                Name = this.ThreadName
+                Name = this.ThreadName ?? $"Timer Thread #{nextId++}"
             };
 
             this.Thread.Start();

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Threading;
 
 namespace FramePFX.Utils {
-    public sealed class CASLock {
+    public sealed class CASLock__OLD {
         private const int Free = 0;
         private const int Used = 1;
 
@@ -15,39 +15,39 @@ namespace FramePFX.Utils {
             return Interlocked.CompareExchange(ref this.state, Used, Free) == Free;
         }
 
-        public bool TryLock(out CASLockType lockType) {
+        public bool TryLock(out CASLockType_OLD lockType) {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             if (this.thread == threadId) {
                 this.state = Used;
-                lockType = CASLockType.Thread;
+                lockType = CASLockType_OLD.Thread;
                 this.LockTrace = new StackTrace();
                 return true;
             }
 
             if (this.TryTakeLock()) {
                 this.thread = threadId;
-                lockType = CASLockType.WasNotLocked;
+                lockType = CASLockType_OLD.WasNotLocked;
                 this.LockTrace = new StackTrace();
                 return true;
             }
 
-            lockType = CASLockType.Failed;
+            lockType = CASLockType_OLD.Failed;
             return false;
         }
 
         /// <summary>
         /// Spin-wait lock
         /// </summary>
-        public void Lock(out CASLockType lockType) {
+        public void Lock(out CASLockType_OLD lockType) {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             if (this.thread == threadId) {
                 this.state = Used;
-                lockType = CASLockType.Thread;
+                lockType = CASLockType_OLD.Thread;
                 this.LockTrace = new StackTrace();
                 return;
             }
 
-            lockType = CASLockType.WasNotLocked;
+            lockType = CASLockType_OLD.WasNotLocked;
             do {
                 if (Interlocked.CompareExchange(ref this.state, Used, Free) == Free) {
                     this.thread = threadId;
@@ -55,7 +55,7 @@ namespace FramePFX.Utils {
                     return;
                 }
 
-                lockType = CASLockType.Normal;
+                lockType = CASLockType_OLD.Normal;
                 Thread.SpinWait(16);
             } while (true);
         }
@@ -71,13 +71,13 @@ namespace FramePFX.Utils {
         }
 
         /// <summary>
-        /// Tries to safely unlock this <see cref="CASLock"/>. Typically, it will only be unlocked if the type
+        /// Tries to safely unlock this <see cref="CASLock__OLD"/>. Typically, it will only be unlocked if the type
         /// is not <see cref="Thread"/> (because the thread already locked it, so force unlocking may be unsafe)
         /// </summary>
         /// <param name="type"></param>
         /// <returns>True if unlocked, otherwise false</returns>
-        public bool Unlock(CASLockType type) {
-            if (type != CASLockType.Thread && type != CASLockType.Failed) {
+        public bool Unlock(CASLockType_OLD type) {
+            if (type != CASLockType_OLD.Thread && type != CASLockType_OLD.Failed) {
                 this.Unlock();
                 return true;
             }
@@ -94,7 +94,7 @@ namespace FramePFX.Utils {
         }
 
         public override string ToString() {
-            return $"{nameof(CASLock)} ({(this.state == Free ? "Free" : "Used")}) ({this.thread})";
+            return $"{nameof(CASLock__OLD)} ({(this.state == Free ? "Free" : "Used")}) ({this.thread})";
         }
     }
 }

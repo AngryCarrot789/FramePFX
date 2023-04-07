@@ -1,6 +1,7 @@
-using FocusGroupHotkeys.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Dialogs;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
+namespace FramePFX.Core.Shortcuts.ViewModels {
     public class ShortcutManagerViewModel : BaseViewModel {
         private ShortcutGroupViewModel root;
         public ShortcutGroupViewModel Root {
@@ -8,8 +9,10 @@ namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
             set => this.RaisePropertyChanged(ref this.root, value);
         }
 
-        public ShortcutManagerViewModel() {
+        public IKeyboardDialogService DialogService { get; }
 
+        public ShortcutManagerViewModel(IKeyboardDialogService dialogService) {
+            this.DialogService = dialogService;
         }
 
         public void LoadFromRoot(ShortcutGroup group) {

@@ -1,11 +1,12 @@
 ﻿using FramePFX.Render;
+using FramePFX.Timeline.Layer.Clips;
 
-namespace FramePFX.Timeline.Layer.Clips {
-    public abstract class VideoClipViewModel : ClipViewModel, IClipRenderTarget {
+namespace FramePFX.Timeline.ViewModels.Clips {
+    public abstract class VideoClipViewModel : ClipViewModel, IVideoClip {
         protected VideoClipViewModel() {
 
         }
 
-        public abstract void Render(IViewPort ogl, long frame);
+        public abstract void Render(IViewPort vp, long frame);
     }
 }

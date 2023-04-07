@@ -1,7 +1,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace MCNBTViewer.Core.Utils {
+namespace FramePFX.Core.Utils {
     internal static class EventArgsCache {
         // fun fact, mscorlib stands for multi-language standard common object runtime library
         internal static readonly PropertyChangedEventArgs CountPropertyChanged = new PropertyChangedEventArgs("Count");

@@ -31,7 +31,7 @@ namespace FramePFX.Utils {
                 return true;
             }
             else if (result < 0) {
-                throw new Exception("Too many calls to Free()");
+                throw new Exception("Too many calls to Decrement()");
             }
             else {
                 return false;

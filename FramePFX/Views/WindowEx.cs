@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 
-namespace FocusGroupHotkeys.Views {
+namespace FramePFX.Views {
     /// <summary>
     /// An extended window which adds support for a few of the things in the dark theme I made (e.g. Titlebar brush)
     /// </summary>

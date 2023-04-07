@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="Themes/Controls.xaml"/>
                 <ResourceDictionary Source="Timeline/TimelineStyles.xaml"/>
                 <ResourceDictionary Source="ResourceManaging/ResManagerStyles.xaml"/>
+                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

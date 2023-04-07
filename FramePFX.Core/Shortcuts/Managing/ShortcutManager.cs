@@ -1,11 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Serialization;
-using MCNBTViewer.Core.Shortcuts.Usage;
-
-namespace MCNBTViewer.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     public abstract class ShortcutManager {
         public ShortcutGroup Root { get; set; }
 
@@ -20,7 +13,5 @@ namespace MCNBTViewer.Core.Shortcuts.Managing {
         public ManagedShortcut FindShortcutByPath(string path) {
             return this.Root.GetShortcutByPath(path);
         }
-
-        public abstract ShortcutProcessor NewProcessor();
     }
 }

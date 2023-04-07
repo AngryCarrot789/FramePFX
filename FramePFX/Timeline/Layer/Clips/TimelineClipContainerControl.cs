@@ -5,7 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using FramePFX.Timeline.Layer.Clips.Controls;
+using FramePFX.Render;
+using FramePFX.Timeline.ViewModels.Clips;
 
 namespace FramePFX.Timeline.Layer.Clips {
     public class TimelineClipContainerControl : ContentControl, IClipContainerHandle {
@@ -41,6 +42,13 @@ namespace FramePFX.Timeline.Layer.Clips {
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineClipContainerControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
+
+        public static readonly DependencyProperty FrameBeginDataOffsetProperty =
+            DependencyProperty.Register(
+                "FrameBeginDataOffset",
+                typeof(int),
+                typeof(TimelineClipContainerControl),
+                new PropertyMetadata(0));
 
         public static readonly DependencyProperty IsSelectedProperty =
             Selector.IsSelectedProperty.AddOwner(
@@ -97,6 +105,15 @@ namespace FramePFX.Timeline.Layer.Clips {
         public long FrameDuration {
             get => (long) this.GetValue(FrameDurationProperty);
             set => this.SetValue(FrameDurationProperty, value);
+        }
+
+        /// <summary>
+        /// A value that indicates this clip's content offset. Initially this is 0. This value increases when the clip's left thumb
+        /// is dragged right, and decreases when the thumb is dragged left. Dragging the right thumb does not affect this value
+        /// </summary>
+        public int FrameBeginDataOffset {
+            get => (int) this.GetValue(FrameBeginDataOffsetProperty);
+            set => this.SetValue(FrameBeginDataOffsetProperty, value);
         }
 
         public long FrameEndIndex {
@@ -160,14 +177,9 @@ namespace FramePFX.Timeline.Layer.Clips {
         public Selector ParentSelector => ItemsControl.ItemsControlFromItemContainer(this) as Selector;
         public TimelineLayerControl TimelineLayer => this.ParentSelector as TimelineLayerControl;
 
-        public TimelineControl Timeline => this.TimelineLayer.Timeline;
+        public TimelineControl Timeline => this.ParentSelector is TimelineLayerControl layer ? layer.Timeline : null;
 
         public ClipContainerViewModel ViewModel => this.DataContext as ClipContainerViewModel;
-
-        /// <summary>
-        /// Access to this clip content. This may be accessed from any thread
-        /// </summary>
-        public IClipHandle ClipHandle { get; private set; }
 
         public bool IsMovingControl { get; set; }
 
@@ -177,13 +189,13 @@ namespace FramePFX.Timeline.Layer.Clips {
         private Point lastLeftClickPoint;
         private Thumb PART_ThumbLeft;
         private Thumb PART_ThumbRight;
-        private ContentPresenter PART_Presenter;
+        // private ContentPresenter PART_Presenter;
+        private OGLViewportControl PART_ViewPort;
         private bool isDraggingThumb;
         private bool isClipDragActivated;
         private bool isCancellingDragAction;
 
         private bool isProcessingMouseAction;
-        private BaseClipControl generatedChild;
 
         public ClipDragData DragData { get; set; }
 
@@ -193,24 +205,20 @@ namespace FramePFX.Timeline.Layer.Clips {
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.DataContextChanged += (sender, args) => {
                 if (args.NewValue is ClipContainerViewModel vm) {
-                    vm.ContainerHandle = this;
+                    vm.Handle = this;
                 }
             };
 
-            this.Loaded += OnLoaded;
+            this.Loaded += this.OnLoaded;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            if (this.PART_Presenter != null && VisualTreeHelper.GetChildrenCount(this.PART_Presenter) > 0) {
-                this.generatedChild = VisualTreeHelper.GetChild(this.PART_Presenter, 0) as BaseClipControl;
-                if (this.generatedChild is IClipHandle h2) {
-                    this.ClipHandle = h2;
-                }
-            }
-        }
-
-        public bool GetViewModel(out ClipContainerViewModel clip) {
-            return (clip = this.ViewModel) != null;
+            // if (this.PART_Presenter != null && VisualTreeHelper.GetChildrenCount(this.PART_Presenter) > 0) {
+            //     this.generatedChild = VisualTreeHelper.GetChild(this.PART_Presenter, 0) as BaseClipControl;
+            //     if (this.generatedChild is IClipHandle h2) {
+            //         this.ClipContent = h2;
+            //     }
+            // }
         }
 
         public override void OnApplyTemplate() {
@@ -221,20 +229,8 @@ namespace FramePFX.Timeline.Layer.Clips {
             this.PART_ThumbRight = this.GetTemplateElement<Thumb>("PART_ThumbRight");
             this.PART_ThumbLeft.DragDelta += this.OnDragLeftThumb;
             this.PART_ThumbRight.DragDelta += this.OnDragRightThumb;
-            this.PART_Presenter = this.GetTemplateElement<ContentPresenter>("PART_Presenter");
-        }
-
-        // Accessing the clip here is required, because you cannot access the Content dependency property
-        // while not on the WPF main thread. Rendering accesses the IClipHandle off the main thread
-        protected override void OnContentChanged(object oldContent, object newContent) {
-            base.OnContentChanged(oldContent, newContent);
-            if (oldContent is IClipHandle) {
-                // TODO: maybe cache the handle's parent container here?
-            }
-
-            if (newContent is IClipHandle h1) {
-                this.ClipHandle = h1;
-            }
+            // this.PART_Presenter = this.GetTemplateElement<ContentPresenter>("PART_Presenter");
+            this.PART_ViewPort = this.GetTemplateElement<OGLViewportControl>("PART_ViewPort");
         }
 
         public double GetMouseDifference(double mouseX) {
@@ -326,7 +322,7 @@ namespace FramePFX.Timeline.Layer.Clips {
 
                             // force re-render view port. Without this code, if the playhead is at 0, then sometimes
                             // the clips won't be rendered if you very quickly drag the clip to the very start
-                            IoC.VideoEditor.Viewport.RenderTimeline(this.Timeline.ViewModel);
+                            IoC.VideoEditor.PlaybackView.RenderTimeline(this.Timeline.ViewModel);
                         }
 
                         this.isProcessingMouseAction = false;

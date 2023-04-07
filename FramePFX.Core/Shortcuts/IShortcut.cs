@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Usage;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Usage;
 
-namespace MCNBTViewer.Core.Shortcuts {
+namespace FramePFX.Core.Shortcuts {
     /// <summary>
     /// The base class for all shortcuts
     /// </summary>

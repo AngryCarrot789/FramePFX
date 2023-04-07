@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
-using FramePFX.FFmpeg;
 
+// ReSharper disable once CheckNamespace
 namespace FFmpeg.AutoGen
 {
     public unsafe static partial class ffmpeg

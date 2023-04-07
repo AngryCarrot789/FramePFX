@@ -1,4 +1,4 @@
-namespace MCNBTViewer.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     public struct Presentation {
         public bool IsVisible { get; }
 

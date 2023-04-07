@@ -1,11 +1,13 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using FramePFX.Render;
 using FramePFX.ResourceManaging.Items;
-using FramePFX.Timeline.Layer.Clips.Data;
+using FramePFX.Timeline.ViewModels.ClipProperties;
+using FramePFX.Timeline.ViewModels.ClipProperties.Resizable;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Timeline.Layer.Clips.Resizable {
-    public class ShapeClipViewModel : UIResizableVideoClipViewModel, IColourData {
+namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
+    public class ShapeClipViewModel : ResizableVideoClipViewModel {
         private ResourceColourViewModel resource;
         public ResourceColourViewModel Resource {
             get => this.resource;
@@ -49,6 +51,11 @@ namespace FramePFX.Timeline.Layer.Clips.Resizable {
             this.PropertyChanged += this.OnPropertyChanged;
         }
 
+        public override void AccumulatePropertyGroups(ICollection<PropertyGroupViewModel> list) {
+            base.AccumulatePropertyGroups(list);
+            list.Add(new ShapePropertyGroupViewModel(this));
+        }
+
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             this.Container?.MarkForRender();
         }
@@ -59,7 +66,7 @@ namespace FramePFX.Timeline.Layer.Clips.Resizable {
         // 3 sets of the same data ("ClipImpl", "ClipViewModel", "ClipControl") is just annoying
         // ViewModel data is thread-safe for the most part, because it references a field
 
-        public override void RenderCore(IViewPort ogl, long frame) {
+        public override void RenderCore(IViewPort vp, long frame) {
             GL.Begin(PrimitiveType.Quads);
             GL.Color4(this.R, this.G, this.B, this.A);
             GL.Vertex3(0, 0, 0);

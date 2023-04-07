@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Windows.Input;
-using MCNBTViewer.Core.AdvancedContextService.Base;
+using FramePFX.Core.AdvancedContextService.Base;
 
-namespace MCNBTViewer.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     public class CheckableCommandContextEntry : CommandContextEntry {
         private bool isChecked;
         public bool IsChecked {

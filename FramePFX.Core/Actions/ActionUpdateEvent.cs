@@ -1,4 +1,4 @@
-namespace MCNBTViewer.Core.Actions {
+namespace FramePFX.Core.Actions {
     public class ActionUpdateEvent : ActionEvent {
         public bool IsVisible { get; set; }
 

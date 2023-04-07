@@ -65,22 +65,24 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AttachedProperties\AttachedControls.cs" />
+    <Compile Include="AdvancedContextService\AdvancedActionMenuItem.cs" />
+    <Compile Include="AdvancedContextService\AdvancedContextMenu.cs" />
+    <Compile Include="AdvancedContextService\AdvancedMenuItem.cs" />
+    <Compile Include="AdvancedContextService\AdvancedMenuItemStyleSelector.cs" />
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
-    <Compile Include="AttachedProperties\PasswordAttachedProperty.cs" />
-    <Compile Include="AttachedProperties\TextBoxAutoSelect.cs" />
-    <Compile Include="AttachedProperties\TextHinting.cs" />
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
-    <Compile Include="Controls\OGLViewPortControl.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
+    <Compile Include="Converters\KeyStrokeRepresentationConverter.cs" />
+    <Compile Include="Converters\MouseStrokeRepresentationConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
+    <Compile Include="Converters\ShortcutPathToInputGestureTextConverter.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Project\ProjectViewModel.cs" />
+    <Compile Include="Render\DispatchReceiver.cs" />
     <Compile Include="Render\DispatchThread.cs" />
     <Compile Include="Render\FrameBuffer.cs" />
-    <Compile Include="Render\IClipRenderTarget.cs" />
     <Compile Include="Render\IRenderContext.cs" />
     <Compile Include="Render\IViewPort.cs" />
     <Compile Include="Render\OGLRenderContext.cs" />
@@ -94,31 +96,41 @@
     <Compile Include="ResourceManaging\Items\ResourceColourViewModel.cs" />
     <Compile Include="ResourceManaging\ResourceItemViewModel.cs" />
     <Compile Include="ResourceManaging\ResourceManagerViewModel.cs" />
+    <Compile Include="Shortcuts\AppShortcutManager.cs" />
+    <Compile Include="Shortcuts\AppShortcutProcessor.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutBinding.cs" />
+    <Compile Include="Shortcuts\ShortcutActivateHandler.cs" />
+    <Compile Include="Shortcuts\ShortcutUtils.cs" />
+    <Compile Include="Shortcuts\UIFocusGroup.cs" />
+    <Compile Include="Shortcuts\VisualTreeUtils.cs" />
+    <Compile Include="Shortcuts\WPFKeyMapDeserialiser.cs" />
+    <Compile Include="Themes\Attached\CornerHelper.cs" />
+    <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
+    <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
+    <Compile Include="Themes\Attached\TextHinting.cs" />
     <Compile Include="Timeline\FrameSpan.cs" />
     <Compile Include="Timeline\IPlayHeadHandle.cs" />
     <Compile Include="Timeline\ITimelineHandle.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipDragData.cs" />
-    <Compile Include="Timeline\Layer\Clips\ClipContainerViewModel.cs" />
-    <Compile Include="Timeline\Layer\Clips\ClipTemplateSelector.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipType.cs" />
-    <Compile Include="Timeline\Layer\Clips\ClipViewModel.cs" />
-    <Compile Include="Timeline\Layer\Clips\Controls\BaseClipControl.cs" />
-    <Compile Include="Timeline\Layer\Clips\Controls\ResizableClipControl.cs" />
-    <Compile Include="Timeline\Layer\Clips\Controls\SquareClipControl.cs" />
-    <Compile Include="Timeline\Layer\Clips\Data\IColourData.cs" />
-    <Compile Include="Timeline\Layer\Clips\Data\IResizableClipData.cs" />
+    <Compile Include="Timeline\Layer\Clips\IAudioClip.cs" />
     <Compile Include="Timeline\Layer\Clips\IClipContainerHandle.cs" />
-    <Compile Include="Timeline\Layer\Clips\IClipHandle.cs" />
-    <Compile Include="Timeline\Layer\Clips\Resizable\UIResizableVideoClipViewModel.cs" />
-    <Compile Include="Timeline\Layer\Clips\Resizable\ShapeClipViewModel.cs" />
+    <Compile Include="Timeline\Layer\Clips\IVideoClip.cs" />
     <Compile Include="Timeline\Layer\Clips\TimelineClipContainerControl.cs" />
-    <Compile Include="Timeline\Layer\Clips\VideoClipContainerViewModel.cs" />
-    <Compile Include="Timeline\Layer\Clips\VideoClipViewModel.cs" />
     <Compile Include="Timeline\Layer\ILayerHandle.cs" />
-    <Compile Include="Timeline\Layer\LayerViewModel.cs" />
     <Compile Include="Timeline\TimelineUtils.cs" />
-    <Compile Include="Timeline\TimelineViewModel.cs" />
-    <Compile Include="Utils\CASLockV2.cs" />
+    <Compile Include="Timeline\ViewModels\ClipProperties\PropertyGroupViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\ClipProperties\Resizable\ResizablePropertyGroupViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\ClipProperties\Resizable\ShapePropertyGroupViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\ClipContainerViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\ClipViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeClipViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\Resizable\ResizableVideoClipViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\VideoClipViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\LayerViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Timeline\TimelineViewModel.cs" />
+    <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="VideoEditorViewModel.cs" />
     <Compile Include="PlaybackViewportViewModel.cs" />
@@ -135,10 +147,10 @@
     <Compile Include="Timeline\Layer\TimelineLayerControl.cs" />
     <Compile Include="Timeline\TimelineControl.cs" />
     <Compile Include="Timeline\TimelineClipDragData.cs" />
-    <Compile Include="Timeline\TimelinePlayheadControl.cs" />
+    <Compile Include="Timeline\TimelinePlayHeadControl.cs" />
     <Compile Include="Timeline\TimelineScrollViewer.cs" />
-    <Compile Include="Utils\CASLock.cs" />
-    <Compile Include="Utils\CASLockType.cs" />
+    <Compile Include="Utils\CASLock__OLD.cs" />
+    <Compile Include="Utils\CASLockType_OLD.cs" />
     <Compile Include="Utils\NumberAverager.cs" />
     <Compile Include="Utils\UsageCounter.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
@@ -163,6 +175,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\WindowEx.cs" />
     <Page Include="ResourceManaging\ResManagerStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -239,9 +252,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\" />
-    <Folder Include="Timeline\Layer\Clips\Impl" />
-    <Folder Include="Timeline\Layer\Clips\ViewModels\" />
+    <Resource Include="Keymap.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="AdvancedContextService\ContextStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

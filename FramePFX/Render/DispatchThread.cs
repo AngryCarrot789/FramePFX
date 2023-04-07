@@ -1,11 +1,12 @@
 using System;
 using System.Threading;
 
-namespace FrameControl.Threading {
+namespace FramePFX.Render {
     /// <summary>
     /// Represents a thread that actions can be dispatched to
     /// </summary>
     public class DispatchThread : DispatchReceiver {
+        private static int nextId;
         private volatile bool isThreadRunning;
         private volatile bool isFullyStopped;
 
@@ -22,7 +23,9 @@ namespace FrameControl.Threading {
         public bool IsFullyStopped => this.isFullyStopped;
 
         public DispatchThread() {
-            this.Thread = new Thread(this.ThreadMain);
+            this.Thread = new Thread(this.ThreadMain) {
+                Name = $"Dispatch Thread #{nextId++}"
+            };
         }
 
         public void Start() {
@@ -40,7 +43,7 @@ namespace FrameControl.Threading {
         public void Stop(bool join) {
             this.isThreadRunning = false;
             if (join) {
-                this.Thread.Join();
+                // this.Thread.Join();
             }
         }
 

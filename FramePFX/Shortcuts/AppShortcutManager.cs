@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Managing;
-using MCNBTViewer.Core.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Utils;
 
-namespace MCNBTViewer.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class AppShortcutManager : ShortcutManager {
         public const int BUTTON_WHEEL_UP = 143;   // Away from the user
         public const int BUTTON_WHEEL_DOWN = 142; // Towards the user
@@ -143,10 +143,6 @@ namespace MCNBTViewer.Shortcuts {
         public static async void OnKeyEvent(object window, DependencyObject focused, KeyEventArgs e, bool isRelease) {
             AppShortcutProcessor processor = GetWindowProcessor(window);
             processor?.OnKeyEvent(window, focused, e, isRelease);
-        }
-
-        public override ShortcutProcessor NewProcessor() {
-            return new AppShortcutProcessor(this);
         }
     }
 }

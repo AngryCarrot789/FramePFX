@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using MCNBTViewer.Core.AdvancedContextService;
+using FramePFX.Core.AdvancedContextService;
 
-namespace MCNBTViewer.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     public class AdvancedMenuItemStyleSelector : StyleSelector {
         public Style NonCheckableCommandMenuItemStyle { get; set; }
 

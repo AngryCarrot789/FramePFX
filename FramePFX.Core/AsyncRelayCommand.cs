@@ -1,8 +1,7 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace MCNBTViewer.Core {
+namespace FramePFX.Core {
     /// <summary>
     /// A simple relay command, which does not take any parameters
     /// </summary>
@@ -60,25 +59,18 @@ namespace MCNBTViewer.Core {
         private readonly Func<T, bool> canExecute;
         private volatile bool isRunning;
 
-        public bool ConvertParameter { get; set; }
-
-        public AsyncRelayCommand(Func<T, Task> execute, Func<T, bool> canExecute = null, bool convertParameter = false) {
+        public AsyncRelayCommand(Func<T, Task> execute, Func<T, bool> canExecute = null) {
             if (execute == null) {
                 throw new ArgumentNullException(nameof(execute), "Execute callback cannot be null");
             }
 
             this.execute = execute;
             this.canExecute = canExecute;
-            this.ConvertParameter = convertParameter;
         }
 
         public override bool CanExecute(object parameter) {
             if (this.isRunning) {
                 return false;
-            }
-
-            if (this.ConvertParameter) {
-                parameter = GetConvertedParameter<T>(parameter);
             }
 
             return base.CanExecute(parameter) && (parameter == null || parameter is T) && this.canExecute((T) parameter);
@@ -90,9 +82,6 @@ namespace MCNBTViewer.Core {
             }
 
             this.isRunning = true;
-            if (this.ConvertParameter) {
-                parameter = GetConvertedParameter<T>(parameter);
-            }
 
             try {
                 this.RaiseCanExecuteChanged();

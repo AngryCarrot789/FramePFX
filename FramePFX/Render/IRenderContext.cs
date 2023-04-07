@@ -28,7 +28,7 @@ namespace FramePFX.Render {
         /// for a safer option
         /// </summary>
         /// <param name="use">Whether to use this context, or set the global context to none</param>
-        void Use(bool use);
+        void MakeCurrent(bool use);
 
         /// <summary>
         /// Attempts to use this context. Returns false if not ready or already in use on another thread

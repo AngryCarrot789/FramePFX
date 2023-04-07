@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
+// ReSharper disable once CheckNamespace
 namespace FFmpeg.AutoGen.Native
 {
     public delegate PlatformID GetPlatformId();

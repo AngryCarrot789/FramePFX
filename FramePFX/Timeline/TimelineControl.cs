@@ -7,6 +7,9 @@ using System.Linq;
 using FramePFX.Timeline.Layer;
 using System.Windows.Input;
 using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Timeline.ViewModels.Clips;
+using FramePFX.Timeline.ViewModels.Layer;
+using FramePFX.Timeline.ViewModels.Timeline;
 
 namespace FramePFX.Timeline {
     public class TimelineControl : ItemsControl, ITimelineHandle {
@@ -71,7 +74,7 @@ namespace FramePFX.Timeline {
 
         private ScrollViewer PART_ScrollViewer;
         private ItemsPresenter PART_ItemsPresenter;
-        private TimelinePlayheadControl PART_PlayHead;
+        private TimelinePlayHeadControl PART_PlayHead;
         private Border PART_TimestampBoard;
 
         private TimelineClipDragData dragData;
@@ -126,7 +129,7 @@ namespace FramePFX.Timeline {
             base.OnApplyTemplate();
             this.PART_ScrollViewer = this.GetTemplateElement<ScrollViewer>("PART_ScrollViewer");
             this.PART_ItemsPresenter = this.GetTemplateElement<ItemsPresenter>("PART_ItemsPresenter");
-            this.PART_PlayHead = this.GetTemplateElement<TimelinePlayheadControl>("PART_PlayHead");
+            this.PART_PlayHead = this.GetTemplateElement<TimelinePlayHeadControl>("PART_PlayHead");
             this.PART_TimestampBoard = this.GetTemplateElement<Border>("PART_TimestampBoard");
             // if (this.PART_PlayHead != null) {
             //     this.PART_PlayHead.Timeline = this;
@@ -400,6 +403,10 @@ namespace FramePFX.Timeline {
 
             this.DragData = new TimelineClipDragData(this);
             this.DragData.OnBegin(list);
+        }
+
+        public IEnumerable<ClipContainerViewModel> GetSelectedClips() {
+            return this.GetAllSelectedClipModels();
         }
     }
 }

@@ -1,9 +1,9 @@
 using System.Windows;
 using System.Windows.Threading;
-using MCNBTViewer.Core.Actions;
-using MCNBTViewer.Core.AdvancedContextService;
+using FramePFX.Core.Actions;
+using FramePFX.Core.AdvancedContextService;
 
-namespace MCNBTViewer.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     public class AdvancedActionMenuItem : AdvancedMenuItem {
         public static readonly DependencyProperty ActionIdProperty = DependencyProperty.Register("ActionId", typeof(string), typeof(AdvancedActionMenuItem), new PropertyMetadata(null));
         public static readonly DependencyProperty InvokeActionAfterCommandProperty = DependencyProperty.Register("InvokeActionAfterCommand", typeof(bool), typeof(AdvancedActionMenuItem), new PropertyMetadata(default(bool)));

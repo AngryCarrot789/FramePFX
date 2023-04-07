@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MCNBTViewer.Core.Actions {
+namespace FramePFX.Core.Actions {
     public class DefaultActionGroup : ActionGroup {
         private readonly List<Action> actions;
 

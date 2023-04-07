@@ -5,8 +5,9 @@ using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Project;
 using FramePFX.Render;
-using FramePFX.Timeline;
 using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Timeline.ViewModels.Clips;
+using FramePFX.Timeline.ViewModels.Timeline;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 
@@ -32,13 +33,16 @@ namespace FramePFX {
         /// </summary>
         public IViewPort ViewPortHandle { get; set; }
 
+        public VideoEditorViewModel Editor { get; }
+
         private readonly Thread playbackThread;
         private long nextPlaybackTick;
         private long lastPlaybackTick;
         public volatile bool isPlaybackThreadRunning;
         public readonly NumberAverager playbackAverageIntervalMS = new NumberAverager(10);
 
-        public PlaybackViewportViewModel() {
+        public PlaybackViewportViewModel(VideoEditorViewModel editor) {
+            this.Editor = editor;
             this.PlayPauseCommand = new RelayCommand(() => {
                 if (this.IsPlaying) {
                     this.PauseAction();
@@ -52,34 +56,33 @@ namespace FramePFX {
             this.PauseCommand = new RelayCommand(this.PauseAction, () => this.IsPlaying);
             this.isPlaybackThreadRunning = true;
             // using a DispatcherTimer instead of a Thread will not make anything better
-            this.playbackThread = new Thread(this.PlaybackThreadMain);
+            this.playbackThread = new Thread(this.PlaybackThreadMain) {
+                Name = "ViewPort Playback Thread"
+            };
             this.playbackThread.Start();
         }
 
         public bool IsReadyForRender() {
-            return this.ViewPortHandle != null && this.ViewPortHandle.IsReady && this.ViewPortHandle.Context.IsReady;
+            return this.ViewPortHandle != null && this.ViewPortHandle.IsReady;
         }
 
         public void RenderTimeline(TimelineViewModel timeline) {
-            if (this.IsReadyForRender()) {
-                // Render main view port
-                long playHead = timeline.PlayHeadFrame;
-                IViewPort view = this.ViewPortHandle;
-                if (!view.BeginRender(true)) {
-                    return;
-                }
+            // Render main view port
+            this.RenderTimeline(timeline, timeline.PlayHeadFrame, this.ViewPortHandle);
+        }
 
+        public void RenderTimeline(TimelineViewModel timeline, long playHead, IViewPort view) {
+            if (view != null && view.BeginRender(true)) {
                 List<ClipContainerViewModel> clips = timeline.GetClipsOnPlayHead().ToList();
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 // TODO: change this to support layer opacity. And also move to shaders because this glVertex3f old stuff it no good
                 foreach (ClipContainerViewModel clip in clips) {
-                    if (clip.ClipContent is IClipRenderTarget target) {
+                    if (clip.Content is IVideoClip target) {
                         target.Render(view, playHead);
                     }
-
                     // TODO: add audio... somehow. I have no idea how to do audio lololol
-                    // else if (handle.ClipHandle is IAudioRenderTarget) {
-                    //
+                    // else if (clip.Content is IAudioClip audioClip) {
+                    //     audioClip.RenderAudioSomehow();
                     // }
                 }
 
@@ -109,8 +112,6 @@ namespace FramePFX {
                         timeline.StepFrame();
                     }
 
-                    // Directly render clips here, instead of waiting for the GL thread to do it (and also
-                    // the GL thread needs to be removed because it just chews CPU for no reason)
                     if (timeline.IsRenderDirty) {
                         this.RenderTimeline(timeline);
                     }
@@ -121,7 +122,7 @@ namespace FramePFX {
                     // absolutely nail the FPS with pinpoint precision
                     Thread.Yield();
                 }
-                else if (timeline.isFramePropertyChangeScheduled) {
+                else if (timeline.isFramePropertyChangeScheduled) { // just in case...
                     timeline.RaisePropertyChanged(nameof(timeline.PlayHeadFrame));
                     timeline.isFramePropertyChangeScheduled = false;
                 }

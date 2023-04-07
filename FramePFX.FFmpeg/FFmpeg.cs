@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using FFmpeg.AutoGen.Native;
 
-namespace FFmpeg.AutoGen
-{
+// ReSharper disable once CheckNamespace
+namespace FFmpeg.AutoGen {
     public delegate IntPtr GetOrLoadLibrary(string libraryName);
 
-    public static partial class ffmpeg
-    {
+    public static partial class ffmpeg {
         public static readonly int EAGAIN;
 
         public static readonly int ENOMEM = 12;
@@ -18,8 +17,7 @@ namespace FFmpeg.AutoGen
         private static readonly object SyncRoot = new object();
 
         public static readonly Dictionary<string, string[]> LibraryDependenciesMap =
-            new Dictionary<string, string[]>
-            {
+            new Dictionary<string, string[]> {
                 {"avcodec", new[] {"avutil", "swresample"}},
                 {"avdevice", new[] {"avcodec", "avfilter", "avformat", "avutil"}},
                 {"avfilter", new[] {"avcodec", "avformat", "avutil", "postproc", "swresample", "swscale"}},
@@ -32,12 +30,10 @@ namespace FFmpeg.AutoGen
 
         public static readonly Dictionary<string, IntPtr> LoadedLibraries = new Dictionary<string, IntPtr>();
 
-        static ffmpeg()
-        {
+        static ffmpeg() {
             GetOrLoadLibrary = libraryName => LoadLibrary(libraryName, true);
 
-            switch (LibraryLoader.GetPlatformId())
-            {
+            switch (LibraryLoader.GetPlatformId()) {
                 case PlatformID.MacOSX:
                     EAGAIN = 35;
                     break;
@@ -55,25 +51,23 @@ namespace FFmpeg.AutoGen
 
         public static GetOrLoadLibrary GetOrLoadLibrary { get; set; }
 
-        private static IntPtr LoadLibrary(string libraryName, bool throwException)
-        {
-            if (LoadedLibraries.TryGetValue(libraryName, out var ptr)) return ptr;
+        private static IntPtr LoadLibrary(string libraryName, bool throwException) {
+            if (LoadedLibraries.TryGetValue(libraryName, out var ptr))
+                return ptr;
 
-            lock (SyncRoot)
-            {
-                if (LoadedLibraries.TryGetValue(libraryName, out ptr)) return ptr;
+            lock (SyncRoot) {
+                if (LoadedLibraries.TryGetValue(libraryName, out ptr))
+                    return ptr;
 
                 var dependencies = LibraryDependenciesMap[libraryName];
-                dependencies.Where(n => !LoadedLibraries.ContainsKey(n) && !n.Equals(libraryName))
-                    .ToList()
-                    .ForEach(n => LoadLibrary(n, false));
+                dependencies.Where(n => !LoadedLibraries.ContainsKey(n) && !n.Equals(libraryName)).ToList().ForEach(n => LoadLibrary(n, false));
 
-                var version = LibraryVersionMap[libraryName];
+                var version = global::FFmpeg.AutoGen.ffmpeg.LibraryVersionMap[libraryName];
                 ptr = LibraryLoader.LoadNativeLibrary(RootPath, libraryName, version);
 
-                if (ptr != IntPtr.Zero) LoadedLibraries.Add(libraryName, ptr);
-                else if (throwException)
-                {
+                if (ptr != IntPtr.Zero)
+                    LoadedLibraries.Add(libraryName, ptr);
+                else if (throwException) {
                     throw new DllNotFoundException(
                         $"Unable to load DLL '{libraryName}.{version}': The specified module could not be found.");
                 }

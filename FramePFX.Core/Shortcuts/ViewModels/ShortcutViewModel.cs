@@ -1,13 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using FocusGroupHotkeys.Core.AdvancedContextService;
-using FocusGroupHotkeys.Core.Inputs;
-using FocusGroupHotkeys.Core.Shortcuts.Managing;
+using FramePFX.Core.AdvancedContextService;
+using FramePFX.Core.AdvancedContextService.Base;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
+namespace FramePFX.Core.Shortcuts.ViewModels {
     public class ShortcutViewModel : BaseViewModel, IContextProvider {
         public ManagedShortcut ShortcutRefernce { get; set; }
 
@@ -24,6 +24,7 @@ namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
         public string Description { get; }
 
         private bool isGlobal;
+
         public bool IsGlobal {
             get => this.isGlobal;
             set => this.RaisePropertyChanged(ref this.isGlobal, value);
@@ -34,19 +35,6 @@ namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
         public ICommand AddMouseStrokeCommand { get; set; }
 
         public RelayCommandParam<InputStrokeViewModel> RemoveStrokeCommand { get; }
-
-        public IEnumerable<IBaseContextEntry> RootContextEntries {
-            get {
-                yield return new ContextEntry("Add key stroke...", this.AddKeyStrokeCommand);
-                yield return new ContextEntry("Add mouse stroke...", this.AddMouseStrokeCommand);
-                if (this.InputStrokes.Count > 0) {
-                    yield return ContextEntrySeparator.Instance;
-                    foreach (InputStrokeViewModel stroke in this.InputStrokes) {
-                        yield return new ContextEntry("Remove " + stroke.ToReadableString(), this.RemoveStrokeCommand, stroke);
-                    }
-                }
-            }
-        }
 
         public ShortcutViewModel(ShortcutGroupViewModel parent, ManagedShortcut reference) {
             this.ShortcutRefernce = reference;
@@ -65,7 +53,7 @@ namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
         }
 
         public void AddKeyStrokeAction() {
-            KeyStroke? result = IoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
+            KeyStroke? result = CoreIoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new KeyStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -73,7 +61,7 @@ namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
         }
 
         public void AddMouseStrokeAction() {
-            MouseStroke? result = IoC.MouseDialogs.ShowGetMouseStrokeDialog();
+            MouseStroke? result = CoreIoC.MouseDialogs.ShowGetMouseStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new MouseStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -81,13 +69,9 @@ namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
         }
 
         public void UpdateShortcutReference() {
-            // if (this.Manager != null) {
-            //     // IoC.ShortcutManager.Root = this.Manager.SaveToRoot();
-            // }
-
             if (this.ShortcutRefernce != null) {
                 this.ShortcutRefernce.SetShortcut(this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut);
-                IoC.OnShortcutManagedChanged?.Invoke(this.Path);
+                CoreIoC.BroadcastShortcutChanged?.Invoke(this.Path);
             }
         }
 
@@ -121,6 +105,19 @@ namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
             else {
                 return null;
             }
+        }
+
+        public List<IContextEntry> GetContext(List<IContextEntry> list) {
+            list.Add(new CommandContextEntry("Add key stroke...", this.AddKeyStrokeCommand));
+            list.Add(new CommandContextEntry("Add mouse stroke...", this.AddMouseStrokeCommand));
+            if (this.InputStrokes.Count > 0) {
+                list.Add(ContextEntrySeparator.Instance);
+                foreach (InputStrokeViewModel stroke in this.InputStrokes) {
+                    list.Add(new CommandContextEntry("Remove " + stroke.ToReadableString(), this.RemoveStrokeCommand, stroke));
+                }
+            }
+
+            return list;
         }
     }
 }

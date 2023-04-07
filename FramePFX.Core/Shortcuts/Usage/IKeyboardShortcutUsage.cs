@@ -1,6 +1,6 @@
-using MCNBTViewer.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace MCNBTViewer.Core.Shortcuts.Usage {
+namespace FramePFX.Core.Shortcuts.Usage {
     public interface IKeyboardShortcutUsage : IShortcutUsage {
         /// <summary>
         /// A reference to the shortcut that created this instance

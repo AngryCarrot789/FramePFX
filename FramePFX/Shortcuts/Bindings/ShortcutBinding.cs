@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using MCNBTViewer.Core;
-using MCNBTViewer.Core.Shortcuts.Managing;
+using FramePFX.Core;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace MCNBTViewer.Shortcuts.Bindings {
+namespace FramePFX.Shortcuts.Bindings {
     public class ShortcutBinding : InputBinding {
         public static readonly DependencyProperty ShortcutAndUsageIdProperty =
             DependencyProperty.Register(

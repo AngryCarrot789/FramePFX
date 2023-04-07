@@ -1,8 +1,8 @@
 using System;
 using System.Windows.Input;
-using MCNBTViewer.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace MCNBTViewer.Shortcuts {
+namespace FramePFX.Shortcuts {
     public static class ShortcutUtils {
         public static void SplitValue(string input, out string shortcutId, out string usageId) {
             if (string.IsNullOrWhiteSpace(input)) {

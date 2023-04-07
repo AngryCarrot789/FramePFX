@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MCNBTViewer.Core.Actions {
+namespace FramePFX.Core.Actions {
     public abstract class ActionGroup : Action {
         protected ActionGroup(string header, string description) : base(header, description) {
 

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace FocusGroupHotkeys.Themes.Attached {
+namespace FramePFX.Themes.Attached {
     public static class CornerHelper {
         public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.RegisterAttached("CornerRadius", typeof(double), typeof(CornerHelper), new PropertyMetadata(0d));
 

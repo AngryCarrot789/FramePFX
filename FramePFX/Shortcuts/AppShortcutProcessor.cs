@@ -1,17 +1,16 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using MCNBTViewer.Core;
-using MCNBTViewer.Core.Actions;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Managing;
-using MCNBTViewer.Core.Shortcuts.Usage;
-using MCNBTViewer.Core.Utils;
+using FramePFX.Core;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Usage;
+using FramePFX.Core.Utils;
 
-namespace MCNBTViewer.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class AppShortcutProcessor : ShortcutProcessor {
         public new AppShortcutManager Manager => (AppShortcutManager) base.Manager;
 
@@ -122,18 +121,18 @@ namespace MCNBTViewer.Shortcuts {
             bool finalResult = false;
             if (AppShortcutManager.InputBindingCallbackMap.TryGetValue(shortcut.Path, out Dictionary<string, List<ShortcutActivateHandler>> usageMap)) {
                 if ((shortcut.IsGlobal || shortcut.Group.IsGlobal) && usageMap.TryGetValue(AppShortcutManager.DEFAULT_USAGE_ID, out List<ShortcutActivateHandler> callbacks2) && callbacks2.Count > 0) {
-                    IoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks2.Count} callbacks...");
+                    CoreIoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks2.Count} callbacks...");
                     foreach (ShortcutActivateHandler callback in callbacks2) {
                         finalResult |= await callback(this, shortcut);
                     }
-                    IoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks2.Count} callbacks... Complete!");
+                    CoreIoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks2.Count} callbacks... Complete!");
                 }
                 else if (usageMap.TryGetValue(this.CurrentInputBindingUsageID, out List<ShortcutActivateHandler> callbacks1) && callbacks1.Count > 0) {
-                    IoC.BroadcastShortcutActivity($"Activated shortcut: {shortcut}. Calling {callbacks1.Count} callbacks...");
+                    CoreIoC.BroadcastShortcutActivity($"Activated shortcut: {shortcut}. Calling {callbacks1.Count} callbacks...");
                     foreach (ShortcutActivateHandler callback in callbacks1) {
                         finalResult |= await callback(this, shortcut);
                     }
-                    IoC.BroadcastShortcutActivity($"Activated shortcut: {shortcut}. Calling {callbacks1.Count} callbacks... Complete!");
+                    CoreIoC.BroadcastShortcutActivity($"Activated shortcut: {shortcut}. Calling {callbacks1.Count} callbacks... Complete!");
                 }
             }
 
@@ -142,24 +141,24 @@ namespace MCNBTViewer.Shortcuts {
 
         public override bool OnNoSuchShortcutForKeyStroke(string @group, in KeyStroke stroke) {
             if (stroke.IsKeyDown) {
-                IoC.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
+                CoreIoC.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
             }
 
             return base.OnNoSuchShortcutForKeyStroke(@group, in stroke);
         }
 
         public override bool OnNoSuchShortcutForMouseStroke(string @group, in MouseStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
+            CoreIoC.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
             return base.OnNoSuchShortcutForMouseStroke(@group, in stroke);
         }
 
         public override bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, ManagedShortcut shortcut, in KeyStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
+            CoreIoC.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextKeyStroke(usage, shortcut, in stroke);
         }
 
         public override bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, ManagedShortcut shortcut, in MouseStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
+            CoreIoC.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextMouseStroke(usage, shortcut, in stroke);
         }
 
@@ -169,7 +168,7 @@ namespace MCNBTViewer.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            CoreIoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnShortcutUsagesCreated();
         }
 
@@ -179,7 +178,7 @@ namespace MCNBTViewer.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            CoreIoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnSecondShortcutUsagesProgressed();
         }
     }

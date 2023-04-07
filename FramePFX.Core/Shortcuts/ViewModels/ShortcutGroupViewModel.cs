@@ -1,9 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using FocusGroupHotkeys.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
+namespace FramePFX.Core.Shortcuts.ViewModels {
     public class ShortcutGroupViewModel : BaseViewModel {
         private readonly ObservableCollection<object> children;
 

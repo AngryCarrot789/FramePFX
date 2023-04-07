@@ -1,4 +1,4 @@
-namespace MCNBTViewer.Core.Actions {
+namespace FramePFX.Core.Actions {
     public class ActionEvent {
         public object DataContext { get; }
 

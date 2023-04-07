@@ -1,4 +1,4 @@
-namespace MCNBTViewer.Core.AdvancedContextService.Base {
+namespace FramePFX.Core.AdvancedContextService.Base {
     public class BaseInteractableEntry : BaseViewModel, IContextEntry {
         private object dataContext;
         public object DataContext {

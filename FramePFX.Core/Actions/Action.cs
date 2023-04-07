@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace MCNBTViewer.Core.Actions {
+namespace FramePFX.Core.Actions {
     public abstract class Action {
         public string Header { get; }
 

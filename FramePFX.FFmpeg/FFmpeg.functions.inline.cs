@@ -1,9 +1,9 @@
 using System;
-using System.Runtime.InteropServices;
 
+// ReSharper disable once CheckNamespace
 namespace FFmpeg.AutoGen
 {
-    public unsafe static partial class ffmpeg
+    public static unsafe partial class ffmpeg
     {
         /// <summary>Compute ceil(log2(x)).</summary>
         /// <param name="x">value used to compute ceil(log2(x))</param>

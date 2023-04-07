@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
-namespace FocusGroupHotkeys.Themes.Attached {
+namespace FramePFX.Themes.Attached {
     public static class TextHinting {
         public static readonly DependencyProperty ShowWhenFocusedProperty =
             DependencyProperty.RegisterAttached(

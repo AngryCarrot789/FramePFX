@@ -2,11 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:acs="clr-namespace:MCNBTViewer.AdvancedContextService"
-                    xmlns:base="clr-namespace:MCNBTViewer.Core.AdvancedContextService.Base;assembly=MCNBTViewer.Core"
-                    xmlns:t="clr-namespace:MCNBTViewer.Core.AdvancedContextService;assembly=MCNBTViewer.Core"
+                    xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
+                    xmlns:acscore="clr-namespace:FramePFX.Core.AdvancedContextService;assembly=FramePFX.Core"
                     mc:Ignorable="d">
-    <Style x:Key="CommandMenuItemMainStyle" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" d:DataContext="{d:DesignInstance t:CommandContextEntry}">
+    <Style x:Key="CommandMenuItemMainStyle" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" d:DataContext="{d:DesignInstance acscore:CommandContextEntry}">
         <Setter Property="Header" Value="{Binding Header}"/>
         <Setter Property="InputGestureText" Value="{Binding InputGestureText}"/>
         <Setter Property="Command" Value="{Binding Command}"/>
@@ -14,7 +13,7 @@
         <Setter Property="ToolTip" Value="{Binding ToolTip}"/>
         <Setter Property="ItemsSource" Value="{Binding Children}"/>
     </Style>
-    <Style x:Key="ActionMenuItemMainStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" d:DataContext="{d:DesignInstance t:ActionContextEntry}">
+    <Style x:Key="ActionMenuItemMainStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" d:DataContext="{d:DesignInstance acscore:ActionContextEntry}">
         <Setter Property="Header" Value="{Binding Header}"/>
         <Setter Property="InputGestureText" Value="{Binding InputGestureText}"/>
         <Setter Property="ToolTip" Value="{Binding ToolTip}"/>

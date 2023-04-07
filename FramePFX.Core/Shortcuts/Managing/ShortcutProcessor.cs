@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Usage;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Usage;
 
-namespace MCNBTViewer.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
     /// A shortcut processor. This is used for each window, and should only really be used by a single thread at a time
     /// </summary>

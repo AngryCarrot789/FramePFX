@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using MCNBTViewer.Core.AdvancedContextService;
-using MCNBTViewer.Core.AdvancedContextService.Base;
+using FramePFX.Core.AdvancedContextService;
+using FramePFX.Core.AdvancedContextService.Base;
 
-namespace MCNBTViewer.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     public class AdvancedContextMenu : ContextMenu {
         public static readonly DependencyProperty ContextProviderProperty =
             DependencyProperty.RegisterAttached(

@@ -3,9 +3,10 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Input;
-using FocusGroupHotkeys.Core.Shortcuts.ViewModels;
+using FramePFX.Core.Shortcuts.ViewModels;
+using FramePFX.Shortcuts;
 
-namespace FocusGroupHotkeys.Converters {
+namespace FramePFX.Converters {
     public class MouseStrokeRepresentationConverter : IMultiValueConverter {
         public static string ToStringFunction(MouseStrokeViewModel stroke) {
             return ToStringFunction(stroke.MouseButton, stroke.Modifiers, stroke.ClickCount, stroke.WheelDelta);

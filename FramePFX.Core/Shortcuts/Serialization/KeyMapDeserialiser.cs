@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
-using MCNBTViewer.Core.Shortcuts.Inputs;
-using MCNBTViewer.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace MCNBTViewer.Core.Shortcuts.Serialization {
+namespace FramePFX.Core.Shortcuts.Serialization {
     public abstract class KeyMapDeserialiser {
         private static readonly XmlSerializer Serializer;
 

@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using FramePFX.Render;
+using FramePFX.Timeline.ViewModels.ClipProperties;
+using FramePFX.Timeline.ViewModels.ClipProperties.Resizable;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
-    public abstract class UIResizableVideoClipViewModel : VideoClipViewModel {
+    public abstract class ResizableVideoClipViewModel : VideoClipViewModel {
         protected float shapeX;
         public float ShapeX {
             get => this.shapeX;
@@ -29,8 +32,13 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
 
         public bool UseScaledRender { get; set; }
 
-        protected UIResizableVideoClipViewModel() {
+        protected ResizableVideoClipViewModel() {
             this.UseScaledRender = true;
+        }
+
+        public override void AccumulatePropertyGroups(ICollection<PropertyGroupViewModel> list) {
+            base.AccumulatePropertyGroups(list);
+            list.Add(new ResizablePropertyGroupViewModel(this));
         }
 
         public void SetShape(float x, float y, float w, float h) {

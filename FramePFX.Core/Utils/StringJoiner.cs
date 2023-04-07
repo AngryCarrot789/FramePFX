@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace FocusGroupHotkeys.Core.Utils {
+namespace FramePFX.Core.Utils {
     public class StringJoiner {
         private readonly StringBuilder sb;
         private readonly string delimiter;

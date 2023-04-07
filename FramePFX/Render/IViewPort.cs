@@ -15,6 +15,9 @@ namespace FramePFX.Render {
 
         /// <summary>
         /// Whether this view port is ready to be rendered into or not. When false, rendering may result in a crash
+        /// <para>
+        /// This also checks if the context is ready to render into as well
+        /// </para>
         /// </summary>
         bool IsReady { get; }
 
@@ -33,7 +36,7 @@ namespace FramePFX.Render {
         /// <summary>
         /// Attempts to begin a render phase. Returns false if not ready or a render could not be started
         /// </summary>
-        /// <param name="force"></param>
+        /// <param name="force">Attempts to force a render start. Typically this is only used to acquire the CAS lock</param>
         /// <returns></returns>
         bool BeginRender(bool force = false);
 

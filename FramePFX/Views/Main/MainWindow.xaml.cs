@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
+using FramePFX.Core;
 using FramePFX.Render;
-using FramePFX.Timeline.Layer;
-using FramePFX.Utils;
+using FramePFX.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Views.Main {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        // public readonly OGLMainViewPortImpl oglPort;
-        public readonly OGLViewportControl oglPort;
-
         public VideoEditorViewModel Editor => this.DataContext as VideoEditorViewModel;
 
         public MainWindow() {
@@ -25,6 +17,9 @@ namespace FramePFX.Views.Main {
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             this.Closed += this.OnClosed;
             this.Loaded += this.OnLoaded;
+            CoreIoC.BroadcastShortcutActivity = (x) => {
+
+            };
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
@@ -50,136 +45,9 @@ namespace FramePFX.Views.Main {
             OGLUtils.ShutdownMainThread();
             // this.oglPort.Stop();
             if (this.Editor is VideoEditorViewModel editor) {
-                editor.Viewport.isPlaybackThreadRunning = false;
+                editor.PlaybackView.isPlaybackThreadRunning = false;
             }
         }
-
-        /*
-
-        public class OGLMainViewPortImpl : IOGLViewPort {
-            private readonly Image image;
-            private readonly object locker = new object();
-            private int width;
-            private int height;
-            private volatile bool isUpdatingViewPort;
-            private volatile bool isReadyToRender;
-            private volatile WriteableBitmap bitmap;
-            private volatile IntPtr backBuffer;
-            public readonly OpenGLMainThread openTk;
-
-            public long last_tick_time;
-            public long interval_ticks;
-            public readonly DispatcherTimer timer;
-            public volatile bool hasFreshFrame;
-
-            public IOGLContext Context => this.openTk.oglContext;
-
-            public readonly NumberAverager wpf_averager = new NumberAverager(10);
-
-            public bool HasFreshFrame {
-                get => this.hasFreshFrame;
-                set => this.hasFreshFrame = value;
-            }
-
-            public int ViewportWidth {
-                get => this.width;
-                set => this.UpdateViewportSize(value, this.height);
-            }
-
-            public int ViewportHeight {
-                get => this.height;
-                set => this.UpdateViewportSize(this.width, value);
-            }
-
-            public bool IsReadyForRender {
-                get => this.isReadyToRender;
-            }
-
-            public OGLMainViewPortImpl(Image image) {
-                this.image = image;
-                this.width = 1;
-                this.height = 1;
-                this.openTk = OpenGLMainThread.Instance;
-                this.timer = new DispatcherTimer(DispatcherPriority.Render) {
-                    Interval = TimeSpan.FromMilliseconds(1)
-                };
-
-                this.timer.Tick += this.OnTickRender;
-                this.timer.Start();
-            }
-
-            private void OnTickRender(object sender, EventArgs e) {
-                if (this.isReadyToRender && this.Context.IsReady) {
-                    long time = DateTime.Now.Ticks;
-                    long diff = time - this.last_tick_time;
-                    this.interval_ticks = diff;
-                    this.last_tick_time = time;
-                    this.UpdateImageForRenderedBitmap();
-                }
-            }
-
-            public void UpdateImageForRenderedBitmap() {
-                if (this.hasFreshFrame) {
-                    this.bitmap.Lock();
-                    this.bitmap.AddDirtyRect(new Int32Rect(0, 0, this.width, this.height));
-                    this.bitmap.Unlock();
-                    this.hasFreshFrame = false;
-                }
-            }
-
-            public void UpdateViewportSize(int w, int h) {
-                lock (this.locker) {
-                    if ((w = Math.Max(w, 1)) == this.width && (h = Math.Max(h, 1)) == this.height) {
-                        return;
-                    }
-
-                    this.width = w;
-                    this.height = h;
-                    if (this.isUpdatingViewPort) {
-                        return;
-                    }
-
-                    this.isReadyToRender = false;
-                    this.isUpdatingViewPort = true;
-                    this.image.Dispatcher.Invoke(() => {
-                        lock (this.locker) {
-                            this.RecreateBitmap();
-                            // this.openTk.Start();
-                        }
-                    });
-                }
-            }
-
-            public void BeginRender() {
-                this.Context.BeginRender();
-            }
-
-            public bool FlushFrame() {
-                return this.hasFreshFrame = this.openTk.DrawViewportIntoBitmap(this.backBuffer, this.width, this.height);
-            }
-
-            public void EndRender() {
-                this.Context.EndRender();
-            }
-
-            private void RecreateBitmap() {
-                this.bitmap = new WriteableBitmap(this.width, this.height, 96, 96, PixelFormats.Rgb24, null);
-                this.image.Source = this.bitmap;
-                this.backBuffer = this.bitmap.BackBuffer;
-                this.openTk.UpdateViewportSie(this.width, this.height);
-                this.isUpdatingViewPort = false;
-                this.isReadyToRender = true;
-            }
-
-            public void Stop() {
-                lock (this.locker) {
-                    this.isReadyToRender = false;
-                    this.openTk.StopAndDispose();
-                }
-            }
-        }
-
-        */
 
         private void ThumbTop(object sender, DragDeltaEventArgs e) {
             if ((sender as Thumb)?.DataContext is LayerViewModel layer) {

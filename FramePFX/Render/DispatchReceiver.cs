@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FramePFX.Utils;
 
-namespace FrameControl.Threading {
+namespace FramePFX.Render {
     public abstract class DispatchReceiver {
         protected readonly CASLock actionLock;
         protected readonly CASLock taskLock;
@@ -40,9 +41,9 @@ namespace FrameControl.Threading {
             }
             else {
                 Task task = new Task(action);
-                this.actionLock.Lock(true);
+                this.taskLock.Lock(true);
                 this.tasks.Add(task);
-                this.actionLock.Unlock();
+                this.taskLock.Unlock();
                 this.OnAsyncActionEnqueued(action, invokeLater);
                 return task;
             }

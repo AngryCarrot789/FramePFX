@@ -14,8 +14,25 @@ namespace FramePFX.Render {
     /// A control that can be rendered into via OpenGL
     /// </summary>
     public class OGLViewportControl : Image {
-        public static readonly DependencyProperty ViewPortWidthProperty = DependencyProperty.Register("ViewPortWidth", typeof(int), typeof(OGLViewportControl), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => { ((OGLViewportControl) d).EnqueueUpdateChangeWidth((int) e.NewValue); }));
-        public static readonly DependencyProperty ViewPortHeightProperty = DependencyProperty.Register("ViewPortHeight", typeof(int), typeof(OGLViewportControl), new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => { ((OGLViewportControl) d).EnqueueUpdateChangeHeight((int) e.NewValue); }));
+        public static readonly DependencyProperty ViewPortWidthProperty =
+            DependencyProperty.Register(
+                "ViewPortWidth",
+                typeof(int),
+                typeof(OGLViewportControl),
+                new FrameworkPropertyMetadata(
+                    1,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    (d, e) => { ((OGLViewportControl) d).OnViewPortWidthPropertyChanged((int) e.NewValue); }));
+
+        public static readonly DependencyProperty ViewPortHeightProperty =
+            DependencyProperty.Register(
+                "ViewPortHeight",
+                typeof(int),
+                typeof(OGLViewportControl),
+                new FrameworkPropertyMetadata(
+                    1,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    (d, e) => { ((OGLViewportControl) d).OnViewPortHeightPropertyChanged((int) e.NewValue); }));
 
         private readonly OGLViewPortImpl viewPort;
         private volatile WriteableBitmap bitmap;
@@ -42,7 +59,7 @@ namespace FramePFX.Render {
             this.viewPort = new OGLViewPortImpl(this);
             this.createBitmapCallback = new RapidDispatchCallback();
             this.timer = new DispatcherTimer(DispatcherPriority.Render) {
-                Interval = TimeSpan.FromMilliseconds(1)
+                Interval = TimeSpan.FromMilliseconds(5)
             };
 
             this.timer.Tick += this.TimerOnTick;
@@ -59,6 +76,7 @@ namespace FramePFX.Render {
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
             this.isLoaded = false;
+            this.isReady = false;
             this.timer.Stop();
         }
 
@@ -69,7 +87,11 @@ namespace FramePFX.Render {
             }
         }
 
-        public void RenderBitmapToWPF() {
+        private void OnFreshFrameAvailable() { // can be called from any thread
+            this.hasFreshFrame = true;
+        }
+
+        public void RenderBitmapToWPF() { // only called on WPF/main thread
             this.bitmap.Lock();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, this.viewPort.Width, this.viewPort.Height));
             this.bitmap.Unlock();
@@ -84,11 +106,11 @@ namespace FramePFX.Render {
             this.bitmap.Unlock();
         }
 
-        private void EnqueueUpdateChangeWidth(int w) {
+        private void OnViewPortWidthPropertyChanged(int w) {
             this.viewPort.SetSize(w, this.viewPort.Height);
         }
 
-        private void EnqueueUpdateChangeHeight(int h) {
+        private void OnViewPortHeightPropertyChanged(int h) {
             this.viewPort.SetSize(this.viewPort.Width, h);
         }
 
@@ -105,10 +127,15 @@ namespace FramePFX.Render {
 
             public IRenderContext Context => OGLUtils.GlobalContext;
 
+            private readonly Action updateViewPortCallback;
+
             public OGLViewPortImpl(OGLViewportControl control) {
                 this.control = control;
                 this.vpWidth = 1;
                 this.vpHeight = 1;
+                this.updateViewPortCallback = () => {
+                    this.Context.UpdateViewport(this.vpWidth, this.vpHeight);
+                };
             }
 
             public void SetSize(int width, int height) {
@@ -124,10 +151,7 @@ namespace FramePFX.Render {
                         return;
                     }
 
-                    Task task = this.Context.OwningThread.InvokeAsync(() => {
-                        this.Context.UpdateViewport(this.vpWidth, this.vpHeight);
-                    });
-
+                    Task task = this.Context.OwningThread.InvokeAsync(this.updateViewPortCallback);
                     if (this.control.isLoaded) {
                         this.control.createBitmapCallback.Invoke(() => {
                             lock (this.control) {
@@ -141,7 +165,7 @@ namespace FramePFX.Render {
             }
 
             public bool BeginRender(bool force = false) {
-                return this.IsReady && this.Context.BeginUse(force);
+                return this.control.isReady && this.Context.BeginUse(force);
             }
 
             public void EndRender() {
@@ -149,11 +173,12 @@ namespace FramePFX.Render {
             }
 
             public void FlushFrame() {
-                this.Context.UseContext(() => {
+                if (this.Context.BeginUse(false)) {
                     GL.ReadBuffer(ReadBufferMode.Back);
                     GL.ReadPixels(0, 0, this.vpWidth, this.vpHeight, PixelFormat.Rgb, PixelType.UnsignedByte, this.control.backBuffer);
-                    this.control.hasFreshFrame = true;
-                }, false);
+                    this.control.OnFreshFrameAvailable();
+                    this.Context.EndUse();
+                }
             }
         }
     }

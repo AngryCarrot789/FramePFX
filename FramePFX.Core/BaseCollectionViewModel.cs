@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using MCNBTViewer.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace MCNBTViewer.Core.Explorer {
+namespace FramePFX.Core {
     public abstract class BaseCollectionViewModel<T> : BaseViewModel {
         private readonly EfficientObservableCollection<T> items;
-
         public ReadOnlyObservableCollection<T> Items { get; }
 
         public bool IsEmpty => this.items.Count < 1;
@@ -19,7 +18,7 @@ namespace MCNBTViewer.Core.Explorer {
         /// will fire a collection change event for each item in the range
         /// </para>
         /// </summary>
-        public bool UseRangeActions {
+        protected bool UseRangeActions {
             get => this.items.UseRangeActions;
             set => this.items.UseRangeActions = value;
         }
@@ -29,36 +28,36 @@ namespace MCNBTViewer.Core.Explorer {
             this.Items = new ReadOnlyObservableCollection<T>(this.items);
         }
 
-        public virtual void AddRange(IEnumerable<T> enumerable) {
+        protected virtual void AddRange(IEnumerable<T> enumerable) {
             List<T> list = enumerable.ToList();
             this.items.AddRange(list);
             this.OnChildrenAddedOrRemoved(list, true);
             this.RaiseIsEmptyChanged();
         }
 
-        public virtual void Add(T item) {
+        protected virtual void Add(T item) {
             this.items.Add(item);
             this.RaiseIsEmptyChanged();
         }
 
-        public virtual void Insert(int index, T item) {
+        protected virtual void Insert(int index, T item) {
             this.items.Insert(index, item);
             this.OnChildAddedOrRemoved(item, true);
             this.RaiseIsEmptyChanged();
         }
 
-        public virtual void InsertRange(int index, IEnumerable<T> enumerable) {
+        protected virtual void InsertRange(int index, IEnumerable<T> enumerable) {
             List<T> list = enumerable.ToList();
             this.items.InsertRange(index, list);
             this.OnChildrenAddedOrRemoved(list, true);
             this.RaiseIsEmptyChanged();
         }
 
-        public virtual bool Contains(T item) {
+        protected virtual bool Contains(T item) {
             return this.items.Contains(item);
         }
 
-        public virtual bool Remove(T item) {
+        protected virtual bool Remove(T item) {
             int index = this.IndexOf(item);
             if (index < 0) {
                 return false;
@@ -68,13 +67,13 @@ namespace MCNBTViewer.Core.Explorer {
             return true;
         }
 
-        public virtual void RemoveAll(IEnumerable<T> enumerable) {
+        protected virtual void RemoveAll(IEnumerable<T> enumerable) {
             foreach (T item in enumerable) {
                 this.Remove(item);
             }
         }
 
-        public virtual void RemoveAll(Predicate<T> canRemove) {
+        protected virtual void RemoveAll(Predicate<T> canRemove) {
             // this.RemoveAll(this.items.Where(canRemove).ToList());
             List<T> list = this.items.ToList();
             for (int i = list.Count - 1; i >= 0; i--) {
@@ -88,23 +87,23 @@ namespace MCNBTViewer.Core.Explorer {
             this.RaiseIsEmptyChanged();
         }
 
-        public virtual int IndexOf(T item) {
+        protected virtual int IndexOf(T item) {
             return this.items.IndexOf(item);
         }
 
-        public virtual void RemoveAt(int index) {
+        protected virtual void RemoveAt(int index) {
             this.OnChildAddedOrRemoved(this.items[index], false);
             this.items.RemoveAt(index);
             this.RaiseIsEmptyChanged();
         }
 
-        public virtual void Clear() {
+        protected virtual void Clear() {
             this.OnChildrenAddedOrRemoved(this.items, false);
             this.items.Clear();
             this.RaiseIsEmptyChanged();
         }
 
-        public virtual void RaiseIsEmptyChanged() {
+        protected virtual void RaiseIsEmptyChanged() {
             this.RaisePropertyChanged(nameof(this.IsEmpty));
         }
 

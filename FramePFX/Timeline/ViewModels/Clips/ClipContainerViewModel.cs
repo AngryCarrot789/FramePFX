@@ -4,22 +4,22 @@ using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.AdvancedContextService;
 using FramePFX.Core.AdvancedContextService.Base;
+using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Timeline.ViewModels.Layer;
 
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Timeline.ViewModels.Clips {
     /// <summary>
     /// A container for a clip. This is used only to contain a "clip". Checking whether
     /// this is a video or an audio clip can be done by accessing <see cref="Content"/>
     /// </summary>
     public sealed class ClipContainerViewModel : BaseViewModel, IContextProvider {
         private long frameBegin;
-
         public long FrameBegin {
             get => this.frameBegin;
             set => this.RaisePropertyChanged(ref this.frameBegin, value, this.MarkForRender);
         }
 
         private long frameDuration;
-
         public long FrameDuration {
             get => this.frameDuration;
             set => this.RaisePropertyChanged(ref this.frameDuration, value, this.MarkForRender);

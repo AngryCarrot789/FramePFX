@@ -11,23 +11,23 @@ using FramePFX.Timeline.Layer.Clips;
 using Keyboard = System.Windows.Input.Keyboard;
 
 namespace FramePFX.Timeline {
-    public class TimelinePlayheadControl : Control, IPlayHeadHandle {
+    public class TimelinePlayHeadControl : Control, IPlayHeadHandle {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",
                 typeof(long),
-                typeof(TimelinePlayheadControl),
+                typeof(TimelinePlayHeadControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelinePlayheadControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
+                    (d, e) => ((TimelinePlayHeadControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
         public static readonly DependencyProperty TimelineProperty =
             DependencyProperty.Register(
                 "Timeline",
                 typeof(TimelineControl),
-                typeof(TimelinePlayheadControl),
+                typeof(TimelinePlayHeadControl),
                 new PropertyMetadata(null));
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace FramePFX.Timeline {
         private Thumb PART_ThumbBody;
         private bool isDraggingThumb;
 
-        public TimelinePlayheadControl() {
+        public TimelinePlayHeadControl() {
 
         }
 

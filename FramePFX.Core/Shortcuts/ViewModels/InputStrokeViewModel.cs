@@ -1,7 +1,7 @@
 using System;
-using FocusGroupHotkeys.Core.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace FocusGroupHotkeys.Core.Shortcuts.ViewModels {
+namespace FramePFX.Core.Shortcuts.ViewModels {
     public abstract class InputStrokeViewModel : BaseViewModel {
         public static Func<KeyStrokeViewModel, string> KeyToReadableString { get; set; } = (x) => x.ToKeyStroke().ToString();
         public static Func<MouseStrokeViewModel, string> MouseToReadableString { get; set; } = (x) => x.ToMouseStroke().ToString();

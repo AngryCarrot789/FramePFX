@@ -1,6 +1,6 @@
 using System;
-using System.Runtime.InteropServices;
 
+// ReSharper disable once CheckNamespace
 namespace FFmpeg.AutoGen
 {
     public enum AVActiveFormatDescription : int

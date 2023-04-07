@@ -1,18 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
-using FramePFX.Utils;
 
-namespace FramePFX.Render {
+namespace FrameControl.Threading {
     /// <summary>
     /// Represents a thread that actions can be dispatched to
     /// </summary>
-    public class DispatchThread {
-        private readonly CASLockV2 actionLock;
-        private readonly CASLockV2 taskLock;
-        private readonly List<Action> actions;
-        private readonly List<Task> tasks;
+    public class DispatchThread : DispatchReceiver {
         private volatile bool isThreadRunning;
         private volatile bool isFullyStopped;
 
@@ -29,10 +22,6 @@ namespace FramePFX.Render {
         public bool IsFullyStopped => this.isFullyStopped;
 
         public DispatchThread() {
-            this.actionLock = new CASLockV2();
-            this.taskLock = new CASLockV2();
-            this.actions = new List<Action>();
-            this.tasks = new List<Task>();
             this.Thread = new Thread(this.ThreadMain);
         }
 
@@ -55,31 +44,8 @@ namespace FramePFX.Render {
             }
         }
 
-        public void Invoke(Action action, bool forceInvokeLater = false) {
-            if (forceInvokeLater || Thread.CurrentThread != this.Thread) {
-                // The tick thread may call Invoke() or InvokeAsync(), so
-                // it's still a good idea to take into account the lock type
-                this.actionLock.Lock(true);
-                this.actions.Add(action);
-                this.actionLock.Unlock();
-            }
-            else {
-                action();
-            }
-        }
-
-        public Task InvokeAsync(Action action, bool forceInvokeLater = false) {
-            if (forceInvokeLater || Thread.CurrentThread != this.Thread) {
-                Task task = new Task(action);
-                this.actionLock.Lock(true);
-                this.tasks.Add(task);
-                this.actionLock.Unlock();
-                return task;
-            }
-            else {
-                action();
-                return Task.CompletedTask;
-            }
+        public override bool IsOnOwnerThread() {
+            return this.Thread == Thread.CurrentThread;
         }
 
         private void ThreadMain() {
@@ -108,22 +74,6 @@ namespace FramePFX.Render {
 
         protected virtual void OnThreadStop() {
 
-        }
-
-        protected virtual void ProcessPendingActions() {
-            if (this.actionLock.Lock(false)) {
-                foreach (Action action in this.actions)
-                    action();
-                this.actions.Clear();
-                this.actionLock.Unlock();
-            }
-
-            if (this.taskLock.Lock(false)) {
-                foreach (Task action in this.tasks)
-                    action.RunSynchronously();
-                this.tasks.Clear();
-                this.taskLock.Unlock();
-            }
         }
     }
 }

@@ -91,7 +91,7 @@ namespace FramePFX.ResourceManaging {
 
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files) {
                 e.Handled = true;
-                this.FileDropNotifier.OnFilesDropped(files);
+                await this.FileDropNotifier.OnFilesDropped(files);
             }
             else {
                 await CoreIoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown drag drop data type");
@@ -132,22 +132,28 @@ namespace FramePFX.ResourceManaging {
                 else if (AreModifiersPressed(ModifierKeys.Shift) && this.lastSelectedItem != null && this.SelectedItems.Count > 0) {
                     this.MakeRangedSelection(this.lastSelectedItem, item);
                 }
-                else if (!item.IsSelected) {
-                    this.MakeSingleSelection(item);
+                // else if (!item.IsSelected) {
+                //     this.MakePrimarySelection(item);
+                // }
+                else {
+                    this.MakePrimarySelection(item);
                 }
             }
             else {
                 if (item.IsSelected) {
                     if (!AreModifiersPressed(ModifierKeys.Control) && !AreModifiersPressed(ModifierKeys.Shift)) {
-                        this.MakeSingleSelection(item);
+                        this.MakePrimarySelection(item);
                     }
                 }
+                // else {
+                //     this.MakePrimarySelection(item);
+                // }
             }
         }
 
         public void MakeRangedSelection(ResourceItemControl a, ResourceItemControl b) {
             if (a == b) {
-                this.MakeSingleSelection(a);
+                this.MakePrimarySelection(a);
             }
             else {
                 int indexA = this.ItemContainerGenerator.IndexFromContainer(a);
@@ -178,7 +184,7 @@ namespace FramePFX.ResourceManaging {
             }
         }
 
-        public void MakeSingleSelection(ResourceItemControl item) {
+        public void MakePrimarySelection(ResourceItemControl item) {
             this.UnselectAll();
             this.SetItemSelectedProperty(item, true);
             this.lastSelectedItem = item;

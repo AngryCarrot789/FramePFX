@@ -10,4 +10,8 @@
     <PackageReference Include="OpenTK" Version="3.3.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Timeline" />
+  </ItemGroup>
+
 </Project>

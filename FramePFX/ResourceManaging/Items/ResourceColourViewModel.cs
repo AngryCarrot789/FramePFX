@@ -24,5 +24,9 @@ namespace FramePFX.ResourceManaging.Items {
             get => this.a;
             set => this.RaisePropertyChanged(ref this.a, value);
         }
+
+        public ResourceColourViewModel() {
+            this.a = 1f;
+        }
     }
 }

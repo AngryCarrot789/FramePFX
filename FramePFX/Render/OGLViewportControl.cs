@@ -5,7 +5,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using FramePFX.Core;
 using FramePFX.Core.Utils;
+using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
@@ -37,13 +39,35 @@ namespace FramePFX.Render {
         private readonly OGLViewPortImpl viewPort;
         private volatile WriteableBitmap bitmap;
         private volatile IntPtr backBuffer;
-        private volatile bool hasFreshFrame;
-        private readonly DispatcherTimer timer;
+        private volatile bool isRenderCallbackQueued;
+
+        /// <summary>
+        /// Whether this control is ready to be rendered into or not. When not ready, it
+        /// typically means the bitmap is scheduled to be updated or hasn't been created
+        /// </summary>
         public volatile bool isReady;
-        protected readonly RapidDispatchCallback createBitmapCallback;
+        protected readonly DispatcherCallback createBitmapCallback;
         public bool isLoaded;
+        private readonly Action renderCallback;
 
         public IViewPort ViewPort { get => this.viewPort; }
+
+        public System.Windows.Media.PixelFormat BitmapPixelFormat { get; set; }
+
+        /// <summary>
+        /// The buffer mode to use when reading the OpenGL buffer (during the bitmap-drawing render phase)
+        /// </summary>
+        public ReadBufferMode OglBufferMode { get; }
+
+        /// <summary>
+        /// The pixel format to use when reading pixels from OpenGL (during the bitmap-drawing render phase)
+        /// </summary>
+        public PixelFormat OglPixelFormat { get; }
+
+        /// <summary>
+        /// The pixel type to use when reading pixels from OpenGL (during the bitmap-drawing render phase)
+        /// </summary>
+        public PixelType OglPixelType { get; }
 
         public int ViewPortWidth {
             get => (int) this.GetValue(ViewPortWidthProperty);
@@ -56,39 +80,57 @@ namespace FramePFX.Render {
         }
 
         public OGLViewportControl() {
+            // this.BitmapPixelFormat = PixelFormats.Rgb24;
+            // this.OglPixelFormat = PixelFormat.Rgb;
+            this.BitmapPixelFormat = PixelFormats.Bgra32;
+            this.OglPixelFormat = PixelFormat.Bgra;
+            this.OglPixelType = PixelType.UnsignedByte;
+            this.OglBufferMode = ReadBufferMode.Back;
             this.viewPort = new OGLViewPortImpl(this);
-            this.createBitmapCallback = new RapidDispatchCallback();
-            this.timer = new DispatcherTimer(DispatcherPriority.Render) {
-                Interval = TimeSpan.FromMilliseconds(5)
-            };
-
-            this.timer.Tick += this.TimerOnTick;
+            this.createBitmapCallback = new DispatcherCallback(this.DoCreateBitmapCore, this.Dispatcher);
             this.Loaded += this.OnLoaded;
             this.Unloaded += this.OnUnloaded;
+            this.renderCallback = this.DoRenderCore;
+        }
+
+        private void DoRenderCore() {
+            if (this.isReady) {
+                this.RenderBitmapToWPF();
+            }
+
+            this.isRenderCallbackQueued = false;
+        }
+
+        private void DoCreateBitmapCore() {
+            lock (this) {
+                this.viewPort.UpdateViewPortTask?.Wait();
+                this.CreateBitmap(this.viewPort.Width, this.viewPort.Height);
+                this.isReady = true;
+            }
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.isLoaded = true;
             this.CreateBitmap(this.viewPort.Width, this.viewPort.Height);
-            this.timer.Start();
+            this.isLoaded = true;
             this.isReady = true;
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
             this.isLoaded = false;
             this.isReady = false;
-            this.timer.Stop();
         }
 
-        private void TimerOnTick(object sender, EventArgs e) {
-            if (this.hasFreshFrame) {
-                this.RenderBitmapToWPF();
-                this.hasFreshFrame = false;
-            }
-        }
+        // private void TimerOnTick(object sender, EventArgs e) {
+        //     this.DoRenderCore();
+        // }
 
         private void OnFreshFrameAvailable() { // can be called from any thread
-            this.hasFreshFrame = true;
+            if (this.isRenderCallbackQueued || !this.isReady) {
+                return;
+            }
+
+            this.isRenderCallbackQueued = true;
+            this.Dispatcher.InvokeAsync(this.renderCallback, DispatcherPriority.Render);
         }
 
         public void RenderBitmapToWPF() { // only called on WPF/main thread
@@ -99,7 +141,7 @@ namespace FramePFX.Render {
 
         private void CreateBitmap(int width, int height) {
             this.backBuffer = IntPtr.Zero;
-            this.bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Rgb24, null);
+            this.bitmap = new WriteableBitmap(width, height, 96, 96, this.BitmapPixelFormat, null);
             this.Source = this.bitmap;
             this.bitmap.Lock();
             this.backBuffer = this.bitmap.BackBuffer;
@@ -107,11 +149,11 @@ namespace FramePFX.Render {
         }
 
         private void OnViewPortWidthPropertyChanged(int w) {
-            this.viewPort.SetSize(w, this.viewPort.Height);
+            this.viewPort.SetResolution(w, this.viewPort.Height);
         }
 
         private void OnViewPortHeightPropertyChanged(int h) {
-            this.viewPort.SetSize(this.viewPort.Width, h);
+            this.viewPort.SetResolution(this.viewPort.Width, h);
         }
 
         private class OGLViewPortImpl : IViewPort {
@@ -127,6 +169,8 @@ namespace FramePFX.Render {
 
             public IRenderContext Context => OGLUtils.GlobalContext;
 
+            public Task UpdateViewPortTask { get; private set; }
+
             private readonly Action updateViewPortCallback;
 
             public OGLViewPortImpl(OGLViewportControl control) {
@@ -138,7 +182,7 @@ namespace FramePFX.Render {
                 };
             }
 
-            public void SetSize(int width, int height) {
+            public void SetResolution(int width, int height) {
                 lock (this.control) {
                     if (width == this.vpWidth && height == this.vpHeight) {
                         return;
@@ -151,15 +195,9 @@ namespace FramePFX.Render {
                         return;
                     }
 
-                    Task task = this.Context.OwningThread.InvokeAsync(this.updateViewPortCallback);
+                    this.UpdateViewPortTask = this.Context.OwningThread.InvokeAsync(this.updateViewPortCallback);
                     if (this.control.isLoaded) {
-                        this.control.createBitmapCallback.Invoke(() => {
-                            lock (this.control) {
-                                task.Wait();
-                                this.control.CreateBitmap(this.vpWidth, this.vpHeight);
-                                this.control.isReady = true;
-                            }
-                        });
+                        this.control.createBitmapCallback.InvokeAsync();
                     }
                 }
             }
@@ -172,13 +210,25 @@ namespace FramePFX.Render {
                 this.Context.EndUse();
             }
 
+            // bitmap-drawing render phase
             public void FlushFrame() {
-                if (this.Context.BeginUse(false)) {
+                if (this.control.isReady && this.Context.BeginUse(false)) {
                     GL.ReadBuffer(ReadBufferMode.Back);
-                    GL.ReadPixels(0, 0, this.vpWidth, this.vpHeight, PixelFormat.Rgb, PixelType.UnsignedByte, this.control.backBuffer);
-                    this.control.OnFreshFrameAvailable();
+                    GL.ReadPixels(0, 0, this.vpWidth, this.vpHeight, this.control.OglPixelFormat, this.control.OglPixelType, this.control.backBuffer);
                     this.Context.EndUse();
+                    this.control.OnFreshFrameAvailable();
                 }
+            }
+        }
+
+        public static PixelFormat ConvertPixelFormatWpfToGl(System.Windows.Media.PixelFormat format) {
+            switch (format.ToString()) {
+                case "Bgr24": return PixelFormat.Bgr;
+                case "Rgb24": return PixelFormat.Rgb;
+                case "Bgr32": return PixelFormat.Bgra;
+                case "Bgra32": return PixelFormat.Bgra;
+                case "Cmyk32": return PixelFormat.CmykExt;
+                default: throw new Exception("Unknown pixel format: " + format);
             }
         }
     }

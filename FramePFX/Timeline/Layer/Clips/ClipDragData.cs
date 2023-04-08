@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Timeline.Controls;
 
 namespace FramePFX.Timeline.Layer.Clips {
     public class ClipDragData {
@@ -11,8 +12,6 @@ namespace FramePFX.Timeline.Layer.Clips {
         public long OriginalFrameBegin { get; set; }
         public long TargetFrameBegin { get; set; }
         public bool IsFinished { get; set; }
-
-        private long buffer;
 
         public ClipDragData(TimelineClipContainerControl clip) {
             this.Clip = clip;
@@ -27,36 +26,8 @@ namespace FramePFX.Timeline.Layer.Clips {
             this.CopiedClip = null;
         }
 
-        private long incremented;
-
         public void OnMouseMove(long offset) {
-            // this.ValidateFinalizationState();
-            // this.incremented++;
-            // if (this.buffer < 0) {
-            //     this.buffer += offset;
-            //     if (this.buffer >= 0) {
-            //         offset = this.buffer;
-            //         this.buffer = 0;
-            //     }
-            //     else {
-            //         this.Clip.Content = $"{this.buffer} | {this.TargetFrameBegin} ({this.incremented})";
-            //         return;
-            //     }
-            // }
-            // long newFrameBegin = this.TargetFrameBegin + offset;
-            // if (newFrameBegin < 0) {
-            //     this.buffer += newFrameBegin;
-            // }
-            // else {
-            //     this.TargetFrameBegin = newFrameBegin;
-            //     this.Clip.IsMovingControl = true;
-            //     this.Clip.FrameBegin = Math.Max(newFrameBegin, 0);
-            //     this.Clip.IsMovingControl = false;
-            // }
-            // this.Clip.Content = $"{this.buffer} | {newFrameBegin} ({this.incremented})";
-
             this.ValidateFinalizationState();
-            this.incremented++;
             long newFrameBegin = this.TargetFrameBegin + offset;
             this.TargetFrameBegin = newFrameBegin;
             if (newFrameBegin < 0) {
@@ -66,7 +37,6 @@ namespace FramePFX.Timeline.Layer.Clips {
             this.Clip.IsMovingControl = true;
             this.Clip.FrameBegin = newFrameBegin;
             this.Clip.IsMovingControl = false;
-            // this.Clip.Content = $"{this.buffer} | {newFrameBegin} ({this.incremented})";
             this.Clip.ToolTip = $"{this.Clip.Span}";
         }
 

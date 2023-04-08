@@ -4,11 +4,12 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Timeline.Layer.Clips;
+using FramePFX.ResourceManaging;
+using FramePFX.Timeline.Layer;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 
-namespace FramePFX.Timeline.Layer {
+namespace FramePFX.Timeline.Controls {
     public class TimelineLayerControl : MultiSelector, ILayerHandle {
         public static readonly DependencyProperty UnitZoomProperty =
             TimelineControl.UnitZoomProperty.AddOwner(
@@ -28,6 +29,8 @@ namespace FramePFX.Timeline.Layer {
                     "Any",
                     FrameworkPropertyMetadataOptions.None,
                     (d, e) => ((TimelineLayerControl) d).OnLayerTypeChanged((string) e.OldValue, (string) e.NewValue)));
+
+        public static readonly DependencyProperty ResourceDropNotifierProperty = DependencyProperty.Register("ResourceDropNotifier", typeof(IResourceDropNotifier), typeof(TimelineLayerControl), new PropertyMetadata(default(IResourceDropNotifier)));
 
         /// <summary>
         /// The zoom level of this timeline layer
@@ -72,6 +75,11 @@ namespace FramePFX.Timeline.Layer {
             set => this.timeline = value;
         }
 
+        public IResourceDropNotifier ResourceDropNotifier {
+            get => (IResourceDropNotifier) this.GetValue(ResourceDropNotifierProperty);
+            set => this.SetValue(ResourceDropNotifierProperty, value);
+        }
+
         private bool isUpdatingUnitZoom;
         private bool isUpdatingLayerType;
         private TimelineControl timeline;
@@ -87,6 +95,23 @@ namespace FramePFX.Timeline.Layer {
                     vm.Control = this;
                 }
             };
+            this.AllowDrop = true;
+            this.Drop += this.OnDrop;
+        }
+
+        private async void OnDrop(object sender, DragEventArgs e) {
+            if (this.ResourceDropNotifier == null) {
+                e.Effects = DragDropEffects.None;
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Data.GetDataPresent("ResourceItem")) {
+                object obj = e.Data.GetData("ResourceItem");
+                if (obj is ResourceItemViewModel resourceItemViewModel) {
+                    await this.ResourceDropNotifier.OnResourceDropped(resourceItemViewModel);
+                }
+            }
         }
 
         /// <summary>

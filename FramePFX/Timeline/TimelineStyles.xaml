@@ -3,14 +3,15 @@
                     xmlns:timeline="clr-namespace:FramePFX.Timeline"
                     xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
                     xmlns:layer="clr-namespace:FramePFX.Timeline.Layer"
-                    xmlns:clips="clr-namespace:FramePFX.Timeline.Layer.Clips">
-    <Style TargetType="{x:Type timeline:TimelinePlayHeadControl}">
+                    xmlns:clips="clr-namespace:FramePFX.Timeline.Layer.Clips"
+                    xmlns:controls="clr-namespace:FramePFX.Timeline.Controls">
+    <Style TargetType="{x:Type controls:TimelinePlayHeadControl}">
         <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.4.Border.Static}"/>
         <Setter Property="MinWidth" Value="15"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type timeline:TimelinePlayHeadControl}">
+                <ControlTemplate TargetType="{x:Type controls:TimelinePlayHeadControl}">
                     <Grid Margin="-7,0,7,0" MinHeight="15">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="17"/>
@@ -26,7 +27,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type timeline:TimelineControl}">
+    <Style TargetType="{x:Type controls:TimelineControl}">
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
@@ -34,7 +35,7 @@
         <Setter Property="ScrollViewer.PanningMode" Value="Both" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type timeline:TimelineControl}">
+                <ControlTemplate TargetType="{x:Type controls:TimelineControl}">
                     <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                         <!-- A collection of TimelineLayerControls -->
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" 
@@ -43,7 +44,7 @@
                                       ap:HorizontalScrolling.UseHorizontalScrolling="True">
                             <Grid>
                                 <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="Left"/>
-                                <timeline:TimelinePlayHeadControl x:Name="PART_PlayHead" Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                                <controls:TimelinePlayHeadControl x:Name="PART_PlayHead" Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"/>
                             </Grid>
                         </ScrollViewer>
                     </Border>
@@ -52,12 +53,12 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type layer:TimelineLayerControl}">
+    <Style TargetType="{x:Type controls:TimelineLayerControl}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type layer:TimelineLayerControl}">
+                <ControlTemplate TargetType="{x:Type controls:TimelineLayerControl}">
                     <!--
                         IsItemHost must be true in order for it's items
                         to sync with the TimelineLayerControl's items
@@ -68,7 +69,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type clips:TimelineClipContainerControl}">
+    <Style TargetType="{x:Type controls:TimelineClipContainerControl}">
         <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
         <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
@@ -78,7 +79,7 @@
         <Setter Property="Height" Value="40"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type clips:TimelineClipContainerControl}">
+                <ControlTemplate TargetType="{x:Type controls:TimelineClipContainerControl}">
                     <Grid>
                         <Grid x:Name="FullElementContent">
                             <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">

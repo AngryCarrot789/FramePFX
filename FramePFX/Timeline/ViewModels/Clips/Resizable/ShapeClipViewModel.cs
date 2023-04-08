@@ -1,13 +1,10 @@
-using System.Collections.Generic;
 using System.ComponentModel;
 using FramePFX.Render;
 using FramePFX.ResourceManaging.Items;
-using FramePFX.Timeline.ViewModels.ClipProperties;
-using FramePFX.Timeline.ViewModels.ClipProperties.Resizable;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
-    public class ShapeClipViewModel : ResizableVideoClipViewModel {
+    public class ShapeClipViewModel : PositionableClipViewModel {
         private ResourceColourViewModel resource;
         public ResourceColourViewModel Resource {
             get => this.resource;
@@ -49,11 +46,6 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             };
 
             this.PropertyChanged += this.OnPropertyChanged;
-        }
-
-        public override void AccumulatePropertyGroups(ICollection<PropertyGroupViewModel> list) {
-            base.AccumulatePropertyGroups(list);
-            list.Add(new ShapePropertyGroupViewModel(this));
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {

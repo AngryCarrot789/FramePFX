@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FramePFX.Timeline.Controls;
 using FramePFX.Timeline.Layer.Clips;
 
 namespace FramePFX.Timeline {

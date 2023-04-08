@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -41,6 +42,10 @@ namespace FramePFX.ResourceManaging {
 
         public ResourceListControl ParentList => ItemsControl.ItemsControlFromItemContainer(this) as ResourceListControl;
 
+        private Point originMousePoint;
+        private bool isDragActive;
+        private bool isDragDropping;
+
         public ResourceItemControl() {
 
         }
@@ -53,6 +58,12 @@ namespace FramePFX.ResourceManaging {
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             ResourceListControl list = this.ParentList;
             if (list != null && (!e.Handled && this.IsFocused || this.Focus())) {
+                if (!this.isDragDropping) {
+                    this.CaptureMouse();
+                    this.originMousePoint = e.GetPosition(this);
+                    this.isDragActive = true;
+                }
+
                 e.Handled = true;
                 list.OnItemMouseButton(this, e);
             }
@@ -62,12 +73,48 @@ namespace FramePFX.ResourceManaging {
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
             ResourceListControl list = this.ParentList;
+            if (this.isDragActive && this.IsMouseCaptured) {
+                this.isDragActive = false;
+                this.ReleaseMouseCapture();
+                e.Handled = true;
+            }
+
             if (list != null && !e.Handled && this.IsFocused) {
                 e.Handled = true;
                 list.OnItemMouseButton(this, e);
             }
 
             base.OnMouseLeftButtonUp(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e) {
+            base.OnMouseMove(e);
+            if (!this.isDragActive || this.isDragDropping) {
+                return;
+            }
+
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                Point posA = e.GetPosition(this);
+                Point posB = this.originMousePoint;
+                Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
+                if (change.X > 5 || change.Y > 5) {
+                    this.isDragDropping = true;
+                    try {
+                        DragDrop.DoDragDrop(this, new DataObject("ResourceItem", this), DragDropEffects.Copy);
+                    }
+                    finally {
+                        this.isDragDropping = false;
+                    }
+                }
+            }
+            else {
+                if (ReferenceEquals(e.MouseDevice.Captured, this)) {
+                    this.ReleaseMouseCapture();
+                }
+
+                this.isDragActive = false;
+                this.originMousePoint = new Point(0, 0);
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ namespace FramePFX.Render {
         /// </summary>
         /// <param name="width">The new width</param>
         /// <param name="height">The new height</param>
-        void SetSize(int width, int height);
+        void SetResolution(int width, int height);
 
         /// <summary>
         /// Attempts to begin a render phase. Returns false if not ready or a render could not be started

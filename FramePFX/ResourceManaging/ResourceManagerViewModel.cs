@@ -8,6 +8,10 @@ using FramePFX.Core;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Project;
+using FramePFX.ResourceManaging.VideoResources;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace FramePFX.ResourceManaging {
     /// <summary>
@@ -176,23 +180,23 @@ namespace FramePFX.ResourceManaging {
             }
         }
 
-        public void AddFileRecursively(string fileOrDirectory) {
-            if (Directory.Exists(fileOrDirectory)) {
-                foreach (string entry in Directory.EnumerateFileSystemEntries(fileOrDirectory, "*", SearchOption.AllDirectories)) {
-                    this.AddFileRecursively(entry);
-                }
-            }
-            else if (File.Exists(fileOrDirectory)) {
-                this.AddFile(fileOrDirectory);
-            }
-        }
-
         public ResourceItemViewModel AddFile(string file) {
+            Image<Bgra32> image = null;
+            try {
+                image = Image.Load<Bgra32>(file);
+            }
+            catch { /* ignored */ }
 
-
-            ResourceItemViewModel item = new ResourceItemViewModel();
-            this.AddResource(this.GenerateUniqueIdForFile(file), item);
-            return item;
+            if (image != null) {
+                ImageResourceViewModel resource = new ImageResourceViewModel();
+                resource.ImageData = image;
+                resource.FilePath = file;
+                this.AddResource(this.GenerateUniqueIdForFile(file), resource);
+                return resource;
+            }
+            else {
+                return null;
+            }
         }
 
         public string GenerateUniqueIdForFile(string file) {
@@ -209,9 +213,13 @@ namespace FramePFX.ResourceManaging {
             return name;
         }
 
-        public void OnFilesDropped(string[] files) {
+        public async Task OnFilesDropped(string[] files) {
             foreach (string file in files) {
-                this.AddFileRecursively(file);
+                var resource = this.AddFile(file);
+                if (resource == null) {
+                    await CoreIoC.MessageDialogs.ShowMessageAsync("Failed to load image", $"Could not load image for file: {file}");
+                    continue;
+                }
             }
         }
     }

@@ -2,18 +2,21 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
+using FramePFX.ResourceManaging;
 using FramePFX.ResourceManaging.Items;
+using FramePFX.ResourceManaging.VideoResources;
 using FramePFX.Timeline.Layer;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Clips.Resizable;
 using FramePFX.Timeline.ViewModels.Timeline;
 
 namespace FramePFX.Timeline.ViewModels.Layer {
-    public class LayerViewModel : BaseViewModel {
+    public class LayerViewModel : BaseViewModel, IResourceDropNotifier {
         private string name;
         public string Name {
             get => this.name;
@@ -103,6 +106,18 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             return clip;
         }
 
+        public ImageClipViewModel CreateImageClip(long begin, long duration, ImageResourceViewModel image) {
+            ClipContainerViewModel container = this.CreateVideoClipContainer(begin, duration);
+            ImageClipViewModel clip = new ImageClipViewModel {
+                Resource = image
+            };
+
+            ClipContainerViewModel.SetClipContent(container, clip);
+            ClipViewModel.SetContainer(clip, container);
+            this.Clips.Add(container);
+            return clip;
+        }
+
         public void MakeTopMost(ClipContainerViewModel clip) {
             int endIndex = this.Clips.Count - 1;
             int index = this.Clips.IndexOf(clip);
@@ -121,6 +136,12 @@ namespace FramePFX.Timeline.ViewModels.Layer {
 
         public bool DeleteClip(ClipContainerViewModel clip) {
             return this.Clips.Remove(clip);
+        }
+
+        public async Task OnResourceDropped(ResourceItemViewModel resource) {
+            if (resource is ImageResourceViewModel imageResource) {
+                this.CreateImageClip(0, 300, imageResource);
+            }
         }
     }
 }

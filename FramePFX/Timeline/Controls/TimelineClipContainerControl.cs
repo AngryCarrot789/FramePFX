@@ -6,9 +6,10 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using FramePFX.Render;
+using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Timeline.ViewModels.Clips;
 
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Timeline.Controls {
     public class TimelineClipContainerControl : ContentControl, IClipContainerHandle {
         #region Dependency Properties
 
@@ -428,34 +429,39 @@ namespace FramePFX.Timeline.Layer.Clips {
         }
 
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {
-            TimelineUtils.ValidateNonNegative(newZoom);
             if (this.isUpdatingUnitZoom)
                 return;
 
-            this.isUpdatingUnitZoom = true;
-            if (Math.Abs(oldZoom - newZoom) >= TimelineUtils.MinUnitZoom)
+            TimelineUtils.ValidateNonNegative(newZoom);
+            if (Math.Abs(oldZoom - newZoom) >= TimelineUtils.MinUnitZoom) {
+                this.isUpdatingUnitZoom = true;
                 this.UpdatePositionAndSize();
-            this.isUpdatingUnitZoom = false;
+                this.isUpdatingUnitZoom = false;
+            }
         }
 
         private void OnFrameBeginChanged(long oldStart, long newStart) {
-            TimelineUtils.ValidateNonNegative(newStart);
             if (this.isUpdatingFrameBegin)
                 return;
-            this.isUpdatingFrameBegin = true;
-            if (oldStart != newStart)
+
+            TimelineUtils.ValidateNonNegative(newStart);
+            if (oldStart != newStart) {
+                this.isUpdatingFrameBegin = true;
                 this.UpdatePosition();
-            this.isUpdatingFrameBegin = false;
+                this.isUpdatingFrameBegin = false;
+            }
         }
 
         private void OnFrameDurationChanged(long oldDuration, long newDuration) {
-            TimelineUtils.ValidateNonNegative(newDuration);
             if (this.isUpdatingFrameDuration)
                 return;
-            this.isUpdatingFrameDuration = true;
-            if (oldDuration != newDuration)
+
+            TimelineUtils.ValidateNonNegative(newDuration);
+            if (oldDuration != newDuration) {
+                this.isUpdatingFrameDuration = true;
                 this.UpdateSize();
-            this.isUpdatingFrameDuration = false;
+                this.isUpdatingFrameDuration = false;
+            }
         }
 
         private void OnIsSelectedChanged(bool oldSelected, bool newSelected) {

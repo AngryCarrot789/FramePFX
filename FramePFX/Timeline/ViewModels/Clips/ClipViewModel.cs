@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using FramePFX.Core;
-using FramePFX.Timeline.ViewModels.ClipProperties;
 
 namespace FramePFX.Timeline.ViewModels.Clips {
     /// <summary>
@@ -28,10 +25,6 @@ namespace FramePFX.Timeline.ViewModels.Clips {
                 clip.Container = container;
                 // clip.OnAddedToContainer(container);
             }
-        }
-
-        public virtual void AccumulatePropertyGroups(ICollection<PropertyGroupViewModel> list) {
-
         }
     }
 }

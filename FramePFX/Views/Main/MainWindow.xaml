@@ -14,7 +14,7 @@
         xmlns:s="clr-namespace:FramePFX.Shortcuts"
         xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
         xmlns:clips1="clr-namespace:FramePFX.Timeline.ViewModels.Clips"
-        xmlns:resizable="clr-namespace:FramePFX.Timeline.ViewModels.ClipProperties.Resizable"
+        xmlns:controls="clr-namespace:FramePFX.Timeline.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:VideoEditorViewModel}"
         Title="Bootleg sony vegas" Width="1408" Height="792"
@@ -145,31 +145,7 @@
                             </Grid>
                             -->
                             <Grid>
-                                <ItemsControl ItemsSource="{Binding Timeline.GeneratedProperties}">
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="{x:Type ContentPresenter}">
-                                            <Setter Property="Margin" Value="2"/>
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-                                    <ItemsControl.Resources>
-                                        <DataTemplate DataType="{x:Type resizable:ResizablePropertyGroupViewModel}">
-                                            <StackPanel HorizontalAlignment="Stretch">
-                                                <Slider Height="32" Value="{Binding ShapeX}" Minimum="0" Maximum="1920" HorizontalAlignment="Stretch" AutoToolTipPlacement="TopLeft"/>
-                                                <Slider Height="32" Value="{Binding ShapeY}" Minimum="0" Maximum="1080" HorizontalAlignment="Stretch" AutoToolTipPlacement="TopLeft"/>
-                                                <Slider Height="32" Value="{Binding ShapeWidth}" Minimum="0" Maximum="1920" HorizontalAlignment="Stretch" AutoToolTipPlacement="TopLeft"/>
-                                                <Slider Height="32" Value="{Binding ShapeHeight}" Minimum="0" Maximum="1080" HorizontalAlignment="Stretch" AutoToolTipPlacement="TopLeft"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                        <DataTemplate DataType="{x:Type resizable:ShapePropertyGroupViewModel}">
-                                            <StackPanel HorizontalAlignment="Stretch">
-                                                <Slider Height="32" Value="{Binding R}" Minimum="0" Maximum="1" SmallChange="0.001" LargeChange="0.1" TickFrequency="0.05" HorizontalAlignment="Stretch"/>
-                                                <Slider Height="32" Value="{Binding G}" Minimum="0" Maximum="1" SmallChange="0.001" LargeChange="0.1" TickFrequency="0.05" HorizontalAlignment="Stretch"/>
-                                                <Slider Height="32" Value="{Binding B}" Minimum="0" Maximum="1" SmallChange="0.001" LargeChange="0.1" TickFrequency="0.05" HorizontalAlignment="Stretch"/>
-                                                <Slider Height="32" Value="{Binding A}" Minimum="0" Maximum="1" SmallChange="0.001" LargeChange="0.1" TickFrequency="0.05" HorizontalAlignment="Stretch"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.Resources>
-                                </ItemsControl>
+
                             </Grid>
                         </TabItem>
                     </TabControl>
@@ -247,7 +223,7 @@
                             </ItemsControl.ItemTemplate>
                         </ListBox>
                         <Border BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
-                        <timeline:TimelineControl x:Name="TheTimeline"
+                        <controls:TimelineControl x:Name="TheTimeline"
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0"
                                                   BorderBrush="{DynamicResource AREghZyBrush.Deep.2.Border.Static}"
@@ -256,8 +232,8 @@
                             <UIElement.InputBindings>
                                 <sb:ShortcutBinding ShortcutAndUsageId="Application/Timeline/Surface/DeleteSelectClips" Command="{Binding DeleteSelectedClipsCommand}"/>
                             </UIElement.InputBindings>
-                            <timeline:TimelineControl.Style>
-                                <Style TargetType="{x:Type timeline:TimelineControl}">
+                            <controls:TimelineControl.Style>
+                                <Style TargetType="{x:Type controls:TimelineControl}">
                                     <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"/>
                                     <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
                                     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
@@ -265,7 +241,7 @@
                                     <Setter Property="ScrollViewer.PanningMode" Value="Both" />
                                     <Setter Property="Template">
                                         <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type timeline:TimelineControl}">
+                                            <ControlTemplate TargetType="{x:Type controls:TimelineControl}">
                                                 <Grid>
                                                     <Border Background="{DynamicResource AREghZyBrush.Deep.1.Background.Static}"/>
                                                     <!-- A collection of TimelineLayerControls -->
@@ -283,7 +259,7 @@
                                                                 <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                                             </Border>
                                                             <Border Grid.Row="0" x:Name="PART_TimestampBoard" Margin="0" VerticalAlignment="Stretch" BorderThickness="0 0 0 1" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.1.Border.Static}"/>
-                                                            <timeline:TimelinePlayHeadControl x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2"
+                                                            <controls:TimelinePlayHeadControl x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2"
                                                                                               VerticalAlignment="Stretch"
                                                                                               VerticalContentAlignment="Stretch"
                                                                                               HorizontalAlignment="Left"
@@ -297,13 +273,14 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Style>
-                            </timeline:TimelineControl.Style>
-                            <timeline:TimelineControl.ItemContainerStyle>
-                                <Style TargetType="{x:Type layer:TimelineLayerControl}">
+                            </controls:TimelineControl.Style>
+                            <controls:TimelineControl.ItemContainerStyle>
+                                <Style TargetType="{x:Type controls:TimelineLayerControl}">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
                                     <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Setter Property="ResourceDropNotifier" Value="{Binding}"/>
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="ItemsSource" Value="{Binding Clips, Mode=OneTime}"/>
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
@@ -311,7 +288,7 @@
                                     <Setter Property="Focusable" Value="True"/>
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
-                                            <Style TargetType="{x:Type clips:TimelineClipContainerControl}">
+                                            <Style TargetType="{x:Type controls:TimelineClipContainerControl}">
                                                 <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
                                                 <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
@@ -325,7 +302,7 @@
                                                 <Setter Property="Content" Value="{Binding Content}"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
-                                                        <ControlTemplate TargetType="{x:Type clips:TimelineClipContainerControl}">
+                                                        <ControlTemplate TargetType="{x:Type controls:TimelineClipContainerControl}">
                                                             <Grid d:DataContext="{d:DesignInstance clips1:ClipContainerViewModel}" acs:AdvancedContextMenu.ContextProvider="{Binding}">
                                                                 <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
                                                                     <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">
@@ -361,7 +338,7 @@
                                     </Setter>
                                     <Setter Property="Template">
                                         <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type layer:TimelineLayerControl}">
+                                            <ControlTemplate TargetType="{x:Type controls:TimelineLayerControl}">
                                                 <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
                                                     <!--
                                                         IsItemHost must be true in order for it's items
@@ -373,8 +350,8 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Style>
-                            </timeline:TimelineControl.ItemContainerStyle>
-                        </timeline:TimelineControl>
+                            </controls:TimelineControl.ItemContainerStyle>
+                        </controls:TimelineControl>
                         <GridSplitter Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>

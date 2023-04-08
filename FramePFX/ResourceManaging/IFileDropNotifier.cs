@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
+
 namespace FramePFX.ResourceManaging {
     public interface IFileDropNotifier {
-        void OnFilesDropped(string[] files);
+        Task OnFilesDropped(string[] files);
     }
 }

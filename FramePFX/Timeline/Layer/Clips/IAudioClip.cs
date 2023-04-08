@@ -1,5 +1,5 @@
 namespace FramePFX.Timeline.Layer.Clips {
-    public interface IAudioClip {
+    public interface IAudioClip : IClip {
         void RenderAudioSomehow();
     }
 }

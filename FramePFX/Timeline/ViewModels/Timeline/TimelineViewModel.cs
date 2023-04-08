@@ -7,7 +7,6 @@ using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Project;
-using FramePFX.Timeline.ViewModels.ClipProperties;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 
@@ -33,12 +32,16 @@ namespace FramePFX.Timeline.ViewModels.Timeline {
             set => this.RaisePropertyChanged(ref this.selectedLayer, value);
         }
 
-        public ObservableCollection<PropertyGroupViewModel> GeneratedProperties { get; }
-
         private ClipViewModel mainSelectedClip;
         public ClipViewModel MainSelectedClip {
             get => this.mainSelectedClip;
             set => this.RaisePropertyChanged(ref this.mainSelectedClip, value);
+        }
+
+        private ClipViewModel clipToModify;
+        public ClipViewModel ClipToModify {
+            get => this.clipToModify;
+            set => this.RaisePropertyChanged(ref this.clipToModify, value);
         }
 
         /// <summary>
@@ -95,7 +98,6 @@ namespace FramePFX.Timeline.ViewModels.Timeline {
             this.Project = project;
             this.layers = new ObservableCollection<LayerViewModel>();
             this.Layers = new ReadOnlyObservableCollection<LayerViewModel>(this.layers);
-            this.GeneratedProperties = new ObservableCollection<PropertyGroupViewModel>();
             this.renderDispatch = new RapidDispatchCallback(this.RenderViewPortAndMarkNotDirty) {
                 InvokeLater = true
             };
@@ -128,11 +130,6 @@ namespace FramePFX.Timeline.ViewModels.Timeline {
             // foreach (PropertyGroupViewModel entry in common) {
             //     this.GeneratedProperties.Add(entry);
             // }
-
-            this.GeneratedProperties.Clear();
-            if (clips.Count == 1) {
-                clips[0].Content?.AccumulatePropertyGroups(this.GeneratedProperties);
-            }
         }
 
         public void DeleteSelectedLayerAction() {

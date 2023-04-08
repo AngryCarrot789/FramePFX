@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Windows.Controls;
-using System.Windows;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using FramePFX.Timeline.Layer;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
-using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Timeline.New;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 using FramePFX.Timeline.ViewModels.Timeline;
 
-namespace FramePFX.Timeline {
+namespace FramePFX.Timeline.Controls {
     public class TimelineControl : ItemsControl, ITimelineHandle {
 
         #region Dependency Properties

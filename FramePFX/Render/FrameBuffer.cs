@@ -27,7 +27,7 @@ namespace FramePFX.Render {
             this.txId = txt_id;
         }
 
-        public static FrameBuffer Create(int width, int height) {
+        public static FrameBuffer Create(int width, int height, IntPtr data) {
             int framebufferId = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
 

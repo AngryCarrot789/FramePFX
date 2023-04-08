@@ -37,6 +37,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -44,9 +45,34 @@
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero2" />
+    <Reference Include="SixLabors.ImageSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13">
+      <HintPath>..\packages\SixLabors.ImageSharp.2.1.4\lib\net472\SixLabors.ImageSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.5.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -78,6 +104,7 @@
     <Compile Include="Converters\MouseStrokeRepresentationConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\ShortcutPathToInputGestureTextConverter.cs" />
+    <Compile Include="DispatcherDelegate.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Project\ProjectViewModel.cs" />
     <Compile Include="Render\DispatchReceiver.cs" />
@@ -88,14 +115,14 @@
     <Compile Include="Render\OGLRenderContext.cs" />
     <Compile Include="Render\OGLUtils.cs" />
     <Compile Include="Render\OGLViewportControl.cs" />
+    <Compile Include="Render\Texture.cs" />
     <Compile Include="ResourceManaging\IFileDropNotifier.cs" />
     <Compile Include="ResourceManaging\IResourceListHandle.cs" />
-    <Compile Include="ResourceManaging\Items\INativeImageResource.cs" />
     <Compile Include="ResourceManaging\Items\INativeResource.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceImageViewModel.cs" />
     <Compile Include="ResourceManaging\Items\ResourceColourViewModel.cs" />
     <Compile Include="ResourceManaging\ResourceItemViewModel.cs" />
     <Compile Include="ResourceManaging\ResourceManagerViewModel.cs" />
+    <Compile Include="ResourceManaging\VideoResources\ImageResourceViewModel.cs" />
     <Compile Include="Shortcuts\AppShortcutManager.cs" />
     <Compile Include="Shortcuts\AppShortcutProcessor.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
@@ -109,28 +136,37 @@
     <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
     <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
     <Compile Include="Themes\Attached\TextHinting.cs" />
+    <Compile Include="Timeline\Controls\TimelineClipContainerControl.cs" />
+    <Compile Include="Timeline\Controls\TimelineControl.cs" />
+    <Compile Include="Timeline\Controls\TimelineLayerControl.cs" />
+    <Compile Include="Timeline\Controls\TimelinePlayHeadControl.cs" />
     <Compile Include="Timeline\FrameSpan.cs" />
+    <Compile Include="Timeline\IHasZoom.cs" />
     <Compile Include="Timeline\IPlayHeadHandle.cs" />
+    <Compile Include="Timeline\IResourceDropNotifier.cs" />
     <Compile Include="Timeline\ITimelineHandle.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipDragData.cs" />
     <Compile Include="Timeline\Layer\Clips\ClipType.cs" />
     <Compile Include="Timeline\Layer\Clips\IAudioClip.cs" />
+    <Compile Include="Timeline\Layer\Clips\IClip.cs" />
     <Compile Include="Timeline\Layer\Clips\IClipContainerHandle.cs" />
     <Compile Include="Timeline\Layer\Clips\IVideoClip.cs" />
-    <Compile Include="Timeline\Layer\Clips\TimelineClipContainerControl.cs" />
     <Compile Include="Timeline\Layer\ILayerHandle.cs" />
+    <Compile Include="Timeline\New\IClip.cs" />
+    <Compile Include="Timeline\New\IClipContainer.cs" />
+    <Compile Include="Timeline\New\ITimeline.cs" />
     <Compile Include="Timeline\TimelineUtils.cs" />
-    <Compile Include="Timeline\ViewModels\ClipProperties\PropertyGroupViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\ClipProperties\Resizable\ResizablePropertyGroupViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\ClipProperties\Resizable\ShapePropertyGroupViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\ClipContainerViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\ClipViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\IAcceptResource.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\Resizable\ImageClipViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeClipViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\Resizable\ResizableVideoClipViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\Resizable\PositionableClipViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\VideoClipViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Layer\LayerViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Timeline\TimelineViewModel.cs" />
     <Compile Include="Utils\CASLock.cs" />
+    <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="VideoEditorViewModel.cs" />
     <Compile Include="PlaybackViewportViewModel.cs" />
@@ -144,11 +180,7 @@
     <Compile Include="Themes\ThemeTypes.cs" />
     <Compile Include="Timeline\ICGenUtils.cs" />
     <Compile Include="Timeline\Layer\IndexMap.cs" />
-    <Compile Include="Timeline\Layer\TimelineLayerControl.cs" />
-    <Compile Include="Timeline\TimelineControl.cs" />
     <Compile Include="Timeline\TimelineClipDragData.cs" />
-    <Compile Include="Timeline\TimelinePlayHeadControl.cs" />
-    <Compile Include="Timeline\TimelineScrollViewer.cs" />
     <Compile Include="Utils\CASLock__OLD.cs" />
     <Compile Include="Utils\CASLockType_OLD.cs" />
     <Compile Include="Utils\NumberAverager.cs" />

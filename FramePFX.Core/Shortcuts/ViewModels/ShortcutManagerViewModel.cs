@@ -1,7 +1,6 @@
-using FramePFX.Core.Shortcuts.Dialogs;
-using FramePFX.Core.Shortcuts.Managing;
+using SharpPadV2.Core.Shortcuts.Managing;
 
-namespace FramePFX.Core.Shortcuts.ViewModels {
+namespace SharpPadV2.Core.Shortcuts.ViewModels {
     public class ShortcutManagerViewModel : BaseViewModel {
         private ShortcutGroupViewModel root;
         public ShortcutGroupViewModel Root {
@@ -9,10 +8,8 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             set => this.RaisePropertyChanged(ref this.root, value);
         }
 
-        public IKeyboardDialogService DialogService { get; }
+        public ShortcutManagerViewModel() {
 
-        public ShortcutManagerViewModel(IKeyboardDialogService dialogService) {
-            this.DialogService = dialogService;
         }
 
         public void LoadFromRoot(ShortcutGroup group) {

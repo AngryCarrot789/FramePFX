@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Core {
+namespace SharpPadV2.Core {
     public class SimpleIoC {
         private readonly Dictionary<Type, object> services;
 

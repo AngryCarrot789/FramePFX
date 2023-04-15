@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace SharpPadV2.Core.Shortcuts.Usage {
     public class MouseShortcutUsage : IMouseShortcutUsage {
         private LinkedListNode<MouseStroke> currentStroke;
         // private int clickCounter;

@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Serialization;
+using SharpPadV2.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Serialization;
+using SharpPadV2.Core.Utils;
 
-namespace FramePFX.Core.Shortcuts.Managing {
+namespace SharpPadV2.Core.Shortcuts.Managing {
     /// <summary>
     /// A collection of shortcuts
     /// </summary>
-    public class ShortcutGroup {
+    public sealed class ShortcutGroup {
+        public const char SeparatorChar = '/';
+        public const string SeparatorCharString = "/";
+
         private readonly List<ShortcutGroup> groups;
-        private readonly List<ManagedShortcut> shortcuts;
+        private readonly List<GroupedShortcut> shortcuts;
         private readonly Dictionary<string, object> mapToItem;
 
         public ShortcutGroup Parent { get; }
@@ -18,12 +22,17 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// This group's full path (containing the parent's path and this group's name into one).
         /// It will either be null (meaning no parent), or a non-empty string. It will also never consist of only whitespaces
         /// </summary>
-        public string FocusGroupPath { get; }
+        public string FullPath { get; }
 
         /// <summary>
         /// This group's name. It will either be null (meaning no parent), or a non-empty string. It will also never consist of only whitespaces
         /// </summary>
-        public string FocusGroupName { get; }
+        public string Name { get; }
+
+        /// <summary>
+        /// This group's display name, which is a more readable and user-friendly version of <see cref="Name"/>
+        /// </summary>
+        public string DisplayName { get; set; }
 
         /// <summary>
         /// A description of what this group contains
@@ -43,7 +52,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// <summary>
         /// All shortcuts in this focus group
         /// </summary>
-        public IEnumerable<ManagedShortcut> Shortcuts => this.shortcuts;
+        public IEnumerable<GroupedShortcut> Shortcuts => this.shortcuts;
 
         /// <summary>
         /// All child-groups in this focus group
@@ -51,13 +60,13 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public IEnumerable<ShortcutGroup> Groups => this.groups;
 
         public ShortcutGroup(ShortcutGroup parent, string name, bool isGlobal = false, bool inherit = false) {
-            this.FocusGroupPath = (parent != null && name != null) ? parent.GetPathForName(name) : name;
-            this.FocusGroupName = name;
+            this.FullPath = (parent != null && name != null) ? parent.GetPathForName(name) : name;
+            this.Name = name;
             this.InheritFromParent = inherit;
             this.IsGlobal = isGlobal;
             this.Parent = parent;
             this.groups = new List<ShortcutGroup>();
-            this.shortcuts = new List<ManagedShortcut>();
+            this.shortcuts = new List<GroupedShortcut>();
             this.mapToItem = new Dictionary<string, object>();
         }
 
@@ -67,29 +76,29 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
         public string GetPathForName(string name) {
             ValidateName(name);
-            return this.FocusGroupPath != null ? (this.FocusGroupPath + '/' + name) : name;
+            return this.FullPath != null ? StringUtils.Join(this.FullPath, name, SeparatorChar) : name;
         }
 
         public ShortcutGroup CreateGroupByName(string name, bool isGlobal = false, bool inherit = false) {
             ValidateName(name, "Group name cannot be null or consist of only whitespaces");
             this.ValidateNameNotInUse(name);
             ShortcutGroup group = new ShortcutGroup(this, name, isGlobal, inherit);
-            this.mapToItem[group.FocusGroupName] = group;
+            this.mapToItem[group.Name] = group;
             this.groups.Add(group);
             return group;
         }
 
         public void AddGroup(ShortcutGroup group) {
-            ValidateName(group.FocusGroupName, "Group name cannot be null or consist of only whitespaces");
-            this.ValidateNameNotInUse(group.FocusGroupName);
-            this.mapToItem[group.FocusGroupName] = group;
+            ValidateName(group.Name, "Group name cannot be null or consist of only whitespaces");
+            this.ValidateNameNotInUse(group.Name);
+            this.mapToItem[group.Name] = group;
             this.groups.Add(group);
         }
 
-        public ManagedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false) {
+        public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false) {
             ValidateName(name, "Shortcut name cannot be null or consist of only whitespaces");
             this.ValidateNameNotInUse(name);
-            ManagedShortcut managed = new ManagedShortcut(this, name, shortcut, isGlobal);
+            GroupedShortcut managed = new GroupedShortcut(this, name, shortcut, isGlobal);
             this.mapToItem[name] = managed;
             this.shortcuts.Add(managed);
             return managed;
@@ -103,25 +112,25 @@ namespace FramePFX.Core.Shortcuts.Managing {
             return this.mapToItem.TryGetValue(name, out object value) && value is ShortcutGroup;
         }
 
-        public List<ManagedShortcut> GetShortcutsWithPrimaryStroke(IInputStroke stroke, string focus) {
-            List<ManagedShortcut> list = new List<ManagedShortcut>();
+        public List<GroupedShortcut> GetShortcutsWithPrimaryStroke(IInputStroke stroke, string focus) {
+            List<GroupedShortcut> list = new List<GroupedShortcut>();
             this.CollectShortcutsWithPrimaryStroke(stroke, focus, list);
             return list;
         }
 
-        public void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focus, ICollection<ManagedShortcut> list) {
+        public void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focus, ICollection<GroupedShortcut> list) {
             this.CollectShortcutsInternal(stroke, string.IsNullOrWhiteSpace(focus) ? null : focus, list);
         }
 
-        private void CollectShortcutsInternal(IInputStroke stroke, string focus, ICollection<ManagedShortcut> list) {
+        private void CollectShortcutsInternal(IInputStroke stroke, string focus, ICollection<GroupedShortcut> list) {
             foreach (ShortcutGroup group in this.Groups) {
                 group.CollectShortcutsInternal(stroke, focus, list);
             }
 
             bool requireGlobal = !this.IsGlobal && !this.IsValidSearchForGroup(focus);
-            foreach (ManagedShortcut shortcut in this.shortcuts) {
+            foreach (GroupedShortcut shortcut in this.shortcuts) {
                 if (!requireGlobal || shortcut.IsGlobal) {
-                    if (shortcut.Shortcut != null && !shortcut.Shortcut.IsEmpty && shortcut.Shortcut.PrimaryStroke.Equals(stroke)) {
+                    if (shortcut.Shortcut != null && !shortcut.Shortcut.IsEmpty && shortcut.Shortcut.IsPrimaryStroke(stroke)) {
                         list.Add(shortcut);
                     }
                 }
@@ -129,15 +138,32 @@ namespace FramePFX.Core.Shortcuts.Managing {
         }
 
         private bool IsValidSearchForGroup(string focusedGroup) {
-            return IsValidSearchForGroup(this.FocusGroupPath, focusedGroup, this.InheritFromParent);
+            return IsValidSearchForGroup(this.FullPath, focusedGroup, this.InheritFromParent);
         }
 
         private static bool IsValidSearchForGroup(string path, string focused, bool inherit) {
             return path != null && focused != null && (inherit ? focused.StartsWith(path) : focused.Equals(path));
-            // return path != null && focused != null && focused.StartsWith(path);
+        }
+
+        public GroupedShortcut FindFirstShortcutByAction(string actionId) {
+            foreach (GroupedShortcut shortcut in this.shortcuts) {
+                if (actionId.Equals(shortcut.ActionId)) {
+                    return shortcut;
+                }
+            }
+
+            foreach (ShortcutGroup group in this.Groups) {
+                GroupedShortcut result = group.FindFirstShortcutByAction(actionId);
+                if (result != null) {
+                    return result;
+                }
+            }
+
+            return null;
         }
 
         public ShortcutGroup GetGroupByName(string name) {
+            ValidateName(name);
             return this.mapToItem.TryGetValue(name, out object value) ? value as ShortcutGroup : null;
         }
 
@@ -146,8 +172,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 return null;
             }
 
-            int split = path.LastIndexOf('/');
-            return split == -1 ? this.GetGroupByName(path) : this.GetGroupByPath(path.Split('/'));
+            int split = path.LastIndexOf(SeparatorChar);
+            return split == -1 ? this.GetGroupByName(path) : this.GetGroupByPath(path.Split(SeparatorChar));
         }
 
         public ShortcutGroup GetGroupByPath(string[] path) {
@@ -170,24 +196,25 @@ namespace FramePFX.Core.Shortcuts.Managing {
             return root;
         }
 
-        public ManagedShortcut GetShortcutByName(string name) {
-            return this.mapToItem.TryGetValue(name, out object value) ? value as ManagedShortcut : null;
+        public GroupedShortcut GetShortcutByName(string name) {
+            ValidateName(name);
+            return this.mapToItem.TryGetValue(name, out object value) ? value as GroupedShortcut : null;
         }
 
-        public ManagedShortcut GetShortcutByPath(string path) {
+        public GroupedShortcut GetShortcutByPath(string path) {
             if (string.IsNullOrWhiteSpace(path)) {
                 return null;
             }
 
-            int split = path.LastIndexOf('/');
-            return split == -1 ? this.GetShortcutByName(path) : this.GetShortcutByPath(path.Split('/'));
+            int split = path.LastIndexOf(SeparatorChar);
+            return split == -1 ? this.GetShortcutByName(path) : this.GetShortcutByPath(path.Split(SeparatorChar));
         }
 
-        public ManagedShortcut GetShortcutByPath(string[] path) {
+        public GroupedShortcut GetShortcutByPath(string[] path) {
             return this.GetShortcutByPath(path, 0, path.Length);
         }
 
-        public ManagedShortcut GetShortcutByPath(string[] path, int startIndex, int endIndex) {
+        public GroupedShortcut GetShortcutByPath(string[] path, int startIndex, int endIndex) {
             if (path == null || (endIndex - startIndex) == 0) {
                 return null;
             }
@@ -221,8 +248,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
         private void ValidateNameNotInUse(string name) {
             if (this.mapToItem.ContainsKey(name)) {
-                string path = this.FocusGroupPath != null ? (this.FocusGroupPath + '/' + name) : name;
-                throw new Exception("Group or shortcut already exists with name: " + path);
+                string path = this.FullPath != null ? StringUtils.Join(this.FullPath, name, SeparatorChar) : name;
+                throw new Exception($"Group or shortcut already exists with name: '{path}'");
             }
         }
     }

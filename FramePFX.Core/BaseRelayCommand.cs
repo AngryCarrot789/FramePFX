@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Input;
 
-namespace FramePFX.Core {
+namespace SharpPadV2.Core {
     /// <summary>
     /// A base relay command class, that implements ICommand, and also has a simple
     /// implementation for dealing with the <see cref="CanExecuteChanged"/> event handler
@@ -27,6 +27,18 @@ namespace FramePFX.Core {
         /// <param name="canExecute">The execution status logic</param>
         protected BaseRelayCommand() {
             this.isEnabled = true;
+        }
+
+        protected static object GetConvertedParameter<T>(object value) {
+            if (value is IConvertible convertible) {
+                return convertible.ToType(typeof(T), null);
+            }
+            else if (value == null) {
+                return default(T);
+            }
+            else {
+                throw new Exception("Parameter is not convertable: " + value);
+            }
         }
 
         public abstract void Execute(object parameter);

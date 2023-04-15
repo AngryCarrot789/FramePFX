@@ -1,14 +1,14 @@
 using System;
 using System.Text;
 
-namespace FramePFX.Core.Shortcuts.Inputs {
+namespace SharpPadV2.Core.Shortcuts.Inputs {
     /// <summary>
     /// Represents a key stroke, as in, a key press or release which may have modifier keys present
     /// <para>
     /// KeyStrokes typically do not represent modifier key strokes, meaning <see cref="KeyCode"/> would not equal the key code for SHIFT, CTRL, ALT, etc
     /// </para>
     /// </summary>
-    public readonly struct KeyStroke : IInputStroke, IEquatable<KeyStroke> {
+    public readonly struct KeyStroke : IInputStroke {
         /// <summary>
         /// A non-null function for converting a key code into a string representation
         /// </summary>
@@ -17,7 +17,7 @@ namespace FramePFX.Core.Shortcuts.Inputs {
         /// <summary>
         /// A non-null function for converting a keyboard modifier flag set into a string representation
         /// </summary>
-        public static Func<int, string> ModifierToStringProvider { get; set; } = (x) => new StringBuilder(16).Append("MOD(").Append(x).Append(')').ToString();
+        public static Func<int, bool, string> ModifierToStringProvider { get; set; } = (x, s) => new StringBuilder(16).Append("MOD(").Append(x).Append(')').ToString();
 
         /// <summary>
         /// The key code involved (cannot be a modifier key). This key code is relative to whatever key system the platform is running on
@@ -49,6 +49,10 @@ namespace FramePFX.Core.Shortcuts.Inputs {
             this.IsKeyRelease = isKeyRelease;
         }
 
+        public bool Equals(IInputStroke stroke) {
+            return stroke is KeyStroke other && this.Equals(other);
+        }
+
         public bool Equals(KeyStroke stroke) {
             return this.KeyCode == stroke.KeyCode && this.Modifiers == stroke.Modifiers && this.IsKeyRelease == stroke.IsKeyRelease;
         }
@@ -67,14 +71,26 @@ namespace FramePFX.Core.Shortcuts.Inputs {
         }
 
         public override string ToString() {
+            return this.ToString(false, true);
+        }
+
+        public string ToString(bool appendIsReleaseOnly, bool useSpacers) {
             StringBuilder sb = new StringBuilder();
-            string mod = ModifierToStringProvider(this.Modifiers);
+            string mod = ModifierToStringProvider(this.Modifiers, useSpacers);
             if (mod.Length > 0) {
-                sb.Append(mod).Append(" + ");
+                sb.Append(mod).Append(useSpacers ? " + " : "+");
             }
 
-            sb.Append(KeyCodeToStringProvider(this.KeyCode)).Append(' ');
-            sb.Append(this.IsKeyRelease ? "(Release)" : "(Press)").Append(' ');
+            sb.Append(KeyCodeToStringProvider(this.KeyCode));
+            if (appendIsReleaseOnly) {
+                if (this.IsKeyRelease) {
+                    sb.Append(" (Release)");
+                }
+            }
+            else {
+                sb.Append(this.IsKeyRelease ? " (Release)" : " (Press)");
+            }
+
             return sb.ToString();
         }
     }

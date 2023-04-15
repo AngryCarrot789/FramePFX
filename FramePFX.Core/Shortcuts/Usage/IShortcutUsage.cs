@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace SharpPadV2.Core.Shortcuts.Usage {
     public interface IShortcutUsage {
         /// <summary>
         /// A reference to the shortcut that created this instance
@@ -9,17 +9,24 @@ namespace FramePFX.Core.Shortcuts.Usage {
         IShortcut Shortcut { get; }
 
         /// <summary>
-        /// Whether this input usage has been completed and is ready to be activated
+        /// Whether this input usage has been completed and is ready to be activated or cancelled (<see cref="CurrentStroke"/> will be null
+        /// and <see cref="PreviousStroke"/> will be the last input stroke for this shortcut usage)
         /// </summary>
         bool IsCompleted { get; }
 
         /// <summary>
-        /// The input stroke that was previously the <see cref="CurrentStroke"/> before it was progressed. Given 3 inputs, A, B and C, when <see cref="CurrentStroke"/> is B, <see cref="PreviousStroke"/> is A
+        /// The input stroke that was previously the <see cref="CurrentStroke"/> before it was progressed
+        /// <para>
+        /// Given a shortcut with 3 inputs: A, B and C, <see cref="CurrentStroke"/> and <see cref="PreviousStroke"/> will never be A, and <see cref="PreviousStroke"/> will be null if <see cref="CurrentStroke"/> is B, but <see cref="PreviousStroke"/> will be B if <see cref="CurrentStroke"/> is C
+        /// </para>
         /// </summary>
         IInputStroke PreviousStroke { get; }
 
         /// <summary>
         /// The input stroke that is required to be input next in order for this usage to be progressed successfully
+        /// <para>
+        /// Given a shortcut with 3 inputs: A, B and C, <see cref="CurrentStroke"/> will never be A, but it may be B or C
+        /// </para>
         /// </summary>
         IInputStroke CurrentStroke { get; }
 
@@ -39,9 +46,9 @@ namespace FramePFX.Core.Shortcuts.Usage {
         bool IsCurrentStrokeKeyBased { get; }
 
         /// <summary>
-        /// Attempts to move the current stroke to the next stroke in the sequence. If this usage is already
-        /// completed (<see cref="IsCompleted"/>), then true is returned. If the current stroke matches
-        /// the input stroke, then true is returned. Otherwise, false is returned
+        /// Attempts to progress current stroke to the next stroke in the sequence. If this usage is already
+        /// completed (<see cref="IShortcutUsage.IsCompleted"/>), then true is returned. If the current stroke matches
+        /// the input stroke, then the current stroke is progressed and true is returned. Otherwise, false is returned
         /// </summary>
         /// <param name="stroke"></param>
         /// <returns>

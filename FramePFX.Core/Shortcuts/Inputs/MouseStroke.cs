@@ -1,8 +1,8 @@
 using System;
 using System.Text;
 
-namespace FramePFX.Core.Shortcuts.Inputs {
-    public readonly struct MouseStroke : IInputStroke, IEquatable<MouseStroke> {
+namespace SharpPadV2.Core.Shortcuts.Inputs {
+    public readonly struct MouseStroke : IInputStroke {
         /// <summary>
         /// A non-null function for converting a mouse button into a string representation
         /// </summary>
@@ -11,7 +11,7 @@ namespace FramePFX.Core.Shortcuts.Inputs {
         /// <summary>
         /// A non-null function for converting a keyboard modifier flag set into a string representation
         /// </summary>
-        public static Func<int, string> ModifierToStringProvider { get; set; } = (x) => new StringBuilder(16).Append("MOD(").Append(x).Append(')').ToString();
+        public static Func<int, bool, string> ModifierToStringProvider { get; set; } = (x, s) => new StringBuilder(16).Append("MOD(").Append(x).Append(')').ToString();
 
         /// <summary>
         /// The mouse button that was clicked. Special care must be taken for mouse wheel inputs
@@ -53,7 +53,7 @@ namespace FramePFX.Core.Shortcuts.Inputs {
 
         public bool IsMouse => true;
 
-        public MouseStroke(int mouseButton, int modifiers, int clickCount = 1, int wheelDelta = 0, int customParam = 0) {
+        public MouseStroke(int mouseButton, int modifiers, int clickCount = -1, int wheelDelta = 0, int customParam = 0) {
             this.MouseButton = mouseButton;
             this.Modifiers = modifiers;
             this.ClickCount = clickCount;
@@ -61,19 +61,27 @@ namespace FramePFX.Core.Shortcuts.Inputs {
             this.CustomParam = customParam;
         }
 
-        public bool Equals(MouseStroke other) {
-            return this.MouseButton == other.MouseButton && this.Modifiers == other.Modifiers &&
-                   this.ClickCount == other.ClickCount && this.WheelDelta == other.WheelDelta &&
-                   this.CustomParam == other.CustomParam;
+        public bool Equals(IInputStroke stroke) {
+            return stroke is MouseStroke other && this.Equals(other);
         }
 
         public override bool Equals(object obj) {
             return obj is MouseStroke other && this.Equals(other);
         }
 
+        public bool Equals(MouseStroke other) {
+            return this.MouseButton == other.MouseButton &&
+                   this.Modifiers == other.Modifiers &&
+                   (this.ClickCount == -1 || other.ClickCount == -1 || this.ClickCount == other.ClickCount) &&
+                   this.WheelDelta == other.WheelDelta &&
+                   this.CustomParam == other.CustomParam;
+        }
+
         public bool EqualsWithoutClick(MouseStroke other) {
-            return this.MouseButton == other.MouseButton && this.Modifiers == other.Modifiers &&
-                   this.WheelDelta == other.WheelDelta && this.CustomParam == other.CustomParam;
+            return this.MouseButton == other.MouseButton &&
+                   this.Modifiers == other.Modifiers &&
+                   this.WheelDelta == other.WheelDelta &&
+                   this.CustomParam == other.CustomParam;
         }
 
         public override int GetHashCode() {
@@ -88,15 +96,22 @@ namespace FramePFX.Core.Shortcuts.Inputs {
         }
 
         public override string ToString() {
+            return this.ToString(true, true, true);
+        }
+
+        public string ToString(bool appendClickCount, bool appendDelta, bool useSpacers) {
             StringBuilder sb = new StringBuilder();
-            string mod = ModifierToStringProvider(this.Modifiers);
+            string mod = ModifierToStringProvider(this.Modifiers, useSpacers);
             if (mod.Length > 0) {
-                sb.Append(mod).Append(' ');
+                sb.Append(mod).Append(useSpacers ? " + " : "+");
             }
 
-            sb.Append(MouseButtonToStringProvider(this.MouseButton)).Append(' ');
-            sb.Append("(x").Append(this.ClickCount).Append(')');
-            if (this.WheelDelta != 0) {
+            sb.Append(MouseButtonToStringProvider(this.MouseButton));
+            if (appendClickCount && this.ClickCount >= 0) {
+                sb.Append(" (x").Append(this.ClickCount).Append(')');
+            }
+
+            if (appendDelta && this.WheelDelta != 0) {
                 sb.Append(" (ROT ").Append(this.WheelDelta).Append(')');
             }
 

@@ -1,6 +1,6 @@
-using FramePFX.Core.AdvancedContextService.Base;
+using SharpPadV2.Core.AdvancedContextService.Base;
 
-namespace FramePFX.Core.AdvancedContextService {
+namespace SharpPadV2.Core.AdvancedContextService {
     /// <summary>
     /// A separator element between menu items
     /// </summary>

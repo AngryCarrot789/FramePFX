@@ -1,14 +1,18 @@
 using System.Threading.Tasks;
-using FramePFX.Core.Views.ViewModels;
+using SharpPadV2.Core.Views.ViewModels;
 
-namespace FramePFX.Core.Views.Dialogs {
-    public abstract class BaseConfirmableDialogViewModel : BaseDialogViewModel {
+namespace SharpPadV2.Core.Views.Dialogs {
+    public class BaseConfirmableDialogViewModel : BaseDialogViewModel {
         public RelayCommand ConfirmCommand { get; }
         public RelayCommand CancelCommand { get; }
 
-        protected BaseConfirmableDialogViewModel(IDialog dialog) : base(dialog) {
+        public BaseConfirmableDialogViewModel() {
             this.ConfirmCommand = new RelayCommand(async () => await this.ConfirmAction());
             this.CancelCommand = new RelayCommand(async () => await this.CancelAction());
+        }
+
+        public BaseConfirmableDialogViewModel(IDialog dialog) : this() {
+            this.Dialog = dialog;
         }
 
         public virtual async Task ConfirmAction() {

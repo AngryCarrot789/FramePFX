@@ -2,10 +2,19 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
-                    xmlns:acscore="clr-namespace:FramePFX.Core.AdvancedContextService;assembly=FramePFX.Core"
+                    xmlns:acs="clr-namespace:SharpPadV2.AdvancedContextService"
+                    xmlns:acsCore="clr-namespace:SharpPadV2.Core.AdvancedContextService;assembly=SharpPadV2.Core"
+                    xmlns:c="clr-namespace:SharpPadV2.Converters"
+                    xmlns:converters="clr-namespace:SharpPadV2.Shortcuts.Converters"
+                    xmlns:commands="clr-namespace:SharpPadV2.Core.AdvancedContextService.Commands;assembly=SharpPadV2.Core"
+                    xmlns:actions="clr-namespace:SharpPadV2.Core.AdvancedContextService.Actions;assembly=SharpPadV2.Core"
                     mc:Ignorable="d">
-    <Style x:Key="CommandMenuItemMainStyle" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" d:DataContext="{d:DesignInstance acscore:CommandContextEntry}">
+    <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+    </Style>
+    <Style x:Key="CommandMenuItemMainStyle"
+           TargetType="{x:Type MenuItem}"
+           BasedOn="{StaticResource {x:Type MenuItem}}"
+           d:DataContext="{d:DesignInstance commands:CommandContextEntry}">
         <Setter Property="Header" Value="{Binding Header}"/>
         <Setter Property="InputGestureText" Value="{Binding InputGestureText}"/>
         <Setter Property="Command" Value="{Binding Command}"/>
@@ -13,9 +22,12 @@
         <Setter Property="ToolTip" Value="{Binding ToolTip}"/>
         <Setter Property="ItemsSource" Value="{Binding Children}"/>
     </Style>
-    <Style x:Key="ActionMenuItemMainStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" d:DataContext="{d:DesignInstance acscore:ActionContextEntry}">
+    <Style x:Key="ActionMenuItemMainStyle"
+           TargetType="{x:Type acs:AdvancedActionMenuItem}"
+           BasedOn="{StaticResource {x:Type acs:AdvancedActionMenuItem}}"
+           d:DataContext="{d:DesignInstance actions:ActionContextEntry}">
         <Setter Property="Header" Value="{Binding Header}"/>
-        <Setter Property="InputGestureText" Value="{Binding InputGestureText}"/>
+        <Setter Property="InputGestureText" Value="{Binding ActionId, Converter={x:Static converters:ActionIdToShortcutGestureConverter.Instance}}"/>
         <Setter Property="ToolTip" Value="{Binding ToolTip}"/>
         <Setter Property="ActionId" Value="{Binding ActionId}"/>
         <Setter Property="ItemsSource" Value="{Binding Children}"/>

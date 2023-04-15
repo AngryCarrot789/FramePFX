@@ -3,15 +3,23 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using FramePFX.Core.AdvancedContextService;
-using FramePFX.Core.AdvancedContextService.Base;
+using SharpPadV2.Core.AdvancedContextService;
+using SharpPadV2.Core.AdvancedContextService.Actions;
+using SharpPadV2.Core.AdvancedContextService.Base;
 
-namespace FramePFX.AdvancedContextService {
+namespace SharpPadV2.AdvancedContextService {
     public class AdvancedContextMenu : ContextMenu {
         public static readonly DependencyProperty ContextProviderProperty =
             DependencyProperty.RegisterAttached(
                 "ContextProvider",
                 typeof(IContextProvider),
+                typeof(AdvancedContextMenu),
+                new PropertyMetadata(null, OnContextProviderPropertyChanged));
+
+        public static readonly DependencyProperty ContextEntrySourceProperty =
+            DependencyProperty.RegisterAttached(
+                "ContextEntrySource",
+                typeof(IEnumerable<IContextEntry>),
                 typeof(AdvancedContextMenu),
                 new PropertyMetadata(null, OnContextProviderPropertyChanged));
 
@@ -92,6 +100,14 @@ namespace FramePFX.AdvancedContextService {
             return (IContextProvider) element.GetValue(ContextProviderProperty);
         }
 
+        public static void SetContextEntrySource(DependencyObject element, IEnumerable<IContextEntry> value) {
+            element.SetValue(ContextEntrySourceProperty, value);
+        }
+
+        public static IEnumerable<IContextEntry> GetContextEntrySource(DependencyObject element) {
+            return (IEnumerable<IContextEntry>) element.GetValue(ContextEntrySourceProperty);
+        }
+
         public static void SetInsertionIndex(DependencyObject element, int value) {
             element.SetValue(InsertionIndexProperty, value);
         }
@@ -100,25 +116,46 @@ namespace FramePFX.AdvancedContextService {
             return (int) element.GetValue(InsertionIndexProperty);
         }
 
+
+        private static readonly ContextMenuEventHandler MenuOpenHandler = OnContextMenuOpening;
+        private static readonly ContextMenuEventHandler MenuCloseHandler = OnContextMenuClosing;
+
         private static void OnContextProviderPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (e.NewValue != e.OldValue) {
-                ContextMenuService.RemoveContextMenuOpeningHandler(d, OnContextMenuOpening);
-                ContextMenuService.RemoveContextMenuClosingHandler(d, OnContextMenuClosing);
-                if (e.NewValue != null) {
-                    GetOrCreateContextMenu(d);
-                    ContextMenuService.AddContextMenuOpeningHandler(d, OnContextMenuOpening);
-                    ContextMenuService.AddContextMenuClosingHandler(d, OnContextMenuClosing);
-                }
+            if (ReferenceEquals(e.OldValue, e.NewValue)) {
+                return;
+            }
+
+            ContextMenuService.RemoveContextMenuOpeningHandler(d, MenuOpenHandler);
+            ContextMenuService.RemoveContextMenuClosingHandler(d, MenuCloseHandler);
+            if (e.NewValue != null) {
+                GetOrCreateContextMenu(d);
+                ContextMenuService.AddContextMenuOpeningHandler(d, MenuOpenHandler);
+                ContextMenuService.AddContextMenuClosingHandler(d, MenuCloseHandler);
             }
         }
 
+        public static List<IContextEntry> GetContexEntries(DependencyObject target) {
+            List<IContextEntry> list = new List<IContextEntry>();
+            if (GetContextProvider(target) is IContextProvider provider) {
+                provider.GetContext(list);
+            }
+            else if (GetContextEntrySource(target) is IEnumerable<IContextEntry> entries) {
+                list.AddRange(entries);
+            }
+
+            return list;
+        }
+
         public static void OnContextMenuOpening(object sender, ContextMenuEventArgs e) {
-            if (sender is DependencyObject targetElement && GetContextProvider(targetElement) is IContextProvider provider) {
+            if (sender is DependencyObject targetElement) {
+                List<IContextEntry> context = GetContexEntries(targetElement);
+                if (context == null || context.Count < 1) {
+                    return;
+                }
+
                 AdvancedContextMenu menu = GetOrCreateContextMenu(targetElement);
                 int count = menu.Items.Count;
                 int index = GetInsertionIndex(targetElement);
-                List<IContextEntry> context = new List<IContextEntry>();
-                provider.GetContext(context);
                 if (index < 0) {
                     menu.Items.Clear();
                     foreach (IContextEntry entry in context) {

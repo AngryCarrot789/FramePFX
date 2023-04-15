@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace SharpPadV2.Core.Shortcuts.Usage {
     public class MouseKeyboardShortcutUsage : IKeyboardShortcutUsage, IMouseShortcutUsage {
         private readonly MouseKeyboardShortcut shortcut;
         // private int clickCounter;
@@ -66,8 +66,7 @@ namespace FramePFX.Core.Shortcuts.Usage {
             if (this.currentStroke == null) {
                 return true;
             }
-
-            if (stroke.Equals(this.currentStroke.Value)) {
+            else if (stroke.Equals(this.currentStroke.Value)) {
                 this.ProgressCurrentStroke();
                 return true;
             }

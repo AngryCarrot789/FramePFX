@@ -1,6 +1,6 @@
-using SharpPadV2.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace SharpPadV2.Core.Shortcuts.Usage {
+namespace FramePFX.Core.Shortcuts.Usage {
     public interface IMouseShortcutUsage : IShortcutUsage {
         /// <summary>
         /// A reference to the shortcut that created this instance

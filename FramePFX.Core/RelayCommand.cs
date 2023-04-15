@@ -1,6 +1,6 @@
 using System;
 
-namespace SharpPadV2.Core {
+namespace FramePFX.Core {
     public class RelayCommand : BaseRelayCommand {
         private readonly Action execute;
         private readonly Func<bool> canExecute;

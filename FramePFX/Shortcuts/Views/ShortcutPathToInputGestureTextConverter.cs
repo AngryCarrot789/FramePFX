@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
-using SharpPadV2.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace SharpPadV2.Shortcuts.Views {
+namespace FramePFX.Shortcuts.Views {
     public class ShortcutPathToInputGestureTextConverter : IValueConverter {
         public string NoSuchShortcutFormat { get; set; } = "<{0}>";
 

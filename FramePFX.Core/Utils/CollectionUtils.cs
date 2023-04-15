@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SharpPadV2.Core.Utils {
+namespace FramePFX.Core.Utils {
     public static class CollectionUtils {
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> consumer) {
             foreach (T value in enumerable) {

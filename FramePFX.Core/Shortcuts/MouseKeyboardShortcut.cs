@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Usage;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Usage;
 
-namespace SharpPadV2.Core.Shortcuts {
+namespace FramePFX.Core.Shortcuts {
     public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut {
         public static MouseShortcut EmptyMouseKeyboardShortcut = new MouseShortcut();
 

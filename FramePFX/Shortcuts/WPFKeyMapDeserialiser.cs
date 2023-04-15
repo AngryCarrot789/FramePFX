@@ -1,11 +1,11 @@
 using System;
 using System.Text;
 using System.Windows.Input;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Serialization;
-using SharpPadV2.Core.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Serialization;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class WPFKeyMapDeserialiser : KeyMapDeserialiser {
         public static WPFKeyMapDeserialiser Instance { get; } = new WPFKeyMapDeserialiser();
 

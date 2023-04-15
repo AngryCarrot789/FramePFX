@@ -1,6 +1,6 @@
 using System;
 
-namespace SharpPadV2.Core.Views.Dialogs.UserInputs {
+namespace FramePFX.Core.Views.Dialogs.UserInputs {
     public class InputValidator {
         public delegate bool IsInputInvalidDelegate(string input, out string errorMessage);
 

@@ -1,4 +1,4 @@
-namespace SharpPadV2.Core.Views.Dialogs {
+namespace FramePFX.Core.Views.Dialogs {
     public class DialogResult<T> : BaseDialogResult {
         public T Value { get; set; }
 

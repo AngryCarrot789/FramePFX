@@ -1,8 +1,8 @@
 using System;
 using System.Windows;
-using SharpPadV2.Core.Interactivity;
+using FramePFX.Core.Interactivity;
 
-namespace SharpPadV2.Interactivity {
+namespace FramePFX.Interactivity {
     public static class FileDropAttachments {
         public static readonly DependencyProperty FileDropNotifierProperty =
             DependencyProperty.RegisterAttached(

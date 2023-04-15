@@ -3,17 +3,18 @@
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:userInputsCore="clr-namespace:FramePFX.Core.Views.Dialogs.UserInputs;assembly=FramePFX.Core"
                   xmlns:views="clr-namespace:FramePFX.Views"
                   xmlns:userInputs="clr-namespace:FramePFX.Views.Dialogs.UserInputs"
                   mc:Ignorable="d"
-                  d:DataContext="{d:DesignInstance userInputs:SingleInputViewModel}"
-                  Title="{Binding Title, Mode=OneTime}" Height="132" Width="320"
-                  Style="{DynamicResource CustomWindowStyle}" 
+                  d:DataContext="{d:DesignInstance userInputsCore:SingleInputViewModel}"
+                  Title="{Binding Title}" Height="132" Width="320"
                   WindowStartupLocation="CenterOwner" 
                   Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}"
-                  WindowStyle="ToolWindow" ResizeMode="NoResize">
+                  WindowStyle="ToolWindow" ResizeMode="NoResize"
+                  Style="{DynamicResource CustomWindowStyleEx}">
     <Window.Resources>
-        <userInputs:SingleInputValidationRule x:Key="SIVR"/>
+        <userInputs:SingleInputValidationRule x:Key="ValidatorInput"/>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding ConfirmCommand, Mode=OneTime}"/>
@@ -25,7 +26,7 @@
             <TextBox.Text>
                 <Binding Path="Input" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
                     <Binding.ValidationRules>
-                        <StaticResource ResourceKey="SIVR"/>
+                        <StaticResource ResourceKey="ValidatorInput"/>
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox.Text>

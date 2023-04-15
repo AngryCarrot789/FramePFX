@@ -1,4 +1,4 @@
-namespace SharpPadV2.Core.Shortcuts.Dialogs {
+namespace FramePFX.Core.Shortcuts.Dialogs {
     public interface IShortcutManagerDialogService {
         bool IsOpen { get; }
 

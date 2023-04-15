@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using SharpPadV2.Core.AdvancedContextService;
-using SharpPadV2.Core.AdvancedContextService.Actions;
-using SharpPadV2.Core.AdvancedContextService.Base;
+using FramePFX.Core.AdvancedContextService;
+using FramePFX.Core.AdvancedContextService.Actions;
+using FramePFX.Core.AdvancedContextService.Base;
 
-namespace SharpPadV2.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     public class AdvancedContextMenu : ContextMenu {
         public static readonly DependencyProperty ContextProviderProperty =
             DependencyProperty.RegisterAttached(

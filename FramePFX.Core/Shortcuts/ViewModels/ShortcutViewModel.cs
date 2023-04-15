@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using SharpPadV2.Core.AdvancedContextService;
-using SharpPadV2.Core.AdvancedContextService.Base;
-using SharpPadV2.Core.AdvancedContextService.Commands;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Managing;
+using FramePFX.Core.AdvancedContextService;
+using FramePFX.Core.AdvancedContextService.Base;
+using FramePFX.Core.AdvancedContextService.Commands;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace SharpPadV2.Core.Shortcuts.ViewModels {
+namespace FramePFX.Core.Shortcuts.ViewModels {
     public class ShortcutViewModel : BaseViewModel, IContextProvider {
         public GroupedShortcut ShortcutRefernce { get; set; }
 
@@ -69,7 +69,7 @@ namespace SharpPadV2.Core.Shortcuts.ViewModels {
         }
 
         public void AddKeyStrokeAction() {
-            KeyStroke? result = IoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
+            KeyStroke? result = CoreIoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new KeyStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -77,7 +77,7 @@ namespace SharpPadV2.Core.Shortcuts.ViewModels {
         }
 
         public void AddMouseStrokeAction() {
-            MouseStroke? result = IoC.MouseDialogs.ShowGetMouseStrokeDialog();
+            MouseStroke? result = CoreIoC.MouseDialogs.ShowGetMouseStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new MouseStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -91,7 +91,7 @@ namespace SharpPadV2.Core.Shortcuts.ViewModels {
 
             if (this.ShortcutRefernce != null) {
                 this.ShortcutRefernce.SetShortcut(this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut);
-                IoC.OnShortcutManagedChanged?.Invoke(this.Path);
+                CoreIoC.OnShortcutManagedChanged?.Invoke(this.Path);
             }
         }
 

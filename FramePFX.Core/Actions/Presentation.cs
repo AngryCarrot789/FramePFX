@@ -1,6 +1,6 @@
-using SharpPadV2.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.Core.Actions {
+namespace FramePFX.Core.Actions {
     public readonly struct Presentation {
         private readonly int flags;
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace SharpPadV2.Core.Actions {
+namespace FramePFX.Core.Actions {
     [AttributeUsage(AttributeTargets.Class)]
     public class ActionRegistrationAttribute : Attribute {
         public string ActionId { get; }

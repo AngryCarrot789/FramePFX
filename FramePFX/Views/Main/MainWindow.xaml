@@ -169,8 +169,8 @@
                         IsEnabled="{Binding Converter={StaticResource NullToDisabledConverter}}" Margin="0,0,0,20"
                         s:UIFocusGroup.FocusGroupPath="Application/Timeline">
                     <Border.InputBindings>
-                        <sb:ShortcutBinding ShortcutAndUsageId="Application/Timeline/LayerControllers/DeleteSelectedLayer" Command="{Binding Timeline.DeleteSelectedLayerCommand}"/>
-                        <sb:ShortcutBinding ShortcutAndUsageId="Application/Timeline/Surface/PlayPauseAction" Command="{Binding VideoEditor.PlaybackView.PlayPauseCommand}"/>
+                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/LayerControllers/DeleteSelectedLayer" Command="{Binding Timeline.DeleteSelectedLayerCommand}"/>
+                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/Surface/PlayPauseAction" Command="{Binding VideoEditor.PlaybackView.PlayPauseCommand}"/>
                     </Border.InputBindings>
                     <Grid DataContext="{Binding Timeline}">
                         <Grid.RowDefinitions>
@@ -230,7 +230,7 @@
                                                   MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2"
                                                   s:UIFocusGroup.FocusGroupPath="Application/Timeline/Surface">
                             <UIElement.InputBindings>
-                                <sb:ShortcutBinding ShortcutAndUsageId="Application/Timeline/Surface/DeleteSelectClips" Command="{Binding DeleteSelectedClipsCommand}"/>
+                                <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/Surface/DeleteSelectClips" Command="{Binding DeleteSelectedClipsCommand}"/>
                             </UIElement.InputBindings>
                             <controls:TimelineControl.Style>
                                 <Style TargetType="{x:Type controls:TimelineControl}">

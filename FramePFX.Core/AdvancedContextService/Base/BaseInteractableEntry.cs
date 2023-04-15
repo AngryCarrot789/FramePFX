@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using SharpPadV2.Core.Actions.Contexts;
+using FramePFX.Core.Actions.Contexts;
 
-namespace SharpPadV2.Core.AdvancedContextService.Base {
+namespace FramePFX.Core.AdvancedContextService.Base {
     public class BaseInteractableEntry : BaseViewModel, IContextEntry, IDataContext {
         private Dictionary<string, object> additionalData;
         private readonly ObservableCollection<object> context;

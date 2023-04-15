@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace SharpPadV2.Utils {
+namespace FramePFX.Utils {
     public static class FileUtils {
         public static Encoding ParseEncoding(byte[] data, out int offset, out string encoding) {
             if (data[0] == 0x2b && data[1] == 0x2f && data[2] == 0x76) {

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace SharpPadV2.Views.Dialogs.UserInputs {
+namespace FramePFX.Views.Dialogs.UserInputs {
     /// <summary>
     /// Interaction logic for DoubleUserInputWindow.xaml
     /// </summary>

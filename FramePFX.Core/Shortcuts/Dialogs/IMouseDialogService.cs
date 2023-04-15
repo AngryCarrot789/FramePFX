@@ -1,6 +1,6 @@
-using SharpPadV2.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace SharpPadV2.Core.Shortcuts.Dialogs {
+namespace FramePFX.Core.Shortcuts.Dialogs {
     public interface IMouseDialogService {
         MouseStroke? ShowGetMouseStrokeDialog();
     }

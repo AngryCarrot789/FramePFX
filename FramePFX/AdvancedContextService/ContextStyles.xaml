@@ -2,12 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:acs="clr-namespace:SharpPadV2.AdvancedContextService"
-                    xmlns:acsCore="clr-namespace:SharpPadV2.Core.AdvancedContextService;assembly=SharpPadV2.Core"
-                    xmlns:c="clr-namespace:SharpPadV2.Converters"
-                    xmlns:converters="clr-namespace:SharpPadV2.Shortcuts.Converters"
-                    xmlns:commands="clr-namespace:SharpPadV2.Core.AdvancedContextService.Commands;assembly=SharpPadV2.Core"
-                    xmlns:actions="clr-namespace:SharpPadV2.Core.AdvancedContextService.Actions;assembly=SharpPadV2.Core"
+                    xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
+                    xmlns:converters="clr-namespace:FramePFX.Shortcuts.Converters"
+                    xmlns:commands="clr-namespace:FramePFX.Core.AdvancedContextService.Commands;assembly=FramePFX.Core"
+                    xmlns:actions="clr-namespace:FramePFX.Core.AdvancedContextService.Actions;assembly=FramePFX.Core"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
     </Style>

@@ -100,11 +100,9 @@
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
-    <Compile Include="Converters\KeyStrokeRepresentationConverter.cs" />
-    <Compile Include="Converters\MouseStrokeRepresentationConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
-    <Compile Include="Converters\ShortcutPathToInputGestureTextConverter.cs" />
     <Compile Include="DispatcherDelegate.cs" />
+    <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="Project\ProjectViewModel.cs" />
     <Compile Include="Render\DispatchReceiver.cs" />
@@ -123,19 +121,45 @@
     <Compile Include="ResourceManaging\ResourceItemViewModel.cs" />
     <Compile Include="ResourceManaging\ResourceManagerViewModel.cs" />
     <Compile Include="ResourceManaging\VideoResources\ImageResourceViewModel.cs" />
-    <Compile Include="Shortcuts\AppShortcutManager.cs" />
-    <Compile Include="Shortcuts\AppShortcutProcessor.cs" />
+    <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
+    <Compile Include="Shortcuts\Bindings\ContextualShortcutCommandBinding.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
-    <Compile Include="Shortcuts\Bindings\ShortcutBinding.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutCommandBinding.cs" />
+    <Compile Include="Shortcuts\Converters\ActionIdToShortcutGestureConverter.cs" />
+    <Compile Include="Shortcuts\Converters\GlobalUpdateShortcutGestureConverter.cs" />
+    <Compile Include="Shortcuts\Converters\ShortcutPathToGestureConverter.cs" />
+    <Compile Include="Shortcuts\Dialogs\KeyboardDialogService.cs" />
+    <Compile Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml.cs">
+      <DependentUpon>KeyStrokeInputWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shortcuts\Dialogs\MouseDialogService.cs" />
+    <Compile Include="Shortcuts\Dialogs\MouseStrokeInputWindow.xaml.cs">
+      <DependentUpon>MouseStrokeInputWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Shortcuts\ShortcutActivateHandler.cs" />
     <Compile Include="Shortcuts\ShortcutUtils.cs" />
     <Compile Include="Shortcuts\UIFocusGroup.cs" />
+    <Compile Include="Shortcuts\Views\KeyStrokeRepresentationConverter.cs" />
+    <Compile Include="Shortcuts\Views\MouseStrokeRepresentationConverter.cs" />
+    <Compile Include="Shortcuts\Views\ShortcutEditorWindow.xaml.cs">
+      <DependentUpon>ShortcutEditorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shortcuts\Views\ShortcutManagerDialogService.cs" />
+    <Compile Include="Shortcuts\Views\ShortcutPathToInputGestureTextConverter.cs" />
     <Compile Include="Shortcuts\VisualTreeUtils.cs" />
     <Compile Include="Shortcuts\WPFKeyMapDeserialiser.cs" />
+    <Compile Include="Shortcuts\WPFShortcutManager.cs" />
+    <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
     <Compile Include="Themes\Attached\CornerHelper.cs" />
+    <Compile Include="Themes\Attached\MenuHelper.cs" />
     <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
     <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
     <Compile Include="Themes\Attached\TextHinting.cs" />
+    <Compile Include="Themes\Controls.xaml.cs">
+      <DependentUpon>Controls.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Themes\ThemesController.cs" />
+    <Compile Include="Themes\ThemeTypes.cs" />
     <Compile Include="Timeline\Controls\TimelineClipContainerControl.cs" />
     <Compile Include="Timeline\Controls\TimelineControl.cs" />
     <Compile Include="Timeline\Controls\TimelineLayerControl.cs" />
@@ -159,7 +183,6 @@
     <Compile Include="Timeline\ViewModels\Clips\ClipContainerViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\ClipViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\IAcceptResource.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\Resizable\ImageClipViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeClipViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\Resizable\PositionableClipViewModel.cs" />
     <Compile Include="Timeline\ViewModels\Clips\VideoClipViewModel.cs" />
@@ -167,22 +190,18 @@
     <Compile Include="Timeline\ViewModels\Timeline\TimelineViewModel.cs" />
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
+    <Compile Include="Utils\DispatcherUtils.cs" />
+    <Compile Include="Utils\FileUtils.cs" />
+    <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="VideoEditorViewModel.cs" />
     <Compile Include="PlaybackViewportViewModel.cs" />
     <Compile Include="ResourceManaging\ResourceItemControl.cs" />
     <Compile Include="ResourceManaging\ResourceListControl.cs" />
     <Compile Include="Services\ClipboardService.cs" />
-    <Compile Include="Themes\Controls.xaml.cs">
-      <DependentUpon>Controls.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Themes\ThemesController.cs" />
-    <Compile Include="Themes\ThemeTypes.cs" />
     <Compile Include="Timeline\ICGenUtils.cs" />
     <Compile Include="Timeline\Layer\IndexMap.cs" />
     <Compile Include="Timeline\TimelineClipDragData.cs" />
-    <Compile Include="Utils\CASLock__OLD.cs" />
-    <Compile Include="Utils\CASLockType_OLD.cs" />
     <Compile Include="Utils\NumberAverager.cs" />
     <Compile Include="Utils\UsageCounter.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
@@ -190,29 +209,51 @@
     <Compile Include="Views\BaseDialog.cs" />
     <Compile Include="Views\BaseWindow.cs" />
     <Compile Include="Views\BaseWindowCore.cs" />
-    <Compile Include="Views\Dialogs\FilePicking\FilePickDialogService.cs" />
-    <Compile Include="Views\Dialogs\FilePicking\FolderPicker.cs" />
-    <Compile Include="Views\Dialogs\Message\MessageDialogService.cs" />
-    <Compile Include="Views\Dialogs\UserInputs\SingleInputValidationRule.cs" />
-    <Compile Include="Views\Dialogs\UserInputs\SingleInputViewModel.cs" />
-    <Compile Include="Views\Dialogs\UserInputs\SingleUserInputWindow.xaml.cs">
-      <DependentUpon>SingleUserInputWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Dialogs\UserInputs\UserInputDialogService.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\Dialogs\FilePicking\FilePickDialogService.cs" />
+    <Compile Include="Views\Dialogs\FilePicking\FolderPicker.cs" />
+    <Compile Include="Views\Dialogs\Message\MessageDialogService.cs" />
+    <Compile Include="Views\Dialogs\UserInputs\DoubleUserInputWindow.xaml.cs">
+      <DependentUpon>DoubleUserInputWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Dialogs\UserInputs\SingleInputValidationRule.cs" />
+    <Compile Include="Views\Dialogs\UserInputs\SingleUserInputWindow.xaml.cs">
+      <DependentUpon>SingleUserInputWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Dialogs\UserInputs\UserInputDialogService.cs" />
     <Compile Include="Views\Main\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Views\WindowEx.cs" />
+    <Page Include="AdvancedContextService\ContextStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ResourceManaging\ResManagerStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Shortcuts\Dialogs\MouseStrokeInputWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Shortcuts\Views\ShortcutEditorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Themes\ControlColours.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\ControlColoursSoftDarkBlue.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -232,6 +273,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Themes\SoftDarkAndBlue.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Themes\VeryDarkTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -239,6 +284,10 @@
     <Page Include="Timeline\TimelineStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Dialogs\UserInputs\DoubleUserInputWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Dialogs\UserInputs\SingleUserInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -284,12 +333,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Keymap.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="AdvancedContextService\ContextStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <Resource Include="Keymap.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

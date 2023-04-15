@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using SharpPadV2.Core.Views.ViewModels;
+using FramePFX.Core.Views.ViewModels;
 
-namespace SharpPadV2.Core.Views.Dialogs {
+namespace FramePFX.Core.Views.Dialogs {
     public class BaseConfirmableDialogViewModel : BaseDialogViewModel {
         public RelayCommand ConfirmCommand { get; }
         public RelayCommand CancelCommand { get; }

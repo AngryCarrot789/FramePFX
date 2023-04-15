@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SharpPadV2.Core {
+namespace FramePFX.Core {
     public abstract class BaseAsyncRelayCommand : BaseRelayCommand {
         /// <summary>
         /// Because <see cref="Execute"/> is async void, it can be fired multiple

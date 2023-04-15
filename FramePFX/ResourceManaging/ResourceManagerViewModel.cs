@@ -24,9 +24,9 @@ namespace FramePFX.ResourceManaging {
 
         public ReadOnlyObservableCollection<ResourceItemViewModel> Items { get; }
 
-        public RelayCommandParam<ResourceItemViewModel> RenameResourceCommand { get; }
+        public RelayCommand<ResourceItemViewModel> RenameResourceCommand { get; }
 
-        public RelayCommandParam<ResourceItemViewModel> DeleteResourceCommand { get; }
+        public RelayCommand<ResourceItemViewModel> DeleteResourceCommand { get; }
 
         /// <summary>
         /// A reference to the UI element to provide extended functionality
@@ -43,8 +43,8 @@ namespace FramePFX.ResourceManaging {
             this.uuidToItem = new Dictionary<string, ResourceItemViewModel>();
             this.items = new ObservableCollection<ResourceItemViewModel>();
             this.Items = new ReadOnlyObservableCollection<ResourceItemViewModel>(this.items);
-            this.RenameResourceCommand = new RelayCommandParam<ResourceItemViewModel>(async x => await this.RenameResourceAction(x));
-            this.DeleteResourceCommand = new RelayCommandParam<ResourceItemViewModel>(async x => await this.RenameResourceAction(x));
+            this.RenameResourceCommand = new RelayCommand<ResourceItemViewModel>(async x => await this.RenameResourceAction(x));
+            this.DeleteResourceCommand = new RelayCommand<ResourceItemViewModel>(async x => await this.RenameResourceAction(x));
             this.validator = new InputValidator((string input, out string message) => {
                 if (string.IsNullOrWhiteSpace(input)) {
                     message = "Input cannot be empty";

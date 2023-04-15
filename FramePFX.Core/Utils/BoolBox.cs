@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace SharpPadV2.Core.Utils {
+namespace FramePFX.Core.Utils {
     public static class BoolBox {
         public static readonly object True = true;
         public static readonly object NullableTrue = (bool?) true;

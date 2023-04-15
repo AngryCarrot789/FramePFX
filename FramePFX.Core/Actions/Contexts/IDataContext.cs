@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SharpPadV2.Core.Actions.Contexts {
+namespace FramePFX.Core.Actions.Contexts {
     /// <summary>
     /// An immutable object that stores context information, along other custom data
     /// </summary>

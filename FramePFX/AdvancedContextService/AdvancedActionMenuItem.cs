@@ -2,11 +2,11 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using SharpPadV2.Core.Actions;
-using SharpPadV2.Core.Actions.Contexts;
-using SharpPadV2.Core.Utils;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     public class AdvancedActionMenuItem : AdvancedMenuItem {
         public static readonly DependencyProperty ActionIdProperty =
             DependencyProperty.Register(

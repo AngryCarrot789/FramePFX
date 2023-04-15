@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using SharpPadV2.Core.Actions;
-using SharpPadV2.Core.Actions.Contexts;
-using SharpPadV2.Core.AdvancedContextService.Base;
+using FramePFX.Core.Actions;
+using FramePFX.Core.AdvancedContextService.Base;
 
-namespace SharpPadV2.Core.AdvancedContextService.Actions {
+namespace FramePFX.Core.AdvancedContextService.Actions {
     /// <summary>
     /// The default implementation for a context entry (aka menu item), which also supports modifying the header,
     /// input gesture text, command and command parameter to reflect the UI menu item
@@ -49,15 +48,15 @@ namespace SharpPadV2.Core.AdvancedContextService.Actions {
         }
 
         private void Init() {
-            this.InvokeCommand = new AsyncRelayCommand(this.InvokeAction, () => IoC.ActionManager.GetPresentation(this.ActionId, this).IsEnabled);
+            this.InvokeCommand = new AsyncRelayCommand(this.InvokeAction, () => ActionManager.Instance.GetPresentation(this.ActionId, this).IsEnabled);
         }
 
         protected virtual Task InvokeAction() {
-            return IoC.ActionManager.Execute(this.actionId, this);
+            return ActionManager.Instance.Execute(this.actionId, this);
         }
 
         public void SetHeaderAndTooltipFromAction(string id) {
-            AnAction action = IoC.ActionManager.GetAction(id);
+            AnAction action = ActionManager.Instance.GetAction(id);
             if (action != null) {
                 string header = action.Header();
                 if (!string.IsNullOrEmpty(header)) {

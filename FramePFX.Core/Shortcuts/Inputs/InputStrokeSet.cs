@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SharpPadV2.Core.Shortcuts.Inputs {
+namespace FramePFX.Core.Shortcuts.Inputs {
     public class InputStrokeSet : IEnumerable<IInputStroke> {
         private readonly IInputStroke[] inputs;
 

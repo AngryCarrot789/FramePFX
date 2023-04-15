@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SharpPadV2.Core.Views.ViewModels;
+using FramePFX.Core.Views.ViewModels;
 
-namespace SharpPadV2.Core.Views.Dialogs.UserInputs {
+namespace FramePFX.Core.Views.Dialogs.UserInputs {
     public class DoubleInputViewModel : BaseConfirmableDialogViewModel, IErrorInfoHandler {
         private string title;
         private string msgA;

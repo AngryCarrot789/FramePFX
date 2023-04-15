@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SharpPadV2.Core.Utils {
+namespace FramePFX.Core.Utils {
     /// <summary>
     /// Contains function that apparently aren't in C# but are in java, used for NBT equality testing
     /// </summary>

@@ -2,11 +2,11 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using SharpPadV2.Core;
-using SharpPadV2.Core.Shortcuts.Managing;
-using SharpPadV2.Core.Shortcuts.Usage;
+using FramePFX.Core;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Usage;
 
-namespace SharpPadV2.Shortcuts.Bindings {
+namespace FramePFX.Shortcuts.Bindings {
     // WIP
     [Obsolete]
     public class ContextualShortcutCommandBinding : InputBinding {

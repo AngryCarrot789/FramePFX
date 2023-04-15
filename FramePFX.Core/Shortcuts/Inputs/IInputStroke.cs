@@ -1,4 +1,4 @@
-namespace SharpPadV2.Core.Shortcuts.Inputs {
+namespace FramePFX.Core.Shortcuts.Inputs {
     /// <summary>
     /// An interface defining behaviour for input strokes
     /// </summary>

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace SharpPadV2.Utils {
+namespace FramePFX.Utils {
     public static class DispatcherUtils {
         public static Task InvokeAsync(Action action) {
             Application app = Application.Current;

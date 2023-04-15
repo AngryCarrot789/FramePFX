@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace SharpPadV2.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     public class AdvancedMenuItem : MenuItem {
         private object currentItem;
 

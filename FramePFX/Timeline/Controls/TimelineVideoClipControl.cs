@@ -1,97 +1,41 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
-using FramePFX.Render;
 using FramePFX.Render.OGL;
 using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Timeline.ViewModels.Clips;
 
 namespace FramePFX.Timeline.Controls {
-    public class TimelineClipContainerControl : ContentControl, IClipContainerHandle {
-        #region Dependency Properties
-
-        public static readonly DependencyProperty UnitZoomProperty =
-            TimelineLayerControl.UnitZoomProperty.AddOwner(
-                typeof(TimelineClipContainerControl),
-                new FrameworkPropertyMetadata(
-                    1d,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipContainerControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
-                    (d, v) => TimelineUtils.ClampUnit(v)));
-
+    public class TimelineVideoClipControl : BaseTimelineClipControl {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",
                 typeof(long),
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineVideoClipControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipContainerControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
+                    (d, e) => ((TimelineVideoClipControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
         public static readonly DependencyProperty FrameDurationProperty =
             DependencyProperty.Register(
                 "FrameDuration",
                 typeof(long),
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineVideoClipControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipContainerControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
+                    (d, e) => ((TimelineVideoClipControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? 0 : v));
 
         public static readonly DependencyProperty FrameBeginDataOffsetProperty =
             DependencyProperty.Register(
                 "FrameBeginDataOffset",
                 typeof(int),
-                typeof(TimelineClipContainerControl),
+                typeof(TimelineVideoClipControl),
                 new PropertyMetadata(0));
-
-        public static readonly DependencyProperty IsSelectedProperty =
-            Selector.IsSelectedProperty.AddOwner(
-                typeof(TimelineClipContainerControl),
-                new FrameworkPropertyMetadata(
-                    false,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
-                    (d, e) => ((TimelineClipContainerControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
-
-        public static readonly DependencyProperty HeaderBrushProperty =
-            DependencyProperty.Register(
-                "HeaderBrush",
-                typeof(Brush),
-                typeof(TimelineClipContainerControl),
-                new PropertyMetadata(null));
-
-        #endregion
-
-        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipContainerControl));
-        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipContainerControl));
-
-        public event RoutedEventHandler Selected {
-            add => this.AddHandler(SelectedEvent, value);
-            remove => this.RemoveHandler(SelectedEvent, value);
-        }
-
-        public event RoutedEventHandler Unselected {
-            add => this.AddHandler(UnselectedEvent, value);
-            remove => this.RemoveHandler(UnselectedEvent, value);
-        }
-
-        /// <summary>
-        /// The zoom level of this timeline layer
-        /// <para>
-        /// This is a value used for converting frames into pixels
-        /// </para>
-        /// </summary>
-        public double UnitZoom {
-            get => (double) this.GetValue(UnitZoomProperty);
-            set => this.SetValue(UnitZoomProperty, value);
-        }
 
         /// <summary>
         /// The zero-based frame index where this element begins (relative to the parent timeline layer)
@@ -138,32 +82,12 @@ namespace FramePFX.Timeline.Controls {
             }
         }
 
-        [Category("Appearance")]
-        public bool IsSelected {
-            get => (bool) this.GetValue(IsSelectedProperty);
-            set => this.SetValue(IsSelectedProperty, value);
-        }
-
-        [Category("Appearance")]
-        public Brush HeaderBrush {
-            get => (Brush) this.GetValue(HeaderBrushProperty);
-            set => this.SetValue(HeaderBrushProperty, value);
-        }
-
         /// <summary>
         /// The rendered X position of this element
         /// </summary>
         public double RealPixelX {
-            get => this.TimelineLayer?.GetRenderX(this) ?? 0;
-            set => this.TimelineLayer?.SetRenderX(this, value);
-        }
-
-        /// <summary>
-        /// The rendered Y position of this element (should not be modified generally)
-        /// </summary>
-        public double RealPixelY {
-            get => this.TimelineLayer?.GetRenderY(this) ?? 0;
-            set => this.TimelineLayer?.SetRenderY(this, value);
+            get => base.Layer?.GetRenderX(this) ?? 0;
+            set => base.Layer?.SetRenderX(this, value);
         }
 
         /// <summary>
@@ -176,32 +100,19 @@ namespace FramePFX.Timeline.Controls {
         /// </summary>
         public double PixelStart => this.FrameBegin * this.UnitZoom;
 
-        public Selector ParentSelector => ItemsControl.ItemsControlFromItemContainer(this) as Selector;
-        public TimelineLayerControl TimelineLayer => this.ParentSelector as TimelineLayerControl;
-
-        public TimelineControl Timeline => this.ParentSelector is TimelineLayerControl layer ? layer.Timeline : null;
+        public new VideoTimelineLayerControl Layer => this.ParentSelector as VideoTimelineLayerControl;
 
         public TimelineVideoClip ViewModel => this.DataContext as TimelineVideoClip;
 
         public bool IsMovingControl { get; set; }
 
-        private bool isUpdatingUnitZoom;
         private bool isUpdatingFrameBegin;
         private bool isUpdatingFrameDuration;
-        private Point lastLeftClickPoint;
-        private Thumb PART_ThumbLeft;
-        private Thumb PART_ThumbRight;
-        // private ContentPresenter PART_Presenter;
         private OGLViewportControl PART_ViewPort;
-        private bool isDraggingThumb;
-        private bool isClipDragActivated;
-        private bool isCancellingDragAction;
-
-        private bool isProcessingMouseAction;
 
         public ClipDragData DragData { get; set; }
 
-        public TimelineClipContainerControl() {
+        public TimelineVideoClipControl() {
             this.Focusable = true;
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
@@ -225,13 +136,6 @@ namespace FramePFX.Timeline.Controls {
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            this.HorizontalAlignment = HorizontalAlignment.Left;
-            this.VerticalAlignment = VerticalAlignment.Stretch;
-            this.PART_ThumbLeft = this.GetTemplateElement<Thumb>("PART_ThumbLeft");
-            this.PART_ThumbRight = this.GetTemplateElement<Thumb>("PART_ThumbRight");
-            this.PART_ThumbLeft.DragDelta += this.OnDragLeftThumb;
-            this.PART_ThumbRight.DragDelta += this.OnDragRightThumb;
-            // this.PART_Presenter = this.GetTemplateElement<ContentPresenter>("PART_Presenter");
             this.PART_ViewPort = this.GetTemplateElement<OGLViewportControl>("PART_ViewPort");
         }
 
@@ -241,7 +145,7 @@ namespace FramePFX.Timeline.Controls {
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
-            this.TimelineLayer.MakeTopElement(this);
+            this.Layer.MakeTopElement(this);
             this.lastLeftClickPoint = e.GetPosition(this);
         }
 
@@ -250,7 +154,7 @@ namespace FramePFX.Timeline.Controls {
             if (!e.Handled) {
                 if (this.IsFocused || this.Focus()) {
                     e.Handled = true;
-                    this.TimelineLayer.OnClipMouseButton(this, e);
+                    this.Layer.OnClipMouseButton(this, e);
                 }
 
                 this.isClipDragActivated = true;
@@ -276,7 +180,7 @@ namespace FramePFX.Timeline.Controls {
 
             if (!e.Handled) {
                 e.Handled = true;
-                this.TimelineLayer.OnClipMouseButton(this, e, hasDrag);
+                this.Layer.OnClipMouseButton(this, e, hasDrag);
             }
 
             base.OnMouseLeftButtonUp(e);
@@ -361,11 +265,11 @@ namespace FramePFX.Timeline.Controls {
                 base.OnKeyDown(e);
             }
             else if (e.Key == Key.Delete && this.IsSelected) {
-                this.TimelineLayer.RemoveClip(this);
+                this.Layer.RemoveClip(this);
             }
         }
 
-        private void OnDragLeftThumb(object sender, DragDeltaEventArgs e) {
+        protected override void OnDragLeftThumb(object sender, DragDeltaEventArgs e) {
             if (this.isDraggingThumb) {
                 return;
             }
@@ -395,7 +299,7 @@ namespace FramePFX.Timeline.Controls {
             }
         }
 
-        private void OnDragRightThumb(object sender, DragDeltaEventArgs e) {
+        protected override void OnDragRightThumb(object sender, DragDeltaEventArgs e) {
             if (this.isDraggingThumb) {
                 return;
             }
@@ -416,28 +320,6 @@ namespace FramePFX.Timeline.Controls {
             }
             finally {
                 this.isDraggingThumb = false;
-            }
-        }
-
-        private void BeginDragMovement(/* Point mousePosition */) {
-            if (this.Timeline.DragData != null) {
-                return; // ?????
-            }
-
-            this.Timeline.BeginDragAction();
-            // this.CaptureMouse();
-            // this.Focus();
-        }
-
-        private void OnUnitZoomChanged(double oldZoom, double newZoom) {
-            if (this.isUpdatingUnitZoom)
-                return;
-
-            TimelineUtils.ValidateNonNegative(newZoom);
-            if (Math.Abs(oldZoom - newZoom) >= TimelineUtils.MinUnitZoom) {
-                this.isUpdatingUnitZoom = true;
-                this.UpdatePositionAndSize();
-                this.isUpdatingUnitZoom = false;
             }
         }
 
@@ -465,50 +347,12 @@ namespace FramePFX.Timeline.Controls {
             }
         }
 
-        private void OnIsSelectedChanged(bool oldSelected, bool newSelected) {
-            if (newSelected) {
-                this.OnSelected(new RoutedEventArgs(SelectedEvent, this));
-            }
-            else {
-                this.OnUnselected(new RoutedEventArgs(SelectedEvent, this));
-            }
-        }
-
-        public virtual void OnSelected(RoutedEventArgs e) {
-            this.RaiseEvent(e);
-        }
-
-        public virtual void OnUnselected(RoutedEventArgs e) {
-            this.RaiseEvent(e);
-        }
-
-        public void UpdatePositionAndSize() {
-            this.UpdatePosition();
-            this.UpdateSize();
-        }
-
-        public void UpdatePosition() {
+        public override void UpdatePosition() {
             this.RealPixelX = this.PixelStart;
         }
 
-        public void UpdateSize() {
+        public override void UpdateSize() {
             this.Width = this.PixelWidth;
-        }
-
-        /// <summary>
-        /// Called when the parent (aka the timeline layer)'s type changes from something to something else
-        /// <para>
-        /// This can be used to set an invalid state in this element if the new type is incompatible
-        /// </para>
-        /// </summary>
-        /// <param name="oldType">The previous layer type</param>
-        /// <param name="newType">The new layer type</param>
-        public void OnLayerTypeChanged(string oldType, string newType) {
-
-        }
-
-        private T GetTemplateElement<T>(string name) where T : DependencyObject {
-            return this.GetTemplateChild(name) is T value ? value : throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
         }
 
         public override string ToString() {

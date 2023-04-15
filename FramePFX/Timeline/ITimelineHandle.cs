@@ -5,6 +5,6 @@ namespace FramePFX.Timeline {
     public interface ITimelineHandle : IHasZoom {
         long MaxDuration { get; set; }
 
-        IEnumerable<ClipContainer> GetSelectedClips();
+        IEnumerable<TimelineVideoClip> GetSelectedClips();
     }
 }

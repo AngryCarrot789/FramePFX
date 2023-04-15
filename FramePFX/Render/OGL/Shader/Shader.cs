@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using AtominaCraftV4.REghZy.MathsF;
+using FramePFX.Core.Utils;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using REghZy.Utils;
 
-namespace AtominaCraftV4.Rendering.Shaders {
+namespace FramePFX.Render.OGL.Shader {
+    // Took this from my AtominaCraftV4 project (was trying to remake minecraft lol)
     public class Shader {
         private readonly List<string> attributes;
         private readonly string name;
@@ -85,7 +86,6 @@ namespace AtominaCraftV4.Rendering.Shaders {
             }
 
             GL.LinkProgram(this.ProgramId);
-
             GL.DeleteShader(this.vertexId);
             GL.DeleteShader(this.fragmentId);
         }
@@ -110,40 +110,40 @@ namespace AtominaCraftV4.Rendering.Shaders {
             GL.Uniform1(this.GetUniformLocation(name), value);
         }
 
-        public void SetUniformVec2(string name, in Vector2f value) {
-            GL.Uniform2(this.GetUniformLocation(name), value.x, value.y);
+        public void SetUniformVec2(string name, in Vector2 value) {
+            GL.Uniform2(this.GetUniformLocation(name), value.X, value.Y);
         }
 
-        public void SetUniformVec2(int location, in Vector2f value) {
-            GL.Uniform2(location, value.x, value.y);
+        public void SetUniformVec2(int location, in Vector2 value) {
+            GL.Uniform2(location, value.X, value.Y);
         }
 
         public static void SetUniformVec2(int location, float x, float z) {
             GL.Uniform2(location, x, z);
         }
 
-        public void SetUniformVec3(string name, in Vector3f value) {
-            GL.Uniform3(this.GetUniformLocation(name), value.x, value.y, value.z);
+        public void SetUniformVec3(string name, in Vector3 value) {
+            GL.Uniform3(this.GetUniformLocation(name), value.X, value.Y, value.Z);
         }
 
-        public void SetUniformVec4(string name, in Vector4f value) {
-            GL.Uniform4(this.GetUniformLocation(name), value.x, value.y, value.z, value.w);
+        public void SetUniformVec4(string name, in Vector4 value) {
+            GL.Uniform4(this.GetUniformLocation(name), value.X, value.Y, value.Z, value.W);
         }
 
-        public void SetUniformMatrix4(string name, in Matrix4 value) {
-            unsafe {
-                fixed (float* ptr = &value.M00) {
-                    GL.UniformMatrix4(this.GetUniformLocation(name), 1, true, ptr);
-                }
-            }
+        public void SetUniformMatrix4(string name, Matrix4 value) {
+            this.SetUniformMatrix4(name, ref value);
         }
 
-        public static void SetUniformMatrix4(int location, in Matrix4 value) {
-            unsafe {
-                fixed (float* ptr = &value.M00) {
-                    GL.UniformMatrix4(location, 1, true, ptr);
-                }
-            }
+        public void SetUniformMatrix4(string name, ref Matrix4 value) {
+            GL.UniformMatrix4(this.GetUniformLocation(name), true, ref value);
+        }
+
+        public static void SetUniformMatrix4(int location, Matrix4 value) {
+            SetUniformMatrix4(location, ref value);
+        }
+
+        public static void SetUniformMatrix4(int location, ref Matrix4 value) {
+            GL.UniformMatrix4(location, true, ref value);
         }
 
         public void Use() {
@@ -177,14 +177,14 @@ namespace AtominaCraftV4.Rendering.Shaders {
                         continue;
                     }
 
-                    int endIndex = trimmed.IndexOf(';', 3);
-                    if (endIndex == -1) {
-                        throw new Exception($"Missing semicolon for input variable, but it compiled???? for shader '{this.Name}': " + trimmed);
-                    }
-
                     int spaceIndex = trimmed.IndexOf(' ', 3);
                     if (spaceIndex == -1) {
                         throw new Exception($"Missing whitespace between input variable type and name, but it compiled???? for shader '{this.Name}': " + trimmed);
+                    }
+
+                    int endIndex = trimmed.IndexOf(';', spaceIndex);
+                    if (endIndex == -1) {
+                        throw new Exception($"Missing semicolon for input variable, but it compiled???? for shader '{this.Name}': " + trimmed);
                     }
 
                     this.attributes.Add(trimmed.JSubstring(spaceIndex + 1, endIndex));

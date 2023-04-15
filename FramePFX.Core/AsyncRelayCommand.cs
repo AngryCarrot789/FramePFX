@@ -33,7 +33,7 @@ namespace FramePFX.Core {
 
         public bool ConvertParameter { get; set; }
 
-        public AsyncRelayCommand(Func<T, Task> execute, Func<T, bool> canExecute = null, bool convertParameter = false) {
+        public AsyncRelayCommand(Func<T, Task> execute, Func<T, bool> canExecute = null, bool convertParameter = true) {
             if (execute == null) {
                 throw new ArgumentNullException(nameof(execute), "Execute callback cannot be null");
             }
@@ -45,10 +45,7 @@ namespace FramePFX.Core {
 
         public override bool CanExecute(object parameter) {
             if (base.CanExecute(parameter)) {
-                if (this.ConvertParameter) {
-                    parameter = GetConvertedParameter<T>(parameter);
-                }
-
+                parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
                 return (parameter == null || parameter is T) && this.canExecute((T) parameter);
             }
 
@@ -56,10 +53,7 @@ namespace FramePFX.Core {
         }
 
         protected override Task ExecuteAsync(object parameter) {
-            if (this.ConvertParameter) {
-                parameter = GetConvertedParameter<T>(parameter);
-            }
-
+            parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
             if (parameter == null || parameter is T) {
                 return this.execute((T) parameter);
             }

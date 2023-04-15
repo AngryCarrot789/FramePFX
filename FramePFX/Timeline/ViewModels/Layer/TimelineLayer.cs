@@ -4,23 +4,20 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Input.StylusPlugIns;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.ResourceManaging;
 using FramePFX.ResourceManaging.Items;
-using FramePFX.ResourceManaging.VideoResources;
 using FramePFX.Timeline.Layer;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Clips.Resizable;
-using FramePFX.Timeline.ViewModels.Timeline;
-using Timelining;
-using Timelining.Layer;
-using Timelining.ViewModels.Clips;
-using Timelining.ViewModels.Clips.Resizable;
 
 namespace FramePFX.Timeline.ViewModels.Layer {
-    public class TimelineLayer : BaseViewModel, IResourceDropNotifier {
+    public abstract class TimelineLayer : BaseViewModel, IResourceDropNotifier {
+        private EfficientObservableCollection<BaseTimelineClip> clips;
+
         private string name;
         public string Name {
             get => this.name;
@@ -45,32 +42,22 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             set => this.RaisePropertyChanged(ref this.height, Math.Max(Math.Min(value, this.MaxHeight), this.MinHeight));
         }
 
-        private float opacity;
-
-        /// <summary>
-        /// The opacity of this layer. Between 0f and 1f (not yet implemented properly)
-        /// </summary>
-        public float Opacity {
-            get => this.opacity;
-            set => this.RaisePropertyChanged(ref this.opacity, Maths.Clamp(value, 0f, 1f), () => this.Timeline.MarkRenderDirty());
-        }
-
-        public TimelineViewModel Timeline { get; }
+        public EditorTimeline Timeline { get; }
 
         public ICommand RenameLayerCommand { get; }
 
-        public ObservableCollection<ClipContainer> Clips { get; }
+        public ReadOnlyObservableCollection<BaseTimelineClip> Clips { get; }
 
         public ILayerHandle Control { get; set; }
 
-        public TimelineLayer(TimelineViewModel timeline) {
-            this.Clips = new ObservableCollection<ClipContainer>();
-            this.Clips.CollectionChanged += this.ClipsOnCollectionChanged;
+        public TimelineLayer(EditorTimeline timeline) {
+            this.clips = new EfficientObservableCollection<BaseTimelineClip>();
+            this.clips.CollectionChanged += this.ClipsOnCollectionChanged;
+            this.Clips = new ReadOnlyObservableCollection<BaseTimelineClip>(this.clips);
             this.Timeline = timeline;
             this.MaxHeight = 200d;
             this.MinHeight = 40;
             this.Height = 60;
-            this.Opacity = 1f;
 
             this.RenameLayerCommand = new RelayCommand(() => {
                 string result = CoreIoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", InputValidator.SingleError(x => this.Timeline.Layers.Any(b => b.Name == x), "Layer already exists with that name"));
@@ -80,34 +67,31 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             });
         }
 
-        private void ClipsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        protected virtual void ClipsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            if (e.OldItems != null) {
+                foreach (object x in e.OldItems) {
+                    if (x is BaseTimelineClip clip) {
+                        clip.Layer = null;
+                    }
+                }
+            }
+
             if (e.NewItems != null) {
                 foreach (object x in e.NewItems) {
-                    if (x is ClipContainer clip) {
-                        clip.TimelineLayer = this;
+                    if (x is TimelineVideoClip clip) {
+                        clip.Layer = this;
                     }
                 }
             }
         }
 
-        public ClipContainer CreateVideoClipContainer(long frameBegin, long frameDuration) {
-            return new ClipContainer() {
-                TimelineLayer = this,
-                FrameBegin = frameBegin,
-                FrameDuration = frameDuration
-            };
-        }
-
-        public ShapeClipViewModel CreateSquareClip(long begin, long duration, ResourceColour colour) {
-            ClipContainer container = this.CreateVideoClipContainer(begin, duration);
-            ShapeClipViewModel clip = new ShapeClipViewModel {
-                Resource = colour
+        public ShapeTimelineClip CreateSquareClip(long begin, long duration, ResourceShapeColour colour) {
+            ShapeTimelineClip timelineClip = new ShapeTimelineClip {
+                Resource = colour, FrameBegin = begin, FrameDuration = duration
             };
 
-            ClipContainer.SetClipContent(container, clip);
-            TimelineClip.SetContainer(clip, container);
-            this.Clips.Add(container);
-            return clip;
+            this.clips.Add(timelineClip);
+            return timelineClip;
         }
 
         // public ImageClipViewModel CreateImageClip(long begin, long duration, ImageResourceViewModel image) {
@@ -121,30 +105,41 @@ namespace FramePFX.Timeline.ViewModels.Layer {
         //     return clip;
         // }
 
-        public void MakeTopMost(ClipContainer clip) {
+        public void MakeTopMost(TimelineVideoClip videoClip) {
             int endIndex = this.Clips.Count - 1;
-            int index = this.Clips.IndexOf(clip);
+            int index = this.Clips.IndexOf(videoClip);
             if (index == -1 || index == endIndex) {
                 return;
             }
 
-            this.Clips.Move(index, endIndex);
+            this.clips.Move(index, endIndex);
         }
 
-        public void RemoveRegion(long frameBegin, long frameEnd, Action<ClipContainer> onModified, Action<ClipContainer> onRemoved) {
-            foreach (ClipContainer clip in this.Clips) {
+        public void RemoveRegion(long frameBegin, long frameEnd, Action<TimelineVideoClip> onModified, Action<TimelineVideoClip> onRemoved) {
+        }
 
+        public bool DeleteClip(BaseTimelineClip clip) {
+            return this.clips.Remove(clip);
+        }
+
+        public virtual Task OnVideoResourceDropped(ResourceItem resource, long frameBegin) {
+            if (resource is ResourceShapeColour shape) {
+                long endIndex = frameBegin + 300;
+                if (endIndex >= this.Timeline.MaxDuration) {
+                    endIndex = this.Timeline.MaxDuration - 1;
+                }
+
+                if (endIndex > frameBegin) {
+                    ShapeTimelineClip square = this.CreateSquareClip(frameBegin, endIndex - frameBegin, shape);
+                    square.SetShape(0, 0, 200f, 200f);
+                    square.Name = resource.UniqueID;
+                }
             }
-        }
-
-        public bool DeleteClip(ClipContainer clip) {
-            return this.Clips.Remove(clip);
-        }
-
-        public async Task OnResourceDropped(ResourceItem resource) {
-            if (resource is ResourceImage imageResource) {
+            else if (resource is ResourceImage imageResource) {
                 // this.CreateImageClip(0, 300, imageResource);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

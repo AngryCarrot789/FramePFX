@@ -7,13 +7,11 @@ using FramePFX.Project;
 using FramePFX.Render;
 using FramePFX.Timeline.ViewModels;
 using FramePFX.Timeline.ViewModels.Clips;
-using Timelining.Layer.Clips;
-using Timelining.ViewModels.Timeline;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX {
-    public class PlaybackViewportViewModel : BaseViewModel {
+    public class ViewportPlayback : BaseViewModel {
         private volatile bool isPlaying;
         public bool IsPlaying {
             get => this.isPlaying;
@@ -34,7 +32,7 @@ namespace FramePFX {
         /// </summary>
         public IViewPort ViewPortHandle { get; set; }
 
-        public VideoEditorViewModel Editor { get; }
+        public VideoEditor Editor { get; }
 
         private readonly Thread playbackThread;
         private long nextPlaybackTick;
@@ -42,7 +40,7 @@ namespace FramePFX {
         public volatile bool isPlaybackThreadRunning;
         public readonly NumberAverager playbackAverageIntervalMS = new NumberAverager(10);
 
-        public PlaybackViewportViewModel(VideoEditorViewModel editor) {
+        public ViewportPlayback(VideoEditor editor) {
             this.Editor = editor;
             this.PlayPauseCommand = new RelayCommand(() => {
                 if (this.IsPlaying) {
@@ -74,13 +72,11 @@ namespace FramePFX {
 
         public void RenderTimeline(EditorTimeline timeline, long playHead, IViewPort view) {
             if (view != null && view.BeginRender(true)) {
-                List<ClipContainer> clips = timeline.GetClipsOnPlayHead().ToList();
+                List<TimelineVideoClip> clips = timeline.GetVideoClipsIntersectingFrame().ToList();
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 // TODO: change this to support layer opacity. And also move to shaders because this glVertex3f old stuff it no good
-                foreach (ClipContainer clip in clips) {
-                    if (clip.Content is IVideoClip target) {
-                        target.Render(view, playHead);
-                    }
+                foreach (TimelineVideoClip clip in clips) {
+                    clip.Render(view, playHead);
                     // TODO: add audio... somehow. I have no idea how to do audio lololol
                     // else if (clip.Content is IAudioClip audioClip) {
                     //     audioClip.RenderAudioSomehow();
@@ -97,7 +93,7 @@ namespace FramePFX {
             this.lastPlaybackTick = 0;
             this.nextPlaybackTick = 0;
             while (this.isPlaybackThreadRunning) {
-                Project.Project project;
+                EditorProject project;
                 EditorTimeline timeline;
                 if ((project = IoC.ActiveProject) == null || (timeline = project.Timeline) == null) {
                     Thread.Sleep(100);

@@ -2,7 +2,7 @@ using FramePFX.Render;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
-    public abstract class PositionableClipViewModel : VideoClipViewModel {
+    public abstract class PositionableTimelineClip : TimelineVideoClip {
         protected float x;
         protected float y;
         protected float width;
@@ -28,10 +28,12 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             set => this.RaisePropertyChanged(ref this.height, value);
         }
 
+        // for internal usage
+
         public bool UseScaledRender { get; set; }
 
-        protected PositionableClipViewModel() {
-            this.UseScaledRender = true;
+        protected PositionableTimelineClip() {
+
         }
 
         public void SetShape(float x, float y, float w, float h) {

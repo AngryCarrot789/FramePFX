@@ -5,7 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Render {
+namespace FramePFX.Render.OGL {
     public class OGLRenderContext : IRenderContext {
         private readonly UsageCounter contextUsage;
         private volatile bool isReady;

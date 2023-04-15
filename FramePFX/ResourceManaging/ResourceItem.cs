@@ -1,14 +1,18 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.ResourceManaging.Items;
 
 namespace FramePFX.ResourceManaging {
-    public class ResourceItemViewModel : BaseViewModel, IDisposable {
+    public class ResourceItem : BaseViewModel, IDisposable {
         private string uniqueId;
         private bool isRegistered;
-        private ResourceManagerViewModel manager;
+        private ResourceManager manager;
+
+        public delegate void ResourceModifiedHandler(string propetyName);
+        public event ResourceModifiedHandler OnResourceModified;
 
         /// <summary>
         /// The unique ID of this item. There should not be any other resource items with this ID
@@ -29,16 +33,21 @@ namespace FramePFX.ResourceManaging {
         /// <summary>
         /// The manager associated with this item. If <see cref="IsRegistered"/> is false, then this should be null
         /// </summary>
-        public ResourceManagerViewModel Manager {
+        public ResourceManager Manager {
             get => this.manager;
             set => this.RaisePropertyChanged(ref this.manager, value);
         }
 
         private bool isDisposed;
-
         public bool IsDisposed {
             get => this.isDisposed;
             private set => this.RaisePropertyChanged(ref this.isDisposed, value);
+        }
+
+        private bool isDisposing;
+        public bool IsDisposing {
+            get => this.isDisposing;
+            private set => this.RaisePropertyChanged(ref this.isDisposing, value);
         }
 
         public ICommand RenameCommand { get; }
@@ -47,9 +56,17 @@ namespace FramePFX.ResourceManaging {
         
         public INativeResource Resource { get; set; }
 
-        public ResourceItemViewModel() {
+        public ResourceItem() {
             this.RenameCommand = new RelayCommand(async () => await this.RenameAction());
             this.DeleteCommand = new RelayCommand(async () => await this.DeleteAction());
+        }
+
+        public void RaiseResourceModified(string propertyName) {
+            this.OnResourceModified?.Invoke(propertyName);
+        }
+
+        public void RaiseResourceModifiedAuto([CallerMemberName] string propertyName = null) {
+            this.OnResourceModified?.Invoke(propertyName);
         }
 
         private Task RenameAction() {
@@ -66,10 +83,14 @@ namespace FramePFX.ResourceManaging {
             }
 
             try {
+                this.IsDisposing = true;
                 this.DisposeResource();
             }
             finally {
-                this.IsDisposed = true;
+                if (this.isDisposing) { // just in case setting IsDisposing throws for some weird reason
+                    this.IsDisposed = true;
+                    this.IsDisposing = false;
+                }
             }
         }
 

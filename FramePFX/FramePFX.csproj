@@ -104,23 +104,27 @@
     <Compile Include="DispatcherDelegate.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="IoC.cs" />
-    <Compile Include="Project\ProjectViewModel.cs" />
+    <Compile Include="Project\EditorProject.cs" />
     <Compile Include="Render\DispatchReceiver.cs" />
     <Compile Include="Render\DispatchThread.cs" />
     <Compile Include="Render\FrameBuffer.cs" />
     <Compile Include="Render\IRenderContext.cs" />
     <Compile Include="Render\IViewPort.cs" />
-    <Compile Include="Render\OGLRenderContext.cs" />
-    <Compile Include="Render\OGLUtils.cs" />
-    <Compile Include="Render\OGLViewportControl.cs" />
+    <Compile Include="Render\OGL\OGLRenderContext.cs" />
+    <Compile Include="Render\OGL\OGLUtils.cs" />
+    <Compile Include="Render\OGL\OGLViewportControl.cs" />
+    <Compile Include="Render\OGL\Shader\PinkShader.cs" />
+    <Compile Include="Render\OGL\Shader\Shader.cs" />
     <Compile Include="Render\Texture.cs" />
-    <Compile Include="ResourceManaging\IFileDropNotifier.cs" />
+    <Compile Include="ResourceLocator.cs" />
     <Compile Include="ResourceManaging\IResourceListHandle.cs" />
     <Compile Include="ResourceManaging\Items\INativeResource.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceColourViewModel.cs" />
-    <Compile Include="ResourceManaging\ResourceItemViewModel.cs" />
-    <Compile Include="ResourceManaging\ResourceManagerViewModel.cs" />
-    <Compile Include="ResourceManaging\VideoResources\ImageResourceViewModel.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceShapeColour.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceImage.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceText.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceVideoMedia.cs" />
+    <Compile Include="ResourceManaging\ResourceItem.cs" />
+    <Compile Include="ResourceManaging\ResourceManager.cs" />
     <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
     <Compile Include="Shortcuts\Bindings\ContextualShortcutCommandBinding.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
@@ -160,9 +164,11 @@
     </Compile>
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
-    <Compile Include="Timeline\Controls\TimelineClipContainerControl.cs" />
+    <Compile Include="Timeline\Controls\BaseTimelineClipControl.cs" />
+    <Compile Include="Timeline\Controls\BaseTimelineLayerControl.cs" />
+    <Compile Include="Timeline\Controls\TimelineVideoClipControl.cs" />
     <Compile Include="Timeline\Controls\TimelineControl.cs" />
-    <Compile Include="Timeline\Controls\TimelineLayerControl.cs" />
+    <Compile Include="Timeline\Controls\VideoTimelineLayerControl.cs" />
     <Compile Include="Timeline\Controls\TimelinePlayHeadControl.cs" />
     <Compile Include="Timeline\FrameSpan.cs" />
     <Compile Include="Timeline\IHasZoom.cs" />
@@ -173,29 +179,25 @@
     <Compile Include="Timeline\Layer\Clips\ClipType.cs" />
     <Compile Include="Timeline\Layer\Clips\IAudioClip.cs" />
     <Compile Include="Timeline\Layer\Clips\IClip.cs" />
-    <Compile Include="Timeline\Layer\Clips\IClipContainerHandle.cs" />
+    <Compile Include="Timeline\Layer\Clips\IClipHandle.cs" />
     <Compile Include="Timeline\Layer\Clips\IVideoClip.cs" />
     <Compile Include="Timeline\Layer\ILayerHandle.cs" />
-    <Compile Include="Timeline\New\IClip.cs" />
-    <Compile Include="Timeline\New\IClipContainer.cs" />
-    <Compile Include="Timeline\New\ITimeline.cs" />
     <Compile Include="Timeline\TimelineUtils.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\ClipContainerViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\ClipViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\IAcceptResource.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeClipViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\Resizable\PositionableClipViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\VideoClipViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\LayerViewModel.cs" />
-    <Compile Include="Timeline\ViewModels\Timeline\TimelineViewModel.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\BaseTimelineClip.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\TimelineVideoClip.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeTimelineClip.cs" />
+    <Compile Include="Timeline\ViewModels\Clips\Resizable\PositionableTimelineClip.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\TimelineLayer.cs" />
+    <Compile Include="Timeline\ViewModels\EditorTimeline.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\VideoTimelineLayer.cs" />
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
-    <Compile Include="VideoEditorViewModel.cs" />
-    <Compile Include="PlaybackViewportViewModel.cs" />
+    <Compile Include="VideoEditor.cs" />
+    <Compile Include="ViewportPlayback.cs" />
     <Compile Include="ResourceManaging\ResourceItemControl.cs" />
     <Compile Include="ResourceManaging\ResourceListControl.cs" />
     <Compile Include="Services\ClipboardService.cs" />
@@ -336,6 +338,23 @@
     <Resource Include="Keymap.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Render\Direct3D" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Shaders\pink.frag" />
+    <Content Include="Resources\Shaders\pink.vert" />
+    <Content Include="Resources\Shaders\rgb.frag" />
+    <Content Include="Resources\Shaders\rgb.vert" />
+    <Content Include="Resources\Shaders\sky.frag" />
+    <Content Include="Resources\Shaders\sky.vert" />
+    <Content Include="Resources\Shaders\texture.frag" />
+    <Content Include="Resources\Shaders\texture.vert" />
+    <Content Include="Resources\Shaders\textureatlas.frag" />
+    <Content Include="Resources\Shaders\textureatlas.vert" />
+    <Content Include="Resources\Shaders\xyz.frag" />
+    <Content Include="Resources\Shaders\xyz.vert" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

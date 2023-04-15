@@ -89,8 +89,17 @@ namespace FramePFX.Interactivity {
                 FileDropType type = (FileDropType) ((int) e.Effects & (int) FileDropType.All);
                 SetIsProcessingDragDropEntry(element, true);
                 try {
-                    if (!await notifier.CanDrop(files, type)) {
+                    if (!await notifier.CanDrop(files, ref type)) {
                         e.Effects = DragDropEffects.None; // does nothing
+                    }
+                    else {
+                        switch (type) {
+                            case FileDropType.None: e.Effects = DragDropEffects.None; break;
+                            case FileDropType.Copy: e.Effects = DragDropEffects.Copy; break;
+                            case FileDropType.Move: e.Effects = DragDropEffects.Move; break;
+                            case FileDropType.All:  e.Effects = DragDropEffects.Copy | DragDropEffects.Move; break;
+                            default: throw new ArgumentOutOfRangeException();
+                        }
                     }
 
                     e.Handled = true;
@@ -116,8 +125,8 @@ namespace FramePFX.Interactivity {
                 FileDropType type = (FileDropType) ((int) e.Effects & (int) FileDropType.All);
                 SetIsProcessingDragDropProcess(element, true);
                 try {
-                    if (await notifier.CanDrop(files, type)) {
-                        e.Effects = (DragDropEffects) await notifier.OnFilesDropped(files, type);
+                    if (await notifier.CanDrop(files, ref type)) {
+                        await notifier.OnFilesDropped(files);
                     }
                     else {
                         e.Effects = DragDropEffects.None;

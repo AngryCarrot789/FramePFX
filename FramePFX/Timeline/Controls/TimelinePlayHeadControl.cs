@@ -117,10 +117,10 @@ namespace FramePFX.Timeline.Controls {
             }
 
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
-                TimelineClipContainerControl closestClip = null;
+                TimelineVideoClipControl closestClip = null;
                 long closestFrame = begin;
-                List<TimelineClipContainerControl> clips = timeline.GetClipsInArea(new FrameSpan(begin - 10, 20)).ToList();
-                foreach (TimelineClipContainerControl clip in clips) {
+                List<TimelineVideoClipControl> clips = timeline.GetClipsInArea(new FrameSpan(begin - 10, 20)).ToList();
+                foreach (TimelineVideoClipControl clip in clips) {
                     // this code is still broken and doesn't latch to the nearest when the clips list is 
                     FrameSpan span = clip.Span;
                     long a = Math.Abs(begin - span.Begin);

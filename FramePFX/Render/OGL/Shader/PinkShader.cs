@@ -1,6 +1,7 @@
-using AtominaCraftV4.REghZy.MathsF;
 
-namespace AtominaCraftV4.Rendering.Shaders {
+using OpenTK;
+
+namespace FramePFX.Render.OGL.Shader {
     public class PinkShader : Shader {
         const string vertexShader =
             "#version 330\n" +

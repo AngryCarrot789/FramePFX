@@ -6,19 +6,20 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
+using FramePFX.Project;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 
-namespace FramePFX.Timeline.ViewModels.Timelining {
-    public class TimelineViewModel : BaseViewModel {
+namespace FramePFX.Timeline.ViewModels {
+    public class EditorTimeline : BaseViewModel {
         private readonly RapidDispatchCallback renderDispatch;
         private readonly ObservableCollection<TimelineLayer> layers;
         private volatile bool ignorePlayHeadPropertyChange;
         public volatile bool isFramePropertyChangeScheduled;
 
-        public Project.Project Project { get; }
+        public EditorProject Project { get; }
 
-        public PlaybackViewportViewModel PlaybackViewport => this.Project.VideoEditor.PlaybackView;
+        public ViewportPlayback PlaybackViewport => this.Project.VideoEditor.PlaybackView;
 
         /// <summary>
         /// This timeline's layer collection
@@ -31,14 +32,14 @@ namespace FramePFX.Timeline.ViewModels.Timelining {
             set => this.RaisePropertyChanged(ref this.selectedTimelineLayer, value);
         }
 
-        private TimelineClip mainSelectedClip;
-        public TimelineClip MainSelectedClip {
+        private BaseTimelineClip mainSelectedClip;
+        public BaseTimelineClip MainSelectedClip {
             get => this.mainSelectedClip;
             set => this.RaisePropertyChanged(ref this.mainSelectedClip, value);
         }
 
-        private TimelineClip clipToModify;
-        public TimelineClip ClipToModify {
+        private BaseTimelineClip clipToModify;
+        public BaseTimelineClip ClipToModify {
             get => this.clipToModify;
             set => this.RaisePropertyChanged(ref this.clipToModify, value);
         }
@@ -90,25 +91,25 @@ namespace FramePFX.Timeline.ViewModels.Timelining {
 
         public bool IsRenderDirty { get; private set; }
 
-        public RelayCommand<string> DeleteSelectedClipsCommand { get; }
+        public RelayCommand<bool> DeleteSelectedClipsCommand { get; }
         public ICommand DeleteSelectedLayerCommand { get; }
 
-        public TimelineViewModel(Project.Project project) {
+        public EditorTimeline(EditorProject project) {
             this.Project = project;
             this.layers = new ObservableCollection<TimelineLayer>();
             this.Layers = new ReadOnlyObservableCollection<TimelineLayer>(this.layers);
             this.renderDispatch = new RapidDispatchCallback(this.RenderViewPortAndMarkNotDirty) {
                 InvokeLater = true
             };
-            this.DeleteSelectedClipsCommand = new RelayCommand<string>(async (x) => await this.DeleteSelectedClipsAction(x));
+            this.DeleteSelectedClipsCommand = new RelayCommand<bool>(async (x) => await this.DeleteSelectedClipsAction(x));
             this.DeleteSelectedLayerCommand = new RelayCommand(this.DeleteSelectedLayerAction);
         }
 
-        public void OnUpdateSelection(IEnumerable<ClipContainer> clips) {
+        public void OnUpdateSelection(IEnumerable<TimelineVideoClip> clips) {
             this.GenerateProperties(clips.ToList());
         }
 
-        public void GenerateProperties(List<ClipContainer> clips) {
+        public void GenerateProperties(List<TimelineVideoClip> clips) {
             // List<List<PropertyGroupViewModel>> groupTypes = new List<List<PropertyGroupViewModel>>();
             // for (int i = 0; i < clips.Count; i++) {
             //     ClipContainerViewModel clip = clips[i];
@@ -137,17 +138,17 @@ namespace FramePFX.Timeline.ViewModels.Timelining {
             }
         }
 
-        public async Task DeleteSelectedClipsAction(string skipDialog) {
-            List<ClipContainer> list = this.Handle.GetSelectedClips().ToList();
+        public async Task DeleteSelectedClipsAction(bool skipDialog) {
+            List<TimelineVideoClip> list = this.Handle.GetSelectedClips().ToList();
             switch (list.Count) {
                 case 0: return;
                 case 1:
-                    list[0].TimelineLayer.DeleteClip(list[0]);
+                    list[0].Layer.DeleteClip(list[0]);
                     return;
                 default: {
-                    if (skipDialog == "true" || await CoreIoC.MessageDialogs.ShowYesNoDialogAsync("Delete clips", "Do you want to delete these " + list.Count + " clips?")) {
-                        foreach (ClipContainer clip in list) {
-                            clip.TimelineLayer.DeleteClip(clip);
+                    if (skipDialog || await CoreIoC.MessageDialogs.ShowYesNoDialogAsync("Delete clips", "Do you want to delete these " + list.Count + " clips?")) {
+                        foreach (TimelineVideoClip clip in list) {
+                            clip.Layer.DeleteClip(clip);
                         }
                     }
 
@@ -194,22 +195,22 @@ namespace FramePFX.Timeline.ViewModels.Timelining {
             IoC.VideoEditor.PlaybackView.RenderTimeline(this);
         }
 
-        public IEnumerable<ClipContainer> GetClipsOnPlayHead() {
-            return this.GetClipsIntersectingFrame(this.playHeadFrame);
+        public IEnumerable<TimelineVideoClip> GetVideoClipsIntersectingFrame() {
+            return this.GetVideoClipsIntersectingFrame(this.playHeadFrame);
         }
 
-        public IEnumerable<ClipContainer> GetClipsIntersectingFrame(long frame) {
+        public IEnumerable<TimelineVideoClip> GetVideoClipsIntersectingFrame(long frame) {
             foreach (TimelineLayer layer in this.layers) {
-                foreach (ClipContainer clip in layer.Clips) {
-                    if (clip.IntersectsFrameAt(frame)) {
-                        yield return clip;
+                foreach (BaseTimelineClip clip in layer.Clips) {
+                    if (clip is TimelineVideoClip vc && vc.IntersectsFrameAt(frame)) {
+                        yield return vc;
                     }
                 }
             }
         }
 
         public TimelineLayer CreateLayer(string name = null) {
-            TimelineLayer timelineLayer = new TimelineLayer(this) {
+            VideoTimelineLayer timelineLayer = new VideoTimelineLayer(this) {
                 Name = name ?? $"Layer {this.Layers.Count + 1}"
             };
             this.layers.Add(timelineLayer);

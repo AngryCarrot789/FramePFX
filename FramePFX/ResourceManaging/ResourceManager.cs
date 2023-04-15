@@ -9,9 +9,8 @@ using FramePFX.Core.Interactivity;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Project;
-using FramePFX.ResourceManaging.VideoResources;
+using FramePFX.ResourceManaging.Items;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace FramePFX.ResourceManaging {
@@ -19,7 +18,7 @@ namespace FramePFX.ResourceManaging {
     /// Used to manage project resources, e.g. images, videos, text, etc. This is basically just to map a unique key
     /// to a file path which may need to be changed without having to change every clip that uses the resource
     /// </summary>
-    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier {
+    public class ResourceManager : BaseViewModel, IFileDropNotifier {
         private readonly Dictionary<string, ResourceItem> uuidToItem;
         private readonly ObservableCollection<ResourceItem> items;
 
@@ -34,12 +33,12 @@ namespace FramePFX.ResourceManaging {
         /// </summary>
         public IResourceListHandle Handle { get; set; }
 
-        public ProjectViewModel Project { get; }
+        public EditorProject Project { get; }
 
         // Used to validate resource renaming input
         private readonly InputValidator validator;
 
-        public ResourceManagerViewModel(ProjectViewModel project) {
+        public ResourceManager(EditorProject project) {
             this.Project = project;
             this.uuidToItem = new Dictionary<string, ResourceItem>();
             this.items = new ObservableCollection<ResourceItem>();
@@ -47,8 +46,12 @@ namespace FramePFX.ResourceManaging {
             this.RenameResourceCommand = new RelayCommand<ResourceItem>(async x => await this.RenameResourceAction(x));
             this.DeleteResourceCommand = new RelayCommand<ResourceItem>(async x => await this.RenameResourceAction(x));
             this.validator = new InputValidator((string input, out string message) => {
-                if (string.IsNullOrWhiteSpace(input)) {
+                if (string.IsNullOrEmpty(input)) {
                     message = "Input cannot be empty";
+                    return true;
+                }
+                else if (string.IsNullOrWhiteSpace(input)) { // might as well handle null/empty and whitespaces separately
+                    message = "Input cannot be empty or consist of only whitespaces";
                     return true;
                 }
                 else if (this.GetResourceById(input) != null) {
@@ -115,10 +118,8 @@ namespace FramePFX.ResourceManaging {
         }
 
         public void AddResource(string uuid, ResourceItem item, bool addToList = true) {
-            if (string.IsNullOrWhiteSpace(uuid)) {
-                throw new Exception("UUID cannot be null or empty");
-            }
-            else if (this.uuidToItem.ContainsKey(uuid)) {
+            ValidateId(uuid);
+            if (this.uuidToItem.ContainsKey(uuid)) {
                 throw new Exception("Resource already exists with UUID: " + uuid);
             }
             else {
@@ -134,10 +135,8 @@ namespace FramePFX.ResourceManaging {
         }
 
         public ResourceItem GetResourceById(string uuid) {
-            if (string.IsNullOrWhiteSpace(uuid)) {
-                throw new Exception("UUID cannot be null or empty");
-            }
-            else if (this.uuidToItem.TryGetValue(uuid, out ResourceItem resource)) {
+            ValidateId(uuid);
+            if (this.uuidToItem.TryGetValue(uuid, out ResourceItem resource)) {
                 CheckMismatchedUUID(uuid, resource);
                 return resource;
             }
@@ -151,10 +150,8 @@ namespace FramePFX.ResourceManaging {
         }
 
         public ResourceItem RemoveResource(string uuid) {
-            if (string.IsNullOrWhiteSpace(uuid)) {
-                throw new Exception("UUID cannot be null or empty");
-            }
-            else if (this.uuidToItem.TryGetValue(uuid, out ResourceItem resource)) {
+            ValidateId(uuid);
+            if (this.uuidToItem.TryGetValue(uuid, out ResourceItem resource)) {
                 CheckMismatchedUUID(uuid, resource);
                 resource.IsRegistered = false;
                 resource.Manager = null;
@@ -182,6 +179,7 @@ namespace FramePFX.ResourceManaging {
         }
 
         public ResourceItem AddFile(string file) {
+            // TODO: Be able to differentiate images from video. Hopefully Image.Load never loads a video/gif?
             Image<Bgra32> image = null;
             try {
                 image = Image.Load<Bgra32>(file);
@@ -189,7 +187,7 @@ namespace FramePFX.ResourceManaging {
             catch { /* ignored */ }
 
             if (image != null) {
-                ImageResource resource = new ImageResource();
+                ResourceImage resource = new ResourceImage();
                 resource.ImageData = image;
                 resource.FilePath = file;
                 this.AddResource(this.GenerateUniqueIdForFile(file), resource);
@@ -224,6 +222,12 @@ namespace FramePFX.ResourceManaging {
                 if (resource == null) {
                     await CoreIoC.MessageDialogs.ShowMessageAsync("Failed to load image", $"Could not load image for file: {file}");
                 }
+            }
+        }
+
+        public static void ValidateId(string uuid) {
+            if (string.IsNullOrWhiteSpace(uuid)) {
+                throw new Exception("UUID cannot be null or empty");
             }
         }
     }

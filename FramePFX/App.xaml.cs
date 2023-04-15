@@ -3,14 +3,13 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using FramePFX.Converters;
 using FramePFX.Core;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Render;
+using FramePFX.Render.OGL;
 using FramePFX.Services;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
-using FramePFX.Shortcuts.Views;
 using FramePFX.Views.Dialogs.FilePicking;
 using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.UserInputs;
@@ -57,7 +56,7 @@ namespace FramePFX {
             //     }
             // }
 
-            IoC.VideoEditor = new VideoEditorViewModel();
+            IoC.VideoEditor = new VideoEditor();
             this.MainWindow = new MainWindow {
                 DataContext = IoC.VideoEditor
             };

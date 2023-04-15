@@ -39,7 +39,7 @@ namespace FramePFX.Timeline.Controls {
 
         public long PlayHeadFrame {
             get => this.FrameBegin;
-            set => this.FrameBegin = Maths.Clamp(value, 0, this.Timeline.MaxDuration - 1);
+            set => this.FrameBegin = Maths.Clamp(value, 0, (this.Timeline?.MaxDuration ?? 1) - 1);
         }
 
         public TimelineControl Timeline {
@@ -74,12 +74,12 @@ namespace FramePFX.Timeline.Controls {
         }
 
         public override void OnApplyTemplate() {
-            base.OnApplyTemplate();
             this.PART_ThumbHead = this.GetTemplateElement<Thumb>("PART_ThumbHead");
             this.PART_ThumbBody = this.GetTemplateElement<Thumb>("PART_ThumbBody");
             if (this.PART_ThumbHead != null) {
                 this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
             }
+
             if (this.PART_ThumbBody != null) {
                 this.PART_ThumbBody.DragDelta += this.PART_ThumbOnDragDelta;
             }
@@ -110,13 +110,10 @@ namespace FramePFX.Timeline.Controls {
                 return;
             }
 
-            long begin = this.FrameBegin + change;
-            if (begin >= timeline.MaxDuration) {
+            long frame = this.FrameBegin;
+            long begin = Maths.Clamp(frame + change, 0, timeline.MaxDuration - 1);
+            if (begin == frame) {
                 return;
-            }
-
-            if (begin < 0) {
-                begin = 0;
             }
 
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
@@ -155,33 +152,25 @@ namespace FramePFX.Timeline.Controls {
                         e.Handled = true;
                     }
                     else {
-                        try {
-                            this.isDraggingThumb = true;
-                            this.FrameBegin = closestFrame;
-                        }
-                        finally {
-                            this.isDraggingThumb = false;
-                        }
+                        this.SetFrameBegin(closestFrame);
                     }
                 }
                 else {
-                    try {
-                        this.isDraggingThumb = true;
-                        this.FrameBegin = begin;
-                    }
-                    finally {
-                        this.isDraggingThumb = false;
-                    }
+                    this.SetFrameBegin(begin);
                 }
             }
             else {
-                try {
-                    this.isDraggingThumb = true;
-                    this.FrameBegin = begin;
-                }
-                finally {
-                    this.isDraggingThumb = false;
-                }
+                this.SetFrameBegin(begin);
+            }
+        }
+
+        private void SetFrameBegin(long frame) {
+            try {
+                this.isDraggingThumb = true;
+                this.FrameBegin = frame;
+            }
+            finally {
+                this.isDraggingThumb = false;
             }
         }
 
@@ -198,12 +187,13 @@ namespace FramePFX.Timeline.Controls {
             this.RealPixelX = this.FrameBegin * (this.Timeline?.UnitZoom ?? 1d);
         }
 
+        private static readonly FieldInfo IsDraggingPropertyKeyField = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
+
         public void EnableDragging(Point point) {
             this.PART_ThumbBody.Focus();
             this.PART_ThumbBody.CaptureMouse();
             // lazy... could create custom control extending Thumb to modify this but this works so :D
-            FieldInfo key = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
-            this.PART_ThumbBody.SetValue((DependencyPropertyKey) key.GetValue(null), true);
+            this.PART_ThumbBody.SetValue((DependencyPropertyKey) IsDraggingPropertyKeyField.GetValue(null), true);
             bool flag = true;
             try {
                 this.PART_ThumbBody.RaiseEvent(new DragStartedEventArgs(point.X, point.Y));

@@ -4,6 +4,6 @@ using FramePFX.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Timeline {
     public interface IResourceDropNotifier {
-        Task OnResourceDropped(ResourceItemViewModel resource);
+        Task OnResourceDropped(ResourceItem resource);
     }
 }

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Managing;
-using SharpPadV2.Core.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class WPFShortcutManager : ShortcutManager {
         public const int BUTTON_WHEEL_UP = 143;   // Away from the user
         public const int BUTTON_WHEEL_DOWN = 142; // Towards the user

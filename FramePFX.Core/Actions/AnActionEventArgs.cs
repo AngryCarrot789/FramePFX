@@ -1,7 +1,7 @@
 using System;
-using SharpPadV2.Core.Actions.Contexts;
+using FramePFX.Core.Actions.Contexts;
 
-namespace SharpPadV2.Core.Actions {
+namespace FramePFX.Core.Actions {
     /// <summary>
     /// Action event arguments for when an action is about to be executed
     /// </summary>

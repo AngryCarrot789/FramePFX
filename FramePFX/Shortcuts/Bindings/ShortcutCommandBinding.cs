@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using SharpPadV2.Core;
-using SharpPadV2.Core.Shortcuts.Managing;
+using FramePFX.Core;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace SharpPadV2.Shortcuts.Bindings {
+namespace FramePFX.Shortcuts.Bindings {
     /// <summary>
     /// A global shortcut command binding lets you execute a command when a specific shortcut is activated
     /// <para>

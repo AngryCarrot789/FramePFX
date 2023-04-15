@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace SharpPadV2.Core {
+namespace FramePFX.Core {
     /// <summary>
     /// An abstract class that implements <see cref="INotifyPropertyChanged"/>, allowing data binding between a ViewModel and a View, 
     /// along with some helper function to, for example, run an <see cref="Action"/> before or after the PropertyRaised event has been risen

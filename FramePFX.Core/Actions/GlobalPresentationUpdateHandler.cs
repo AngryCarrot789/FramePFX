@@ -1,4 +1,4 @@
-namespace SharpPadV2.Core.Actions {
+namespace FramePFX.Core.Actions {
     /// <summary>
     /// A delegate for presentation update handlers
     /// </summary>

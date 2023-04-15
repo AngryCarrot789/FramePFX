@@ -1,6 +1,6 @@
 using System;
 
-namespace SharpPadV2.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class ActivationHandlerReference {
         private readonly WeakReference<ShortcutActivateHandler> weakReference;
         private readonly ShortcutActivateHandler strongReference;

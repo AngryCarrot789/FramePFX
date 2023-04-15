@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using SharpPadV2.Core.Actions;
-using SharpPadV2.Core.Actions.Contexts;
-using SharpPadV2.Core.Shortcuts.Managing;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace SharpPadV2.Shortcuts.Bindings {
+namespace FramePFX.Shortcuts.Bindings {
     public class ShortcutActionBinding : InputBinding {
         public static readonly DependencyProperty ShortcutAndUsageIdProperty =
             DependencyProperty.Register(

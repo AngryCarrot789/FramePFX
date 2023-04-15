@@ -2,9 +2,9 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using SharpPadV2.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace SharpPadV2.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class ShortcutPathToGestureConverter : IValueConverter {
         public static ShortcutPathToGestureConverter Instance { get; } = new ShortcutPathToGestureConverter();
 

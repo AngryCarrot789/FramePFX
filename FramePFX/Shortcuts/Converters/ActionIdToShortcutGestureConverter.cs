@@ -4,12 +4,12 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
-using SharpPadV2.Core.Actions;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Managing;
-using SharpPadV2.Core.Utils;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class ActionIdToShortcutGestureConverter : IValueConverter {
         public static ActionIdToShortcutGestureConverter Instance { get; } = new ActionIdToShortcutGestureConverter();
 

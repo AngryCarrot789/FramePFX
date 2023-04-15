@@ -15,11 +15,11 @@ namespace FramePFX.Core.Utils {
         }
 
         public static int Clamp(int value, int min, int max) {
-            return Math.Max(Math.Min(value, max), min);
+            return value < min ? min : (value > max ? max : value);
         }
 
         public static long Clamp(long value, long min, long max) {
-            return Math.Max(Math.Min(value, max), min);
+            return value < min ? min : (value > max ? max : value);
         }
     }
 }

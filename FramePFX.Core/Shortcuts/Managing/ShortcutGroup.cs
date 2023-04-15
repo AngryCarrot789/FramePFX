@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Serialization;
-using SharpPadV2.Core.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Serialization;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
     /// A collection of shortcuts
     /// </summary>

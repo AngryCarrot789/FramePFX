@@ -1,6 +1,6 @@
 using System;
 
-namespace SharpPadV2.Utils {
+namespace FramePFX.Utils {
     public static class TextUtils {
         public const int CRLF = 0;
         public const int LF = 1;

@@ -1,4 +1,4 @@
-namespace SharpPadV2.Core.Utils {
+namespace FramePFX.Core.Utils {
     public class Singleton<T> where T : class, new() {
         private static T instance;
 

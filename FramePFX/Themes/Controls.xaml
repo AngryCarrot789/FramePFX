@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary x:Class="FramePFX.Themes.Controls"
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
                     xmlns:views="clr-namespace:FramePFX.Views"
                     xmlns:ap="clr-namespace:FramePFX.Themes.Attached">
@@ -30,7 +30,7 @@
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}" SnapsToDevicePixels="true"
-                            CornerRadius="{Binding (ap:CornerHelper.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}">
+                            CornerRadius="{TemplateBinding ap:CornerHelper.CornerRadius}">
                         <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"
                                           SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
@@ -440,7 +440,6 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Window.Static.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource Window.Static.Foreground}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="ResizeMode" Value="CanResizeWithGrip" />
         <Setter Property="WindowStyle" Value="SingleBorderWindow" />
         <Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
@@ -459,6 +458,7 @@
                                 <AdornerDecorator Margin="0,30,0,0">
                                     <ContentPresenter />
                                 </AdornerDecorator>
+                                <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="false" Visibility="Collapsed" VerticalAlignment="Bottom"/>
                                 <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding BorderBrush}" VerticalAlignment="Top" Margin="0">
                                     <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
                                         <Button x:Name="btnMinimize" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
@@ -486,6 +486,13 @@
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="ResizeMode" Value="CanResizeWithGrip"/>
+                                <Condition Property="WindowState" Value="Normal"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Visibility" TargetName="WindowResizeGrip" Value="Visible"/>
+                        </MultiTrigger>
                         <Trigger Property="WindowState" Value="Maximized">
                             <Setter TargetName="btnRestore" Property="Content" Value="{StaticResource __WINDOW__MAXIMIZED__VALUE__}"/>
                         </Trigger>
@@ -515,9 +522,9 @@
                         <Trigger Property="ResizeMode" Value="CanResizeWithGrip">
                             <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
                         </Trigger>
-
                         <Trigger Property="WindowStyle" Value="ToolWindow">
                             <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Collapsed"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -534,6 +541,10 @@
     </Style>
 
     <Style x:Key="CustomWindowStyleEx" TargetType="{x:Type views:WindowEx}" BasedOn="{StaticResource CustomWindowStyle}">
+        <Setter Property="Background" Value="{DynamicResource Window.Static.Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Window.Static.Border}" />
+        <Setter Property="Foreground" Value="{DynamicResource Window.Static.Foreground}" />
+        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="TitlebarBrush" Value="{DynamicResource Window.Static.Border}" />
         <Setter Property="Template">
             <Setter.Value>
@@ -544,6 +555,7 @@
                                 <AdornerDecorator Margin="0,30,0,0">
                                     <ContentPresenter />
                                 </AdornerDecorator>
+                                <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="false" Visibility="Collapsed" VerticalAlignment="Bottom"/>
                                 <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding TitlebarBrush}" VerticalAlignment="Top" Margin="0">
                                     <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
                                         <Button x:Name="btnMinimize" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
@@ -571,6 +583,13 @@
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="ResizeMode" Value="CanResizeWithGrip"/>
+                                <Condition Property="WindowState" Value="Normal"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Visibility" TargetName="WindowResizeGrip" Value="Visible"/>
+                        </MultiTrigger>
                         <Trigger Property="WindowState" Value="Maximized">
                             <Setter TargetName="btnRestore" Property="Content" Value="{StaticResource __WINDOW__MAXIMIZED__VALUE__}"/>
                         </Trigger>
@@ -600,9 +619,9 @@
                         <Trigger Property="ResizeMode" Value="CanResizeWithGrip">
                             <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
                         </Trigger>
-
                         <Trigger Property="WindowStyle" Value="ToolWindow">
                             <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Collapsed"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -645,9 +664,15 @@
     <ControlTemplate x:Key="TextBoxErrorTemplate">
         <StackPanel>
             <Border BorderBrush="#FFF01428" BorderThickness="1">
-                <AdornedElementPlaceholder/>
+                <AdornedElementPlaceholder x:Name="AdornerPlaceholder"/>
             </Border>
-            <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" Margin="5,0,0,0" />
+            <Border Background="{DynamicResource TextBox.Static.Background}" BorderBrush="{DynamicResource TextBox.Static.Border}" BorderThickness="1" CornerRadius="3"
+                    MaxWidth="{Binding ElementName=AdornerPlaceholder, Path=ActualWidth}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="5" Opacity="0.5"/>
+                </Border.Effect>
+                <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" Margin="5,0,0,0" Padding="5"/>
+            </Border>
         </StackPanel>
     </ControlTemplate>
 
@@ -787,8 +812,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListBox}">
-                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
-                        <ScrollViewer Focusable="false" Padding="{TemplateBinding Padding}" Margin="-1">
+                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="1" SnapsToDevicePixels="true">
+                        <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}">
                             <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </ScrollViewer>
                     </Border>
@@ -1343,7 +1368,7 @@
                 <ControlTemplate TargetType="{x:Type TabItem}">
                     <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
                         <Border x:Name="mainBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{TemplateBinding Background}" Margin="0">
-                            <Border x:Name="innerBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{DynamicResource TabItem.Selected.Background}" Margin="-1" Opacity="0" />
+                            <Border x:Name="innerBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0" Background="{Binding Background, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TabControl}}}" Margin="-1" Opacity="0" />
                         </Border>
                         <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
                     </Grid>
@@ -2001,9 +2026,11 @@
             </Setter.Value>
         </Setter>
     </Style>
-
     <Style TargetType="{x:Type MenuItem}">
         <Style.Triggers>
+            <Trigger Property="IsCheckable" Value="True">
+                <Setter Property="StaysOpenOnClick" Value="True"/>
+            </Trigger>
             <Trigger Property="Role" Value="SubmenuHeader">
                 <Setter Property="Template" Value="{DynamicResource SubLevelMenuItemWithChildrenControlTemplate}" />
             </Trigger>

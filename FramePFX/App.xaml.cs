@@ -9,6 +9,8 @@ using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Render;
 using FramePFX.Services;
 using FramePFX.Shortcuts;
+using FramePFX.Shortcuts.Converters;
+using FramePFX.Shortcuts.Views;
 using FramePFX.Views.Dialogs.FilePicking;
 using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.UserInputs;
@@ -19,41 +21,25 @@ namespace FramePFX {
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application {
-        private static void UpdateShortcutResourcesRecursive(ResourceDictionary dictionary, ShortcutGroup group) {
-            foreach (ShortcutGroup innerGroup in group.Groups) {
-                UpdateShortcutResourcesRecursive(dictionary, innerGroup);
-            }
-
-            foreach (ManagedShortcut shortcut in group.Shortcuts) {
-                UpdatePath(dictionary, shortcut.Path);
-            }
-        }
-
-        private static void UpdatePath(ResourceDictionary dictionary, string shortcut) {
-            string resourcePath = "ShortcutPaths." + shortcut;
-            if (dictionary.Contains(resourcePath)) {
-                dictionary[resourcePath] = ShortcutPathToInputGestureTextConverter.ShortcutToInputGestureText(shortcut);
-            }
-        }
-
         private void Application_Startup(object sender, StartupEventArgs e) {
             CoreIoC.MessageDialogs = new MessageDialogService();
             CoreIoC.Dispatcher = new DispatcherDelegate(this.Dispatcher);
             CoreIoC.Clipboard = new ClipboardService();
             CoreIoC.FilePicker = new FilePickDialogService();
             CoreIoC.UserInput = new UserInputDialogService();
-            CoreIoC.BroadcastShortcutChanged = (x) => {
+            CoreIoC.OnShortcutManagedChanged = (x) => {
                 if (!string.IsNullOrWhiteSpace(x)) {
-                    UpdatePath(this.Resources, x);
+                    WPFShortcutManager.Instance.InvalidateShortcutCache();
+                    GlobalUpdateShortcutGestureConverter.BroadcastChange();
+                    // UpdatePath(this.Resources, x);
                 }
             };
 
-            string path = "F:\\VSProjsV2\\FramePFX\\FramePFX\\Keymap.xml";
+            string path = @"F:\VSProjsV2\FramePFX\FramePFX\Keymap.xml";
             if (File.Exists(path)) {
-                AppShortcutManager.Instance.Root = null;
                 using (FileStream stream = File.OpenRead(path)) {
                     ShortcutGroup group = WPFKeyMapDeserialiser.Instance.Deserialise(stream);
-                    AppShortcutManager.Instance.Root = group;
+                    WPFShortcutManager.Instance.SetRoot(group);
                 }
             }
             else {

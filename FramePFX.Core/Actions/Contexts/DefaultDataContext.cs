@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SharpPadV2.Core.Actions.Contexts {
+namespace FramePFX.Core.Actions.Contexts {
     public class DefaultDataContext : IDataContext {
         private Dictionary<string, object> data;
         private readonly List<object> context;

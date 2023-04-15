@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace SharpPadV2.Core.Views.Dialogs.FilePicking {
+namespace FramePFX.Core.Views.Dialogs.FilePicking {
     public sealed class Filter {
         private readonly StringBuilder sb;
         private bool hasFirst;

@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 
-namespace SharpPadV2.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class GlobalUpdateShortcutGestureConverter : IValueConverter, INotifyPropertyChanged {
         public static GlobalUpdateShortcutGestureConverter Instance { get; } = new GlobalUpdateShortcutGestureConverter();
 

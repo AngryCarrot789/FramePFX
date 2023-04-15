@@ -1,7 +1,7 @@
-using SharpPadV2.Core.Shortcuts.Dialogs;
-using SharpPadV2.Core.Shortcuts.ViewModels;
+using FramePFX.Core.Shortcuts.Dialogs;
+using FramePFX.Core.Shortcuts.ViewModels;
 
-namespace SharpPadV2.Shortcuts.Views {
+namespace FramePFX.Shortcuts.Views {
     public class ShortcutManagerDialogService : IShortcutManagerDialogService {
         private ShortcutEditorWindow window;
 

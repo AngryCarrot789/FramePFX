@@ -48,7 +48,7 @@ namespace FramePFX.Project {
 
         public void SetupDefaultProject() {
             // this.PlaybackResolution = new Resolution(1920, 1080);
-            this.PlaybackResolution = new Resolution(500, 500);
+            this.PlaybackResolution = new Resolution(1920, 1080);
             this.Timeline.MaxDuration = 10000;
             ResourceColourViewModel redColour = new ResourceColourViewModel {
                 Red = 0.9f,

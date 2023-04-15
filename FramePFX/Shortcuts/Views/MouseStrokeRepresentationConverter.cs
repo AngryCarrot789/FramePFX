@@ -3,9 +3,9 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Input;
-using SharpPadV2.Core.Shortcuts.ViewModels;
+using FramePFX.Core.Shortcuts.ViewModels;
 
-namespace SharpPadV2.Shortcuts.Views {
+namespace FramePFX.Shortcuts.Views {
     public class MouseStrokeRepresentationConverter : IMultiValueConverter {
         public static string ToStringFunction(MouseStrokeViewModel stroke) {
             return ToStringFunction(stroke.MouseButton, stroke.Modifiers, stroke.ClickCount, stroke.WheelDelta);

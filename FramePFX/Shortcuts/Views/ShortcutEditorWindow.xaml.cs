@@ -1,6 +1,6 @@
-﻿using SharpPadV2.Views;
+﻿using FramePFX.Views;
 
-namespace SharpPadV2.Shortcuts.Views {
+namespace FramePFX.Shortcuts.Views {
     /// <summary>
     /// Interaction logic for ShortcutEditorWindow.xaml
     /// </summary>

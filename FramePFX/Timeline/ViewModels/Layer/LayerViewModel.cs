@@ -106,17 +106,16 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             return clip;
         }
 
-        public ImageClipViewModel CreateImageClip(long begin, long duration, ImageResourceViewModel image) {
-            ClipContainerViewModel container = this.CreateVideoClipContainer(begin, duration);
-            ImageClipViewModel clip = new ImageClipViewModel {
-                Resource = image
-            };
-
-            ClipContainerViewModel.SetClipContent(container, clip);
-            ClipViewModel.SetContainer(clip, container);
-            this.Clips.Add(container);
-            return clip;
-        }
+        // public ImageClipViewModel CreateImageClip(long begin, long duration, ImageResourceViewModel image) {
+        //     ClipContainerViewModel container = this.CreateVideoClipContainer(begin, duration);
+        //     ClipViewModel clip = new ClipViewModel {
+        //         Resource = image
+        //     };
+        //     ClipContainerViewModel.SetClipContent(container, clip);
+        //     ClipViewModel.SetContainer(clip, container);
+        //     this.Clips.Add(container);
+        //     return clip;
+        // }
 
         public void MakeTopMost(ClipContainerViewModel clip) {
             int endIndex = this.Clips.Count - 1;
@@ -140,7 +139,7 @@ namespace FramePFX.Timeline.ViewModels.Layer {
 
         public async Task OnResourceDropped(ResourceItemViewModel resource) {
             if (resource is ImageResourceViewModel imageResource) {
-                this.CreateImageClip(0, 300, imageResource);
+                // this.CreateImageClip(0, 300, imageResource);
             }
         }
     }

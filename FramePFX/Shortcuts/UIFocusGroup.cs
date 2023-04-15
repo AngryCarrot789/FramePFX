@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 
-namespace SharpPadV2.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class UIFocusGroup {
         public static readonly DependencyProperty FocusGroupPathProperty =
             DependencyProperty.RegisterAttached(

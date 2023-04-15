@@ -91,7 +91,7 @@ namespace FramePFX.Timeline.ViewModels.Timeline {
 
         public bool IsRenderDirty { get; private set; }
 
-        public RelayCommandParam<string> DeleteSelectedClipsCommand { get; }
+        public RelayCommand<string> DeleteSelectedClipsCommand { get; }
         public ICommand DeleteSelectedLayerCommand { get; }
 
         public TimelineViewModel(ProjectViewModel project) {
@@ -101,7 +101,7 @@ namespace FramePFX.Timeline.ViewModels.Timeline {
             this.renderDispatch = new RapidDispatchCallback(this.RenderViewPortAndMarkNotDirty) {
                 InvokeLater = true
             };
-            this.DeleteSelectedClipsCommand = new RelayCommandParam<string>(async (x) => await this.DeleteSelectedClipsAction(x));
+            this.DeleteSelectedClipsCommand = new RelayCommand<string>(async (x) => await this.DeleteSelectedClipsAction(x));
             this.DeleteSelectedLayerCommand = new RelayCommand(this.DeleteSelectedLayerAction);
         }
 

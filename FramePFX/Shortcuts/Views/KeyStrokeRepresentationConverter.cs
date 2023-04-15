@@ -3,10 +3,10 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Input;
-using SharpPadV2.Core.Shortcuts.ViewModels;
-using SharpPadV2.Core.Utils;
+using FramePFX.Core.Shortcuts.ViewModels;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.Shortcuts.Views {
+namespace FramePFX.Shortcuts.Views {
     public class KeyStrokeRepresentationConverter : IMultiValueConverter {
         public static string ToStringFunction(KeyStrokeViewModel stroke) {
             return ToStringFunction(stroke.KeyCode, stroke.Modifiers, stroke.IsKeyRelease);

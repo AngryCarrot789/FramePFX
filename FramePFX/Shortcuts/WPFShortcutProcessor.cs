@@ -1,18 +1,16 @@
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using SharpPadV2.Core;
-using SharpPadV2.Core.Actions;
-using SharpPadV2.Core.Actions.Contexts;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Managing;
-using SharpPadV2.Core.Shortcuts.Usage;
-using SharpPadV2.Core.Utils;
+using FramePFX.Core;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Usage;
+using FramePFX.Core.Utils;
 
-namespace SharpPadV2.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class WPFShortcutProcessor : ShortcutProcessor {
         public new WPFShortcutManager Manager => (WPFShortcutManager) base.Manager;
 
@@ -162,7 +160,7 @@ namespace SharpPadV2.Shortcuts {
 
         private async Task<bool> ActivateShortcut(GroupedShortcut shortcut, List<ActivationHandlerReference> callbacks) {
             bool result = false;
-            IoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks.Count} callbacks...");
+            CoreIoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks.Count} callbacks...");
             foreach (ActivationHandlerReference reference in callbacks) {
                 ShortcutActivateHandler callback = reference.Value;
                 if (callback != null && (result = await callback(this, shortcut))) {
@@ -170,30 +168,30 @@ namespace SharpPadV2.Shortcuts {
                 }
             }
 
-            IoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks.Count} callbacks... Complete!");
+            CoreIoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks.Count} callbacks... Complete!");
             return result;
         }
 
         public override bool OnNoSuchShortcutForKeyStroke(string @group, in KeyStroke stroke) {
             if (stroke.IsKeyDown) {
-                IoC.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
+                CoreIoC.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
             }
 
             return base.OnNoSuchShortcutForKeyStroke(@group, in stroke);
         }
 
         public override bool OnNoSuchShortcutForMouseStroke(string @group, in MouseStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
+            CoreIoC.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
             return base.OnNoSuchShortcutForMouseStroke(@group, in stroke);
         }
 
         public override bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, GroupedShortcut shortcut, in KeyStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
+            CoreIoC.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextKeyStroke(usage, shortcut, in stroke);
         }
 
         public override bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, GroupedShortcut shortcut, in MouseStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
+            CoreIoC.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextMouseStroke(usage, shortcut, in stroke);
         }
 
@@ -203,7 +201,7 @@ namespace SharpPadV2.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            CoreIoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnShortcutUsagesCreated();
         }
 
@@ -213,7 +211,7 @@ namespace SharpPadV2.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            CoreIoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnSecondShortcutUsagesProgressed();
         }
     }

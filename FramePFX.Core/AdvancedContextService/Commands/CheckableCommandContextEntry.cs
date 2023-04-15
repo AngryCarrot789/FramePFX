@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Windows.Input;
-using SharpPadV2.Core.AdvancedContextService.Base;
+using FramePFX.Core.AdvancedContextService.Base;
 
-namespace SharpPadV2.Core.AdvancedContextService.Commands {
+namespace FramePFX.Core.AdvancedContextService.Commands {
     public class CheckableCommandContextEntry : CommandContextEntry {
         private bool isChecked;
         public bool IsChecked {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SharpPadV2.Core.AdvancedContextService.Base {
+namespace FramePFX.Core.AdvancedContextService.Base {
     public class ContextEntry : BaseInteractableEntry {
         private string header;
         private string inputGestureText;

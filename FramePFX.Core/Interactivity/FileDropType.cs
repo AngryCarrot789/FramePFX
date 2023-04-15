@@ -1,6 +1,6 @@
 using System;
 
-namespace SharpPadV2.Core.Interactivity {
+namespace FramePFX.Core.Interactivity {
     [Flags]
     public enum FileDropType {
         None,

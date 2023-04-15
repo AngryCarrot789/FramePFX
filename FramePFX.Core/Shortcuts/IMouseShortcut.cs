@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Usage;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Usage;
 
-namespace SharpPadV2.Core.Shortcuts {
+namespace FramePFX.Core.Shortcuts {
     public interface IMouseShortcut : IShortcut {
         /// <summary>
         /// All of the Mouse Strokes that this shortcut contains

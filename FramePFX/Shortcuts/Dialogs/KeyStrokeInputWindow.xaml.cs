@@ -1,11 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Views.Dialogs;
-using SharpPadV2.Shortcuts.Views;
-using SharpPadV2.Views;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Views.Dialogs;
+using FramePFX.Shortcuts.Views;
+using FramePFX.Views;
 
-namespace SharpPadV2.Shortcuts.Dialogs {
+namespace FramePFX.Shortcuts.Dialogs {
     /// <summary>
     /// Interaction logic for KeyStrokeInputWindow.xaml
     /// </summary>

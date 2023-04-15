@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
-using SharpPadV2.Core.Shortcuts.Inputs;
-using SharpPadV2.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace SharpPadV2.Core.Shortcuts.Serialization {
+namespace FramePFX.Core.Shortcuts.Serialization {
     public abstract class KeyMapDeserialiser {
         private static readonly XmlSerializer Serializer;
 

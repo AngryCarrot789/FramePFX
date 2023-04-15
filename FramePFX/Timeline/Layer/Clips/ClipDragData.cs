@@ -4,8 +4,8 @@ using FramePFX.Timeline.Controls;
 namespace FramePFX.Timeline.Layer.Clips {
     public class ClipDragData {
         public TimelineControl Timeline { get; }
-        public TimelineClipContainerControl Clip { get; }
-        public TimelineClipContainerControl CopiedClip { get; set; }
+        public TimelineVideoClipControl Clip { get; }
+        public TimelineVideoClipControl CopiedClip { get; set; }
 
         public bool HasCopy { get; set; }
 
@@ -13,7 +13,7 @@ namespace FramePFX.Timeline.Layer.Clips {
         public long TargetFrameBegin { get; set; }
         public bool IsFinished { get; set; }
 
-        public ClipDragData(TimelineClipContainerControl clip) {
+        public ClipDragData(TimelineVideoClipControl clip) {
             this.Clip = clip;
             this.Clip.DragData = this;
             this.Timeline = clip.Timeline;
@@ -68,7 +68,7 @@ namespace FramePFX.Timeline.Layer.Clips {
         public void DestroyCopiedClip() {
             this.ValidateFinalizationState();
             if (this.HasCopy && this.CopiedClip != null) {
-                this.CopiedClip.TimelineLayer.RemoveClip(this.CopiedClip);
+                this.CopiedClip.Layer.RemoveClip(this.CopiedClip);
                 this.CopiedClip.DragData = null; // should be null anyway
                 this.CopiedClip = null;
             }

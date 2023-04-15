@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
+using FramePFX.Core.Interactivity;
 using FramePFX.Timeline;
 
 namespace FramePFX.ResourceManaging {
@@ -20,18 +21,18 @@ namespace FramePFX.ResourceManaging {
         public ResourceListControl() {
             this.AllowDrop = true;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is ResourceManagerViewModel vm) {
+                if (args.NewValue is ResourceManager vm) {
                     vm.Handle = this;
                 }
             };
         }
 
         public bool GetClipControl(object item, out ResourceItemControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<ResourceItemViewModel, ResourceItemControl>(item, this.ItemContainerGenerator, x => x.Resource as ResourceItemControl)) != null;
+            return (clip = ICGenUtils.GetContainerForItem<ResourceItem, ResourceItemControl>(item, this.ItemContainerGenerator, x => x.Resource as ResourceItemControl)) != null;
         }
 
-        public bool GetClipViewModel(object item, out ResourceItemViewModel clip) {
-            return ICGenUtils.GetItemForContainer<ResourceItemControl, ResourceItemViewModel>(item, this.ItemContainerGenerator, x => x.DataContext as ResourceItemViewModel, out clip);
+        public bool GetClipViewModel(object item, out ResourceItem clip) {
+            return ICGenUtils.GetItemForContainer<ResourceItemControl, ResourceItem>(item, this.ItemContainerGenerator, x => x.DataContext as ResourceItem, out clip);
         }
 
         public IEnumerable<ResourceItemControl> GetClipControls() {
@@ -42,9 +43,9 @@ namespace FramePFX.ResourceManaging {
             }
         }
 
-        public IEnumerable<ResourceItemViewModel> GetClipViewModels() {
+        public IEnumerable<ResourceItem> GetClipViewModels() {
             foreach (object item in this.Items) {
-                if (this.GetClipViewModel(item, out ResourceItemViewModel clip)) {
+                if (this.GetClipViewModel(item, out ResourceItem clip)) {
                     yield return clip;
                 }
             }
@@ -58,9 +59,9 @@ namespace FramePFX.ResourceManaging {
             }
         }
 
-        public IEnumerable<ResourceItemViewModel> GetSelectedClipViewModels() {
+        public IEnumerable<ResourceItem> GetSelectedClipViewModels() {
             foreach (object item in this.SelectedItems) {
-                if (this.GetClipViewModel(item, out ResourceItemViewModel clip)) {
+                if (this.GetClipViewModel(item, out ResourceItem clip)) {
                     yield return clip;
                 }
             }
@@ -108,14 +109,14 @@ namespace FramePFX.ResourceManaging {
 
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
-            if (element is ResourceItemControl control && item is ResourceItemViewModel viewModel) {
+            if (element is ResourceItemControl control && item is ResourceItem viewModel) {
                 viewModel.Resource = control;
             }
         }
 
         protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
             base.ClearContainerForItemOverride(element, item);
-            if (item is ResourceItemViewModel viewModel) {
+            if (item is ResourceItem viewModel) {
                 viewModel.Resource = null;
             }
         }

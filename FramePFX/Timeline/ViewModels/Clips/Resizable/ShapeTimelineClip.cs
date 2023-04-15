@@ -1,55 +1,43 @@
-using System.ComponentModel;
 using FramePFX.Render;
 using FramePFX.ResourceManaging.Items;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
-    public class ShapeClipViewModel : PositionableClipViewModel {
-        private ResourceColour resource;
-        public ResourceColour Resource {
+    public class ShapeTimelineClip : PositionableTimelineClip {
+        private ResourceShapeColour resource;
+        public ResourceShapeColour Resource {
             get => this.resource;
             set {
                 if (this.resource != null)
-                    this.resource.PropertyChanged -= this.OnPropertyChanged;
+                    this.resource.OnResourceModified -= this.OnResourceModified;
                 this.RaisePropertyChanged(ref this.resource, value);
                 if (value != null)
-                    this.resource.PropertyChanged += this.OnPropertyChanged;
+                    value.OnResourceModified += this.OnResourceModified;
             }
         }
 
-        public float R {
-            get => this.resource.Red;
-            set => this.resource.Red = value;
+        public float R => this.resource?.Red ?? 0f;
+
+        public float G => this.resource?.Green ?? 0f;
+
+        public float B => this.resource?.Blue ?? 0f;
+
+        public float A => this.resource?.Alpha ?? 0f;
+
+        public ShapeTimelineClip() {
+            this.UseScaledRender = true;
         }
 
-        public float G {
-            get => this.resource.Green;
-            set => this.resource.Green = value;
-        }
-
-        public float B {
-            get => this.resource.Blue;
-            set => this.resource.Blue = value;
-        }
-
-        public float A {
-            get => this.resource.Alpha;
-            set => this.resource.Alpha = value;
-        }
-
-        public ShapeClipViewModel() {
-            this.Resource = new ResourceColour() {
-                Red = 1f,
-                Green = 1f,
-                Blue = 1f,
-                Alpha = 1f
-            };
-
-            this.PropertyChanged += this.OnPropertyChanged;
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            this.Container?.MarkForRender();
+        private void OnResourceModified(string propetyname) {
+            switch (propetyname) {
+                case nameof(this.R):
+                case nameof(this.G):
+                case nameof(this.B):
+                case nameof(this.A):
+                    this.RaisePropertyChanged(propetyname);
+                    this.InvalidateRender();
+                    break;
+            }
         }
 
         // Just gonna put rendering in the ViewModels... sure it's not very "MVVM-ey", but

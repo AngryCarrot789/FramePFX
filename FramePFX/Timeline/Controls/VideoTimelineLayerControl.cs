@@ -2,36 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.ResourceManaging;
 using FramePFX.Timeline.Layer;
+using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Timeline.Controls {
-    public class VideoTimelineControl : MultiSelector, ILayerHandle {
-        public static readonly DependencyProperty UnitZoomProperty =
-            TimelineControl.UnitZoomProperty.AddOwner(
-                typeof(VideoTimelineControl),
-                new FrameworkPropertyMetadata(
-                    1d,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((VideoTimelineControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
-                    (d, v) => TimelineUtils.ClampUnit(v)));
-
-        public static readonly DependencyProperty ResourceDropNotifierProperty = DependencyProperty.Register("ResourceDropNotifier", typeof(IResourceDropNotifier), typeof(VideoTimelineControl), new PropertyMetadata(default(IResourceDropNotifier)));
-
-        /// <summary>
-        /// The zoom level of this timeline layer
-        /// <para>
-        /// This is a value used for converting frames into pixels
-        /// </para>
-        /// </summary>
-        public double UnitZoom {
-            get => (double) this.GetValue(UnitZoomProperty);
-            set => this.SetValue(UnitZoomProperty, value);
-        }
+    public class VideoTimelineLayerControl : BaseTimelineLayerControl {
 
         //           Width
         // ---------------------------
@@ -48,50 +26,11 @@ namespace FramePFX.Timeline.Controls {
             set => this.UnitZoom = this.ActualWidth / value;
         }
 
-        /// <summary>
-        /// The timeline that owns/contains this timeline layer
-        /// </summary>
-        public TimelineControl Timeline {
-            get => this.timeline;
-            set => this.timeline = value;
-        }
-
-        public IResourceDropNotifier ResourceDropNotifier {
-            get => (IResourceDropNotifier) this.GetValue(ResourceDropNotifierProperty);
-            set => this.SetValue(ResourceDropNotifierProperty, value);
-        }
-
-        private bool isUpdatingUnitZoom;
-        private bool isUpdatingLayerType;
-        private TimelineControl timeline;
         private TimelineVideoClipControl lastSelectedItem;
 
-        public TimelineLayer ViewModel => this.DataContext as TimelineLayer;
 
-        public VideoTimelineControl() {
-            this.CanSelectMultipleItems = true;
-            this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is TimelineLayer vm) {
-                    vm.Control = this;
-                }
-            };
-            this.AllowDrop = true;
-            this.Drop += this.OnDrop;
-        }
+        public VideoTimelineLayerControl() {
 
-        private async void OnDrop(object sender, DragEventArgs e) {
-            if (this.ResourceDropNotifier == null) {
-                e.Effects = DragDropEffects.None;
-                e.Handled = true;
-                return;
-            }
-
-            if (e.Data.GetDataPresent("ResourceItem")) {
-                object obj = e.Data.GetData("ResourceItem");
-                if (obj is ResourceItem resourceItemViewModel) {
-                    await this.ResourceDropNotifier.OnResourceDropped(resourceItemViewModel);
-                }
-            }
         }
 
         /// <summary>
@@ -196,7 +135,7 @@ namespace FramePFX.Timeline.Controls {
 
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
-            if (element is TimelineVideoClipControl clip) {
+            if (element is IClipHandle clip) {
                 if (item is TimelineVideoClip viewModel) {
                     viewModel.Handle = clip;
                 }
@@ -206,13 +145,13 @@ namespace FramePFX.Timeline.Controls {
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);
             List<TimelineVideoClipControl> clips = this.timeline.GetAllSelectedClipControls().ToList();
-            if (clips.Any(clip => clip.VideoTimeline == this && clip.IsMouseOver)) {
+            if (clips.Any(clip => clip.Layer == this && clip.IsMouseOver)) {
                 return;
             }
 
             clips.ForEach(x => {
-                if (x.VideoTimeline.SelectedItems.Count > 0) {
-                    x.VideoTimeline.UnselectAll();
+                if (x.Layer.SelectedItems.Count > 0) {
+                    x.Layer.UnselectAll();
                 }
             });
         }
@@ -234,51 +173,6 @@ namespace FramePFX.Timeline.Controls {
             }
 
             this.isUpdatingUnitZoom = false;
-        }
-
-        private void OnLayerTypeChanged(string oldType, string newType) {
-            if (this.isUpdatingLayerType || oldType == newType)
-                return;
-
-            this.isUpdatingLayerType = true;
-
-            // Maybe invalidate all of the elements?
-            foreach (TimelineVideoClipControl element in this.GetElements()) {
-                element.OnLayerTypeChanged(oldType, newType);
-            }
-
-            this.isUpdatingLayerType = false;
-        }
-
-        public double GetRenderX(TimelineVideoClipControl control) {
-            return control.Margin.Left;
-        }
-
-        public void SetRenderX(TimelineVideoClipControl control, double value) {
-            Thickness margin = control.Margin;
-            margin.Left = value;
-            control.Margin = margin;
-        }
-
-        public double GetRenderY(TimelineVideoClipControl control) {
-            return control.Margin.Top;
-        }
-
-        public void SetRenderY(TimelineVideoClipControl control, double value) {
-            Thickness margin = control.Margin;
-            margin.Top = value;
-            control.Margin = margin;
-        }
-
-        public IEnumerable<TimelineVideoClipControl> GetElements() {
-            foreach (object item in this.Items) {
-                if (item is TimelineVideoClipControl clip) {
-                    yield return clip;
-                }
-                else if (this.ItemContainerGenerator.ContainerFromItem(item) is TimelineVideoClipControl clip2) {
-                    yield return clip2;
-                }
-            }
         }
 
         public TimelineVideoClipControl CreateClonedElement(TimelineVideoClipControl clipToCopy) {

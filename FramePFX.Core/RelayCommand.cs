@@ -29,7 +29,7 @@ namespace FramePFX.Core {
 
         public bool ConvertParameter { get; set; }
 
-        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null, bool convertParameter = false) {
+        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null, bool convertParameter = true) {
             if (execute == null) {
                 throw new ArgumentNullException(nameof(execute), "Execute callback cannot be null");
             }
@@ -40,18 +40,12 @@ namespace FramePFX.Core {
         }
 
         public override bool CanExecute(object parameter) {
-            if (this.ConvertParameter) {
-                parameter = GetConvertedParameter<T>(parameter);
-            }
-
+            parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
             return base.CanExecute(parameter) && (this.canExecute == null || (parameter == null || parameter is T) && this.canExecute((T) parameter));
         }
 
         public override void Execute(object parameter) {
-            if (this.ConvertParameter) {
-                parameter = GetConvertedParameter<T>(parameter);
-            }
-
+            parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
             if (parameter == null || parameter is T) {
                 this.execute((T) parameter);
             }

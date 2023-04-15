@@ -1,6 +1,5 @@
 using System;
 using FramePFX.Core;
-using FramePFX.Project;
 
 namespace FramePFX {
     public static class IoC {
@@ -10,9 +9,9 @@ namespace FramePFX {
         /// The application video editor
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        public static VideoEditorViewModel VideoEditor { get; set; }
+        public static VideoEditor VideoEditor { get; set; }
 
-        public static ProjectViewModel ActiveProject {
+        public static Project.EditorProject ActiveProject {
             get => VideoEditor?.ActiveProject;
         }
     }

@@ -42,6 +42,10 @@ namespace FramePFX.ResourceManaging {
 
         public ResourceListControl ParentList => ItemsControl.ItemsControlFromItemContainer(this) as ResourceListControl;
 
+        public ResourceItem Resource {
+            get => this.DataContext as ResourceItem;
+        }
+
         private Point originMousePoint;
         private bool isDragActive;
         private bool isDragDropping;
@@ -98,9 +102,14 @@ namespace FramePFX.ResourceManaging {
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 if (change.X > 5 || change.Y > 5) {
+                    ResourceItem resource = this.Resource;
+                    if (resource == null) {
+                        return;
+                    }
+
                     this.isDragDropping = true;
                     try {
-                        DragDrop.DoDragDrop(this, new DataObject("ResourceItem", this), DragDropEffects.Copy);
+                        DragDrop.DoDragDrop(this, new DataObject("ResourceItem", resource), DragDropEffects.Copy);
                     }
                     finally {
                         this.isDragDropping = false;

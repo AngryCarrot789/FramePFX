@@ -4,24 +4,24 @@ using FramePFX.Core.Utils;
 using FramePFX.Project;
 
 namespace FramePFX {
-    public class VideoEditorViewModel : BaseViewModel {
+    public class VideoEditor : BaseViewModel {
         public ViewportPlayback PlaybackView { get; }
 
-        private Project.Project activeProject;
-        public Project.Project ActiveProject {
+        private EditorProject activeProject;
+        public EditorProject ActiveProject {
             get => this.activeProject;
             set => this.RaisePropertyChanged(ref this.activeProject, value);
         }
 
         public ICommand NewProjectCommand { get; }
 
-        public VideoEditorViewModel() {
+        public VideoEditor() {
             this.PlaybackView = new ViewportPlayback(this);
             this.NewProjectCommand = new RelayCommand(this.NewProjectAction);
         }
 
         public void NewProjectAction() {
-            this.ActiveProject = new Project.Project(this);
+            this.ActiveProject = new EditorProject(this);
             this.ActiveProject.SetupDefaultProject();
             Resolution res = this.ActiveProject.PlaybackResolution;
             this.PlaybackView.ViewPortHandle.SetResolution(res.Width, res.Height);

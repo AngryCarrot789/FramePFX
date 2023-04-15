@@ -5,6 +5,7 @@ using FramePFX.Core;
 using FramePFX.Core.AdvancedContextService;
 using FramePFX.Core.AdvancedContextService.Base;
 using FramePFX.Core.AdvancedContextService.Commands;
+using FramePFX.Render;
 using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 
@@ -13,19 +14,19 @@ namespace FramePFX.Timeline.ViewModels.Clips {
     /// A container for a clip. This is used only to contain a "clip". Checking whether
     /// this is a video or an audio clip can be done by accessing <see cref="Content"/>
     /// </summary>
-    public class VideoClip : BaseTimelineClip, IContextProvider {
+    public abstract class TimelineVideoClip : BaseTimelineClip, IContextProvider, IVideoClip {
         protected bool ignoreMarkRender;
 
         private long frameBegin;
         public long FrameBegin {
             get => this.frameBegin;
-            set => this.RaisePropertyChanged(ref this.frameBegin, value, this.MarkForRender);
+            set => this.RaisePropertyChanged(ref this.frameBegin, value, this.InvalidateRender);
         }
 
         private long frameDuration;
         public long FrameDuration {
             get => this.frameDuration;
-            set => this.RaisePropertyChanged(ref this.frameDuration, value, this.MarkForRender);
+            set => this.RaisePropertyChanged(ref this.frameDuration, value, this.InvalidateRender);
         }
 
         public long FrameEndIndex {
@@ -54,41 +55,12 @@ namespace FramePFX.Timeline.ViewModels.Clips {
                     this.ignoreMarkRender = false;
                 }
 
-                this.MarkForRender();
+                this.InvalidateRender();
             }
         }
 
-        private string name;
-        public string Name {
-            get => this.name;
-            set => this.RaisePropertyChanged(ref this.name, value);
-        }
+        protected TimelineVideoClip() {
 
-        /// <summary>
-        /// A reference to the actual UI element clip container
-        /// </summary>
-        public IClipContainerHandle Handle { get; set; }
-
-        /// <summary>
-        /// The layer that this clip container is currently in. Should be null if the clip is not yet in a layer
-        /// </summary>
-        public TimelineLayer TimelineLayer { get; set; }
-
-        public ICommand RenameCommand { get; }
-        public ICommand DeleteCommand { get; }
-
-        public VideoClip() {
-            this.RenameCommand = new RelayCommand(this.RenameAction);
-            this.DeleteCommand = new RelayCommand(() => {
-                this.TimelineLayer.DeleteClip(this);
-            });
-        }
-
-        private void RenameAction() {
-            string newName = CoreIoC.UserInput.ShowSingleInputDialog("Rename clip", "Input a new clip name:", this.Name ?? "");
-            if (newName != null) {
-                this.Name = newName;
-            }
         }
 
         public bool IntersectsFrameAt(long frame) {
@@ -97,13 +69,20 @@ namespace FramePFX.Timeline.ViewModels.Clips {
             return frame >= begin && frame < (begin + duration);
         }
 
-        public void MarkForRender() {
-            if (this.ignoreMarkRender || IoC.VideoEditor.PlaybackView.IsPlaying) {
+        public abstract void Render(IViewPort vp, long frame);
+
+        public void InvalidateRender() {
+            this.InvalidateRender(false);
+        }
+
+        public void InvalidateRender(bool useCurrentThread) {
+            if (this.ignoreMarkRender || this.Layer == null) {
                 return;
             }
 
-            if (this.TimelineLayer != null && IoC.VideoEditor.IsReadyForRender()) {
-                this.TimelineLayer.Timeline.ScheduleRender(false);
+            ViewportPlayback editor = this.Layer.Timeline.PlaybackViewport;
+            if (!editor.IsPlaying && editor.IsReadyForRender()) {
+                this.Layer.Timeline.ScheduleRender(useCurrentThread);
             }
         }
 

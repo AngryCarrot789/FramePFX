@@ -5,10 +5,9 @@ using FramePFX.ResourceManaging.Items;
 using FramePFX.Timeline.ViewModels;
 using FramePFX.Timeline.ViewModels.Clips.Resizable;
 using FramePFX.Timeline.ViewModels.Layer;
-using Timelining.ViewModels.Clips.Resizable;
 
 namespace FramePFX.Project {
-    public class Project : BaseViewModel {
+    public class EditorProject : BaseViewModel {
         /// <summary>
         /// This project's timeline
         /// </summary>
@@ -37,7 +36,7 @@ namespace FramePFX.Project {
 
         public VideoEditor VideoEditor { get; }
 
-        public Project(VideoEditor videoEditor) {
+        public EditorProject(VideoEditor videoEditor) {
             this.VideoEditor = videoEditor;
             this.Timeline = new EditorTimeline(this);
             this.ResourceManager = new ResourceManager(this);
@@ -51,19 +50,19 @@ namespace FramePFX.Project {
             // this.PlaybackResolution = new Resolution(1920, 1080);
             this.PlaybackResolution = new Resolution(1920, 1080);
             this.Timeline.MaxDuration = 10000;
-            ResourceColour redColour = new ResourceColour {
+            ResourceShapeColour redColour = new ResourceShapeColour {
                 Red = 0.9f,
                 Green = 0.1f,
                 Blue = 0.1f
             };
 
-            ResourceColour greenColour = new ResourceColour {
+            ResourceShapeColour greenColour = new ResourceShapeColour {
                 Red = 0.1f,
                 Green = 0.9f,
                 Blue = 0.1f
             };
 
-            ResourceColour blueColour = new ResourceColour {
+            ResourceShapeColour blueColour = new ResourceShapeColour {
                 Red = 0.1f,
                 Green = 0.1f,
                 Blue = 0.9f
@@ -84,10 +83,10 @@ namespace FramePFX.Project {
             CreateSquare(l2, 175, 75, blueColour, 210f, 105f, 100f, 100f, "Blue_1");
         }
 
-        public static void CreateSquare(TimelineLayer timelineLayer, long begin, long duration, ResourceColour colour, float x, float y, float w, float h, string name) {
-            ShapeClipViewModel clip = timelineLayer.CreateSquareClip(begin, duration, colour);
-            clip.SetShape(x, y, w, h);
-            clip.Container.Name = name;
+        public static void CreateSquare(TimelineLayer timelineLayer, long begin, long duration, ResourceShapeColour colour, float x, float y, float w, float h, string name) {
+            ShapeTimelineClip timelineClip = timelineLayer.CreateSquareClip(begin, duration, colour);
+            timelineClip.Name = name;
+            timelineClip.SetShape(x, y, w, h);
         }
     }
 }

@@ -15,8 +15,9 @@
         xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
         xmlns:clips1="clr-namespace:FramePFX.Timeline.ViewModels.Clips"
         xmlns:controls="clr-namespace:FramePFX.Timeline.Controls"
+        xmlns:ogl="clr-namespace:FramePFX.Render.OGL"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance local:VideoEditorViewModel}"
+        d:DataContext="{d:DesignInstance local:VideoEditor}"
         Title="Bootleg sony vegas" Width="1408" Height="792"
         Style="{StaticResource CustomWindowStyle}" 
         Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"
@@ -91,7 +92,7 @@
                         </Grid>
                     </Border>
                     <Viewbox Margin="0,0,0,35">
-                        <render:OGLViewportControl x:Name="GLViewport"/>
+                        <ogl:OGLViewportControl x:Name="GLViewport"/>
                     </Viewbox>
                 </Grid>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Converter={StaticResource NullToDisabledConverter}}" Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}">
@@ -188,7 +189,7 @@
                             </Grid>
                         </Border>
                         <Border s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" Grid.Row="1"/>
-                        <ListBox s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" ItemsSource="{Binding Layers, Mode=OneTime}" SelectedItem="{Binding SelectedLayer, UpdateSourceTrigger=PropertyChanged}" 
+                        <ListBox s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" ItemsSource="{Binding Layers, Mode=OneTime}" SelectedItem="{Binding SelectedTimelineLayer, UpdateSourceTrigger=PropertyChanged}"
                                  Grid.Column="0" Background="Transparent" BorderBrush="Transparent" 
                                  HorizontalContentAlignment="Stretch" Grid.Row="1"
                                  Padding="0">
@@ -275,7 +276,7 @@
                                 </Style>
                             </controls:TimelineControl.Style>
                             <controls:TimelineControl.ItemContainerStyle>
-                                <Style TargetType="{x:Type controls:TimelineLayerControl}">
+                                <Style TargetType="{x:Type controls:VideoTimelineLayerControl}">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
                                     <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
@@ -288,7 +289,7 @@
                                     <Setter Property="Focusable" Value="True"/>
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
-                                            <Style TargetType="{x:Type controls:TimelineClipContainerControl}">
+                                            <Style TargetType="{x:Type controls:TimelineVideoClipControl}">
                                                 <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
                                                 <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
@@ -299,11 +300,10 @@
                                                 <Setter Property="FrameBegin" Value="{Binding FrameBegin, UpdateSourceTrigger=PropertyChanged}"/>
                                                 <Setter Property="FrameDuration" Value="{Binding FrameDuration, UpdateSourceTrigger=PropertyChanged}"/>
                                                 <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
-                                                <Setter Property="Content" Value="{Binding Content}"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
-                                                        <ControlTemplate TargetType="{x:Type controls:TimelineClipContainerControl}">
-                                                            <Grid d:DataContext="{d:DesignInstance clips1:ClipContainerViewModel}" acs:AdvancedContextMenu.ContextProvider="{Binding}">
+                                                        <ControlTemplate TargetType="{x:Type controls:TimelineVideoClipControl}">
+                                                            <Grid d:DataContext="{d:DesignInstance clips1:TimelineVideoClip}" acs:AdvancedContextMenu.ContextProvider="{Binding}">
                                                                 <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
                                                                     <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">
                                                                         <Grid>
@@ -315,7 +315,7 @@
                                                                         </Grid>
                                                                     </Border>
                                                                     <Grid Margin="1,20,1,0" Background="{TemplateBinding Background}">
-                                                                        <render:OGLViewportControl x:Name="PART_ViewPort"/>
+                                                                        <ogl:OGLViewportControl x:Name="PART_ViewPort"/>
                                                                     </Grid>
                                                                 </Grid>
                                                                 <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True"/>
@@ -338,7 +338,7 @@
                                     </Setter>
                                     <Setter Property="Template">
                                         <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type controls:TimelineLayerControl}">
+                                            <ControlTemplate TargetType="{x:Type controls:VideoTimelineLayerControl}">
                                                 <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
                                                     <!--
                                                         IsItemHost must be true in order for it's items

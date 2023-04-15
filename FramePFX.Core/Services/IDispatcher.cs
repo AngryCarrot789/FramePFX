@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 namespace FramePFX.Core.Services {
     public interface IDispatcher {
         /// <summary>
-        /// Schedules a task to be invoked later. The action will not be called during this method's call
+        /// Schedules a task to be invoked later. The action will not be called during this
+        /// method invocation, but will be called on the dispatcher thread
         /// </summary>
         /// <param name="action"></param>
         void InvokeLater(Action action);

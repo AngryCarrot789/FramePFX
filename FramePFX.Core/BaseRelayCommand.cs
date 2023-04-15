@@ -1,5 +1,8 @@
 using System;
+using System.Globalization;
 using System.Windows.Input;
+using FramePFX.Core.Utils;
+using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Core {
     /// <summary>
@@ -29,15 +32,35 @@ namespace FramePFX.Core {
             this.isEnabled = true;
         }
 
-        protected static object GetConvertedParameter<T>(object value) {
-            if (value is IConvertible convertible) {
-                return convertible.ToType(typeof(T), null);
-            }
-            else if (value == null) {
+        protected static object ImplicitConvertParameter<T>(object parameter, bool useTypeConversion) {
+            Type type = typeof(T);
+            if (parameter == null) {
                 return default(T);
             }
+            else if (type == typeof(string) && parameter is string) {
+                return parameter;
+            }
+            else if (type == typeof(bool) && parameter is string str) {
+                if (str.Equals("true", StringComparison.CurrentCultureIgnoreCase)) {
+                    return BoolBox.True;
+                }
+                else if (str.Equals("false", StringComparison.CurrentCultureIgnoreCase)) {
+                    return BoolBox.False;
+                }
+                else {
+                    return parameter;
+                }
+            }
+            else if (useTypeConversion && parameter is IConvertible convertible) {
+                try {
+                    return convertible.ToType(type, CultureInfo.CurrentCulture);
+                }
+                catch {
+                    return parameter;
+                }
+            }
             else {
-                throw new Exception("Parameter is not convertable: " + value);
+                return parameter;
             }
         }
 

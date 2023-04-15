@@ -5,13 +5,11 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using FramePFX.Core;
-using FramePFX.Core.Utils;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
-namespace FramePFX.Render {
+namespace FramePFX.Render.OGL {
     /// <summary>
     /// A control that can be rendered into via OpenGL
     /// </summary>

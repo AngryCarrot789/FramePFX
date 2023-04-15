@@ -42,7 +42,7 @@ namespace FramePFX.Core {
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
             }
 
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
 
         public void RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
@@ -51,7 +51,7 @@ namespace FramePFX.Core {
             }
 
             property = newValue;
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
 
         public void RaisePropertyChanged<T>(ref T property, T newValue, Action postCallback, [CallerMemberName] string propertyName = null) {
@@ -60,7 +60,7 @@ namespace FramePFX.Core {
             }
 
             property = newValue;
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             postCallback?.Invoke();
         }
 
@@ -70,7 +70,7 @@ namespace FramePFX.Core {
             }
 
             property = newValue;
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             postCallback?.Invoke(property);
         }
 
@@ -81,7 +81,7 @@ namespace FramePFX.Core {
 
             preCallback?.Invoke(property);
             property = newValue;
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             postCallback?.Invoke(property);
         }
 
@@ -95,7 +95,11 @@ namespace FramePFX.Core {
             }
 
             property = newValue;
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e) {
+            this.PropertyChanged?.Invoke(this, e);
         }
     }
 }

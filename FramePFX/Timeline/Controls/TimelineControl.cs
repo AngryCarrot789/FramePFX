@@ -5,12 +5,14 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using FramePFX.Timeline.New;
-using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
 using FramePFX.Timeline.ViewModels.Timeline;
+using Timelining.New;
+using Timelining.ViewModels.Clips;
+using Timelining.ViewModels.Layer;
+using Timelining.ViewModels.Timeline;
 
-namespace FramePFX.Timeline.Controls {
+namespace Timelining.Controls {
     public class TimelineControl : ItemsControl, ITimelineHandle {
 
         #region Dependency Properties
@@ -274,7 +276,7 @@ namespace FramePFX.Timeline.Controls {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
             if (element is TimelineLayerControl layer) {
-                if (item is LayerViewModel viewModel) {
+                if (item is TimelineLayer viewModel) {
                     viewModel.Control = layer;
                 }
                 // else {
@@ -291,7 +293,7 @@ namespace FramePFX.Timeline.Controls {
         protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
             base.ClearContainerForItemOverride(element, item);
             if (element is TimelineLayerControl layer && ReferenceEquals(layer.Timeline, this)) {
-                if (item is LayerViewModel viewModel && ReferenceEquals(viewModel.Control, element)) {
+                if (item is TimelineLayer viewModel && ReferenceEquals(viewModel.Control, element)) {
                     viewModel.Control = null;
                 }
 
@@ -320,11 +322,11 @@ namespace FramePFX.Timeline.Controls {
         }
 
         public bool GetLayerControl(object item, out TimelineLayerControl layer) {
-            return (layer = ICGenUtils.GetContainerForItem<LayerViewModel, TimelineLayerControl>(item, this.ItemContainerGenerator, x => x.Control as TimelineLayerControl)) != null;
+            return (layer = ICGenUtils.GetContainerForItem<TimelineLayer, TimelineLayerControl>(item, this.ItemContainerGenerator, x => x.Control as TimelineLayerControl)) != null;
         }
 
-        public bool GetLayerViewModel(object item, out LayerViewModel layer) {
-            return ICGenUtils.GetItemForContainer<TimelineLayerControl, LayerViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out layer);
+        public bool GetLayerViewModel(object item, out TimelineLayer timelineLayer) {
+            return ICGenUtils.GetItemForContainer<TimelineLayerControl, TimelineLayer>(item, this.ItemContainerGenerator, x => x.ViewModel, out timelineLayer);
         }
 
         public IEnumerable<TimelineLayerControl> GetLayerControls() {
@@ -335,7 +337,7 @@ namespace FramePFX.Timeline.Controls {
             }
         }
 
-        public IEnumerable<LayerViewModel> GetLayerViewModels() {
+        public IEnumerable<TimelineLayer> GetLayerViewModels() {
             foreach (object item in this.Items) {
                 if (this.GetLayerViewModel(item, out var layer)) {
                     yield return layer;
@@ -351,9 +353,9 @@ namespace FramePFX.Timeline.Controls {
             }
         }
 
-        public IEnumerable<ClipContainerViewModel> GetAllSelectedClipModels() {
+        public IEnumerable<ClipContainer> GetAllSelectedClipModels() {
             foreach (TimelineLayerControl layer in this.GetLayerControls()) {
-                foreach (ClipContainerViewModel clip in layer.GetSelectedClipViewModels()) {
+                foreach (ClipContainer clip in layer.GetSelectedClipViewModels()) {
                     yield return clip;
                 }
             }
@@ -404,7 +406,7 @@ namespace FramePFX.Timeline.Controls {
             this.DragData.OnBegin(list);
         }
 
-        public IEnumerable<ClipContainerViewModel> GetSelectedClips() {
+        public IEnumerable<ClipContainer> GetSelectedClips() {
             return this.GetAllSelectedClipModels();
         }
     }

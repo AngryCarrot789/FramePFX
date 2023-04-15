@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FramePFX.Core.AdvancedContextService.Base;
+using SharpPadV2.Core.AdvancedContextService.Base;
 
-namespace FramePFX.Core.AdvancedContextService {
+namespace SharpPadV2.Core.AdvancedContextService {
     public interface IContextProvider {
         List<IContextEntry> GetContext(List<IContextEntry> list);
     }

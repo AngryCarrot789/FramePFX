@@ -1,20 +1,20 @@
 using System;
 using System.Windows.Input;
-using FramePFX.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Shortcuts {
+namespace SharpPadV2.Shortcuts {
     public static class ShortcutUtils {
         public static void SplitValue(string input, out string shortcutId, out string usageId) {
             if (string.IsNullOrWhiteSpace(input)) {
                 shortcutId = null;
-                usageId = AppShortcutManager.DEFAULT_USAGE_ID;
+                usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
                 return;
             }
 
             int split = input.LastIndexOf(':');
             if (split == -1) {
                 shortcutId = input;
-                usageId = AppShortcutManager.DEFAULT_USAGE_ID;
+                usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
             }
             else {
                 shortcutId = input.Substring(0, split);
@@ -24,7 +24,7 @@ namespace FramePFX.Shortcuts {
 
                 usageId = input.Substring(split + 1);
                 if (string.IsNullOrWhiteSpace(usageId)) {
-                    usageId = AppShortcutManager.DEFAULT_USAGE_ID;
+                    usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
                 }
             }
         }
@@ -42,6 +42,23 @@ namespace FramePFX.Shortcuts {
 
         public static MouseStroke GetMouseStrokeForEvent(MouseButtonEventArgs e) {
             return new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, e.ClickCount);
+        }
+
+        public static bool GetMouseStrokeForEvent(MouseWheelEventArgs e, out MouseStroke stroke) {
+            int button;
+            if (e.Delta < 0) {
+                button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
+            }
+            else if (e.Delta > 0) {
+                button = WPFShortcutManager.BUTTON_WHEEL_UP;
+            }
+            else {
+                stroke = default;
+                return false;
+            }
+
+            stroke = new MouseStroke(button, (int) Keyboard.Modifiers, 0, e.Delta);
+            return true;
         }
 
         public static void EnforceIdFormat(string id, string paramName) {

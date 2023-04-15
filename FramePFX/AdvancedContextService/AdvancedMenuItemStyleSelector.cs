@@ -1,8 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Core.AdvancedContextService;
+using SharpPadV2.Core.AdvancedContextService.Actions;
+using SharpPadV2.Core.AdvancedContextService.Commands;
 
-namespace FramePFX.AdvancedContextService {
+namespace SharpPadV2.AdvancedContextService {
     public class AdvancedMenuItemStyleSelector : StyleSelector {
         public Style NonCheckableCommandMenuItemStyle { get; set; }
 

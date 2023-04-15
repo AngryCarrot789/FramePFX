@@ -1,9 +1,9 @@
-namespace FramePFX.Core.Views.Dialogs {
-    public abstract class BaseDialogViewModel : BaseViewModel {
-        public IDialog Dialog { get; }
+namespace SharpPadV2.Core.Views.Dialogs {
+    public class BaseDialogViewModel : BaseViewModel {
+        public IDialog Dialog { get; set; }
 
-        protected BaseDialogViewModel(IDialog dialog) {
-            this.Dialog = dialog;
+        public BaseDialogViewModel() {
+
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.Core.Views.Dialogs.UserInputs {
+namespace SharpPadV2.Core.Views.Dialogs.UserInputs {
     public class InputValidator {
         public delegate bool IsInputInvalidDelegate(string input, out string errorMessage);
 
@@ -33,6 +33,12 @@ namespace FramePFX.Core.Views.Dialogs.UserInputs {
 
         public static InputValidator FromFunc(Func<string, string> inputToError) {
             return new InputValidator((string input, out string msg) => (msg = inputToError(input)) != null);
+        }
+    }
+
+    public static class Validators {
+        public static InputValidator ForNonEmptyString(string nullMessage) {
+            return InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? (nullMessage ?? "Input value cannot be null") : null);
         }
     }
 }

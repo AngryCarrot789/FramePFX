@@ -1,11 +1,11 @@
 using System;
 using System.Text;
 using System.Windows.Input;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Serialization;
-using FramePFX.Core.Utils;
+using SharpPadV2.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Serialization;
+using SharpPadV2.Core.Utils;
 
-namespace FramePFX.Shortcuts {
+namespace SharpPadV2.Shortcuts {
     public class WPFKeyMapDeserialiser : KeyMapDeserialiser {
         public static WPFKeyMapDeserialiser Instance { get; } = new WPFKeyMapDeserialiser();
 
@@ -43,8 +43,8 @@ namespace FramePFX.Shortcuts {
                 case 2: name = "RMB"; break;
                 case 3: name = "X1"; break;
                 case 4: name = "X2"; break;
-                case AppShortcutManager.BUTTON_WHEEL_UP: name = "WHEEL_UP"; break;
-                case AppShortcutManager.BUTTON_WHEEL_DOWN: name = "WHEEL_DOWN"; break;
+                case WPFShortcutManager.BUTTON_WHEEL_UP: name = "WHEEL_UP"; break;
+                case WPFShortcutManager.BUTTON_WHEEL_DOWN: name = "WHEEL_DOWN"; break;
                 default: throw new Exception("Invalid mouse button: " + stroke.MouseButton);
             }
 
@@ -86,14 +86,24 @@ namespace FramePFX.Shortcuts {
             }
 
             int mouseButton;
-            switch (stroke.Button) {
-                case "LMB": mouseButton = 0; break;
-                case "WMB": mouseButton = 1; break;
-                case "RMB": mouseButton = 2; break;
-                case "X1": mouseButton = 3; break;
-                case "X2": mouseButton = 4; break;
-                case "WHEEL_UP": mouseButton = AppShortcutManager.BUTTON_WHEEL_UP; break;
-                case "WHEEL_DOWN": mouseButton = AppShortcutManager.BUTTON_WHEEL_DOWN; break;
+            switch (stroke.Button.ToLower()) {
+                case "lmb":
+                case "left":
+                    mouseButton = 0; break;
+                case "wmb":
+                case "middle":
+                    mouseButton = 1; break;
+                case "rmb":
+                case "right":
+                    mouseButton = 2; break;
+                case "x1":  mouseButton = 3; break;
+                case "x2":  mouseButton = 4; break;
+                case "wheel_up":
+                case "wheelup":
+                    mouseButton = WPFShortcutManager.BUTTON_WHEEL_UP; break;
+                case "wheel_down":
+                case "wheeldown":
+                    mouseButton = WPFShortcutManager.BUTTON_WHEEL_DOWN; break;
                 default: {
                     if (!int.TryParse(stroke.Button, out mouseButton)) {
                         throw new Exception("Invalid mouse button: " + stroke.Button);
@@ -103,19 +113,16 @@ namespace FramePFX.Shortcuts {
                 }
             }
 
-            int clickCout;
-            int wheelDelta;
-            int param;
             int mods = (int) StringToMods(stroke.Mods);
-            if (string.IsNullOrWhiteSpace(stroke.ClickCount) || !int.TryParse(stroke.ClickCount, out clickCout)) {
-                clickCout = 1;
+            if (string.IsNullOrWhiteSpace(stroke.ClickCount) || !int.TryParse(stroke.ClickCount, out int clickCout)) {
+                clickCout = -1;
             }
 
-            if (string.IsNullOrWhiteSpace(stroke.WheelDelta) || !int.TryParse(stroke.WheelDelta, out wheelDelta)) {
+            if (string.IsNullOrWhiteSpace(stroke.WheelDelta) || !int.TryParse(stroke.WheelDelta, out int wheelDelta)) {
                 wheelDelta = 0;
             }
 
-            if (string.IsNullOrWhiteSpace(stroke.CustomParamInt) || !int.TryParse(stroke.CustomParamInt, out param)) {
+            if (string.IsNullOrWhiteSpace(stroke.CustomParamInt) || !int.TryParse(stroke.CustomParamInt, out int param)) {
                 param = 0;
             }
 

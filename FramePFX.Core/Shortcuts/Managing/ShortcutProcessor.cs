@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Usage;
+using SharpPadV2.Core.Actions;
+using SharpPadV2.Core.Actions.Contexts;
+using SharpPadV2.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Usage;
 
-namespace FramePFX.Core.Shortcuts.Managing {
+namespace SharpPadV2.Core.Shortcuts.Managing {
     /// <summary>
-    /// A shortcut processor. This is used for each window, and should only really be used by a single thread at a time
+    /// A shortcut processor. This is used for each focus root (which is typically a window), and
+    /// should only really be used by a single thread at a time (not designed to be thread safe)
+    /// <para>
+    /// This processor will manages its own input strokes and active usages
+    /// </para>
     /// </summary>
     public class ShortcutProcessor {
-        private List<ManagedShortcut> tempShortcutList;
+        private readonly List<GroupedShortcut> shortcutList;
 
         /// <summary>
         /// A reference to the manager that created this processor
@@ -19,35 +25,52 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// <summary>
         /// All of this processor's active shortcut usages
         /// </summary>
-        public Dictionary<IShortcutUsage, ManagedShortcut> ActiveUsages { get; }
+        public Dictionary<IShortcutUsage, GroupedShortcut> ActiveUsages { get; }
 
         /// <summary>
-        /// This processor's current data context for a focused element
+        /// This processor's current data context
         /// </summary>
-        public object CurrentDataContext { get; set; }
+        public IDataContext CurrentDataContext { get; set; }
 
         public ShortcutProcessor(ShortcutManager manager) {
             this.Manager = manager;
-            this.ActiveUsages = new Dictionary<IShortcutUsage, ManagedShortcut>();
-            this.tempShortcutList = new List<ManagedShortcut>();
+            this.ActiveUsages = new Dictionary<IShortcutUsage, GroupedShortcut>();
+            this.shortcutList = new List<GroupedShortcut>(5);
+        }
+
+        protected virtual void AccumulateShortcuts(IInputStroke stroke, string focusedGroup) {
+            this.Manager.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, this.shortcutList);
+        }
+
+        protected virtual List<GroupedShortcut> GetInstantActivationShortcuts() {
+            List<GroupedShortcut> instantActivate = this.shortcutList.Where(x => !x.Shortcut.HasSecondaryStrokes).ToList();
+            this.shortcutList.RemoveAll(x => !x.Shortcut.HasSecondaryStrokes);
+            return instantActivate;
+        }
+
+        protected virtual async Task<bool> OnUnexpectedCompletedUsage(IShortcutUsage usage, GroupedShortcut shortcut) {
+            try {
+                return await this.OnSecondShortcutUsageCompleted(usage, shortcut);
+            }
+            finally {
+                this.ActiveUsages.Clear();
+            }
         }
 
         public async Task<bool> OnKeyStroke(string focusedGroup, KeyStroke stroke) {
             if (this.ActiveUsages.Count < 1) {
-                this.Manager.Root.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, this.tempShortcutList);
-                if (this.tempShortcutList.Count < 1) {
+                this.AccumulateShortcuts(stroke, focusedGroup);
+                if (this.shortcutList.Count < 1) {
                     return this.OnNoSuchShortcutForKeyStroke(focusedGroup, stroke);
                 }
 
                 bool result = false;
-                List<ManagedShortcut> instantActivate = this.tempShortcutList.Where(x => !x.Shortcut.HasSecondaryStrokes).ToList();
-                this.tempShortcutList.RemoveAll(x => !x.Shortcut.HasSecondaryStrokes);
-
-                foreach (ManagedShortcut s in instantActivate) {
+                List<GroupedShortcut> instantActivate = this.GetInstantActivationShortcuts();
+                foreach (GroupedShortcut s in instantActivate) {
                     result |= await this.OnShortcutActivated(s);
                 }
 
-                if (this.tempShortcutList.Count < 1) {
+                if (this.shortcutList.Count < 1) {
                     return result;
                 }
 
@@ -56,7 +79,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 // In most cases, the list should only ever have 1 item with no secondary inputs, or be full of
                 // shortcuts that all have secondary inputs (because logically, that's how a key map should work...
                 // why would you want multiple shortcuts to activate on the same key stroke?)
-                foreach (ManagedShortcut mc in this.tempShortcutList) {
+                foreach (GroupedShortcut mc in this.shortcutList) {
                     if (mc.Shortcut is IKeyboardShortcut shortcut) {
                         IKeyboardShortcutUsage usage = shortcut.CreateKeyUsage();
                         this.ActiveUsages[usage] = mc;
@@ -64,7 +87,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                     }
                 }
 
-                this.tempShortcutList.Clear();
+                this.shortcutList.Clear();
                 if (this.ActiveUsages.Count > 0) {
                     return result | this.OnShortcutUsagesCreated();
                 }
@@ -73,19 +96,18 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 }
             }
             else {
-                List<KeyValuePair<IShortcutUsage, ManagedShortcut>> validPairs = new List<KeyValuePair<IShortcutUsage, ManagedShortcut>>();
-                foreach (KeyValuePair<IShortcutUsage, ManagedShortcut> pair in this.ActiveUsages) {
+                List<KeyValuePair<IShortcutUsage, GroupedShortcut>> valid = new List<KeyValuePair<IShortcutUsage, GroupedShortcut>>();
+                foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in this.ActiveUsages) {
                     // Just in case, check if it's already completed. By default, it never should be
                     if (pair.Key.IsCompleted) {
-                        this.ActiveUsages.Clear();
-                        return await this.OnSecondShortcutUsageCompleted(pair.Key, pair.Value);
+                        return await this.OnUnexpectedCompletedUsage(pair.Key, pair.Value);
                     }
 
                     bool strokeAccepted;
                     if (pair.Key is IKeyboardShortcutUsage usage) {
                         if (usage.IsCurrentStrokeKeyBased) {
                             if (this.ShouldIgnoreKeyStroke(usage, pair.Value, stroke, usage.CurrentKeyStroke)) {
-                                validPairs.Add(pair);
+                                valid.Add(pair);
                                 continue;
                             }
 
@@ -93,7 +115,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                         }
                         else if (usage.PreviousStroke is KeyStroke lastKey) { // the below check is needed for MouseKeyboardShortcutUsages to work
                             if (this.ShouldIgnoreKeyStroke(usage, pair.Value, stroke, lastKey)) {
-                                validPairs.Add(pair);
+                                valid.Add(pair);
                                 continue;
                             }
 
@@ -117,20 +139,20 @@ namespace FramePFX.Core.Shortcuts.Managing {
                             }
                         }
                         else if (this.OnSecondShortcutUsageProgressed(pair.Key, pair.Value)) {
-                            validPairs.Add(pair);
+                            valid.Add(pair);
                         }
                     }
                     else if (!this.OnCancelUsageForNoSuchNextKeyStroke(pair.Key, pair.Value, stroke)) {
-                        validPairs.Add(pair);
+                        valid.Add(pair);
                     }
                 }
 
                 this.ActiveUsages.Clear();
-                if (validPairs.Count < 1) {
+                if (valid.Count < 1) {
                     return this.OnNoSuchShortcutForKeyStroke(focusedGroup, stroke);
                 }
                 else {
-                    foreach (KeyValuePair<IShortcutUsage, ManagedShortcut> pair in validPairs) {
+                    foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in valid) {
                         this.ActiveUsages[pair.Key] = pair.Value;
                     }
 
@@ -141,20 +163,22 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
         public async Task<bool> OnMouseStroke(string focusedGroup, MouseStroke stroke) {
             if (this.ActiveUsages.Count < 1) {
-                this.Manager.Root.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, this.tempShortcutList);
-                if (this.tempShortcutList.Count < 1) {
+                this.AccumulateShortcuts(stroke, focusedGroup);
+                if (this.shortcutList.Count < 1) {
                     return this.OnNoSuchShortcutForMouseStroke(focusedGroup, stroke);
                 }
 
                 bool result = false;
-                List<ManagedShortcut> instantActivate = this.tempShortcutList.Where(x => x.Shortcut.HasSecondaryStrokes).ToList();
-                this.tempShortcutList.RemoveAll(x => !x.Shortcut.HasSecondaryStrokes);
-
-                foreach (ManagedShortcut s in instantActivate) {
+                List<GroupedShortcut> instantActivate = this.GetInstantActivationShortcuts();
+                foreach (GroupedShortcut s in instantActivate) {
                     result |= await this.OnShortcutActivated(s);
                 }
 
-                foreach (ManagedShortcut mc in this.tempShortcutList) {
+                if (this.shortcutList.Count < 1) {
+                    return result;
+                }
+
+                foreach (GroupedShortcut mc in this.shortcutList) {
                     if (mc.Shortcut is IMouseShortcut shortcut) {
                         IMouseShortcutUsage usage = shortcut.CreateMouseUsage();
                         this.ActiveUsages[usage] = mc;
@@ -162,7 +186,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                     }
                 }
 
-                this.tempShortcutList.Clear();
+                this.shortcutList.Clear();
                 if (this.ActiveUsages.Count > 0) {
                     return result | this.OnShortcutUsagesCreated();
                 }
@@ -171,12 +195,11 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 }
             }
             else {
-                List<KeyValuePair<IShortcutUsage, ManagedShortcut>> validPairs = new List<KeyValuePair<IShortcutUsage, ManagedShortcut>>();
-                foreach (KeyValuePair<IShortcutUsage, ManagedShortcut> pair in this.ActiveUsages) {
+                List<KeyValuePair<IShortcutUsage, GroupedShortcut>> valid = new List<KeyValuePair<IShortcutUsage, GroupedShortcut>>();
+                foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in this.ActiveUsages) {
                     // Just in case, check if it's already completed. By default, it never should be
                     if (pair.Key.IsCompleted) {
-                        this.ActiveUsages.Clear();
-                        return await this.OnSecondShortcutUsageCompleted(pair.Key, pair.Value);
+                        return await this.OnUnexpectedCompletedUsage(pair.Key, pair.Value);
                     }
 
                     bool strokeAccepted;
@@ -211,20 +234,20 @@ namespace FramePFX.Core.Shortcuts.Managing {
                             }
                         }
                         else if (this.OnSecondShortcutUsageProgressed(pair.Key, pair.Value)) {
-                            validPairs.Add(pair);
+                            valid.Add(pair);
                         }
                     }
                     else if (!this.OnCancelUsageForNoSuchNextMouseStroke(pair.Key, pair.Value, stroke)) {
-                        validPairs.Add(pair);
+                        valid.Add(pair);
                     }
                 }
 
                 this.ActiveUsages.Clear();
-                if (validPairs.Count < 1) {
+                if (valid.Count < 1) {
                     return this.OnNoSuchShortcutForMouseStroke(focusedGroup, stroke);
                 }
                 else {
-                    foreach (KeyValuePair<IShortcutUsage, ManagedShortcut> pair in validPairs) {
+                    foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in valid) {
                         this.ActiveUsages[pair.Key] = pair.Value;
                     }
 
@@ -259,8 +282,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         /// <param name="stroke">The key stroke that was received</param>
         /// <returns>Whether to cancel the usage or not. True = cancel, False = keep</returns>
-        public virtual bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, ManagedShortcut shortcut, in KeyStroke stroke) {
-            return true;
+        public virtual bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, GroupedShortcut shortcut, in KeyStroke stroke) {
+            return this.OnCancelUsage(usage, shortcut);
         }
 
         /// <summary>
@@ -269,7 +292,11 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         /// <param name="stroke">The mouse stroke that was received</param>
         /// <returns>Whether to cancel the usage or not. True = cancel, False = keep</returns>
-        public virtual bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, ManagedShortcut shortcut, in MouseStroke stroke) {
+        public virtual bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, GroupedShortcut shortcut, in MouseStroke stroke) {
+            return this.OnCancelUsage(usage, shortcut);
+        }
+
+        public virtual bool OnCancelUsage(IShortcutUsage usage, GroupedShortcut shortcut) {
             return true;
         }
 
@@ -279,7 +306,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         /// <param name="usage">The usage that was created</param>
         /// <param name="shortcut">A managed shortcut that created the usage</param>
-        public virtual void OnShortcutUsageCreated(IShortcutUsage usage, ManagedShortcut shortcut) {
+        public virtual void OnShortcutUsageCreated(IShortcutUsage usage, GroupedShortcut shortcut) {
 
         }
 
@@ -298,7 +325,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// <returns>
         /// Whether the usage is allowed to be progressed further or not
         /// </returns>
-        public virtual bool OnSecondShortcutUsageProgressed(IShortcutUsage usage, ManagedShortcut shortcut) {
+        public virtual bool OnSecondShortcutUsageProgressed(IShortcutUsage usage, GroupedShortcut shortcut) {
             return true;
         }
 
@@ -312,7 +339,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// <param name="usage">The usage that was completed</param>
         /// <param name="shortcut">The managed shortcut that created the usage</param>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-        public virtual Task<bool> OnSecondShortcutUsageCompleted(IShortcutUsage usage, ManagedShortcut shortcut) {
+        public virtual Task<bool> OnSecondShortcutUsageCompleted(IShortcutUsage usage, GroupedShortcut shortcut) {
             return this.OnShortcutActivated(shortcut);
         }
 
@@ -320,11 +347,21 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// Called when a shortcut wants to be activated (either the usage chain was complete, or the primary input was pressed and there were no secondary inputs)
         /// </summary>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-        public virtual Task<bool> OnShortcutActivated(ManagedShortcut shortcut) {
-            return Task.FromResult(true);
+        public virtual async Task<bool> OnShortcutActivated(GroupedShortcut shortcut) {
+            if (string.IsNullOrWhiteSpace(shortcut.ActionId) || this.CurrentDataContext == null)
+                return false;
+            return await ActionManager.Instance.Execute(shortcut.ActionId, this.CurrentDataContext);
         }
 
-        protected virtual bool ShouldIgnoreKeyStroke(IKeyboardShortcutUsage usage, ManagedShortcut shortcut, KeyStroke input, KeyStroke currentKeyStroke) {
+        /// <summary>
+        /// Whether to ignore the received key stroke. By default, this returns true if the current
+        /// </summary>
+        /// <param name="usage"></param>
+        /// <param name="shortcut"></param>
+        /// <param name="input"></param>
+        /// <param name="currentKeyStroke"></param>
+        /// <returns></returns>
+        protected virtual bool ShouldIgnoreKeyStroke(IKeyboardShortcutUsage usage, GroupedShortcut shortcut, KeyStroke input, KeyStroke currentKeyStroke) {
             if (currentKeyStroke.IsKeyRelease && !input.IsKeyRelease) {
                 if (this.ShouldIgnorePressWhenRequiredStrokeIsRelease(usage, shortcut, input)) {
                     return true;
@@ -341,26 +378,26 @@ namespace FramePFX.Core.Shortcuts.Managing {
         }
 
         /// <summary>
-        /// Ignores the received key stroke when it is a key down stroke, but the usage requires a key release. By default,
+        /// Whether to ignore the received key stroke when it is a key down stroke, but the usage requires a key release. By default,
         /// this returns true. This is just for finer control over the behaviour that allows the key release to be used
         /// </summary>
         /// <param name="usage">The usage being checked</param>
         /// <param name="shortcut">The managed shortcut that created the usage</param>
         /// <param name="stroke">The input stroke</param>
         /// <returns>Whether to ignore the input stroke or not. When ignored, the usage will still remain active</returns>
-        public virtual bool ShouldIgnorePressWhenRequiredStrokeIsRelease(IKeyboardShortcutUsage usage, ManagedShortcut shortcut, in KeyStroke stroke) {
+        public virtual bool ShouldIgnorePressWhenRequiredStrokeIsRelease(IKeyboardShortcutUsage usage, GroupedShortcut shortcut, in KeyStroke stroke) {
             return true;
         }
 
         /// <summary>
-        /// Ignores the received key stroke when it is a key up stroke, but the usage requires a key press. By default,
+        /// Whether to ignore the received key stroke when it is a key up stroke, but the usage requires a key press. By default,
         /// this returns true. This is just for finer control over the behaviour that allows the key release to be used
         /// </summary>
         /// <param name="usage">The usage being checked</param>
         /// <param name="shortcut">The managed shortcut that created the usage</param>
         /// <param name="stroke">The input stroke</param>
         /// <returns>Whether to ignore the input stroke or not. When ignored, the usage will still remain active</returns>
-        public virtual bool ShouldIgnoreReleaseWhenRequiredStrokeIsPress(IKeyboardShortcutUsage usage, ManagedShortcut shortcut, in KeyStroke stroke) {
+        public virtual bool ShouldIgnoreReleaseWhenRequiredStrokeIsPress(IKeyboardShortcutUsage usage, GroupedShortcut shortcut, in KeyStroke stroke) {
             return true;
         }
     }

@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 
-namespace FramePFX.Shortcuts {
+namespace SharpPadV2.Shortcuts {
     public class UIFocusGroup {
         public static readonly DependencyProperty FocusGroupPathProperty =
             DependencyProperty.RegisterAttached(
@@ -15,15 +15,15 @@ namespace FramePFX.Shortcuts {
             DependencyProperty.RegisterAttached(
                 "IsGlobalShortcutFocusTarget",
                 typeof(bool),
-                typeof(AppShortcutManager),
-                new PropertyMetadata(false, AppShortcutManager.OnIsGlobalShortcutFocusTargetChanged));
+                typeof(WPFShortcutManager),
+                new PropertyMetadata(false, WPFShortcutManager.OnIsGlobalShortcutFocusTargetChanged));
 
         public static readonly DependencyProperty UsageIDProperty =
             DependencyProperty.RegisterAttached(
                 "UsageID",
                 typeof(string),
                 typeof(UIFocusGroup),
-                new FrameworkPropertyMetadata(AppShortcutManager.DEFAULT_USAGE_ID, FrameworkPropertyMetadataOptions.Inherits));
+                new FrameworkPropertyMetadata(WPFShortcutManager.DEFAULT_USAGE_ID, FrameworkPropertyMetadataOptions.Inherits));
 
         public static readonly DependencyProperty HasGroupFocusProperty =
             DependencyProperty.RegisterAttached(
@@ -35,14 +35,16 @@ namespace FramePFX.Shortcuts {
         public static readonly DependencyPropertyKey ShortcutProcessorProperty =
             DependencyProperty.RegisterAttachedReadOnly(
                 "ShortcutProcessor",
-                typeof(AppShortcutProcessor),
+                typeof(WPFShortcutProcessor),
                 typeof(UIFocusGroup),
-                new PropertyMetadata(default(AppShortcutProcessor)));
+                new PropertyMetadata(default(WPFShortcutProcessor)));
 
-        public static AppShortcutProcessor GetShortcutProcessor(DependencyObject element) {
-            return (AppShortcutProcessor) element.GetValue(ShortcutProcessorProperty.DependencyProperty);
-        }
-
+        public static readonly DependencyProperty UsePreviewEventsProperty =
+            DependencyProperty.RegisterAttached(
+                "UsePreviewEvents",
+                typeof(bool),
+                typeof(UIFocusGroup),
+                new PropertyMetadata(false));
 
         public delegate void FocusGroupPathChangedEventHandler(string oldPath, string newPath);
         public static event FocusGroupPathChangedEventHandler OnFocusedGroupPathChanged;
@@ -90,6 +92,36 @@ namespace FramePFX.Shortcuts {
 
         public static bool GetHasGroupFocus(DependencyObject element) {
             return (bool) element.GetValue(HasGroupFocusProperty);
+        }
+
+        public static WPFShortcutProcessor GetShortcutProcessor(DependencyObject element) {
+            return (WPFShortcutProcessor) element.GetValue(ShortcutProcessorProperty.DependencyProperty);
+        }
+
+        /// <summary>
+        /// Sets whether the element should process inputs on the preview/tunnel event instead of the bubble event
+        /// <para>
+        /// This can be useful if a control handles the bubble event but not the preview event;
+        /// setting this to true for that control will allow hotkeys to jump in and do their thing
+        /// </para>
+        /// </summary>
+        /// <param name="element">The element to set the state of</param>
+        /// <param name="value">True to process preview/tunnel events only, false to process bubble events only</param>
+        public static void SetUsePreviewEvents(DependencyObject element, bool value) {
+            element.SetValue(UsePreviewEventsProperty, value);
+        }
+
+        /// <summary>
+        /// Gets whether the element should process inputs on the preview/tunnel event instead of the bubble event
+        /// <para>
+        /// This can be useful if a control handles the bubble event but not the preview event;
+        /// setting this to true for that control will allow hotkeys to jump in and do their thing
+        /// </para>
+        /// </summary>
+        /// <param name="element">The element to set the state of</param>
+        /// <returns></returns>
+        public static bool GetUsePreviewEvents(DependencyObject element) {
+            return (bool) element.GetValue(UsePreviewEventsProperty);
         }
 
         public static void RaiseFocusGroupPathChanged(string oldGroup, string newGroup) {

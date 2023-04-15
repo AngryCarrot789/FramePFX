@@ -2,14 +2,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using FramePFX.Core.AdvancedContextService;
-using FramePFX.Core.AdvancedContextService.Base;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Managing;
+using SharpPadV2.Core.AdvancedContextService;
+using SharpPadV2.Core.AdvancedContextService.Base;
+using SharpPadV2.Core.AdvancedContextService.Commands;
+using SharpPadV2.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Managing;
 
-namespace FramePFX.Core.Shortcuts.ViewModels {
+namespace SharpPadV2.Core.Shortcuts.ViewModels {
     public class ShortcutViewModel : BaseViewModel, IContextProvider {
-        public ManagedShortcut ShortcutRefernce { get; set; }
+        public GroupedShortcut ShortcutRefernce { get; set; }
 
         public ShortcutManagerViewModel Manager { get; set; }
 
@@ -19,12 +20,13 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
 
         public string Name { get; }
 
+        public string DisplayName { get; }
+
         public string Path { get; }
 
         public string Description { get; }
 
         private bool isGlobal;
-
         public bool IsGlobal {
             get => this.isGlobal;
             set => this.RaisePropertyChanged(ref this.isGlobal, value);
@@ -34,26 +36,40 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
 
         public ICommand AddMouseStrokeCommand { get; set; }
 
-        public RelayCommandParam<InputStrokeViewModel> RemoveStrokeCommand { get; }
+        public RelayCommand<InputStrokeViewModel> RemoveStrokeCommand { get; }
 
-        public ShortcutViewModel(ShortcutGroupViewModel parent, ManagedShortcut reference) {
+        public ShortcutViewModel(ShortcutGroupViewModel parent, GroupedShortcut reference) {
             this.ShortcutRefernce = reference;
             this.Parent = parent;
             this.Name = reference.Name;
+            this.DisplayName = reference.DisplayName ?? reference.Name;
             this.Path = reference.Path;
             this.Description = reference.Description;
             this.isGlobal = reference.IsGlobal;
             this.InputStrokes = new ObservableCollection<InputStrokeViewModel>();
             this.AddKeyStrokeCommand = new RelayCommand(this.AddKeyStrokeAction);
             this.AddMouseStrokeCommand = new RelayCommand(this.AddMouseStrokeAction);
-            this.RemoveStrokeCommand = new RelayCommandParam<InputStrokeViewModel>(this.RemoveStrokeAction);
+            this.RemoveStrokeCommand = new RelayCommand<InputStrokeViewModel>(this.RemoveStrokeAction);
             foreach (IInputStroke stroke in reference.Shortcut.InputStrokes) {
                 this.InputStrokes.Add(InputStrokeViewModel.CreateFrom(stroke));
             }
         }
 
+        public List<IContextEntry> GetContext(List<IContextEntry> list) {
+            list.Add(new CommandContextEntry("Add key stroke...", this.AddKeyStrokeCommand));
+            list.Add(new CommandContextEntry("Add mouse stroke...", this.AddMouseStrokeCommand));
+            if (this.InputStrokes.Count > 0) {
+                list.Add(ContextEntrySeparator.Instance);
+                foreach (InputStrokeViewModel stroke in this.InputStrokes) {
+                    list.Add(new CommandContextEntry("Remove " + stroke.ToReadableString(), this.RemoveStrokeCommand, stroke));
+                }
+            }
+
+            return list;
+        }
+
         public void AddKeyStrokeAction() {
-            KeyStroke? result = CoreIoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
+            KeyStroke? result = IoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new KeyStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -61,7 +77,7 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
         }
 
         public void AddMouseStrokeAction() {
-            MouseStroke? result = CoreIoC.MouseDialogs.ShowGetMouseStrokeDialog();
+            MouseStroke? result = IoC.MouseDialogs.ShowGetMouseStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new MouseStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -69,9 +85,13 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
         }
 
         public void UpdateShortcutReference() {
+            // if (this.Manager != null) {
+            //     // IoC.ShortcutManager.Root = this.Manager.SaveToRoot();
+            // }
+
             if (this.ShortcutRefernce != null) {
                 this.ShortcutRefernce.SetShortcut(this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut);
-                CoreIoC.BroadcastShortcutChanged?.Invoke(this.Path);
+                IoC.OnShortcutManagedChanged?.Invoke(this.Path);
             }
         }
 
@@ -105,19 +125,6 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             else {
                 return null;
             }
-        }
-
-        public List<IContextEntry> GetContext(List<IContextEntry> list) {
-            list.Add(new CommandContextEntry("Add key stroke...", this.AddKeyStrokeCommand));
-            list.Add(new CommandContextEntry("Add mouse stroke...", this.AddMouseStrokeCommand));
-            if (this.InputStrokes.Count > 0) {
-                list.Add(ContextEntrySeparator.Instance);
-                foreach (InputStrokeViewModel stroke in this.InputStrokes) {
-                    list.Add(new CommandContextEntry("Remove " + stroke.ToReadableString(), this.RemoveStrokeCommand, stroke));
-                }
-            }
-
-            return list;
         }
     }
 }

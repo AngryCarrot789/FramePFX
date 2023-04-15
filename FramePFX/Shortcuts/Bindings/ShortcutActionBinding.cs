@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using FramePFX.Core.Actions;
-using FramePFX.Core.Shortcuts.Managing;
+using SharpPadV2.Core.Actions;
+using SharpPadV2.Core.Actions.Contexts;
+using SharpPadV2.Core.Shortcuts.Managing;
 
-namespace FramePFX.Shortcuts.Bindings {
+namespace SharpPadV2.Shortcuts.Bindings {
     public class ShortcutActionBinding : InputBinding {
         public static readonly DependencyProperty ShortcutAndUsageIdProperty =
             DependencyProperty.Register(
@@ -20,11 +21,11 @@ namespace FramePFX.Shortcuts.Bindings {
                 typeof(ShortcutActionBinding),
                 new PropertyMetadata(null));
 
-        public static readonly DependencyProperty DataContextProperty = DependencyProperty.Register("DataContext", typeof(object), typeof(ShortcutActionBinding), new PropertyMetadata(default(object)));
+        public static readonly DependencyProperty AdditionalContextProperty = DependencyProperty.Register("AdditionalContext", typeof(IDataContext), typeof(ShortcutActionBinding), new PropertyMetadata(null));
 
-        public object DataContext {
-            get => (object) this.GetValue(DataContextProperty);
-            set => this.SetValue(DataContextProperty, value);
+        public IDataContext AdditionalContext {
+            get => (IDataContext) this.GetValue(AdditionalContextProperty);
+            set => this.SetValue(AdditionalContextProperty, value);
         }
 
         /// <summary>
@@ -78,16 +79,16 @@ namespace FramePFX.Shortcuts.Bindings {
         private void OnShouldcutAndUsageIdChanged(string oldId, string newId) {
             if (!string.IsNullOrWhiteSpace(oldId)) {
                 ShortcutUtils.SplitValue(oldId, out string shortcutId, out string usageId);
-                AppShortcutManager.UnregisterHandler(shortcutId, usageId);
+                WPFShortcutManager.UnregisterHandler(shortcutId, usageId);
             }
 
             if (!string.IsNullOrWhiteSpace(newId)) {
                 ShortcutUtils.SplitValue(newId, out string shortcutId, out string usageId);
-                AppShortcutManager.RegisterHandler(shortcutId, usageId, this.onShortcutFired);
+                WPFShortcutManager.RegisterHandler(shortcutId, usageId, this.onShortcutFired);
             }
         }
 
-        private async Task<bool> OnShortcutFired(ShortcutProcessor processor, ManagedShortcut shortcut) {
+        private async Task<bool> OnShortcutFired(ShortcutProcessor processor, GroupedShortcut shortcut) {
             string action = this.ActionId;
             if (this.isRunning || string.IsNullOrEmpty(action)) {
                 return true;
@@ -95,7 +96,19 @@ namespace FramePFX.Shortcuts.Bindings {
 
             this.isRunning = true;
             try {
-                return await ActionManager.Instance.Execute(action, this.DataContext ?? processor.CurrentDataContext);
+                DefaultDataContext context = new DefaultDataContext();
+                context.Merge(processor.CurrentDataContext);
+                IDataContext myDc = this.AdditionalContext;
+                if (myDc != null) {
+                    context.Merge(myDc);
+                }
+
+                context.AddContext(this);
+                if (Window.GetWindow(this) is Window w) {
+                    context.AddContext(w);
+                }
+
+                return await ActionManager.Instance.Execute(action, context);
             }
             finally {
                 this.isRunning = false;

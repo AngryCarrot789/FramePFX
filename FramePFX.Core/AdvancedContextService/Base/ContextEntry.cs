@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FramePFX.Core.AdvancedContextService.Base {
+namespace SharpPadV2.Core.AdvancedContextService.Base {
     public class ContextEntry : BaseInteractableEntry {
         private string header;
         private string inputGestureText;
@@ -32,7 +32,7 @@ namespace FramePFX.Core.AdvancedContextService.Base {
 
         public IEnumerable<IContextEntry> Children { get; }
 
-        public ContextEntry(IEnumerable<IContextEntry> children = null) {
+        public ContextEntry(IEnumerable<IContextEntry> children = null) : base(null) {
             this.Children = children;
         }
 

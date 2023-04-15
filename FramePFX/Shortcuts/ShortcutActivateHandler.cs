@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using FramePFX.Core.Shortcuts.Managing;
+using SharpPadV2.Core.Shortcuts.Managing;
 
-namespace FramePFX.Shortcuts {
-    public delegate Task<bool> ShortcutActivateHandler(ShortcutProcessor processor, ManagedShortcut shortcut);
+namespace SharpPadV2.Shortcuts {
+    public delegate Task<bool> ShortcutActivateHandler(ShortcutProcessor processor, GroupedShortcut shortcut);
 }

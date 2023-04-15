@@ -1,6 +1,6 @@
-using FramePFX.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace SharpPadV2.Core.Shortcuts.Usage {
     public interface IKeyboardShortcutUsage : IShortcutUsage {
         /// <summary>
         /// A reference to the shortcut that created this instance
@@ -23,9 +23,9 @@ namespace FramePFX.Core.Shortcuts.Usage {
         KeyStroke CurrentKeyStroke { get; }
 
         /// <summary>
-        /// Attempts to move the current stroke to the next stroke in the sequence. If this usage is already
-        /// completed (<see cref="IsCompleted"/>), then true is returned. If the current stroke matches
-        /// the input stroke, then true is returned. Otherwise, false is returned
+        /// Attempts to progress current stroke to the next stroke in the sequence. If this usage is already
+        /// completed (<see cref="IShortcutUsage.IsCompleted"/>), then true is returned. If the current stroke matches
+        /// the input stroke, then the current stroke is progressed and true is returned. Otherwise, false is returned
         /// </summary>
         /// <param name="stroke">The key stroke that was pressed by the user</param>
         /// <returns>

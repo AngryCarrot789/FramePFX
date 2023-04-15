@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Usage;
+using SharpPadV2.Core.Shortcuts.Inputs;
+using SharpPadV2.Core.Shortcuts.Usage;
 
-namespace FramePFX.Core.Shortcuts {
+namespace SharpPadV2.Core.Shortcuts {
     /// <summary>
     /// The base class for all shortcuts
     /// </summary>
@@ -48,5 +48,7 @@ namespace FramePFX.Core.Shortcuts {
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">This shortcut is empty (has no input strokes)</exception>
         IShortcutUsage CreateUsage();
+
+        bool IsPrimaryStroke(IInputStroke input);
     }
 }

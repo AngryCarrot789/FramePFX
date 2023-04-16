@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Input;
@@ -105,7 +106,7 @@ namespace FramePFX {
                     if (time >= this.nextPlaybackTick) { //  || (time + 1) >= this.nextPlaybackTick // time + 1 for ahead of time playback... just in case
                         this.playbackAverageIntervalMS.PushValue(time - this.lastPlaybackTick);
                         this.lastPlaybackTick = time;
-                        this.nextPlaybackTick = time + 33L; // 33ms = 30fps
+                        this.nextPlaybackTick = time + (int) Math.Round(1000.0 / this.Editor.ActiveProject.PlaybackFPS);
                         timeline.StepFrame();
                         if (timeline.IsRenderDirty) {
                             this.RenderTimeline(timeline);

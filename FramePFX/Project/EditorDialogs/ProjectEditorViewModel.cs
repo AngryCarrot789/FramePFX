@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FramePFX.Core;
+﻿using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Project.EditorDialogs {
-    public class ProjectEditorViewModel : BaseViewModel {
-
+    public class ProjectEditorViewModel : BaseConfirmableDialogViewModel {
+        // Could support templates/defaults eventually
+        private ProjectSettingsViewModel settings;
+        public ProjectSettingsViewModel Settings {
+            get => this.settings;
+            set => this.RaisePropertyChanged(ref this.settings, value);
+        }
     }
 }

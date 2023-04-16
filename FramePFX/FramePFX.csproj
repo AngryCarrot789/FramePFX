@@ -110,6 +110,11 @@
     <Compile Include="DispatcherDelegate.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="IoC.cs" />
+    <Compile Include="Project\EditorDialogs\ProjectEditorViewModel.cs" />
+    <Compile Include="Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
+      <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Project\EditorDialogs\ProjectSettingsViewModel.cs" />
     <Compile Include="Project\EditorProject.cs" />
     <Compile Include="Render\DispatchReceiver.cs" />
     <Compile Include="Render\DispatchThread.cs" />
@@ -247,6 +252,10 @@
     <Page Include="AdvancedContextService\ContextStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ResourceManaging\ResManagerStyles.xaml">
       <SubType>Designer</SubType>

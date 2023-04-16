@@ -97,7 +97,7 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             if (this.texture == null) {
                 this.CreateTexture();
             }
-            double timeScale = this.Layer.Timeline.Project.PlaybackFPS;
+            double timeScale = this.Layer.Timeline.Project.FrameRate;
             TimeSpan timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin + this.FrameMediaOffset) / timeScale);
             VideoFrame frame = this.Resource.GetFrameAt(timestamp);
 

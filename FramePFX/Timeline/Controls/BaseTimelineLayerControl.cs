@@ -62,6 +62,7 @@ namespace FramePFX.Timeline.Controls {
                     vm.Control = this;
                 }
             };
+
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
         }
@@ -101,12 +102,12 @@ namespace FramePFX.Timeline.Controls {
             if (e.Data.GetDataPresent("ResourceItem")) {
                 object obj = e.Data.GetData("ResourceItem");
                 if (obj is ResourceItem resource) {
-                    await this.OnDrop(resource, e.GetPosition(this));
+                    await this.OnDropResource(resource, e.GetPosition(this));
                 }
             }
         }
 
-        protected virtual async Task OnDrop(ResourceItem item, Point mouse) {
+        protected virtual async Task OnDropResource(ResourceItem item, Point mouse) {
             // lazy
             if (this is VideoTimelineLayerControl layer) {
                 long frame = layer.GetFrameFromPixel(mouse.X);

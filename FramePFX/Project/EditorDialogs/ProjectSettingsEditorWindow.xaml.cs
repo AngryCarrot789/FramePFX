@@ -11,14 +11,16 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using FramePFX.Views;
 
 namespace FramePFX.Project.EditorDialogs {
     /// <summary>
     /// Interaction logic for ProjectSettingsEditorWindow.xaml
     /// </summary>
-    public partial class ProjectSettingsEditorWindow : Window {
+    public partial class ProjectSettingsEditorWindow : WindowEx {
         public ProjectSettingsEditorWindow() {
             InitializeComponent();
+            this.DataContext = new ProjectEditorViewModel();
         }
     }
 }

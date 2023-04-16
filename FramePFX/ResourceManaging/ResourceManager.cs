@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Interactivity;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Project;
@@ -176,30 +178,71 @@ namespace FramePFX.ResourceManaging {
             }
         }
 
-        public ResourceItem AddFile(string file) {
+        public async Task<ResourceItem> AddFileAction(string file) {
+            string id = await this.GenerateUniqueIdAction(file);
+            if (id == null) {
+                return null;
+            }
+
             ResourceVideoMedia resource = new ResourceVideoMedia {
                 FilePath = file
             };
+
             if (!resource.IsValidMediaFile) {
                 resource.Dispose();
+                await CoreIoC.MessageDialogs.ShowMessageAsync("Failed to load image", $"Could not load image for file: {file}");
                 return null;
             }
-            this.AddResource(this.GenerateUniqueIdForFile(file), resource);
+
+            this.AddResource(id, resource);
             return resource;
         }
 
-        public string GenerateUniqueIdForFile(string file) {
+        /// <summary>
+        /// Generates a unique ID for a file, and may show a dialog if one could not be generated
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns>The unique ID which will not already exist, or null if one could not be generated</returns>
+        public async Task<string> GenerateUniqueIdAction(string file) {
             string name = Path.GetFileName(file);
             if (string.IsNullOrWhiteSpace(name)) {
                 name = file;
             }
 
             int count = 0;
-            while (this.GetResourceById(name) != null) {
+            while (name.Length < 256 && this.GetResourceById(name) != null) {
                 name = $"({++count}) {name}";
             }
 
-            return name;
+            // if (name.Length > 255) { // absolute last attempt
+            //     StringBuilder sb = new StringBuilder();
+            //     Random random = new Random();
+            //     for (int i = 0; i < 256; i++)
+            //         sb.Append((char) random.Next(65, 92));
+            //     name = sb.ToString();
+            // }
+
+            if (this.GetResourceById(name) == null) {
+                return name;
+            }
+
+            // terribly messy
+            string result = CoreIoC.UserInput.ShowSingleInputDialog("Input a resource Id", "Input a unique resource ID:", Path.GetFileName(file), InputValidator.FromFunc((x) => {
+                if (string.IsNullOrWhiteSpace(x)) {
+                    return "Resource ID cannot be an empty string or consist of only whitespaces";
+                }
+                else if (x.Length > 255) {
+                    return "Resource ID cannot be longer than 255 characters";
+                }
+                else if (this.GetResourceById(x) != null) {
+                    return "Resource already exists with that name";
+                }
+                else {
+                    return null;
+                }
+            }));
+
+            return this.GetResourceById(result) == null ? result : null;
         }
 
         public Task<bool> CanDrop(string[] paths, ref FileDropType type) {
@@ -208,10 +251,7 @@ namespace FramePFX.ResourceManaging {
 
         public async Task OnFilesDropped(string[] paths) {
             foreach (string file in paths) {
-                ResourceItem resource = this.AddFile(file);
-                if (resource == null) {
-                    await CoreIoC.MessageDialogs.ShowMessageAsync("Failed to load image", $"Could not load image for file: {file}");
-                }
+                await this.AddFileAction(file);
             }
         }
 
@@ -219,6 +259,12 @@ namespace FramePFX.ResourceManaging {
             if (string.IsNullOrWhiteSpace(uuid)) {
                 throw new Exception("UUID cannot be null or empty");
             }
+        }
+
+        public async Task SaveResources(RBEDictionary map, string folder) {
+            // foreach (KeyValuePair<string, ResourceItem> entry in this.uuidToItem) {
+
+            // }
         }
     }
 }

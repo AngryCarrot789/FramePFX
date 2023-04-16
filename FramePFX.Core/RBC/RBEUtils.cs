@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 
 namespace FramePFX.Core.RBC {
-    public static class RBCUtils {
+    public static class RBEUtils {
         private static Encoding defaultEncoding = Encoding.UTF8;
         public static Encoding DefaultEncoding {
             get => defaultEncoding;

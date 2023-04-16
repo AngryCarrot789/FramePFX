@@ -6,9 +6,21 @@
                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:local="clr-namespace:FramePFX.Project.EditorDialogs"
                 mc:Ignorable="d"
-                Title="ProjectSettingsEditorWindow" Height="450" Width="800"
-                Style="{StaticResource CustomWindowStyleEx}">
+                Title="ProjectSettingsEditorWindow" Height="243" Width="297"
+                Style="{StaticResource CustomWindowStyleEx}"
+                d:DataContext="{d:DesignInstance local:ProjectEditorViewModel}">
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding ConfirmCommand, Mode=OneTime}"/>
+        <KeyBinding Key="Esc" Command="{Binding CancelCommand, Mode=OneTime}"/>
+    </Window.InputBindings>
     <Grid>
-        
+        <TextBlock Text="Width: " Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
+        <TextBlock Text="Height:" Margin="10,41,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
+        <TextBlock Text="FPS" Margin="10,72,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
+        <TextBox Text="{Binding Settings.Width, UpdateSourceTrigger=PropertyChanged}" Margin="60,10,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
+        <TextBox Text="{Binding Settings.Height, UpdateSourceTrigger=PropertyChanged}" Margin="60,41,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
+        <TextBox Text="{Binding Settings.FrameRate, UpdateSourceTrigger=PropertyChanged}" Margin="60,72,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
+        <Button Command="{Binding ConfirmCommand, Mode=OneTime}" Content="OK" Margin="0,0,87,10" VerticalAlignment="Bottom" Height="24" HorizontalAlignment="Right" Width="72"/>
+        <Button Command="{Binding CancelCommand, Mode=OneTime}" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" Height="24" HorizontalAlignment="Right" Width="72"/>
     </Grid>
 </views:WindowEx>

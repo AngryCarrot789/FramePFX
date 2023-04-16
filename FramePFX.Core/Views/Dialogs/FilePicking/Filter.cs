@@ -4,6 +4,8 @@ using System.Text;
 
 namespace FramePFX.Core.Views.Dialogs.FilePicking {
     public sealed class Filter {
+        public static readonly string PfxAndAll = Filter.Of().AddFilter("Frame PFX Project", "pfx").AddAllFiles().ToString();
+
         private readonly StringBuilder sb;
         private bool hasFirst;
 

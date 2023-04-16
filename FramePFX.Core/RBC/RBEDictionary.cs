@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace FramePFX.Core.RBC {
+    /// <summary>
+    /// Used to store named elements using a dictionary
+    /// </summary>
     public class RBEDictionary : RBEBase {
         public Dictionary<string, RBEBase> Map { get; private set; }
 
-        public override int TypeId => 1;
+        public override RBEType Type => RBEType.Dictionary;
 
         public RBEDictionary() : this(new Dictionary<string, RBEBase>()) {
 
@@ -17,13 +20,16 @@ namespace FramePFX.Core.RBC {
         }
 
         public RBEBase this[string key] {
-            get => this.Map.TryGetValue(key ?? "", out RBEBase value) ? value : null;
+            get {
+                return this.Map.TryGetValue(ValidateKey(key), out RBEBase value) ? value : null;
+            }
             set {
+                key = ValidateKey(key);
                 if (value != null) {
-                    this.Map[key ?? ""] = value;
+                    this.Map[key] = value;
                 }
                 else {
-                    this.Map.Remove(key ?? "");
+                    this.Map.Remove(key);
                 }
             }
         }
@@ -33,7 +39,8 @@ namespace FramePFX.Core.RBC {
         }
 
         private bool GetElementByType<T>(string key, out T value) where T : RBEBase {
-            if (this.Map.TryGetValue(key ?? "", out RBEBase rbe)) {
+            key = ValidateKey(key);
+            if (this.Map.TryGetValue(key, out RBEBase rbe)) {
                 if (rbe is T val) {
                     value = val;
                     return true;
@@ -62,6 +69,13 @@ namespace FramePFX.Core.RBC {
             return element != null;
         }
 
+        public RBEDictionary GetOrCreateDictionary(string key) {
+            RBEDictionary element = this.GetDictionaryElement(key);
+            if (element == null)
+                this[key] = element = new RBEDictionary();
+            return element;
+        }
+
         public RBEList GetListElement(string key) {
             return this.GetElementByType(key, out RBEList rbe) ? rbe : null;
         }
@@ -76,58 +90,58 @@ namespace FramePFX.Core.RBC {
             return element != null;
         }
 
-        public RBEInt8 GetInt8Element(string key) {
-            return this.GetElementByType(key, out RBEInt8 rbe) ? rbe : null;
+        public RBEByte GetByteElement(string key) {
+            return this.GetElementByType(key, out RBEByte rbe) ? rbe : null;
         }
 
-        public byte GetInt8(string key, byte def = default) {
-            return this.GetElementByType(key, out RBEInt8 rbe) ? rbe.Value : def;
+        public byte GetByte(string key, byte def = default) {
+            return this.GetElementByType(key, out RBEByte rbe) ? rbe.Value : def;
         }
 
-        public bool TryGetInt8(string key, out byte value) {
-            RBEInt8 element = this.GetInt8Element(key);
+        public bool TryGetByte(string key, out byte value) {
+            RBEByte element = this.GetByteElement(key);
             value = element?.Value ?? default;
             return element != null;
         }
 
-        public RBEInt16 GetInt16Element(string key) {
-            return this.GetElementByType(key, out RBEInt16 rbe) ? rbe : null;
+        public RBEShort GetShortElement(string key) {
+            return this.GetElementByType(key, out RBEShort rbe) ? rbe : null;
         }
 
-        public short GetInt16(string key, short def = default) {
-            return this.GetElementByType(key, out RBEInt16 rbe) ? rbe.Value : def;
+        public short GetShort(string key, short def = default) {
+            return this.GetElementByType(key, out RBEShort rbe) ? rbe.Value : def;
         }
 
-        public bool TryGetInt16(string key, out short value) {
-            RBEInt16 element = this.GetInt16Element(key);
+        public bool TryGetShort(string key, out short value) {
+            RBEShort element = this.GetShortElement(key);
             value = element?.Value ?? default;
             return element != null;
         }
 
-        public RBEInt32 GetInt32Element(string key) {
-            return this.GetElementByType(key, out RBEInt32 rbe) ? rbe : null;
+        public RBEInt GetIntElement(string key) {
+            return this.GetElementByType(key, out RBEInt rbe) ? rbe : null;
         }
 
-        public int GetInt32(string key, int def = default) {
-            return this.GetElementByType(key, out RBEInt32 rbe) ? rbe.Value : def;
+        public int GetInt(string key, int def = default) {
+            return this.GetElementByType(key, out RBEInt rbe) ? rbe.Value : def;
         }
 
-        public bool TryGetInt32(string key, out int value) {
-            RBEInt32 element = this.GetInt32Element(key);
+        public bool TryGetInt(string key, out int value) {
+            RBEInt element = this.GetIntElement(key);
             value = element?.Value ?? default;
             return element != null;
         }
 
-        public RBEInt64 GetInt64Element(string key) {
-            return this.GetElementByType(key, out RBEInt64 rbe) ? rbe : null;
+        public RBELong GetLongElement(string key) {
+            return this.GetElementByType(key, out RBELong rbe) ? rbe : null;
         }
 
-        public long GetInt64(string key, long def = default) {
-            return this.GetElementByType(key, out RBEInt64 rbe) ? rbe.Value : def;
+        public long GetLong(string key, long def = default) {
+            return this.GetElementByType(key, out RBELong rbe) ? rbe.Value : def;
         }
 
-        public bool TryGetInt64(string key, out long value) {
-            RBEInt64 element = this.GetInt64Element(key);
+        public bool TryGetLong(string key, out long value) {
+            RBELong element = this.GetLongElement(key);
             value = element?.Value ?? default;
             return element != null;
         }
@@ -182,20 +196,20 @@ namespace FramePFX.Core.RBC {
             this[key] = new RBEList(value);
         }
 
-        public void SetInt8(string key, byte value) {
-            this[key] = new RBEInt8(value);
+        public void SetByte(string key, byte value) {
+            this[key] = new RBEByte(value);
         }
 
-        public void SetInt16(string key, short value) {
-            this[key] = new RBEInt16(value);
+        public void SetShort(string key, short value) {
+            this[key] = new RBEShort(value);
         }
 
-        public void SetInt32(string key, int value) {
-            this[key] = new RBEInt32(value);
+        public void SetInt(string key, int value) {
+            this[key] = new RBEInt(value);
         }
 
-        public void SetInt64(string key, long value) {
-            this[key] = new RBEInt64(value);
+        public void SetLong(string key, long value) {
+            this[key] = new RBELong(value);
         }
 
         public void SetFloat(string key, float value) {
@@ -225,9 +239,26 @@ namespace FramePFX.Core.RBC {
         public override void Write(BinaryWriter writer) {
             writer.Write((ushort) this.Map.Count);
             foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
-                writer.Write((byte) entry.Key.Length);
+                int length = entry.Key.Length;
+                if (length > 255) {
+                    throw new Exception($"Map contained a key longer than 255 characters: {length}");
+                }
+
+                writer.Write((byte) length);
                 writer.Write(entry.Key.ToCharArray());
                 WriteIdAndElement(writer, entry.Value);
+            }
+        }
+
+        public static string ValidateKey(string key) {
+            if (key == null) {
+                return "";
+            }
+            else if (key.Length > 255) {
+                throw new ArgumentNullException(nameof(key), $"Key length must be less than 256 characters: {key.Length}");
+            }
+            else {
+                return key;
             }
         }
     }

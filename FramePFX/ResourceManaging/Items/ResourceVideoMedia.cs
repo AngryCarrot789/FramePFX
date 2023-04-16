@@ -105,7 +105,7 @@ namespace FramePFX.ResourceManaging.Items {
             }
         }
 
-        private void OpenDecoder() {
+        public void OpenDecoder() {
             this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, open: false);
             this.frameQueue = new FrameQueue(this.stream, 2);
 

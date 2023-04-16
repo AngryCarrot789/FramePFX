@@ -23,7 +23,7 @@ namespace FramePFX {
         public void NewProjectAction() {
             this.ActiveProject = new EditorProject(this);
             this.ActiveProject.SetupDefaultProject();
-            Resolution res = this.ActiveProject.PlaybackResolution;
+            Resolution res = this.ActiveProject.Resolution;
             this.PlaybackView.ViewPortHandle.SetResolution(res.Width, res.Height);
         }
 

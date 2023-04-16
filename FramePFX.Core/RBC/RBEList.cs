@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace FramePFX.Core.RBC {
+    /// <summary>
+    /// Used to store an ordered list of elements
+    /// </summary>
     public class RBEList : RBEBase {
         public List<RBEBase> List { get; private set; }
 
-        public override int TypeId => 2;
+        public override RBEType Type => RBEType.List;
 
         public RBEList() : this(new List<RBEBase>()) {
 
@@ -60,58 +63,58 @@ namespace FramePFX.Core.RBC {
             return element != null;
         }
 
-        public RBEInt8 GetInt8Element(int index) {
-            return this.GetElementByType(index, out RBEInt8 rbe) ? rbe : null;
+        public RBEByte GetInt8Element(int index) {
+            return this.GetElementByType(index, out RBEByte rbe) ? rbe : null;
         }
 
         public byte GetInt8(int index, byte def = default) {
-            return this.GetElementByType(index, out RBEInt8 rbe) ? rbe.Value : def;
+            return this.GetElementByType(index, out RBEByte rbe) ? rbe.Value : def;
         }
 
         public bool TryGetInt8(int index, out byte value) {
-            RBEInt8 element = this.GetInt8Element(index);
+            RBEByte element = this.GetInt8Element(index);
             value = element?.Value ?? default;
             return element != null;
         }
 
-        public RBEInt16 GetInt16Element(int index) {
-            return this.GetElementByType(index, out RBEInt16 rbe) ? rbe : null;
+        public RBEShort GetInt16Element(int index) {
+            return this.GetElementByType(index, out RBEShort rbe) ? rbe : null;
         }
 
         public short GetInt16(int index, short def = default) {
-            return this.GetElementByType(index, out RBEInt16 rbe) ? rbe.Value : def;
+            return this.GetElementByType(index, out RBEShort rbe) ? rbe.Value : def;
         }
 
         public bool TryGetInt16(int index, out short value) {
-            RBEInt16 element = this.GetInt16Element(index);
+            RBEShort element = this.GetInt16Element(index);
             value = element?.Value ?? default;
             return element != null;
         }
 
-        public RBEInt32 GetInt32Element(int index) {
-            return this.GetElementByType(index, out RBEInt32 rbe) ? rbe : null;
+        public RBEInt GetInt32Element(int index) {
+            return this.GetElementByType(index, out RBEInt rbe) ? rbe : null;
         }
 
         public int GetInt32(int index, int def = default) {
-            return this.GetElementByType(index, out RBEInt32 rbe) ? rbe.Value : def;
+            return this.GetElementByType(index, out RBEInt rbe) ? rbe.Value : def;
         }
 
         public bool TryGetInt32(int index, out int value) {
-            RBEInt32 element = this.GetInt32Element(index);
+            RBEInt element = this.GetInt32Element(index);
             value = element?.Value ?? default;
             return element != null;
         }
 
-        public RBEInt64 GetInt64Element(int index) {
-            return this.GetElementByType(index, out RBEInt64 rbe) ? rbe : null;
+        public RBELong GetInt64Element(int index) {
+            return this.GetElementByType(index, out RBELong rbe) ? rbe : null;
         }
 
         public long GetInt64(int index, long def = default) {
-            return this.GetElementByType(index, out RBEInt64 rbe) ? rbe.Value : def;
+            return this.GetElementByType(index, out RBELong rbe) ? rbe.Value : def;
         }
 
         public bool TryGetInt64(int index, out long value) {
-            RBEInt64 element = this.GetInt64Element(index);
+            RBELong element = this.GetInt64Element(index);
             value = element?.Value ?? default;
             return element != null;
         }
@@ -148,6 +151,10 @@ namespace FramePFX.Core.RBC {
             return this.GetElementByType(index, out RBEStruct rbe) ? rbe : null;
         }
 
+        public RBEStructArray GetStructArrayElement(int index) {
+            return this.GetElementByType(index, out RBEStructArray rbe) ? rbe : null;
+        }
+
         public T GetStruct<T>(int index, T def = default) where T : unmanaged {
             return this.GetElementByType(index, out RBEStruct value) ? value.GetValue<T>() : def;
         }
@@ -156,6 +163,16 @@ namespace FramePFX.Core.RBC {
             RBEStruct element = this.GetStructElement(index);
             value = element?.GetValue<T>() ?? default;
             return element != null;
+        }
+
+        public T[] GetStructArray<T>(int index, T[] def = default) where T : unmanaged {
+            return this.GetElementByType(index, out RBEStructArray value) ? value.GetValues<T>() : def;
+        }
+
+        public bool TryGetStructArray<T>(int index, out T[] value) where T : unmanaged {
+            RBEStructArray element = this.GetStructArrayElement(index);
+            value = element?.GetValues<T>();
+            return value != null;
         }
         
         public void AddDictionary(Dictionary<string, RBEBase> value) {
@@ -167,19 +184,19 @@ namespace FramePFX.Core.RBC {
         }
 
         public void AddInt8(byte value) {
-            this.List.Add(new RBEInt8(value));
+            this.List.Add(new RBEByte(value));
         }
 
         public void AddInt16(short value) {
-            this.List.Add(new RBEInt16(value));
+            this.List.Add(new RBEShort(value));
         }
 
         public void AddInt32(int value) {
-            this.List.Add(new RBEInt32(value));
+            this.List.Add(new RBEInt(value));
         }
 
         public void AddInt64(long value) {
-            this.List.Add(new RBEInt64(value));
+            this.List.Add(new RBELong(value));
         }
 
         public void AddFloat(float value) {
@@ -193,6 +210,12 @@ namespace FramePFX.Core.RBC {
         public void AddStruct<T>(in T value) where T : unmanaged {
             RBEStruct obj = new RBEStruct();
             obj.SetValue(value);
+            this.List.Add(obj);
+        }
+
+        public void AddStructArray<T>(in T[] value) where T : unmanaged {
+            RBEStructArray obj = new RBEStructArray();
+            obj.SetValues(value);
             this.List.Add(obj);
         }
 

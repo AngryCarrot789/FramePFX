@@ -1,16 +1,16 @@
 using System.IO;
 
 namespace FramePFX.Core.RBC {
-    public class RBEInt8 : RBEBase {
-        public override int TypeId => 3;
+    public class RBEByte : RBEBase {
+        public override RBEType Type => RBEType.Byte;
 
         public byte Value { get; set; }
 
-        public RBEInt8() {
+        public RBEByte() {
 
         }
 
-        public RBEInt8(byte value) {
+        public RBEByte(byte value) {
             this.Value = value;
         }
 
@@ -23,16 +23,16 @@ namespace FramePFX.Core.RBC {
         }
     }
 
-    public class RBEInt16 : RBEBase {
-        public override int TypeId => 4;
+    public class RBEShort : RBEBase {
+        public override RBEType Type => RBEType.Short;
 
         public short Value { get; set; }
 
-        public RBEInt16() {
+        public RBEShort() {
 
         }
 
-        public RBEInt16(short value) {
+        public RBEShort(short value) {
             this.Value = value;
         }
 
@@ -45,16 +45,16 @@ namespace FramePFX.Core.RBC {
         }
     }
 
-    public class RBEInt32 : RBEBase {
-        public override int TypeId => 5;
+    public class RBEInt : RBEBase {
+        public override RBEType Type => RBEType.Int;
 
         public int Value { get; set; }
 
-        public RBEInt32() {
+        public RBEInt() {
 
         }
 
-        public RBEInt32(int value) {
+        public RBEInt(int value) {
             this.Value = value;
         }
 
@@ -67,16 +67,16 @@ namespace FramePFX.Core.RBC {
         }
     }
 
-    public class RBEInt64 : RBEBase {
-        public override int TypeId => 6;
+    public class RBELong : RBEBase {
+        public override RBEType Type => RBEType.Long;
 
         public long Value { get; set; }
 
-        public RBEInt64() {
+        public RBELong() {
 
         }
 
-        public RBEInt64(long value) {
+        public RBELong(long value) {
             this.Value = value;
         }
 
@@ -90,7 +90,7 @@ namespace FramePFX.Core.RBC {
     }
 
     public class RBEFloat : RBEBase {
-        public override int TypeId => 7;
+        public override RBEType Type => RBEType.Float;
 
         public float Value { get; set; }
 
@@ -112,7 +112,7 @@ namespace FramePFX.Core.RBC {
     }
 
     public class RBEDouble : RBEBase {
-        public override int TypeId => 8;
+        public override RBEType Type => RBEType.Double;
 
         public double Value { get; set; }
 

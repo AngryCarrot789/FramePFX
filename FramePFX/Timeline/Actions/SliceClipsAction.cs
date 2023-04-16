@@ -25,16 +25,14 @@ namespace FramePFX.Timeline.Actions {
                 return false;
             }
 
+            long frame = timeline.PlayHeadFrame;
             List<TimelineVideoClip> selected = timeline.Handle.GetSelectedClips().ToList();
-            if (selected.Count < 1) {
-                CutAllOnPlayHead(timeline);
+            selected.RemoveAll(x => !x.IntersectsFrameAt(frame));
+            if (selected.Count > 0) {
+                CutAllAtFrame(timeline, selected, frame);
             }
             else {
-                long frame = timeline.PlayHeadFrame;
-                selected.RemoveAll(x => !x.IntersectsFrameAt(frame));
-                if (selected.Count > 0) {
-                    CutAllAtFrame(timeline, new List<BaseTimelineClip>(selected), frame);
-                }
+                CutAllOnPlayHead(timeline);
             }
 
             return true;
@@ -61,7 +59,7 @@ namespace FramePFX.Timeline.Actions {
             }
         }
 
-        public static void CutAllAtFrame(EditorTimeline timeline, List<BaseTimelineClip> clips, long frame) {
+        public static void CutAllAtFrame(EditorTimeline timeline, IEnumerable<BaseTimelineClip> clips, long frame) {
             foreach (BaseTimelineClip clip in clips) {
                 if (!clip.IntersectsFrameAt(frame)) { // shouldn't return false
                     continue;

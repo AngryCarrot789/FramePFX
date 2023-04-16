@@ -106,7 +106,7 @@ namespace FramePFX {
                     if (time >= this.nextPlaybackTick) { //  || (time + 1) >= this.nextPlaybackTick // time + 1 for ahead of time playback... just in case
                         this.playbackAverageIntervalMS.PushValue(time - this.lastPlaybackTick);
                         this.lastPlaybackTick = time;
-                        this.nextPlaybackTick = time + (int) Math.Round(1000.0 / this.Editor.ActiveProject.PlaybackFPS);
+                        this.nextPlaybackTick = time + (int) Math.Round(1000.0 / this.Editor.ActiveProject.FrameRate);
                         timeline.StepFrame();
                         if (timeline.IsRenderDirty) {
                             this.RenderTimeline(timeline);

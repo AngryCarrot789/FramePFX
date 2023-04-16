@@ -1,6 +1,10 @@
 using System;
 
 namespace FramePFX.Core.Actions {
+    /// <summary>
+    /// A helper attribute for registering actions. <see cref="ActionManager.SearchAndRegisterActions(ActionManager)"/> will 
+    /// search all types for this attribute and use it to register a new instance of the action
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class ActionRegistrationAttribute : Attribute {
         public string ActionId { get; }

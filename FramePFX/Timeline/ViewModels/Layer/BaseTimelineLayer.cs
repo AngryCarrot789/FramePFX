@@ -139,8 +139,8 @@ namespace FramePFX.Timeline.ViewModels.Layer {
         }
 
         public virtual Task OnVideoResourceDropped(ResourceItem resource, long frameBegin) {
-            long duration = Math.Min(300, this.Timeline.MaxDuration - frameBegin);
-
+            double fps = this.Timeline.Project.FrameRate;
+            long duration = Math.Min((long) Math.Floor(fps * 5), this.Timeline.MaxDuration - frameBegin);
             if (duration <= 0) {
                 return Task.CompletedTask;
             }
@@ -151,7 +151,14 @@ namespace FramePFX.Timeline.ViewModels.Layer {
                 square.Name = resource.UniqueID;
             }
             else if (resource is ResourceVideoMedia media) {
-                this.CreateMediaClip(frameBegin, duration, media);
+                media.OpenDecoder();
+                TimeSpan span = media.GetDuration();
+                long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                if (dur < 2) { // image files are 1
+                    dur = duration;
+                }
+
+                this.CreateMediaClip(frameBegin, dur, media);
             }
 
             return Task.CompletedTask;

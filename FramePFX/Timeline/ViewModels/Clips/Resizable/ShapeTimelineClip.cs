@@ -55,5 +55,18 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             GL.Vertex3(0, 1, 0);
             GL.End();
         }
+
+        public override BaseTimelineClip CloneInstance() {
+            ShapeTimelineClip clip = new ShapeTimelineClip();
+            this.LoadDataIntoClone(clip);
+            return clip;
+        }
+
+        public override void LoadDataIntoClone(BaseTimelineClip clone) {
+            base.LoadDataIntoClone(clone);
+            if (clone is ShapeTimelineClip clip) {
+                clip.resource = this.resource;
+            }
+        }
     }
 }

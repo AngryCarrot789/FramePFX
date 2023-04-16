@@ -19,6 +19,10 @@ namespace FramePFX.Timeline {
             get => this.Begin + this.Duration;
         }
 
+        public static FrameSpan Empty => new FrameSpan(0, 0);
+
+        public bool IsEmpty => this.Begin == 0 && this.Duration == 0;
+
         public FrameSpan(long begin, long duration) {
             this.Begin = begin;
             this.Duration = duration;

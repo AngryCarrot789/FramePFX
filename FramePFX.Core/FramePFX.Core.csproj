@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="FFmpegWrapper, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="FFmpegWrapper">
       <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
     </Reference>
   </ItemGroup>

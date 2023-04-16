@@ -59,6 +59,22 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             GL.PopMatrix();
         }
 
+        /// <summary>
+        /// The core render function for a positionable timeline clip
+        /// </summary>
+        /// <param name="vp">The viewport that's being rendered into</param>
+        /// <param name="frame">The current frame that needs to be rendered</param>
         public abstract void RenderCore(IViewPort vp, long frame);
+
+        public override void LoadDataIntoClone(BaseTimelineClip clone) {
+            base.LoadDataIntoClone(clone);
+            if (clone is PositionableTimelineClip pos) {
+                pos.x = this.x;
+                pos.y = this.y;
+                pos.width = this.width;
+                pos.height = this.height;
+                pos.UseScaledRender = this.UseScaledRender;
+            }
+        }
     }
 }

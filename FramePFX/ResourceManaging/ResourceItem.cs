@@ -78,10 +78,7 @@ namespace FramePFX.ResourceManaging {
         }
 
         public void Dispose() {
-            if (this.IsDisposed) {
-                throw new InvalidOperationException("Already disposed");
-            }
-
+            this.ThrowIfDisposed();
             try {
                 this.IsDisposing = true;
                 this.DisposeResource();
@@ -96,6 +93,12 @@ namespace FramePFX.ResourceManaging {
 
         public virtual void DisposeResource() {
 
+        }
+
+        protected void ThrowIfDisposed() {
+            if (this.IsDisposed) {
+                throw new ObjectDisposedException(this.GetType().Name);
+            }
         }
     }
 }

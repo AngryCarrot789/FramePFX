@@ -1,11 +1,12 @@
 using System;
+using System.Threading.Tasks;
 using FFmpeg.Wrapper;
 using FramePFX.Render;
 using FramePFX.ResourceManaging.Items;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
-    public class VideoMediaTimelineClip : PositionableTimelineClip {
+    public class VideoMediaTimelineClip : PositionableTimelineClip, IDisposable {
         private ResourceVideoMedia resource;
         public ResourceVideoMedia Resource {
             get => this.resource;
@@ -22,11 +23,27 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
         private SwScaler scaler;
         private Texture texture;
 
+        private long targetFrame;
         private long currentFrameNo = -1;
         private TimeSpan frameTimestamp = TimeSpan.Zero;
 
+        private Task catchUpTask;
+        private readonly WeakReference<IViewPort> targetVp = new WeakReference<IViewPort>(null);
+
         public VideoMediaTimelineClip() {
             this.UseScaledRender = true;
+        }
+
+        protected void EnsureTaskRunning() {
+            if (this.catchUpTask == null || this.catchUpTask.IsCompleted) {
+                this.catchUpTask = Task.Run(() => {
+                    long frame = this.targetFrame;
+                    while (frame != this.currentFrameNo) {
+                        this.ResyncFrame(frame);
+                        this.currentFrameNo = frame;
+                    }
+                });
+            }
         }
 
         public override void RenderCore(IViewPort vp, long frame) {
@@ -34,9 +51,18 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
                 return;
             }
 
+            // this.targetVp.SetTarget(vp);
+            // TODO: i don't fully understand the FFmpeg library yet, but an optimisation could possibly be made for
+            // TODO: the this.isTimelinePlaying field, so that it isn't seeking the frame and is instead fetching the next?
             if (frame != this.currentFrameNo) {
-                this.currentFrameNo = frame;
+                // this.EnsureTaskRunning();
                 this.ResyncFrame(frame);
+                this.currentFrameNo = frame;
+                this.targetFrame = frame;
+            }
+
+            if (this.texture == null) {
+                return;
             }
 
             GL.Enable(EnableCap.Texture2D);
@@ -102,10 +128,21 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
 
             //TODO: We'll miss frames depending on the project/source framerates -- add frame interpolation?
             double timeScale = this.Layer.Timeline.Project.PlaybackFPS;
-            var timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin) / timeScale);
-            
+            TimeSpan timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin) / timeScale);
             if (this.SeekToFrame(timestamp)) {
                 this.UploadFrame();
+            }
+        }
+
+        private void ResyncFrameAsync(long frameNo) {
+            // force must be true, otherwise there's never a time where it can access the OGL context
+            if (this.targetVp.TryGetTarget(out IViewPort vp) && vp.Context.BeginUse(true)) {
+                try {
+                    this.ResyncFrame(frameNo);
+                }
+                finally {
+                    vp.Context.EndUse();
+                }
             }
         }
 
@@ -171,7 +208,33 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             this.scaler.Convert(frame, this.frameRgb);
 
             Span<byte> pixelData = this.frameRgb.GetPlaneSpan<byte>(0, out int rowBytes);
+            // if (this.targetVp.TryGetTarget(out IViewPort viewPort)) {
+            //
+            // }
             this.texture.SetPixels<byte>(pixelData, 0, 0, this.frameRgb.Width, this.frameRgb.Height, PixelFormat.Rgba, PixelType.UnsignedByte, rowBytes / 4);
+        }
+
+        protected override void DisposeClip() {
+            base.DisposeClip();
+            this.demuxer?.Dispose();
+            this.decoder?.Dispose();
+            this.decodedFrame?.Dispose();
+            this.downloadedHwFrame?.Dispose();
+            this.frameRgb?.Dispose();
+            this.scaler?.Dispose();
+        }
+
+        public override BaseTimelineClip CloneInstance() {
+            VideoMediaTimelineClip clip = new VideoMediaTimelineClip();
+            this.LoadDataIntoClone(clip);
+            return clip;
+        }
+
+        public override void LoadDataIntoClone(BaseTimelineClip clone) {
+            base.LoadDataIntoClone(clone);
+            if (clone is VideoMediaTimelineClip clip) {
+                clip.resource = this.resource;
+            }
         }
     }
 }

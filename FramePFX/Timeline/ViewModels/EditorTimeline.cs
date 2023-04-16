@@ -13,7 +13,7 @@ using FramePFX.Timeline.ViewModels.Layer;
 namespace FramePFX.Timeline.ViewModels {
     public class EditorTimeline : BaseViewModel {
         private readonly RapidDispatchCallback renderDispatch;
-        private readonly ObservableCollection<TimelineLayer> layers;
+        private readonly ObservableCollection<EditorTimelineLayer> layers;
         private volatile bool ignorePlayHeadPropertyChange;
         public volatile bool isFramePropertyChangeScheduled;
 
@@ -24,10 +24,10 @@ namespace FramePFX.Timeline.ViewModels {
         /// <summary>
         /// This timeline's layer collection
         /// </summary>
-        public ReadOnlyObservableCollection<TimelineLayer> Layers { get; }
+        public ReadOnlyObservableCollection<EditorTimelineLayer> Layers { get; }
 
-        private TimelineLayer selectedTimelineLayer;
-        public TimelineLayer SelectedTimelineLayer {
+        private EditorTimelineLayer selectedTimelineLayer;
+        public EditorTimelineLayer SelectedTimelineLayer {
             get => this.selectedTimelineLayer;
             set => this.RaisePropertyChanged(ref this.selectedTimelineLayer, value);
         }
@@ -96,8 +96,8 @@ namespace FramePFX.Timeline.ViewModels {
 
         public EditorTimeline(EditorProject project) {
             this.Project = project;
-            this.layers = new ObservableCollection<TimelineLayer>();
-            this.Layers = new ReadOnlyObservableCollection<TimelineLayer>(this.layers);
+            this.layers = new ObservableCollection<EditorTimelineLayer>();
+            this.Layers = new ReadOnlyObservableCollection<EditorTimelineLayer>(this.layers);
             this.renderDispatch = new RapidDispatchCallback(this.RenderViewPortAndMarkNotDirty) {
                 InvokeLater = true
             };
@@ -143,12 +143,12 @@ namespace FramePFX.Timeline.ViewModels {
             switch (list.Count) {
                 case 0: return;
                 case 1:
-                    list[0].Layer.DeleteClip(list[0]);
+                    list[0].Layer.RemoveClip(list[0]);
                     return;
                 default: {
                     if (skipDialog || await CoreIoC.MessageDialogs.ShowYesNoDialogAsync("Delete clips", "Do you want to delete these " + list.Count + " clips?")) {
                         foreach (TimelineVideoClip clip in list) {
-                            clip.Layer.DeleteClip(clip);
+                            clip.Layer.RemoveClip(clip);
                         }
                     }
 
@@ -195,12 +195,13 @@ namespace FramePFX.Timeline.ViewModels {
             IoC.VideoEditor.PlaybackView.RenderTimeline(this);
         }
 
+        // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
         public IEnumerable<TimelineVideoClip> GetVideoClipsIntersectingFrame() {
             return this.GetVideoClipsIntersectingFrame(this.playHeadFrame);
         }
 
         public IEnumerable<TimelineVideoClip> GetVideoClipsIntersectingFrame(long frame) {
-            foreach (TimelineLayer layer in this.layers) {
+            foreach (EditorTimelineLayer layer in this.layers) {
                 foreach (BaseTimelineClip clip in layer.Clips) {
                     if (clip is TimelineVideoClip vc && vc.IntersectsFrameAt(frame)) {
                         yield return vc;
@@ -209,7 +210,7 @@ namespace FramePFX.Timeline.ViewModels {
             }
         }
 
-        public TimelineLayer CreateLayer(string name = null) {
+        public EditorTimelineLayer CreateLayer(string name = null) {
             VideoTimelineLayer timelineLayer = new VideoTimelineLayer(this) {
                 Name = name ?? $"Layer {this.Layers.Count + 1}"
             };
@@ -217,7 +218,7 @@ namespace FramePFX.Timeline.ViewModels {
             return timelineLayer;
         }
 
-        public TimelineLayer GetPrevious(TimelineLayer timelineLayer) {
+        public EditorTimelineLayer GetPrevious(EditorTimelineLayer timelineLayer) {
             int index = this.Layers.IndexOf(timelineLayer);
             return index < 1 ? null : this.Layers[index - 1];
         }
@@ -249,6 +250,22 @@ namespace FramePFX.Timeline.ViewModels {
             }
 
             this.ignorePlayHeadPropertyChange = false;
+        }
+
+        public void OnPlayBegin() {
+            foreach (EditorTimelineLayer layer in this.layers) {
+                foreach (BaseTimelineClip clip in layer.Clips) {
+                    clip.OnTimelinePlayBegin();
+                }
+            }
+        }
+
+        public void OnPlayEnd() {
+            foreach (EditorTimelineLayer layer in this.layers) {
+                foreach (BaseTimelineClip clip in layer.Clips) {
+                    clip.OnTimelinePlayEnd();
+                }
+            }
         }
     }
 }

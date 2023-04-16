@@ -36,14 +36,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FFmpeg.AutoGen, Version=6.0.0.0, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
-      <HintPath>..\packages\FFmpeg.AutoGen.6.0.0\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
-    </Reference>
-    <Reference Include="FFmpegWrapper, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
-    </Reference>
+    <Reference Include="FFmpeg.AutoGen, Version=6.0.0.0, Culture=neutral, PublicKeyToken=9b7632533a381715" />
     <Reference Include="FFmpegWrapper, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FFmpeg.ApiWrapper.1.2.1\lib\netstandard2.0\FFmpegWrapper.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -197,8 +193,10 @@
     <Compile Include="Timeline\ViewModels\Clips\TimelineVideoClip.cs" />
     <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeTimelineClip.cs" />
     <Compile Include="Timeline\ViewModels\Clips\Resizable\PositionableTimelineClip.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\TimelineLayer.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\EditorTimelineLayer.cs" />
     <Compile Include="Timeline\ViewModels\EditorTimeline.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\Removals\VideoClipCut.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\Removals\VideoClipRangeRemoval.cs" />
     <Compile Include="Timeline\ViewModels\Layer\VideoTimelineLayer.cs" />
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />

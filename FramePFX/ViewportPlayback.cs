@@ -138,6 +138,10 @@ namespace FramePFX {
             this.IsPlaying = true;
             this.PlayCommand.RaiseCanExecuteChanged();
             this.PauseCommand.RaiseCanExecuteChanged();
+            EditorProject project = this.Editor.ActiveProject;
+            if (project != null) {
+                project.OnPlayBegin();
+            }
         }
 
         public void PauseAction() {
@@ -148,6 +152,10 @@ namespace FramePFX {
             this.IsPlaying = false;
             this.PlayCommand.RaiseCanExecuteChanged();
             this.PauseCommand.RaiseCanExecuteChanged();
+            EditorProject project = this.Editor.ActiveProject;
+            if (project != null) {
+                project.OnPlayEnd();
+            }
         }
     }
 }

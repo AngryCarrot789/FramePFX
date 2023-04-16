@@ -16,7 +16,8 @@ namespace FramePFX.Utils {
         /// True if it was originally not in use, otherwise false if it was already in use
         /// </returns>
         public bool Increment() {
-            return Interlocked.Increment(ref this.count) > 0;
+            int value = Interlocked.Increment(ref this.count);
+            return value == 1;
         }
 
         /// <summary>

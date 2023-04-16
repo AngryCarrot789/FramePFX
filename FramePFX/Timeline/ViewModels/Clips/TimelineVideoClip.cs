@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Input;
-using FramePFX.Core;
 using FramePFX.Core.AdvancedContextService;
 using FramePFX.Core.AdvancedContextService.Base;
 using FramePFX.Core.AdvancedContextService.Commands;
@@ -93,7 +91,7 @@ namespace FramePFX.Timeline.ViewModels.Clips {
 
         }
 
-        public bool IntersectsFrameAt(long frame) {
+        public override bool IntersectsFrameAt(long frame) {
             long begin = this.FrameBegin;
             long duration = this.FrameDuration;
             return frame >= begin && frame < (begin + duration);

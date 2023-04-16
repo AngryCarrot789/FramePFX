@@ -50,17 +50,17 @@ namespace FramePFX.Views.Main {
         }
 
         private void ThumbTop(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is EditorTimelineLayer layer) {
+            if ((sender as Thumb)?.DataContext is BaseTimelineLayer layer) {
                 double layerHeight = layer.Height - e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
-                    if (layer.Timeline.GetPrevious(layer) is EditorTimelineLayer behind1) {
+                    if (layer.Timeline.GetPrevious(layer) is BaseTimelineLayer behind1) {
                         double behindHeight = behind1.Height + e.VerticalChange;
                         if (behindHeight < behind1.MinHeight || behindHeight > behind1.MaxHeight)
                             return;
                         behind1.Height = behindHeight;
                     }
                 }
-                else if (layer.Timeline.GetPrevious(layer) is EditorTimelineLayer behind2) {
+                else if (layer.Timeline.GetPrevious(layer) is BaseTimelineLayer behind2) {
                     double behindHeight = behind2.Height + e.VerticalChange;
                     if (behindHeight < behind2.MinHeight || behindHeight > behind2.MaxHeight) {
                         return;
@@ -73,7 +73,7 @@ namespace FramePFX.Views.Main {
         }
 
         private void ThumbBottom(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is EditorTimelineLayer layer) {
+            if ((sender as Thumb)?.DataContext is BaseTimelineLayer layer) {
                 double layerHeight = layer.Height + e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
                     return;

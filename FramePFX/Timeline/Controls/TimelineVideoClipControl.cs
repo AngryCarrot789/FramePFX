@@ -222,13 +222,10 @@ namespace FramePFX.Timeline.Controls {
                                 }
 
                                 if (offset != 0) {
+                                    // causes a re-render
                                     this.Timeline.DragData.OnMouseMove(offset);
                                 }
                             }
-
-                            // force re-render view port. Without this code, if the playhead is at 0, then sometimes
-                            // the clips won't be rendered if you very quickly drag the clip to the very start
-                            IoC.VideoEditor.PlaybackView.RenderTimeline(this.Timeline.ViewModel);
                         }
 
                         this.isProcessingMouseAction = false;

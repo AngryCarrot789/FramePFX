@@ -9,12 +9,18 @@
                 <Shortcut Name="PlayPauseAction" Description="Causes the timeline to play or pause">
                     <Keystroke Key="Space"/>
                 </Shortcut>
+                <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
+                    <Keystroke Key="S"/>
+                </Shortcut>
             </Group>
             <Group Name="LayerControllers">
                 <Shortcut Name="DeleteSelectedLayer" Description="Deletes the selected layer">
                     <Keystroke Key="Delete"/>
                 </Shortcut>
             </Group>
+            <Shortcut Name="NewVideoLayer" ActionId="actions.editor.timeline.NewVideoLayer" Inherit="true" Description="Creates a new video layer">
+                <Keystroke Mods="CTRL+SHIFT" Key="Q"/>
+            </Shortcut>
         </Group>
     </Group>
 </KeyMap>

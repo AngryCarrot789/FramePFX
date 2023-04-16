@@ -190,6 +190,7 @@ namespace FramePFX.Timeline.Controls {
         private static readonly FieldInfo IsDraggingPropertyKeyField = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
 
         public void EnableDragging(Point point) {
+            this.isDraggingThumb = true;
             this.PART_ThumbBody.Focus();
             this.PART_ThumbBody.CaptureMouse();
             // lazy... could create custom control extending Thumb to modify this but this works so :D
@@ -203,6 +204,8 @@ namespace FramePFX.Timeline.Controls {
                 if (flag) {
                     this.PART_ThumbBody.CancelDrag();
                 }
+
+                this.isDraggingThumb = false;
             }
         }
     }

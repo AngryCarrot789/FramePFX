@@ -14,7 +14,7 @@ using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Clips.Resizable;
 
 namespace FramePFX.Timeline.ViewModels.Layer {
-    public abstract class EditorTimelineLayer : BaseViewModel, IResourceDropNotifier {
+    public abstract class BaseTimelineLayer : BaseViewModel, IResourceDropNotifier {
         protected readonly EfficientObservableCollection<BaseTimelineClip> clips;
 
         private string name;
@@ -41,6 +41,13 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             set => this.RaisePropertyChanged(ref this.height, Math.Max(Math.Min(value, this.MaxHeight), this.MinHeight));
         }
 
+        // Feels so wrong having colours here for some reason... should be done in a converter with enums maybe?
+        private string layerColour;
+        public string LayerColour {
+            get => this.layerColour;
+            set => RaisePropertyChanged(ref this.layerColour, value);
+        }
+
         public EditorTimeline Timeline { get; }
 
         public ICommand RenameLayerCommand { get; }
@@ -49,7 +56,7 @@ namespace FramePFX.Timeline.ViewModels.Layer {
 
         public ILayerHandle Control { get; set; }
 
-        public EditorTimelineLayer(EditorTimeline timeline) {
+        public BaseTimelineLayer(EditorTimeline timeline) {
             this.clips = new EfficientObservableCollection<BaseTimelineClip>();
             this.clips.CollectionChanged += this.ClipsOnCollectionChanged;
             this.Clips = new ReadOnlyObservableCollection<BaseTimelineClip>(this.clips);
@@ -57,7 +64,7 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             this.MaxHeight = 200d;
             this.MinHeight = 40;
             this.Height = 60;
-
+            this.layerColour = LayerColours.GetRandomColour();
             this.RenameLayerCommand = new RelayCommand(() => {
                 string result = CoreIoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", this.Timeline.LayerNameValidator);
                 if (result != null) {

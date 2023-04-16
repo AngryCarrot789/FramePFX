@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
+using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Project;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
@@ -13,7 +14,7 @@ using FramePFX.Timeline.ViewModels.Layer;
 namespace FramePFX.Timeline.ViewModels {
     public class EditorTimeline : BaseViewModel {
         private readonly RapidDispatchCallback renderDispatch;
-        private readonly ObservableCollection<EditorTimelineLayer> layers;
+        private readonly ObservableCollection<BaseTimelineLayer> layers;
         private volatile bool ignorePlayHeadPropertyChange;
         public volatile bool isFramePropertyChangeScheduled;
 
@@ -24,10 +25,10 @@ namespace FramePFX.Timeline.ViewModels {
         /// <summary>
         /// This timeline's layer collection
         /// </summary>
-        public ReadOnlyObservableCollection<EditorTimelineLayer> Layers { get; }
+        public ReadOnlyObservableCollection<BaseTimelineLayer> Layers { get; }
 
-        private EditorTimelineLayer selectedTimelineLayer;
-        public EditorTimelineLayer SelectedTimelineLayer {
+        private BaseTimelineLayer selectedTimelineLayer;
+        public BaseTimelineLayer SelectedTimelineLayer {
             get => this.selectedTimelineLayer;
             set => this.RaisePropertyChanged(ref this.selectedTimelineLayer, value);
         }
@@ -92,12 +93,16 @@ namespace FramePFX.Timeline.ViewModels {
         public bool IsRenderDirty { get; private set; }
 
         public RelayCommand<bool> DeleteSelectedClipsCommand { get; }
+
         public ICommand DeleteSelectedLayerCommand { get; }
 
+        public InputValidator LayerNameValidator { get; set; }
+
         public EditorTimeline(EditorProject project) {
+            this.LayerNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Layer name cannot be empty" : null);
             this.Project = project;
-            this.layers = new ObservableCollection<EditorTimelineLayer>();
-            this.Layers = new ReadOnlyObservableCollection<EditorTimelineLayer>(this.layers);
+            this.layers = new ObservableCollection<BaseTimelineLayer>();
+            this.Layers = new ReadOnlyObservableCollection<BaseTimelineLayer>(this.layers);
             this.renderDispatch = new RapidDispatchCallback(this.RenderViewPortAndMarkNotDirty) {
                 InvokeLater = true
             };
@@ -201,7 +206,7 @@ namespace FramePFX.Timeline.ViewModels {
         }
 
         public IEnumerable<TimelineVideoClip> GetVideoClipsIntersectingFrame(long frame) {
-            foreach (EditorTimelineLayer layer in this.layers) {
+            foreach (BaseTimelineLayer layer in this.layers) {
                 foreach (BaseTimelineClip clip in layer.Clips) {
                     if (clip is TimelineVideoClip vc && vc.IntersectsFrameAt(frame)) {
                         yield return vc;
@@ -210,15 +215,16 @@ namespace FramePFX.Timeline.ViewModels {
             }
         }
 
-        public EditorTimelineLayer CreateLayer(string name = null) {
+        public VideoTimelineLayer CreateVideoLayer(string name = null) {
             VideoTimelineLayer timelineLayer = new VideoTimelineLayer(this) {
                 Name = name ?? $"Layer {this.Layers.Count + 1}"
             };
+
             this.layers.Add(timelineLayer);
             return timelineLayer;
         }
 
-        public EditorTimelineLayer GetPrevious(EditorTimelineLayer timelineLayer) {
+        public BaseTimelineLayer GetPrevious(BaseTimelineLayer timelineLayer) {
             int index = this.Layers.IndexOf(timelineLayer);
             return index < 1 ? null : this.Layers[index - 1];
         }
@@ -253,7 +259,7 @@ namespace FramePFX.Timeline.ViewModels {
         }
 
         public void OnPlayBegin() {
-            foreach (EditorTimelineLayer layer in this.layers) {
+            foreach (BaseTimelineLayer layer in this.layers) {
                 foreach (BaseTimelineClip clip in layer.Clips) {
                     clip.OnTimelinePlayBegin();
                 }
@@ -261,7 +267,7 @@ namespace FramePFX.Timeline.ViewModels {
         }
 
         public void OnPlayEnd() {
-            foreach (EditorTimelineLayer layer in this.layers) {
+            foreach (BaseTimelineLayer layer in this.layers) {
                 foreach (BaseTimelineClip clip in layer.Clips) {
                     clip.OnTimelinePlayEnd();
                 }

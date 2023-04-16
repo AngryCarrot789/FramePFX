@@ -112,7 +112,7 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                         continue;
                     }
 
-                    GroupedShortcut managed = realKeyGroup.AddShortcut(cut.Name, shortcut, cut.IsGlobalBool);
+                    GroupedShortcut managed = realKeyGroup.AddShortcut(cut.Name, shortcut, cut.IsGlobalBool, cut.InheritBool);
                     managed.ActionId = cut.ActionId;
                     managed.Description = cut.Description;
                     managed.DisplayName = cut.DisplayName;
@@ -147,6 +147,7 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                     Description = shortcut.Description,
                     ActionId = shortcut.ActionId,
                     IsGlobal = SerialiseObject(shortcut.IsGlobal, false),
+                    Inherit = SerialiseObject(shortcut.Inherit, false),
                     Strokes = new List<object>()
                 };
 

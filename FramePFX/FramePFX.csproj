@@ -106,6 +106,7 @@
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
+    <Compile Include="Converters\VerticalScrollBinder.cs" />
     <Compile Include="DispatcherDelegate.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="IoC.cs" />
@@ -169,6 +170,9 @@
     </Compile>
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
+    <Compile Include="Timeline\Actions\SliceClipsAction.cs" />
+    <Compile Include="Timeline\Actions\EditorActionUtils.cs" />
+    <Compile Include="Timeline\Actions\NewLayerActions.cs" />
     <Compile Include="Timeline\Controls\BaseTimelineClipControl.cs" />
     <Compile Include="Timeline\Controls\BaseTimelineLayerControl.cs" />
     <Compile Include="Timeline\Controls\TimelineVideoClipControl.cs" />
@@ -193,8 +197,9 @@
     <Compile Include="Timeline\ViewModels\Clips\TimelineVideoClip.cs" />
     <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeTimelineClip.cs" />
     <Compile Include="Timeline\ViewModels\Clips\Resizable\PositionableTimelineClip.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\EditorTimelineLayer.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\BaseTimelineLayer.cs" />
     <Compile Include="Timeline\ViewModels\EditorTimeline.cs" />
+    <Compile Include="Timeline\ViewModels\Layer\LayerColours.cs" />
     <Compile Include="Timeline\ViewModels\Layer\Removals\VideoClipCut.cs" />
     <Compile Include="Timeline\ViewModels\Layer\Removals\VideoClipRangeRemoval.cs" />
     <Compile Include="Timeline\ViewModels\Layer\VideoTimelineLayer.cs" />

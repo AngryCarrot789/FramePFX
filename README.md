@@ -29,3 +29,9 @@ Oh and uh... don't drag drop something like your C:\ drive or a folder which con
 # Rendering/Encoding
 TODO... but it won't modify the UI at all, in order to help render times. It will probably just setup a view port based on the render output resolution,
 draw the clips each frame, and then copy the pixels from OpenGL to an encoder. Maybe FFMPEG?
+
+## Downloading/Running
+To run this, you just need to download this repo and also the ffmpeg's shared x64 libraries (https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest, specifically  https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip). You place all of the files in the bin folder (apart from the ffmpeg exes) into the bin folder of this project (FramePFX/Bin/Debug or Release depending on how you compiled it)
+
+And to drag videos into the editor, you drag and drop a video file to the top left "resource manager", and then drag one of those items into the timeline. Will soon support directly dropping a clip into the timeline
+

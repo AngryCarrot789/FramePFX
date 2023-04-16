@@ -86,11 +86,11 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
 
         private void TrySetupHardwareDecoder() {
             foreach (CodecHardwareConfig config in this.decoder.GetHardwareConfigs()) {
-                using var device = HardwareDevice.Create(config.DeviceType);
-
-                if (device != null) {
-                    this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
-                    break;
+                using (var device = HardwareDevice.Create(config.DeviceType)) {
+                    if (device != null) {
+                        this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
+                        break;
+                    }
                 }
             }
         }
@@ -126,27 +126,29 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             //Decode frames until we find one that is close to the requested timestamp
             while (true) {
                 if (this.decoder.ReceiveFrame(this.decodedFrame)) {
-                    this.frameTimestamp = this.stream.GetTimestamp(this.decodedFrame.PresentationTimestamp!.Value);
-
+                    long? t = this.decodedFrame.PresentationTimestamp;
+                    this.frameTimestamp = this.stream.GetTimestamp(t.Value);
                     if (this.frameTimestamp >= timestamp) {
                         return true;
                     }
                 }
 
                 //Fill-up the decoder with more data and try again
-                using var packet = new MediaPacket();
-                bool gotPacket = false;
-
-                while (this.demuxer.Read(packet)) {
-                    if (packet.StreamIndex == this.stream.Index) {
-                        this.decoder.SendPacket(packet);
-                        gotPacket = true;
-                        break;
+                using (var packet = new MediaPacket()) {
+                    bool gotPacket = false;
+                    while (this.demuxer.Read(packet)) {
+                        if (packet.StreamIndex == this.stream.Index) {
+                            // TODO: this throws when you try to play back .mkv
+                            this.decoder.SendPacket(packet);
+                            gotPacket = true;
+                            break;
+                        }
                     }
-                }
-                if (!gotPacket) {
-                    //Reached the end of the file
-                    return false;
+
+                    if (!gotPacket) {
+                        //Reached the end of the file
+                        return false;
+                    }
                 }
             }
         }
@@ -158,10 +160,14 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
                 //As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                 //which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
                 //hacking into the API specific device context (like D3D11VA).
-                frame.TransferTo(this.downloadedHwFrame ??= new VideoFrame());
+                frame.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
                 frame = this.downloadedHwFrame;
             }
-            this.scaler ??= new SwScaler(frame.Format, this.frameRgb.Format);
+
+            if (this.scaler == null) {
+                this.scaler = new SwScaler(frame.Format, this.frameRgb.Format);
+            }
+
             this.scaler.Convert(frame, this.frameRgb);
 
             Span<byte> pixelData = this.frameRgb.GetPlaneSpan<byte>(0, out int rowBytes);

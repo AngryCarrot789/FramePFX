@@ -10,4 +10,10 @@
     <PackageReference Include="OpenTK" Version="3.3.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="FFmpegWrapper, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

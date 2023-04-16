@@ -177,12 +177,13 @@ namespace FramePFX.ResourceManaging {
         }
 
         public ResourceItem AddFile(string file) {
-            if (!File.Exists(file)) {
+            ResourceVideoMedia resource = new ResourceVideoMedia {
+                FilePath = file
+            };
+            if (!resource.IsValidMediaFile) {
+                resource.Dispose();
                 return null;
             }
-            //TODO: ffmpeg can handle pretty much any format ever, but we should validate the file before returning the resource
-            ResourceVideoMedia resource = new ResourceVideoMedia();
-            resource.FilePath = file;
             this.AddResource(this.GenerateUniqueIdForFile(file), resource);
             return resource;
         }

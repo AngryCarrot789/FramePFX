@@ -91,7 +91,7 @@ namespace FramePFX.ResourceManaging {
             }
         }
 
-        public virtual void DisposeResource() {
+        protected virtual void DisposeResource() {
 
         }
 

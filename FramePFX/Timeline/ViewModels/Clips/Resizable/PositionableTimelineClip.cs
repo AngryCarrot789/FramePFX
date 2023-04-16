@@ -55,6 +55,7 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
                 this.TranslateForScaledRender(vp);
             }
 
+            System.Diagnostics.Debug.WriteLine("Rendered frame " + frame);
             this.RenderCore(vp, frame);
             GL.PopMatrix();
         }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Core;
+using FramePFX.Core.Actions;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Render;
 using FramePFX.Render.OGL;
@@ -44,6 +45,8 @@ namespace FramePFX {
             else {
                 MessageBox.Show("Keymap file does not exist: " + path);
             }
+
+            ActionManager.SearchAndRegisterActions(ActionManager.Instance);
 
             OGLUtils.SetupOGLThread();
             OGLUtils.WaitForContextCompletion();

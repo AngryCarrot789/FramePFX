@@ -57,7 +57,7 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             foreach (ShortcutViewModel shortcut in this.children.OfType<ShortcutViewModel>()) {
                 IShortcut realShortcut = shortcut.SaveToRealShortcut();
                 if (realShortcut != null) {
-                    GroupedShortcut managed = group.AddShortcut(shortcut.Name, realShortcut, shortcut.IsGlobal);
+                    GroupedShortcut managed = group.AddShortcut(shortcut.Name, realShortcut, shortcut.IsGlobal, shortcut.Inherit);
                     managed.Description = shortcut.Description;
                 }
             }

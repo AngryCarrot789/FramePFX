@@ -31,6 +31,7 @@ namespace FramePFX.AdvancedContextService {
             set => this.SetValue(InvokeActionAfterBaseClickProperty, value.Box());
         }
 
+        // probably doesn't even need to be volatile, a bool will be fine
         private volatile int isExecuting; // 1 == true, 0 == false
 
         public bool IsExecuting => this.isExecuting == 1;

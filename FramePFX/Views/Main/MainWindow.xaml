@@ -7,7 +7,8 @@
         xmlns:timeline="clr-namespace:FramePFX.Timeline"
         xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
         xmlns:clips="clr-namespace:FramePFX.Timeline.Layer.Clips"
-        xmlns:layer="clr-namespace:FramePFX.Timeline.Layer" xmlns:res="clr-namespace:FramePFX.ResourceManaging"
+        xmlns:layer="clr-namespace:FramePFX.Timeline.Layer" 
+        xmlns:res="clr-namespace:FramePFX.ResourceManaging"
         xmlns:converters="clr-namespace:FramePFX.Converters"
         xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
         xmlns:render="clr-namespace:FramePFX.Render"
@@ -16,6 +17,7 @@
         xmlns:clips1="clr-namespace:FramePFX.Timeline.ViewModels.Clips"
         xmlns:controls="clr-namespace:FramePFX.Timeline.Controls"
         xmlns:ogl="clr-namespace:FramePFX.Render.OGL"
+        xmlns:layer1="clr-namespace:FramePFX.Timeline.ViewModels.Layer"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:VideoEditor}"
         Title="Bootleg sony vegas" Width="1408" Height="792"
@@ -189,41 +191,110 @@
                             </Grid>
                         </Border>
                         <Border s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Deep.3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" Grid.Row="1"/>
-                        <ListBox s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" ItemsSource="{Binding Layers, Mode=OneTime}" SelectedItem="{Binding SelectedTimelineLayer, UpdateSourceTrigger=PropertyChanged}"
+                        <ListBox s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" 
+                                 ItemsSource="{Binding Layers, Mode=OneTime}" 
+                                 SelectedItem="{Binding SelectedTimelineLayer, UpdateSourceTrigger=PropertyChanged}"
                                  Grid.Column="0" Background="Transparent" BorderBrush="Transparent" 
                                  HorizontalContentAlignment="Stretch" Grid.Row="1"
-                                 Padding="0">
-                            <ListBox.ItemContainerStyle>
+                                 Padding="0" x:Name="LayerListBox"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                 BorderThickness="0 0 0 0">
+                            <ListBox.ContextMenu>
+                                <acs:AdvancedContextMenu>
+                                    <acs:AdvancedActionMenuItem Header="New Layer" ActionId="actions.editor.timeline.NewVideoLayer"/>
+                                </acs:AdvancedContextMenu>
+                            </ListBox.ContextMenu>
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="0" SnapsToDevicePixels="true">
+                                        <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}" converters:VerticalScrollBinder.BindGroup="TimelineScrollGroup">
+                                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="0"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsEnabled" Value="false">
+                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Background}" />
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Border}" />
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsGrouping" Value="true" />
+                                                <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged, FallbackValue=60}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged, FallbackValue=40}"/>
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                     <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
                                     <Setter Property="Padding" Value="0"/>
                                     <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
+                                                    <Grid d:DataContext="{d:DesignInstance layer1:BaseTimelineLayer}">
+                                                        <Rectangle Fill="{Binding LayerColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
+                                                        <Grid Margin="23,4,6,4">
+                                                            <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
+                                                            <Grid Margin="0,20,0,0">
+                                                                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Thumb DragDelta="ThumbTop" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
+                                                        <Thumb DragDelta="ThumbBottom" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <MultiTrigger>
+                                                        <MultiTrigger.Conditions>
+                                                            <Condition Property="IsMouseOver" Value="True" />
+                                                        </MultiTrigger.Conditions>
+                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Background}" />
+                                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}" />
+                                                    </MultiTrigger>
+                                                    <MultiTrigger>
+                                                        <MultiTrigger.Conditions>
+                                                            <Condition Property="Selector.IsSelectionActive" Value="False" />
+                                                            <Condition Property="IsSelected" Value="True" />
+                                                        </MultiTrigger.Conditions>
+                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Background}" />
+                                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Border}" />
+                                                    </MultiTrigger>
+                                                    <MultiTrigger>
+                                                        <MultiTrigger.Conditions>
+                                                            <Condition Property="Selector.IsSelectionActive" Value="True" />
+                                                            <Condition Property="IsSelected" Value="True" />
+                                                        </MultiTrigger.Conditions>
+                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Background}" />
+                                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}" />
+                                                    </MultiTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
                                 </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type ListBoxItem}">
-                                    <Border BorderBrush="{DynamicResource AREghZyBrush.Primary.2.Border.Static}" BorderThickness="0 0 0 1">
-                                        <Grid>
-                                            <Rectangle Margin="0" Width="18" Fill="Orange" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
-                                            <Grid Margin="23,4,6,4">
-                                                <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
-                                                <Grid Margin="0,20,0,0">
-                                                    <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                                    <Slider Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" TickPlacement="BottomRight" SmallChange="0.1" TickFrequency="0.1"/>
-                                                </Grid>
-                                            </Grid>
-                                            <Thumb DragDelta="ThumbTop" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
-                                            <Thumb DragDelta="ThumbBottom" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
-                                        </Grid>
-                                    </Border>
+                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.Resources>
+                                <DataTemplate DataType="{x:Type layer1:VideoTimelineLayer}">
+                                    <Grid>
+                                        <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <Slider VerticalAlignment="Center" Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" SmallChange="0.1" TickFrequency="0.1"/>
+                                    </Grid>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
+                            </ItemsControl.Resources>
                         </ListBox>
-                        <Border BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
+                        <Border Visibility="Collapsed" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
                         <controls:TimelineControl x:Name="TheTimeline"
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0"
@@ -248,7 +319,8 @@
                                                     <!-- A collection of TimelineLayerControls -->
                                                     <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" 
                                                                   Padding="{TemplateBinding Padding}" 
-                                                                  HorizontalScrollBarVisibility="Visible">
+                                                                  HorizontalScrollBarVisibility="Visible"
+                                                                  converters:VerticalScrollBinder.BindGroup="TimelineScrollGroup">
                                                         <!-- Handle RequestBringIntoView in the grid because there is no preview version of the event -->
                                                         <!-- Handling the event will stop the ScrollViewer scrolling to offscreen values -->
                                                         <Grid HorizontalAlignment="Left" RequestBringIntoView="FrameworkElement_OnRequestBringIntoView">
@@ -305,7 +377,7 @@
                                                         <ControlTemplate TargetType="{x:Type controls:TimelineVideoClipControl}">
                                                             <Grid d:DataContext="{d:DesignInstance clips1:TimelineVideoClip}" acs:AdvancedContextMenu.ContextProvider="{Binding}">
                                                                 <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
-                                                                    <Border Background="{TemplateBinding HeaderBrush}" VerticalAlignment="Top" Height="20">
+                                                                    <Border Background="{Binding Layer.LayerColour}" VerticalAlignment="Top" Height="20">
                                                                         <Grid>
                                                                             <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1">
                                                                                 <TextBlock.InputBindings>

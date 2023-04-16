@@ -107,10 +107,9 @@ namespace FramePFX {
                         this.lastPlaybackTick = time;
                         this.nextPlaybackTick = time + 33L; // 33ms = 30fps
                         timeline.StepFrame();
-                    }
-
-                    if (timeline.IsRenderDirty) {
-                        this.RenderTimeline(timeline);
+                        if (timeline.IsRenderDirty) {
+                            this.RenderTimeline(timeline);
+                        }
                     }
 
                     // yield results in a generally higher CPU usage due to the fact that

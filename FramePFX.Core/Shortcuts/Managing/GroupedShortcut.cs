@@ -38,6 +38,15 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public bool IsGlobal { get; set; }
 
         /// <summary>
+        /// Whether this shortcut is inherited by child shortcuts of the group that owns this shortcut
+        /// <para>
+        /// Say for instance, this shortcut's path is App/Panel1/MyShortcut1 and it allows inheritance, it's owning group path is therefore App/Panel1. That means that,
+        /// if there
+        /// </para>
+        /// </summary>
+        public bool Inherit { get; set; }
+
+        /// <summary>
         /// The ID for an optional action that this shortcut will trigger when activated
         /// </summary>
         public string ActionId { get; set; }
@@ -47,12 +56,13 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         public string Path { get; }
 
-        public GroupedShortcut(ShortcutGroup collection, string name, IShortcut shortcut, bool isGlobal = false) {
+        public GroupedShortcut(ShortcutGroup collection, string name, IShortcut shortcut, bool isGlobal = false, bool inherit = false) {
             this.Group = collection ?? throw new ArgumentNullException(nameof(collection), "Collection cannot be null");
             this.Shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut), "Shortcut cannot be null");
             this.Path = collection.GetPathForName(name);
             this.Name = name;
             this.IsGlobal = isGlobal;
+            this.Inherit = inherit;
         }
 
         public void SetShortcut(IShortcut shortcut) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Serialization;
 using FramePFX.Core.Utils;
@@ -95,10 +96,10 @@ namespace FramePFX.Core.Shortcuts.Managing {
             this.groups.Add(group);
         }
 
-        public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false) {
+        public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false, bool inherit = false) {
             ValidateName(name, "Shortcut name cannot be null or consist of only whitespaces");
             this.ValidateNameNotInUse(name);
-            GroupedShortcut managed = new GroupedShortcut(this, name, shortcut, isGlobal);
+            GroupedShortcut managed = new GroupedShortcut(this, name, shortcut, isGlobal, inherit);
             this.mapToItem[name] = managed;
             this.shortcuts.Add(managed);
             return managed;
@@ -118,21 +119,33 @@ namespace FramePFX.Core.Shortcuts.Managing {
             return list;
         }
 
-        public void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focus, ICollection<GroupedShortcut> list) {
-            this.CollectShortcutsInternal(stroke, string.IsNullOrWhiteSpace(focus) ? null : focus, list);
+        public void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focus, List<GroupedShortcut> list, bool allowDuplicateInheritedShortcuts = false) {
+            this.CollectShortcutsInternal(stroke, string.IsNullOrWhiteSpace(focus) ? null : focus, list, allowDuplicateInheritedShortcuts);
         }
 
-        private void CollectShortcutsInternal(IInputStroke stroke, string focus, ICollection<GroupedShortcut> list) {
+        private void CollectShortcutsInternal(IInputStroke stroke, string focus, List<GroupedShortcut> list, bool allowDuplicateInheritedShortcuts = false) {
+            // Searching groups first is what allows inheritance to work properly, because you search the deepest
+            // levels first and make your way to the root. Similar to how bubble events work
             foreach (ShortcutGroup group in this.Groups) {
                 group.CollectShortcutsInternal(stroke, focus, list);
             }
 
             bool requireGlobal = !this.IsGlobal && !this.IsValidSearchForGroup(focus);
             foreach (GroupedShortcut shortcut in this.shortcuts) {
-                if (!requireGlobal || shortcut.IsGlobal) {
-                    if (shortcut.Shortcut != null && !shortcut.Shortcut.IsEmpty && shortcut.Shortcut.IsPrimaryStroke(stroke)) {
-                        list.Add(shortcut);
+                if (requireGlobal && !shortcut.IsGlobal) {
+                    if (shortcut.Inherit && IsValidSearchForGroup(this.FullPath, focus, true)) {
+                        IInputStroke primary = shortcut.Shortcut.PrimaryStroke; // saves potentially boxing Key/Mouse strokes multiple times
+                        if (!allowDuplicateInheritedShortcuts && list.Find(x => x.Shortcut.IsPrimaryStroke(primary)) != null) {
+                            continue;
+                        }
                     }
+                    else {
+                        continue;
+                    }
+                }
+
+                if (shortcut.Shortcut != null && !shortcut.Shortcut.IsEmpty && shortcut.Shortcut.IsPrimaryStroke(stroke)) {
+                    list.Add(shortcut);
                 }
             }
         }

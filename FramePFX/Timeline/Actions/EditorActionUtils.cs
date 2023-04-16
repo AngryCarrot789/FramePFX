@@ -1,5 +1,26 @@
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Timeline.ViewModels;
+using FramePFX.Timeline.ViewModels.Clips;
+using FramePFX.Timeline.ViewModels.Layer;
+
 namespace FramePFX.Timeline.Actions {
-    public class EditorActionUtils {
-        
+    public static class EditorActionUtils {
+        public static EditorTimeline FindTimeline(IDataContext context) {
+            if (context.TryGetContext(out VideoEditor editor)) {
+                return editor.ActiveProject?.Timeline;
+            }
+            else if (context.TryGetContext(out EditorTimeline timeline)) {
+                return timeline;
+            }
+            else if (context.TryGetContext(out BaseTimelineLayer layer)) {
+                return layer.Timeline;
+            }
+            else if (context.TryGetContext(out BaseTimelineClip clip)) {
+                return clip.Layer?.Timeline;
+            }
+            else {
+                return null;
+            }
+        }
     }
 }

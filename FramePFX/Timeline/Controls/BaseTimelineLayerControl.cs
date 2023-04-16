@@ -50,7 +50,7 @@ namespace FramePFX.Timeline.Controls {
             set => this.timeline = value;
         }
 
-        public EditorTimelineLayer ViewModel => this.DataContext as EditorTimelineLayer;
+        public BaseTimelineLayer ViewModel => this.DataContext as BaseTimelineLayer;
 
         protected bool isUpdatingUnitZoom;
         protected TimelineControl timeline;
@@ -58,7 +58,7 @@ namespace FramePFX.Timeline.Controls {
         public BaseTimelineLayerControl() {
             this.CanSelectMultipleItems = true;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is EditorTimelineLayer vm) {
+                if (args.NewValue is BaseTimelineLayer vm) {
                     vm.Control = this;
                 }
             };

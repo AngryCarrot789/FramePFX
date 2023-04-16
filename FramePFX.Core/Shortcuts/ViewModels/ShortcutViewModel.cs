@@ -32,6 +32,12 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             set => this.RaisePropertyChanged(ref this.isGlobal, value);
         }
 
+        private bool inherit;
+        public bool Inherit {
+            get => this.inherit;
+            set => this.RaisePropertyChanged(ref this.inherit, value);
+        }
+
         public ICommand AddKeyStrokeCommand { get; set; }
 
         public ICommand AddMouseStrokeCommand { get; set; }
@@ -46,6 +52,7 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             this.Path = reference.Path;
             this.Description = reference.Description;
             this.isGlobal = reference.IsGlobal;
+            this.inherit = reference.Inherit;
             this.InputStrokes = new ObservableCollection<InputStrokeViewModel>();
             this.AddKeyStrokeCommand = new RelayCommand(this.AddKeyStrokeAction);
             this.AddMouseStrokeCommand = new RelayCommand(this.AddMouseStrokeAction);

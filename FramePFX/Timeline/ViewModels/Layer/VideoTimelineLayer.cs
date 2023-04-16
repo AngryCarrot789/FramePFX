@@ -1,10 +1,11 @@
 using System;
+using System.Windows;
 using FramePFX.Core.Utils;
 using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Layer.Removals;
 
 namespace FramePFX.Timeline.ViewModels.Layer {
-    public class VideoTimelineLayer : EditorTimelineLayer {
+    public class VideoTimelineLayer : BaseTimelineLayer {
         private float opacity;
 
         /// <summary>
@@ -68,6 +69,24 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             clip.Span = left;
             this.clips.Add(rightClone);
             rightClone.Span = right;
+        }
+
+        public override BaseTimelineClip SliceClip(BaseTimelineClip clip, long frame) {
+            if (!(clip is TimelineVideoClip videoClip)) {
+                throw new ArgumentException("Clip is not a video clip");
+            }
+
+            if (frame == videoClip.FrameBegin || frame == videoClip.FrameEndIndex) {
+                return null;
+            }
+
+            long endIndex = videoClip.FrameEndIndex;
+            TimelineVideoClip clone = (TimelineVideoClip) videoClip.CloneInstance();
+            videoClip.FrameEndIndex = frame;
+            clone.FrameBegin = frame;
+            clone.FrameEndIndex = endIndex;
+            this.AddClip(clone);
+            return clone;
         }
     }
 }

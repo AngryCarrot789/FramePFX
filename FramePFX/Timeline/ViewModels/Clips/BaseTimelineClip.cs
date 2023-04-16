@@ -20,7 +20,7 @@ namespace FramePFX.Timeline.ViewModels.Clips {
         /// <summary>
         /// The layer that this clip container is currently in. Should be null if the clip is not yet in a layer or it was removed from the layer
         /// </summary>
-        public EditorTimelineLayer Layer { get; set; }
+        public BaseTimelineLayer Layer { get; set; }
 
         public ICommand RenameCommand { get; }
         public ICommand DeleteCommand { get; }
@@ -46,6 +46,11 @@ namespace FramePFX.Timeline.ViewModels.Clips {
                 this.Layer.RemoveClip(this);
             });
         }
+
+        /// <summary>
+        /// Returns whether this clip intersects the given video frame. This also supports audio clips
+        /// </summary>
+        public abstract bool IntersectsFrameAt(long frame);
 
         public virtual void OnTimelinePlayBegin() {
             this.isTimelinePlaying = true;
@@ -94,7 +99,7 @@ namespace FramePFX.Timeline.ViewModels.Clips {
             clone.Name = this.Name;
         }
 
-        public void OnRemovingCore(EditorTimelineLayer layer) {
+        public void OnRemovingCore(BaseTimelineLayer layer) {
             this.isRemoving = true;
             try {
                 if (this.isTimelinePlaying) {
@@ -109,7 +114,7 @@ namespace FramePFX.Timeline.ViewModels.Clips {
             }
         }
 
-        protected virtual void OnRemoving(EditorTimelineLayer layer) {
+        protected virtual void OnRemoving(BaseTimelineLayer layer) {
 
         }
     }

@@ -49,6 +49,11 @@ namespace FramePFX.Core.Shortcuts {
         /// <exception cref="InvalidOperationException">This shortcut is empty (has no input strokes)</exception>
         IShortcutUsage CreateUsage();
 
+        /// <summary>
+        /// Checks if this shortcut's primary stroke is equal to the given input stroke.
+        /// This is the exact same as comparing them via the Equals() function
+        /// </summary>
+        /// <param name="input">Input stroke</param>
         bool IsPrimaryStroke(IInputStroke input);
     }
 }

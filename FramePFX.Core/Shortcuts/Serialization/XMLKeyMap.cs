@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
@@ -29,13 +30,17 @@ namespace FramePFX.Core.Shortcuts.Serialization {
         [XmlAttribute("Description")] public string Description { get; set; }
         [XmlAttribute("ActionId")]    public string ActionId { get; set; }
         [XmlAttribute("IsGlobal")]    public string IsGlobal { get; set; }
+        [XmlAttribute("Inherit")]    public string Inherit { get; set; }
 
         [XmlElement("Keystroke", Type = typeof(Keystroke))]
         [XmlElement("Mousestroke", Type = typeof(Mousestroke))]
         public List<object> Strokes { get; set; }
 
         [XmlIgnore]
-        public bool IsGlobalBool => !string.IsNullOrWhiteSpace(this.IsGlobal) && this.IsGlobal.ToLower().Equals("true");
+        public bool IsGlobalBool => !string.IsNullOrWhiteSpace(this.IsGlobal) && this.IsGlobal.Equals("true", StringComparison.OrdinalIgnoreCase);
+
+        [XmlIgnore]
+        public bool InheritBool => !string.IsNullOrWhiteSpace(this.Inherit) && this.Inherit.Equals("true", StringComparison.OrdinalIgnoreCase);
     }
 
     public class Keystroke {

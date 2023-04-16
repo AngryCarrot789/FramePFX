@@ -23,17 +23,6 @@ namespace FramePFX.ResourceManaging.Items {
         private VideoDecoder decoder;
         private FrameQueue frameQueue;
 
-        private void ReopenDemuxer() {
-            try {
-                this.ReleaseDecoder();
-                this.Demuxer = new MediaDemuxer(this.FilePath);
-                this.stream = this.Demuxer.FindBestStream(MediaTypes.Video);
-            }
-            catch {
-                //Invalid media file
-            }
-        }
-
         public unsafe Resolution GetResolution() {
             if (this.HasVideoStream) {
                 //Wrappers don't expose this stuff so :') 
@@ -42,6 +31,7 @@ namespace FramePFX.ResourceManaging.Items {
             }
             return default;
         }
+
         public TimeSpan GetDuration() {
             return this.Demuxer.Duration ?? TimeSpan.Zero;
         }
@@ -55,9 +45,8 @@ namespace FramePFX.ResourceManaging.Items {
             }
 
             //Images have a single frame, which we'll miss if we don't clamp timestamp to zero.
-            TimeSpan duration = this.Demuxer.Duration ?? TimeSpan.Zero;
-            if (timestamp > duration) {
-                timestamp = duration;
+            if (timestamp > this.GetDuration()) {
+                timestamp = this.GetDuration();
             }
 
             VideoFrame frame = this.frameQueue.GetNearest(timestamp, out double frameDist);
@@ -102,6 +91,17 @@ namespace FramePFX.ResourceManaging.Items {
                         return false;
                     }
                 }
+            }
+        }
+
+        private void ReopenDemuxer() {
+            try {
+                this.ReleaseDecoder();
+                this.Demuxer = new MediaDemuxer(this.FilePath);
+                this.stream = this.Demuxer.FindBestStream(MediaTypes.Video);
+            }
+            catch {
+                //Invalid media file
             }
         }
 

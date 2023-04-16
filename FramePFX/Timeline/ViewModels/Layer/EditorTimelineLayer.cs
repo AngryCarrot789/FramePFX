@@ -15,7 +15,7 @@ using FramePFX.Timeline.ViewModels.Clips;
 using FramePFX.Timeline.ViewModels.Clips.Resizable;
 
 namespace FramePFX.Timeline.ViewModels.Layer {
-    public abstract class TimelineLayer : BaseViewModel, IResourceDropNotifier {
+    public abstract class EditorTimelineLayer : BaseViewModel, IResourceDropNotifier {
         private EfficientObservableCollection<BaseTimelineClip> clips;
 
         private string name;
@@ -50,7 +50,7 @@ namespace FramePFX.Timeline.ViewModels.Layer {
 
         public ILayerHandle Control { get; set; }
 
-        public TimelineLayer(EditorTimeline timeline) {
+        public EditorTimelineLayer(EditorTimeline timeline) {
             this.clips = new EfficientObservableCollection<BaseTimelineClip>();
             this.clips.CollectionChanged += this.ClipsOnCollectionChanged;
             this.Clips = new ReadOnlyObservableCollection<BaseTimelineClip>(this.clips);

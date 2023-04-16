@@ -7,6 +7,7 @@ using FramePFX.Timeline.ViewModels.Clips.Resizable;
 using FramePFX.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Project {
+    // Could rename this to something else, but naming it Project might be tricky as that's the namespace name
     public class EditorProject : BaseViewModel {
         /// <summary>
         /// This project's timeline
@@ -73,21 +74,29 @@ namespace FramePFX.Project {
             this.ResourceManager.AddResource("Resource_GREEN", greenColour);
             this.ResourceManager.AddResource("Resource_BLUE", blueColour);
 
-            TimelineLayer l1 = this.Timeline.CreateLayer("Layer 1");
+            EditorTimelineLayer l1 = this.Timeline.CreateLayer("Layer 1");
             CreateSquare(l1, 0, 50, redColour, 5f, 5f, 100f, 100f, "Red_0");
             CreateSquare(l1, 100, 150, redColour, 105f, 5f, 100f, 100f, "Red_1");
             CreateSquare(l1, 275, 50, greenColour, 210f, 5f, 100f, 100f, "Green_0");
 
-            TimelineLayer l2 = this.Timeline.CreateLayer("Layer 2");
+            EditorTimelineLayer l2 = this.Timeline.CreateLayer("Layer 2");
             CreateSquare(l2, 0, 100, greenColour, 5f, 105f, 100f, 100f, "Green_1");
             CreateSquare(l2, 100, 50, blueColour, 105f, 105f, 100f, 100f, "Blue_0");
             CreateSquare(l2, 175, 75, blueColour, 210f, 105f, 100f, 100f, "Blue_1");
         }
 
-        public static void CreateSquare(TimelineLayer timelineLayer, long begin, long duration, ResourceShapeColour colour, float x, float y, float w, float h, string name) {
+        public static void CreateSquare(EditorTimelineLayer timelineLayer, long begin, long duration, ResourceShapeColour colour, float x, float y, float w, float h, string name) {
             ShapeTimelineClip timelineClip = timelineLayer.CreateSquareClip(begin, duration, colour);
             timelineClip.Name = name;
             timelineClip.SetShape(x, y, w, h);
+        }
+
+        public void OnPlayBegin() {
+            this.Timeline.OnPlayBegin();
+        }
+
+        public void OnPlayEnd() {
+            this.Timeline.OnPlayEnd();
         }
     }
 }

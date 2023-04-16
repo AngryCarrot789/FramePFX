@@ -121,7 +121,7 @@ namespace FramePFX.Timeline.Controls {
             return list;
         }
 
-        public bool GetViewModel(out TimelineLayer timelineLayer) {
+        public bool GetViewModel(out EditorTimelineLayer timelineLayer) {
             return (timelineLayer = this.ViewModel) != null;
         }
 
@@ -242,7 +242,7 @@ namespace FramePFX.Timeline.Controls {
         }
 
         public void MakeTopElement(TimelineVideoClipControl control) {
-            TimelineLayer timelineLayer = this.ViewModel;
+            EditorTimelineLayer timelineLayer = this.ViewModel;
             TimelineVideoClip container;
             if (timelineLayer != null && (container = control.ViewModel) != null) {
                 timelineLayer.MakeTopMost(container);

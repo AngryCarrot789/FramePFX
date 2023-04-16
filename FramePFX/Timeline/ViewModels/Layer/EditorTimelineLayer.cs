@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Input.StylusPlugIns;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
@@ -16,7 +16,7 @@ using FramePFX.Timeline.ViewModels.Clips.Resizable;
 
 namespace FramePFX.Timeline.ViewModels.Layer {
     public abstract class EditorTimelineLayer : BaseViewModel, IResourceDropNotifier {
-        private EfficientObservableCollection<BaseTimelineClip> clips;
+        protected readonly EfficientObservableCollection<BaseTimelineClip> clips;
 
         private string name;
         public string Name {
@@ -78,7 +78,7 @@ namespace FramePFX.Timeline.ViewModels.Layer {
 
             if (e.NewItems != null) {
                 foreach (object x in e.NewItems) {
-                    if (x is TimelineVideoClip clip) {
+                    if (x is BaseTimelineClip clip) {
                         clip.Layer = this;
                     }
                 }
@@ -116,11 +116,14 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             this.clips.Move(index, endIndex);
         }
 
-        public void RemoveRegion(long frameBegin, long frameEnd, Action<TimelineVideoClip> onModified, Action<TimelineVideoClip> onRemoved) {
-        }
+        public bool RemoveClip(BaseTimelineClip clip) {
+            if (this.clips.Contains(clip)) {
+                clip.OnRemovingCore(this);
+                this.clips.Remove(clip); // just in case for some weird reason the clip removes another clip
+                return true;
+            }
 
-        public bool DeleteClip(BaseTimelineClip clip) {
-            return this.clips.Remove(clip);
+            return false;
         }
 
         public virtual Task OnVideoResourceDropped(ResourceItem resource, long frameBegin) {

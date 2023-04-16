@@ -10,8 +10,6 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Project;
 using FramePFX.ResourceManaging.Items;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace FramePFX.ResourceManaging {
     /// <summary>
@@ -179,23 +177,14 @@ namespace FramePFX.ResourceManaging {
         }
 
         public ResourceItem AddFile(string file) {
-            // TODO: Be able to differentiate images from video. Hopefully Image.Load never loads a video/gif?
-            Image<Bgra32> image = null;
-            try {
-                image = Image.Load<Bgra32>(file);
-            }
-            catch { /* ignored */ }
-
-            if (image != null) {
-                ResourceImage resource = new ResourceImage();
-                resource.ImageData = image;
-                resource.FilePath = file;
-                this.AddResource(this.GenerateUniqueIdForFile(file), resource);
-                return resource;
-            }
-            else {
+            if (!File.Exists(file)) {
                 return null;
             }
+            //TODO: ffmpeg can handle pretty much any format ever, but we should validate the file before returning the resource
+            ResourceVideoMedia resource = new ResourceVideoMedia();
+            resource.FilePath = file;
+            this.AddResource(this.GenerateUniqueIdForFile(file), resource);
+            return resource;
         }
 
         public string GenerateUniqueIdForFile(string file) {

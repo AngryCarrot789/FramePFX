@@ -34,7 +34,7 @@ namespace FramePFX {
                 }
             };
 
-            string path = @"F:\VSProjsV2\FramePFX\FramePFX\Keymap.xml";
+            string path = "Keymap.xml";
             if (File.Exists(path)) {
                 using (FileStream stream = File.OpenRead(path)) {
                     ShortcutGroup group = WPFKeyMapDeserialiser.Instance.Deserialise(stream);

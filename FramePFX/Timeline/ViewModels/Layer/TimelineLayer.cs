@@ -94,16 +94,17 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             return timelineClip;
         }
 
-        // public ImageClipViewModel CreateImageClip(long begin, long duration, ImageResourceViewModel image) {
-        //     ClipContainerViewModel container = this.CreateVideoClipContainer(begin, duration);
-        //     ClipViewModel clip = new ClipViewModel {
-        //         Resource = image
-        //     };
-        //     ClipContainerViewModel.SetClipContent(container, clip);
-        //     ClipViewModel.SetContainer(clip, container);
-        //     this.Clips.Add(container);
-        //     return clip;
-        // }
+        public VideoMediaTimelineClip CreateMediaClip(long begin, long duration, ResourceVideoMedia media) {
+            //TODO: use proper values once the resource object provides that info
+            VideoMediaTimelineClip clip = new VideoMediaTimelineClip {
+                Resource = media, FrameBegin = begin, FrameDuration = duration,
+                Width = 1280, Height = 720,
+                Name = media.UniqueID
+            };
+
+            this.clips.Add(clip);
+            return clip;
+        }
 
         public void MakeTopMost(TimelineVideoClip videoClip) {
             int endIndex = this.Clips.Count - 1;
@@ -123,20 +124,19 @@ namespace FramePFX.Timeline.ViewModels.Layer {
         }
 
         public virtual Task OnVideoResourceDropped(ResourceItem resource, long frameBegin) {
-            if (resource is ResourceShapeColour shape) {
-                long endIndex = frameBegin + 300;
-                if (endIndex >= this.Timeline.MaxDuration) {
-                    endIndex = this.Timeline.MaxDuration - 1;
-                }
+            long duration = Math.Min(300, this.Timeline.MaxDuration - frameBegin);
 
-                if (endIndex > frameBegin) {
-                    ShapeTimelineClip square = this.CreateSquareClip(frameBegin, endIndex - frameBegin, shape);
-                    square.SetShape(0, 0, 200f, 200f);
-                    square.Name = resource.UniqueID;
-                }
+            if (duration <= 0) {
+                return Task.CompletedTask;
             }
-            else if (resource is ResourceImage imageResource) {
-                // this.CreateImageClip(0, 300, imageResource);
+
+            if (resource is ResourceShapeColour shape) {
+                ShapeTimelineClip square = this.CreateSquareClip(frameBegin, duration, shape);
+                square.SetShape(0, 0, 200f, 200f);
+                square.Name = resource.UniqueID;
+            }
+            else if (resource is ResourceVideoMedia media) {
+                this.CreateMediaClip(frameBegin, duration, media);
             }
 
             return Task.CompletedTask;

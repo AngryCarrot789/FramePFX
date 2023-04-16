@@ -47,16 +47,6 @@ namespace FramePFX.Render.OGL {
             GL.Viewport(0, 0, width, height);
             OGLUtils.SetOrthoMatrix(width, height);
 
-            GL.DebugMessageCallback((source, type, id, severity, length, ptext, _) => {
-                string severityStr = severity.ToString().Substring("DebugSeverity".Length).ToUpper();
-                string sourceStr = source.ToString().Substring("DebugSource".Length);
-                string typeStr = type.ToString().Substring("DebugType".Length);
-                string text = Marshal.PtrToStringAnsi(ptext);
-
-                Console.WriteLine($"GL-{sourceStr}-{typeStr}: [{severityStr}] {text}");
-            }, IntPtr.Zero);
-            GL.Enable(EnableCap.DebugOutput);
-
             // Fix OpenGL flipped image
             // GL.Rotate(180, 0, 0, 1);
             // GL.Scale(-1f, 1f, 1f);

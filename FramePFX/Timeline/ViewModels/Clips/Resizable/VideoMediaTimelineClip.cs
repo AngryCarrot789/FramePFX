@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using FFmpeg.Wrapper;
+using FramePFX.Core.Utils;
 using FramePFX.Render;
 using FramePFX.ResourceManaging.Items;
 using OpenTK.Graphics.OpenGL;
@@ -12,14 +13,8 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             get => this.resource;
             set => this.RaisePropertyChanged(ref this.resource, value);
         }
-
-        //TODO: move most of this stuff out to ResourceVideoMedia
-        private MediaDemuxer demuxer;
-        private MediaStream stream;
-        private VideoDecoder decoder;
-
-        private VideoFrame decodedFrame, downloadedHwFrame;
-        private VideoFrame frameRgb;
+        
+        private VideoFrame frameRgb, downloadedHwFrame;
         private SwScaler scaler;
         private Texture texture;
 
@@ -61,10 +56,6 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
                 this.targetFrame = frame;
             }
 
-            if (this.texture == null) {
-                return;
-            }
-
             GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, this.texture.Id);
 
@@ -87,50 +78,31 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             GL.Disable(EnableCap.Texture2D);
         }
 
-        private void OpenResource() {
-            this.demuxer = new MediaDemuxer(this.Resource.FilePath);
-
-            this.stream = this.demuxer.FindBestStream(MediaTypes.Video);
-            this.decoder = (VideoDecoder) this.demuxer.CreateStreamDecoder(this.stream, open: false);
-
-            this.TrySetupHardwareDecoder();
-            this.decoder.Open();
-
+        private void CreateTexture() {
             //Select the smallest size from either clip or source for our temp frames
+            Resolution sourceRes = this.Resource.GetResolution();
+
             int frameW = (int) Math.Round(this.Width);
             int frameH = (int) Math.Round(this.height);
 
-            if (frameW > this.decoder.Width || frameH > this.decoder.Height) {
-                frameW = this.decoder.Width;
-                frameH = this.decoder.Height;
+            if (frameW > sourceRes.Width || frameH > sourceRes.Height) {
+                frameW = sourceRes.Width;
+                frameH = sourceRes.Height;
             }
-
-            this.decodedFrame = new VideoFrame(this.decoder.FrameFormat);
             this.frameRgb = new VideoFrame(frameW, frameH, PixelFormats.RGBA);
             this.texture = new Texture(frameW, frameH);
         }
 
-        private void TrySetupHardwareDecoder() {
-            foreach (CodecHardwareConfig config in this.decoder.GetHardwareConfigs()) {
-                using (var device = HardwareDevice.Create(config.DeviceType)) {
-                    if (device != null) {
-                        this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
-                        break;
-                    }
-                }
-            }
-        }
-
         private void ResyncFrame(long frameNo) {
-            if (this.demuxer == null) {
-                this.OpenResource();
+            if (this.texture == null) {
+                this.CreateTexture();
             }
-
-            //TODO: We'll miss frames depending on the project/source framerates -- add frame interpolation?
             double timeScale = this.Layer.Timeline.Project.PlaybackFPS;
-            TimeSpan timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin) / timeScale);
-            if (this.SeekToFrame(timestamp)) {
-                this.UploadFrame();
+            TimeSpan timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin + this.FrameMediaOffset) / timeScale);
+            VideoFrame frame = this.Resource.GetFrameAt(timestamp);
+
+            if (frame != null) {
+                this.UploadFrame(frame);
             }
         }
 
@@ -146,53 +118,7 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             }
         }
 
-        private bool SeekToFrame(TimeSpan timestamp) {
-            //Images have a single frame, which we'll miss if we don't clamp timestamp to zero.
-            TimeSpan duration = this.demuxer.Duration ?? TimeSpan.Zero;
-            if (timestamp > duration) {
-                timestamp = duration;
-            }
-
-            //If the last decoded frame is past or too far after the requested timestamp, seek to the nearest keyframe before it
-            double frameDist = (timestamp - this.frameTimestamp).TotalSeconds;
-            if (frameDist < -1.0 / this.stream.AvgFrameRate || frameDist > 5.0) {
-                this.demuxer.Seek(timestamp);
-                this.decoder.Flush();
-            }
-
-            //Decode frames until we find one that is close to the requested timestamp
-            while (true) {
-                if (this.decoder.ReceiveFrame(this.decodedFrame)) {
-                    long? t = this.decodedFrame.PresentationTimestamp;
-                    this.frameTimestamp = this.stream.GetTimestamp(t.Value);
-                    if (this.frameTimestamp >= timestamp) {
-                        return true;
-                    }
-                }
-
-                //Fill-up the decoder with more data and try again
-                using (var packet = new MediaPacket()) {
-                    bool gotPacket = false;
-                    while (this.demuxer.Read(packet)) {
-                        if (packet.StreamIndex == this.stream.Index) {
-                            // TODO: this throws when you try to play back .mkv
-                            this.decoder.SendPacket(packet);
-                            gotPacket = true;
-                            break;
-                        }
-                    }
-
-                    if (!gotPacket) {
-                        //Reached the end of the file
-                        return false;
-                    }
-                }
-            }
-        }
-
-        private void UploadFrame() {
-            VideoFrame frame = this.decodedFrame;
-
+        private void UploadFrame(VideoFrame frame) {
             if (frame.IsHardwareFrame) {
                 //As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                 //which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
@@ -216,9 +142,6 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
 
         protected override void DisposeClip() {
             base.DisposeClip();
-            this.demuxer?.Dispose();
-            this.decoder?.Dispose();
-            this.decodedFrame?.Dispose();
             this.downloadedHwFrame?.Dispose();
             this.frameRgb?.Dispose();
             this.scaler?.Dispose();

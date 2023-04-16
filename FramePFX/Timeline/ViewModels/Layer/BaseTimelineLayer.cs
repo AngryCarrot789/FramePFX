@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -60,12 +59,14 @@ namespace FramePFX.Timeline.ViewModels.Layer {
             this.Height = 60;
 
             this.RenameLayerCommand = new RelayCommand(() => {
-                string result = CoreIoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", InputValidator.SingleError(x => this.Timeline.Layers.Any(b => b.Name == x), "Layer already exists with that name"));
+                string result = CoreIoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", this.Timeline.LayerNameValidator);
                 if (result != null) {
                     this.Name = result;
                 }
             });
         }
+
+        public abstract BaseTimelineClip SliceClip(BaseTimelineClip clip, long frame);
 
         protected virtual void ClipsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             if (e.OldItems != null) {
@@ -90,7 +91,7 @@ namespace FramePFX.Timeline.ViewModels.Layer {
                 Resource = colour, FrameBegin = begin, FrameDuration = duration
             };
 
-            this.clips.Add(timelineClip);
+            this.AddClip(timelineClip);
             return timelineClip;
         }
 
@@ -102,8 +103,12 @@ namespace FramePFX.Timeline.ViewModels.Layer {
                 Name = media.UniqueID
             };
 
-            this.clips.Add(clip);
+            this.AddClip(clip);
             return clip;
+        }
+
+        public virtual void AddClip(BaseTimelineClip clip) {
+            this.clips.Add(clip);
         }
 
         public void MakeTopMost(TimelineVideoClip videoClip) {

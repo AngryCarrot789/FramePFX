@@ -1,0 +1,14 @@
+﻿<views:WindowEx x:Class="FramePFX.Project.EditorDialogs.ProjectSettingsEditorWindow" 
+                xmlns:views="clr-namespace:FramePFX.Views"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:local="clr-namespace:FramePFX.Project.EditorDialogs"
+                mc:Ignorable="d"
+                Title="ProjectSettingsEditorWindow" Height="450" Width="800"
+                Style="{StaticResource CustomWindowStyleEx}">
+    <Grid>
+        
+    </Grid>
+</views:WindowEx>

@@ -12,7 +12,7 @@ I also don't know if it's a good idea for the ViewModels (e.g SquareClipViewMode
 
 # Preview
 
-![](FramePFX_2023-03-23_23.16.31.png)
+![](FramePFX_2023-04-16_18.56.57.png)
 
 ## Rendering
 Rendering the main view port (and soon the clip/text resource previews) is done with OpenGL. I made another git repo showing the minimum amount of code to render OpenGL in WPF using nothing but OpenTK (but with this app i came up with a new way of rendering though, and this way seems to be faster in general but possibly more unsafe and may result in visual glitches when rendering occours very quickly... maybe)

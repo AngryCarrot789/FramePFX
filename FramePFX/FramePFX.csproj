@@ -212,7 +212,6 @@
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
-    <Compile Include="Utils\ExceptionStack.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
@@ -246,6 +245,11 @@
       <DependentUpon>SingleUserInputWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Dialogs\UserInputs\UserInputDialogService.cs" />
+    <Compile Include="Views\Exceptions\CollectionToVisibilityConverter.cs" />
+    <Compile Include="Views\Exceptions\ExceptionViewerService.cs" />
+    <Compile Include="Views\Exceptions\ExceptionViewerWindow.xaml.cs">
+      <DependentUpon>ExceptionViewerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Main\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -321,6 +325,10 @@
     <Page Include="Views\Dialogs\UserInputs\SingleUserInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Exceptions\ExceptionViewerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Main\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using FramePFX.Core.Utils;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Core.Utils {
     /// <summary>
     /// A helper class for easily dealing with multiple exceptions that may be thrown
     /// </summary>
@@ -15,13 +14,11 @@ namespace FramePFX.Utils {
             ThreadStackStorage = new ThreadLocal<Stack<ExceptionStack>>(() => new Stack<ExceptionStack>());
         }
 
-        private readonly List<Exception> exceptions;
+        public List<Exception> Exceptions { get; }
 
-        public List<Exception> Exceptions => this.exceptions;
+        public bool IsEmpty => this.Exceptions.Count < 1;
 
-        public bool IsEmpty => this.exceptions.Count < 1;
-
-        public bool HasAny => this.exceptions.Count > 0;
+        public bool HasAny => this.Exceptions.Count > 0;
 
         /// <summary>
         /// The exception message that is used in the <see cref="Dispose"/> function to throw an excetion when there are exceptions in the stack
@@ -36,7 +33,7 @@ namespace FramePFX.Utils {
 
         private ExceptionStack(string message) {
             this.Message = message;
-            this.exceptions = new List<Exception>();
+            this.Exceptions = new List<Exception>();
         }
 
         /// <summary>
@@ -84,7 +81,7 @@ namespace FramePFX.Utils {
 
         public void Push(Exception exception) {
             if (exception != null) {
-                this.exceptions.Add(exception);
+                this.Exceptions.Add(exception);
             }
         }
 
@@ -116,9 +113,9 @@ namespace FramePFX.Utils {
 
         public void Dispose() {
             Pop(this);
-            if (this.exceptions.Count > 0) {
+            if (this.Exceptions.Count > 0) {
                 Exception ex = new Exception(this.Message ?? "Exceptions occourred during operation");
-                foreach (Exception item in this.exceptions) {
+                foreach (Exception item in this.Exceptions) {
                     if (item != null) { // just in case
                         ExceptionUtils.AddSuppressed(ex, item);
                     }

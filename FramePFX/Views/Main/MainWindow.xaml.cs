@@ -2,8 +2,10 @@
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core;
+using FramePFX.Core.Utils;
 using FramePFX.Render.OGL;
 using FramePFX.Timeline.ViewModels.Layer;
+using FramePFX.Views.Exceptions;
 
 namespace FramePFX.Views.Main {
     /// <summary>
@@ -86,6 +88,42 @@ namespace FramePFX.Views.Main {
         private void FrameworkElement_OnRequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
             // Prevent the timeline scrolling when you select a clip
             e.Handled = true;
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e) {
+            ExceptionStack stack = ExceptionStack.Push();
+            Method1(stack);
+            ExceptionStack.Pop(stack);
+            if (stack.HasAny) {
+                ExceptionViewerService.Instance.ShowExceptionStack(stack);
+            }
+        }
+
+        public static void Method1(ExceptionStack stack) {
+            Method2(stack);
+        }
+
+        public static void Method2(ExceptionStack stack) {
+            try {
+                Method3();
+            }
+            catch (Exception e) {
+                stack.Push(new Exception("Failed to call method3", e));
+                try {
+                    Method4();
+                }
+                catch (Exception ex) {
+                    e.AddSuppressed(new Exception("Failed to manually call Method4", ex));
+                }
+            }
+        }
+
+        public static void Method3() {
+            Method4();
+        }
+
+        public static void Method4() {
+            throw new Exception("Method 4 cannot run");
         }
     }
 }

@@ -45,6 +45,7 @@
         <Menu VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Primary.1.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" BorderThickness="0 0 0 1">
             <MenuItem Header="File">
                 <MenuItem Header="New Project" Command="{Binding NewProjectCommand}"/>
+                <MenuItem Header="Test" Click="MenuItem_Click"/>
             </MenuItem>
             <MenuItem Header="Another drop down here"/>
             <MenuItem Header="Unused">

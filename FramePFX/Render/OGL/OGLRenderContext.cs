@@ -144,8 +144,13 @@ namespace FramePFX.Render.OGL {
         }
 
         private void DisposeInternal() {
-            this.Window.MakeCurrent();
-            this.Window.Dispose();
+            try {
+                this.Window.MakeCurrent();
+                this.Window.Dispose();
+            }
+            catch (Exception e) {
+
+            }
         }
     }
 }

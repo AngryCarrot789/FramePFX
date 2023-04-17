@@ -12,6 +12,7 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Project;
 using FramePFX.ResourceManaging.Items;
+using FramePFX.Views.Exceptions;
 using ExceptionUtils = FramePFX.Core.Utils.ExceptionUtils;
 
 namespace FramePFX.ResourceManaging {
@@ -109,7 +110,8 @@ namespace FramePFX.ResourceManaging {
                         item.Dispose();
                     }
                     catch (Exception e) {
-                        await CoreIoC.MessageDialogs.ShowMessageAsync("Error disposing item", $"Failed to dispose resource: {ExceptionUtils.ToString(e)}");
+                        await CoreIoC.MessageDialogs.ShowMessageAsync("Error disposing item", $"Failed to dispose resource. Press OK to show the exception details");
+                        ExceptionViewerService.Instance.ShowException(e);
                     }
                 }
                 else {

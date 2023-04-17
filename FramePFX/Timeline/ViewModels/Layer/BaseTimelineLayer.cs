@@ -45,7 +45,7 @@ namespace FramePFX.Timeline.ViewModels.Layer {
         private string layerColour;
         public string LayerColour {
             get => this.layerColour;
-            set => RaisePropertyChanged(ref this.layerColour, value);
+            set => this.RaisePropertyChanged(ref this.layerColour, value);
         }
 
         public EditorTimeline Timeline { get; }

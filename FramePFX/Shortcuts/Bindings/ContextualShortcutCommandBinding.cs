@@ -105,7 +105,7 @@ namespace FramePFX.Shortcuts.Bindings {
         }
 
         public bool MatchMouseInput(object target, MouseEventArgs e) {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 

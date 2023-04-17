@@ -2,6 +2,11 @@ using System.Threading.Tasks;
 using FramePFX.Core.Views.ViewModels;
 
 namespace FramePFX.Core.Views.Dialogs {
+    /// <summary>
+    /// A helper base view model for managing a dialog and the standard Confirm/Cancel behaviour. In order to disable
+    /// the confirm button when errors are present, implement and override <see cref="IErrorInfoHandler.OnErrorsUpdated(System.Collections.Generic.Dictionary{string, object})"/>,
+    /// and set the <see cref="BaseRelayCommand.IsEnabled"/> state to true/false depending if the dictionary is empty/not empty, respectively
+    /// </summary>
     public class BaseConfirmableDialogViewModel : BaseDialogViewModel {
         public RelayCommand ConfirmCommand { get; }
         public RelayCommand CancelCommand { get; }
@@ -17,16 +22,16 @@ namespace FramePFX.Core.Views.Dialogs {
 
         public virtual async Task ConfirmAction() {
             if (await this.CanConfirm()) {
+                await this.OnDialogClosing(true);
                 await this.Dialog.CloseDialogAsync(true);
-                await this.OnDialogClosed();
+                await this.OnDialogClosed(true);
             }
         }
 
         public virtual async Task CancelAction() {
-            if (await this.CanCancel()) {
-                await this.Dialog.CloseDialogAsync(false);
-                await this.OnDialogClosed();
-            }
+            await this.OnDialogClosing(false);
+            await this.Dialog.CloseDialogAsync(false);
+            await this.OnDialogClosed(false);
         }
 
         /// <summary>
@@ -48,16 +53,11 @@ namespace FramePFX.Core.Views.Dialogs {
             return Task.FromResult(true);
         }
 
-        /// <summary>
-        /// Called just before the cancel action is executed, to check if this
-        /// dialog actually can close. This should never really return anything except true,
-        /// otherwise the user will be unable to close the dialog (except for clicking the X button)
-        /// </summary>
-        public virtual Task<bool> CanCancel() {
-            return Task.FromResult(true);
+        public virtual Task OnDialogClosing(bool result) {
+            return Task.CompletedTask;
         }
 
-        public virtual Task OnDialogClosed() {
+        public virtual Task OnDialogClosed(bool result) {
             return Task.CompletedTask;
         }
     }

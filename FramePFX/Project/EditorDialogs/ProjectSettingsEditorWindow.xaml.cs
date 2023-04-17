@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using FramePFX.Views;
 
 namespace FramePFX.Project.EditorDialogs {
     /// <summary>
     /// Interaction logic for ProjectSettingsEditorWindow.xaml
     /// </summary>
-    public partial class ProjectSettingsEditorWindow : WindowEx {
+    public partial class ProjectSettingsEditorWindow : BaseDialog {
         public ProjectSettingsEditorWindow() {
-            InitializeComponent();
-            this.DataContext = new ProjectEditorViewModel();
+            this.InitializeComponent();
+            this.DataContext = new ProjectSettingsEditorViewModel(this);
+            this.Loaded += this.ProjectSettingsEditorWindow_Loaded;
+        }
+
+        private void ProjectSettingsEditorWindow_Loaded(object sender, RoutedEventArgs e) {
+            this.TextBox1.Focus();
+            this.TextBox1.SelectAll();
         }
     }
 }

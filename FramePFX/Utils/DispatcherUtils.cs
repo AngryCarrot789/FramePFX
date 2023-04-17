@@ -30,9 +30,8 @@ namespace FramePFX.Utils {
                 action();
                 return Task.CompletedTask;
             }
-            else {
-                return dispatcher.InvokeAsync(action).Task;
-            }
+            
+            return dispatcher.InvokeAsync(action).Task;
         }
 
         public static Task<TResult> InvokeAsync<TResult>(Dispatcher dispatcher, Func<TResult> function) {

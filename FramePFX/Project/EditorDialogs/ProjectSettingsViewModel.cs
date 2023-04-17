@@ -9,21 +9,21 @@ namespace FramePFX.Project.EditorDialogs {
     public class ProjectSettingsViewModel : BaseViewModel {
         private int width;
         private int height;
-        private int frameRate;
+        private double frameRate;
 
         public int Width {
             get => this.width;
-            set => RaisePropertyChanged(ref this.width, value);
+            set => this.RaisePropertyChanged(ref this.width, value);
         }
 
         public int Height {
             get => this.height;
-            set => RaisePropertyChanged(ref this.height, value);
+            set => this.RaisePropertyChanged(ref this.height, value);
         }
 
-        public int FrameRate {
+        public double FrameRate {
             get => this.frameRate;
-            set => RaisePropertyChanged(ref this.frameRate, value);
+            set => this.RaisePropertyChanged(ref this.frameRate, value);
         }
     }
 }

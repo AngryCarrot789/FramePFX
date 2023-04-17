@@ -7,6 +7,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 using FramePFX.Core.Views.Dialogs.FilePicking;
+using FramePFX.Project.EditorDialogs;
 using FramePFX.ResourceManaging;
 using FramePFX.ResourceManaging.Items;
 using FramePFX.Timeline.ViewModels;
@@ -60,8 +61,8 @@ namespace FramePFX.Project {
         public VideoEditor VideoEditor { get; }
 
         public ICommand SaveCommand { get; }
-
         public ICommand SaveAsCommand { get; }
+        public ICommand OpenSettingsCommand { get; }
 
         public EditorProject(VideoEditor videoEditor) {
             this.VideoEditor = videoEditor;
@@ -69,6 +70,7 @@ namespace FramePFX.Project {
             this.ResourceManager = new ResourceManager(this);
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync);
+            this.OpenSettingsCommand = new AsyncRelayCommand(this.OpenSettingsAction);
         }
 
         public async Task<bool> SaveActionAsync() {
@@ -125,6 +127,21 @@ namespace FramePFX.Project {
             this.FrameRate = map.GetDouble("FPS");
             RBEDictionary resources = map.GetOrCreateDictionary("Resources");
             await this.ResourceManager.SaveResources(resources, folder);
+        }
+
+        public async Task OpenSettingsAction() {
+            ProjectSettingsViewModel x = await ProjectSettingsDialogService.Instance.EditSettings(this);
+            if (x != null) {
+                if (x.FrameRate < 1 || this.resolution.Width < 1 || this.resolution.Height < 1) {
+                    return;
+                }
+
+                this.Resolution = new Resolution(x.Width, x.Height);
+                this.FrameRate = x.FrameRate;
+
+                this.VideoEditor.UpdateResolution(this.Resolution);
+                this.Timeline.ScheduleRender(false);
+            }
         }
 
         public void RenderTimeline() {

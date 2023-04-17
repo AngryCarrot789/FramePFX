@@ -90,7 +90,7 @@
                                     <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
                                 </Grid>
                             </Button>
-                            <Button Content="Settings (coming soon)" Width="150" HorizontalAlignment="Right" Padding="3,0,2,0" Command="{Binding PlayPauseCommand, Mode=OneTime}" Margin="0,5,5,5"/>
+                            <Button Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>
                     <Viewbox Margin="0,0,0,35">

@@ -3,21 +3,24 @@ using System.Globalization;
 using System.Windows.Controls;
 
 namespace FramePFX.Views.Validators {
-    public class DoubleRangeValidationRule : ValidationRule {
-        public double MinValue { get; set; }
-        public double MaxValue { get; set; }
+    public class IntRangeValidationRule : ValidationRule {
+        public int MinValue { get; set; }
+        public int MaxValue { get; set; }
 
         public string MinValueMessage { get; set; }
         public string MaxValueMessage { get; set; }
 
         public override ValidationResult Validate(object obj, CultureInfo cultureInfo) {
-            double value;
-            if (obj is double) {
-                value = (double) obj;
+            int value;
+            if (obj is int) {
+                value = (int) obj;
             }
             else if (obj is string str) {
-                if (!double.TryParse(str, out value)) {
-                    return new ValidationResult(false, "Invalid input value: not a decimal number");
+                if (string.IsNullOrWhiteSpace(str)) {
+                    return new ValidationResult(false, "Value cannot be empty or whitespaces");
+                }
+                else if (!int.TryParse(str, out value)) {
+                    return new ValidationResult(false, "Value is not an integer number");
                 }
             }
             else {

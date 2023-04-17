@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using FramePFX.Core.Views.Dialogs;
+using FramePFX.Utils;
 using FramePFX.Views.Dialogs.FilePicking;
 
 namespace FramePFX.Views {
@@ -16,7 +17,7 @@ namespace FramePFX.Views {
         }
 
         public async Task CloseDialogAsync(bool result) {
-            await this.Dispatcher.InvokeAsync(() => this.CloseDialog(result));
+            await DispatcherUtils.InvokeAsync(this.Dispatcher, () => this.CloseDialog(result));
         }
     }
 }

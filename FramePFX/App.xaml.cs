@@ -75,7 +75,7 @@ namespace FramePFX {
                 // Loaded, to allow ICG to generate content and assign the handles
             }, DispatcherPriority.Loaded);
 
-            sayHello();
+            this.sayHello();
         }
 
         public async void sayHello() {

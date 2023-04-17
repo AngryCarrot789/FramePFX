@@ -11,6 +11,16 @@ namespace FramePFX.Core {
     /// </summary>
     public abstract class BaseRelayCommand : ICommand {
         private bool isEnabled;
+
+        /// <summary>
+        /// Raised when <see cref="RaiseCanExecuteChanged"/> is called
+        /// </summary>
+        public event EventHandler CanExecuteChanged;
+
+        /// <summary>
+        /// Whether this command is actually enabled or not. Setting this to false will result in <see cref="CanExecute"/>
+        /// returning false, and also raises the <see cref="CanExecuteChanged"/> event
+        /// </summary>
         public bool IsEnabled {
             get => this.isEnabled;
             set {
@@ -18,11 +28,6 @@ namespace FramePFX.Core {
                 this.RaiseCanExecuteChanged();
             }
         }
-
-        /// <summary>
-        /// Raised when <see cref="RaiseCanExecuteChanged"/> is called
-        /// </summary>
-        public event EventHandler CanExecuteChanged;
 
         /// <summary>
         /// Initializes a new instance of <see cref="BaseRelayCommand"/>
@@ -64,6 +69,10 @@ namespace FramePFX.Core {
             }
         }
 
+        /// <summary>
+        /// Executes this command
+        /// </summary>
+        /// <param name="parameter">An optional parameter passed to this command</param>
         public abstract void Execute(object parameter);
 
         /// <summary>
@@ -83,7 +92,7 @@ namespace FramePFX.Core {
         /// Method used to raise the <see cref="CanExecuteChanged"/> event to indicate that the
         /// return value of the <see cref="CanExecute"/> method likely changed
         /// <para>
-        /// This can be called from a view model, which, for example, may cause a
+        /// This can be called from a view model which, for example, may cause a
         /// button to become greyed out (disabled) if <see cref="CanExecute"/> returns false
         /// </para>
         /// </summary>

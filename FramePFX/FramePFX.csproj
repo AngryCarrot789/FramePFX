@@ -110,7 +110,8 @@
     <Compile Include="DispatcherDelegate.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="IoC.cs" />
-    <Compile Include="Project\EditorDialogs\ProjectEditorViewModel.cs" />
+    <Compile Include="Project\EditorDialogs\ProjectSettingsDialogService.cs" />
+    <Compile Include="Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
     <Compile Include="Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
     </Compile>
@@ -248,6 +249,9 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\Validators\DoubleRangeValidationRule.cs" />
+    <Compile Include="Views\Validators\IntRangeValidationRule.cs" />
+    <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs" />
     <Compile Include="Views\WindowEx.cs" />
     <Page Include="AdvancedContextService\ContextStyles.xaml">
       <Generator>MSBuild:Compile</Generator>

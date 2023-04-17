@@ -161,9 +161,6 @@ namespace FramePFX.ResourceManaging.Items {
         /// Deallocates media decoders and internal frames.
         /// </summary>
         public void ReleaseDecoder() {
-            if (this.decoder != null) { 
-                throw new Exception("Released decoder");
-            }
             this.decoder?.Dispose();
             this.decoder = null;
 

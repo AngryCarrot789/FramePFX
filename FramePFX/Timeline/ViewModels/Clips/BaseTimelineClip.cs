@@ -3,6 +3,7 @@ using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Timeline.Layer.Clips;
 using FramePFX.Timeline.ViewModels.Layer;
+using FramePFX.Utils;
 
 namespace FramePFX.Timeline.ViewModels.Clips {
     public abstract class BaseTimelineClip : BaseViewModel, IDisposable {
@@ -71,7 +72,9 @@ namespace FramePFX.Timeline.ViewModels.Clips {
             this.ThrowIfDisposed();
             try {
                 this.IsDisposing = true;
-                this.DisposeClip();
+                using (ExceptionStack stack = ExceptionStack.Push("Exception while disposing clip")) {
+                    this.DisposeClip(stack);
+                }
             }
             finally {
                 this.IsDisposed = true;
@@ -79,7 +82,7 @@ namespace FramePFX.Timeline.ViewModels.Clips {
             }
         }
 
-        protected virtual void DisposeClip() {
+        protected virtual void DisposeClip(ExceptionStack stack) {
 
         }
 

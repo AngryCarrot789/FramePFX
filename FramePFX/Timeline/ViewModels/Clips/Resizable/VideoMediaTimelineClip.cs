@@ -1,9 +1,12 @@
 using System;
+using System.Runtime.Remoting.Contexts;
 using System.Threading.Tasks;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Utils;
 using FramePFX.Render;
+using FramePFX.Render.OGL;
 using FramePFX.ResourceManaging.Items;
+using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
@@ -46,6 +49,10 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
                 return;
             }
 
+            if (this.texture == null) {
+                this.CreateTexture(vp.Context);
+            }
+
             // this.targetVp.SetTarget(vp);
             // TODO: i don't fully understand the FFmpeg library yet, but an optimisation could possibly be made for
             // TODO: the this.isTimelinePlaying field, so that it isn't seeking the frame and is instead fetching the next?
@@ -78,7 +85,7 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             GL.Disable(EnableCap.Texture2D);
         }
 
-        private void CreateTexture() {
+        private void CreateTexture(IRenderContext context) {
             //Select the smallest size from either clip or source for our temp frames
             Resolution sourceRes = this.Resource.GetResolution();
 
@@ -90,13 +97,14 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
                 frameH = sourceRes.Height;
             }
             this.frameRgb = new VideoFrame(frameW, frameH, PixelFormats.RGBA);
-            this.texture = new Texture(frameW, frameH);
+            this.texture = new Texture(context, frameW, frameH);
         }
 
         private void ResyncFrame(long frameNo) {
             if (this.texture == null) {
-                this.CreateTexture();
+                return;
             }
+
             double timeScale = this.Layer.Timeline.Project.FrameRate;
             TimeSpan timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin + this.FrameMediaOffset) / timeScale);
             VideoFrame frame = this.Resource.GetFrameAt(timestamp);
@@ -140,11 +148,44 @@ namespace FramePFX.Timeline.ViewModels.Clips.Resizable {
             this.texture.SetPixels<byte>(pixelData, 0, 0, this.frameRgb.Width, this.frameRgb.Height, PixelFormat.Rgba, PixelType.UnsignedByte, rowBytes / 4);
         }
 
-        protected override void DisposeClip() {
-            base.DisposeClip();
-            this.downloadedHwFrame?.Dispose();
-            this.frameRgb?.Dispose();
-            this.scaler?.Dispose();
+        protected override void DisposeClip(ExceptionStack stack) {
+            base.DisposeClip(stack);
+            try {
+                this.downloadedHwFrame?.Dispose();
+            }
+            catch(Exception e) {
+                stack.Push(new Exception("Exception while disposing downloaded frame", e));
+            }
+
+            try {
+                this.frameRgb?.Dispose();
+            }
+            catch (Exception e) {
+                stack.Push(new Exception("Exception while disposing current frame", e));
+            }
+
+            try {
+                this.scaler?.Dispose();
+            }
+            catch (Exception e) {
+                stack.Push(new Exception("Exception while disposing scaler", e));
+            }
+
+            if (this.texture == null) {
+                return;
+            }
+
+            if (!this.texture.Context.BeginUse(false)) {
+                stack.Push(new Exception("Failed to use texture context"));
+            }
+            else {
+                try {
+                    this.texture.Dispose();
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Exception while disposing scaler", e));
+                }
+            }
         }
 
         public override BaseTimelineClip CloneInstance() {

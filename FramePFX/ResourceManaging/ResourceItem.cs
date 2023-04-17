@@ -4,15 +4,26 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.ResourceManaging.Items;
+using FramePFX.Utils;
 
 namespace FramePFX.ResourceManaging {
     public class ResourceItem : BaseViewModel, IDisposable {
+        private ResourceManager manager;
         private string uniqueId;
         private bool isRegistered;
-        private ResourceManager manager;
+        private bool isDisposed;
+        private bool isDisposing;
 
         public delegate void ResourceModifiedHandler(string propetyName);
         public event ResourceModifiedHandler OnResourceModified;
+
+        /// <summary>
+        /// The manager associated with this item. If <see cref="IsRegistered"/> is false, then this should be null
+        /// </summary>
+        public ResourceManager Manager {
+            get => this.manager;
+            set => this.RaisePropertyChanged(ref this.manager, value);
+        }
 
         /// <summary>
         /// The unique ID of this item. There should not be any other resource items with this ID
@@ -31,20 +42,16 @@ namespace FramePFX.ResourceManaging {
         }
 
         /// <summary>
-        /// The manager associated with this item. If <see cref="IsRegistered"/> is false, then this should be null
+        /// Whether this resource is disposed or not
         /// </summary>
-        public ResourceManager Manager {
-            get => this.manager;
-            set => this.RaisePropertyChanged(ref this.manager, value);
-        }
-
-        private bool isDisposed;
         public bool IsDisposed {
             get => this.isDisposed;
             private set => this.RaisePropertyChanged(ref this.isDisposed, value);
         }
 
-        private bool isDisposing;
+        /// <summary>
+        /// Whether this resource is currently being disposed
+        /// </summary>
         public bool IsDisposing {
             get => this.isDisposing;
             private set => this.RaisePropertyChanged(ref this.isDisposing, value);
@@ -53,8 +60,12 @@ namespace FramePFX.ResourceManaging {
         public ICommand RenameCommand { get; }
 
         public ICommand DeleteCommand { get; }
-        
-        public INativeResource Resource { get; set; }
+
+        /// <summary>
+        /// Used to store a reference to the underlying control. This is mainly used to reduce the linear 
+        /// lookup that the ItemContainerGenerator has to do in order to map a view model to a control
+        /// </summary>
+        public IResourceControl Handle { get; set; }
 
         public ResourceItem() {
             this.RenameCommand = new RelayCommand(async () => await this.RenameAction());
@@ -66,7 +77,7 @@ namespace FramePFX.ResourceManaging {
         }
 
         public void RaiseResourceModifiedAuto([CallerMemberName] string propertyName = null) {
-            this.OnResourceModified?.Invoke(propertyName);
+            this.RaiseResourceModified(propertyName);
         }
 
         private Task RenameAction() {
@@ -81,7 +92,9 @@ namespace FramePFX.ResourceManaging {
             this.ThrowIfDisposed();
             try {
                 this.IsDisposing = true;
-                this.DisposeResource();
+                using (ExceptionStack stack = ExceptionStack.Push("Exception while disposing clip")) {
+                    this.DisposeResource(stack);
+                }
             }
             finally {
                 if (this.isDisposing) { // just in case setting IsDisposing throws for some weird reason
@@ -91,7 +104,7 @@ namespace FramePFX.ResourceManaging {
             }
         }
 
-        protected virtual void DisposeResource() {
+        protected virtual void DisposeResource(ExceptionStack stack) {
 
         }
 

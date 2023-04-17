@@ -1,5 +1,5 @@
 namespace FramePFX.ResourceManaging.Items {
-    public interface INativeResource {
+    public interface IResourceControl {
 
     }
 }

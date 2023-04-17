@@ -28,7 +28,7 @@ namespace FramePFX.ResourceManaging {
         }
 
         public bool GetClipControl(object item, out ResourceItemControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<ResourceItem, ResourceItemControl>(item, this.ItemContainerGenerator, x => x.Resource as ResourceItemControl)) != null;
+            return (clip = ICGenUtils.GetContainerForItem<ResourceItem, ResourceItemControl>(item, this.ItemContainerGenerator, x => x.Handle as ResourceItemControl)) != null;
         }
 
         public bool GetClipViewModel(object item, out ResourceItem clip) {
@@ -110,14 +110,14 @@ namespace FramePFX.ResourceManaging {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
             if (element is ResourceItemControl control && item is ResourceItem viewModel) {
-                viewModel.Resource = control;
+                viewModel.Handle = control;
             }
         }
 
         protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
             base.ClearContainerForItemOverride(element, item);
             if (item is ResourceItem viewModel) {
-                viewModel.Resource = null;
+                viewModel.Handle = null;
             }
         }
 

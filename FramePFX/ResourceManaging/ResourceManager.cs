@@ -12,6 +12,7 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Project;
 using FramePFX.ResourceManaging.Items;
+using ExceptionUtils = FramePFX.Core.Utils.ExceptionUtils;
 
 namespace FramePFX.ResourceManaging {
     /// <summary>
@@ -103,6 +104,13 @@ namespace FramePFX.ResourceManaging {
                     item.Manager = null;
                     this.items.Remove(item);
                     this.uuidToItem.Remove(item.UniqueID);
+
+                    try {
+                        item.Dispose();
+                    }
+                    catch (Exception e) {
+                        await CoreIoC.MessageDialogs.ShowMessageAsync("Error disposing item", $"Failed to dispose resource: {ExceptionUtils.ToString(e)}");
+                    }
                 }
                 else {
                     await CoreIoC.MessageDialogs.ShowMessageAsync("Error", "Resource does not match the dictionary item... this shouldn't be possible wtf?!?!");
@@ -157,6 +165,7 @@ namespace FramePFX.ResourceManaging {
                 resource.Manager = null;
                 this.items.Remove(resource);
                 this.uuidToItem.Remove(uuid);
+
                 return resource;
             }
             else {
@@ -184,13 +193,22 @@ namespace FramePFX.ResourceManaging {
                 return null;
             }
 
-            ResourceVideoMedia resource = new ResourceVideoMedia {
+            ResourceVideoMedia resource = new ResourceVideoMedia() {
                 FilePath = file
             };
 
+            try {
+                resource.ReloadMediaFromFile();
+            }
+            catch (Exception e) {
+                // throw e;
+                await CoreIoC.MessageDialogs.ShowMessageAsync("Failed to load media", $"Could not load media file: {file}\n{e}");
+                return null;
+            }
             if (!resource.IsValidMediaFile) {
-                resource.Dispose();
-                await CoreIoC.MessageDialogs.ShowMessageAsync("Failed to load image", $"Could not load image for file: {file}");
+                if (!resource.IsDisposed)
+                    resource.Dispose();
+                await CoreIoC.MessageDialogs.ShowMessageAsync("Failed to media", $"Could not load media file: {file}");
                 return null;
             }
 

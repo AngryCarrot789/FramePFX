@@ -130,7 +130,7 @@
     <Compile Include="Render\Texture.cs" />
     <Compile Include="ResourceLocator.cs" />
     <Compile Include="ResourceManaging\IResourceListHandle.cs" />
-    <Compile Include="ResourceManaging\Items\INativeResource.cs" />
+    <Compile Include="ResourceManaging\Items\IResourceControl.cs" />
     <Compile Include="ResourceManaging\Items\ResourceShapeColour.cs" />
     <Compile Include="ResourceManaging\Items\ResourceImage.cs" />
     <Compile Include="ResourceManaging\Items\ResourceText.cs" />
@@ -212,6 +212,7 @@
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
+    <Compile Include="Utils\ExceptionStack.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />

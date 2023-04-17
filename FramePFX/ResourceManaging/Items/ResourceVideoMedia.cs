@@ -1,27 +1,36 @@
 using System;
+using System.IO;
 using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Utils;
+using FramePFX.Utils;
 
 namespace FramePFX.ResourceManaging.Items {
     public class ResourceVideoMedia : ResourceItem {
         private string filePath;
         public string FilePath {
             get => this.filePath;
-            set {
-                this.RaisePropertyChanged(ref this.filePath, value);
-                this.ReopenDemuxer(); //TODO: is this the proper way?
-            }
+            set => this.RaisePropertyChanged(ref this.filePath, value);
         }
 
         public MediaDemuxer Demuxer { get; private set; }
 
         public bool IsValidMediaFile => this.Demuxer != null;
+
         public bool HasVideoStream => this.stream != null;
 
         private MediaStream stream;
         private VideoDecoder decoder;
         private FrameQueue frameQueue;
+        private bool hasHardwareDecoder;
+
+        public ResourceVideoMedia() {
+
+        }
+
+        public void ReloadMediaFromFile() {
+            this.ReopenDemuxer();
+        }
 
         public unsafe Resolution GetResolution() {
             if (this.HasVideoStream) {
@@ -40,6 +49,7 @@ namespace FramePFX.ResourceManaging.Items {
             if (!this.HasVideoStream) {
                 return null;
             }
+
             if (this.decoder == null) {
                 this.OpenDecoder();
             }
@@ -75,10 +85,9 @@ namespace FramePFX.ResourceManaging.Items {
                     }
                 }
 
-                //Fill-up the decoder with more data and try again
+                // Fill-up the decoder with more data and try again
                 using (var packet = new MediaPacket()) {
                     bool gotPacket = false;
-
                     while (this.Demuxer.Read(packet)) {
                         if (packet.StreamIndex == this.stream.Index) {
                             this.decoder.SendPacket(packet);
@@ -86,8 +95,9 @@ namespace FramePFX.ResourceManaging.Items {
                             break;
                         }
                     }
+
                     if (!gotPacket) {
-                        //Reached the end of the file
+                        // Reached the end of the file
                         return false;
                     }
                 }
@@ -100,55 +110,94 @@ namespace FramePFX.ResourceManaging.Items {
                 this.Demuxer = new MediaDemuxer(this.FilePath);
                 this.stream = this.Demuxer.FindBestStream(MediaTypes.Video);
             }
-            catch {
-                //Invalid media file
+            catch (Exception e) {
+                try {
+                    this.Dispose();
+                }
+                catch (Exception ex) {
+                    ExceptionUtils.AddSuppressed(e, ex);
+                }
+
+                // Invalid media file
+                throw new IOException("Failed to open demuxer", e);
+            }
+
+            if (this.stream == null) {
+                throw new Exception("Could not find a video stream for media");
             }
         }
 
         public void OpenDecoder() {
+            this.EnsureHasVideoStream();
             this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, open: false);
             this.frameQueue = new FrameQueue(this.stream, 2);
 
-            this.TrySetupHardwareDecoder();
+            this.hasHardwareDecoder = this.TrySetupHardwareDecoder();
             this.decoder.Open();
         }
 
-        private void TrySetupHardwareDecoder() {
+        private bool TrySetupHardwareDecoder() {
             if (this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P &&
                 this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P10LE
             ) {
                 //TODO: SetupHardwareAccelerator() will return NONE from get_format() rather than fallback to sw formats,
                 //      causing SendPacket() to throw with InvalidData for sources with unsupported hw pixel formats like YUV444.
-                return;
+                return false;
             }
 
             foreach (CodecHardwareConfig config in this.decoder.GetHardwareConfigs()) {
                 using (var device = HardwareDevice.Create(config.DeviceType)) {
                     if (device != null) {
                         this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
-                        break;
+                        return true;
                     }
                 }
             }
+
+            return false;
         }
 
         /// <summary>
         /// Deallocates media decoders and internal frames.
         /// </summary>
         public void ReleaseDecoder() {
+            if (this.decoder != null) { 
+                throw new Exception("Released decoder");
+            }
             this.decoder?.Dispose();
             this.decoder = null;
 
             this.frameQueue?.Dispose();
             this.frameQueue = null;
+
+            this.hasHardwareDecoder = false;
         }
 
-        protected override void DisposeResource() {
-            base.DisposeResource();
-            this.ReleaseDecoder();
+        protected override void DisposeResource(ExceptionStack stack) {
+            base.DisposeResource(stack);
 
-            this.Demuxer?.Dispose();
-            this.Demuxer = null;
+            try {
+                this.ReleaseDecoder();
+            }
+            catch (Exception e) {
+                stack.Push(new Exception("Failed to release decoder", e));
+            }
+
+            try {
+                this.Demuxer?.Dispose();
+            }
+            catch (Exception e) {
+                stack.Push(new Exception("Failed to dispose demuxer", e));
+            }
+            finally {
+                this.Demuxer = null;
+            }
+        }
+
+        protected void EnsureHasVideoStream() {
+            if (this.stream == null) {
+                throw new InvalidOperationException("No video stream is available");
+            }
         }
 
         //Rolling circular-buffer of `VideoFrame`s

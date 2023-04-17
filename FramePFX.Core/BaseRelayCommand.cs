@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Windows.Input;
 using FramePFX.Core.Utils;
-using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Core {
     /// <summary>

@@ -9,7 +9,10 @@ namespace FramePFX.Render {
         public int Width { get; }
         public int Height { get; }
 
-        public Texture(int width, int height, int levels = 1, SizedInternalFormat fmt = SizedInternalFormat.Rgba8) {
+        public IRenderContext Context { get; }
+
+        public Texture(IRenderContext context, int width, int height, int levels = 1, SizedInternalFormat fmt = SizedInternalFormat.Rgba8) {
+            this.Context = context;
             GL.CreateTextures(TextureTarget.Texture2D, 1, out int id);
             this.Id = id;
             this.Width = width;

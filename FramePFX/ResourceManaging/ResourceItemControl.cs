@@ -7,7 +7,7 @@ using System.Windows.Media;
 using FramePFX.ResourceManaging.Items;
 
 namespace FramePFX.ResourceManaging {
-    public class ResourceItemControl : ContentControl, INativeResource {
+    public class ResourceItemControl : ContentControl, IResourceControl {
         public static readonly DependencyProperty UniqueIDHeaderProperty =
             DependencyProperty.Register(
                 "UniqueIDHeader",

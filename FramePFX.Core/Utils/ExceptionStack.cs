@@ -46,6 +46,8 @@ namespace FramePFX.Core.Utils {
             ExceptionStack es = new ExceptionStack(exceptionMessage) {
                 ThrowOnDispose = throwOnDispose
             };
+
+            // this this even a remotely good idea? all usages just access the reference returned by this method
             Stack<ExceptionStack> stack = ThreadStackStorage.Value;
 
 #if DEBUG
@@ -64,7 +66,7 @@ namespace FramePFX.Core.Utils {
         /// Pushes an exception onto the top of the current exception stack
         /// </summary>
         /// <param name="exception"></param>
-        public static void PushCurrent(Exception exception) {
+        public static void AddToCurrent(Exception exception) {
             ExceptionStack stack;
             try {
                 stack = ThreadStackStorage.Value.Peek();
@@ -72,14 +74,14 @@ namespace FramePFX.Core.Utils {
             catch (Exception e) {
                 Exception ex = new Exception("No exception stack is present for this thread", e);
                 if (exception != null) // just in case...
-                    ExceptionUtils.AddSuppressed(ex, exception);
+                    ex.AddSuppressed(exception);
                 throw ex;
             }
 
-            stack.Push(exception);
+            stack.Add(exception);
         }
 
-        public void Push(Exception exception) {
+        public void Add(Exception exception) {
             if (exception != null) {
                 this.Exceptions.Add(exception);
             }

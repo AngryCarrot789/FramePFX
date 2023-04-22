@@ -2,11 +2,12 @@
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.Editor.Timeline.Layer.Clips;
+using FramePFX.Editor.Timeline.Utils;
+using FramePFX.Editor.Timeline.ViewModels.Clips;
 using FramePFX.Render.OGL;
-using FramePFX.Timeline.Layer.Clips;
-using FramePFX.Timeline.ViewModels.Clips;
 
-namespace FramePFX.Timeline.Controls {
+namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineVideoClipControl : BaseTimelineClipControl {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
@@ -102,7 +103,7 @@ namespace FramePFX.Timeline.Controls {
 
         public new VideoTimelineLayerControl Layer => this.ParentSelector as VideoTimelineLayerControl;
 
-        public TimelineVideoClip ViewModel => this.DataContext as TimelineVideoClip;
+        public PFXVideoClip ViewModel => this.DataContext as PFXVideoClip;
 
         public bool IsMovingControl { get; set; }
 
@@ -117,7 +118,7 @@ namespace FramePFX.Timeline.Controls {
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is TimelineVideoClip vm) {
+                if (args.NewValue is PFXVideoClip vm) {
                     vm.Handle = this;
                 }
             };

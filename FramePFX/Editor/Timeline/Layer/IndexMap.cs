@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FramePFX.Timeline.Layer {
+namespace FramePFX.Editor.Timeline.Layer {
     public class IndexMap<T> {
         public Dictionary<T, int> ValueToRealIndex { get; }
         public Dictionary<T, int> ValueToOrderedIndex { get; }

@@ -3,8 +3,9 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
+using FramePFX.Editor.Timeline.ViewModels.Layer;
+using FramePFX.Editor.ViewModels;
 using FramePFX.Render.OGL;
-using FramePFX.Timeline.ViewModels.Layer;
 using FramePFX.Views.Exceptions;
 
 namespace FramePFX.Views.Main {
@@ -12,14 +13,14 @@ namespace FramePFX.Views.Main {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        public VideoEditor Editor => this.DataContext as VideoEditor;
+        public PFXVideoEditor Editor => this.DataContext as PFXVideoEditor;
 
         public MainWindow() {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             this.Closed += this.OnClosed;
             this.Loaded += this.OnLoaded;
-            CoreIoC.BroadcastShortcutActivity = (x) => {
+            IoC.BroadcastShortcutActivity = (x) => {
 
             };
         }
@@ -46,23 +47,23 @@ namespace FramePFX.Views.Main {
         private void OnClosed(object sender, EventArgs e) {
             OGLUtils.ShutdownMainThread();
             // this.oglPort.Stop();
-            if (this.Editor is VideoEditor editor) {
-                editor.PlaybackView.isPlaybackThreadRunning = false;
+            if (this.Editor is PFXVideoEditor editor) {
+                editor.Playback.isPlaybackThreadRunning = false;
             }
         }
 
         private void ThumbTop(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is BaseTimelineLayer layer) {
+            if ((sender as Thumb)?.DataContext is PFXTimelineLayer layer) {
                 double layerHeight = layer.Height - e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
-                    if (layer.Timeline.GetPrevious(layer) is BaseTimelineLayer behind1) {
+                    if (layer.Timeline.GetPrevious(layer) is PFXTimelineLayer behind1) {
                         double behindHeight = behind1.Height + e.VerticalChange;
                         if (behindHeight < behind1.MinHeight || behindHeight > behind1.MaxHeight)
                             return;
                         behind1.Height = behindHeight;
                     }
                 }
-                else if (layer.Timeline.GetPrevious(layer) is BaseTimelineLayer behind2) {
+                else if (layer.Timeline.GetPrevious(layer) is PFXTimelineLayer behind2) {
                     double behindHeight = behind2.Height + e.VerticalChange;
                     if (behindHeight < behind2.MinHeight || behindHeight > behind2.MaxHeight) {
                         return;
@@ -75,7 +76,7 @@ namespace FramePFX.Views.Main {
         }
 
         private void ThumbBottom(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is BaseTimelineLayer layer) {
+            if ((sender as Thumb)?.DataContext is PFXTimelineLayer layer) {
                 double layerHeight = layer.Height + e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
                     return;
@@ -108,7 +109,7 @@ namespace FramePFX.Views.Main {
                 Method3();
             }
             catch (Exception e) {
-                stack.Push(new Exception("Failed to call method3", e));
+                stack.Add(new Exception("Failed to call method3", e));
                 try {
                     Method4();
                 }

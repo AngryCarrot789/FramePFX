@@ -1,4 +1,4 @@
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Editor.Timeline.Layer.Clips {
     public interface IAudioClip : IClip {
         void RenderAudioSomehow();
     }

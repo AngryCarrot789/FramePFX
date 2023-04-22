@@ -7,7 +7,7 @@ using FramePFX.ResourceManaging.Items;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
-    public class PFXVideoMediaClip : PFXAdjustableVideoClip, IDisposable {
+    public class PFXMPEGMediaClip : PFXAdjustableVideoClip, IDisposable {
         private ResourceMedia resource;
         public ResourceMedia Resource {
             get => this.resource;
@@ -25,7 +25,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
         private Task catchUpTask;
         private readonly WeakReference<IViewPort> targetVp = new WeakReference<IViewPort>(null);
 
-        public PFXVideoMediaClip() {
+        public PFXMPEGMediaClip() {
             this.UseScaledRender = true;
         }
 
@@ -185,15 +185,13 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
             }
         }
 
-        public override BaseTimelineClip NewInstanceOverride() {
-            PFXVideoMediaClip clip = new PFXVideoMediaClip();
-            this.LoadDataIntoClone(clip);
-            return clip;
+        public override PFXBaseClip NewInstanceOverride() {
+            return new PFXMPEGMediaClip();
         }
 
-        public override void LoadDataIntoClone(BaseTimelineClip clone) {
+        public override void LoadDataIntoClone(PFXBaseClip clone) {
             base.LoadDataIntoClone(clone);
-            if (clone is PFXVideoMediaClip clip) {
+            if (clone is PFXMPEGMediaClip clip) {
                 clip.resource = this.resource;
             }
         }

@@ -1,6 +1,7 @@
-using FramePFX.Timeline.ViewModels.Clips;
+using FramePFX.Editor.Timeline.Utils;
+using FramePFX.Editor.Timeline.ViewModels.Clips;
 
-namespace FramePFX.Timeline.ViewModels.Layer.Removals {
+namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
     public readonly struct VideoClipCut {
         /// <summary>
         /// The clip's old span
@@ -19,7 +20,7 @@ namespace FramePFX.Timeline.ViewModels.Layer.Removals {
         /// </summary>
         public FrameSpan? CutRight { get; }
 
-        public TimelineVideoClip Clip { get; }
+        public PFXVideoClip Clip { get; }
 
         public bool IsClipRemoved {
             get {
@@ -45,7 +46,7 @@ namespace FramePFX.Timeline.ViewModels.Layer.Removals {
             }
         }
 
-        public VideoClipCut(FrameSpan oldSpan, FrameSpan? cutLeft, FrameSpan? cutRight, TimelineVideoClip clip) {
+        public VideoClipCut(FrameSpan oldSpan, FrameSpan? cutLeft, FrameSpan? cutRight, PFXVideoClip clip) {
             this.OldSpan = oldSpan;
             this.CutLeft = cutLeft;
             this.CutRight = cutRight;

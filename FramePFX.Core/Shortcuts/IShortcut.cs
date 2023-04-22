@@ -5,7 +5,7 @@ using FramePFX.Core.Shortcuts.Usage;
 
 namespace FramePFX.Core.Shortcuts {
     /// <summary>
-    /// The base class for all shortcuts
+    /// The base class for all shortcuts. Shortcuts are immutable
     /// </summary>
     public interface IShortcut {
         /// <summary>

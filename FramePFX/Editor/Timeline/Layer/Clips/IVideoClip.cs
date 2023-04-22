@@ -1,6 +1,6 @@
 using FramePFX.Render;
 
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Editor.Timeline.Layer.Clips {
     /// <summary>
     /// A clip that can render to a view port at a specific point in time (in the timeline)
     /// </summary>

@@ -5,13 +5,14 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:viewModels="clr-namespace:FramePFX.ResourceManaging.ViewModels"
+                    xmlns:ui="clr-namespace:FramePFX.ResourceManaging.UI"
                     mc:Ignorable="d">
     <ContextMenu x:Key="SharedResourceItemContextMenu" x:Shared="True" d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}">
         <MenuItem Header="Rename" Command="{Binding RenameCommand, Mode=OneTime}"/>
         <MenuItem Header="Delete" Command="{Binding DeleteCommand, Mode=OneTime}"/>
     </ContextMenu>
 
-    <Style TargetType="local:ResourceListControl">
+    <Style TargetType="ui:ResourceListControl">
         <Setter Property="Background" Value="{DynamicResource ListBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Static.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
@@ -24,7 +25,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:ResourceListControl}">
+                <ControlTemplate TargetType="{x:Type ui:ResourceListControl}">
                     <Border x:Name="Bd" Padding="1" SnapsToDevicePixels="true"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
@@ -50,7 +51,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="{x:Type local:ResourceItemControl}">
+    <Style TargetType="{x:Type ui:ResourceItemControl}">
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
@@ -62,7 +63,7 @@
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:ResourceItemControl}">
+                <ControlTemplate TargetType="{x:Type ui:ResourceItemControl}">
                     <Border x:Name="Bd" Width="150" Height="100" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
                         <Grid>
                             <Border VerticalAlignment="Bottom" Height="24" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding HeaderBackground}" BorderThickness="0 1 0 0">

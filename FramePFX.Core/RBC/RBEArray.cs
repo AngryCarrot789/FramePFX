@@ -1,8 +1,22 @@
 using System;
 using System.IO;
-using System.Runtime.ExceptionServices;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.RBC {
+    public enum LengthReadStrategy {
+        /// <summary>
+        /// Appends a byte, short, int or long before the data to indicate the length.
+        /// This is fixed per RBE type and does not change, and is therefore the easiest to implement
+        /// </summary>
+        LazyLength,
+        /// <summary>
+        /// Uses the first two bits to determine how many additional bytes to read to discover the length. This is used to
+        /// compress the data as much as possible, but is harder to implement and typically slower to read/write, and can
+        /// sometimes result in more data being used overall (255 >> 2 == 63, meaning if you need 64 values, you need 2 bytes to store 64)
+        /// </summary>
+        SegmentedLength
+    }
+
     /// <summary>
     /// Used to store an array of bytes (unsigned)
     /// </summary>
@@ -36,6 +50,11 @@ namespace FramePFX.Core.RBC {
             else {
                 writer.Write(0);
             }
+        }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEByteArray Clone() {
+            return new RBEByteArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
 
@@ -74,6 +93,11 @@ namespace FramePFX.Core.RBC {
             else {
                 writer.Write(0);
             }
+        }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEShortArray Clone() {
+            return new RBEShortArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
 
@@ -119,6 +143,11 @@ namespace FramePFX.Core.RBC {
                 writer.Write(0);
             }
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEIntArray Clone() {
+            return new RBEIntArray(Arrays.CloneArrayUnsafe(this.Array));
+        }
     }
 
     public class RBELongArray : RBEBase {
@@ -160,6 +189,11 @@ namespace FramePFX.Core.RBC {
                 writer.Write(0);
             }
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBELongArray Clone() {
+            return new RBELongArray(Arrays.CloneArrayUnsafe(this.Array));
+        }
     }
 
     public class RBEFloatArray : RBEBase {
@@ -197,6 +231,11 @@ namespace FramePFX.Core.RBC {
             else {
                 writer.Write(0);
             }
+        }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEFloatArray Clone() {
+            return new RBEFloatArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
 
@@ -236,6 +275,11 @@ namespace FramePFX.Core.RBC {
                 writer.Write(0);
             }
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEDoubleArray Clone() {
+            return new RBEDoubleArray(Arrays.CloneArrayUnsafe(this.Array));
+        }
     }
 
     public class RBEStructArray : RBEBase {
@@ -260,41 +304,49 @@ namespace FramePFX.Core.RBC {
                 throw new InvalidOperationException("Array has not been set yet");
             }
 
+            // could possibly optimise this; use 2 bits to indicate the size type:
+            // byte,short,int,long (long is a bit excessive though)
+            // then bitshift the actual size by 2, cast to size type, and write?
             writer.Write(this.data.Length);
             writer.Write(this.data);
         }
 
         public T[] GetValues<T>() where T : unmanaged {
             unsafe {
-                if (this.data == null) {
+                byte[] array = this.data;
+                if (array == null) {
                     throw new Exception("Binary data has not been read yet");
                 }
 
                 int size = sizeof(T);
-                if ((this.data.Length % size) != 0) {
-                    throw new Exception($"Binary data size is inconsistent with the struct size ({this.data.Length} % {size}) != 0");
+                if ((array.Length % size) != 0) {
+                    throw new Exception($"Binary data size is inconsistent with the struct size (binary({array.Length}) % struct({size})) != 0");
                 }
 
-                T[] array = new T[this.data.Length / size];
-                for (int i = 0, j = 0; i < array.Length; i++, j += size) {
-                    T value = new T();
-                    BinaryUtils.CopyArray(this.data, j, (byte*) &value, 0, size);
-                    array[i] = value;
+                int len = array.Length / size;
+                T[] values = new T[len];
+                for (int i = 0, offset = 0; i < len; i++, offset += size) {
+                    values[i] = RBEStruct.ReadStruct<T>(array, offset, size);
                 }
 
-                return array;
+                return values;
             }
         }
 
         public void SetValues<T>(T[] values) where T : unmanaged {
             unsafe {
-                int size = sizeof(T), length = values.Length;
-                this.data = new byte[size * length];
-                for (int i = 0, j = 0; i < length; i++, j += size) {
-                    T value = values[i];
-                    BinaryUtils.WriteArray((byte*) &value, 0, this.data, j, size);
+                int size = sizeof(T);
+                int length = values.Length;
+                byte[] array = this.data = new byte[size * length];
+                for (int i = 0, offset = 0; i < length; i++, offset += size) {
+                    RBEStruct.WriteStruct(values[i], array, offset, size);
                 }
             }
+        }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEStructArray Clone() {
+            return new RBEStructArray { data = Arrays.CloneArrayUnsafe(this.data) };
         }
     }
 }

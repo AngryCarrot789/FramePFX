@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Media;
 
-namespace FramePFX.Timeline.ViewModels.Layer {
+namespace FramePFX.Editor.Timeline.ViewModels.Layer {
     public static class LayerColours {
         private static readonly Random random = new Random();
 

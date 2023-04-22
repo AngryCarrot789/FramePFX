@@ -8,11 +8,11 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core {
-    public static class CoreIoC {
+    public static class IoC {
         public static SimpleIoC Instance { get; } = new SimpleIoC();
 
         public static ActionManager ActionManager { get; } = new ActionManager();
-        public static Action<string> OnShortcutManagedChanged { get; set; }
+        public static Action<string> OnShortcutModified { get; set; }
         public static Action<string> BroadcastShortcutActivity { get; set; }
 
         public static IDispatcher Dispatcher { get; set; }

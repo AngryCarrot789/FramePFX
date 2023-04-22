@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
-using FramePFX.Timeline.ViewModels;
+using FramePFX.Editor.Timeline.ViewModels;
 
-namespace FramePFX.Timeline.Actions {
+namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.NewVideoLayer")]
     public class NewVideoLayerAction : AnAction {
         public NewVideoLayerAction() : base(() => "New video layer", () => "Creates a new video layer for video clips") {
@@ -11,10 +11,10 @@ namespace FramePFX.Timeline.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
+            PFXTimeline timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
                 if (e.IsUserInitiated) {
-                    await CoreIoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to add a new video layer");
+                    await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to add a new video layer");
                 }
 
                 return true;
@@ -22,7 +22,7 @@ namespace FramePFX.Timeline.Actions {
 
             string name = null;
             if (e.IsUserInitiated) {
-                name = CoreIoC.UserInput.ShowSingleInputDialog("New video layer", "Input a layer name:", "New Layer", timeline.LayerNameValidator);
+                name = IoC.UserInput.ShowSingleInputDialog("New video layer", "Input a layer name:", "New Layer", timeline.LayerNameValidator);
                 if (string.IsNullOrEmpty(name)) {
                     return true;
                 }

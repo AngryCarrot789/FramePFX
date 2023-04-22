@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using FramePFX.Views;
 
-namespace FramePFX.Project.EditorDialogs {
+namespace FramePFX.Editor.Project.EditorDialogs {
     /// <summary>
     /// Interaction logic for ProjectSettingsEditorWindow.xaml
     /// </summary>

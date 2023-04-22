@@ -16,6 +16,7 @@ namespace FramePFX.ResourceManaging.Items {
         }
 
         public void LoadImageData(string path) {
+            this.EnsureNotDisposed();
             this.ImageData = Image.Load<Bgra32>(path);
         }
 

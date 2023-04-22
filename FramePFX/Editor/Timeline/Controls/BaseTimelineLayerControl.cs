@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core.Utils;
+using FramePFX.Editor.Timeline.Layer;
+using FramePFX.Editor.Timeline.Utils;
+using FramePFX.Editor.Timeline.ViewModels.Layer;
 using FramePFX.ResourceManaging.ViewModels;
-using FramePFX.Timeline.Layer;
-using FramePFX.Timeline.ViewModels.Layer;
 
-namespace FramePFX.Timeline.Controls {
+namespace FramePFX.Editor.Timeline.Controls {
     public class BaseTimelineLayerControl : MultiSelector, ILayerHandle {
         public static readonly DependencyProperty ResourceDropNotifierProperty =
             DependencyProperty.Register(
@@ -50,7 +51,7 @@ namespace FramePFX.Timeline.Controls {
             set => this.timeline = value;
         }
 
-        public BaseTimelineLayer ViewModel => this.DataContext as BaseTimelineLayer;
+        public PFXTimelineLayer ViewModel => this.DataContext as PFXTimelineLayer;
 
         protected bool isUpdatingUnitZoom;
         protected TimelineControl timeline;
@@ -58,7 +59,7 @@ namespace FramePFX.Timeline.Controls {
         public BaseTimelineLayerControl() {
             this.CanSelectMultipleItems = true;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is BaseTimelineLayer vm) {
+                if (args.NewValue is PFXTimelineLayer vm) {
                     vm.Control = this;
                 }
             };

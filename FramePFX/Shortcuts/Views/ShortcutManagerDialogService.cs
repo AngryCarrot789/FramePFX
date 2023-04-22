@@ -13,8 +13,7 @@ namespace FramePFX.Shortcuts.Views {
             }
 
             this.window = new ShortcutEditorWindow();
-            ShortcutManagerViewModel manager = new ShortcutManagerViewModel();
-            manager.LoadFromRoot(WPFShortcutManager.Instance.Root);
+            ShortcutManagerViewModel manager = new ShortcutManagerViewModel(WPFShortcutManager.Instance);
             this.window.DataContext = manager;
             this.window.Closed += (sender, args) => {
                 this.window = null;

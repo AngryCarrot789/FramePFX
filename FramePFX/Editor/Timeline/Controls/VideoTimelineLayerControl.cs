@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using FramePFX.Timeline.Layer;
-using FramePFX.Timeline.Layer.Clips;
-using FramePFX.Timeline.ViewModels.Clips;
-using FramePFX.Timeline.ViewModels.Layer;
+using FramePFX.Editor.Timeline.Layer;
+using FramePFX.Editor.Timeline.Layer.Clips;
+using FramePFX.Editor.Timeline.Utils;
+using FramePFX.Editor.Timeline.ViewModels.Clips;
+using FramePFX.Editor.Timeline.ViewModels.Layer;
 
-namespace FramePFX.Timeline.Controls {
+namespace FramePFX.Editor.Timeline.Controls {
     public class VideoTimelineLayerControl : BaseTimelineLayerControl {
 
         //           Width
@@ -69,11 +70,11 @@ namespace FramePFX.Timeline.Controls {
         }
 
         public bool GetClipControl(object item, out TimelineVideoClipControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<TimelineVideoClip, TimelineVideoClipControl>(item, this.ItemContainerGenerator, x => x.Handle as TimelineVideoClipControl)) != null;
+            return (clip = ICGenUtils.GetContainerForItem<PFXVideoClip, TimelineVideoClipControl>(item, this.ItemContainerGenerator, x => x.Handle as TimelineVideoClipControl)) != null;
         }
 
-        public bool GetClipViewModel(object item, out TimelineVideoClip videoClip) {
-            return ICGenUtils.GetItemForContainer<TimelineVideoClipControl, TimelineVideoClip>(item, this.ItemContainerGenerator, x => x.ViewModel, out videoClip);
+        public bool GetClipViewModel(object item, out PFXVideoClip videoClip) {
+            return ICGenUtils.GetItemForContainer<TimelineVideoClipControl, PFXVideoClip>(item, this.ItemContainerGenerator, x => x.ViewModel, out videoClip);
         }
 
         public IEnumerable<TimelineVideoClipControl> GetClipControls() {
@@ -84,9 +85,9 @@ namespace FramePFX.Timeline.Controls {
             }
         }
 
-        public IEnumerable<TimelineVideoClip> GetClipViewModels() {
+        public IEnumerable<PFXVideoClip> GetClipViewModels() {
             foreach (object item in this.Items) {
-                if (this.GetClipViewModel(item, out TimelineVideoClip clip)) {
+                if (this.GetClipViewModel(item, out PFXVideoClip clip)) {
                     yield return clip;
                 }
             }
@@ -100,9 +101,9 @@ namespace FramePFX.Timeline.Controls {
             }
         }
 
-        public IEnumerable<TimelineVideoClip> GetSelectedClipViewModels() {
+        public IEnumerable<PFXVideoClip> GetSelectedClipViewModels() {
             foreach (object item in this.SelectedItems) {
-                if (this.GetClipViewModel(item, out TimelineVideoClip clip)) {
+                if (this.GetClipViewModel(item, out PFXVideoClip clip)) {
                     yield return clip;
                 }
             }
@@ -121,7 +122,7 @@ namespace FramePFX.Timeline.Controls {
             return list;
         }
 
-        public bool GetViewModel(out BaseTimelineLayer timelineLayer) {
+        public bool GetViewModel(out PFXTimelineLayer timelineLayer) {
             return (timelineLayer = this.ViewModel) != null;
         }
 
@@ -136,7 +137,7 @@ namespace FramePFX.Timeline.Controls {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
             if (element is IClipHandle clip) {
-                if (item is TimelineVideoClip viewModel) {
+                if (item is PFXVideoClip viewModel) {
                     viewModel.Handle = clip;
                 }
             }
@@ -242,8 +243,8 @@ namespace FramePFX.Timeline.Controls {
         }
 
         public void MakeTopElement(TimelineVideoClipControl control) {
-            BaseTimelineLayer timelineLayer = this.ViewModel;
-            TimelineVideoClip container;
+            PFXTimelineLayer timelineLayer = this.ViewModel;
+            PFXVideoClip container;
             if (timelineLayer != null && (container = control.ViewModel) != null) {
                 timelineLayer.MakeTopMost(container);
             }

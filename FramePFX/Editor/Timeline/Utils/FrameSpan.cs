@@ -1,7 +1,9 @@
 using System;
 
-namespace FramePFX.Editor.Timeline {
-    public readonly struct FrameSpan {
+namespace FramePFX.Editor.Timeline.Utils {
+    public readonly struct FrameSpan : IEquatable<FrameSpan> {
+        public static readonly FrameSpan Empty = new FrameSpan(0, 0);
+
         /// <summary>
         /// The beginning of this span (inclusive index). This value may be negative (which isn't a valid span value, but is allowed anyway)
         /// </summary>
@@ -19,9 +21,10 @@ namespace FramePFX.Editor.Timeline {
             get => this.Begin + this.Duration;
         }
 
-        public static FrameSpan Empty => new FrameSpan(0, 0);
-
-        public bool IsEmpty => this.Begin == 0 && this.Duration == 0;
+        /// <summary>
+        /// Whether this span's duration is zero or not. An empty span has no frames, irregardless of the begin frame
+        /// </summary>
+        public bool IsEmpty => this.Duration == 0;
 
         public FrameSpan(long begin, long duration) {
             this.Begin = begin;
@@ -96,6 +99,20 @@ namespace FramePFX.Editor.Timeline {
 
         public override string ToString() {
             return $"{this.Begin} -> {this.EndIndex} ({this.Duration})";
+        }
+
+        public bool Equals(FrameSpan other) {
+            return this.Begin == other.Begin && this.Duration == other.Duration;
+        }
+
+        public override bool Equals(object obj) {
+            return obj is FrameSpan other && this.Equals(other);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                return (this.Begin.GetHashCode() * 397) ^ this.Duration.GetHashCode();
+            }
         }
     }
 }

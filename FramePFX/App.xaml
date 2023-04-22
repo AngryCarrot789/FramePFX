@@ -9,8 +9,8 @@
                 <ResourceDictionary Source="Themes/SoftDark.xaml"/>
                 <ResourceDictionary Source="Themes/ControlColours.xaml"/>
                 <ResourceDictionary Source="Themes/Controls.xaml"/>
-                <ResourceDictionary Source="Timeline/TimelineStyles.xaml"/>
-                <ResourceDictionary Source="ResourceManaging/ResManagerStyles.xaml"/>
+                <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml"/>
+                <ResourceDictionary Source="ResourceManaging/UI/ResManagerStyles.xaml"/>
                 <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

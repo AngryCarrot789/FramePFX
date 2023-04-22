@@ -1,7 +1,7 @@
 using System;
-using FramePFX.Timeline.Controls;
+using FramePFX.Editor.Timeline.Controls;
 
-namespace FramePFX.Timeline.Layer.Clips {
+namespace FramePFX.Editor.Timeline.Layer.Clips {
     public class ClipDragData {
         public TimelineControl Timeline { get; }
         public TimelineVideoClipControl Clip { get; }

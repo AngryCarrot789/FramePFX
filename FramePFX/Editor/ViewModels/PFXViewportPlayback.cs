@@ -7,13 +7,12 @@ using FramePFX.Core;
 using FramePFX.Editor.Project.ViewModels;
 using FramePFX.Editor.Timeline.ViewModels;
 using FramePFX.Editor.Timeline.ViewModels.Clips;
-using FramePFX.NewEditor;
 using FramePFX.Render;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Editor.ViewModels {
-    public class ViewportPlaybackViewModel : BaseViewModel {
+    public class PFXViewportPlayback : BaseViewModel {
         private volatile bool isPlaying;
         public bool IsPlaying {
             get => this.isPlaying;
@@ -29,7 +28,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public RelayCommand PauseCommand { get; set; }
 
-        public VideoEditorViewModel Editor { get; }
+        public PFXVideoEditor Editor { get; }
 
         public IViewPort ViewPortHandle { get; set; }
 
@@ -39,7 +38,7 @@ namespace FramePFX.Editor.ViewModels {
         public volatile bool isPlaybackThreadRunning;
         public readonly NumberAverager playbackAverageIntervalMS = new NumberAverager(10);
 
-        public ViewportPlaybackViewModel(VideoEditorViewModel editor) {
+        public PFXViewportPlayback(PFXVideoEditor editor) {
             this.Editor = editor;
             this.PlayPauseCommand = new RelayCommand(() => {
                 if (this.IsPlaying) {
@@ -75,10 +74,10 @@ namespace FramePFX.Editor.ViewModels {
 
         public void RenderTimeline(PFXTimeline timeline, long playHead, IViewPort view) {
             if (view != null && view.BeginRender(true)) {
-                List<BaseTimelineClip> clips = timeline.GetClipsAtFrame(playHead).ToList();
+                List<PFXBaseClip> clips = timeline.GetClipsAtFrame(playHead).ToList();
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 // TODO: change this to support layer opacity. And also move to shaders because this glVertex3f old stuff it no good
-                foreach (BaseTimelineClip clip in clips) {
+                foreach (PFXBaseClip clip in clips) {
                     if (clip is PFXVideoClip videoClip) {
                         videoClip.Render(view, playHead);
                     }

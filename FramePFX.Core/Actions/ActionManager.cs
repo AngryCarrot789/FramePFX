@@ -8,7 +8,7 @@ namespace FramePFX.Core.Actions {
     public class ActionManager {
         private readonly Dictionary<string, LinkedList<GlobalPresentationUpdateHandler>> updateEventMap;
 
-        public static ActionManager Instance => CoreIoC.ActionManager;
+        public static ActionManager Instance => IoC.ActionManager;
 
         private readonly Dictionary<string, AnAction> actions;
 
@@ -90,7 +90,7 @@ namespace FramePFX.Core.Actions {
             ValidateContext(context);
             if (this.actions.TryGetValue(id, out AnAction action)) {
                 AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
-                return action.ExecuteAsync(args); // maybe handle exceptions with an error message if isUserInitiated is false?
+                return action.ExecuteAsync(args);
             }
             else {
                 return this.GetNoSuchActionResult(id, context);

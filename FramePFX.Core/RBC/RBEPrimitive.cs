@@ -21,6 +21,9 @@ namespace FramePFX.Core.RBC {
         public override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEByte Clone() => new RBEByte(this.Value);
     }
 
     public class RBEShort : RBEBase {
@@ -43,6 +46,9 @@ namespace FramePFX.Core.RBC {
         public override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEShort Clone() => new RBEShort(this.Value);
     }
 
     public class RBEInt : RBEBase {
@@ -65,6 +71,9 @@ namespace FramePFX.Core.RBC {
         public override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEInt Clone() => new RBEInt(this.Value);
     }
 
     public class RBELong : RBEBase {
@@ -87,6 +96,9 @@ namespace FramePFX.Core.RBC {
         public override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBELong Clone() => new RBELong(this.Value);
     }
 
     public class RBEFloat : RBEBase {
@@ -109,6 +121,9 @@ namespace FramePFX.Core.RBC {
         public override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEFloat Clone() => new RBEFloat(this.Value);
     }
 
     public class RBEDouble : RBEBase {
@@ -131,5 +146,8 @@ namespace FramePFX.Core.RBC {
         public override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
+
+        public override RBEBase CloneCore() => this.Clone();
+        public RBEDouble Clone() => new RBEDouble(this.Value);
     }
 }

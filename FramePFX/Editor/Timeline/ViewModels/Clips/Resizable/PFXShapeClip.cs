@@ -3,7 +3,7 @@ using FramePFX.ResourceManaging.Items;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
-    public class ShapeTimelineClip : PFXAdjustableVideoClip {
+    public class PFXShapeClip : PFXAdjustableVideoClip {
         private ResourceRGBA resource;
         public ResourceRGBA Resource {
             get => this.resource;
@@ -25,7 +25,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
 
         public float A => this.resource?.A ?? 1f;
 
-        public ShapeTimelineClip() {
+        public PFXShapeClip() {
             this.UseScaledRender = true;
         }
 
@@ -45,13 +45,13 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
             GL.End();
         }
 
-        protected override BaseTimelineClip NewInstanceOverride() {
-            return new ShapeTimelineClip();
+        public override PFXBaseClip NewInstanceOverride() {
+            return new PFXShapeClip();
         }
 
-        public override void LoadDataIntoClone(BaseTimelineClip clone) {
+        public override void LoadDataIntoClone(PFXBaseClip clone) {
             base.LoadDataIntoClone(clone);
-            if (clone is ShapeTimelineClip clip) {
+            if (clone is PFXShapeClip clip) {
                 clip.resource = this.resource;
             }
         }

@@ -1,12 +1,11 @@
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Utils;
-using FramePFX.Editor.Project;
 using FramePFX.Editor.Project.ViewModels;
 using FramePFX.Render;
 
 namespace FramePFX.Editor.ViewModels {
-    public class VideoEditorViewModel : BaseViewModel {
+    public class PFXVideoEditor : BaseViewModel {
         public PFXViewportPlayback Playback { get; }
 
         private PFXProject activeProject;
@@ -17,7 +16,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public ICommand NewProjectCommand { get; }
 
-        public VideoEditorViewModel() {
+        public PFXVideoEditor() {
             this.Playback = new PFXViewportPlayback(this);
             this.NewProjectCommand = new RelayCommand(this.NewProjectAction);
         }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Core.Resources {
+namespace FramePFX.ResourceManaging {
     public class ResourceManager {
         private readonly Dictionary<string, ResourceItem> uuidToItem;
 
@@ -15,13 +15,23 @@ namespace FramePFX.Core.Resources {
             ValidateId(id);
             this.uuidToItem.TryGetValue(id, out ResourceItem oldItem);
             this.uuidToItem[id] = item;
+            item.Id = id;
             return oldItem;
         }
 
         public ResourceItem RemoveItem(string id) {
-            ValidateId(id);
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("ID cannot be null, empty or consist of entirely whitespaces", nameof(id));
             this.uuidToItem.TryGetValue(id, out ResourceItem item);
             return this.uuidToItem.Remove(id) ? item : null;
+        }
+
+        public bool RemoveItem(ResourceItem item) {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
+            if (string.IsNullOrWhiteSpace(item.Id))
+                throw new ArgumentException("Item ID cannot be null, empty or consist of entirely whitespaces", nameof(item));
+            return this.uuidToItem.Remove(item.Id);
         }
 
         public bool RenameResource(ResourceItem item, string newId) {
@@ -65,10 +75,22 @@ namespace FramePFX.Core.Resources {
             }
         }
 
-        public bool IsRegistered(ResourceItem item) {
+        public ResourceItem GetResource(string id) {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("New ID cannot be null, empty or consist of entirely whitespaces", nameof(id));
+            return this.uuidToItem.TryGetValue(id, out ResourceItem item) ? item : null;
+        }
+
+        public bool ResourceExists(string id) {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("New ID cannot be null, empty or consist of entirely whitespaces", nameof(id));
+            return this.uuidToItem.ContainsKey(id);
+        }
+
+        public bool ResourceExists(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
-            return !string.IsNullOrWhiteSpace(item.Id) && this.uuidToItem.ContainsKey(item.Id);
+            return this.ResourceExists(item.Id);
         }
     }
 }

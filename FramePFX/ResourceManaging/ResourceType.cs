@@ -1,3 +1,7 @@
 namespace FramePFX.ResourceManaging {
-    public enum ResourceType {  }
+    public enum ResourceType {
+        Video,
+        Image,
+        Audio
+    }
 }

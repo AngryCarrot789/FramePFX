@@ -14,7 +14,8 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
     /// A container for a clip. This is used only to contain a "clip". Checking whether
     /// this is a video or an audio clip can be done by accessing <see cref="Content"/>
     /// </summary>
-    public abstract class PFXVideoClip : BaseTimelineClip, IContextProvider, IVideoClip {
+    // heh... XVideoClip
+    public abstract class PFXVideoClip : PFXBaseClip, IContextProvider, IVideoClip {
         protected bool ignoreMarkRender;
         protected long frameBegin;
         protected long frameDuration;
@@ -64,13 +65,14 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         /// the right side is decremented by the duration of the left clip
         /// </para>
         /// </summary>
+        // TODO: Implement this with the left thumb + media clips. Should it be negative or positive when dragged right?
         public long FrameMediaOffset {
             get => this.frameMediaOffset;
             set => this.RaisePropertyChanged(ref this.frameMediaOffset, value);
         }
 
         public FrameSpan Span {
-            get => new FrameSpan(this.FrameBegin, this.FrameDuration);
+            get => new FrameSpan(this.frameBegin, this.frameDuration);
             set {
                 this.frameBegin = value.Begin;
                 this.frameDuration = value.Duration;
@@ -80,7 +82,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
             }
         }
 
-        public VideoTimelineLayer VideoLayer => (VideoTimelineLayer) base.Layer;
+        public PFXVideoLayer VideoLayer => (PFXVideoLayer) base.Layer;
 
         protected PFXVideoClip() {
 
@@ -105,16 +107,12 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
             }
         }
 
-        public void InvalidateRender() {
-            this.InvalidateRender(false);
-        }
-
-        public void InvalidateRender(bool useCurrentThread) {
+        public void InvalidateRender(bool useCurrentThread = false) {
             if (this.ignoreMarkRender || this.Layer == null) {
                 return;
             }
 
-            ViewportPlaybackViewModel editor = this.Layer.Timeline.PlaybackViewport;
+            PFXViewportPlayback editor = this.Layer.Timeline.PlaybackViewport;
             if (!editor.IsPlaying && editor.IsReadyForRender()) {
                 this.Layer.Timeline.ScheduleRender(useCurrentThread);
             }
@@ -126,12 +124,22 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
             return list;
         }
 
-        public override void LoadDataIntoClone(BaseTimelineClip clone) {
+        public override void LoadDataIntoClone(PFXBaseClip clone) {
             base.LoadDataIntoClone(clone);
             if (clone is PFXVideoClip clip) {
                 clip.frameBegin = this.frameBegin;
                 clip.frameDuration = this.frameDuration;
                 clip.frameMediaOffset = this.frameMediaOffset;
+            }
+        }
+
+        public override void OnRemoving(PFXTimelineLayer layer) {
+            this.ignoreMarkRender = true;
+            try {
+                base.OnRemoving(layer);
+            }
+            finally {
+                this.ignoreMarkRender = false;
             }
         }
     }

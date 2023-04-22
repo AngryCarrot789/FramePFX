@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using FramePFX.Editor.Timeline.Controls;
 using FramePFX.Editor.Timeline.Layer.Clips;
 
-namespace FramePFX.Editor.Timeline {
+namespace FramePFX.Editor.Timeline.Utils {
     public class TimelineClipDragData {
         public TimelineControl Timeline { get; }
         public List<ClipDragData> DragClips { get; }

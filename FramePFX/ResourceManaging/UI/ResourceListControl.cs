@@ -5,10 +5,11 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Interactivity;
+using FramePFX.Editor.Timeline.Utils;
 using FramePFX.ResourceManaging.ViewModels;
-using FramePFX.Timeline;
+using ResourceManagerViewModel = FramePFX.ResourceManaging.ViewModels.ResourceManagerViewModel;
 
-namespace FramePFX.ResourceManaging {
+namespace FramePFX.ResourceManaging.UI {
     public class ResourceListControl : MultiSelector, IResourceListHandle {
         public static readonly DependencyProperty FileDropNotifierProperty = DependencyProperty.Register("FileDropNotifier", typeof(IFileDropNotifier), typeof(ResourceListControl), new PropertyMetadata(null));
 
@@ -87,7 +88,7 @@ namespace FramePFX.ResourceManaging {
 
         protected override async void OnDrop(DragEventArgs e) {
             if (this.FileDropNotifier == null) {
-                await CoreIoC.MessageDialogs.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
+                await IoC.MessageDialogs.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
                 return;
             }
 
@@ -96,7 +97,7 @@ namespace FramePFX.ResourceManaging {
                 await this.FileDropNotifier.OnFilesDropped(files);
             }
             else {
-                await CoreIoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown drag drop data type");
+                await IoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown drag drop data type");
             }
         }
 

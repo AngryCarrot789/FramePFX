@@ -5,7 +5,7 @@ using FramePFX.Editor.Timeline.ViewModels.Clips;
 using FramePFX.Editor.Timeline.ViewModels.Layer.Removals;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Layer {
-    public class VideoTimelineLayer : PFXTimelineLayer {
+    public class PFXVideoLayer : PFXTimelineLayer {
         private float opacity;
 
         /// <summary>
@@ -13,10 +13,10 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
         /// </summary>
         public float Opacity {
             get => this.opacity;
-            set => this.RaisePropertyChanged(ref this.opacity, Maths.Clamp(value, 0f, 1f), () => this.Timeline.MarkRenderDirty());
+            set => this.RaisePropertyChanged(ref this.opacity, Maths.Clamp(value, 0f, 1f), () => this.Timeline.ScheduleRender(false));
         }
 
-        public VideoTimelineLayer(PFXTimeline timeline) : base(timeline) {
+        public PFXVideoLayer(PFXTimeline timeline) : base(timeline) {
             this.Opacity = 1f;
         }
 

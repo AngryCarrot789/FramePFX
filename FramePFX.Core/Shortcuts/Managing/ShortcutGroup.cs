@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Serialization;
 using FramePFX.Core.Utils;

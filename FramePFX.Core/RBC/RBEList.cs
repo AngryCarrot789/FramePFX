@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Core.RBC {
     /// <summary>
@@ -39,7 +41,7 @@ namespace FramePFX.Core.RBC {
             return this.GetElementByType(index, out RBEDictionary rbe) ? rbe : null;
         }
 
-        public Dictionary<string, RBEBase> GetDictionary(int index, Dictionary<string, RBEBase> def = default) {
+        public Dictionary<string, RBEBase> GetDictionary(int index, Dictionary<string, RBEBase> def = null) {
             return this.GetElementByType(index, out RBEDictionary rbe) ? rbe.Map : def;
         }
 
@@ -53,7 +55,7 @@ namespace FramePFX.Core.RBC {
             return this.GetElementByType(index, out RBEList rbe) ? rbe : null;
         }
 
-        public List<RBEBase> GetList(int index, List<RBEBase> def = default) {
+        public List<RBEBase> GetList(int index, List<RBEBase> def = null) {
             return this.GetElementByType(index, out RBEList rbe) ? rbe.List : def;
         }
 
@@ -155,7 +157,11 @@ namespace FramePFX.Core.RBC {
             return this.GetElementByType(index, out RBEStructArray rbe) ? rbe : null;
         }
 
-        public T GetStruct<T>(int index, T def = default) where T : unmanaged {
+        public T GetStruct<T>(int index) where T : unmanaged {
+            return this.GetElementByType(index, out RBEStruct value) ? value.GetValue<T>() : default;
+        }
+
+        public T GetStruct<T>(int index, T def) where T : unmanaged {
             return this.GetElementByType(index, out RBEStruct value) ? value.GetValue<T>() : def;
         }
 
@@ -232,6 +238,17 @@ namespace FramePFX.Core.RBC {
             foreach (RBEBase child in this.List) {
                 WriteIdAndElement(writer, child);
             }
+        }
+
+        public override RBEBase CloneCore() => this.Clone();
+
+        public RBEList Clone() {
+            List<RBEBase> list = new List<RBEBase>(this.List);
+            // not using Select because there's a possibility it causes a stack overflow exception,
+            // because there could be a huge chain of elements (lists in lists in lists etc...)
+            foreach (RBEBase element in this.List)
+                list.Add(element.CloneCore());
+            return new RBEList(list);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,35 +14,36 @@ using FramePFX.Editor.ViewModels;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timeline.ViewModels {
-    public class TimelineViewModel : BaseViewModel {
+    public class PFXTimeline : BaseViewModel {
         private readonly RapidDispatchCallback renderDispatch;
-        private readonly ObservableCollection<BaseTimelineLayer> layers;
+        private readonly ObservableCollection<PFXTimelineLayer> layers;
         private volatile bool ignorePlayHeadPropertyChange;
         public volatile bool isFramePropertyChangeScheduled;
+        public bool ignorePropertyChangedRender;
 
-        public ProjectViewModel Project { get; }
+        public PFXProject Project { get; }
 
-        public ViewportPlaybackViewModel PlaybackViewport => this.Project.VideoEditor.Playback;
+        public PFXViewportPlayback PlaybackViewport => this.Project.VideoEditor.Playback;
 
         /// <summary>
         /// This timeline's layer collection
         /// </summary>
-        public ReadOnlyObservableCollection<BaseTimelineLayer> Layers { get; }
+        public ReadOnlyObservableCollection<PFXTimelineLayer> Layers { get; }
 
-        private BaseTimelineLayer selectedTimelineLayer;
-        public BaseTimelineLayer SelectedTimelineLayer {
+        private PFXTimelineLayer selectedTimelineLayer;
+        public PFXTimelineLayer SelectedTimelineLayer {
             get => this.selectedTimelineLayer;
             set => this.RaisePropertyChanged(ref this.selectedTimelineLayer, value);
         }
 
-        private BaseTimelineClip mainSelectedClip;
-        public BaseTimelineClip MainSelectedClip {
+        private PFXBaseClip mainSelectedClip;
+        public PFXBaseClip MainSelectedClip {
             get => this.mainSelectedClip;
             set => this.RaisePropertyChanged(ref this.mainSelectedClip, value);
         }
 
-        private BaseTimelineClip clipToModify;
-        public BaseTimelineClip ClipToModify {
+        private PFXBaseClip clipToModify;
+        public PFXBaseClip ClipToModify {
             get => this.clipToModify;
             set => this.RaisePropertyChanged(ref this.clipToModify, value);
         }
@@ -101,11 +101,11 @@ namespace FramePFX.Editor.Timeline.ViewModels {
 
         public InputValidator LayerNameValidator { get; }
 
-        public TimelineViewModel(ProjectViewModel project) {
+        public PFXTimeline(PFXProject project) {
             this.LayerNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Layer name cannot be empty" : null);
             this.Project = project;
-            this.layers = new ObservableCollection<BaseTimelineLayer>();
-            this.Layers = new ReadOnlyObservableCollection<BaseTimelineLayer>(this.layers);
+            this.layers = new ObservableCollection<PFXTimelineLayer>();
+            this.Layers = new ReadOnlyObservableCollection<PFXTimelineLayer>(this.layers);
             this.renderDispatch = new RapidDispatchCallback(this.RenderViewPortAndMarkNotDirty) {
                 InvokeLater = true
             };
@@ -154,7 +154,7 @@ namespace FramePFX.Editor.Timeline.ViewModels {
                     list[0].Layer.RemoveClip(list[0]);
                     return;
                 default: {
-                    if (skipDialog || await CoreIoC.MessageDialogs.ShowYesNoDialogAsync("Delete clips", "Do you want to delete these " + list.Count + " clips?")) {
+                    if (skipDialog || await IoC.MessageDialogs.ShowYesNoDialogAsync("Delete clips", "Do you want to delete these " + list.Count + " clips?")) {
                         foreach (PFXVideoClip clip in list) {
                             clip.Layer.RemoveClip(clip);
                         }
@@ -165,20 +165,26 @@ namespace FramePFX.Editor.Timeline.ViewModels {
             }
         }
 
-        public bool CanRender() {
+        public bool IsVPReadyForRender() {
             return this.Project.VideoEditor.Playback.IsReadyForRender();
         }
 
-        public void OnPlayHeadMoved(long oldFrame, long frame, bool render) {
-            if (oldFrame == frame) {
+        public void OnPlayHeadMoved(long oldFrame, long newFrame, bool render) {
+            if (oldFrame == newFrame) {
                 return;
             }
 
-            if (render && this.CanRender()) {
+            if (render && this.IsVPReadyForRender()) {
                 this.RenderViewPortAndMarkNotDirty();
             }
             else {
                 this.IsRenderDirty = true;
+            }
+        }
+
+        public void InvalidateRenderForPropertyChanged() {
+            if (!this.ignorePropertyChangedRender) {
+                this.ScheduleRender(false);
             }
         }
 
@@ -201,16 +207,16 @@ namespace FramePFX.Editor.Timeline.ViewModels {
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
-        public IEnumerable<BaseTimelineClip> GetClipsAtPlayHead() {
+        public IEnumerable<PFXBaseClip> GetClipsAtPlayHead() {
             return this.GetClipsAtFrame(this.playHeadFrame);
         }
 
-        public IEnumerable<BaseTimelineClip> GetClipsAtFrame(long frame) {
+        public IEnumerable<PFXBaseClip> GetClipsAtFrame(long frame) {
             return this.Layers.SelectMany(layer => layer.GetClipsAtFrame(frame));
         }
 
-        public VideoTimelineLayer CreateVideoLayer(string name = null) {
-            VideoTimelineLayer timelineLayer = new VideoTimelineLayer(this) {
+        public PFXVideoLayer CreateVideoLayer(string name = null) {
+            PFXVideoLayer timelineLayer = new PFXVideoLayer(this) {
                 Name = name ?? $"Layer {this.Layers.Count + 1}"
             };
 
@@ -218,7 +224,7 @@ namespace FramePFX.Editor.Timeline.ViewModels {
             return timelineLayer;
         }
 
-        public BaseTimelineLayer GetPrevious(BaseTimelineLayer timelineLayer) {
+        public PFXTimelineLayer GetPrevious(PFXTimelineLayer timelineLayer) {
             int index = this.Layers.IndexOf(timelineLayer);
             return index < 1 ? null : this.Layers[index - 1];
         }
@@ -233,7 +239,7 @@ namespace FramePFX.Editor.Timeline.ViewModels {
             this.OnPlayHeadMoved(oldFrame, this.playHeadFrame, false);
             if (!this.isFramePropertyChangeScheduled) {
                 this.isFramePropertyChangeScheduled = true;
-                CoreIoC.Dispatcher.Invoke(() => {
+                IoC.Dispatcher.Invoke(() => {
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isFramePropertyChangeScheduled = false;
                 });
@@ -243,16 +249,16 @@ namespace FramePFX.Editor.Timeline.ViewModels {
         }
 
         public void OnPlayBegin() {
-            foreach (BaseTimelineLayer layer in this.layers) {
-                foreach (BaseTimelineClip clip in layer.Clips) {
+            foreach (PFXTimelineLayer layer in this.layers) {
+                foreach (PFXBaseClip clip in layer.Clips) {
                     clip.OnTimelinePlayBegin();
                 }
             }
         }
 
         public void OnPlayEnd() {
-            foreach (BaseTimelineLayer layer in this.layers) {
-                foreach (BaseTimelineClip clip in layer.Clips) {
+            foreach (PFXTimelineLayer layer in this.layers) {
+                foreach (PFXBaseClip clip in layer.Clips) {
                     clip.OnTimelinePlayEnd();
                 }
             }

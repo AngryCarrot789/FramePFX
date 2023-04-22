@@ -108,15 +108,53 @@
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\VerticalScrollBinder.cs" />
     <Compile Include="DispatcherDelegate.cs" />
-    <Compile Include="Interactivity\FileDropAttachments.cs" />
-    <Compile Include="IoC.cs" />
-    <Compile Include="Project\EditorDialogs\ProjectSettingsDialogService.cs" />
-    <Compile Include="Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
-    <Compile Include="Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
+    <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsDialogService.cs" />
+    <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
+    <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Project\EditorDialogs\ProjectSettingsViewModel.cs" />
-    <Compile Include="Project\EditorProject.cs" />
+    <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsViewModel.cs" />
+    <Compile Include="Editor\Project\ViewModels\PFXProject.cs" />
+    <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
+    <Compile Include="Editor\Timeline\Actions\NewLayerActions.cs" />
+    <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
+    <Compile Include="Editor\Timeline\Controls\BaseTimelineClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\BaseTimelineLayerControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelineVideoClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\VideoTimelineLayerControl.cs" />
+    <Compile Include="Editor\Timeline\Layer\Clips\ClipDragData.cs" />
+    <Compile Include="Editor\Timeline\Layer\Clips\ClipType.cs" />
+    <Compile Include="Editor\Timeline\Layer\Clips\IAudioClip.cs" />
+    <Compile Include="Editor\Timeline\Layer\Clips\IClip.cs" />
+    <Compile Include="Editor\Timeline\Layer\Clips\IClipHandle.cs" />
+    <Compile Include="Editor\Timeline\Layer\Clips\IVideoClip.cs" />
+    <Compile Include="Editor\Timeline\Layer\ILayerHandle.cs" />
+    <Compile Include="Editor\Timeline\Layer\IndexMap.cs" />
+    <Compile Include="Editor\Timeline\Utils\FrameSpan.cs" />
+    <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
+    <Compile Include="Editor\Timeline\Utils\IHasZoom.cs" />
+    <Compile Include="Editor\Timeline\Utils\IPlayHeadHandle.cs" />
+    <Compile Include="Editor\Timeline\Utils\IResourceDropNotifier.cs" />
+    <Compile Include="Editor\Timeline\Utils\ITimelineHandle.cs" />
+    <Compile Include="Editor\Timeline\Utils\TimelineClipDragData.cs" />
+    <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Clips\PFXBaseClip.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXAdjustableVideoClip.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXShapeClip.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Clips\PFXVideoClip.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Layer\PFXTimelineLayer.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Layer\LayerColours.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Layer\Removals\VideoClipCut.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Layer\Removals\VideoClipRangeRemoval.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\Layer\PFXVideoLayer.cs" />
+    <Compile Include="Editor\Timeline\ViewModels\PFXTimeline.cs" />
+    <Compile Include="Editor\ViewModels\PFXVideoEditor.cs" />
+    <Compile Include="Editor\ViewModels\PFXViewportPlayback.cs" />
+    <Compile Include="Interactivity\FileDropAttachments.cs" />
+    <Compile Include="PlayAction.cs" />
     <Compile Include="Render\DispatchReceiver.cs" />
     <Compile Include="Render\DispatchThread.cs" />
     <Compile Include="Render\FrameBuffer.cs" />
@@ -129,14 +167,20 @@
     <Compile Include="Render\OGL\Shader\Shader.cs" />
     <Compile Include="Render\Texture.cs" />
     <Compile Include="ResourceLocator.cs" />
-    <Compile Include="ResourceManaging\IResourceListHandle.cs" />
-    <Compile Include="ResourceManaging\Items\IResourceControl.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceShapeColour.cs" />
     <Compile Include="ResourceManaging\Items\ResourceImage.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceMedia.cs" />
+    <Compile Include="ResourceManaging\Items\ResourceRGBA.cs" />
     <Compile Include="ResourceManaging\Items\ResourceText.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceVideoMedia.cs" />
     <Compile Include="ResourceManaging\ResourceItem.cs" />
     <Compile Include="ResourceManaging\ResourceManager.cs" />
+    <Compile Include="ResourceManaging\ResourceType.cs" />
+    <Compile Include="ResourceManaging\UI\IResourceControl.cs" />
+    <Compile Include="ResourceManaging\UI\IResourceListHandle.cs" />
+    <Compile Include="ResourceManaging\UI\ResourceItemControl.cs" />
+    <Compile Include="ResourceManaging\UI\ResourceListControl.cs" />
+    <Compile Include="ResourceManaging\ViewModels\Items\ResourceMediaViewModel.cs" />
+    <Compile Include="ResourceManaging\ViewModels\ResourceItemViewModel.cs" />
+    <Compile Include="ResourceManaging\ViewModels\ResourceManagerViewModel.cs" />
     <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
     <Compile Include="Shortcuts\Bindings\ContextualShortcutCommandBinding.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
@@ -176,53 +220,15 @@
     </Compile>
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
-    <Compile Include="Timeline\Actions\SliceClipsAction.cs" />
-    <Compile Include="Timeline\Actions\EditorActionUtils.cs" />
-    <Compile Include="Timeline\Actions\NewLayerActions.cs" />
-    <Compile Include="Timeline\Controls\BaseTimelineClipControl.cs" />
-    <Compile Include="Timeline\Controls\BaseTimelineLayerControl.cs" />
-    <Compile Include="Timeline\Controls\TimelineVideoClipControl.cs" />
-    <Compile Include="Timeline\Controls\TimelineControl.cs" />
-    <Compile Include="Timeline\Controls\VideoTimelineLayerControl.cs" />
-    <Compile Include="Timeline\Controls\TimelinePlayHeadControl.cs" />
-    <Compile Include="Timeline\FrameSpan.cs" />
-    <Compile Include="Timeline\IHasZoom.cs" />
-    <Compile Include="Timeline\IPlayHeadHandle.cs" />
-    <Compile Include="Timeline\IResourceDropNotifier.cs" />
-    <Compile Include="Timeline\ITimelineHandle.cs" />
-    <Compile Include="Timeline\Layer\Clips\ClipDragData.cs" />
-    <Compile Include="Timeline\Layer\Clips\ClipType.cs" />
-    <Compile Include="Timeline\Layer\Clips\IAudioClip.cs" />
-    <Compile Include="Timeline\Layer\Clips\IClip.cs" />
-    <Compile Include="Timeline\Layer\Clips\IClipHandle.cs" />
-    <Compile Include="Timeline\Layer\Clips\IVideoClip.cs" />
-    <Compile Include="Timeline\Layer\ILayerHandle.cs" />
-    <Compile Include="Timeline\TimelineUtils.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\BaseTimelineClip.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\Resizable\VideoMediaTimelineClip.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\TimelineVideoClip.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\Resizable\ShapeTimelineClip.cs" />
-    <Compile Include="Timeline\ViewModels\Clips\Resizable\PositionableTimelineClip.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\BaseTimelineLayer.cs" />
-    <Compile Include="Timeline\ViewModels\EditorTimeline.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\LayerColours.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\Removals\VideoClipCut.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\Removals\VideoClipRangeRemoval.cs" />
-    <Compile Include="Timeline\ViewModels\Layer\VideoTimelineLayer.cs" />
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
+    <Compile Include="Utils\Periodic.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
-    <Compile Include="VideoEditor.cs" />
-    <Compile Include="ViewportPlayback.cs" />
-    <Compile Include="ResourceManaging\ResourceItemControl.cs" />
-    <Compile Include="ResourceManaging\ResourceListControl.cs" />
+    <Compile Include="Utils\Validate.cs" />
     <Compile Include="Services\ClipboardService.cs" />
-    <Compile Include="Timeline\ICGenUtils.cs" />
-    <Compile Include="Timeline\Layer\IndexMap.cs" />
-    <Compile Include="Timeline\TimelineClipDragData.cs" />
     <Compile Include="Utils\NumberAverager.cs" />
     <Compile Include="Utils\UsageCounter.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
@@ -262,11 +268,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ResourceManaging\ResManagerStyles.xaml">
+    <Page Include="Editor\Timeline\TimelineStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ResourceManaging\UI\ResManagerStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -313,10 +321,6 @@
     <Page Include="Themes\VeryDarkTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Timeline\TimelineStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Dialogs\UserInputs\DoubleUserInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

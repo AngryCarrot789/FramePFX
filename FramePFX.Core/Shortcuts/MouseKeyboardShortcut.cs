@@ -6,7 +6,7 @@ using FramePFX.Core.Shortcuts.Usage;
 
 namespace FramePFX.Core.Shortcuts {
     public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut {
-        public static MouseShortcut EmptyMouseKeyboardShortcut = new MouseShortcut();
+        public static readonly MouseShortcut EmptyMouseKeyboardShortcut = new MouseShortcut();
 
         private readonly List<IInputStroke> inputStrokes;
 
@@ -24,7 +24,7 @@ namespace FramePFX.Core.Shortcuts {
 
         public bool IsMouse => true;
 
-        public bool IsEmpty => this.inputStrokes.Count < 1;
+        public bool IsEmpty => this.inputStrokes.Count <= 0;
 
         public bool HasSecondaryStrokes => this.inputStrokes.Count > 1;
 
@@ -45,15 +45,18 @@ namespace FramePFX.Core.Shortcuts {
         }
 
         public IMouseShortcutUsage CreateMouseUsage() {
-            return (IMouseShortcutUsage) this.CreateUsage();
+            return this.CreateUsageInternal();
         }
 
-
         public IKeyboardShortcutUsage CreateKeyUsage() {
-            return (IKeyboardShortcutUsage) this.CreateUsage();
+            return this.CreateUsageInternal();
         }
 
         public IShortcutUsage CreateUsage() {
+            return this.CreateUsageInternal();
+        }
+
+        private MouseKeyboardShortcutUsage CreateUsageInternal() {
             return this.IsEmpty ? throw new InvalidOperationException("Shortcut is empty. Cannot create a usage") : new MouseKeyboardShortcutUsage(this);
         }
 

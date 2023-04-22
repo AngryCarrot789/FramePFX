@@ -12,14 +12,31 @@ namespace FramePFX.Core.RBC {
     /// </para>
     /// </summary>
     public abstract class RBEBase {
+        public static LengthReadStrategy LengthReadStrategy { get; set; } = LengthReadStrategy.LazyLength;
+
         public abstract RBEType Type { get; }
 
         protected RBEBase() {
 
         }
 
+        /// <summary>
+        /// Reads this element's data from the given binary reader
+        /// </summary>
+        /// <param name="reader">The reader (data source)</param>
         public abstract void Read(BinaryReader reader);
+
+        /// <summary>
+        /// Writes this element's data into the given binary writer
+        /// </summary>
+        /// <param name="writer">The writer (data target)</param>
         public abstract void Write(BinaryWriter writer);
+
+        /// <summary>
+        /// Creates a deep clone of this element
+        /// </summary>
+        /// <returns>A new element which contains no references (at all) to the instance that was originally cloned</returns>
+        public abstract RBEBase CloneCore();
 
         public static RBEBase ReadIdAndElement(BinaryReader reader) {
             byte id = reader.ReadByte();

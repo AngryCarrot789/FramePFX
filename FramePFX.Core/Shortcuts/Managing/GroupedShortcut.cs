@@ -7,15 +7,20 @@ namespace FramePFX.Core.Shortcuts.Managing {
     /// owning <see cref="ShortcutGroup"/>, and also other shortcut data
     /// </summary>
     public sealed class GroupedShortcut {
+        private IShortcut shortcut;
+
         /// <summary>
         /// The collection that owns this managed shortcut
         /// </summary>
         public ShortcutGroup Group { get; }
 
         /// <summary>
-        /// The shortcut itself
+        /// The shortcut itself. Will not be null
         /// </summary>
-        public IShortcut Shortcut { get; private set; }
+        public IShortcut Shortcut {
+            get => this.shortcut;
+            set => this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
+        }
 
         /// <summary>
         /// The name of the shortcut
@@ -56,17 +61,13 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         public string Path { get; }
 
-        public GroupedShortcut(ShortcutGroup collection, string name, IShortcut shortcut, bool isGlobal = false, bool inherit = false) {
-            this.Group = collection ?? throw new ArgumentNullException(nameof(collection), "Collection cannot be null");
-            this.Shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut), "Shortcut cannot be null");
-            this.Path = collection.GetPathForName(name);
+        public GroupedShortcut(ShortcutGroup @group, string name, IShortcut shortcut, bool isGlobal = false, bool inherit = false) {
+            this.Group = @group ?? throw new ArgumentNullException(nameof(@group), "Collection cannot be null");
+            this.Shortcut = shortcut;
+            this.Path = @group.GetPathForName(name);
             this.Name = name;
             this.IsGlobal = isGlobal;
             this.Inherit = inherit;
-        }
-
-        public void SetShortcut(IShortcut shortcut) {
-            this.Shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut), "Shortcut cannot be null");
         }
 
         public override string ToString() {

@@ -63,13 +63,13 @@ namespace FramePFX.Editor.Project.ViewModels {
             private set => this.RaisePropertyChanged(ref this.projectPath, value);
         }
 
-        public VideoEditorViewModel VideoEditor { get; }
+        public PFXVideoEditor VideoEditor { get; }
 
         public ICommand SaveCommand { get; }
         public ICommand SaveAsCommand { get; }
         public ICommand OpenSettingsCommand { get; }
 
-        public PFXProject(VideoEditorViewModel videoEditor) {
+        public PFXProject(PFXVideoEditor videoEditor) {
             this.VideoEditor = videoEditor;
             this.Timeline = new PFXTimeline(this);
             this.ResourceManager = new ResourceManagerViewModel(new ResourceManager());
@@ -89,7 +89,7 @@ namespace FramePFX.Editor.Project.ViewModels {
         }
 
         public async Task<bool> SaveAsActionAsync() {
-            DialogResult<string> result = CoreIoC.FilePicker.ShowFolderPickerDialog(this.ProjectPath, "Select a folder, in which the project data will be saved into");
+            DialogResult<string> result = IoC.FilePicker.ShowFolderPickerDialog(this.ProjectPath, "Select a folder, in which the project data will be saved into");
             if (result.IsSuccess) {
                 this.ProjectPath = result.Value;
                 await this.SaveActionAsync(this.ProjectPath);
@@ -175,18 +175,18 @@ namespace FramePFX.Editor.Project.ViewModels {
             manager.AddResource("Resource_GREEN", greenColour);
             manager.AddResource("Resource_BLUE", blueColour);
 
-            BaseTimelineLayer l1 = this.Timeline.CreateVideoLayer("Layer 1");
+            PFXTimelineLayer l1 = this.Timeline.CreateVideoLayer("Layer 1");
             CreateSquare(l1, 0, 50, redColour, 5f, 5f, 100f, 100f, "Red_0");
             CreateSquare(l1, 100, 150, redColour, 105f, 5f, 100f, 100f, "Red_1");
             CreateSquare(l1, 275, 50, greenColour, 210f, 5f, 100f, 100f, "Green_0");
 
-            BaseTimelineLayer l2 = this.Timeline.CreateVideoLayer("Layer 2");
+            PFXTimelineLayer l2 = this.Timeline.CreateVideoLayer("Layer 2");
             CreateSquare(l2, 0, 100, greenColour, 5f, 105f, 100f, 100f, "Green_1");
             CreateSquare(l2, 100, 50, blueColour, 105f, 105f, 100f, 100f, "Blue_0");
             CreateSquare(l2, 175, 75, blueColour, 210f, 105f, 100f, 100f, "Blue_1");
         }
 
-        public static void CreateSquare(BaseTimelineLayer timelineLayer, long begin, long duration, ResourceRGBA colour, float x, float y, float w, float h, string name) {
+        public static void CreateSquare(PFXTimelineLayer timelineLayer, long begin, long duration, ResourceRGBA colour, float x, float y, float w, float h, string name) {
             PFXShapeClip timelineClip = timelineLayer.CreateSquareClip(begin, duration, colour);
             timelineClip.Header = name;
             timelineClip.SetShape(x, y, w, h);

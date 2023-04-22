@@ -6,7 +6,7 @@ using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Clips {
-    public abstract class BaseTimelineClip : BaseViewModel, IDisposable {
+    public abstract class PFXBaseClip : BaseViewModel, IDisposable {
         private string header;
         public string Header {
             get => this.header;
@@ -40,7 +40,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         protected bool isTimelinePlaying;
         private bool isProjectRendering;
 
-        protected BaseTimelineClip() {
+        protected PFXBaseClip() {
             this.RenameCommand = new RelayCommand(this.RenameAction);
             this.DeleteCommand = new RelayCommand(() => {
                 this.Layer.RemoveClip(this);
@@ -64,7 +64,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         }
 
         private void RenameAction() {
-            string newName = CoreIoC.UserInput.ShowSingleInputDialog("Rename clip", "Input a new clip name:", this.Header ?? "");
+            string newName = IoC.UserInput.ShowSingleInputDialog("Rename clip", "Input a new clip name:", this.Header ?? "");
             if (newName != null) {
                 this.Header = newName;
             }
@@ -105,16 +105,16 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         /// Clones this clip's data into a new clip
         /// </summary>
         /// <returns></returns>
-        public virtual BaseTimelineClip NewInstanceOverride() {
+        public virtual PFXBaseClip NewInstanceOverride() {
             throw new InvalidOperationException($"{nameof(this.NewInstanceOverride)} is not allowed to be directly called. Use {nameof(this.Clone)} instead");
         }
 
-        public virtual void LoadDataIntoClone(BaseTimelineClip clone) {
+        public virtual void LoadDataIntoClone(PFXBaseClip clone) {
             clone.Header = this.Header;
         }
 
-        public virtual BaseTimelineClip Clone() {
-            BaseTimelineClip clip = this.NewInstanceOverride();
+        public virtual PFXBaseClip Clone() {
+            PFXBaseClip clip = this.NewInstanceOverride();
             this.LoadDataIntoClone(clip);
             return clip;
         }

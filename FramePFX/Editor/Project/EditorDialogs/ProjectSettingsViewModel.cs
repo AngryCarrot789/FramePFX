@@ -1,6 +1,6 @@
 ﻿using FramePFX.Core;
 
-namespace FramePFX.Project.EditorDialogs {
+namespace FramePFX.Editor.Project.EditorDialogs {
     public class ProjectSettingsViewModel : BaseViewModel {
         private int width;
         private int height;

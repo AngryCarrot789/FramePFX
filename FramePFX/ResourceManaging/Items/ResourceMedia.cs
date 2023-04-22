@@ -42,6 +42,7 @@ namespace FramePFX.ResourceManaging.Items {
         }
 
         public VideoFrame GetFrameAt(TimeSpan timestamp) {
+            this.EnsureNotDisposed();
             if (!this.HasVideoStream) {
                 return null;
             }
@@ -101,6 +102,7 @@ namespace FramePFX.ResourceManaging.Items {
         }
 
         private void ReopenDemuxer() {
+            this.EnsureNotDisposed();
             try {
                 this.ReleaseDecoder();
                 this.Demuxer = new MediaDemuxer(this.FilePath);
@@ -111,7 +113,7 @@ namespace FramePFX.ResourceManaging.Items {
                     this.Dispose();
                 }
                 catch (Exception ex) {
-                    ExceptionUtils.AddSuppressed(e, ex);
+                    e.AddSuppressed(ex);
                 }
 
                 // Invalid media file
@@ -127,7 +129,6 @@ namespace FramePFX.ResourceManaging.Items {
             this.EnsureHasVideoStream();
             this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, open: false);
             this.frameQueue = new FrameQueue(this.stream, 2);
-
             this.hasHardwareDecoder = this.TrySetupHardwareDecoder();
             this.decoder.Open();
         }
@@ -157,6 +158,7 @@ namespace FramePFX.ResourceManaging.Items {
         /// Deallocates media decoders and internal frames.
         /// </summary>
         public void ReleaseDecoder() {
+            this.EnsureNotDisposed();
             this.decoder?.Dispose();
             this.decoder = null;
 
@@ -168,7 +170,6 @@ namespace FramePFX.ResourceManaging.Items {
 
         protected override void DisposeResource(ExceptionStack stack) {
             base.DisposeResource(stack);
-
             try {
                 this.ReleaseDecoder();
             }

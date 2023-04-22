@@ -37,7 +37,7 @@ namespace FramePFX.Core.Utils {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Join<T>(bool bit1, bool bit2, bool bit3, bool bit4) {
+        public static int Join(bool bit1, bool bit2, bool bit3, bool bit4) {
             int x = 0;
             if (bit1) x |= 0b0001;
             if (bit2) x |= 0b0010;

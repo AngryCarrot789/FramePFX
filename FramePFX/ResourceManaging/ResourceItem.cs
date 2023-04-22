@@ -1,14 +1,15 @@
 using System;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Resources {
+namespace FramePFX.ResourceManaging {
     public class ResourceItem : IDisposable {
         private readonly ResourceManager manager;
+
         public string Id { get; set; }
 
-        public bool IsDisposed { get; private set;  }
+        public bool IsRegistered => !string.IsNullOrWhiteSpace(this.Id) && this.manager.ResourceExists(this.Id);
 
-        public bool IsRegistered => this.manager.IsRegistered(this);
+        public bool IsDisposed { get; private set;  }
 
         public ResourceItem(ResourceManager manager) {
             this.manager = manager ?? throw new ArgumentNullException(nameof(manager), "Manager cannot be null");

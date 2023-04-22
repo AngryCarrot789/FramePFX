@@ -16,7 +16,7 @@ namespace FramePFX.Core.Utils {
         public bool UseRangeActions { get; set; }
 
         public EfficientObservableCollection() {
-
+            this.UseRangeActions = false;
         }
 
         public EfficientObservableCollection(IEnumerable<T> collection) : base(collection) {
@@ -39,9 +39,8 @@ namespace FramePFX.Core.Utils {
             if (index > this.Count)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            if (items is ICollection<T> collection && collection.Count < 1) {
+            if (items is ICollection<T> collection && collection.Count < 1)
                 return;
-            }
 
             this.CheckReentrancy();
             if (!(items is IList<T> list))

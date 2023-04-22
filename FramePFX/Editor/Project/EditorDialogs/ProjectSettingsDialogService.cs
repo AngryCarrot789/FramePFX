@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
-using FramePFX.Project.ViewModels;
+using FramePFX.Editor.Project.ViewModels;
 
-namespace FramePFX.Project.EditorDialogs {
+namespace FramePFX.Editor.Project.EditorDialogs {
     public class ProjectSettingsDialogService {
         public static ProjectSettingsDialogService Instance { get; } = new ProjectSettingsDialogService();
 
-        public Task<ProjectSettingsViewModel> EditSettings(ProjectViewModel project) {
+        public Task<ProjectSettingsViewModel> EditSettings(PFXProject project) {
             ProjectSettingsEditorWindow window = new ProjectSettingsEditorWindow();
             ProjectSettingsEditorViewModel vm = (ProjectSettingsEditorViewModel) window.DataContext;
             vm.Settings.Width = project.Resolution.Width;

@@ -4,9 +4,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
-using FramePFX.Timeline.Layer.Clips;
+using FramePFX.Editor.Timeline.Layer.Clips;
+using FramePFX.Editor.Timeline.Utils;
 
-namespace FramePFX.Timeline.Controls {
+namespace FramePFX.Editor.Timeline.Controls {
     public abstract class BaseTimelineClipControl : ContentControl, IClipHandle {
         public static readonly DependencyProperty UnitZoomProperty =
             BaseTimelineLayerControl.UnitZoomProperty.AddOwner(

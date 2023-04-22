@@ -1,3 +1,7 @@
 namespace FramePFX {
-    public enum PlayAction {  }
+    public enum PlayAction {
+        Stop,
+        Pause,
+        Play
+    }
 }

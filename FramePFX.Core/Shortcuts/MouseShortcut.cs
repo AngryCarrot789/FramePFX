@@ -6,7 +6,7 @@ using FramePFX.Core.Shortcuts.Usage;
 
 namespace FramePFX.Core.Shortcuts {
     public class MouseShortcut : IMouseShortcut {
-        public static MouseShortcut EmptyMouseShortcut = new MouseShortcut();
+        public static readonly MouseShortcut EmptyMouseShortcut = new MouseShortcut();
 
         private readonly List<MouseStroke> mouseStrokes;
 

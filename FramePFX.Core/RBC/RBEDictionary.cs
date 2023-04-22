@@ -59,7 +59,7 @@ namespace FramePFX.Core.RBC {
             return this.GetElementByType(key, out RBEDictionary rbe) ? rbe : null;
         }
 
-        public Dictionary<string, RBEBase> GetDictionary(string key, Dictionary<string, RBEBase> def = default) {
+        public Dictionary<string, RBEBase> GetDictionary(string key, Dictionary<string, RBEBase> def = null) {
             return this.GetElementByType(key, out RBEDictionary rbe) ? rbe.Map : def;
         }
 
@@ -80,7 +80,7 @@ namespace FramePFX.Core.RBC {
             return this.GetElementByType(key, out RBEList rbe) ? rbe : null;
         }
 
-        public List<RBEBase> GetList(string key, List<RBEBase> def = default) {
+        public List<RBEBase> GetList(string key, List<RBEBase> def = null) {
             return this.GetElementByType(key, out RBEList rbe) ? rbe.List : def;
         }
 
@@ -178,7 +178,11 @@ namespace FramePFX.Core.RBC {
             return this.GetElementByType(key, out RBEStruct rbe) ? rbe : null;
         }
 
-        public T GetStruct<T>(string key, T def = default) where T : unmanaged {
+        public T GetStruct<T>(string key) where T : unmanaged {
+            return this.GetElementByType(key, out RBEStruct value) ? value.GetValue<T>() : default;
+        }
+
+        public T GetStruct<T>(string key, T def) where T : unmanaged {
             return this.GetElementByType(key, out RBEStruct value) ? value.GetValue<T>() : def;
         }
 
@@ -260,6 +264,15 @@ namespace FramePFX.Core.RBC {
             else {
                 return key;
             }
+        }
+
+        public override RBEBase CloneCore() => this.Clone();
+
+        public RBEDictionary Clone() {
+            Dictionary<string, RBEBase> map = new Dictionary<string, RBEBase>(this.Map.Count);
+            foreach (KeyValuePair<string, RBEBase> element in this.Map)
+                map[element.Key] = element.Value.CloneCore();
+            return new RBEDictionary(map);
         }
     }
 }

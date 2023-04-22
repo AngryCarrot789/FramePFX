@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Timeline.ViewModels.Clips;
+using FramePFX.Editor.Timeline.Utils;
+using FramePFX.Editor.Timeline.ViewModels.Clips;
 
-namespace FramePFX.Timeline.ViewModels.Layer.Removals {
+namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
     public class VideoClipRangeRemoval {
         public List<VideoClipCut> ModifiedClips { get; }
 
-        public IEnumerable<TimelineVideoClip> RemovedClips => this.ModifiedClips.Where(x => x.IsClipRemoved).Select(x => x.Clip);
+        public IEnumerable<PFXVideoClip> RemovedClips => this.ModifiedClips.Where(x => x.IsClipRemoved).Select(x => x.Clip);
 
         public VideoClipRangeRemoval(List<VideoClipCut> modifiedClips) {
             this.ModifiedClips = modifiedClips ?? throw new ArgumentNullException(nameof(modifiedClips), "modifiedClips list cannot be null");
@@ -36,11 +37,11 @@ namespace FramePFX.Timeline.ViewModels.Layer.Removals {
             }
         }
 
-        public void AddRemovedClip(TimelineVideoClip clip) {
+        public void AddRemovedClip(PFXVideoClip clip) {
             this.ModifiedClips.Add(new VideoClipCut(clip.Span, null, null, clip));
         }
 
-        public void AddSplitClip(TimelineVideoClip clip, FrameSpan? a, FrameSpan? b) {
+        public void AddSplitClip(PFXVideoClip clip, FrameSpan? a, FrameSpan? b) {
             this.ModifiedClips.Add(new VideoClipCut(clip.Span, a, b, clip));
         }
     }

@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using FramePFX.ResourceManaging.ViewModels;
 
-namespace FramePFX.ResourceManaging {
+namespace FramePFX.ResourceManaging.UI {
     public class ResourceItemControl : ContentControl, IResourceControl {
         public static readonly DependencyProperty UniqueIDHeaderProperty =
             DependencyProperty.Register(
@@ -15,7 +15,12 @@ namespace FramePFX.ResourceManaging {
                 typeof(ResourceItemControl),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public static readonly DependencyProperty HeaderBackgroundProperty = DependencyProperty.Register("HeaderBackground", typeof(Brush), typeof(ResourceItemControl), new PropertyMetadata(null));
+        public static readonly DependencyProperty HeaderBackgroundProperty =
+            DependencyProperty.Register(
+                "HeaderBackground",
+                typeof(Brush),
+                typeof(ResourceItemControl),
+                new PropertyMetadata(null));
 
         public Brush HeaderBackground {
             get => (Brush) this.GetValue(HeaderBackgroundProperty);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.Editor.Timeline {
+namespace FramePFX.Editor.Timeline.Utils {
     /// <summary>
     /// <see cref="ItemContainerGenerator"/> utility functions
     /// </summary>

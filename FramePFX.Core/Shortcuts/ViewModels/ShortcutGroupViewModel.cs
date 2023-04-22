@@ -5,14 +5,10 @@ using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Shortcuts.ViewModels {
-    public class ShortcutGroupViewModel : BaseViewModel {
-        private readonly EfficientObservableCollection<object> children;
-
-        public ShortcutManagerViewModel Manager { get; set; }
+    public class ShortcutGroupViewModel : BaseShortcutItemViewModel {
+        private readonly EfficientObservableCollection<BaseShortcutItemViewModel> children;
 
         public ShortcutGroup GroupReference { get; set; }
-
-        public ShortcutGroupViewModel Parent { get; }
 
         public string FullPath { get; }
 
@@ -24,28 +20,24 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
 
         public bool InheritFromParent { get; }
 
-        public ReadOnlyObservableCollection<object> Children { get; }
+        public ReadOnlyObservableCollection<BaseShortcutItemViewModel> Children { get; }
 
-        public ShortcutGroupViewModel(ShortcutGroupViewModel parent, ShortcutGroup reference) {
-            this.Parent = parent;
+        public ShortcutGroupViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, ShortcutGroup reference) : base(manager, parent) {
             this.GroupReference = reference;
             this.IsGlobal = reference.IsGlobal;
             this.InheritFromParent = reference.InheritFromParent;
             this.Name = reference.Name;
             this.DisplayName = reference.DisplayName ?? reference.Name;
             this.FullPath = reference.FullPath;
-            this.children = new EfficientObservableCollection<object>();
-            this.Children = new ReadOnlyObservableCollection<object>(this.children);
+            this.children = new EfficientObservableCollection<BaseShortcutItemViewModel>();
+            this.Children = new ReadOnlyObservableCollection<BaseShortcutItemViewModel>(this.children);
         }
 
         public static ShortcutGroupViewModel CreateFrom(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, ShortcutGroup reference) {
-            ShortcutGroupViewModel groupViewModel = new ShortcutGroupViewModel(parent, reference) {
-                Manager = manager
-            };
-
-            groupViewModel.AddItems(reference.Groups.Select(x => CreateFrom(manager, groupViewModel, x)));
-            groupViewModel.AddItems(reference.Shortcuts.Select(x => new ShortcutViewModel(groupViewModel, x) { Manager = manager }));
-            return groupViewModel;
+            ShortcutGroupViewModel group = new ShortcutGroupViewModel(manager, parent, reference);
+            group.AddItems(reference.Groups.Select(x => CreateFrom(manager, group, x)));
+            group.AddItems(reference.Shortcuts.Select(x => new ShortcutViewModel(manager, group, x)));
+            return group;
         }
 
         public ShortcutGroup SaveToRealGroup() {

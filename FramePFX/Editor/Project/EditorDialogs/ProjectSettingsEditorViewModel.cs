@@ -1,6 +1,6 @@
 ﻿using FramePFX.Core.Views.Dialogs;
 
-namespace FramePFX.Project.EditorDialogs {
+namespace FramePFX.Editor.Project.EditorDialogs {
     public class ProjectSettingsEditorViewModel : BaseConfirmableDialogViewModel {
         // Could support templates/defaults eventually
         private ProjectSettingsViewModel settings;

@@ -3,11 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
-using FramePFX.Timeline.ViewModels;
-using FramePFX.Timeline.ViewModels.Clips;
-using FramePFX.Timeline.ViewModels.Layer;
+using FramePFX.Editor.Timeline.ViewModels;
+using FramePFX.Editor.Timeline.ViewModels.Clips;
+using FramePFX.Editor.Timeline.ViewModels.Layer;
 
-namespace FramePFX.Timeline.Actions {
+namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.SliceClips")]
     public class SliceClipsAction : AnAction {
         public SliceClipsAction() : base(() => "Slice clips", () => "Slices your selection (or all clips) where the play head is") {
@@ -15,17 +15,17 @@ namespace FramePFX.Timeline.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
+            PFXTimeline timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
                 if (e.IsUserInitiated) {
-                    await CoreIoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
+                    await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
                 }
 
                 return false;
             }
 
             long frame = timeline.PlayHeadFrame;
-            List<TimelineVideoClip> selected = timeline.Handle.GetSelectedClips().ToList();
+            List<PFXVideoClip> selected = timeline.Handle.GetSelectedClips().ToList();
             selected.RemoveAll(x => !x.IntersectsFrameAt(frame));
             if (selected.Count > 0) {
                 CutAllAtFrame(timeline, selected, frame);
@@ -38,15 +38,15 @@ namespace FramePFX.Timeline.Actions {
         }
 
         public override Presentation GetPresentation(AnActionEventArgs e) {
-            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
+            PFXTimeline timeline = EditorActionUtils.FindTimeline(e.DataContext);
             return timeline == null ? Presentation.VisibleAndDisabled : base.GetPresentation(e);
         }
 
-        public static void CutAllOnPlayHead(TimelineViewModel timeline) {
+        public static void CutAllOnPlayHead(PFXTimeline timeline) {
             long frame = timeline.PlayHeadFrame;
-            List<BaseTimelineClip> list = new List<BaseTimelineClip>();
-            foreach (BaseTimelineLayer layer in timeline.Layers) {
-                foreach (BaseTimelineClip clip in layer.Clips) {
+            List<PFXBaseClip> list = new List<PFXBaseClip>();
+            foreach (PFXTimelineLayer layer in timeline.Layers) {
+                foreach (PFXBaseClip clip in layer.Clips) {
                     if (clip.IntersectsFrameAt(frame)) {
                         list.Add(clip);
                     }
@@ -58,8 +58,8 @@ namespace FramePFX.Timeline.Actions {
             }
         }
 
-        public static void CutAllAtFrame(TimelineViewModel timeline, IEnumerable<BaseTimelineClip> clips, long frame) {
-            foreach (BaseTimelineClip clip in clips) {
+        public static void CutAllAtFrame(PFXTimeline timeline, IEnumerable<PFXBaseClip> clips, long frame) {
+            foreach (PFXBaseClip clip in clips) {
                 if (!clip.IntersectsFrameAt(frame)) { // shouldn't return false
                     continue;
                 }

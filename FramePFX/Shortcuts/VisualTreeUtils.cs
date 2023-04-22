@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using OpenTK.Graphics.OpenGL4;
 
 namespace FramePFX.Shortcuts {
     public static class VisualTreeUtils {

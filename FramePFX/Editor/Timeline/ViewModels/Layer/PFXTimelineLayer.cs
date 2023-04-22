@@ -16,8 +16,8 @@ using FramePFX.ResourceManaging.Items;
 using FramePFX.ResourceManaging.ViewModels;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Layer {
-    public abstract class BaseTimelineLayer : BaseViewModel, IResourceDropNotifier {
-        protected readonly EfficientObservableCollection<BaseTimelineClip> clips;
+    public abstract class PFXTimelineLayer : BaseViewModel, IResourceDropNotifier {
+        protected readonly EfficientObservableCollection<PFXBaseClip> clips;
 
         private string name;
         public string Name {
@@ -54,33 +54,33 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
 
         public ICommand RenameLayerCommand { get; }
 
-        public ReadOnlyObservableCollection<BaseTimelineClip> Clips { get; }
+        public ReadOnlyObservableCollection<PFXBaseClip> Clips { get; }
 
         public ILayerHandle Control { get; set; }
 
-        public BaseTimelineLayer(PFXTimeline timeline) {
-            this.clips = new EfficientObservableCollection<BaseTimelineClip>();
+        public PFXTimelineLayer(PFXTimeline timeline) {
+            this.clips = new EfficientObservableCollection<PFXBaseClip>();
             this.clips.CollectionChanged += this.ClipsOnCollectionChanged;
-            this.Clips = new ReadOnlyObservableCollection<BaseTimelineClip>(this.clips);
+            this.Clips = new ReadOnlyObservableCollection<PFXBaseClip>(this.clips);
             this.Timeline = timeline;
             this.MaxHeight = 200d;
             this.MinHeight = 40;
             this.Height = 60;
             this.layerColour = LayerColours.GetRandomColour();
             this.RenameLayerCommand = new RelayCommand(() => {
-                string result = CoreIoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", this.Timeline.LayerNameValidator);
+                string result = IoC.UserInput.ShowSingleInputDialog("Change layer name", "Input a new layer name:", this.Name ?? "", this.Timeline.LayerNameValidator);
                 if (result != null) {
                     this.Name = result;
                 }
             });
         }
 
-        public abstract BaseTimelineClip SliceClip(BaseTimelineClip clip, long frame);
+        public abstract PFXBaseClip SliceClip(PFXBaseClip clip, long frame);
 
         protected virtual void ClipsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             if (e.OldItems != null) {
                 foreach (object x in e.OldItems) {
-                    if (x is BaseTimelineClip clip) {
+                    if (x is PFXBaseClip clip) {
                         clip.Layer = null;
                     }
                 }
@@ -88,7 +88,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
 
             if (e.NewItems != null) {
                 foreach (object x in e.NewItems) {
-                    if (x is BaseTimelineClip clip) {
+                    if (x is PFXBaseClip clip) {
                         clip.Layer = this;
                     }
                 }
@@ -117,7 +117,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
             return clip;
         }
 
-        public virtual void AddClip(BaseTimelineClip clip) {
+        public virtual void AddClip(PFXBaseClip clip) {
             this.clips.Add(clip);
         }
 
@@ -131,7 +131,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
             this.clips.Move(index, endIndex);
         }
 
-        public bool RemoveClip(BaseTimelineClip clip) {
+        public bool RemoveClip(PFXBaseClip clip) {
             if (this.clips.Contains(clip)) {
                 clip.OnRemoving(this);
                 this.clips.Remove(clip); // just in case for some weird reason the clip removes another clip
@@ -167,13 +167,13 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
                         this.CreateMediaClip(frameBegin, dur, media);
                     }
                     else {
-                        await CoreIoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                        await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
                     }
                 }
             }
         }
 
-        public IEnumerable<BaseTimelineClip> GetClipsAtFrame(long frame) {
+        public IEnumerable<PFXBaseClip> GetClipsAtFrame(long frame) {
             return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
         }
     }

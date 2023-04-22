@@ -1,5 +1,9 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
+using FramePFX.Core.Utils;
+using OpenTK.Graphics.ES30;
+using Buffer = System.Buffer;
 
 namespace FramePFX.Core.RBC {
     /// <summary>
@@ -14,6 +18,10 @@ namespace FramePFX.Core.RBC {
 
         public override RBEType Type => RBEType.Struct;
 
+        public RBEStruct() {
+
+        }
+
         public override void Read(BinaryReader reader) {
             int length = reader.ReadUInt16();
             this.data = new byte[length];
@@ -27,32 +35,58 @@ namespace FramePFX.Core.RBC {
                 throw new InvalidOperationException("Array has not been set yet");
             }
 
+            // no one would ever have a struct whose size is greater than 65535
             writer.Write((ushort) this.data.Length);
             writer.Write(this.data);
         }
 
         public T GetValue<T>() where T : unmanaged {
+            byte[] array = this.data;
+            if (array == null) {
+                throw new Exception("Binary data has not been read yet");
+            }
+
             unsafe {
-                if (this.data == null) {
-                    throw new Exception("Binary data has not been read yet");
+                if (array.Length != sizeof(T)) {
+                    throw new Exception($"Binary data size does not match struct size (binary({array.Length}) != struct({sizeof(T)}) for struct {typeof(T)})");
                 }
 
-                int size = sizeof(T);
-                if (this.data.Length != size) {
-                    throw new Exception($"Binary data size does not match struct size ({this.data.Length} != {size} (sizeof {typeof(T).Name}))");
-                }
-
-                T value = new T();
-                BinaryUtils.CopyArray(this.data, 0, (byte*) &value, 0, size);
-                return value;
+                return ReadStruct<T>(array, 0, sizeof(T));
             }
         }
 
-        public void SetValue<T>(T value) where T : unmanaged {
+        public void SetValue<T>(in T value) where T : unmanaged {
             unsafe {
                 this.data = new byte[sizeof(T)];
-                BinaryUtils.WriteArray((byte*) &value, 0, this.data, 0, sizeof(T));
+                WriteStruct(value, this.data, 0, sizeof(T));
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe T ReadStruct<T>(byte[] array, int offset, int size) where T : unmanaged {
+            T value = default;
+            BinaryUtils.CopyArray(array, offset, (byte*) &value, size);
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void WriteStruct<T>(T value, byte[] array, int offset, int size) where T : unmanaged {
+            BinaryUtils.WriteArray((byte*) &value, array, offset, size);
+        }
+
+        public override RBEBase CloneCore() => this.Clone();
+
+        public RBEStruct Clone() {
+            byte[] src = this.data;
+            byte[] dest = null;
+            if (src != null) {
+                int length = src.Length;
+                dest = new byte[length];
+                for (int i = 0; i < length; i++)
+                    dest[i] = src[i]; // typically faster than Buffer.BlockCopy with <100 bytes due to CPU caching hopefully
+            }
+
+            return new RBEStruct {data = dest};
         }
     }
 }

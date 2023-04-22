@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Editor.ViewModels;
 using FramePFX.Render;
 using FramePFX.Render.OGL;
 using FramePFX.Services;
@@ -22,12 +23,12 @@ namespace FramePFX {
     /// </summary>
     public partial class App : Application {
         private void Application_Startup(object sender, StartupEventArgs e) {
-            CoreIoC.MessageDialogs = new MessageDialogService();
-            CoreIoC.Dispatcher = new DispatcherDelegate(this.Dispatcher);
-            CoreIoC.Clipboard = new ClipboardService();
-            CoreIoC.FilePicker = new FilePickDialogService();
-            CoreIoC.UserInput = new UserInputDialogService();
-            CoreIoC.OnShortcutManagedChanged = (x) => {
+            IoC.MessageDialogs = new MessageDialogService();
+            IoC.Dispatcher = new DispatcherDelegate(this.Dispatcher);
+            IoC.Clipboard = new ClipboardService();
+            IoC.FilePicker = new FilePickDialogService();
+            IoC.UserInput = new UserInputDialogService();
+            IoC.OnShortcutModified = (x) => {
                 if (!string.IsNullOrWhiteSpace(x)) {
                     WPFShortcutManager.Instance.InvalidateShortcutCache();
                     GlobalUpdateShortcutGestureConverter.BroadcastChange();
@@ -59,19 +60,19 @@ namespace FramePFX {
             //     }
             // }
 
-            IoC.VideoEditor = new VideoEditor();
+            PFXVideoEditor editor = new PFXVideoEditor();
             this.MainWindow = new MainWindow {
-                DataContext = IoC.VideoEditor
+                DataContext = editor
             };
 
             this.MainWindow.Show();
             IViewPort port = ((MainWindow) this.MainWindow).GLViewport.ViewPort;
-            IoC.VideoEditor.PlaybackView.ViewPortHandle = port;
+            editor.Playback.ViewPortHandle = port;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            IoC.VideoEditor.NewProjectAction();
+            editor.NewProjectAction();
             this.Dispatcher.Invoke(() => {
-                IoC.ActiveProject.RenderTimeline();
+                editor.ActiveProject.RenderTimeline();
                 // Loaded, to allow ICG to generate content and assign the handles
             }, DispatcherPriority.Loaded);
 

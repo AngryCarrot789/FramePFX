@@ -40,7 +40,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
             // return this.Root.FindFirstShortcutByAction(actionId);
         }
 
-        protected virtual void OnRootChanged(ShortcutGroup oldRoot, ShortcutGroup root) {
+        protected virtual void OnRootChanged(ShortcutGroup oldRoot, ShortcutGroup newRoot) {
             this.InvalidateShortcutCache();
         }
 

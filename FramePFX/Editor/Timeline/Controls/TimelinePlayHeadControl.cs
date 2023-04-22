@@ -7,9 +7,10 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core.Utils;
+using FramePFX.Editor.Timeline.Utils;
 using Keyboard = System.Windows.Input.Keyboard;
 
-namespace FramePFX.Timeline.Controls {
+namespace FramePFX.Editor.Timeline.Controls {
     public class TimelinePlayHeadControl : Control, IPlayHeadHandle {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(

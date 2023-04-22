@@ -35,10 +35,10 @@ namespace FramePFX.Core.Utils {
 
                 this.isScheduled = true;
                 if (this.InvokeLater) {
-                    CoreIoC.Dispatcher.InvokeLater(callback);
+                    IoC.Dispatcher.InvokeLater(callback);
                 }
                 else {
-                    CoreIoC.Dispatcher.Invoke(callback);
+                    IoC.Dispatcher.Invoke(callback);
                 }
 
                 return true;
@@ -59,10 +59,10 @@ namespace FramePFX.Core.Utils {
 
                 this.isScheduled = true;
                 if (this.InvokeLater) {
-                    CoreIoC.Dispatcher.InvokeLater(callback);
+                    IoC.Dispatcher.InvokeLater(callback);
                 }
                 else {
-                    CoreIoC.Dispatcher.Invoke(callback);
+                    IoC.Dispatcher.Invoke(callback);
                 }
 
                 return true;

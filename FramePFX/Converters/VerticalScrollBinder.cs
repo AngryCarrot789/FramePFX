@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Shortcuts;
 
 namespace FramePFX.Converters {
     public static class VerticalScrollBinder {

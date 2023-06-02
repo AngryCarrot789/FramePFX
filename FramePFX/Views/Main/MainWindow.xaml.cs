@@ -1,5 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
@@ -7,58 +10,49 @@ using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Editor;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.Render.OGL;
-using FramePFX.Views.Exceptions;
 using SkiaSharp.Views.Desktop;
 
 namespace FramePFX.Views.Main {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, IVideoEditor {
-        public PFXVideoEditor Editor => this.DataContext as PFXVideoEditor;
+    public partial class MainWindow : WindowEx, IVideoEditor {
+        public VideoEditorViewModel Editor { get; }
 
         public MainWindow() {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
-            this.Closed += this.OnClosed;
-            this.Loaded += this.OnLoaded;
             IoC.BroadcastShortcutActivity = (x) => {
 
             };
 
-            this.DataContext = new VideoEditorViewModel(this);
+            this.DataContext = this.Editor = new VideoEditorViewModel(this, IoC.App);
         }
 
         private void OnPaintViewPortSurface(object sender, SKPaintSurfaceEventArgs e) {
-
-        }
-
-        private void OnLoaded(object sender, RoutedEventArgs e) {
-            // Task.Run(async () => {
-            //     while (true) {
-            //         this.oglPort.wpf_averager.PushValue(this.oglPort.interval_ticks);
-            //         if (this.oglPort.wpf_averager.NextIndex % this.oglPort.wpf_averager.Count == 0) {
-            //             await this.Dispatcher.InvokeAsync(() => {
-            //                 double wpfItv = this.oglPort.wpf_averager.GetAverage() / TimeSpan.TicksPerMillisecond;
-            //                 double oglItv = 1d / this.oglPort.openTk.AverageDelta;
-            //                 double pbkItv = 1000d / ((VideoEditorViewModel) this.DataContext).Viewport.playbackAverageIntervalMS.GetAverage();
-            //                 this.FPS_WPF.Text = Math.Round(1000d / wpfItv, 2).ToString();
-            //                 this.FPS_OGL.Text = Math.Round(oglItv, 2).ToString();
-            //                 this.PLAYBACK_FPS.Text = Math.Round(pbkItv, 2).ToString();
-            //             });
-            //         }
-            //         await Task.Delay(10);
-            //     }
-            // });
-        }
-
-        private void OnClosed(object sender, EventArgs e) {
-            OGLUtils.ShutdownMainThread();
-            // this.oglPort.Stop();
-            if (this.Editor is PFXVideoEditor editor) {
-                editor.Playback.isPlaybackThreadRunning = false;
+            VideoEditorViewModel editor = this.Editor;
+            if (editor.IsProjectSaving) {
+                return;
             }
+
+        }
+
+        protected override async Task<bool> OnClosingAsync() {
+            try {
+                await this.Editor.CloseProjectAction();
+            }
+            catch (Exception e) {
+                await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "Exception while closing project", e.GetToString());
+            }
+
+            try {
+                this.Editor.Dispose();
+            }
+            catch (Exception e) {
+                await IoC.MessageDialogs.ShowMessageExAsync("Failed to dispose", "Exception while disposing editor", e.GetToString());
+            }
+
+            return true;
         }
 
         private void ThumbTop(object sender, DragDeltaEventArgs e) {
@@ -98,9 +92,6 @@ namespace FramePFX.Views.Main {
         private void FrameworkElement_OnRequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
             // Prevent the timeline scrolling when you select a clip
             e.Handled = true;
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e) {
         }
     }
 }

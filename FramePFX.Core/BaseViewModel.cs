@@ -30,8 +30,9 @@ namespace FramePFX.Core {
         public virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
-            this.RaisePropertyChangingOverride(propertyName);
-            this.RaisePropertyChangedOverride(propertyName);
+            if (this.RaisePropertyChangingCore(propertyName))
+                return;
+            this.RaisePropertyChangedCore(propertyName);
         }
 
         /// <summary>
@@ -40,10 +41,9 @@ namespace FramePFX.Core {
         public virtual void RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
-
-            this.RaisePropertyChangingOverride(propertyName);
-            property = newValue;
-            this.RaisePropertyChangedOverride(propertyName);
+            if (this.RaisePropertyChangingCore(propertyName))
+                return;
+            this.RaisePropertyChangedCore(propertyName);
         }
 
         /// <summary>
@@ -54,24 +54,29 @@ namespace FramePFX.Core {
         public virtual void RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
-
             if (EqualityComparer<T>.Default.Equals(property, newValue))
                 return;
-
-            this.RaisePropertyChangingOverride(propertyName);
+            if (this.RaisePropertyChangingCore(propertyName))
+                return;
             property = newValue;
-            this.RaisePropertyChangedOverride(propertyName);
+            this.RaisePropertyChangedCore(propertyName);
         }
 
         #endregion
 
         #region Virtual event raisers
 
-        protected virtual void RaisePropertyChangingOverride(string propertyName) {
+        /// <summary>
+        /// Fires the <see cref="PropertyChanging"/> event
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns>If the changing event is handled or not. When handled, the <see cref="PropertyChanged"/> event is not fired and a ref field is not updated</returns>
+        protected virtual bool RaisePropertyChangingCore(string propertyName) {
             this.PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+            return false;
         }
 
-        protected virtual void RaisePropertyChangedOverride(string propertyName) {
+        protected virtual void RaisePropertyChangedCore(string propertyName) {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

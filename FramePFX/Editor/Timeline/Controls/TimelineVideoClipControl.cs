@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Editor.Timeline.ViewModels.Clips;
@@ -75,8 +76,8 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public FrameSpan Span {
-            get => new FrameSpan(this.FrameBegin, this.FrameDuration);
+        public ClipSpan Span {
+            get => new ClipSpan(this.FrameBegin, this.FrameDuration);
             set {
                 this.FrameBegin = value.Begin;
                 this.FrameDuration = value.Duration;

@@ -86,7 +86,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public static long GetClosestEdge(FrameSpan span, long frame, out bool isEndIndex) {
+        public static long GetClosestEdge(ClipSpan span, long frame, out bool isEndIndex) {
             long endIndex = span.EndIndex;
             long beginDifferenceA = Math.Abs(span.Begin - frame);
             long endDifferenceB = Math.Abs(endIndex - frame);
@@ -120,10 +120,10 @@ namespace FramePFX.Editor.Timeline.Controls {
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                 TimelineVideoClipControl closestClip = null;
                 long closestFrame = begin;
-                List<TimelineVideoClipControl> clips = timeline.GetClipsInArea(new FrameSpan(begin - 10, 20)).ToList();
+                List<TimelineVideoClipControl> clips = timeline.GetClipsInArea(new ClipSpan(begin - 10, 20)).ToList();
                 foreach (TimelineVideoClipControl clip in clips) {
                     // this code is still broken and doesn't latch to the nearest when the clips list is 
-                    FrameSpan span = clip.Span;
+                    ClipSpan span = clip.Span;
                     long a = Math.Abs(begin - span.Begin);
                     long b = Math.Abs(begin - span.EndIndex);
 

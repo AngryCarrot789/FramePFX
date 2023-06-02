@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using FFmpeg.AutoGen;
 
 namespace FramePFX.Core.RBC {
     /// <summary>
@@ -71,10 +73,13 @@ namespace FramePFX.Core.RBC {
         }
 
         public void SetValue<T>(in T value) where T : unmanaged {
-            unsafe {
-                this.data = new byte[sizeof(T)];
-                WriteStruct(value, this.data, 0, sizeof(T));
+            int size = Marshal.SizeOf<T>();
+            if (size > ushort.MaxValue) {
+                throw new Exception("Value's size is too large: " + size);
             }
+
+            this.data = new byte[size];
+            WriteStruct(value, this.data, 0, size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -9,6 +9,7 @@ namespace FramePFX.Core.Utils {
     /// </summary>
     public class ExceptionStack : IDisposable {
         private static readonly ThreadLocal<Stack<ExceptionStack>> ThreadStackStorage;
+        private readonly bool useFirstException;
 
         static ExceptionStack() {
             ThreadStackStorage = new ThreadLocal<Stack<ExceptionStack>>(() => new Stack<ExceptionStack>());
@@ -31,14 +32,19 @@ namespace FramePFX.Core.Utils {
 
         public Exception Cause { get; set; }
 
-        private ExceptionStack(string message, bool isGlobalStack, bool throwOnDispose = true) {
+        private ExceptionStack(string message, bool isGlobalStack, bool throwOnDispose = true, bool useFirstException = false) {
             this.Message = message;
             this.Exceptions = new List<Exception>();
             this.IsGlobalStack = isGlobalStack;
             this.ThrowOnDispose = throwOnDispose;
+            this.useFirstException = useFirstException;
         }
 
-        public ExceptionStack(string message, bool throwOnDispose = true) : this(message, false, throwOnDispose) {
+        public ExceptionStack(string message, bool throwOnDispose = true, bool useFirstException = false) : this(message, false, throwOnDispose, useFirstException) {
+
+        }
+
+        public ExceptionStack(bool throwOnDispose = true) : this(null, false, throwOnDispose, true) {
 
         }
 
@@ -49,7 +55,7 @@ namespace FramePFX.Core.Utils {
         /// <param name="throwOnDispose">Whenther to actually throw the final exception in <see cref="Dispose"/></param>
         /// <returns>The pushed stack</returns>
         public static ExceptionStack Push(string exceptionMessage = null, bool throwOnDispose = true) {
-            ExceptionStack es = new ExceptionStack(exceptionMessage, true) {
+            ExceptionStack es = new ExceptionStack(exceptionMessage, true, false) {
                 ThrowOnDispose = throwOnDispose
             };
             
@@ -131,11 +137,16 @@ namespace FramePFX.Core.Utils {
         public bool TryGetException(out Exception exception) {
             if (this.Exceptions.Count > 0) {
                 int i = 0;
-                exception = new Exception(this.Message ?? "Exceptions occurred during operation", this.Cause ?? this.Exceptions[i++]);
+                if (this.useFirstException) {
+                    exception = this.Exceptions[i++];
+                }
+                else {
+                    exception = new Exception(this.Message ?? "Exceptions occurred during operation", this.Cause ?? this.Exceptions[i++]);
+                }
+
                 for (; i < this.Exceptions.Count; i++) {
                     Exception item = this.Exceptions[i];
-                    if (item != null) {
-                        // just in case
+                    if (item != null) { // just in case
                         exception.AddSuppressed(item);
                     }
                 }

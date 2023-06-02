@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Editor.Timeline.ViewModels;
 using FramePFX.Editor.Timeline.ViewModels.Clips;
@@ -360,7 +361,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<TimelineVideoClipControl> GetClipsInArea(FrameSpan span) {
+        public IEnumerable<TimelineVideoClipControl> GetClipsInArea(ClipSpan span) {
             List<TimelineVideoClipControl> list = new List<TimelineVideoClipControl>();
             foreach (VideoTimelineLayerControl layer in this.GetLayerControls()) {
                 foreach (TimelineVideoClipControl clip in layer.GetClipsInArea(span)) {

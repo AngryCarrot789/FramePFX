@@ -3,10 +3,15 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.ResourceManaging {
-    public abstract class ResourceModel : IRBESerialisable, IDisposable {
+    public abstract class ResourceItem : IRBESerialisable, IDisposable {
         public string TypeId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
 
-        public ResourceModel() {
+        /// <summary>
+        /// This resource item's unique identifier
+        /// </summary>
+        public string Id { get; set; }
+
+        public ResourceItem() {
 
         }
 

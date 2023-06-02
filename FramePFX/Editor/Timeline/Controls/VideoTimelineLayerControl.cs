@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
@@ -109,7 +110,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<TimelineVideoClipControl> GetClipsInArea(FrameSpan span) {
+        public IEnumerable<TimelineVideoClipControl> GetClipsInArea(ClipSpan span) {
             List<TimelineVideoClipControl> list = new List<TimelineVideoClipControl>();
             foreach (object item in this.Items) {
                 if (this.GetClipControl(item, out TimelineVideoClipControl clip)) {

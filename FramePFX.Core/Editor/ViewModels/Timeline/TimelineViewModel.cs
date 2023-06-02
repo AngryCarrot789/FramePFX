@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
@@ -34,10 +35,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public AsyncRelayCommand AddVideoLayerCommand { get; }
         public AsyncRelayCommand AddAudioLayerCommand { get; }
 
-        public VideoEditorViewModel Editor { get; }
+        public ProjectViewModel Project { get; }
 
-        public TimelineViewModel(VideoEditorViewModel editor) {
-            this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
+        public TimelineModel Model { get; }
+
+        public TimelineViewModel(ProjectViewModel project, TimelineModel model) {
+            this.Project = project ?? throw new ArgumentNullException(nameof(project));
+            this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.layers = new ObservableCollectionEx<TimelineLayerViewModel>();
             this.Layers = new ReadOnlyObservableCollection<TimelineLayerViewModel>(this.layers);
             this.RemoveSelectedLayersCommand = new AsyncRelayCommand(this.RemoveSelectedLayersAction, () => this.SelectedLayers.Count > 0);
@@ -45,6 +49,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.MoveSelectedDownCommand = new RelayCommand(this.MoveSelectedItemDownAction);
             this.AddVideoLayerCommand = new AsyncRelayCommand(this.AddVideoLayerAction);
             this.AddAudioLayerCommand = new AsyncRelayCommand(this.AddAudioLayerAction, () => false);
+            foreach (TimelineLayerModel layer in this.Model.Layers) {
+                this.layers.Add(LayerRegistry.Instance.CreateViewModelFromModel(this, layer));
+            }
         }
 
         public async Task AddVideoLayerAction() {
@@ -142,6 +149,35 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         protected virtual void OnSelectionChanged() {
             this.RemoveSelectedLayersCommand.RaiseCanExecuteChanged();
+        }
+
+        public void Dispose() {
+            using (ExceptionStack stack = new ExceptionStack("Exception disposing timeline")) {
+                try {
+                    this.DisposeCore(stack);
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
+                }
+            }
+        }
+
+        protected virtual void DisposeCore(ExceptionStack stack) {
+            using (ExceptionStack innerStack = new ExceptionStack(false)) {
+                foreach (TimelineLayerViewModel clip in this.layers) {
+                    try {
+                        clip.Dispose();
+                    }
+                    catch (Exception e) {
+                        innerStack.Push(e);
+                    }
+                }
+
+                this.layers.Clear();
+                if (innerStack.TryGetException(out Exception ex)) {
+                    stack.Push(ex);
+                }
+            }
         }
     }
 }

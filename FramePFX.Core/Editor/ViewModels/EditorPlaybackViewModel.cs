@@ -115,6 +115,10 @@ namespace FramePFX.Core.Editor.ViewModels {
             if (project == null) {
                 await this.Model.Timer.StopAsync();
             }
+
+            if (this.Project != null) {
+                await this.Project.CloseProjectAction();
+            }
         }
 
         public async Task OnProjectChanged(ProjectViewModel project) {

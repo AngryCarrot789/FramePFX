@@ -47,7 +47,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
                             continue;
                         }
                         else {
-                            range.AddSplitClip(clip, null, FrameSpan.FromIndex(spanEnd, clipEnd));
+                            range.AddSplitClip(clip, null, ClipSpan.FromIndex(spanEnd, clipEnd));
                         }
                     }
                     else if (spanEnd >= clipEnd) { // cut the right part away
@@ -55,11 +55,11 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
                             continue;
                         }
                         else {
-                            range.AddSplitClip(clip, FrameSpan.FromIndex(clipBegin, spanBegin), null);
+                            range.AddSplitClip(clip, ClipSpan.FromIndex(clipBegin, spanBegin), null);
                         }
                     }
                     else { // fully intersecting; double split
-                        range.AddSplitClip(clip, FrameSpan.FromIndex(clipBegin, spanBegin), FrameSpan.FromIndex(spanEnd, clipEnd));
+                        range.AddSplitClip(clip, ClipSpan.FromIndex(clipBegin, spanBegin), ClipSpan.FromIndex(spanEnd, clipEnd));
                     }
                 }
             }
@@ -67,7 +67,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
             return range;
         }
 
-        public void SplitClip(PFXVideoClipViewModel clip, FrameSpan left, FrameSpan right) {
+        public void SplitClip(PFXVideoClipViewModel clip, ClipSpan left, ClipSpan right) {
             PFXVideoClipViewModel rightClone = (PFXVideoClipViewModel) clip.NewInstanceOverride();
             clip.Span = left;
             this.clips.Add(rightClone);

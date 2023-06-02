@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Editor.Timeline.ViewModels.Clips;
 
@@ -20,8 +21,8 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
 
         public void ApplyAll() {
             foreach (VideoClipCut cut in this.ModifiedClips) {
-                FrameSpan? cutLeft = cut.CutLeft;
-                FrameSpan? cutRight = cut.CutRight;
+                ClipSpan? cutLeft = cut.CutLeft;
+                ClipSpan? cutRight = cut.CutRight;
                 if (cutLeft.HasValue && cutRight.HasValue) { // double split
                     cut.Clip.VideoLayer.SplitClip(cut.Clip, cutLeft.Value, cutRight.Value);
                 }
@@ -41,7 +42,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
             this.ModifiedClips.Add(new VideoClipCut(clip.Span, null, null, clip));
         }
 
-        public void AddSplitClip(PFXVideoClipViewModel clip, FrameSpan? a, FrameSpan? b) {
+        public void AddSplitClip(PFXVideoClipViewModel clip, ClipSpan? a, ClipSpan? b) {
             this.ModifiedClips.Add(new VideoClipCut(clip.Span, a, b, clip));
         }
     }

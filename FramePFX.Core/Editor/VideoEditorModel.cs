@@ -6,6 +6,8 @@ namespace FramePFX.Core.Editor {
 
         public ProjectModel CurrentProject { get; set; }
 
+        public volatile bool IsProjectSaving;
+
         public VideoEditorModel() {
             this.Playback = new EditorPlaybackModel(this);
         }

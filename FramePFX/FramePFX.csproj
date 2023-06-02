@@ -180,7 +180,6 @@
     <Compile Include="Editor\Timeline\Layer\Clips\IVideoClip.cs" />
     <Compile Include="Editor\Timeline\Layer\ILayerHandle.cs" />
     <Compile Include="Editor\Timeline\Layer\IndexMap.cs" />
-    <Compile Include="Editor\Timeline\Utils\FrameSpan.cs" />
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\IHasZoom.cs" />
     <Compile Include="Editor\Timeline\Utils\IPlayHeadHandle.cs" />
@@ -203,17 +202,6 @@
     <Compile Include="Highlighting\InlineHelper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="PlayAction.cs" />
-    <Compile Include="Render\DispatchReceiver.cs" />
-    <Compile Include="Render\DispatchThread.cs" />
-    <Compile Include="Render\FrameBuffer.cs" />
-    <Compile Include="Render\IRenderContext.cs" />
-    <Compile Include="Render\IViewPort.cs" />
-    <Compile Include="Render\OGL\OGLRenderContext.cs" />
-    <Compile Include="Render\OGL\OGLUtils.cs" />
-    <Compile Include="Render\OGL\OGLViewportControl.cs" />
-    <Compile Include="Render\OGL\Shader\PinkShader.cs" />
-    <Compile Include="Render\OGL\Shader\Shader.cs" />
-    <Compile Include="Render\Texture.cs" />
     <Compile Include="ResourceLocator.cs" />
     <Compile Include="ResourceManaging\Items\ResourceImage.cs" />
     <Compile Include="ResourceManaging\Items\ResourceMedia.cs" />
@@ -455,9 +443,6 @@
     <Content Include="Keymap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Render\Direct3D\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Shaders\pink.frag" />

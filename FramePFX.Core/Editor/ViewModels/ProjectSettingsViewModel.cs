@@ -1,3 +1,4 @@
+using System;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels {
@@ -20,8 +21,8 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
-        public ProjectSettingsViewModel() {
-            this.Model = new ProjectSettingsModel();
+        public ProjectSettingsViewModel(ProjectSettingsModel model) {
+            this.Model = model ?? throw new ArgumentNullException(nameof(model));
         }
     }
 }

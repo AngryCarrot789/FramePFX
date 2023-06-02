@@ -6,21 +6,16 @@ using System.Windows.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
+using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
-using FramePFX.Editor;
-using FramePFX.Render;
-using FramePFX.Render.OGL;
-using FramePFX.Services;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
 using FramePFX.Views;
-using FramePFX.Views.FilePicking;
 using FramePFX.Views.Main;
-using FramePFX.Views.Message;
-using FramePFX.Views.UserInputs;
 
 namespace FramePFX {
     /// <summary>
@@ -61,8 +56,6 @@ namespace FramePFX {
             ActionManager.Instance = new ActionManager();
             InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
             InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
-            IoC.BroadcastShortcutActivity = (x) => {
-            };
 
             this.RegisterActions();
 
@@ -83,8 +76,6 @@ namespace FramePFX {
         }
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
-            OGLUtils.SetupOGLThread();
-
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -110,29 +101,24 @@ namespace FramePFX {
                 return;
             }
 
-            await this.SetActivity("Waiting for OpenGL to load...");
-            OGLUtils.WaitForContextCompletion();
-
             await this.SetActivity("Loading FramePFX main window...");
-            PFXVideoEditor editor = new PFXVideoEditor();
-            MainWindow window = new MainWindow {
-                DataContext = editor
-            };
-
+            MainWindow window = new MainWindow();
             this.splash.Close();
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Show();
-            editor.Playback.ViewPortHandle = window.GLViewport.ViewPort;
-            editor.NewProjectAction();
             this.Dispatcher.Invoke(() => {
-                editor.ActiveProject.RenderTimeline();
-                // Loaded, to allow ICG to generate content and assign the handles
+                this.OnVideoEditorLoaded((VideoEditorViewModel) window.DataContext);
             }, DispatcherPriority.Loaded);
         }
 
+        public void OnVideoEditorLoaded(VideoEditorViewModel editor) {
+            editor.SetProject(new ProjectViewModel(new ProjectModel()) {
+                Settings = { FrameRate = 30, Resolution = new Resolution(1920, 1080)}
+            });
+        }
+
         protected override void OnExit(ExitEventArgs e) {
-            OGLUtils.ShutdownMainThread();
             base.OnExit(e);
         }
     }

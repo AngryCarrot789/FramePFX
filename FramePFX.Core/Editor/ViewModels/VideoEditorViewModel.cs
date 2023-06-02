@@ -21,15 +21,26 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
+        public bool IsProjectSaving {
+            get => this.Model.IsProjectSaving;
+            set {
+                this.Model.IsProjectSaving = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         public EditorPlaybackViewModel Playback { get; }
+
+        public ApplicationViewModel App { get; }
 
         public VideoEditorModel Model { get; }
 
         public IVideoEditor View { get; }
 
-        public VideoEditorViewModel(IVideoEditor view) {
+        public VideoEditorViewModel(IVideoEditor view, ApplicationViewModel app) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditorModel();
+            this.App = app;
             this.Playback = new EditorPlaybackViewModel(this);
         }
 
@@ -65,6 +76,28 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         private void OnUserSettingsModified(UserSettingsViewModel settings) {
 
+        }
+
+        public async Task CloseProjectAction() {
+            this.Project.Dispose();
+        }
+
+        public async Task OnProjectSaving(ProjectViewModel project) {
+            if (project != this.Project) {
+                throw new Exception("Project does not equal the given project");
+            }
+
+            this.IsProjectSaving = true;
+            await this.Playback.StopRenderTimer();
+        }
+
+        public async Task OnProjectSaved(ProjectViewModel project) {
+            if (project != this.Project) {
+                throw new Exception("Project does not equal the given project");
+            }
+
+            this.IsProjectSaving = false;
+            this.Playback.StartRenderTimer();
         }
     }
 }

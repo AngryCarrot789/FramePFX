@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Core.Editor {
+namespace FramePFX.Core {
     public class ModelRegistry<TModel, TViewModel> where TModel : class where TViewModel : BaseViewModel {
         private readonly Dictionary<string, Entry> IdToRegistry;
         private readonly Dictionary<Type, Entry> ViewModelToRegistry;

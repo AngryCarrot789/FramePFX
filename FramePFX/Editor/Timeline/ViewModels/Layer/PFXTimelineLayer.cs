@@ -110,7 +110,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
             PFXMPEGMediaClip clip = new PFXMPEGMediaClip {
                 Resource = media, FrameBegin = begin, FrameDuration = duration,
                 Width = resolution.Width, Height = resolution.Height,
-                Header = media.Id
+                DisplayName = media.Id
             };
 
             this.AddClip(clip);
@@ -152,7 +152,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
                 if (resource is ResourceRGBA shape) {
                     PFXShapeClip square = this.CreateSquareClip(frameBegin, duration, shape);
                     square.SetShape(0, 0, 200f, 200f);
-                    square.Header = resource.Id;
+                    square.DisplayName = resource.Id;
                 }
                 else if (resource is ResourceMedia media) {
                     media.OpenDecoder();

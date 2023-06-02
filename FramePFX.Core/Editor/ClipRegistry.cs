@@ -1,35 +1,31 @@
 using System;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Layers;
+using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 
 namespace FramePFX.Core.Editor {
-    public class LayerRegistry : ModelRegistry<TimelineLayerModel, TimelineLayerViewModel> {
-        public static LayerRegistry Instance { get; } = new LayerRegistry();
+    public class ClipRegistry : ModelRegistry<ClipModel, ClipViewModel> {
+        public static ClipRegistry Instance { get; } = new ClipRegistry();
 
-        private LayerRegistry() {
-            this.Register<VideoLayerModel, VideoLayerViewModel>("video_layer");
+        private ClipRegistry() {
+            this.Register<ImageClipModel, ImageClipViewModel>("image_clip");
         }
 
-        public new void Register<TModel, TViewModel>(string id) where TModel : TimelineLayerModel where TViewModel : TimelineLayerViewModel {
+        public new void Register<TModel, TViewModel>(string id) where TModel : ClipModel where TViewModel : ClipViewModel {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public TimelineLayerModel CreateLayerModel(TimelineModel timeline, string id) {
-            return (TimelineLayerModel) Activator.CreateInstance(base.GetModelType(id), timeline);
+        public ClipModel CreateLayerModel(TimelineModel timeline, string id) {
+            return (ClipModel) Activator.CreateInstance(base.GetModelType(id), timeline);
         }
 
-        public TimelineLayerViewModel CreateLayerViewModel(TimelineViewModel timeline, string id) {
-            return (TimelineLayerViewModel) Activator.CreateInstance(base.GetViewModelType(id), timeline);
+        public ClipViewModel CreateLayerViewModel(TimelineViewModel timeline, string id) {
+            return (ClipViewModel) Activator.CreateInstance(base.GetViewModelType(id), timeline);
         }
 
-        public TimelineLayerViewModel CreateViewModelFromModel(TimelineViewModel timeline, TimelineLayerModel model) {
-            if (!ReferenceEquals(timeline.Model, model.Timeline)) {
-                throw new ArgumentException("Timeline models do not match");
-            }
-
-            return (TimelineLayerViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(model), timeline);
+        public ClipViewModel CreateViewModelFromModel(ClipModel model) {
+            return (ClipViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(model), model);
         }
     }
 }

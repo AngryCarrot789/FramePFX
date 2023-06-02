@@ -7,7 +7,7 @@ using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.ResourceManaging.Resources {
-    public class ImageResourceModel : ResourceModel {
+    public class ImageResourceItem : ResourceItem {
         public string FilePath { get; set; }
 
         public bool IsRawBitmapMode { get; set; }
@@ -15,7 +15,7 @@ namespace FramePFX.Core.ResourceManaging.Resources {
         private SKBitmap bitmap;
         public SKImage image;
 
-        public ImageResourceModel() {
+        public ImageResourceItem() {
         }
 
         public override void WriteToRBE(RBEDictionary data) {

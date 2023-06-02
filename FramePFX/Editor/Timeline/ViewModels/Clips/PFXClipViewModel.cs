@@ -8,10 +8,10 @@ using FramePFX.Editor.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Clips {
     public abstract class PFXClipViewModel : BaseViewModel, IDisposable {
-        private string header;
-        public string Header {
-            get => this.header;
-            set => this.RaisePropertyChanged(ref this.header, value);
+        private string displayName;
+        public string DisplayName {
+            get => this.displayName;
+            set => this.RaisePropertyChanged(ref this.displayName, value);
         }
 
         /// <summary>
@@ -66,9 +66,9 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         }
 
         private async Task RenameAction() {
-            string newName = await IoC.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.Header ?? "");
+            string newName = await IoC.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.DisplayName ?? "");
             if (newName != null) {
-                this.Header = newName;
+                this.DisplayName = newName;
             }
         }
 
@@ -112,7 +112,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         }
 
         public virtual void LoadDataIntoClone(PFXClipViewModel clone) {
-            clone.Header = this.Header;
+            clone.DisplayName = this.DisplayName;
         }
 
         public virtual PFXClipViewModel Clone() {

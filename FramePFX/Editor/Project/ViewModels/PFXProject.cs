@@ -187,7 +187,7 @@ namespace FramePFX.Editor.Project.ViewModels {
 
         public static void CreateSquare(PFXTimelineLayer timelineLayer, long begin, long duration, ResourceRGBA colour, float x, float y, float w, float h, string name) {
             PFXShapeClip timelineClip = timelineLayer.CreateSquareClip(begin, duration, colour);
-            timelineClip.Header = name;
+            timelineClip.DisplayName = name;
             timelineClip.SetShape(x, y, w, h);
         }
 

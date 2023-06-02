@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FramePFX.Core.AdvancedContextService;
+using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
@@ -72,8 +73,8 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
             set => this.RaisePropertyChanged(ref this.frameMediaOffset, value);
         }
 
-        public FrameSpan Span {
-            get => new FrameSpan(this.frameBegin, this.frameDuration);
+        public ClipSpan Span {
+            get => new ClipSpan(this.frameBegin, this.frameDuration);
             set {
                 this.frameBegin = value.Begin;
                 this.frameDuration = value.Duration;

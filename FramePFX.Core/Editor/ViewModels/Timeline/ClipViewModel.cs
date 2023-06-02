@@ -1,9 +1,18 @@
 using System;
-using FramePFX.Core.Editor.Timeline.Clip;
+using System.Collections.Generic;
+using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
-    public abstract class TimelineClipViewModel : BaseViewModel {
+    public abstract class ClipViewModel : BaseViewModel {
+        public string DisplayName {
+            get => this.Model.DisplayName;
+            set {
+                this.Model.DisplayName = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         private TimelineLayerViewModel layer;
         public TimelineLayerViewModel Layer {
             get => this.layer;
@@ -16,10 +25,24 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
+        public AsyncRelayCommand EditDisplayNameCommand { get; }
+
+        public RelayCommand RemoveClipCommand { get; }
+
         public ClipModel Model { get; }
 
-        protected TimelineClipViewModel(ClipModel model) {
+        protected ClipViewModel(ClipModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
+                string name = await IoC.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
+                if (name != null) {
+                    this.DisplayName = name;
+                }
+            });
+
+            this.RemoveClipCommand = new RelayCommand(() => {
+                this.layer?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
+            });
         }
 
         protected virtual void OnLayerChanging(TimelineLayerViewModel oldLayer, TimelineLayerViewModel newLayer) {

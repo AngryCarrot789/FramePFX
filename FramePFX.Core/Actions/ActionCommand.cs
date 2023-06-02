@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using FrameControlEx.Core.Actions.Contexts;
+using FramePFX.Core.Actions.Contexts;
 
-namespace FrameControlEx.Core.Actions {
+namespace FramePFX.Core.Actions {
     /// <summary>
     /// An async command that executes an action
     /// </summary>

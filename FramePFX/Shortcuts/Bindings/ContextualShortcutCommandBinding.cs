@@ -35,7 +35,7 @@ namespace FramePFX.Shortcuts.Bindings {
             set => this.SetValue(ShortcutPathProperty, value);
         }
 
-        public GroupedShortcut Shortcut => WPFShortcutManager.Instance.FindShortcutByPath(this.ShortcutPath);
+        public GroupedShortcut Shortcut => ShortcutManager.Instance.FindShortcutByPath(this.ShortcutPath);
 
         public IShortcutUsage Usage { get; set; }
 
@@ -50,22 +50,20 @@ namespace FramePFX.Shortcuts.Bindings {
             }
         }
 
-        private async Task<bool> OnShortcutFired(ShortcutProcessor processor, GroupedShortcut shortcut) {
+        private Task<bool> OnShortcutFired(ShortcutProcessor processor, GroupedShortcut shortcut) {
             ICommand cmd = this.Command;
             object param = this.CommandParameter;
-            if (cmd != null && cmd.CanExecute(param)) {
+            if (cmd != null) {
                 if (cmd is BaseAsyncRelayCommand arc) {
-                    await arc.ExecuteAsyncCore(param);
-                    return true;
+                    return arc.TryExecuteAsync(param);
                 }
-                else {
+                else if (cmd.CanExecute(param)) {
                     cmd.Execute(param);
-                    return true;
+                    return Task.FromResult(true);
                 }
             }
-            else {
-                return false;
-            }
+
+            return Task.FromResult(false);
         }
 
         protected override Freezable CreateInstanceCore() => new ContextualShortcutCommandBinding();
@@ -105,7 +103,7 @@ namespace FramePFX.Shortcuts.Bindings {
         }
 
         public bool MatchMouseInput(object target, MouseEventArgs e) {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
     }
 

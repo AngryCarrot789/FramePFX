@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core.Actions {
+namespace FramePFX.Core.Actions {
     /// <summary>
     /// Represents some sort of action that can be executed. This class is designed to be used as a singleton,
     /// meaning there should only ever be a single instance of any implementation of this class

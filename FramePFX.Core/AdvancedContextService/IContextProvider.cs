@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     public interface IContextProvider {
         void GetContext(List<IContextEntry> list);
     }

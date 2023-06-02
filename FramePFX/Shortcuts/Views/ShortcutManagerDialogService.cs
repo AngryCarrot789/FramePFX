@@ -1,7 +1,10 @@
+using FramePFX.Core;
 using FramePFX.Core.Shortcuts.Dialogs;
+using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 
 namespace FramePFX.Shortcuts.Views {
+    [Service(typeof(IShortcutManagerDialogService))]
     public class ShortcutManagerDialogService : IShortcutManagerDialogService {
         private ShortcutEditorWindow window;
 
@@ -13,7 +16,7 @@ namespace FramePFX.Shortcuts.Views {
             }
 
             this.window = new ShortcutEditorWindow();
-            ShortcutManagerViewModel manager = new ShortcutManagerViewModel(WPFShortcutManager.Instance);
+            ShortcutManagerViewModel manager = new ShortcutManagerViewModel(ShortcutManager.Instance);
             this.window.DataContext = manager;
             this.window.Closed += (sender, args) => {
                 this.window = null;

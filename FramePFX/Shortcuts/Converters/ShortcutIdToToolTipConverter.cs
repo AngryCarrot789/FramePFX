@@ -2,9 +2,9 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using FrameControlEx.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace FrameControlEx.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class ShortcutIdToToolTipConverter : IValueConverter {
         public static ShortcutIdToToolTipConverter Instance { get; } = new ShortcutIdToToolTipConverter();
 

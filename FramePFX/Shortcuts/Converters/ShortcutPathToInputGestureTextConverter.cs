@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
-using FrameControlEx.Core.Shortcuts.Managing;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace FrameControlEx.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class ShortcutPathToInputGestureTextConverter : IValueConverter {
         public string NoSuchShortcutFormat { get; set; } = "<{0}>";
 

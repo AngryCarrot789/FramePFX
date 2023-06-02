@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
-    public class VideoEditorPlaybackModel {
+    public class EditorPlaybackModel {
         private volatile bool isPlaying;
 
         public PrecisionTimer Timer { get; }
@@ -22,7 +22,7 @@ namespace FramePFX.Core.Editor {
 
         public VideoEditorModel Editor { get; }
 
-        public VideoEditorPlaybackModel(VideoEditorModel editor) {
+        public EditorPlaybackModel(VideoEditorModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.Timer = new PrecisionTimer();
         }

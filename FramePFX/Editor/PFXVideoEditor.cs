@@ -4,7 +4,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Editor.Project.ViewModels;
 using FramePFX.Render;
 
-namespace FramePFX.Editor.ViewModels {
+namespace FramePFX.Editor {
     public class PFXVideoEditor : BaseViewModel {
         public PFXViewportPlayback Playback { get; }
 

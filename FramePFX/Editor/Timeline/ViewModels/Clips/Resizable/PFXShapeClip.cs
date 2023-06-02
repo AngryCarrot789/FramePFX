@@ -45,11 +45,11 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
             GL.End();
         }
 
-        public override PFXBaseClip NewInstanceOverride() {
+        public override PFXClipViewModel NewInstanceOverride() {
             return new PFXShapeClip();
         }
 
-        public override void LoadDataIntoClone(PFXBaseClip clone) {
+        public override void LoadDataIntoClone(PFXClipViewModel clone) {
             base.LoadDataIntoClone(clone);
             if (clone is PFXShapeClip clip) {
                 clip.resource = this.resource;

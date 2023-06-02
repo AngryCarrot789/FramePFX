@@ -1,6 +1,6 @@
 using System.Windows.Input;
 
-namespace FrameControlEx.Core.Shortcuts {
+namespace FramePFX.Core.Shortcuts {
     public interface IShortcutToCommand {
         ICommand GetCommandForShortcut(string shortcutId);
     }

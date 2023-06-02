@@ -10,7 +10,7 @@ using FramePFX.Editor.Timeline.ViewModels.Layer;
 namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.SliceClips")]
     public class SliceClipsAction : AnAction {
-        public SliceClipsAction() : base(() => "Slice clips", () => "Slices your selection (or all clips) where the play head is") {
+        public SliceClipsAction() {
 
         }
 
@@ -25,7 +25,7 @@ namespace FramePFX.Editor.Timeline.Actions {
             }
 
             long frame = timeline.PlayHeadFrame;
-            List<PFXVideoClip> selected = timeline.Handle.GetSelectedClips().ToList();
+            List<PFXVideoClipViewModel> selected = timeline.Handle.GetSelectedClips().ToList();
             selected.RemoveAll(x => !x.IntersectsFrameAt(frame));
             if (selected.Count > 0) {
                 CutAllAtFrame(timeline, selected, frame);
@@ -44,9 +44,9 @@ namespace FramePFX.Editor.Timeline.Actions {
 
         public static void CutAllOnPlayHead(PFXTimeline timeline) {
             long frame = timeline.PlayHeadFrame;
-            List<PFXBaseClip> list = new List<PFXBaseClip>();
+            List<PFXClipViewModel> list = new List<PFXClipViewModel>();
             foreach (PFXTimelineLayer layer in timeline.Layers) {
-                foreach (PFXBaseClip clip in layer.Clips) {
+                foreach (PFXClipViewModel clip in layer.Clips) {
                     if (clip.IntersectsFrameAt(frame)) {
                         list.Add(clip);
                     }
@@ -58,8 +58,8 @@ namespace FramePFX.Editor.Timeline.Actions {
             }
         }
 
-        public static void CutAllAtFrame(PFXTimeline timeline, IEnumerable<PFXBaseClip> clips, long frame) {
-            foreach (PFXBaseClip clip in clips) {
+        public static void CutAllAtFrame(PFXTimeline timeline, IEnumerable<PFXClipViewModel> clips, long frame) {
+            foreach (PFXClipViewModel clip in clips) {
                 if (!clip.IntersectsFrameAt(frame)) { // shouldn't return false
                     continue;
                 }

@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace FrameControlEx.Core.Shortcuts.Inputs {
+namespace FramePFX.Core.Shortcuts.Inputs {
     public readonly struct MouseStroke : IInputStroke {
         /// <summary>
         /// A non-null function for converting a mouse button into a string representation

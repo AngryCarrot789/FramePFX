@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FrameControlEx.Core.Views.Dialogs.Modal;
+using FramePFX.Core.Views.Dialogs.Modal;
 
-namespace FrameControlEx.Core.Views.Dialogs.Message {
+namespace FramePFX.Core.Views.Dialogs.Message {
     public class MessageDialogUsage : IDisposable {
         private readonly List<DialogButton> oldButtons;
         private readonly string oldAutoResult;

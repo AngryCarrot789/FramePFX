@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace FrameControlEx.Controls.Helpers {
+namespace FramePFX.Controls.Helpers {
 public static class AttachedInteractivity {
         public static readonly DependencyProperty DoubleClickCommandProperty = DependencyProperty.RegisterAttached("DoubleClickCommand", typeof(ICommand), typeof(AttachedInteractivity), new PropertyMetadata(null, OnDoubleClickCommandChanged));
         public static readonly DependencyProperty UseICGForParameterProperty = DependencyProperty.RegisterAttached("UseICGForParameter", typeof(bool), typeof(AttachedInteractivity), new PropertyMetadata(false));

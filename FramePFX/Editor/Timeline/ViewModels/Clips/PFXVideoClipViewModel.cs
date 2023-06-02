@@ -4,14 +4,13 @@ using FramePFX.Core.AdvancedContextService;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.Editor.ViewModels;
 using FramePFX.Render;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Clips {
     /// <summary>
     /// The base view model class for video-based clips, such as images, videos, gifs, etc
     /// </summary>
-    public abstract class VideoClipViewModel : BaseClipViewModel, IContextProvider, IVideoClip {
+    public abstract class PFXVideoClipViewModel : PFXClipViewModel, IContextProvider, IVideoClip {
         protected bool ignoreMarkRender;
         protected long frameBegin;
         protected long frameDuration;
@@ -86,7 +85,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
 
         public PFXVideoLayer VideoLayer => (PFXVideoLayer) base.Layer;
 
-        protected VideoClipViewModel() {
+        protected PFXVideoClipViewModel() {
 
         }
 
@@ -125,9 +124,9 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
             list.Add(new CommandContextEntry("Delete", this.DeleteCommand));
         }
 
-        public override void LoadDataIntoClone(BaseClipViewModel clone) {
+        public override void LoadDataIntoClone(PFXClipViewModel clone) {
             base.LoadDataIntoClone(clone);
-            if (clone is VideoClipViewModel clip) {
+            if (clone is PFXVideoClipViewModel clip) {
                 clip.frameBegin = this.frameBegin;
                 clip.frameDuration = this.frameDuration;
                 clip.frameMediaOffset = this.frameMediaOffset;

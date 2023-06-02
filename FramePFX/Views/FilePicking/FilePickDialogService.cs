@@ -1,9 +1,9 @@
-using FrameControlEx.Core;
-using FrameControlEx.Core.Views.Dialogs;
-using FrameControlEx.Core.Views.Dialogs.FilePicking;
+using FramePFX.Core;
+using FramePFX.Core.Views.Dialogs;
+using FramePFX.Core.Views.Dialogs.FilePicking;
 using Microsoft.Win32;
 
-namespace FrameControlEx.Views.FilePicking {
+namespace FramePFX.Views.FilePicking {
     [Service(typeof(IFilePickDialogService))]
     public class FilePickDialogService : IFilePickDialogService {
         public DialogResult<string[]> ShowFilePickerDialog(string filter, string defaultPath = null, string titleBar = null, bool multiSelect = false) {

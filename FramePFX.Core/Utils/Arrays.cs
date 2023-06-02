@@ -39,10 +39,25 @@ namespace FramePFX.Core.Utils {
             return true;
         }
 
+        public static bool Equals<T>(T[] a, T[] b, Func<T, T, bool> equalityFunction) {
+            int length;
+            if (a == b)
+                return true;
+            if (a == null || b == null || a.Length != (length = b.Length))
+                return false;
+
+            for (int i = 0; i < length; i++) {
+                if (!equalityFunction(a[i], b[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static unsafe T[] CloneArrayUnsafe<T>(T[] array) where T : unmanaged {
             if (array == null)
                 return null;
-
             int length = array.Length;
             T[] values = new T[length];
             int bytes = sizeof(T) * length;
@@ -60,7 +75,6 @@ namespace FramePFX.Core.Utils {
         public static T[] CloneArray<T>(T[] array) {
             if (array == null)
                 return null;
-
             int length = array.Length;
             T[] values = new T[length];
             for (int i = 0; i < length; i++)

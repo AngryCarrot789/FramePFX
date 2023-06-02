@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FrameControlEx.Core.RBC {
+namespace FramePFX.Core.RBC {
     /// <summary>
     /// Used to store an ordered list of elements
     /// </summary>

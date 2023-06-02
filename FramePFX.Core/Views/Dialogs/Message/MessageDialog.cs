@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using FrameControlEx.Core.Views.Dialogs.Modal;
+using FramePFX.Core.Views.Dialogs.Modal;
 
-namespace FrameControlEx.Core.Views.Dialogs.Message {
+namespace FramePFX.Core.Views.Dialogs.Message {
     /// <summary>
     /// A helper view model for managing message dialogs that can have multiple buttons
     /// </summary>

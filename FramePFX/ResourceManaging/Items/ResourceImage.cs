@@ -26,7 +26,7 @@ namespace FramePFX.ResourceManaging.Items {
                 this.ImageData?.Dispose();
             }
             catch (Exception e) {
-                stack.Add(e);
+                stack.Push(e);
             }
         }
     }

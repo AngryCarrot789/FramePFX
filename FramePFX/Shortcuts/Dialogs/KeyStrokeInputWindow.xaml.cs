@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Views.Dialogs;
-using FramePFX.Shortcuts.Views;
+using FramePFX.Shortcuts.Converters;
 using FramePFX.Views;
 
 namespace FramePFX.Shortcuts.Dialogs {
@@ -33,7 +33,7 @@ namespace FramePFX.Shortcuts.Dialogs {
                 this.InputBox.Text = "";
             }
             else {
-                this.InputBox.Text = KeyStrokeRepresentationConverter.ToStringFunction(stroke.KeyCode, stroke.Modifiers, stroke.IsKeyRelease, false);
+                this.InputBox.Text = KeyStrokeStringConverter.ToStringFunction(stroke.KeyCode, stroke.Modifiers, stroke.IsKeyRelease, true, true);
             }
         }
 

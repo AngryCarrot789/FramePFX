@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using FrameControlEx.Core;
-using FrameControlEx.Core.Views.Dialogs.UserInputs;
-using FrameControlEx.Utils;
+using FramePFX.Core;
+using FramePFX.Core.Views.Dialogs.UserInputs;
+using FramePFX.Utils;
 
-namespace FrameControlEx.Views.UserInputs {
+namespace FramePFX.Views.UserInputs {
     [Service(typeof(IUserInputDialogService))]
     public class UserInputDialogService : IUserInputDialogService {
         public async Task<string> ShowSingleInputDialogAsync(string title = "Input a value", string message = "Input a new valid", string def = null, InputValidator validator = null) {

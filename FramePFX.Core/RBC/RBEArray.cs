@@ -1,8 +1,8 @@
 using System;
 using System.IO;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.RBC {
+namespace FramePFX.Core.RBC {
     public enum LengthReadStrategy {
         /// <summary>
         /// Appends a byte, short, int or long before the data to indicate the length.

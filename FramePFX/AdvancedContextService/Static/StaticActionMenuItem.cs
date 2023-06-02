@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Windows.Markup;
 
-namespace FrameControlEx.AdvancedContextService.Static {
+namespace FramePFX.AdvancedContextService.Static {
     [DefaultProperty("Items")]
     [ContentProperty("Items")]
     public class StaticActionMenuItem : StaticBaseMenuItem {

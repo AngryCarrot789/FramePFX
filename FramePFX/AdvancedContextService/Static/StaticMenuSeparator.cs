@@ -1,5 +1,5 @@
 namespace FramePFX.AdvancedContextService.Static {
-    public class StaticMenuSeparator {
-        
+    public class StaticMenuSeparator : StaticMenuElement {
+
     }
 }

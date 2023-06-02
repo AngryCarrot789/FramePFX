@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Windows;
-using FrameControlEx.Core.AdvancedContextService;
+using FramePFX.Core.AdvancedContextService;
 
-namespace FrameControlEx.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     /// <summary>
     /// An interface for generating context entries based on a target object and its context
     /// </summary>

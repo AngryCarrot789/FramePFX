@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace FrameControlEx.Converters {
+namespace FramePFX.Converters {
     public class EnumConverter : IValueConverter {
         public Type EnumType { get; set; }
 

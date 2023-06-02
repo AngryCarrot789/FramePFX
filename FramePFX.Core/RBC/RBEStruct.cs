@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace FrameControlEx.Core.RBC {
+namespace FramePFX.Core.RBC {
     /// <summary>
     /// Used to store unmanaged structs in the little-endian format. Struct can have a max size of 65535 (<see cref="ushort.MaxValue"/>) bytes
     /// <para>

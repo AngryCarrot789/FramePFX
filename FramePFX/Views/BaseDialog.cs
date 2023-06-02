@@ -1,14 +1,40 @@
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using FramePFX.Core.Views.Dialogs;
-using FramePFX.Utils;
-using FramePFX.Views.Dialogs.FilePicking;
+using FramePFX.Views.FilePicking;
 
 namespace FramePFX.Views {
-    public class BaseDialog : BaseWindowCore, IDialog {
+    public class BaseDialog : WindowViewBase, IDialog {
         public BaseDialog() {
-            this.Owner = FolderPicker.GetCurrentActiveWindow();
+            Window owner = FolderPicker.GetCurrentActiveWindow();
+            if (owner != this && owner.Owner != this) {
+                this.Owner = owner;
+            }
+
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            this.DataContextChanged += (sender, args) => {
+                if (args.NewValue is BaseDialogViewModel vm) {
+                    vm.Dialog = this;
+                }
+            };
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e) {
+            base.OnKeyDown(e);
+            if (!e.Handled) {
+                switch (e.Key) {
+                    case Key.Escape:
+                        this.DialogResult = false;
+                        break;
+                    default:
+                        return;
+                }
+
+                e.Handled = true;
+                this.Close();
+            }
         }
 
         public void CloseDialog(bool result) {
@@ -16,8 +42,9 @@ namespace FramePFX.Views {
             this.Close();
         }
 
-        public async Task CloseDialogAsync(bool result) {
-            await DispatcherUtils.InvokeAsync(this.Dispatcher, () => this.CloseDialog(result));
+        public Task CloseDialogAsync(bool result) {
+            this.DialogResult = result;
+            return this.CloseAsync();
         }
     }
 }

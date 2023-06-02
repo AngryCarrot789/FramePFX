@@ -4,7 +4,7 @@
                     xmlns:controls="clr-namespace:FramePFX.Editor.Timeline.Controls">
     <Style TargetType="{x:Type controls:TimelinePlayHeadControl}">
         <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.4.Border.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone7.Border.Static}"/>
         <Setter Property="MinWidth" Value="15"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -67,9 +67,9 @@
     </Style>
 
     <Style TargetType="{x:Type controls:TimelineVideoClipControl}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}"/>
-        <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Primary.2.Background.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone4.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
+        <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Background.Static}"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="Focusable" Value="True"/>

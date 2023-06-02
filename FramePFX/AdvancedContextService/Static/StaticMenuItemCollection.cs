@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace FrameControlEx.AdvancedContextService.Static {
+namespace FramePFX.AdvancedContextService.Static {
     public class StaticMenuItemCollection : Collection<StaticMenuElement> {
         public StaticMenuItemCollection() {
 

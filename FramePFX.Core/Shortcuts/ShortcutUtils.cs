@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace FrameControlEx.Core.Shortcuts {
+namespace FramePFX.Core.Shortcuts {
     public static class ShortcutUtils {
         public static string[] ToFull(string parent, params string[] children) {
             string[] array = new string[children.Length];

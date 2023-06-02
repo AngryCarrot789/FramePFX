@@ -6,8 +6,8 @@ namespace FramePFX.Core.Utils {
         private readonly string delimiter;
         private bool hasFirst;
 
-        public StringJoiner(StringBuilder sb, string delimiter) {
-            this.sb = sb;
+        public StringJoiner(string delimiter) {
+            this.sb = new StringBuilder();
             this.delimiter = delimiter;
         }
 

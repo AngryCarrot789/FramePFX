@@ -10,8 +10,6 @@ using FramePFX.Editor.Project.ViewModels;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Editor.Timeline.ViewModels.Clips;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.Editor.ViewModels;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timeline.ViewModels {
     public class PFXTimeline : BaseViewModel {
@@ -36,14 +34,14 @@ namespace FramePFX.Editor.Timeline.ViewModels {
             set => this.RaisePropertyChanged(ref this.selectedTimelineLayer, value);
         }
 
-        private PFXBaseClip mainSelectedClip;
-        public PFXBaseClip MainSelectedClip {
+        private PFXClipViewModel mainSelectedClip;
+        public PFXClipViewModel MainSelectedClip {
             get => this.mainSelectedClip;
             set => this.RaisePropertyChanged(ref this.mainSelectedClip, value);
         }
 
-        private PFXBaseClip clipToModify;
-        public PFXBaseClip ClipToModify {
+        private PFXClipViewModel clipToModify;
+        public PFXClipViewModel ClipToModify {
             get => this.clipToModify;
             set => this.RaisePropertyChanged(ref this.clipToModify, value);
         }
@@ -113,11 +111,11 @@ namespace FramePFX.Editor.Timeline.ViewModels {
             this.DeleteSelectedLayerCommand = new RelayCommand(this.DeleteSelectedLayerAction);
         }
 
-        public void OnUpdateSelection(IEnumerable<PFXVideoClip> clips) {
+        public void OnUpdateSelection(IEnumerable<PFXVideoClipViewModel> clips) {
             this.GenerateProperties(clips.ToList());
         }
 
-        public void GenerateProperties(List<PFXVideoClip> clips) {
+        public void GenerateProperties(List<PFXVideoClipViewModel> clips) {
             // List<List<PropertyGroupViewModel>> groupTypes = new List<List<PropertyGroupViewModel>>();
             // for (int i = 0; i < clips.Count; i++) {
             //     ClipContainerViewModel clip = clips[i];
@@ -147,7 +145,7 @@ namespace FramePFX.Editor.Timeline.ViewModels {
         }
 
         public async Task DeleteSelectedClipsAction(bool skipDialog) {
-            List<PFXVideoClip> list = this.Handle.GetSelectedClips().ToList();
+            List<PFXVideoClipViewModel> list = this.Handle.GetSelectedClips().ToList();
             switch (list.Count) {
                 case 0: return;
                 case 1:
@@ -155,7 +153,7 @@ namespace FramePFX.Editor.Timeline.ViewModels {
                     return;
                 default: {
                     if (skipDialog || await IoC.MessageDialogs.ShowYesNoDialogAsync("Delete clips", "Do you want to delete these " + list.Count + " clips?")) {
-                        foreach (PFXVideoClip clip in list) {
+                        foreach (PFXVideoClipViewModel clip in list) {
                             clip.Layer.RemoveClip(clip);
                         }
                     }
@@ -207,11 +205,11 @@ namespace FramePFX.Editor.Timeline.ViewModels {
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
-        public IEnumerable<PFXBaseClip> GetClipsAtPlayHead() {
+        public IEnumerable<PFXClipViewModel> GetClipsAtPlayHead() {
             return this.GetClipsAtFrame(this.playHeadFrame);
         }
 
-        public IEnumerable<PFXBaseClip> GetClipsAtFrame(long frame) {
+        public IEnumerable<PFXClipViewModel> GetClipsAtFrame(long frame) {
             return this.Layers.SelectMany(layer => layer.GetClipsAtFrame(frame));
         }
 
@@ -250,7 +248,7 @@ namespace FramePFX.Editor.Timeline.ViewModels {
 
         public void OnPlayBegin() {
             foreach (PFXTimelineLayer layer in this.layers) {
-                foreach (PFXBaseClip clip in layer.Clips) {
+                foreach (PFXClipViewModel clip in layer.Clips) {
                     clip.OnTimelinePlayBegin();
                 }
             }
@@ -258,7 +256,7 @@ namespace FramePFX.Editor.Timeline.ViewModels {
 
         public void OnPlayEnd() {
             foreach (PFXTimelineLayer layer in this.layers) {
-                foreach (PFXBaseClip clip in layer.Clips) {
+                foreach (PFXClipViewModel clip in layer.Clips) {
                     clip.OnTimelinePlayEnd();
                 }
             }

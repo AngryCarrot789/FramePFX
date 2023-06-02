@@ -3,21 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="clr-namespace:FramePFX.Views"
         xmlns:viewModels="clr-namespace:FramePFX.Core.Shortcuts.ViewModels;assembly=FramePFX.Core"
-        xmlns:views1="clr-namespace:FramePFX.Shortcuts.Views"
+        xmlns:views="clr-namespace:FramePFX.Views"
         xmlns:advancedContextService="clr-namespace:FramePFX.AdvancedContextService"
+        xmlns:converters="clr-namespace:FramePFX.Shortcuts.Converters"
         mc:Ignorable="d"
         Title="These shortcuts are not saved to a file yet..." Height="450" Width="800" 
         d:DataContext="{d:DesignInstance viewModels:ShortcutManagerViewModel}"
-        Background="{DynamicResource AREghZyBrush.Primary.1.Background.Static}"
-        BorderBrush="DodgerBlue" 
-        Style="{DynamicResource NewWindowExStyle}"
-        TitlebarBrush="{DynamicResource AREghZyBrush.Primary.1.Background.Static}">
+        BorderBrush="DodgerBlue"
+        CanCloseWithEscapeKey="True">
     <Grid>
         <Grid.Resources>
-            <views1:KeyStrokeRepresentationConverter x:Key="KeyStrokeRepresentationConverter"/>
-            <views1:MouseStrokeRepresentationConverter x:Key="MouseStrokeRepresentationConverter"/>
+            <converters:KeyStrokeStringConverter x:Key="KeyStrokeRepresentationConverter"/>
+            <converters:MouseStrokeStringConverter x:Key="MouseStrokeRepresentationConverter"/>
         </Grid.Resources>
         <TreeView ItemsSource="{Binding Root.Children}" HorizontalContentAlignment="Stretch" ScrollViewer.CanContentScroll="False" BorderThickness="0">
             <TreeView.ItemContainerStyle>
@@ -56,21 +54,19 @@
                                         <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
                                     </Trigger>
                                     <Trigger Property="IsSelected" Value="true">
-                                        <Setter Property="Background" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Background}"/>
-                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Border}"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Deeper}"/>
+                                        <Setter Property="Background" TargetName="Bd" Value="Transparent"/>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Orange"/>
                                     </Trigger>
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
                                             <Condition Property="IsSelected" Value="true"/>
                                             <Condition Property="IsSelectionActive" Value="false"/>
                                         </MultiTrigger.Conditions>
-                                        <Setter Property="Background" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Inactive.Background}"/>
-                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Inactive.Border}"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                                        <Setter Property="Background" TargetName="Bd" Value="Transparent"/>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Orange"/>
                                     </MultiTrigger>
                                     <Trigger Property="IsEnabled" Value="false">
-                                        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                                        <Setter Property="Foreground" Value="Gray"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -106,7 +102,7 @@
                             <ItemsControl.Resources>
                                 <DataTemplate DataType="{x:Type viewModels:KeyStrokeViewModel}">
                                     <Border Background="#FFFFE53E" CornerRadius="2" Padding="2,0" Margin="1">
-                                        <TextBlock Padding="1" Foreground="Black">
+                                        <TextBlock Padding="1">
                                             <TextBlock.Text>
                                                 <MultiBinding Converter="{StaticResource KeyStrokeRepresentationConverter}">
                                                     <Binding Path="KeyCode" UpdateSourceTrigger="PropertyChanged"/>
@@ -119,7 +115,7 @@
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type viewModels:MouseStrokeViewModel}">
                                     <Border Background="#FFFFE53E" CornerRadius="2" Padding="2,0" Margin="1">
-                                        <TextBlock Padding="1" Foreground="Black">
+                                        <TextBlock Padding="1">
                                             <TextBlock.Text>
                                                 <MultiBinding Converter="{StaticResource MouseStrokeRepresentationConverter}">
                                                     <Binding Path="MouseButton" UpdateSourceTrigger="PropertyChanged"/>

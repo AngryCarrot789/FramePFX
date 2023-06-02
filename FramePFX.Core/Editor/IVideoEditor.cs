@@ -1,5 +1,10 @@
+using FramePFX.Core.Views;
+
 namespace FramePFX.Core.Editor {
-    public interface IVideoEditor {
-        
+    /// <summary>
+    /// An interface for a video editor view
+    /// </summary>
+    public interface IVideoEditor : IViewBase {
+
     }
 }

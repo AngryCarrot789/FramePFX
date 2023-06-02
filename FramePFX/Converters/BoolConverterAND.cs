@@ -2,9 +2,9 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Converters {
+namespace FramePFX.Converters {
     public class BoolConverterAND : IMultiValueConverter {
         public bool EmptyArrayBool { get; set; } = false;
 

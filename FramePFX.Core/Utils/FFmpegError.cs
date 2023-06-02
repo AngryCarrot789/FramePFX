@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public static class FFmpegError {
         private static readonly Dictionary<int, string> ErrorToName;
 

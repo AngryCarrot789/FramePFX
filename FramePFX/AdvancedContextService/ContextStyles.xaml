@@ -2,58 +2,73 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
-                    xmlns:converters="clr-namespace:FramePFX.Shortcuts.Converters"
-                    xmlns:commands="clr-namespace:FramePFX.Core.AdvancedContextService.Commands;assembly=FramePFX.Core"
-                    xmlns:actions="clr-namespace:FramePFX.Core.AdvancedContextService.Actions;assembly=FramePFX.Core"
-                    mc:Ignorable="d">
-    <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-    </Style>
-    <Style x:Key="CommandMenuItemMainStyle"
-           TargetType="{x:Type MenuItem}"
-           BasedOn="{StaticResource {x:Type MenuItem}}"
-           d:DataContext="{d:DesignInstance commands:CommandContextEntry}">
-        <Setter Property="Header" Value="{Binding Header}"/>
-        <Setter Property="InputGestureText" Value="{Binding InputGestureText}"/>
-        <Setter Property="Command" Value="{Binding Command}"/>
-        <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
-        <Setter Property="ToolTip" Value="{Binding ToolTip}"/>
-        <Setter Property="ItemsSource" Value="{Binding Children}"/>
-    </Style>
-    <Style x:Key="ActionMenuItemMainStyle"
-           TargetType="{x:Type acs:AdvancedActionMenuItem}"
-           BasedOn="{StaticResource {x:Type acs:AdvancedActionMenuItem}}"
-           d:DataContext="{d:DesignInstance actions:ActionContextEntry}">
-        <Setter Property="Header" Value="{Binding Header}"/>
-        <Setter Property="InputGestureText" Value="{Binding ActionId, Converter={x:Static converters:ActionIdToShortcutGestureConverter.Instance}}"/>
-        <Setter Property="ToolTip" Value="{Binding ToolTip}"/>
-        <Setter Property="ActionId" Value="{Binding ActionId}"/>
-        <Setter Property="ItemsSource" Value="{Binding Children}"/>
+                    mc:Ignorable="d"
+                    xmlns:t="clr-namespace:FramePFX.Core.AdvancedContextService;assembly=FramePFX.Core"
+                    xmlns:acs="clr-namespace:FramePFX.AdvancedContextService">
+    <Style TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
     </Style>
 
-    <acs:AdvancedMenuItemStyleSelector x:Shared="True" x:Key="AdvancedMenuItemContainerStyleSelector" SeparatorStyle="{StaticResource {x:Type Separator}}">
-        <acs:AdvancedMenuItemStyleSelector.NonCheckableCommandMenuItemStyle>
-            <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource CommandMenuItemMainStyle}">
-            </Style>
-        </acs:AdvancedMenuItemStyleSelector.NonCheckableCommandMenuItemStyle>
+    <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
+
+    </Style>
+
+    <Style TargetType="{x:Type acs:AdvancedShortcutMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
+
+    </Style>
+
+    <!-- Dammit visual studio why won't you accept d:DataContext on styles :'( -->
+    <Style d:DataContext="{d:DesignInstance t:BaseContextEntry}" x:Key="BaseContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
+        <Setter Property="Header"           Value="{Binding Header, Mode=OneWay}"/>
+        <Setter Property="ToolTip"          Value="{Binding Description, Mode=OneWay}"/>
+        <Setter Property="ItemsSource"      Value="{Binding Children, Mode=OneTime}"/>
+        <Setter Property="IconType"         Value="{Binding IconType}"/>
+    </Style>
+
+    <Style d:DataContext="{d:DesignInstance t:CommandContextEntry}" x:Key="CommandContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
+        <Setter Property="InputGestureText" Value="{Binding InputGestureText, Mode=OneWay}"/>
+        <Setter Property="Command"          Value="{Binding Command}"/>
+        <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
+    </Style>
+
+    <Style d:DataContext="{d:DesignInstance t:ActionContextEntry}" x:Key="ActionContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
+        <Setter Property="ActionId"    Value="{Binding ActionId, Mode=OneWay}"/>
+    </Style>
+
+    <Style d:DataContext="{d:DesignInstance t:GroupContextEntry}" x:Key="GroupContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
+    </Style>
+
+    <Style d:DataContext="{d:DesignInstance t:ShortcutCommandContextEntry}" x:Key="ShortcutCommandContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedShortcutMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
+        <Setter Property="ShortcutIds"      Value="{Binding ShortcutIds, Mode=OneTime}"/>
+        <Setter Property="Command"          Value="{Binding Command, Mode=TwoWay}"/>
+        <Setter Property="CommandParameter" Value="{Binding CommandParameter, Mode=TwoWay}"/>
+    </Style>
+
+    <acs:AdvancedMenuItemStyleSelector x:Key="AdvancedMenuItemContainerStyleSelector"
+                                       x:Shared="True"
+                                       NonCheckableActionMenuItemStyle="{StaticResource ActionContextEntry_AdvancedMenuItemStyle}"
+                                       NonCheckableCommandMenuItemStyle="{StaticResource CommandContextEntry_AdvancedMenuItemStyle}"
+                                       ShortcutCommandMenuItemStyle="{StaticResource ShortcutCommandContextEntry_AdvancedMenuItemStyle}"
+                                       GroupingMenuItemStyle="{StaticResource GroupContextEntry_AdvancedMenuItemStyle}"
+                                       DefaultAdvancedMenuItemStyle="{StaticResource {x:Type acs:AdvancedMenuItem}}"
+                                       SeparatorStyle="{StaticResource {x:Type Separator}}">
         <acs:AdvancedMenuItemStyleSelector.CheckableCommandMenuItemStyle>
-            <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource CommandMenuItemMainStyle}">
+            <Style TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource CommandContextEntry_AdvancedMenuItemStyle}">
                 <Setter Property="IsCheckable" Value="True"/>
             </Style>
         </acs:AdvancedMenuItemStyleSelector.CheckableCommandMenuItemStyle>
-        <acs:AdvancedMenuItemStyleSelector.NonCheckableActionMenuItemStyle>
-            <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource ActionMenuItemMainStyle}">
-            </Style>
-        </acs:AdvancedMenuItemStyleSelector.NonCheckableActionMenuItemStyle>
         <acs:AdvancedMenuItemStyleSelector.CheckableActionMenuItemStyle>
-            <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource ActionMenuItemMainStyle}">
+            <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource ActionContextEntry_AdvancedMenuItemStyle}">
                 <Setter Property="IsCheckable" Value="True"/>
             </Style>
         </acs:AdvancedMenuItemStyleSelector.CheckableActionMenuItemStyle>
     </acs:AdvancedMenuItemStyleSelector>
+
     <Style TargetType="{x:Type acs:AdvancedContextMenu}" BasedOn="{StaticResource {x:Type ContextMenu}}">
         <Setter Property="UsesItemContainerTemplate" Value="False"/>
         <Setter Property="ItemContainerStyleSelector" Value="{StaticResource AdvancedMenuItemContainerStyleSelector}"/>
+        <!--
+        can't remember why I added this setter...
         <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="True"/>
+        -->
     </Style>
 </ResourceDictionary>

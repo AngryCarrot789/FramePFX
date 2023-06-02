@@ -70,11 +70,11 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public bool GetClipControl(object item, out TimelineVideoClipControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<PFXVideoClip, TimelineVideoClipControl>(item, this.ItemContainerGenerator, x => x.Handle as TimelineVideoClipControl)) != null;
+            return (clip = ICGenUtils.GetContainerForItem<PFXVideoClipViewModel, TimelineVideoClipControl>(item, this.ItemContainerGenerator, x => x.Handle as TimelineVideoClipControl)) != null;
         }
 
-        public bool GetClipViewModel(object item, out PFXVideoClip videoClip) {
-            return ICGenUtils.GetItemForContainer<TimelineVideoClipControl, PFXVideoClip>(item, this.ItemContainerGenerator, x => x.ViewModel, out videoClip);
+        public bool GetClipViewModel(object item, out PFXVideoClipViewModel videoClip) {
+            return ICGenUtils.GetItemForContainer<TimelineVideoClipControl, PFXVideoClipViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out videoClip);
         }
 
         public IEnumerable<TimelineVideoClipControl> GetClipControls() {
@@ -85,9 +85,9 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<PFXVideoClip> GetClipViewModels() {
+        public IEnumerable<PFXVideoClipViewModel> GetClipViewModels() {
             foreach (object item in this.Items) {
-                if (this.GetClipViewModel(item, out PFXVideoClip clip)) {
+                if (this.GetClipViewModel(item, out PFXVideoClipViewModel clip)) {
                     yield return clip;
                 }
             }
@@ -101,9 +101,9 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<PFXVideoClip> GetSelectedClipViewModels() {
+        public IEnumerable<PFXVideoClipViewModel> GetSelectedClipViewModels() {
             foreach (object item in this.SelectedItems) {
-                if (this.GetClipViewModel(item, out PFXVideoClip clip)) {
+                if (this.GetClipViewModel(item, out PFXVideoClipViewModel clip)) {
                     yield return clip;
                 }
             }
@@ -137,7 +137,7 @@ namespace FramePFX.Editor.Timeline.Controls {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
             if (element is IClipHandle clip) {
-                if (item is PFXVideoClip viewModel) {
+                if (item is PFXVideoClipViewModel viewModel) {
                     viewModel.Handle = clip;
                 }
             }
@@ -244,7 +244,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public void MakeTopElement(TimelineVideoClipControl control) {
             PFXTimelineLayer timelineLayer = this.ViewModel;
-            PFXVideoClip container;
+            PFXVideoClipViewModel container;
             if (timelineLayer != null && (container = control.ViewModel) != null) {
                 timelineLayer.MakeTopMost(container);
             }

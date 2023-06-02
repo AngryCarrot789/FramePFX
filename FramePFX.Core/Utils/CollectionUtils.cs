@@ -29,5 +29,9 @@ namespace FramePFX.Core.Utils {
                 throw new Exception("Expected an array of size " + count + ". Got: " + (array != null ? array.Length.ToString() : "null"));
             }
         }
+
+        public static IEnumerable<T> SingleItem<T>(in T value) {
+            return new List<T> {value};
+        }
     }
 }

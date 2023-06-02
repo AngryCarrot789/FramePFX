@@ -1,4 +1,4 @@
-namespace FrameControlEx.Core.Views.Dialogs {
+namespace FramePFX.Core.Views.Dialogs {
     /// <summary>
     /// Just return null or use nullable instead; so much more convenient than using this class... unless null can be a successful result
     /// </summary>

@@ -10,7 +10,6 @@ using FramePFX.Editor.Project.EditorDialogs;
 using FramePFX.Editor.Timeline.ViewModels;
 using FramePFX.Editor.Timeline.ViewModels.Clips.Resizable;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.Editor.ViewModels;
 using FramePFX.ResourceManaging;
 using FramePFX.ResourceManaging.Items;
 using FramePFX.ResourceManaging.ViewModels;
@@ -130,7 +129,7 @@ namespace FramePFX.Editor.Project.ViewModels {
 
             this.Resolution = map.GetStruct<Resolution>("Resolution");
             this.FrameRate = map.GetDouble("FPS");
-            RBEDictionary resources = map.GetOrCreateDictionary("Resources");
+            RBEDictionary resources = map.GetOrCreateDictionaryElement("Resources");
             // await this.ResourceManager.SaveResources(resources, folder);
         }
 

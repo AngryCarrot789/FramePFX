@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace FrameControlEx.Controls.Helpers {
+namespace FramePFX.Controls.Helpers {
     public static class ScrollViewerHelper {
         public static readonly DependencyProperty UseHorizontalScrollWheelProperty = DependencyProperty.RegisterAttached("UseHorizontalScrollWheel", typeof(bool), typeof(ScrollViewerHelper), new PropertyMetadata(false, OnUseHorizontalScrollWheelPropertyChanged));
         public static readonly DependencyProperty IsRequireShiftForHorizontalScrollProperty = DependencyProperty.RegisterAttached("IsRequireShiftForHorizontalScroll", typeof(bool), typeof(ScrollViewerHelper), new PropertyMetadata(true));

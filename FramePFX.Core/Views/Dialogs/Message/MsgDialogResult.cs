@@ -1,4 +1,4 @@
-namespace FrameControlEx.Core.Views.Dialogs.Message {
+namespace FramePFX.Core.Views.Dialogs.Message {
     public enum MsgDialogResult {
         None = 0,
         OK = 1,

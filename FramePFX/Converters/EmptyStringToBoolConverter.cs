@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace FrameControlEx.Converters {
+namespace FramePFX.Converters {
     public class EmptyStringToBoolConverter : IValueConverter {
         public object NullValue { get; set; }
 

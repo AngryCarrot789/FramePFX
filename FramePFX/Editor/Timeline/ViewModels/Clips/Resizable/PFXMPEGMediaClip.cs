@@ -151,21 +151,21 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
                 this.downloadedHwFrame?.Dispose();
             }
             catch(Exception e) {
-                stack.Add(new Exception("Exception while disposing downloaded frame", e));
+                stack.Push(new Exception("Exception while disposing downloaded frame", e));
             }
 
             try {
                 this.frameRgb?.Dispose();
             }
             catch (Exception e) {
-                stack.Add(new Exception("Exception while disposing current frame", e));
+                stack.Push(new Exception("Exception while disposing current frame", e));
             }
 
             try {
                 this.scaler?.Dispose();
             }
             catch (Exception e) {
-                stack.Add(new Exception("Exception while disposing scaler", e));
+                stack.Push(new Exception("Exception while disposing scaler", e));
             }
 
             if (this.texture == null) {
@@ -173,23 +173,23 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
             }
 
             if (!this.texture.Context.BeginUse(false)) {
-                stack.Add(new Exception("Failed to use texture context"));
+                stack.Push(new Exception("Failed to use texture context"));
             }
             else {
                 try {
                     this.texture.Dispose();
                 }
                 catch (Exception e) {
-                    stack.Add(new Exception("Exception while disposing scaler", e));
+                    stack.Push(new Exception("Exception while disposing scaler", e));
                 }
             }
         }
 
-        public override PFXBaseClip NewInstanceOverride() {
+        public override PFXClipViewModel NewInstanceOverride() {
             return new PFXMPEGMediaClip();
         }
 
-        public override void LoadDataIntoClone(PFXBaseClip clone) {
+        public override void LoadDataIntoClone(PFXClipViewModel clone) {
             base.LoadDataIntoClone(clone);
             if (clone is PFXMPEGMediaClip clip) {
                 clip.resource = this.resource;

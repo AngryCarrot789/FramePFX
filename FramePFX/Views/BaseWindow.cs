@@ -2,13 +2,13 @@ using System.Threading.Tasks;
 using FramePFX.Core.Views.Windows;
 
 namespace FramePFX.Views {
-    public class BaseWindow : BaseWindowCore, IWindow {
+    public class BaseWindow : WindowViewBase, IWindow {
         public void CloseWindow() {
             this.Close();
         }
 
-        public async Task CloseWindowAsync() {
-            await this.Dispatcher.InvokeAsync(this.CloseWindow);
+        public Task CloseWindowAsync() {
+            return base.CloseAsync();
         }
     }
 }

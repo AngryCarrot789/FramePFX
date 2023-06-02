@@ -174,14 +174,14 @@ namespace FramePFX.ResourceManaging.Items {
                 this.ReleaseDecoder();
             }
             catch (Exception e) {
-                stack.Add(new Exception("Failed to release decoder", e));
+                stack.Push(new Exception("Failed to release decoder", e));
             }
 
             try {
                 this.Demuxer?.Dispose();
             }
             catch (Exception e) {
-                stack.Add(new Exception("Failed to dispose demuxer", e));
+                stack.Push(new Exception("Failed to dispose demuxer", e));
             }
             finally {
                 this.Demuxer = null;

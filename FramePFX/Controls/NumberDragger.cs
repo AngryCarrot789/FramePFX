@@ -4,9 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Controls {
+namespace FramePFX.Controls {
     [TemplatePart(Name = "PART_TextBlock", Type = typeof(TextBlock))]
     [TemplatePart(Name = "PART_TextBox", Type = typeof(TextBox))]
     public class NumberDragger : RangeBase {

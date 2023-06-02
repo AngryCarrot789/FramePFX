@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using FrameControlEx.Core;
-using FrameControlEx.Core.Services;
+using FramePFX.Core;
+using FramePFX.Core.Services;
 
-namespace FrameControlEx.Services {
+namespace FramePFX.Services {
     [Service(typeof(IExplorerService))]
     public class WinExplorerService : IExplorerService {
         public void OpenFileInExplorer(string filePath) {

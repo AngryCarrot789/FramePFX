@@ -14,12 +14,24 @@ namespace FramePFX.Core.Utils {
             return Math.Max(Math.Min(value, max), min);
         }
 
+        public static byte Clamp(byte value, byte min, byte max) {
+            return Math.Max(Math.Min(value, max), min);
+        }
+
         public static int Clamp(int value, int min, int max) {
-            return value < min ? min : (value > max ? max : value);
+            return Math.Max(Math.Min(value, max), min);
         }
 
         public static long Clamp(long value, long min, long max) {
-            return value < min ? min : (value > max ? max : value);
+            return Math.Max(Math.Min(value, max), min);
+        }
+
+        public static bool Equals(double a, double b, double tolerance = 0.0001d) {
+            return Math.Abs(a - b) < tolerance;
+        }
+
+        public static bool Equals(float a, float b, float tolerance = 0.001f) {
+            return Math.Abs(a - b) < tolerance;
         }
     }
 }

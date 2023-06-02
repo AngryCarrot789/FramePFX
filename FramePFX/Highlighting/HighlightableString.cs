@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using FrameControlEx.Core;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Highlighting {
+namespace FramePFX.Highlighting {
     public class HighlightableString : BaseViewModel {
         private string text;
         public string Text {

@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using FrameControlEx.Core.Actions;
-using FrameControlEx.Core.Actions.Contexts;
-using FrameControlEx.Core.Shortcuts.Inputs;
-using FrameControlEx.Core.Shortcuts.Usage;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Usage;
 
-namespace FrameControlEx.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
     /// A shortcut processor. This is used for each focus root (which is typically a window), and
     /// should only really be used by a single thread at a time (not designed to be thread safe)

@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public sealed class CASLock {
         private readonly object locker;
         private volatile int counter;

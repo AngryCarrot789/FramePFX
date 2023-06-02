@@ -103,7 +103,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public new VideoTimelineLayerControl Layer => this.ParentSelector as VideoTimelineLayerControl;
 
-        public PFXVideoClip ViewModel => this.DataContext as PFXVideoClip;
+        public PFXVideoClipViewModel ViewModel => this.DataContext as PFXVideoClipViewModel;
 
         public bool IsMovingControl { get; set; }
 
@@ -118,7 +118,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is PFXVideoClip vm) {
+                if (args.NewValue is PFXVideoClipViewModel vm) {
                     vm.Handle = this;
                 }
             };

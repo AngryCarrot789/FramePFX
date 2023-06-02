@@ -96,7 +96,7 @@ namespace FramePFX.Shortcuts.Bindings {
 
             this.isRunning = true;
             try {
-                DefaultDataContext context = new DefaultDataContext();
+                DataContext context = new DataContext();
                 context.Merge(processor.CurrentDataContext);
                 IDataContext myDc = this.AdditionalContext;
                 if (myDc != null) {
@@ -105,6 +105,10 @@ namespace FramePFX.Shortcuts.Bindings {
 
                 context.AddContext(this);
                 if (Window.GetWindow(this) is Window w) {
+                    if (w.DataContext is object dc1) {
+                        context.AddContext(dc1);
+                    }
+
                     context.AddContext(w);
                 }
 

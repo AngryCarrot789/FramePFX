@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Controls.Helpers {
+namespace FramePFX.Controls.Helpers {
     public static class ToggleButtonHelper {
         public static readonly DependencyProperty IsDisabledWhenIsCheckedIsNullProperty = DependencyProperty.RegisterAttached(
             "IsDisabledWhenIsCheckedIsNull", typeof(bool), typeof(ToggleButtonHelper), new PropertyMetadata(BoolBox.False, PropertyChangedCallback));

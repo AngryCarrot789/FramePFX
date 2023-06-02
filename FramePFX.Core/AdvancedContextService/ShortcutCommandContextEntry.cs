@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     /// <summary>
     /// A context entry class that supports invoking an <see cref="ICommand"/> based on a shortcut
     /// </summary>

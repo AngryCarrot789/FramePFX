@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using FrameControlEx.Core.AdvancedContextService;
-using FrameControlEx.Core.Shortcuts.Inputs;
-using FrameControlEx.Core.Shortcuts.Managing;
+using FramePFX.Core.AdvancedContextService;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace FrameControlEx.Core.Shortcuts.ViewModels {
+namespace FramePFX.Core.Shortcuts.ViewModels {
     public class ShortcutViewModel : BaseShortcutItemViewModel, IContextProvider {
         public GroupedShortcut TheShortcut { get; }
 

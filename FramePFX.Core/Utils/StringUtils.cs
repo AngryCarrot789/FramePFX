@@ -44,5 +44,32 @@ namespace FramePFX.Core.Utils {
 
             return sb.ToString();
         }
+
+        public static string Repeat(char ch, int count) {
+            char[] chars = new char[count];
+            for (int i = 0; i < count; i++)
+                chars[i] = ch;
+            return new string(chars);
+        }
+
+        public static string Repeat(string str, int count) {
+            StringBuilder sb = new StringBuilder(str.Length * count);
+            for (int i = 0; i < count; i++)
+                sb.Append(str);
+            return sb.ToString();
+        }
+
+        public static string FitLength(this string str, int length, char fit = ' ') {
+            int strlen = str.Length;
+            if (strlen > length) {
+                return str.Substring(0, length);
+            }
+            if (strlen < length) {
+                return str + Repeat(fit, length - strlen);
+            }
+            else {
+                return str;
+            }
+        }
     }
 }

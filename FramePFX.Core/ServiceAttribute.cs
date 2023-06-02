@@ -1,6 +1,6 @@
 using System;
 
-namespace FrameControlEx.Core {
+namespace FramePFX.Core {
     /// <summary>
     /// An attribute applied to the implementation of a service
     /// </summary>

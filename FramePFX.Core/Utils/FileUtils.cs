@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public static class FileUtils {
         public static string ChangeFileName(string path, string fileName) {
             string parent = Path.GetDirectoryName(path);

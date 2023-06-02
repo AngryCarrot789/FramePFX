@@ -1,7 +1,7 @@
 ﻿using System.Windows.Input;
 using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Views.Dialogs;
-using FramePFX.Shortcuts.Views;
+using FramePFX.Shortcuts.Converters;
 using FramePFX.Views;
 
 namespace FramePFX.Shortcuts.Dialogs {
@@ -20,13 +20,13 @@ namespace FramePFX.Shortcuts.Dialogs {
         private void InputBox_MouseDown(object sender, MouseButtonEventArgs e) {
             MouseStroke stroke = ShortcutUtils.GetMouseStrokeForEvent(e);
             this.Stroke = stroke;
-            this.InputBox.Text = MouseStrokeRepresentationConverter.ToStringFunction(stroke.MouseButton, stroke.Modifiers, stroke.ClickCount, stroke.WheelDelta);
+            this.InputBox.Text = MouseStrokeStringConverter.ToStringFunction(stroke.MouseButton, stroke.Modifiers, stroke.ClickCount);
         }
 
         private void InputBox_MouseWheel(object sender, MouseWheelEventArgs e) {
             if (ShortcutUtils.GetMouseStrokeForEvent(e, out MouseStroke stroke)) {
                 this.Stroke = stroke;
-                this.InputBox.Text = MouseStrokeRepresentationConverter.ToStringFunction(stroke.MouseButton, stroke.Modifiers, stroke.ClickCount, stroke.WheelDelta);
+                this.InputBox.Text = MouseStrokeStringConverter.ToStringFunction(stroke.MouseButton, stroke.Modifiers, stroke.ClickCount);
             }
         }
     }

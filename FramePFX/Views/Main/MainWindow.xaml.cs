@@ -2,17 +2,20 @@
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core;
+using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Utils;
+using FramePFX.Editor;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.Editor.ViewModels;
 using FramePFX.Render.OGL;
 using FramePFX.Views.Exceptions;
+using SkiaSharp.Views.Desktop;
 
 namespace FramePFX.Views.Main {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
+    public partial class MainWindow : Window, IVideoEditor {
         public PFXVideoEditor Editor => this.DataContext as PFXVideoEditor;
 
         public MainWindow() {
@@ -23,6 +26,12 @@ namespace FramePFX.Views.Main {
             IoC.BroadcastShortcutActivity = (x) => {
 
             };
+
+            this.DataContext = new VideoEditorViewModel(this);
+        }
+
+        private void OnPaintViewPortSurface(object sender, SKPaintSurfaceEventArgs e) {
+
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
@@ -92,39 +101,6 @@ namespace FramePFX.Views.Main {
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
-            ExceptionStack stack = ExceptionStack.Push();
-            Method1(stack);
-            ExceptionStack.Pop(stack);
-            if (stack.HasAny) {
-                ExceptionViewerService.Instance.ShowExceptionStack(stack);
-            }
-        }
-
-        public static void Method1(ExceptionStack stack) {
-            Method2(stack);
-        }
-
-        public static void Method2(ExceptionStack stack) {
-            try {
-                Method3();
-            }
-            catch (Exception e) {
-                stack.Add(new Exception("Failed to call method3", e));
-                try {
-                    Method4();
-                }
-                catch (Exception ex) {
-                    e.AddSuppressed(new Exception("Failed to manually call Method4", ex));
-                }
-            }
-        }
-
-        public static void Method3() {
-            Method4();
-        }
-
-        public static void Method4() {
-            throw new Exception("Method 4 cannot run");
         }
     }
 }

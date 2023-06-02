@@ -1,6 +1,6 @@
 using System;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public interface IRealDisposable : IDisposable {
         bool IsDisposed { get; }
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FrameControlEx.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace FrameControlEx.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
     /// A class for storing and managing shortcuts
     /// </summary>

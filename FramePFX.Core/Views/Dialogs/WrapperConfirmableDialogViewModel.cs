@@ -1,4 +1,4 @@
-namespace FrameControlEx.Core.Views.Dialogs {
+namespace FramePFX.Core.Views.Dialogs {
     public class WrapperConfirmableDialogViewModel<T> : BaseConfirmableDialogViewModel {
         private T model;
         public T Model {

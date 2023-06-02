@@ -7,7 +7,7 @@ using System.Windows.Interop; // for WPF support
 
 // for WPF support
 
-namespace FrameControlEx.Views.FilePicking {
+namespace FramePFX.Views.FilePicking {
     public class FolderPicker {
         public virtual string ResultPath { get; protected set; }
         public virtual string ResultName { get; protected set; }

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using FrameControlEx.Core.Views;
-using FrameControlEx.Core.Views.ViewModels;
+using FramePFX.Core.Views;
+using FramePFX.Core.Views.ViewModels;
 
-namespace FrameControlEx.Views {
+namespace FramePFX.Views {
     /// <summary>
     /// A base <see cref="Window"/> implementation which implements <see cref="IViewBase"/> and <see cref="IHasErrorInfo"/> to
     /// extract <see cref="ValidationError"/> instances and update the view model in the event of errors

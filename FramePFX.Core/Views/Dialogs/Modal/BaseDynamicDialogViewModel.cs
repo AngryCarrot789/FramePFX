@@ -2,9 +2,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.Views.Dialogs.Modal {
+namespace FramePFX.Core.Views.Dialogs.Modal {
     /// <summary>
     /// Base view model class for a dialog with dynamically generated buttons
     /// </summary>

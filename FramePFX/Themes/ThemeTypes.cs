@@ -1,21 +1,21 @@
-﻿namespace FramePFX.Themes {
+﻿using System;
+
+namespace FramePFX.Themes {
     public enum ThemeType {
-        Dark,
-        Red,
-        Light,
+        SoftDark,
+        SoftDarkAndBlue,
+        RedBlackTheme,
+        DeepDark,
     }
 
     public static class ThemeTypeExtension {
         public static string GetName(this ThemeType type) {
             switch (type) {
-                case ThemeType.Light:
-                    return "Dark_DarkBackLightBorder";
-                case ThemeType.Dark:
-                    return "Dark_DarkBackDarkBorder";
-                case ThemeType.Red:
-                    return "RedBlackTheme";
-                default:
-                    return null;
+                case ThemeType.SoftDark:        return "SoftDark";
+                case ThemeType.SoftDarkAndBlue: return "SoftDarkAndBlue";
+                case ThemeType.RedBlackTheme:   return "RedBlackTheme";
+                case ThemeType.DeepDark:        return "DeepDark";
+                default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
     }

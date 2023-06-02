@@ -3,7 +3,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
                     xmlns:views="clr-namespace:FramePFX.Views"
-                    xmlns:ap="clr-namespace:FramePFX.Themes.Attached">
+                    xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
+                    xmlns:converters="clr-namespace:FramePFX.Themes.Converters">
     <Style x:Key="FocusVisual">
         <Setter Property="Control.Template">
             <Setter.Value>
@@ -28,7 +29,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}" SnapsToDevicePixels="true"
                             CornerRadius="{TemplateBinding ap:CornerHelper.CornerRadius}">
                         <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -38,6 +40,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsDefaulted" Value="true">
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Defaulted.Background}" />
                             <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Defaulted.Border}" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="true">
@@ -71,8 +74,10 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
-                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
-                            Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}" SnapsToDevicePixels="true"
+                            CornerRadius="{TemplateBinding ap:CornerHelper.CornerRadius}">
                         <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"
                                           SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
@@ -430,11 +435,6 @@
         </Style.Triggers>
     </Style>
 
-    <Grid x:Key="__WINDOW__MAXIMIZED__VALUE__" Width="14" Height="14">
-        <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="3,0,0,3" />
-        <Rectangle StrokeThickness="2" Fill="{DynamicResource Window.Static.Border}" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0,4,4,0" />
-    </Grid>
-
     <Style x:Key="CustomWindowStyle" TargetType="{x:Type Window}">
         <Setter Property="Background" Value="{DynamicResource Window.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Window.Static.Border}" />
@@ -446,45 +446,57 @@
                 <!-- In order to have a window shadow, GlassFrameThickness needs to be non-zero which is annoying -->
                 <!-- because the glass frame causes this weird flickering white border when resizing :( -->
                 <!-- Seems like it's the best idea to just put Top to 1 and the rest on 0, because you'll probably notice it less -->
-                <WindowChrome CaptionHeight="26" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0" NonClientFrameEdges="None" UseAeroCaptionButtons="False" />
+                <WindowChrome CaptionHeight="26" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0"
+                              NonClientFrameEdges="None" UseAeroCaptionButtons="False" />
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Window}">
-                    <Grid>
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <Grid>
-                                <AdornerDecorator Margin="0,30,0,0">
-                                    <ContentPresenter />
-                                </AdornerDecorator>
-                                <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="false" Visibility="Collapsed" VerticalAlignment="Bottom"/>
-                                <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding BorderBrush}" VerticalAlignment="Top" Margin="0">
-                                    <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
-                                        <Button x:Name="btnMinimize" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
-                                            <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <DockPanel>
+                            <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding BorderBrush}" VerticalAlignment="Top" Margin="0" DockPanel.Dock="Top">
+                                <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
+                                    <Button x:Name="btnMinimize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
+                                        <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                    </Button>
+                                    <Grid x:Name="ThingButtons">
+                                        <Button x:Name="btnRestore" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
+                                                WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
+                                            <Grid Width="12" Height="12">
+                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="3,0,0,3" />
+                                                <Rectangle StrokeThickness="2" Fill="{DynamicResource Window.Static.Border}" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0,4,4,0" />
+                                            </Grid>
                                         </Button>
 
-                                        <Button x:Name="btnRestore" Background="Transparent" BorderBrush="Transparent" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
+                                        <Button x:Name="btnMaximize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
+                                                WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
                                             <Grid Width="12" Height="12">
                                                 <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0" />
                                             </Grid>
                                         </Button>
-                                        <Button x:Name="btnClose" Background="Transparent" BorderBrush="Transparent" Template="{DynamicResource CloseWindowButton}" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Event">
-                                            <Grid Margin="0 1 0 0">
-                                                <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
-                                                <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
-                                            </Grid>
-                                        </Button>
-                                    </StackPanel>
-                                    <DockPanel Margin="0,0,5,0" HorizontalAlignment="Stretch">
-                                        <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,4,0,0" Source="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Height="24" />
-                                        <TextBlock FontSize="13" Margin="5,3,0,3" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Width="Auto" Foreground="{TemplateBinding Foreground}" Text="{Binding Title, RelativeSource={RelativeSource TemplatedParent}}" Grid.Column="1" TextAlignment="Left" />
-                                    </DockPanel>
+                                        <Button x:Name="btnWtfEvenLolol" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event" Content="^"/>
+                                    </Grid>
+                                    <Button x:Name="btnClose" Focusable="False" Background="Transparent" BorderBrush="Transparent" Template="{DynamicResource CloseWindowButton}" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Event">
+                                        <Grid Margin="0 1 0 0">
+                                            <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                            <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
+                                <DockPanel Margin="0,0,5,0" HorizontalAlignment="Stretch">
+                                    <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,4,0,0" Source="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Height="24" />
+                                    <TextBlock FontSize="13" Margin="5,3,0,3" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Width="Auto" Foreground="{TemplateBinding Foreground}" Text="{Binding Title, RelativeSource={RelativeSource TemplatedParent}}" Grid.Column="1" TextAlignment="Left" />
                                 </DockPanel>
+                            </DockPanel>
+                            <Grid>
+                                <AdornerDecorator>
+                                    <ContentPresenter/>
+                                </AdornerDecorator>
+                                <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="false" Visibility="Collapsed" VerticalAlignment="Bottom"/>
                             </Grid>
-                        </Border>
-                    </Grid>
+                        </DockPanel>
+                    </Border>
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -494,37 +506,44 @@
                             <Setter Property="Visibility" TargetName="WindowResizeGrip" Value="Visible"/>
                         </MultiTrigger>
                         <Trigger Property="WindowState" Value="Maximized">
-                            <Setter TargetName="btnRestore" Property="Content" Value="{StaticResource __WINDOW__MAXIMIZED__VALUE__}"/>
+                            <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnMaximize" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnWtfEvenLolol" Property="Visibility" Value="Collapsed"/>
                         </Trigger>
                         <Trigger Property="WindowState" Value="Normal">
-                            <Setter TargetName="btnRestore" Property="Content">
-                                <Setter.Value>
-                                    <Grid Width="12" Height="12">
-                                        <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0" />
-                                    </Grid>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMaximize" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnWtfEvenLolol" Property="Visibility" Value="Collapsed"/>
                         </Trigger>
                         <Trigger Property="WindowState" Value="Minimized">
-                            <Setter TargetName="btnRestore" Property="Content">
-                                <Setter.Value>
-                                    <TextBlock Text="^"/>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMaximize" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnWtfEvenLolol" Property="Visibility" Value="Visible"/>
                         </Trigger>
 
                         <Trigger Property="ResizeMode" Value="NoResize">
-                            <Setter TargetName="btnRestore" Property="IsEnabled" Value="False"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="ResizeMode" Value="CanMinimize">
-                            <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="ResizeMode" Value="CanResizeWithGrip">
-                            <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="WindowStyle" Value="ToolWindow">
-                            <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Collapsed"/>
                             <Setter TargetName="btnMinimize" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="WindowStyle" Value="None">
+                            <Setter TargetName="titlebar" Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="WindowChrome.WindowChrome">
+                                <Setter.Value>
+                                    <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0" NonClientFrameEdges="None" UseAeroCaptionButtons="False" />
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -545,43 +564,54 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Window.Static.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource Window.Static.Foreground}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="TitlebarBrush" Value="{DynamicResource Window.Static.Border}" />
+        <Setter Property="TitlebarBrush" Value="{DynamicResource Window.Static.Title.Background}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type views:WindowEx}">
-                    <Grid>
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <Grid>
-                                <AdornerDecorator Margin="0,30,0,0">
-                                    <ContentPresenter />
-                                </AdornerDecorator>
-                                <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="false" Visibility="Collapsed" VerticalAlignment="Bottom"/>
-                                <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding TitlebarBrush}" VerticalAlignment="Top" Margin="0">
-                                    <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
-                                        <Button x:Name="btnMinimize" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
-                                            <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <DockPanel>
+                            <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding TitlebarBrush}" VerticalAlignment="Top" Margin="0" DockPanel.Dock="Top">
+                                <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
+                                    <Button x:Name="btnMinimize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
+                                        <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                    </Button>
+                                    <Grid x:Name="ThingButtons">
+                                        <Button x:Name="btnRestore" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
+                                                WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
+                                            <Grid Width="12" Height="12">
+                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="3,0,0,3" />
+                                                <Rectangle StrokeThickness="2" Fill="{DynamicResource Window.Static.Border}" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0,4,4,0" />
+                                            </Grid>
                                         </Button>
 
-                                        <Button x:Name="btnRestore" Background="Transparent" BorderBrush="Transparent" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
+                                        <Button x:Name="btnMaximize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
+                                                WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
                                             <Grid Width="12" Height="12">
                                                 <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0" />
                                             </Grid>
                                         </Button>
-                                        <Button x:Name="btnClose" Background="Transparent" BorderBrush="Transparent" Template="{DynamicResource CloseWindowButton}" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Event">
-                                            <Grid Margin="0 1 0 0">
-                                                <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
-                                                <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
-                                            </Grid>
-                                        </Button>
-                                    </StackPanel>
-                                    <DockPanel Margin="0,0,5,0" HorizontalAlignment="Stretch">
-                                        <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,4,0,0" Source="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Height="24" />
-                                        <TextBlock FontSize="13" Margin="5,3,0,3" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Width="Auto" Foreground="{TemplateBinding Foreground}" Text="{Binding Title, RelativeSource={RelativeSource TemplatedParent}}" Grid.Column="1" TextAlignment="Left" />
-                                    </DockPanel>
+                                        <Button x:Name="btnWtfEvenLolol" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event" Content="^"/>
+                                    </Grid>
+                                    <Button x:Name="btnClose" Focusable="False" Background="Transparent" BorderBrush="Transparent" Template="{DynamicResource CloseWindowButton}" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Event">
+                                        <Grid Margin="0 1 0 0">
+                                            <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                            <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
+                                <DockPanel Margin="0,0,5,0" HorizontalAlignment="Stretch">
+                                    <Image HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,4,0,0" Source="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Height="24" />
+                                    <TextBlock FontSize="13" Margin="5,3,0,3" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap" Width="Auto" Foreground="{TemplateBinding Foreground}" Text="{Binding Title, RelativeSource={RelativeSource TemplatedParent}}" Grid.Column="1" TextAlignment="Left" />
                                 </DockPanel>
+                            </DockPanel>
+                            <Grid>
+                                <AdornerDecorator>
+                                    <ContentPresenter/>
+                                </AdornerDecorator>
+                                <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="false" Visibility="Collapsed" VerticalAlignment="Bottom"/>
                             </Grid>
-                        </Border>
-                    </Grid>
+                        </DockPanel>
+                    </Border>
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -591,37 +621,44 @@
                             <Setter Property="Visibility" TargetName="WindowResizeGrip" Value="Visible"/>
                         </MultiTrigger>
                         <Trigger Property="WindowState" Value="Maximized">
-                            <Setter TargetName="btnRestore" Property="Content" Value="{StaticResource __WINDOW__MAXIMIZED__VALUE__}"/>
+                            <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnMaximize" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnWtfEvenLolol" Property="Visibility" Value="Collapsed"/>
                         </Trigger>
                         <Trigger Property="WindowState" Value="Normal">
-                            <Setter TargetName="btnRestore" Property="Content">
-                                <Setter.Value>
-                                    <Grid Width="12" Height="12">
-                                        <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0" />
-                                    </Grid>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMaximize" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnWtfEvenLolol" Property="Visibility" Value="Collapsed"/>
                         </Trigger>
                         <Trigger Property="WindowState" Value="Minimized">
-                            <Setter TargetName="btnRestore" Property="Content">
-                                <Setter.Value>
-                                    <TextBlock Text="^"/>
-                                </Setter.Value>
-                            </Setter>
+                            <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMaximize" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnWtfEvenLolol" Property="Visibility" Value="Visible"/>
                         </Trigger>
 
                         <Trigger Property="ResizeMode" Value="NoResize">
-                            <Setter TargetName="btnRestore" Property="IsEnabled" Value="False"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="ResizeMode" Value="CanMinimize">
-                            <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="ResizeMode" Value="CanResizeWithGrip">
-                            <Setter TargetName="btnRestore" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="btnMinimize" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="WindowStyle" Value="ToolWindow">
-                            <Setter TargetName="btnRestore" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="ThingButtons" Property="Visibility" Value="Collapsed"/>
                             <Setter TargetName="btnMinimize" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="WindowStyle" Value="None">
+                            <Setter TargetName="titlebar" Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="WindowChrome.WindowChrome">
+                                <Setter.Value>
+                                    <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0" NonClientFrameEdges="None" UseAeroCaptionButtons="False" />
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -662,17 +699,21 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="TextBoxErrorTemplate">
-        <StackPanel>
+        <StackPanel IsHitTestVisible="False">
             <Border BorderBrush="#FFF01428" BorderThickness="1">
                 <AdornedElementPlaceholder x:Name="AdornerPlaceholder"/>
             </Border>
-            <Border Background="{DynamicResource TextBox.Static.Background}" BorderBrush="{DynamicResource TextBox.Static.Border}" BorderThickness="1" CornerRadius="3"
-                    MaxWidth="{Binding ElementName=AdornerPlaceholder, Path=ActualWidth}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="5" Opacity="0.5"/>
-                </Border.Effect>
-                <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" Margin="5,0,0,0" Padding="5"/>
-            </Border>
+            <Grid MaxWidth="{Binding ElementName=AdornerPlaceholder, Path=ActualWidth}">
+                <Border Background="{DynamicResource AREghZyBrush.Tone5.Background.Static}"
+                        BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}"
+                        BorderThickness="1" CornerRadius="3"
+                        Opacity="0.8">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="5" Opacity="0.5"/>
+                    </Border.Effect>
+                </Border>
+                <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" Margin="5,1,1,1" Padding="5" ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}" TextWrapping="Wrap"/>
+            </Grid>
         </StackPanel>
     </ControlTemplate>
 
@@ -812,7 +853,9 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListBox}">
-                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="1" SnapsToDevicePixels="true">
+                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}">
                             <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </ScrollViewer>
@@ -847,8 +890,14 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="true">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
@@ -977,7 +1026,6 @@
     <Style TargetType="{x:Type ScrollViewer}">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="CanContentScroll" Value="False" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ScrollViewer}">
@@ -1244,6 +1292,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="ap:CornerHelper.CornerRadius" Value="100"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type RadioButton}">
@@ -1251,7 +1300,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <Border x:Name="radioButtonBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="100" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0,0,0,0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Width="16" Height="16">
+                        <Border x:Name="radioButtonBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding ap:CornerHelper.CornerRadius}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0,0,0,0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Width="16" Height="16">
                             <Grid x:Name="markGrid" Margin="2">
                                 <Ellipse x:Name="optionMark" Fill="{DynamicResource RadioButton.Static.Glyph}" MinWidth="6" MinHeight="6" Opacity="0" />
                             </Grid>
@@ -1789,7 +1838,7 @@
     </Style>
 
     <Style TargetType="{x:Type GridSplitter}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.2.Border.Static}" />
+        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type GridSplitter}">
@@ -1801,10 +1850,10 @@
 
     <BorderGapMaskConverter x:Key="BorderGapMaskConverter" />
     <Style TargetType="{x:Type GroupBox}">
-        <Setter Property="Background" Value="{DynamicResource GroupBox.Static.Background}" />
+        <Setter Property="Background" Value="{DynamicResource GroupBox.Header.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
-        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type GroupBox}">
@@ -1821,23 +1870,52 @@
                             <RowDefinition />
                             <RowDefinition Height="6" />
                         </Grid.RowDefinitions>
-                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.ColumnSpan="4" Grid.Row="1" Grid.RowSpan="3">
-                            <Border.OpacityMask>
-                                <MultiBinding ConverterParameter="7" Converter="{StaticResource BorderGapMaskConverter}">
-                                    <Binding ElementName="Header" Path="ActualWidth" />
-                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource Self}" />
-                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />
-                                </MultiBinding>
-                            </Border.OpacityMask>
-                        </Border>
-                        <Border Background="{DynamicResource GroupBox.Header.Static.Background}"
+                        <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 Grid.ColumnSpan="4" Grid.RowSpan="2" />
                         <Border x:Name="Header" Grid.Column="1" Padding="3,1,3,0" Grid.Row="0" Grid.RowSpan="2">
                             <ContentPresenter VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </Border>
-                        <ContentPresenter Grid.ColumnSpan="2" Grid.Column="1" Margin="0,3,0,0" Grid.Row="2" x:Name="Contents" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        <Border Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Margin="0,-1,0,0" Grid.ColumnSpan="4" Grid.Row="2" Grid.RowSpan="2">
+                            <ContentPresenter x:Name="Contents" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NoBorderGroupBox" TargetType="{x:Type GroupBox}">
+        <Setter Property="Background" Value="{DynamicResource GroupBox.Header.Static.Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
+        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GroupBox}">
+                    <Grid SnapsToDevicePixels="true">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="5" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="32" MinHeight="32" />
+                            <RowDefinition />
+                            <RowDefinition Height="6" />
+                        </Grid.RowDefinitions>
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0" Grid.ColumnSpan="4" Grid.RowSpan="2" />
+                        <Border x:Name="Header" Grid.Column="1" Padding="3,1,3,0" Grid.Row="0" Grid.RowSpan="2">
+                            <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
+                        <Border Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0" Margin="0,0,0,0" Grid.ColumnSpan="4" Grid.Row="2" Grid.RowSpan="2">
+                            <ContentPresenter x:Name="Contents" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -1848,7 +1926,7 @@
         <Setter Property="Background" Value="{DynamicResource GroupBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
-        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type GroupBox}">
@@ -1865,21 +1943,16 @@
                             <RowDefinition />
                             <RowDefinition Height="6" />
                         </Grid.RowDefinitions>
-                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.ColumnSpan="4" Grid.Column="0" CornerRadius="0" Grid.Row="1" Grid.RowSpan="3" />
-                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="4" CornerRadius="0" Grid.Row="1" Grid.RowSpan="3">
-                            <Border.OpacityMask>
-                                <MultiBinding ConverterParameter="7" Converter="{StaticResource BorderGapMaskConverter}">
-                                    <Binding ElementName="Header" Path="ActualWidth" />
-                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource Self}" />
-                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />
-                                </MultiBinding>
-                            </Border.OpacityMask>
-                        </Border>
-                        <Border Background="{DynamicResource GroupBox.Header.Static.Background}" BorderBrush="{DynamicResource GroupBox.Header.Static.Border}" BorderThickness="2 2 2 0" Grid.ColumnSpan="4" Grid.RowSpan="2" />
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1,1,1,0"
+                                Grid.ColumnSpan="4" Grid.RowSpan="2" />
                         <Border x:Name="Header" Grid.Column="1" Padding="3,1,3,0" Grid.Row="0" Grid.RowSpan="2">
                             <ContentPresenter VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </Border>
-                        <ContentPresenter Grid.ColumnSpan="2" Grid.Column="1" Margin="0,3,0,0" Grid.Row="2" x:Name="Contents" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        <Border Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,0,1,1" Margin="0,0,0,0" Grid.ColumnSpan="4" Grid.Row="2" Grid.RowSpan="2">
+                            <ContentPresenter x:Name="Contents" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -1907,7 +1980,7 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="6" />
                         </Grid.RowDefinitions>
-                        <Border BorderBrush="Transparent" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.ColumnSpan="4" Grid.Column="0" CornerRadius="4" Grid.Row="1" Grid.RowSpan="3" />
+                        <Border BorderBrush="Transparent" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.ColumnSpan="4" Grid.Column="0" CornerRadius="0" Grid.Row="1" Grid.RowSpan="3" />
                         <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="4" CornerRadius="0" Grid.Row="1" Grid.RowSpan="3">
                             <Border.OpacityMask>
                                 <MultiBinding ConverterParameter="7" Converter="{StaticResource BorderGapMaskConverter}">
@@ -1978,6 +2051,7 @@
         <Setter Property="Background" Value="{DynamicResource Popup.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Popup.Static.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Grid.IsSharedSizeScope" Value="true" />
@@ -1986,7 +2060,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
                     <Themes:SystemDropShadowChrome Name="CONTEXT_ROOT_SHADOW" Color="Transparent" CornerRadius="0" SnapsToDevicePixels="True">
-                        <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                             <ScrollViewer x:Name="ScrollViewer" VerticalScrollBarVisibility="Hidden">
                                 <ItemsPresenter />
                             </ScrollViewer>
@@ -2031,21 +2105,94 @@
             <Trigger Property="IsCheckable" Value="True">
                 <Setter Property="StaysOpenOnClick" Value="True"/>
             </Trigger>
-            <Trigger Property="Role" Value="SubmenuHeader">
-                <Setter Property="Template" Value="{DynamicResource SubLevelMenuItemWithChildrenControlTemplate}" />
-            </Trigger>
-            <Trigger Property="Role" Value="SubmenuItem">
-                <Setter Property="Template" Value="{DynamicResource SubLevelMenuItemControlTemplate}" />
-            </Trigger>
-            <Trigger Property="Role" Value="TopLevelItem">
-                <Setter Property="Template" Value="{DynamicResource TopLevelMenuItemControlTemplate}" />
-            </Trigger>
+
+            <!--
+
+            if (this.IsCheckable || !this.HasItems) {
+                Role = this.LogicalParent is Menu ? MenuItemRole.TopLevelItem : MenuItemRole.SubmenuItem;
+            }
+            else {
+                Role = this.LogicalParent is Menu ? MenuItemRole.TopLevelHeader : MenuItemRole.SubmenuHeader;
+            }
+
+            -->
+
+            <!-- Contained in Menu | has children -->
             <Trigger Property="Role" Value="TopLevelHeader">
                 <Setter Property="Template" Value="{DynamicResource TopLevelMenuItemControlTemplate}" />
             </Trigger>
+            <!-- Contained in Menu | is checkable or no children -->
+            <Trigger Property="Role" Value="TopLevelItem">
+                <Setter Property="Template" Value="{DynamicResource TopLevelMenuItemControlTemplate}" />
+            </Trigger>
+            <!-- Contained in MenuItem hierarchy | has children -->
+            <Trigger Property="Role" Value="SubmenuHeader">
+                <Setter Property="Template" Value="{DynamicResource SubLevelMenuItem_SubmenuHeader_ControlTemplate}" />
+            </Trigger>
+            <!-- Contained in MenuItem hierarchy | is checkable or no children -->
+            <Trigger Property="Role" Value="SubmenuItem">
+                <Setter Property="Template" Value="{DynamicResource SubLevelMenuItem_SubmenuItem_ControlTemplate}" />
+            </Trigger>
         </Style.Triggers>
     </Style>
-    <ControlTemplate x:Key="SubLevelMenuItemWithChildrenControlTemplate" TargetType="{x:Type MenuItem}">
+
+    <ControlTemplate x:Key="TopLevelMenuItemControlTemplate" TargetType="{x:Type MenuItem}">
+        <Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+            <Grid x:Name="Grid" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ContentPresenter x:Name="Icon" Content="{TemplateBinding Icon}" ContentSource="Icon" HorizontalAlignment="Center" Height="16" Margin="3" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16" />
+                <Path x:Name="GlyphPanel" Data="F1M10,1.2L4.7,9.1 4.5,9.1 0,5.2 1.3,3.5 4.3,6.1 8.3,0 10,1.2z" Fill="{TemplateBinding Foreground}" FlowDirection="LeftToRight" Margin="3" Visibility="Collapsed" VerticalAlignment="Center" />
+                <ContentPresenter x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.Column="1" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}" Placement="Bottom">
+                    <Themes:SystemDropShadowChrome Name="Shdw_2" Color="#71000000" CornerRadius="0" SnapsToDevicePixels="True" Margin="0 0 5 5">
+                        <Border x:Name="SubMenuBorder" BorderBrush="{DynamicResource Popup.Static.Border}" BorderThickness="1" Background="{DynamicResource Popup.Static.Background}" Padding="0">
+                            <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
+                                <Grid x:Name="Grid1" RenderOptions.ClearTypeHint="Enabled">
+                                    <Canvas x:Name="Canvas" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Stretch" Width="22">
+                                        <Rectangle x:Name="OpaqueRect" Fill="{Binding Background, ElementName=SubMenuBorder}" Height="{Binding ActualHeight, ElementName=SubMenuBorder}" Width="{Binding ActualWidth, ElementName=SubMenuBorder}" />
+                                    </Canvas>
+                                    <Border Background="{DynamicResource MenuItem.IconBar.Static.Background}"
+                                            BorderBrush="{DynamicResource MenuItem.IconBar.Static.Border}"
+                                            BorderThickness="0,0,1,0" Margin="0"
+                                            Width="23" HorizontalAlignment="Left"/>
+                                    <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" KeyboardNavigation.TabNavigation="Cycle" />
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </Themes:SystemDropShadowChrome>
+                </Popup>
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsSuspendingPopupAnimation" Value="True">
+                <Setter Property="PopupAnimation" TargetName="PART_Popup" Value="None" />
+            </Trigger>
+            <Trigger Property="Icon" Value="{x:Null}">
+                <Setter Property="Visibility" TargetName="Icon" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible" />
+                <Setter Property="Visibility" TargetName="Icon" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsHighlighted" Value="True">
+                <Setter Property="Background" TargetName="templateRoot" Value="{DynamicResource MenuItem.MouseOver.Background}" />
+                <Setter Property="BorderBrush" TargetName="templateRoot" Value="{DynamicResource MenuItem.MouseOver.Border}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                <Setter Property="Background" Value="{DynamicResource MenuItem.Disabled.Background}" />
+            </Trigger>
+            <Trigger Property="CanContentScroll" SourceName="SubMenuScrollViewer" Value="False">
+                <Setter Property="Canvas.Top" TargetName="OpaqueRect" Value="{Binding VerticalOffset, ElementName=SubMenuScrollViewer}" />
+                <Setter Property="Canvas.Left" TargetName="OpaqueRect" Value="{Binding HorizontalOffset, ElementName=SubMenuScrollViewer}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="SubLevelMenuItem_SubmenuHeader_ControlTemplate" TargetType="{x:Type MenuItem}">
         <Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
             <Grid Margin="-1">
                 <Grid.ColumnDefinitions>
@@ -2057,22 +2204,24 @@
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
                 <ContentPresenter x:Name="Icon" Content="{TemplateBinding Icon}" ContentSource="Icon" HorizontalAlignment="Center" Height="16" Margin="3" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16" />
-                <Border x:Name="GlyphPanel" BorderBrush="#FF26A0DA" BorderThickness="1" Background="#3D26A0DA" Height="22" Margin="-1,0,0,0" Visibility="Hidden" VerticalAlignment="Center" Width="22">
+                <Border Grid.Column="0" x:Name="GlyphPanel" Background="{DynamicResource MenuItem.Square.Static.Background}" BorderBrush="{DynamicResource MenuItem.Square.Static.Border}" BorderThickness="1" Height="22" Margin="-1,0,0,0" Visibility="Hidden" VerticalAlignment="Center" Width="22">
                     <Path x:Name="Glyph" Data="F1M10,1.2L4.7,9.1 4.5,9.1 0,5.2 1.3,3.5 4.3,6.1 8.3,0 10,1.2z" Fill="#FF212121" FlowDirection="LeftToRight" Height="11" Width="9" />
                 </Border>
                 <ContentPresenter ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.Column="2" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" HorizontalAlignment="Left" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="4" Margin="{TemplateBinding Padding}" Opacity="0.7" Text="{TemplateBinding InputGestureText}" VerticalAlignment="Center" />
                 <Path x:Name="RightArrow" Grid.Column="5" Data="M0,0L4,3.5 0,7z" Fill="{DynamicResource AREghZyBrush.Glyph.Static}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" />
-                <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" HorizontalOffset="-2" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="Fade" Placement="Right" VerticalOffset="-3">
-                    <Themes:SystemDropShadowChrome Name="MENU_ITEM_SHADOW" Themes:SystemDropShadowChrome.Color="#71000000" Themes:SystemDropShadowChrome.CornerRadius="0" SnapsToDevicePixels="True" Margin="0 0 5 5">
+                <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" HorizontalOffset="-2" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}" Placement="Right" VerticalOffset="-3">
+                    <Themes:SystemDropShadowChrome Name="MENU_ITEM_SHADOW" Color="#71000000" CornerRadius="0" SnapsToDevicePixels="True" Margin="0 0 5 5">
                         <Border x:Name="SubMenuBorder" BorderBrush="{DynamicResource Popup.Static.Border}" Background="{DynamicResource Popup.Static.Background}" BorderThickness="1" Padding="0">
                             <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
                                 <Grid RenderOptions.ClearTypeHint="Enabled">
                                     <Canvas x:Name="Canvas" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Stretch" Width="22">
                                         <Rectangle x:Name="OpaqueRect" Fill="{Binding Background, ElementName=SubMenuBorder}" Height="{Binding ActualHeight, ElementName=SubMenuBorder}" Width="{Binding ActualWidth, ElementName=SubMenuBorder}" />
                                     </Canvas>
-                                    <Rectangle x:Name="Rectangle" Fill="{DynamicResource MenuItem.Square.Static.Border}" HorizontalAlignment="Left" Margin="22,0,0,0" Width="1" />
-                                    <Rectangle Fill="{DynamicResource MenuItem.Square.Static.Background}" HorizontalAlignment="Left" Margin="0" Width="22" />
+                                    <Border Background="{DynamicResource MenuItem.IconBar.Static.Background}"
+                                            BorderBrush="{DynamicResource MenuItem.IconBar.Static.Border}"
+                                            BorderThickness="0,0,1,0" Margin="0"
+                                            Width="23" HorizontalAlignment="Left"/>
                                     <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" KeyboardNavigation.TabNavigation="Cycle" />
                                 </Grid>
                             </ScrollViewer>
@@ -2108,60 +2257,8 @@
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
-    <ControlTemplate x:Key="TopLevelMenuItemControlTemplate" TargetType="{x:Type MenuItem}">
-        <Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-            <Grid x:Name="Grid" VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <ContentPresenter x:Name="Icon" Content="{TemplateBinding Icon}" ContentSource="Icon" HorizontalAlignment="Center" Height="16" Margin="3" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16" />
-                <Path x:Name="GlyphPanel" Data="F1M10,1.2L4.7,9.1 4.5,9.1 0,5.2 1.3,3.5 4.3,6.1 8.3,0 10,1.2z" Fill="{TemplateBinding Foreground}" FlowDirection="LeftToRight" Margin="3" Visibility="Collapsed" VerticalAlignment="Center" />
-                <ContentPresenter x:Name="ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.Column="1" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}" Placement="Bottom">
-                    <Themes:SystemDropShadowChrome Name="Shdw_2" Themes:SystemDropShadowChrome.Color="#71000000" Themes:SystemDropShadowChrome.CornerRadius="0" SnapsToDevicePixels="True" Margin="0 0 5 5">
-                        <Border x:Name="SubMenuBorder" BorderBrush="{DynamicResource Popup.Static.Border}" BorderThickness="1" Background="{DynamicResource Popup.Static.Background}" Padding="0">
-                            <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
-                                <Grid x:Name="Grid1" RenderOptions.ClearTypeHint="Enabled">
-                                    <Canvas x:Name="Canvas" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Stretch" Width="22">
-                                        <Rectangle x:Name="OpaqueRect" Fill="{Binding Background, ElementName=SubMenuBorder}" Height="{Binding ActualHeight, ElementName=SubMenuBorder}" Width="{Binding ActualWidth, ElementName=SubMenuBorder}" />
-                                    </Canvas>
-                                    <Rectangle x:Name="Rectangle" Fill="{DynamicResource MenuItem.Square.Static.Border}" HorizontalAlignment="Left" Margin="22,0,0,0" Width="1" />
-                                    <Rectangle Fill="{DynamicResource MenuItem.Square.Static.Background}" HorizontalAlignment="Left" Margin="0" Width="22" />
-                                    <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" KeyboardNavigation.TabNavigation="Cycle" />
-                                </Grid>
-                            </ScrollViewer>
-                        </Border>
-                    </Themes:SystemDropShadowChrome>
-                </Popup>
-            </Grid>
-        </Border>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsSuspendingPopupAnimation" Value="True">
-                <Setter Property="PopupAnimation" TargetName="PART_Popup" Value="None" />
-            </Trigger>
-            <Trigger Property="Icon" Value="{x:Null}">
-                <Setter Property="Visibility" TargetName="Icon" Value="Collapsed" />
-            </Trigger>
-            <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible" />
-                <Setter Property="Visibility" TargetName="Icon" Value="Collapsed" />
-            </Trigger>
-            <Trigger Property="IsHighlighted" Value="True">
-                <Setter Property="Background" TargetName="templateRoot" Value="{DynamicResource MenuItem.MouseOver.Background}" />
-                <Setter Property="BorderBrush" TargetName="templateRoot" Value="{DynamicResource MenuItem.MouseOver.Border}" />
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
-                <Setter Property="Background" Value="{DynamicResource MenuItem.Disabled.Background}" />
-            </Trigger>
-            <Trigger Property="CanContentScroll" SourceName="SubMenuScrollViewer" Value="False">
-                <Setter Property="Canvas.Top" TargetName="OpaqueRect" Value="{Binding VerticalOffset, ElementName=SubMenuScrollViewer}" />
-                <Setter Property="Canvas.Left" TargetName="OpaqueRect" Value="{Binding HorizontalOffset, ElementName=SubMenuScrollViewer}" />
-            </Trigger>
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
-    <ControlTemplate x:Key="SubLevelMenuItemControlTemplate" TargetType="{x:Type MenuItem}">
+
+    <ControlTemplate x:Key="SubLevelMenuItem_SubmenuItem_ControlTemplate" TargetType="{x:Type MenuItem}">
         <Border x:Name="templateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
             <Grid Margin="-1">
                 <Grid.ColumnDefinitions>
@@ -2173,21 +2270,23 @@
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
                 <ContentPresenter x:Name="Icon" Content="{TemplateBinding Icon}" ContentSource="Icon" HorizontalAlignment="Center" Height="16" Margin="3" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" Width="16" />
-                <Border x:Name="GlyphPanel" BorderBrush="{DynamicResource MenuItem.Square.Static.Border}" BorderThickness="1" Background="{DynamicResource MenuItem.Square.Static.Background}" Height="20" Margin="0,1,0,1" Visibility="Hidden" VerticalAlignment="Center" Width="20">
+                <Border x:Name="GlyphPanel" Background="{DynamicResource MenuItem.Square.Static.Background}" BorderBrush="{DynamicResource MenuItem.Square.Static.Border}" BorderThickness="1" Height="20" Margin="0,1,0,1" Visibility="Hidden" VerticalAlignment="Center" Width="20">
                     <Path x:Name="Glyph" Data="F1M10,1.2L4.7,9.1 4.5,9.1 0,5.2 1.3,3.5 4.3,6.1 8.3,0 10,1.2z" Fill="{DynamicResource MenuItem.Static.Glyph}" FlowDirection="LeftToRight" Height="9" Width="10" />
                 </Border>
                 <ContentPresenter ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.Column="2" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" HorizontalAlignment="Left" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="4" Margin="{TemplateBinding Padding}" Opacity="0.7" Text="{TemplateBinding InputGestureText}" VerticalAlignment="Center" />
                 <Path x:Name="RightArrow" Grid.Column="5" Data="M0,0L4,3.5 0,7z" Visibility="Hidden" Fill="{DynamicResource AREghZyBrush.Glyph.Static}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" />
-                <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" HorizontalOffset="-2" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="Fade" Placement="Right" VerticalOffset="-3">
+                <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" HorizontalOffset="-2" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}" Placement="Right" VerticalOffset="-3">
                     <Border x:Name="SubMenuBorder" BorderBrush="{DynamicResource Popup.Static.Border}" Background="{DynamicResource Popup.Static.Background}" BorderThickness="1" Padding="0">
                         <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
                             <Grid RenderOptions.ClearTypeHint="Enabled">
                                 <Canvas x:Name="Canvas" HorizontalAlignment="Left" Height="Auto" VerticalAlignment="Stretch" Width="22">
                                     <Rectangle x:Name="OpaqueRect" Fill="{Binding Background, ElementName=SubMenuBorder}" Height="{Binding ActualHeight, ElementName=SubMenuBorder}" Width="{Binding ActualWidth, ElementName=SubMenuBorder}" />
                                 </Canvas>
-                                <Rectangle x:Name="Rectangle" Fill="{DynamicResource MenuItem.Square.Static.Border}" HorizontalAlignment="Left" Margin="22,0,0,0" Width="1" />
-                                <Rectangle Fill="{DynamicResource MenuItem.Square.Static.Background}" HorizontalAlignment="Left" Margin="0" Width="22" />
+                                <Border Background="{DynamicResource MenuItem.IconBar.Static.Background}"
+                                        BorderBrush="{DynamicResource MenuItem.IconBar.Static.Border}"
+                                        BorderThickness="0,0,1,0" Margin="0"
+                                        Width="23" HorizontalAlignment="Left"/>
                                 <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" KeyboardNavigation.TabNavigation="Cycle" />
                             </Grid>
                         </ScrollViewer>
@@ -2366,8 +2465,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="GridViewColumnHeader">
-                            <Border Name="HeaderBorder" BorderThickness="0,0,0,1" Background="{DynamicResource ListView.GridView.Static.Background}" BorderBrush="{DynamicResource ListView.GridView.Static.Border}">
-                            </Border>
+                            <Border Name="HeaderBorder" BorderThickness="0,0,0,1" Background="{DynamicResource ListView.GridView.Static.Background}" BorderBrush="{DynamicResource ListView.GridView.Static.Border}" />
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -2725,7 +2823,7 @@
                 </Border>
                 <Track x:Name="PART_Track" Grid.Row="1">
                     <Track.DecreaseRepeatButton>
-                        <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Background="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}" BorderBrush="{DynamicResource AREghZyBrush.Primary.2.Border.Static}" BorderThickness="1 1 0 1" />
+                        <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Background="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="1 1 0 1" />
                     </Track.DecreaseRepeatButton>
                     <Track.IncreaseRepeatButton>
                         <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Background="Transparent" BorderBrush="Transparent"/>
@@ -2873,7 +2971,7 @@
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.Foreground}" />
+        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.TickPlacement.Foreground}" />
         <Setter Property="Template" Value="{StaticResource SliderHorizontal}" />
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Vertical">
@@ -2886,7 +2984,7 @@
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.Foreground}" />
+        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.TickPlacement.Foreground}" />
         <Setter Property="Template" Value="{StaticResource AbletonSliderHorizontal}" />
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Vertical">
@@ -2900,6 +2998,9 @@
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextAlignment" Value="Left" />
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Opacity" Value="0.5" />
@@ -2919,10 +3020,11 @@
         <Setter Property="HorizontalOffset" Value="15" />
         <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
         <Setter Property="VerticalOffset" Value="15" />
+        <Setter Property="ToolTipService.ShowDuration" Value="15000" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
-                    <Themes:SystemDropShadowChrome Name="Shdw" Themes:SystemDropShadowChrome.Color="Transparent" Themes:SystemDropShadowChrome.CornerRadius="0" SnapsToDevicePixels="True">
+                    <Themes:SystemDropShadowChrome Name="Shdw" Color="Transparent" CornerRadius="0" SnapsToDevicePixels="True">
                         <Border Name="Border" SnapsToDevicePixels="True" BorderThickness="1" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
                             <ContentPresenter Margin="5" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <ContentPresenter.Resources>
@@ -2948,7 +3050,7 @@
     </Style>
 
     <Style TargetType="{x:Type Separator}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" />
+        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone6.Border.Static}" />
         <Setter Property="Margin" Value="0,2,0,2" />
         <Setter Property="Focusable" Value="false" />
         <Setter Property="Template">
@@ -2961,7 +3063,7 @@
     </Style>
 
     <Style x:Key="VerticalSeparator" TargetType="{x:Type Separator}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Primary.3.Border.Static}" />
+        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone6.Border.Static}" />
         <Setter Property="Margin" Value="2,0,2,0" />
         <Setter Property="Focusable" Value="false" />
         <Setter Property="Template">
@@ -2973,9 +3075,9 @@
         </Setter>
     </Style>
 
-    <Style x:Key="MenuItemSeparator" TargetType="{x:Type Separator}">
-        <Setter Property="Background" Value="{DynamicResource MenuItem.Square.Static.Background}" />
-        <Setter Property="Margin" Value="0,2,0,2" />
+    <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="{x:Type Separator}">
+        <Setter Property="Background" Value="{DynamicResource MenuItem.IconBar.Static.Background}" />
+        <Setter Property="Margin" Value="23,2,0,2" />
         <Setter Property="Focusable" Value="false" />
         <Setter Property="Template">
             <Setter.Value>
@@ -3158,7 +3260,7 @@
     </Style>
     <Style x:Key="{x:Static ToolBar.ButtonStyleKey}" BasedOn="{StaticResource {x:Type Button}}" TargetType="{x:Type Button}" />
     <Style x:Key="{x:Static ToolBar.ToggleButtonStyleKey}" BasedOn="{StaticResource {x:Type ToggleButton}}" TargetType="{x:Type ToggleButton}" />
-    <Style x:Key="{x:Static ToolBar.CheckBoxStyleKey}" BasedOn="{StaticResource {x:Type CheckBox}}" TargetType="{x:Type CheckBox}" />
+    <Style x:Key="{x:Static ToolBar.CheckBoxStyleKey}" BasedOn="{StaticResource {x:Type CheckBox}}" TargetType="{x:Type CheckBox}"/>
     <Style x:Key="{x:Static ToolBar.RadioButtonStyleKey}" BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="{x:Type RadioButton}" />
     <Style TargetType="{x:Type ToolBar}">
         <Setter Property="Background" Value="{DynamicResource ToolBarHorizontalBackground}"/>
@@ -3328,8 +3430,8 @@
     </Style>
 
     <Style TargetType="{x:Type TreeView}">
-        <Setter Property="Background" Value="{StaticResource TreeView.Static.Background}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource TreeView.Static.Border}"/>
+        <Setter Property="Background" Value="{DynamicResource TreeView.Static.Background}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TreeView.Static.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="1"/>
         <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
@@ -3355,8 +3457,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource TreeView.Disabled.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TreeView.Disabled.Border}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeView.Disabled.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeView.Disabled.Border}"/>
                         </Trigger>
                         <Trigger Property="VirtualizingPanel.IsVirtualizing" Value="true">
                             <Setter Property="CanContentScroll" TargetName="_tv_scrollviewer_" Value="true"/>
@@ -3393,8 +3495,8 @@
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Width" Value="16"/>
         <Setter Property="Height" Value="16"/>
-        <Setter Property="Background" Value="{StaticResource TreeViewItem.TreeArrow.Static.Fill}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource TreeViewItem.TreeArrow.Static.Stroke}"/>
+        <Setter Property="Background" Value="{DynamicResource TreeViewItem.TreeArrow.Static.Fill}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TreeViewItem.TreeArrow.Static.Stroke}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -3428,20 +3530,20 @@
                                 </Setter.Value>
                             </Setter>
                             -->
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.Static.Checked.Fill}"/>
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.Static.Checked.Stroke}"/>
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="{DynamicResource TreeViewItem.TreeArrow.Static.Checked.Fill}"/>
+                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{DynamicResource TreeViewItem.TreeArrow.Static.Checked.Stroke}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Fill}"/>
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Stroke}"/>
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="{DynamicResource TreeViewItem.TreeArrow.MouseOver.Fill}"/>
+                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{DynamicResource TreeViewItem.TreeArrow.MouseOver.Stroke}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True"/>
                                 <Condition Property="IsChecked" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Checked.Fill}"/>
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Checked.Stroke}"/>
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="{DynamicResource TreeViewItem.TreeArrow.MouseOver.Checked.Fill}"/>
+                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{DynamicResource TreeViewItem.TreeArrow.MouseOver.Checked.Stroke}"/>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -3449,8 +3551,8 @@
         </Setter>
     </Style>
     <Style TargetType="{x:Type TreeViewItem}">
-        <Setter Property="Background" Value="{StaticResource TreeViewItem.Static.Background}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource TreeViewItem.Static.Border}"/>
+        <Setter Property="Background" Value="{DynamicResource TreeViewItem.Static.Background}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource TreeViewItem.Static.Border}"/>
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="Padding" Value="1,0,0,0"/>
@@ -3469,6 +3571,10 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
+
+                        <Rectangle x:Name="HorLn" Margin="9,1,0,0" Height="1" Stroke="{DynamicResource AREghZyBrush.Tone7.Border.Static}" StrokeDashCap="Square" StrokeDashArray="0,3" StrokeDashOffset="1" SnapsToDevicePixels="True"/>
+                        <Rectangle x:Name="VerLn" Width="1" Stroke="{DynamicResource AREghZyBrush.Tone7.Border.Static}" StrokeDashCap="Square" StrokeDashArray="0,3" Margin="0,0,1,0" Grid.RowSpan="2" SnapsToDevicePixels="true" Fill="{DynamicResource AREghZyBrush.Tone7.Border.Static}"/>
+
                         <ToggleButton x:Name="Expander" ClickMode="Press"
                                       IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
                                       Style="{StaticResource ExpandCollapseToggleStyle}"/>
@@ -3477,6 +3583,7 @@
                                 Background="{TemplateBinding Background}" Grid.Column="1"
                                 Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                             <ContentPresenter x:Name="PART_Header" ContentSource="Header"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Border>
@@ -3488,10 +3595,19 @@
                         </Trigger>
                         <Trigger Property="HasItems" Value="false">
                             <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
+                            <Setter Property="Visibility" TargetName="HorLn" Value="Visible"/>
+                            <Setter Property="Grid.RowSpan" TargetName="VerLn" Value="2"/>
+                            <Setter Property="Grid.Row" TargetName="VerLn" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="HasItems" Value="true">
+                            <Setter Property="Visibility" TargetName="Expander" Value="Visible"/>
+                            <Setter Property="Visibility" TargetName="HorLn" Value="Hidden"/>
+                            <Setter Property="Grid.RowSpan" TargetName="VerLn" Value="1"/>
+                            <Setter Property="Grid.Row" TargetName="VerLn" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="true">
-                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Border}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Border}"/>
                             <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Deeper}"/>
                         </Trigger>
                         <MultiTrigger>
@@ -3499,8 +3615,8 @@
                                 <Condition Property="IsSelected" Value="true"/>
                                 <Condition Property="IsSelectionActive" Value="false"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Inactive.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Inactive.Border}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Border}"/>
                             <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
@@ -3558,8 +3674,8 @@
                             <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="true">
-                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Border}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Border}"/>
                             <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Deeper}"/>
                         </Trigger>
                         <MultiTrigger>
@@ -3567,8 +3683,8 @@
                                 <Condition Property="IsSelected" Value="true"/>
                                 <Condition Property="IsSelectionActive" Value="false"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Inactive.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource TreeViewItem.Selected.Inactive.Border}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Border}"/>
                             <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
@@ -3591,6 +3707,10 @@
         </Style.Triggers>
     </Style>
 
+    <!-- WinForms style: https://stackoverflow.com/questions/19560466/how-to-make-wpf-treeview-style-as-winforms-treeview -->
+
+    <converters:TreeViewLineConverter x:Key="LineConverter"/>
+
     <Style TargetType="{x:Type Thumb}">
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
         <Setter Property="Background" Value="{DynamicResource Button.Static.Background}"/>
@@ -3600,8 +3720,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
-                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-                    </Border>
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

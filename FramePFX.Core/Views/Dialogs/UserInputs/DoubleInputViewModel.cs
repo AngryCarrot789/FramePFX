@@ -1,4 +1,4 @@
-﻿namespace FrameControlEx.Core.Views.Dialogs.UserInputs {
+﻿namespace FramePFX.Core.Views.Dialogs.UserInputs {
     public class DoubleInputViewModel : BaseConfirmableDialogViewModel {
         private string title;
         private string msgA;

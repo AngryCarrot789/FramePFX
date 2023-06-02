@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public static class Time {
         /// <summary>
         /// This specifies how many ticks there are in 1 second. This usually never changes during

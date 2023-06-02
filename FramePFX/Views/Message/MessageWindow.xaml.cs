@@ -3,10 +3,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using FrameControlEx.Core.Views.Dialogs.Message;
-using FrameControlEx.Core.Views.Dialogs.Modal;
+using FramePFX.Core.Views.Dialogs.Message;
+using FramePFX.Core.Views.Dialogs.Modal;
 
-namespace FrameControlEx.Views.Message {
+namespace FramePFX.Views.Message {
     /// <summary>
     /// Interaction logic for MessageWindow.xaml
     /// </summary>

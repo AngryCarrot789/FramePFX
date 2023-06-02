@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core.Actions {
+namespace FramePFX.Core.Actions {
     public abstract class ToggleAction : AnAction {
         public const string IsToggledKey = "toggled";
 

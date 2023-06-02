@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core.Actions {
+namespace FramePFX.Core.Actions {
     public class LambdaAction : AnAction {
         public Func<AnActionEventArgs, Task<bool>> MyAction { get; }
 

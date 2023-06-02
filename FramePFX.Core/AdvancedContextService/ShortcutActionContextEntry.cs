@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     public class ShortcutActionContextEntry : ActionContextEntry {
         private string shortcutId;
         public string ShortcutId {

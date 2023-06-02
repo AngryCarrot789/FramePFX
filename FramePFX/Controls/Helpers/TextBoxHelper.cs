@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls.Primitives;
 
-namespace FrameControlEx.Controls.Helpers {
+namespace FramePFX.Controls.Helpers {
     public static class TextBoxHelper {
         public static readonly DependencyProperty SelectAllOnFocusProperty = DependencyProperty.RegisterAttached("SelectAllOnFocus", typeof(bool), typeof(TextBoxHelper), new FrameworkPropertyMetadata(false, OnSelectAllOnFocusPropertyChanged));
 

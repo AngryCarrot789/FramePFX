@@ -1,42 +1,36 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
 namespace FramePFX.Themes.Attached {
     public static class TextBoxAutoSelect {
-        public static readonly DependencyProperty SelectAllOnFocusProperty =
-            DependencyProperty.RegisterAttached(
-                "SelectAllOnFocus",
-                typeof(bool),
-                typeof(TextBoxAutoSelect),
-                new FrameworkPropertyMetadata(false, OnSelectAllOnFocusPropertyChanged));
+        private static readonly RoutedEventHandler Handler = ControlOnLoaded;
 
-        public static void SetSelectAllOnFocus(DependencyObject obj, bool value) {
-            obj.SetValue(SelectAllOnFocusProperty, value);
+        public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.RegisterAttached("IsEnabled", typeof(bool), typeof(TextBoxAutoSelect), new PropertyMetadata(false, PropertyChangedCallback));
+
+        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (d is Control control) {
+                control.Loaded += Handler;
+            }
         }
 
-        public static bool GetSelectAllOnFocus(DependencyObject obj) {
-            return (bool) obj.GetValue(SelectAllOnFocusProperty);
-        }
-
-        private static readonly RoutedEventHandler FocusHandler = BoxOnGotFocus;
-
-        private static void OnSelectAllOnFocusPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (d is TextBoxBase tb) {
-                tb.GotFocus -= FocusHandler;
-                if ((bool) e.NewValue) {
-                    tb.GotFocus += FocusHandler;
+        private static void ControlOnLoaded(object sender, RoutedEventArgs e) {
+            if (sender is Control control) {
+                control.Focus();
+                if (control is TextBoxBase textbox) {
+                    textbox.SelectAll();
                 }
+
+                control.Loaded -= Handler;
             }
         }
 
-        private static void BoxOnGotFocus(object sender, RoutedEventArgs e) {
-            if (sender is TextBoxBase tb) {
-                tb.Dispatcher.InvokeAsync(() => {
-                    if (GetSelectAllOnFocus(tb)) {
-                        tb.SelectAll();
-                    }
-                });
-            }
+        public static void SetIsEnabled(DependencyObject element, bool value) {
+            element.SetValue(IsEnabledProperty, value);
+        }
+
+        public static bool GetIsEnabled(DependencyObject element) {
+            return (bool) element.GetValue(IsEnabledProperty);
         }
     }
 }

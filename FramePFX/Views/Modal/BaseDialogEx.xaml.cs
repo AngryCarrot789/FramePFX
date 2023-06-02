@@ -1,4 +1,4 @@
-﻿namespace FrameControlEx.Views.Modal {
+﻿namespace FramePFX.Views.Modal {
     /// <summary>
     /// Interaction logic for BaseDialogEx.xaml
     /// </summary>

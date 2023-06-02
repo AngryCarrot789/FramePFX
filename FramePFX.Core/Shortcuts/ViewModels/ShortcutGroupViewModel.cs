@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using FrameControlEx.Core.Shortcuts.Managing;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.Shortcuts.ViewModels {
+namespace FramePFX.Core.Shortcuts.ViewModels {
     public class ShortcutGroupViewModel : BaseShortcutItemViewModel {
         private readonly ObservableCollectionEx<BaseShortcutItemViewModel> children;
 

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using FrameControlEx.Core.Actions.Contexts;
-using FrameControlEx.Core.Shortcuts.Inputs;
-using FrameControlEx.Core.Shortcuts.Managing;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.Shortcuts.Serialization {
+namespace FramePFX.Core.Shortcuts.Serialization {
     public abstract class XMLShortcutSerialiser {
         #region Serialisation
 

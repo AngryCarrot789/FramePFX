@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace FrameControlEx.Converters {
+namespace FramePFX.Converters {
     /// <summary>
     /// AngelSix way of doing singleton converters
     /// </summary>

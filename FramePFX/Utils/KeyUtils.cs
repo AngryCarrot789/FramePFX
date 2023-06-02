@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Input;
 
-namespace FrameControlEx.Utils {
+namespace FramePFX.Utils {
     public static class KeyUtils {
         public static Key ParseKey(string input) {
             if (string.IsNullOrWhiteSpace(input)) {

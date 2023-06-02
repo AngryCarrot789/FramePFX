@@ -1,6 +1,6 @@
 using System;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public static class TextUtils {
         public const int CRLF = 0;
         public const int LF = 1;

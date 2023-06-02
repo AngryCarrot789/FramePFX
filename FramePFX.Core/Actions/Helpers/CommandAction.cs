@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using FrameControlEx.Core.Actions.Contexts;
+using FramePFX.Core.Actions.Contexts;
 
-namespace FrameControlEx.Core.Actions.Helpers {
+namespace FramePFX.Core.Actions.Helpers {
     /// <summary>
     /// Creates a new action which invokes an <see cref="ICommand"/>
     /// </summary>

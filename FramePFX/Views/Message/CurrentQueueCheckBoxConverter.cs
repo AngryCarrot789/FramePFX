@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
-using FrameControlEx.Converters;
+using FramePFX.Converters;
 
-namespace FrameControlEx.Views.Message {
+namespace FramePFX.Views.Message {
     public class CurrentQueueCheckBoxConverter : IMultiValueConverter {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
             if (values == null || values.Length != 3) {

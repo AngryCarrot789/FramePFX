@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace FrameControlEx.Core.RBC {
+namespace FramePFX.Core.RBC {
     public static class RBEUtils {
         private static Encoding defaultEncoding = Encoding.UTF8;
         public static Encoding DefaultEncoding {

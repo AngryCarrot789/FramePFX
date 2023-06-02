@@ -1,6 +1,6 @@
 using System.Windows.Documents;
 
-namespace FrameControlEx.Utils {
+namespace FramePFX.Utils {
     public static class TextPointerUtils {
         public static TextPointer GetLineBegin(TextPointer caret) => caret.GetLineStartPosition(0) ?? caret.DocumentStart;
 

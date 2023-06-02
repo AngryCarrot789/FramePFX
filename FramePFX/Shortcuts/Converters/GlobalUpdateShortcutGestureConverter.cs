@@ -20,7 +20,7 @@ namespace FramePFX.Shortcuts.Converters {
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             if (parameter is string path) {
-                return ShortcutPathToGestureConverter.PathToGesture(path, null, out string gesture) ? gesture : DependencyProperty.UnsetValue;
+                return ShortcutIdToGestureConverter.ShortcutIdToGesture(path, null, out string gesture) ? gesture : DependencyProperty.UnsetValue;
             }
 
             throw new Exception("Parameter is not a shortcut string");

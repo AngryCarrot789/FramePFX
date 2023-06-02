@@ -5,9 +5,9 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using FrameControlEx.Core;
+using FramePFX.Core;
 
-namespace FrameControlEx.Resources {
+namespace FramePFX.Resources {
     /// <summary>
     /// A converter for converting an <see cref="IconType"/> into an <see cref="ImageSource"/>
     /// </summary>
@@ -18,31 +18,32 @@ namespace FrameControlEx.Resources {
         public static Dictionary<IconType, Uri> UriMap { get; } = new Dictionary<IconType, Uri>();
 
         static IconTypeToImageSourceConverter() {
-            UriMap[IconType.ITEM_TAG_End]                = GetUri("Icons/FileIcon-TagEnd.png");
-            UriMap[IconType.ITEM_TAG_Byte]               = GetUri("Icons/FileIcon-TagByte8.png");
-            UriMap[IconType.ITEM_TAG_Short]              = GetUri("Icons/FileIcon-TagShort16.png");
-            UriMap[IconType.ITEM_TAG_Int]                = GetUri("Icons/FileIcon-TagInt32.png");
-            UriMap[IconType.ITEM_TAG_Long]               = GetUri("Icons/FileIcon-TagLong64.png");
-            UriMap[IconType.ITEM_TAG_Float]              = GetUri("Icons/FileIcon-TagFloat328.png");
-            UriMap[IconType.ITEM_TAG_Double]             = GetUri("Icons/FileIcon-TagDouble64.png");
-            UriMap[IconType.ITEM_TAG_String]             = GetUri("Icons/FileIcon-TagString.png");
-            UriMap[IconType.ITEM_TAG_ByteArray]          = GetUri("Icons/FileIcon-TagByteArray.png");
-            UriMap[IconType.ITEM_TAG_IntArray]           = GetUri("Icons/FileIcon-TagIntArray.png");
-            UriMap[IconType.ITEM_TAG_LongArray]          = GetUri("Icons/FileIcon-TagLongArray.png");
-            UriMap[IconType.ITEM_TAG_List]               = GetUri("Icons/icons8-bulleted-list-48.png");
-            UriMap[IconType.ITEM_TAG_Compound_Closed]    = GetUri("Icons/icons8-closed-box-48.png");
-            UriMap[IconType.ITEM_TAG_Compound_OpenFull]  = GetUri("Icons/icons8-open-box-48.png");
-            UriMap[IconType.ITEM_TAG_Compound_OpenEmpty] = GetUri("Icons/icons8-empty-box-48.png");
-            UriMap[IconType.ITEM_DATFile]                = GetUri("Icons/icons8-closed-box-48.png");
-            UriMap[IconType.ITEM_RegionFile]             = GetUri("Icons/FileIcon-Region.png");
-            UriMap[IconType.ACTION_TAG_CopyName]         = null;
-            UriMap[IconType.ACTION_TAG_CopyValue]        = null;
-            UriMap[IconType.ACTION_TAG_CopyBinary]       = GetUri("Icons/UIGeneral/icons8-copy-48.png");
-            UriMap[IconType.ACTION_TAG_PasteBinary]      = GetUri("Icons/UIGeneral/icons8-paste-48.png");
-            UriMap[IconType.ACTION_TAG_Delete]           = null;
-            UriMap[IconType.ACTION_TAG_Rename]           = null;
-            UriMap[IconType.ACTION_TAG_EditGeneral]      = GetUri("Icons/UIGeneral/icons8-edit-48.png");
-            UriMap[IconType.ACTION_ITEM_Refresh]         = GetUri("Icons/UIGeneral/icons8-sync-48.png");
+            // Copied from MCNBTEditor, leaving here so i don't forget how to add icons lel
+            // UriMap[IconType.ITEM_TAG_End]                = GetUri("Icons/FileIcon-TagEnd.png");
+            // UriMap[IconType.ITEM_TAG_Byte]               = GetUri("Icons/FileIcon-TagByte8.png");
+            // UriMap[IconType.ITEM_TAG_Short]              = GetUri("Icons/FileIcon-TagShort16.png");
+            // UriMap[IconType.ITEM_TAG_Int]                = GetUri("Icons/FileIcon-TagInt32.png");
+            // UriMap[IconType.ITEM_TAG_Long]               = GetUri("Icons/FileIcon-TagLong64.png");
+            // UriMap[IconType.ITEM_TAG_Float]              = GetUri("Icons/FileIcon-TagFloat328.png");
+            // UriMap[IconType.ITEM_TAG_Double]             = GetUri("Icons/FileIcon-TagDouble64.png");
+            // UriMap[IconType.ITEM_TAG_String]             = GetUri("Icons/FileIcon-TagString.png");
+            // UriMap[IconType.ITEM_TAG_ByteArray]          = GetUri("Icons/FileIcon-TagByteArray.png");
+            // UriMap[IconType.ITEM_TAG_IntArray]           = GetUri("Icons/FileIcon-TagIntArray.png");
+            // UriMap[IconType.ITEM_TAG_LongArray]          = GetUri("Icons/FileIcon-TagLongArray.png");
+            // UriMap[IconType.ITEM_TAG_List]               = GetUri("Icons/icons8-bulleted-list-48.png");
+            // UriMap[IconType.ITEM_TAG_Compound_Closed]    = GetUri("Icons/icons8-closed-box-48.png");
+            // UriMap[IconType.ITEM_TAG_Compound_OpenFull]  = GetUri("Icons/icons8-open-box-48.png");
+            // UriMap[IconType.ITEM_TAG_Compound_OpenEmpty] = GetUri("Icons/icons8-empty-box-48.png");
+            // UriMap[IconType.ITEM_DATFile]                = GetUri("Icons/icons8-closed-box-48.png");
+            // UriMap[IconType.ITEM_RegionFile]             = GetUri("Icons/FileIcon-Region.png");
+            // UriMap[IconType.ACTION_TAG_CopyName]         = null;
+            // UriMap[IconType.ACTION_TAG_CopyValue]        = null;
+            // UriMap[IconType.ACTION_TAG_CopyBinary]       = GetUri("Icons/UIGeneral/icons8-copy-48.png");
+            // UriMap[IconType.ACTION_TAG_PasteBinary]      = GetUri("Icons/UIGeneral/icons8-paste-48.png");
+            // UriMap[IconType.ACTION_TAG_Delete]           = null;
+            // UriMap[IconType.ACTION_TAG_Rename]           = null;
+            // UriMap[IconType.ACTION_TAG_EditGeneral]      = GetUri("Icons/UIGeneral/icons8-edit-48.png");
+            // UriMap[IconType.ACTION_ITEM_Refresh]         = GetUri("Icons/UIGeneral/icons8-sync-48.png");
         }
 
         private IconTypeToImageSourceConverter() {

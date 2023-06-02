@@ -352,9 +352,9 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<PFXVideoClip> GetAllSelectedClipModels() {
+        public IEnumerable<PFXVideoClipViewModel> GetAllSelectedClipModels() {
             foreach (VideoTimelineLayerControl layer in this.GetLayerControls()) {
-                foreach (PFXVideoClip clip in layer.GetSelectedClipViewModels()) {
+                foreach (PFXVideoClipViewModel clip in layer.GetSelectedClipViewModels()) {
                     yield return clip;
                 }
             }
@@ -405,7 +405,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.DragData.OnBegin(list);
         }
 
-        public IEnumerable<PFXVideoClip> GetSelectedClips() {
+        public IEnumerable<PFXVideoClipViewModel> GetSelectedClips() {
             return this.GetAllSelectedClipModels();
         }
     }

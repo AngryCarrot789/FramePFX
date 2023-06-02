@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using FrameControlEx.Core.Actions;
-using FrameControlEx.Core.Shortcuts.Managing;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Shortcuts.Managing;
 
-namespace FrameControlEx.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class ActionIdToGestureConverter : IValueConverter {
         public static ActionIdToGestureConverter Instance { get; } = new ActionIdToGestureConverter();
 

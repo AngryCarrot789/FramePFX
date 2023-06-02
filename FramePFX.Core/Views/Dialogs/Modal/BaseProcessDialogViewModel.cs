@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core.Views.Dialogs.Modal {
+namespace FramePFX.Core.Views.Dialogs.Modal {
     /// <summary>
     /// A base dialog for dynamic dialogs that can save their
     /// </summary>

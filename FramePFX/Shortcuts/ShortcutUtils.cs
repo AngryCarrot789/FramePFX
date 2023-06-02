@@ -63,7 +63,7 @@ namespace FramePFX.Shortcuts {
 
         public static void EnforceIdFormat(string id, string paramName) {
             if (string.IsNullOrWhiteSpace(id)) {
-                throw new Exception($"{paramName} cannot be null or consist of whitespaces only");
+                throw new Exception($"{paramName} cannot be null/empty or consist of whitespaces only");
             }
         }
 

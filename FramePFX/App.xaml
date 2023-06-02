@@ -6,9 +6,13 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/SoftDark.xaml"/>
+                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml"/>
                 <ResourceDictionary Source="Themes/ControlColours.xaml"/>
                 <ResourceDictionary Source="Themes/Controls.xaml"/>
+
+                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
+                <ResourceDictionary Source="Controls/ControlStyles.xaml"/>
+
                 <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml"/>
                 <ResourceDictionary Source="ResourceManaging/UI/ResManagerStyles.xaml"/>
                 <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>

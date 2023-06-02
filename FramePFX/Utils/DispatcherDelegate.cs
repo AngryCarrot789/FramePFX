@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using FrameControlEx.Core.Services;
+using FramePFX.Core.Services;
 
-namespace FrameControlEx.Utils {
+namespace FramePFX.Utils {
     public class DispatcherDelegate : IDispatcher {
         private readonly Dispatcher dispatcher;
 

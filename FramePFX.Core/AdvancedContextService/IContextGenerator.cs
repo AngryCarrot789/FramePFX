@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FrameControlEx.Core.Actions.Contexts;
+using FramePFX.Core.Actions.Contexts;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     /// <summary>
     /// An interface that defines a function for generating context entries that are appropriate for the given context data
     /// </summary>

@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using FrameControlEx.Core.Actions.Contexts;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.Actions {
+namespace FramePFX.Core.Actions {
     public class ActionManager {
         public static ActionManager Instance { get; set; }
 

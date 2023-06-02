@@ -3,10 +3,10 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Input;
-using FrameControlEx.Core.Shortcuts.ViewModels;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Shortcuts.ViewModels;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class KeyStrokeStringConverter : IMultiValueConverter {
         public static string ToStringFunction(KeyStrokeViewModel stroke) {
             return ToStringFunction(stroke.KeyCode, stroke.Modifiers, stroke.IsKeyRelease, true, true);

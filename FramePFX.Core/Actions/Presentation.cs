@@ -1,6 +1,6 @@
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.Actions {
+namespace FramePFX.Core.Actions {
     public readonly struct Presentation {
         private readonly int flags;
 

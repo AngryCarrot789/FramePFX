@@ -16,10 +16,6 @@ namespace FramePFX.Core.Utils {
 
         public List<Exception> Exceptions { get; }
 
-        public bool IsEmpty => this.Exceptions.Count < 1;
-
-        public bool HasAny => this.Exceptions.Count > 0;
-
         /// <summary>
         /// The exception message that is used in the <see cref="Dispose"/> function to throw an excetion when there are exceptions in the stack
         /// </summary>
@@ -31,9 +27,19 @@ namespace FramePFX.Core.Utils {
         /// </summary>
         public bool ThrowOnDispose { get; set; }
 
-        private ExceptionStack(string message) {
+        public bool IsGlobalStack { get; }
+
+        public Exception Cause { get; set; }
+
+        private ExceptionStack(string message, bool isGlobalStack, bool throwOnDispose = true) {
             this.Message = message;
             this.Exceptions = new List<Exception>();
+            this.IsGlobalStack = isGlobalStack;
+            this.ThrowOnDispose = throwOnDispose;
+        }
+
+        public ExceptionStack(string message, bool throwOnDispose = true) : this(message, false, throwOnDispose) {
+
         }
 
         /// <summary>
@@ -43,20 +49,19 @@ namespace FramePFX.Core.Utils {
         /// <param name="throwOnDispose">Whenther to actually throw the final exception in <see cref="Dispose"/></param>
         /// <returns>The pushed stack</returns>
         public static ExceptionStack Push(string exceptionMessage = null, bool throwOnDispose = true) {
-            ExceptionStack es = new ExceptionStack(exceptionMessage) {
+            ExceptionStack es = new ExceptionStack(exceptionMessage, true) {
                 ThrowOnDispose = throwOnDispose
             };
-
-            // this this even a remotely good idea? all usages just access the reference returned by this method
+            
             Stack<ExceptionStack> stack = ThreadStackStorage.Value;
 
-#if DEBUG
+            #if DEBUG
             if (stack.Count >= 100) {
                 throw new Exception("Exception stack is far too big. Possible leak?");
             }
 
             Debug.WriteLine($"New Exception stack pushed ({stack.Count + 1} in total now): {new StackTrace(0, true)}");
-#endif
+            #endif
 
             stack.Push(es);
             return es;
@@ -78,10 +83,10 @@ namespace FramePFX.Core.Utils {
                 throw ex;
             }
 
-            stack.Add(exception);
+            stack.Push(exception);
         }
 
-        public void Add(Exception exception) {
+        public void Push(Exception exception) {
             if (exception != null) {
                 this.Exceptions.Add(exception);
             }
@@ -114,17 +119,32 @@ namespace FramePFX.Core.Utils {
         }
 
         public void Dispose() {
-            Pop(this);
+            if (this.IsGlobalStack) {
+                Pop(this);
+            }
+
+            if (this.ThrowOnDispose && this.TryGetException(out Exception exception)) {
+                throw exception;
+            }
+        }
+
+        public bool TryGetException(out Exception exception) {
             if (this.Exceptions.Count > 0) {
-                Exception ex = new Exception(this.Message ?? "Exceptions occourred during operation");
-                foreach (Exception item in this.Exceptions) {
-                    if (item != null) { // just in case
-                        ExceptionUtils.AddSuppressed(ex, item);
+                int i = 0;
+                exception = new Exception(this.Message ?? "Exceptions occurred during operation", this.Cause ?? this.Exceptions[i++]);
+                for (; i < this.Exceptions.Count; i++) {
+                    Exception item = this.Exceptions[i];
+                    if (item != null) {
+                        // just in case
+                        exception.AddSuppressed(item);
                     }
                 }
 
-                throw ex;
+                return true;
             }
+
+            exception = null;
+            return false;
         }
     }
 }

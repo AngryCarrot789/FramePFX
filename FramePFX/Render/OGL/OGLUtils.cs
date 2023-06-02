@@ -25,7 +25,7 @@ namespace FramePFX.Render.OGL {
         }
 
         public static void ShutdownMainThread() {
-            OGLThread?.Stop(true);
+            OGLThread?.Stop(false);
         }
 
         public static void WaitForContextCompletion() {
@@ -47,14 +47,10 @@ namespace FramePFX.Render.OGL {
         }
 
         private class OGLThreadImpl : DispatchThread {
-            private readonly EventWaitHandle handle;
-
             public OGLThreadImpl() {
-                this.handle = new AutoResetEvent(true);
             }
 
             public void WakeThread() {
-                this.handle.Set();
             }
 
             protected override void OnThreadStart() {
@@ -64,7 +60,7 @@ namespace FramePFX.Render.OGL {
             protected override void OnThreadTick() {
                 if (isInTickMode) {
                     OnGLThreadTick?.Invoke();
-                    Thread.Sleep(10);
+                    Thread.Sleep(1);
                 }
                 else {
                     Thread.Sleep(100);

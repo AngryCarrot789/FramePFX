@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace FrameControlEx.Controls {
+namespace FramePFX.Controls {
     public class SelectionAdorder : Adorner {
         public static readonly DependencyProperty BackgroundProperty =
             DependencyProperty.Register(

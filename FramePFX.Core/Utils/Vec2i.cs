@@ -1,4 +1,4 @@
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public readonly struct Vec2i {
         public int X { get; }
 

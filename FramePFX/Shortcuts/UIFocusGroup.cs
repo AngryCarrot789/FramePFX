@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 
 namespace FramePFX.Shortcuts {
-    public class UIFocusGroup {
+    public static class UIFocusGroup {
         public static readonly DependencyProperty FocusGroupPathProperty =
             DependencyProperty.RegisterAttached(
                 "FocusGroupPath",
@@ -134,7 +134,7 @@ namespace FramePFX.Shortcuts {
             if (oldPath != newPath) {
                 FocusedGroupPath = newPath;
                 RaiseFocusGroupPathChanged(oldPath, newPath);
-                UpdateVisualFocusGroup(obj);
+                UpdateHasFocusGroup(obj);
             }
         }
 
@@ -143,27 +143,27 @@ namespace FramePFX.Shortcuts {
         /// set, assuming that means it is a primary focus group, and then sets the <see cref="HasGroupFocusProperty"/> to true for
         /// that element, and false for the last element that was focused
         /// </summary>
-        /// <param name="eventObject"></param>
-        public static void UpdateVisualFocusGroup(DependencyObject eventObject) {
+        /// <param name="eventObject">Target/focused element which now has focus</param>
+        public static void UpdateHasFocusGroup(DependencyObject eventObject) {
             if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused)) {
                 CurrentlyFocusedObject.SetTarget(null);
                 SetHasGroupFocus(lastFocused, false);
             }
 
-            DependencyObject root = VisualTreeUtils.FindInheritedPropertyDefinition(FocusGroupPathProperty, eventObject); // = target;
+            DependencyObject root = VisualTreeUtils.FindInheritedPropertyDefinition(FocusGroupPathProperty, eventObject);
             // do {
             //     root = VisualTreeUtils.FindInheritedPropertyDefinition(FocusGroupPathProperty, root);
             // } while (root != null && !GetHasAdvancedFocusVisual(root) && (root = VisualTreeHelper.GetParent(root)) != null);
 
             if (root != null) {
                 CurrentlyFocusedObject.SetTarget(root);
+
                 SetHasGroupFocus(root, true);
                 if (root is UIElement element && element.Focusable && !element.IsFocused) {
                     element.Focus();
                 }
             }
             else {
-                // ???
                 Debug.WriteLine("Failed to find root control that owns the FocusGroupPathProperty of " + GetFocusGroupPath(eventObject));
             }
         }

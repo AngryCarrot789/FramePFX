@@ -13,7 +13,10 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
         /// </summary>
         public float Opacity {
             get => this.opacity;
-            set => this.RaisePropertyChanged(ref this.opacity, Maths.Clamp(value, 0f, 1f), () => this.Timeline.ScheduleRender(false));
+            set {
+                this.RaisePropertyChanged(ref this.opacity, Maths.Clamp(value, 0f, 1f));
+                this.Timeline.ScheduleRender(false);
+            }
         }
 
         public PFXVideoLayer(PFXTimeline timeline) : base(timeline) {
@@ -26,8 +29,8 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
             long spanEnd = spanBegin + spanDuration;
 
             VideoClipRangeRemoval range = new VideoClipRangeRemoval();
-            foreach (PFXBaseClip baseTimelineClip in this.Clips) {
-                if (baseTimelineClip is PFXVideoClip clip) {
+            foreach (PFXClipViewModel baseTimelineClip in this.Clips) {
+                if (baseTimelineClip is PFXVideoClipViewModel clip) {
                     long clipBegin = clip.FrameBegin;
                     long clipDuration = clip.FrameDuration;
                     long clipEnd = clipBegin + clipDuration;
@@ -64,15 +67,15 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
             return range;
         }
 
-        public void SplitClip(PFXVideoClip clip, FrameSpan left, FrameSpan right) {
-            PFXVideoClip rightClone = (PFXVideoClip) clip.NewInstanceOverride();
+        public void SplitClip(PFXVideoClipViewModel clip, FrameSpan left, FrameSpan right) {
+            PFXVideoClipViewModel rightClone = (PFXVideoClipViewModel) clip.NewInstanceOverride();
             clip.Span = left;
             this.clips.Add(rightClone);
             rightClone.Span = right;
         }
 
-        public override PFXBaseClip SliceClip(PFXBaseClip clip, long frame) {
-            if (!(clip is PFXVideoClip videoClip)) {
+        public override PFXClipViewModel SliceClip(PFXClipViewModel clip, long frame) {
+            if (!(clip is PFXVideoClipViewModel videoClip)) {
                 throw new ArgumentException("Clip is not a video clip");
             }
 
@@ -81,7 +84,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer {
             }
 
             long endIndex = videoClip.FrameEndIndex;
-            PFXVideoClip clone = (PFXVideoClip) videoClip.NewInstanceOverride();
+            PFXVideoClipViewModel clone = (PFXVideoClipViewModel) videoClip.NewInstanceOverride();
             videoClip.FrameEndIndex = frame;
             clone.FrameBegin = frame;
             clone.FrameEndIndex = endIndex;

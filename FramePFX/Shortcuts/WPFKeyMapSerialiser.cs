@@ -1,12 +1,12 @@
 using System;
 using System.Windows.Input;
 using System.Xml;
-using FrameControlEx.Core.Shortcuts.Inputs;
-using FrameControlEx.Core.Shortcuts.Serialization;
-using FrameControlEx.Core.Utils;
-using FrameControlEx.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Serialization;
+using FramePFX.Core.Utils;
+using FramePFX.Utils;
 
-namespace FrameControlEx.Shortcuts {
+namespace FramePFX.Shortcuts {
     public class WPFKeyMapSerialiser : XMLShortcutSerialiser {
         public static readonly WPFKeyMapSerialiser Instance = new WPFKeyMapSerialiser();
 

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace FrameControlEx.Core.Actions.Contexts {
+namespace FramePFX.Core.Actions.Contexts {
     /// <summary>
     /// An immutable object that stores context information, along other custom data
     /// </summary>

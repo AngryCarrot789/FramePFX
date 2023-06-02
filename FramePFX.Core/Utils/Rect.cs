@@ -1,6 +1,6 @@
-using System.Numerics;
+using OpenTK;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public readonly struct Rect {
         public float X1 { get; }
         public float Y1 { get; }

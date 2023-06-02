@@ -7,6 +7,7 @@
                   xmlns:attached="clr-namespace:FramePFX.Themes.Attached"
                   xmlns:validators="clr-namespace:FramePFX.Views.Validators"
                   xmlns:ed="clr-namespace:FramePFX.Editor.Project.EditorDialogs"
+                  xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
                   mc:Ignorable="d"
                   Title="Project Settings" Height="243" Width="297"
                   Style="{StaticResource CustomWindowStyleEx}"
@@ -24,7 +25,7 @@
         <TextBlock Text="Width: " Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
         <TextBlock Text="Height:" Margin="10,41,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
         <TextBlock Text="FPS" Margin="10,72,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
-        <TextBox DataContext="{Binding Settings}" x:Name="TextBox1" attached:TextBoxAutoSelect.SelectAllOnFocus="True" Margin="60,10,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
+        <TextBox DataContext="{Binding Settings}" x:Name="TextBox1" helpers:TextBoxHelper.SelectAllOnFocus="True" Margin="60,10,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
             <TextBox.Text>
                 <Binding Path="Width" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
                     <Binding.ValidationRules>
@@ -33,7 +34,7 @@
                 </Binding>
             </TextBox.Text>
         </TextBox>
-        <TextBox DataContext="{Binding Settings}" attached:TextBoxAutoSelect.SelectAllOnFocus="True" Margin="60,41,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
+        <TextBox DataContext="{Binding Settings}" helpers:TextBoxHelper.SelectAllOnFocus="True" Margin="60,41,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
             <TextBox.Text>
                 <Binding Path="Height" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
                     <Binding.ValidationRules>
@@ -42,7 +43,7 @@
                 </Binding>
             </TextBox.Text>
         </TextBox>
-        <TextBox DataContext="{Binding Settings}" attached:TextBoxAutoSelect.SelectAllOnFocus="True" Margin="60,72,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
+        <TextBox DataContext="{Binding Settings}" helpers:TextBoxHelper.SelectAllOnFocus="True" Margin="60,72,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
             <TextBox.Text>
                 <Binding Path="FrameRate" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
                     <Binding.ValidationRules>

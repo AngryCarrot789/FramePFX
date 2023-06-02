@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FrameControlEx.Core.Actions.Contexts {
+namespace FramePFX.Core.Actions.Contexts {
     public class DataContext : IDataContext {
         public Dictionary<string, object> InternalDataMap { get; set; }
         public List<object> InternalContext { get; }

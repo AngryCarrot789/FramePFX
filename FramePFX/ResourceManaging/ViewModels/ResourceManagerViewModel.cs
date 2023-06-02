@@ -110,9 +110,9 @@ namespace FramePFX.ResourceManaging.ViewModels {
             return null;
         }
 
-        public Task<string> SelectNewResourceId(string msg, string value = "id") {
-            string id = IoC.UserInput.ShowSingleInputDialog("Input a resource ID", msg, value ?? "", this.validator);
-            return Task.FromResult(string.IsNullOrWhiteSpace(id) ? null : id);
+        public async Task<string> SelectNewResourceId(string msg, string value = "id") {
+            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "", this.validator);
+            return string.IsNullOrWhiteSpace(id) ? null : id;
         }
 
         public async Task<bool> RenameResourceAction(ResourceItemViewModel item) {
@@ -121,7 +121,7 @@ namespace FramePFX.ResourceManaging.ViewModels {
                 return false;
             }
 
-            string uuid = IoC.UserInput.ShowSingleInputDialog("Rename resource UUID", "Input a new UUID for the resource", string.IsNullOrWhiteSpace(item.Id) ? "unique id here" : item.Id, this.validator);
+            string uuid = await IoC.UserInput.ShowSingleInputDialogAsync("Rename resource UUID", "Input a new UUID for the resource", string.IsNullOrWhiteSpace(item.Id) ? "unique id here" : item.Id, this.validator);
             if (uuid == null) {
                 return false;
             }

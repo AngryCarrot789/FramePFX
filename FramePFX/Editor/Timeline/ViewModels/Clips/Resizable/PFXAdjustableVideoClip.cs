@@ -2,7 +2,7 @@ using FramePFX.Render;
 using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
-    public abstract class PFXAdjustableVideoClip : PFXVideoClip {
+    public abstract class PFXAdjustableVideoClip : PFXVideoClipViewModel {
         protected float x;
         protected float y;
         protected float width;
@@ -67,7 +67,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
         /// <param name="frame">The current frame that needs to be rendered</param>
         public abstract void RenderCore(IViewPort vp, long frame);
 
-        public override void LoadDataIntoClone(PFXBaseClip clone) {
+        public override void LoadDataIntoClone(PFXClipViewModel clone) {
             base.LoadDataIntoClone(clone);
             if (clone is PFXAdjustableVideoClip pos) {
                 pos.x = this.x;

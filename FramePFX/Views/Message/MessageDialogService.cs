@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
-using FrameControlEx.Core;
-using FrameControlEx.Core.Views.Dialogs;
-using FrameControlEx.Core.Views.Dialogs.Message;
-using FrameControlEx.Utils;
+using FramePFX.Core;
+using FramePFX.Core.Views.Dialogs;
+using FramePFX.Core.Views.Dialogs.Message;
+using FramePFX.Utils;
 
-namespace FrameControlEx.Views.Message {
+namespace FramePFX.Views.Message {
     [Service(typeof(IMessageDialogService))]
     public class MessageDialogService : IMessageDialogService {
         public async Task ShowMessageAsync(string caption, string message) {

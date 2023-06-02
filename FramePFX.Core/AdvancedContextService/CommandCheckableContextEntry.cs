@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Windows.Input;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     public class CommandCheckableContextEntry : CommandContextEntry {
         private bool isChecked;
         public bool IsChecked {

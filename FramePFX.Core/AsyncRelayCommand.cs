@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core {
+namespace FramePFX.Core {
     /// <summary>
     /// A simple async relay command, which does not take any parameters
     /// </summary>

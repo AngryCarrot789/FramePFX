@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     /// <summary>
     /// An entry that simply acts as a grouping element (to group a collection of child entries)
     /// </summary>

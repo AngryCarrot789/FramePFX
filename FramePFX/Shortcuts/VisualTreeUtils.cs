@@ -42,6 +42,24 @@ namespace FramePFX.Shortcuts {
             return (T) obj;
         }
 
+        public static T FindDescendant<T>(DependencyObject d) where T : DependencyObject {
+            if (d == null)
+                return null;
+            if (d is T t)
+                return t;
+
+            int count = VisualTreeHelper.GetChildrenCount(d);
+            for (int i = 0; i < count; i++) {
+                DependencyObject child = VisualTreeHelper.GetChild(d, i);
+                T result = child as T ?? FindDescendant<T>(child);
+                if (result != null) {
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
         public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf) where T : DependencyObject {
             if (obj == null || (includeSelf && obj is T)) {
                 return (T) obj;
@@ -75,6 +93,18 @@ namespace FramePFX.Shortcuts {
             }
 
             return null;
+        }
+
+        public static object GetDataContext(DependencyObject value) {
+            if (value is FrameworkElement element) {
+                return element.DataContext;
+            }
+            else if (value is FrameworkContentElement contentElement) {
+                return contentElement.DataContext;
+            }
+            else {
+                return null;
+            }
         }
     }
 }

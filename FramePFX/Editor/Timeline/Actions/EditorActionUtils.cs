@@ -2,7 +2,6 @@ using FramePFX.Core.Actions.Contexts;
 using FramePFX.Editor.Timeline.ViewModels;
 using FramePFX.Editor.Timeline.ViewModels.Clips;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.Editor.ViewModels;
 
 namespace FramePFX.Editor.Timeline.Actions {
     public static class EditorActionUtils {
@@ -16,7 +15,7 @@ namespace FramePFX.Editor.Timeline.Actions {
             else if (context.TryGetContext(out PFXTimelineLayer layer)) {
                 return layer.Timeline;
             }
-            else if (context.TryGetContext(out PFXBaseClip clip)) {
+            else if (context.TryGetContext(out PFXClipViewModel clip)) {
                 return clip.Layer?.Timeline;
             }
             else {

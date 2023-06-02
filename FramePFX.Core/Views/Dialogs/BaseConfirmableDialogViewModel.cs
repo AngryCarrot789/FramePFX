@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FrameControlEx.Core.Views.ViewModels;
+using FramePFX.Core.Views.ViewModels;
 
-namespace FrameControlEx.Core.Views.Dialogs {
+namespace FramePFX.Core.Views.Dialogs {
     public class BaseConfirmableDialogViewModel : BaseDialogViewModel, IErrorInfoHandler {
         protected bool HasErrors { get; private set; }
 

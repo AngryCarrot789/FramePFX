@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Windows.Controls;
-using FrameControlEx.Core.Views.Dialogs.UserInputs;
+using FramePFX.Core.Views.Dialogs.UserInputs;
 
-namespace FrameControlEx.Views.UserInputs {
+namespace FramePFX.Views.UserInputs {
     public class SimpleInputValidationRule : ValidationRule {
         public InputValidator Validator { get; set; }
 

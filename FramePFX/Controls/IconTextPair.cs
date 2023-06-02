@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Markup;
 
-namespace FrameControlEx.Controls {
+namespace FramePFX.Controls {
     [ContentProperty("Icon")]
     public class IconTextPair : Control {
         public static readonly DependencyProperty IconProperty = DependencyProperty.Register("Icon", typeof(object), typeof(IconTextPair), new PropertyMetadata(null));

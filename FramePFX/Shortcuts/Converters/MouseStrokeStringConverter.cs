@@ -5,9 +5,9 @@ using System.Text;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using FrameControlEx.Core.Shortcuts.ViewModels;
+using FramePFX.Core.Shortcuts.ViewModels;
 
-namespace FrameControlEx.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class MouseStrokeStringConverter : IMultiValueConverter {
         public static string ToStringFunction(MouseStrokeViewModel stroke) {
             return ToStringFunction(stroke.MouseButton, stroke.Modifiers, stroke.ClickCount);

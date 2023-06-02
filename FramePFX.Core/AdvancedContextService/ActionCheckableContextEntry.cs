@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using FrameControlEx.Core.Actions;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     public class ActionCheckableContextEntry : ActionContextEntry {
         private bool isChecked;
         public bool IsChecked {

@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace FrameControlEx.Core.Actions.Helpers {
+namespace FramePFX.Core.Actions.Helpers {
     public class ActionCommand<T> : AnAction {
         public Type TargetType { get; }
 

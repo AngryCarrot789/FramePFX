@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public class ThreadTimer {
         private const long MILLIS_PER_THREAD_SPLICE = 16;
         private static readonly long THREAD_SPLICE_IN_TICKS = MILLIS_PER_THREAD_SPLICE * Time.TICK_PER_MILLIS;

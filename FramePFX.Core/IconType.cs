@@ -1,30 +1,5 @@
-namespace FrameControlEx.Core {
+namespace FramePFX.Core {
     public enum IconType {
-        None,
-        ITEM_TAG_End,
-        ITEM_TAG_Byte,
-        ITEM_TAG_Short,
-        ITEM_TAG_Int,
-        ITEM_TAG_Long,
-        ITEM_TAG_Float,
-        ITEM_TAG_Double,
-        ITEM_TAG_String,
-        ITEM_TAG_ByteArray,
-        ITEM_TAG_IntArray,
-        ITEM_TAG_LongArray,
-        ITEM_TAG_List,
-        ITEM_TAG_Compound_Closed,
-        ITEM_TAG_Compound_OpenFull,
-        ITEM_TAG_Compound_OpenEmpty,
-        ITEM_DATFile,
-        ITEM_RegionFile,
-        ACTION_TAG_CopyName,
-        ACTION_TAG_CopyValue,
-        ACTION_TAG_CopyBinary,
-        ACTION_TAG_PasteBinary,
-        ACTION_TAG_Delete,
-        ACTION_TAG_Rename,
-        ACTION_TAG_EditGeneral,
-        ACTION_ITEM_Refresh,
+        None
     }
 }

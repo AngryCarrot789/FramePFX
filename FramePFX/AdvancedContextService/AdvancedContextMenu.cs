@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.AdvancedContextService;
-using FramePFX.Core.AdvancedContextService.Actions;
-using FramePFX.Core.AdvancedContextService.Base;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.AdvancedContextService {
     public class AdvancedContextMenu : ContextMenu {
+        public static readonly DependencyProperty ContextGeneratorProperty = DependencyProperty.RegisterAttached(
+            "ContextGenerator", typeof(IContextGenerator), typeof(AdvancedContextMenu), new PropertyMetadata(null, OnContextGeneratorPropertyChanged));
+
         public static readonly DependencyProperty ContextProviderProperty =
             DependencyProperty.RegisterAttached(
                 "ContextProvider",
@@ -23,19 +26,10 @@ namespace FramePFX.AdvancedContextService {
                 typeof(AdvancedContextMenu),
                 new PropertyMetadata(null, OnContextProviderPropertyChanged));
 
-        public static readonly DependencyProperty InsertionIndexProperty =
-            DependencyProperty.RegisterAttached(
-                "InsertionIndex",
-                typeof(int),
-                typeof(AdvancedContextMenu),
-                new PropertyMetadata(-1));
-
-        public static readonly DependencyPropertyKey LastAppendEndIndexPropertyKey =
-            DependencyProperty.RegisterAttachedReadOnly(
-                "LastAppendEndIndex",
-                typeof(int),
-                typeof(AdvancedContextMenu),
-                new PropertyMetadata(-1));
+        private static readonly ContextMenuEventHandler MenuOpenHandler = OnContextMenuOpening;
+        private static readonly ContextMenuEventHandler MenuCloseHandler = OnContextMenuClosing;
+        private static readonly ContextMenuEventHandler MenuOpenHandlerForGenerable = OnContextMenuOpeningForGenerable;
+        private static readonly ContextMenuEventHandler MenuCloseHandlerForGenerable = OnContextMenuClosingForGenerable;
 
         private object currentItem;
 
@@ -44,19 +38,17 @@ namespace FramePFX.AdvancedContextService {
         }
 
         public static DependencyObject CreateChildMenuItem(object item) {
-            if (item is ActionContextEntry) {
-                return new AdvancedActionMenuItem();
+            FrameworkElement element;
+            switch (item) {
+                case ActionContextEntry _:          element = new AdvancedActionMenuItem(); break;
+                case ShortcutCommandContextEntry _: element = new AdvancedShortcutMenuItem(); break;
+                case BaseContextEntry _:            element = new AdvancedMenuItem(); break;
+                case SeparatorEntry _:              element = new Separator(); break;
+                default: throw new Exception("Unknown item type: " + item?.GetType());
             }
-            else if (item is ContextEntry) {
-                return new AdvancedMenuItem();
-            }
-            else if (item is ContextEntrySeparator) {
-                return new Separator();
-            }
-            else {
-                throw new Exception("Unknown item type: " + item);
-                // return new MenuItem();
-            }
+
+            // element.IsVisibleChanged += ElementOnIsVisibleChanged;
+            return element;
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item) {
@@ -84,12 +76,150 @@ namespace FramePFX.AdvancedContextService {
             return CreateChildMenuItem(item);
         }
 
-        private static void SetLastAppendEndIndex(DependencyObject element, int value) {
-            element.SetValue(LastAppendEndIndexPropertyKey, value);
+        private static void OnContextProviderPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (ReferenceEquals(e.OldValue, e.NewValue)) {
+                return;
+            }
+
+            ContextMenuService.RemoveContextMenuOpeningHandler(d, MenuOpenHandler);
+            ContextMenuService.RemoveContextMenuClosingHandler(d, MenuCloseHandler);
+            if (e.NewValue != null) {
+                GetOrCreateContextMenu(d);
+                ContextMenuService.AddContextMenuOpeningHandler(d, MenuOpenHandler);
+                ContextMenuService.AddContextMenuClosingHandler(d, MenuCloseHandler);
+            }
         }
 
-        private static int GetLastAppendEndIndex(DependencyObject element) {
-            return (int) element.GetValue(LastAppendEndIndexPropertyKey.DependencyProperty);
+        private static List<IContextEntry> GetContexEntries(DependencyObject target) {
+            List<IContextEntry> list = new List<IContextEntry>();
+            if (GetContextProvider(target) is IContextProvider provider) {
+                provider.GetContext(list);
+            }
+            else if (GetContextEntrySource(target) is IEnumerable<IContextEntry> entries) {
+                list.AddRange(entries);
+            }
+
+            return list;
+        }
+
+        private static void OnContextGeneratorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (e.OldValue == e.NewValue) {
+                return;
+            }
+
+            ContextMenuService.RemoveContextMenuOpeningHandler(d, MenuOpenHandlerForGenerable);
+            ContextMenuService.RemoveContextMenuClosingHandler(d, MenuCloseHandlerForGenerable);
+            if (e.NewValue != null) {
+                GetOrCreateContextMenu(d);
+                ContextMenuService.AddContextMenuOpeningHandler(d, MenuOpenHandlerForGenerable);
+                ContextMenuService.AddContextMenuClosingHandler(d, MenuCloseHandlerForGenerable);
+            }
+        }
+
+        public static void OnContextMenuOpeningForGenerable(object sender, ContextMenuEventArgs e) {
+            if (sender is DependencyObject sourceObject && e.OriginalSource is DependencyObject targetObject) {
+                IContextGenerator generator = GetContextGenerator(sourceObject);
+                if (generator != null) {
+                    List<IContextEntry> list = new List<IContextEntry>();
+                    if (generator is IWPFContextGenerator wpfGen) {
+                        wpfGen.Generate(list, sourceObject, targetObject, VisualTreeUtils.GetDataContext(targetObject));
+                    }
+                    else {
+                        DataContext context = new DataContext();
+                        object srcDc = VisualTreeUtils.GetDataContext(sourceObject);
+                        if (srcDc != null)
+                            context.AddContext(srcDc);
+                        context.AddContext(sourceObject);
+
+                        object tarDc = VisualTreeUtils.GetDataContext(targetObject);
+                        if (tarDc != null)
+                            context.AddContext(tarDc);
+                        context.AddContext(targetObject);
+
+                        generator.Generate(list, context);
+                    }
+
+                    if (list.Count < 1) {
+                        e.Handled = true;
+                        return;
+                    }
+
+                    AdvancedContextMenu menu = GetOrCreateContextMenu(sourceObject);
+                    menu.Items.Clear();
+                    foreach (IContextEntry entry in CleanEntries(list)) {
+                        menu.Items.Add(entry);
+                    }
+                }
+            }
+        }
+
+        public static void OnContextMenuClosingForGenerable(object sender, ContextMenuEventArgs e) {
+            if (sender is DependencyObject targetElement && ContextMenuService.GetContextMenu(targetElement) is ContextMenu menu) {
+                menu.Dispatcher.Invoke(() => {
+                    menu.Items.Clear();
+                }, DispatcherPriority.DataBind);
+            }
+        }
+
+        public static void OnContextMenuOpening(object sender, ContextMenuEventArgs e) {
+            if (sender is DependencyObject targetElement) {
+                // A workaround for the problem which is this entire idea of view models generating context menus;
+                // they shouldn't be generated by view models but it's the only memory efficient way I have implemented.
+                // There's no way that 1000s of tree items are having their own unique context menu instances
+                // with all their menu items. It doesn't get more inefficient than that
+                // UPDATE: IContextGenerator solves this for the most part, though it loses a fair bit
+                // of the cross-platform factor which is what I was aiming for with IContextEntry
+
+                List<IContextEntry> context = GetContexEntries(targetElement);
+                if (context == null || context.Count < 1) {
+                    e.Handled = true;
+                    return;
+                }
+
+                AdvancedContextMenu menu = GetOrCreateContextMenu(targetElement);
+                menu.Items.Clear();
+                foreach (IContextEntry entry in CleanEntries(context)) {
+                    menu.Items.Add(entry);
+                }
+            }
+        }
+
+        public static IEnumerable<IContextEntry> CleanEntries(List<IContextEntry> entries) {
+            IContextEntry lastEntry = null;
+            for (int i = 0, end = entries.Count - 1; i <= end; i++) {
+                IContextEntry entry = entries[i];
+                if (!(entry is SeparatorEntry) || (i != 0 && i != end && !(lastEntry is SeparatorEntry))) {
+                    yield return entry;
+                }
+
+                lastEntry = entry;
+            }
+        }
+
+        public static void OnContextMenuClosing(object sender, ContextMenuEventArgs e) {
+            if (sender is DependencyObject targetElement && ContextMenuService.GetContextMenu(targetElement) is ContextMenu menu) {
+                menu.Dispatcher.Invoke(() => {
+                    menu.Items.Clear();
+                }, DispatcherPriority.DataBind);
+            }
+        }
+
+        private static AdvancedContextMenu GetOrCreateContextMenu(DependencyObject targetElement) {
+            ContextMenu menu = ContextMenuService.GetContextMenu(targetElement);
+            if (!(menu is AdvancedContextMenu advancedMenu)) {
+                ContextMenuService.SetContextMenu(targetElement, advancedMenu = new AdvancedContextMenu());
+                advancedMenu.StaysOpen = true;
+            }
+
+            return advancedMenu;
+        }
+
+        public static void SetContextGenerator(DependencyObject element, IContextGenerator value) {
+            element.SetValue(ContextGeneratorProperty, value);
+        }
+
+        public static IContextGenerator GetContextGenerator(DependencyObject element) {
+            return (IContextGenerator) element.GetValue(ContextGeneratorProperty);
         }
 
         public static void SetContextProvider(DependencyObject element, IContextProvider value) {
@@ -106,121 +236,6 @@ namespace FramePFX.AdvancedContextService {
 
         public static IEnumerable<IContextEntry> GetContextEntrySource(DependencyObject element) {
             return (IEnumerable<IContextEntry>) element.GetValue(ContextEntrySourceProperty);
-        }
-
-        public static void SetInsertionIndex(DependencyObject element, int value) {
-            element.SetValue(InsertionIndexProperty, value);
-        }
-
-        public static int GetInsertionIndex(DependencyObject element) {
-            return (int) element.GetValue(InsertionIndexProperty);
-        }
-
-
-        private static readonly ContextMenuEventHandler MenuOpenHandler = OnContextMenuOpening;
-        private static readonly ContextMenuEventHandler MenuCloseHandler = OnContextMenuClosing;
-
-        private static void OnContextProviderPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (ReferenceEquals(e.OldValue, e.NewValue)) {
-                return;
-            }
-
-            ContextMenuService.RemoveContextMenuOpeningHandler(d, MenuOpenHandler);
-            ContextMenuService.RemoveContextMenuClosingHandler(d, MenuCloseHandler);
-            if (e.NewValue != null) {
-                GetOrCreateContextMenu(d);
-                ContextMenuService.AddContextMenuOpeningHandler(d, MenuOpenHandler);
-                ContextMenuService.AddContextMenuClosingHandler(d, MenuCloseHandler);
-            }
-        }
-
-        public static List<IContextEntry> GetContexEntries(DependencyObject target) {
-            List<IContextEntry> list = new List<IContextEntry>();
-            if (GetContextProvider(target) is IContextProvider provider) {
-                provider.GetContext(list);
-            }
-            else if (GetContextEntrySource(target) is IEnumerable<IContextEntry> entries) {
-                list.AddRange(entries);
-            }
-
-            return list;
-        }
-
-        public static void OnContextMenuOpening(object sender, ContextMenuEventArgs e) {
-            if (sender is DependencyObject targetElement) {
-                List<IContextEntry> context = GetContexEntries(targetElement);
-                if (context == null || context.Count < 1) {
-                    return;
-                }
-
-                AdvancedContextMenu menu = GetOrCreateContextMenu(targetElement);
-                int count = menu.Items.Count;
-                int index = GetInsertionIndex(targetElement);
-                if (index < 0) {
-                    menu.Items.Clear();
-                    foreach (IContextEntry entry in context) {
-                        menu.Items.Add(entry);
-                    }
-                }
-                else if (index == menu.Items.Count) {
-                    foreach (IContextEntry entry in context) {
-                        menu.Items.Add(entry);
-                    }
-
-                    SetLastAppendEndIndex(targetElement, menu.Items.Count);
-                }
-                else {
-                    List<object> items = new List<object>();
-                    foreach (object item in menu.Items) {
-                        items.Add(item);
-                    }
-
-                    menu.Items.Clear();
-                    items.InsertRange(index = index > count ? count : index, context);
-                    foreach (object item in items) {
-                        menu.Items.Add(item);
-                    }
-
-                    SetLastAppendEndIndex(targetElement, index + context.Count);
-                }
-
-                if (menu.Items.Count < 1) {
-                    e.Handled = true;
-                }
-            }
-        }
-
-        public static void OnContextMenuClosing(object sender, ContextMenuEventArgs e) {
-            if (sender is DependencyObject targetElement && ContextMenuService.GetContextMenu(targetElement) is ContextMenu menu) {
-                Application.Current.Dispatcher.Invoke(() => {
-                    int index = GetInsertionIndex(targetElement); // 4
-                    if (index < 0) {
-                        menu.Items.Clear();
-                    }
-                    else {
-                        int lastEndIndex = GetLastAppendEndIndex(targetElement);
-                        if (lastEndIndex != -1) {
-                            try {
-                                for (int i = lastEndIndex - 1; i >= index; i--) {
-                                    menu.Items.RemoveAt(i);
-                                }
-                            }
-                            finally {
-                                SetLastAppendEndIndex(targetElement, -1);
-                            }
-                        }
-                    }
-                }, DispatcherPriority.DataBind);
-            }
-        }
-
-        private static AdvancedContextMenu GetOrCreateContextMenu(DependencyObject targetElement) {
-            ContextMenu menu = ContextMenuService.GetContextMenu(targetElement);
-            if (!(menu is AdvancedContextMenu advancedMenu)) {
-                ContextMenuService.SetContextMenu(targetElement, advancedMenu = new AdvancedContextMenu());
-            }
-
-            return advancedMenu;
         }
     }
 }

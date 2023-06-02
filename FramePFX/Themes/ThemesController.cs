@@ -23,12 +23,12 @@ namespace FramePFX.Themes {
 
         public static void SetTheme(ThemeType theme) {
             string themeName = theme.GetName();
-            CurrentTheme = theme;
             if (string.IsNullOrEmpty(themeName)) {
                 return;
             }
 
-            ThemeDictionary = new ResourceDictionary() { Source = new Uri($"Themes/{themeName}.xaml", UriKind.Relative) };
+            CurrentTheme = theme;
+            ThemeDictionary = new ResourceDictionary() { Source = new Uri($"Themes/ColourDictionaries/{themeName}.xaml", UriKind.Relative) };
             ControlColours = new ResourceDictionary() { Source = new Uri("Themes/ControlColours.xaml", UriKind.Relative) };
             Controls = new ResourceDictionary() { Source = new Uri("Themes/Controls.xaml", UriKind.Relative) };
         }

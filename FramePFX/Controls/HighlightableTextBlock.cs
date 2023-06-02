@@ -5,10 +5,10 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using FrameControlEx.Highlighting;
-using TextRange = FrameControlEx.Core.Utils.TextRange;
+using FramePFX.Highlighting;
+using TextRange = FramePFX.Core.Utils.TextRange;
 
-namespace FrameControlEx.Controls {
+namespace FramePFX.Controls {
     public class HighlightableTextBlock : TextBlock {
         public static readonly DependencyProperty HighlightProperty =
             DependencyProperty.Register(

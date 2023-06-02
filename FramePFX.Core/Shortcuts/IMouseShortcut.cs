@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using FrameControlEx.Core.Shortcuts.Inputs;
-using FrameControlEx.Core.Shortcuts.Usage;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Usage;
 
-namespace FrameControlEx.Core.Shortcuts {
+namespace FramePFX.Core.Shortcuts {
     public interface IMouseShortcut : IShortcut {
         /// <summary>
         /// All of the Mouse Strokes that this shortcut contains

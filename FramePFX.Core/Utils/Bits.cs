@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 
 namespace FramePFX.Core.Utils {
@@ -43,6 +44,21 @@ namespace FramePFX.Core.Utils {
             if (bit2) x |= 0b0010;
             if (bit3) x |= 0b0100;
             if (bit4) x |= 0b1000;
+            return x;
+        }
+
+        public static int Join(bool[] bits) {
+            if (bits == null)
+                throw new ArgumentNullException(nameof(bits), "Bits array cannot be null");
+            if (bits.Length > 32)
+                throw new ArgumentException("Cannot have more then 32 bits", nameof(bits));
+            int x = 0, mask = 0, max = Math.Min(bits.Length, 32);
+            for (int i = 0; i < max; i++, mask <<= 1) {
+                if (bits[i]) {
+                    x |= mask;
+                }
+            }
+
             return x;
         }
     }

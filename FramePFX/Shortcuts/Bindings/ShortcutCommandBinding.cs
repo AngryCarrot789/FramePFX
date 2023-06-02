@@ -76,21 +76,20 @@ namespace FramePFX.Shortcuts.Bindings {
             }
         }
 
-        private async Task<bool> OnShortcutFired(ShortcutProcessor processor, GroupedShortcut shortcut) {
+        private Task<bool> OnShortcutFired(ShortcutProcessor processor, GroupedShortcut shortcut) {
             ICommand cmd = this.Command;
             object param = this.CommandParameter;
             if (cmd != null && cmd.CanExecute(param)) {
                 if (cmd is BaseAsyncRelayCommand arc) {
-                    await arc.ExecuteAsyncCore(param);
-                    return true;
+                    return arc.TryExecuteAsync(param);
                 }
                 else {
                     cmd.Execute(param);
-                    return true;
+                    return Task.FromResult(true);
                 }
             }
             else {
-                return false;
+                return Task.FromResult(false);
             }
         }
 

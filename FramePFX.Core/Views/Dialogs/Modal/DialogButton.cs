@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using FrameControlEx.Core.Views.Dialogs.Message;
+using FramePFX.Core.Views.Dialogs.Message;
 
-namespace FrameControlEx.Core.Views.Dialogs.Modal {
+namespace FramePFX.Core.Views.Dialogs.Modal {
     public class DialogButton : BaseViewModel {
         /// <summary>
         /// The dialog that owns this button

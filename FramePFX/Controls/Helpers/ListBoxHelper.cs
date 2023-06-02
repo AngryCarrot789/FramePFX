@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Controls.Helpers {
+namespace FramePFX.Controls.Helpers {
     public static class ListBoxHelper {
         public static readonly DependencyProperty SelectedItemsProperty =
             DependencyProperty.RegisterAttached(

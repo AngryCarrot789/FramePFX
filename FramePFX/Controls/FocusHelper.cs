@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace FrameControlEx.Controls {
+namespace FramePFX.Controls {
     public static class FocusHelper {        
         public static readonly DependencyProperty FocusOnLoadedProperty =DependencyProperty.RegisterAttached("FocusOnLoaded", typeof(bool), typeof(FocusHelper), new PropertyMetadata(false, OnPropChanged));
 

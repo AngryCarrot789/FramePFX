@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using FrameControlEx.Core.Utils;
-using FrameControlEx.Shortcuts.Converters;
+using FramePFX.Core.Utils;
+using FramePFX.Shortcuts.Converters;
 
-namespace FrameControlEx.AdvancedContextService {
+namespace FramePFX.AdvancedContextService {
     public class AdvancedShortcutMenuItem : AdvancedMenuItem {
         public static readonly DependencyProperty ShortcutIdProperty =
             DependencyProperty.Register(

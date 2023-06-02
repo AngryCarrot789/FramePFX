@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-namespace FrameControlEx.AdvancedContextService.Static {
+namespace FramePFX.AdvancedContextService.Static {
     [DefaultProperty("Items")]
     [ContentProperty("Items")]
     public class StaticBaseMenuItem : StaticMenuElement {

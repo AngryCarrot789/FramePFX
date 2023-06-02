@@ -11,7 +11,7 @@ using FramePFX.Render;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Editor.ViewModels {
+namespace FramePFX.Editor {
     public class PFXViewportPlayback : BaseViewModel {
         private volatile bool isPlaying;
         public bool IsPlaying {

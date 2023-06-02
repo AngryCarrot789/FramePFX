@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace FrameControlEx.Converters {
+namespace FramePFX.Converters {
     public class ChainValueConverter : IValueConverter {
         private List<IValueConverter> converters;
         public List<IValueConverter> Converters {

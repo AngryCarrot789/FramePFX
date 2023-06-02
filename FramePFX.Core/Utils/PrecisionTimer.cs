@@ -2,8 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core.Utils {
-    public class PrecisionTimer {
+namespace FramePFX.Core.Utils {
+    public class PrecisionTimer : IDisposable {
         private const long MILLIS_PER_THREAD_SPLICE = 16; // 16.4
         private static readonly long THREAD_SPLICE_IN_TICKS = (long) (16.4d * Time.TICK_PER_MILLIS);
         // 1.71ms to 2.3ms is the max yield interval i found
@@ -123,6 +123,15 @@ namespace FrameControlEx.Core.Utils {
                     break;
                 }
             }
+        }
+
+        public void Dispose() {
+            try {
+                this.task?.Dispose();
+            }
+            catch { /* ignored */ }
+            this.osTimer?.Dispose();
+            this.TickCallback = null;
         }
     }
 }

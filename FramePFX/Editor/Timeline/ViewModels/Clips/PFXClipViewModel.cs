@@ -7,7 +7,7 @@ using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Clips {
-    public abstract class BaseClipViewModel : BaseViewModel, IDisposable {
+    public abstract class PFXClipViewModel : BaseViewModel, IDisposable {
         private string header;
         public string Header {
             get => this.header;
@@ -42,7 +42,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         protected bool isTimelinePlaying;
         private bool isProjectRendering;
 
-        protected BaseClipViewModel() {
+        protected PFXClipViewModel() {
             this.RenameCommand = new AsyncRelayCommand(this.RenameAction);
             this.DeleteCommand = new RelayCommand(() => {
                 this.Layer.RemoveClip(this);
@@ -107,16 +107,16 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips {
         /// Clones this clip's data into a new clip
         /// </summary>
         /// <returns></returns>
-        public virtual BaseClipViewModel NewInstanceOverride() {
+        public virtual PFXClipViewModel NewInstanceOverride() {
             throw new InvalidOperationException($"{nameof(this.NewInstanceOverride)} is not allowed to be directly called. Use {nameof(this.Clone)} instead");
         }
 
-        public virtual void LoadDataIntoClone(BaseClipViewModel clone) {
+        public virtual void LoadDataIntoClone(PFXClipViewModel clone) {
             clone.Header = this.Header;
         }
 
-        public virtual BaseClipViewModel Clone() {
-            BaseClipViewModel clip = this.NewInstanceOverride();
+        public virtual PFXClipViewModel Clone() {
+            PFXClipViewModel clip = this.NewInstanceOverride();
             this.LoadDataIntoClone(clip);
             return clip;
         }

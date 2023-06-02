@@ -1,4 +1,4 @@
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     public readonly struct TextRange {
         public int Index { get; }
 

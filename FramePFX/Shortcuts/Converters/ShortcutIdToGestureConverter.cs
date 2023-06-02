@@ -4,11 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
-using FrameControlEx.Core.Shortcuts.Inputs;
-using FrameControlEx.Core.Shortcuts.Managing;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Managing;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Shortcuts.Converters {
+namespace FramePFX.Shortcuts.Converters {
     public class ShortcutIdToGestureConverter : IValueConverter {
         public static ShortcutIdToGestureConverter Instance { get; } = new ShortcutIdToGestureConverter();
 

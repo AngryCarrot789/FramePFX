@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using FrameControlEx.Core.Shortcuts.Inputs;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Shortcuts.Inputs;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Core.Shortcuts.Managing {
+namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
     /// A collection of shortcuts
     /// </summary>

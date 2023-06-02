@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace FrameControlEx.Views {
+namespace FramePFX.Views {
     /// <summary>
     /// Interaction logic for AppSplashScreen.xaml
     /// </summary>
@@ -11,7 +11,7 @@ namespace FrameControlEx.Views {
         }
 
         public AppSplashScreen() {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

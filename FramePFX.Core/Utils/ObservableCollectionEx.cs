@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace FrameControlEx.Core.Utils {
+namespace FramePFX.Core.Utils {
     /// <summary>
     /// An extended version of <see cref="ObservableCollection{T}"/> which supports ranged action (optional; can be disabled/enabled
     /// due to the fact that WPF's collection views don't like range actions), and also supports some helper functions (e.g. <see cref="ClearAndAdd"/>)
@@ -197,7 +197,7 @@ namespace FrameControlEx.Core.Utils {
 
             IList<T> list = this.Items;
             this.CheckReentrancy();
-            if (ReferenceEquals(items, this) || ReferenceEquals(items, this.Items)) {
+            if (ReferenceEquals(items, this) || ReferenceEquals(items, list)) {
                 items = items.ToList();
             }
 

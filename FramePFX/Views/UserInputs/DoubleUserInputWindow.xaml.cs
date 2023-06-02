@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace FrameControlEx.Views.UserInputs {
+namespace FramePFX.Views.UserInputs {
     /// <summary>
     /// Interaction logic for DoubleUserInputWindow.xaml
     /// </summary>

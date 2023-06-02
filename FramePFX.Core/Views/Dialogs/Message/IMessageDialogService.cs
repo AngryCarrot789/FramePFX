@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core.Views.Dialogs.Message {
+namespace FramePFX.Core.Views.Dialogs.Message {
     public interface IMessageDialogService {
         /// <summary>
         /// Shows a simple message box on the UI thread and parents itself to the current active window

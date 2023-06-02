@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace FrameControlEx.Core.RBC {
+namespace FramePFX.Core.RBC {
     public static class BinaryUtils {
         public static bool ReadStruct<T>(Stream stream, out T value) where T : unmanaged {
             unsafe {

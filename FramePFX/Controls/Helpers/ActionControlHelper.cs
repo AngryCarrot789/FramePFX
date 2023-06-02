@@ -1,11 +1,11 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using FrameControlEx.Core.Actions;
-using FrameControlEx.Core.Actions.Contexts;
-using FrameControlEx.Core.Utils;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Utils;
 
-namespace FrameControlEx.Controls.Helpers {
+namespace FramePFX.Controls.Helpers {
     public static class ActionControlHelper {
         public static readonly DependencyProperty TargetActionIdProperty = DependencyProperty.RegisterAttached("TargetActionId", typeof(string), typeof(ActionControlHelper), new PropertyMetadata(null, PropertyChangedCallback));
         public static readonly DependencyProperty CanControlBecomeCollapsedProperty = DependencyProperty.RegisterAttached("CanControlBecomeCollapsed", typeof(bool), typeof(ActionControlHelper), new PropertyMetadata(true));

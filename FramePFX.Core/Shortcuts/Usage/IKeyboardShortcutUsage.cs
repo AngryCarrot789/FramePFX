@@ -1,6 +1,6 @@
-using FrameControlEx.Core.Shortcuts.Inputs;
+using FramePFX.Core.Shortcuts.Inputs;
 
-namespace FrameControlEx.Core.Shortcuts.Usage {
+namespace FramePFX.Core.Shortcuts.Usage {
     public interface IKeyboardShortcutUsage : IShortcutUsage {
         /// <summary>
         /// A reference to the shortcut that created this instance

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     /// <summary>
     /// The class for action-based context entries. The header, tooltip, etc, are automatically fetched
     /// </summary>

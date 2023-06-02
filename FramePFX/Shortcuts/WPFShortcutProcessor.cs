@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -12,16 +11,15 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Shortcuts {
     public class WPFShortcutProcessor : ShortcutProcessor {
+        public bool IsProcessingKey { get; private set; }
+        public bool IsProcessingMouse { get; private set; }
+
         public new WPFShortcutManager Manager => (WPFShortcutManager) base.Manager;
 
         public string CurrentInputBindingUsageID { get; set; } = WPFShortcutManager.DEFAULT_USAGE_ID;
 
-        public WPFShortcutProcessor(ShortcutManager manager) : base(manager) {
+        public WPFShortcutProcessor(WPFShortcutManager manager) : base(manager) {
 
-        }
-
-        public static WPFShortcutProcessor GetProcessorForControl(object sender) {
-            return sender is Window window ? UIFocusGroup.GetShortcutProcessor(window) : null;
         }
 
         public static bool CanProcessEvent(DependencyObject obj, bool isPreviewEvent) {
@@ -31,13 +29,14 @@ namespace FramePFX.Shortcuts {
         // Using async void here could possibly be dangerous if the awaited processor method (e.g. OnMouseStroke) halts
         // for a while due to a dialog for example. However... the methods should only really be callable when the window
         // is actually focused. But if the "root" event source is not a window then it could possibly be a problem
-        // Could maybe implement a bool flag to state if it's current being processed or not?
+        // IsProcessingMouse and IsProcessingKey should prevent this issue
 
         public async void OnWindowMouseDown(object sender, MouseButtonEventArgs e, bool isPreviewEvent) {
-            if (e.OriginalSource is DependencyObject focused && CanProcessEvent(focused, isPreviewEvent)) {
+            if (!this.IsProcessingMouse && e.OriginalSource is DependencyObject focused && CanProcessEvent(focused, isPreviewEvent)) {
                 UIFocusGroup.ProcessFocusGroupChange(focused);
 
                 try {
+                    this.IsProcessingMouse = true;
                     this.CurrentInputBindingUsageID = UIFocusGroup.GetUsageID(focused) ?? WPFShortcutManager.DEFAULT_USAGE_ID;
                     this.SetupDataContext(sender, focused);
                     MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, e.ClickCount);
@@ -46,6 +45,7 @@ namespace FramePFX.Shortcuts {
                     }
                 }
                 finally {
+                    this.IsProcessingMouse = false;
                     this.CurrentDataContext = null;
                     this.CurrentInputBindingUsageID = WPFShortcutManager.DEFAULT_USAGE_ID;
                 }
@@ -53,7 +53,7 @@ namespace FramePFX.Shortcuts {
         }
 
         public async void OnWindowMouseWheel(object sender, MouseWheelEventArgs e, bool isPreviewEvent) {
-            if (e.OriginalSource is DependencyObject focused && CanProcessEvent(focused, isPreviewEvent)) {
+            if (!this.IsProcessingMouse && e.OriginalSource is DependencyObject focused && CanProcessEvent(focused, isPreviewEvent)) {
                 int button;
                 if (e.Delta < 0) {
                     button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
@@ -66,6 +66,7 @@ namespace FramePFX.Shortcuts {
                 }
 
                 try {
+                    this.IsProcessingMouse = true;
                     this.CurrentInputBindingUsageID = UIFocusGroup.GetUsageID(focused) ?? WPFShortcutManager.DEFAULT_USAGE_ID;
                     this.SetupDataContext(sender, focused);
                     MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, 0, e.Delta);
@@ -74,6 +75,7 @@ namespace FramePFX.Shortcuts {
                     }
                 }
                 finally {
+                    this.IsProcessingMouse = false;
                     this.CurrentDataContext = null;
                     this.CurrentInputBindingUsageID = WPFShortcutManager.DEFAULT_USAGE_ID;
                 }
@@ -81,7 +83,7 @@ namespace FramePFX.Shortcuts {
         }
 
         public async void OnKeyEvent(object sender, DependencyObject focused, KeyEventArgs e, bool isRelease, bool isPreviewEvent) {
-            if (e.Handled) {
+            if (this.IsProcessingKey || e.Handled) {
                 return;
             }
 
@@ -98,12 +100,13 @@ namespace FramePFX.Shortcuts {
                 return;
             }
 
-            WPFShortcutProcessor processor = GetProcessorForControl(sender);
+            ShortcutProcessor processor = WPFShortcutManager.GetShortcutProcessorForUIObject(sender);
             if (processor == null) {
                 return;
             }
 
             try {
+                this.IsProcessingKey = true;
                 this.CurrentInputBindingUsageID = UIFocusGroup.GetUsageID(focused) ?? WPFShortcutManager.DEFAULT_USAGE_ID;
                 this.SetupDataContext(sender, focused);
                 KeyStroke stroke = new KeyStroke((int) key, (int) Keyboard.Modifiers, isRelease);
@@ -112,27 +115,17 @@ namespace FramePFX.Shortcuts {
                 }
             }
             finally {
+                this.IsProcessingKey = false;
                 this.CurrentDataContext = null;
                 this.CurrentInputBindingUsageID = WPFShortcutManager.DEFAULT_USAGE_ID;
             }
         }
 
         public void SetupDataContext(object sender, DependencyObject obj) {
-            DefaultDataContext context = new DefaultDataContext();
-            if (obj is IDataContext) {
-                context.Merge((IDataContext) obj);
-            }
-
-            if (obj is FrameworkElement element) {
-                object elementContext = element.DataContext;
-                if (elementContext is IDataContext dc) {
-                    context.Merge(dc);
-                }
-                else if (elementContext != null) {
-                    context.AddContext(elementContext);
-                }
-
-                context.AddContext(element);
+            DataContext context = new DataContext();
+            WPFShortcutManager.AccumulateContext(context, obj, true, true, false);
+            if (sender is FrameworkElement s && s.DataContext is object sdc) {
+                context.AddContext(sdc);
             }
 
             context.AddContext(sender);
@@ -141,7 +134,7 @@ namespace FramePFX.Shortcuts {
 
         public override async Task<bool> OnShortcutActivated(GroupedShortcut shortcut) {
             bool finalResult = false;
-            if (WPFShortcutManager.InputBindingCallbackMap.TryGetValue(shortcut.Path, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
+            if (WPFShortcutManager.InputBindingCallbackMap.TryGetValue(shortcut.FullPath, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
                 if (shortcut.IsGlobal || shortcut.Group.IsGlobal) {
                     if (usageMap.TryGetValue(WPFShortcutManager.DEFAULT_USAGE_ID, out List<ActivationHandlerReference> list) && list.Count > 0) {
                         finalResult = await this.ActivateShortcut(shortcut, list);
@@ -196,7 +189,7 @@ namespace FramePFX.Shortcuts {
         }
 
         public override bool OnShortcutUsagesCreated() {
-            StringJoiner joiner = new StringJoiner(new StringBuilder(), ", ");
+            StringJoiner joiner = new StringJoiner(", ");
             foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in this.ActiveUsages) {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
@@ -206,7 +199,7 @@ namespace FramePFX.Shortcuts {
         }
 
         public override bool OnSecondShortcutUsagesProgressed() {
-            StringJoiner joiner = new StringJoiner(new StringBuilder(), ", ");
+            StringJoiner joiner = new StringJoiner(", ");
             foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in this.ActiveUsages) {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }

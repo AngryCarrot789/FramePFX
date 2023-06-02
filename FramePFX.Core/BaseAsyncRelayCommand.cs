@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FrameControlEx.Core {
+namespace FramePFX.Core {
     /// <summary>
     /// <para>
     /// A base async relay command class which extends <see cref="BaseRelayCommand"/> and also implements a mechanism for

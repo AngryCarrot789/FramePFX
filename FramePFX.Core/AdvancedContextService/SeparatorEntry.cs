@@ -1,4 +1,4 @@
-namespace FrameControlEx.Core.AdvancedContextService {
+namespace FramePFX.Core.AdvancedContextService {
     /// <summary>
     /// A separator element between menu items
     /// </summary>

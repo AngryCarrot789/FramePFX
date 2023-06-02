@@ -1,8 +1,8 @@
 using System;
 using System.IO;
-using FramePFX.Core.Utils;
+using FrameControlEx.Core.Utils;
 
-namespace FramePFX.Core.RBC {
+namespace FrameControlEx.Core.RBC {
     public enum LengthReadStrategy {
         /// <summary>
         /// Appends a byte, short, int or long before the data to indicate the length.
@@ -52,8 +52,8 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEByteArray Clone() {
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEByteArray CloneCore() {
             return new RBEByteArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
@@ -95,8 +95,8 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEShortArray Clone() {
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEShortArray CloneCore() {
             return new RBEShortArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
@@ -144,8 +144,8 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEIntArray Clone() {
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEIntArray CloneCore() {
             return new RBEIntArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
@@ -190,8 +190,8 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBELongArray Clone() {
+        public override RBEBase Clone() => this.CloneCore();
+        public RBELongArray CloneCore() {
             return new RBELongArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
@@ -233,8 +233,8 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEFloatArray Clone() {
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEFloatArray CloneCore() {
             return new RBEFloatArray(Arrays.CloneArrayUnsafe(this.Array));
         }
     }
@@ -276,10 +276,47 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEDoubleArray Clone() {
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEDoubleArray CloneCore() {
             return new RBEDoubleArray(Arrays.CloneArrayUnsafe(this.Array));
         }
+    }
+
+    public class RBEStringArray : RBEBase {
+        public override RBEType Type => RBEType.StringArray;
+
+        public string[] Array { get; set; }
+
+        public RBEStringArray() {
+
+        }
+
+        public RBEStringArray(string[] array) {
+            this.Array = array;
+        }
+
+        public override void Read(BinaryReader reader) {
+            int length = reader.ReadInt32();
+            string[] array = this.Array = new string[length];
+            for (int i = 0; i < length; i++) {
+                array[i] = RBEString.ReadString(reader);
+            }
+        }
+
+        public override void Write(BinaryWriter writer) {
+            if (this.Array != null) {
+                writer.Write(this.Array.Length);
+                foreach (string value in this.Array) {
+                    RBEString.WriteString(value, writer);
+                }
+            }
+            else {
+                writer.Write(0);
+            }
+        }
+
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEStringArray CloneCore() => new RBEStringArray(Arrays.CloneArray(this.Array));
     }
 
     public class RBEStructArray : RBEBase {
@@ -289,6 +326,12 @@ namespace FramePFX.Core.RBC {
 
         public RBEStructArray() {
 
+        }
+
+        public static RBEStructArray ForValues<T>(T[] value) where T : unmanaged {
+            RBEStructArray rbe = new RBEStructArray();
+            rbe.SetValues(value);
+            return rbe;
         }
 
         public override void Read(BinaryReader reader) {
@@ -333,6 +376,25 @@ namespace FramePFX.Core.RBC {
             }
         }
 
+        public bool TryGetValues<T>(out T[] values) where T : unmanaged {
+            byte[] array = this.data;
+            unsafe {
+                int size;
+                if (array == null || ((size = sizeof(T)) % size) != 0) {
+                    values = null;
+                    return false;
+                }
+
+                int len = array.Length / size;
+                values = new T[len];
+                for (int i = 0, offset = 0; i < len; i++, offset += size) {
+                    values[i] = RBEStruct.ReadStruct<T>(array, offset, size);
+                }
+
+                return true;
+            }
+        }
+
         public void SetValues<T>(T[] values) where T : unmanaged {
             unsafe {
                 int size = sizeof(T);
@@ -344,9 +406,10 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEStructArray Clone() {
-            return new RBEStructArray { data = Arrays.CloneArrayUnsafe(this.data) };
+        public override RBEBase Clone() => this.CloneCore();
+
+        public RBEStructArray CloneCore() {
+            return new RBEStructArray {data = Arrays.CloneArrayUnsafe(this.data)};
         }
     }
 }

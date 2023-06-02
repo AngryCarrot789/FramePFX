@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace FrameControlEx.Core.Shortcuts.Usage {
     public class MouseShortcutUsage : IMouseShortcutUsage {
         private LinkedListNode<MouseStroke> currentStroke;
         // private int clickCounter;

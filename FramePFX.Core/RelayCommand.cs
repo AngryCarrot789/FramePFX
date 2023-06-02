@@ -1,6 +1,10 @@
 using System;
 
-namespace FramePFX.Core {
+namespace FrameControlEx.Core {
+    /// <summary>
+    /// A simple relay command, which does not take any parameters
+    /// </summary>
+    /// <typeparam name="T">The type of parameter</typeparam>
     public class RelayCommand : BaseRelayCommand {
         private readonly Action execute;
         private readonly Func<bool> canExecute;
@@ -23,6 +27,10 @@ namespace FramePFX.Core {
         }
     }
 
+    /// <summary>
+    /// A simple relay command, which may take a parameter
+    /// </summary>
+    /// <typeparam name="T">The type of parameter</typeparam>
     public class RelayCommand<T> : BaseRelayCommand {
         private readonly Action<T> execute;
         private readonly Func<T, bool> canExecute;
@@ -40,14 +48,27 @@ namespace FramePFX.Core {
         }
 
         public override bool CanExecute(object parameter) {
-            parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
-            return base.CanExecute(parameter) && (this.canExecute == null || (parameter == null || parameter is T) && this.canExecute((T) parameter));
+            if (this.ConvertParameter) {
+                parameter = GetConvertedParameter<T>(parameter);
+            }
+
+            if (base.CanExecute(parameter)) {
+                return this.canExecute == null || parameter == null && this.canExecute(default) || parameter is T t && this.canExecute(t);
+            }
+
+            return false;
         }
 
         public override void Execute(object parameter) {
-            parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
-            if (parameter == null || parameter is T) {
-                this.execute((T) parameter);
+            if (this.ConvertParameter) {
+                parameter = GetConvertedParameter<T>(parameter);
+            }
+
+            if (parameter == null) {
+                this.execute(default);
+            }
+            else if (parameter is T value) {
+                this.execute(value);
             }
             else {
                 throw new InvalidCastException($"Parameter type ({parameter.GetType()}) cannot be used for the callback method (which requires type {typeof(T).Name})");

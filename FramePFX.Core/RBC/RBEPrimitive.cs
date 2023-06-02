@@ -1,6 +1,7 @@
+using System;
 using System.IO;
 
-namespace FramePFX.Core.RBC {
+namespace FrameControlEx.Core.RBC {
     public class RBEByte : RBEBase {
         public override RBEType Type => RBEType.Byte;
 
@@ -22,8 +23,8 @@ namespace FramePFX.Core.RBC {
             writer.Write(this.Value);
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEByte Clone() => new RBEByte(this.Value);
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEByte CloneCore() => new RBEByte(this.Value);
     }
 
     public class RBEShort : RBEBase {
@@ -47,8 +48,8 @@ namespace FramePFX.Core.RBC {
             writer.Write(this.Value);
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEShort Clone() => new RBEShort(this.Value);
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEShort CloneCore() => new RBEShort(this.Value);
     }
 
     public class RBEInt : RBEBase {
@@ -72,8 +73,8 @@ namespace FramePFX.Core.RBC {
             writer.Write(this.Value);
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEInt Clone() => new RBEInt(this.Value);
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEInt CloneCore() => new RBEInt(this.Value);
     }
 
     public class RBELong : RBEBase {
@@ -97,8 +98,8 @@ namespace FramePFX.Core.RBC {
             writer.Write(this.Value);
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBELong Clone() => new RBELong(this.Value);
+        public override RBEBase Clone() => this.CloneCore();
+        public RBELong CloneCore() => new RBELong(this.Value);
     }
 
     public class RBEFloat : RBEBase {
@@ -122,8 +123,8 @@ namespace FramePFX.Core.RBC {
             writer.Write(this.Value);
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEFloat Clone() => new RBEFloat(this.Value);
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEFloat CloneCore() => new RBEFloat(this.Value);
     }
 
     public class RBEDouble : RBEBase {
@@ -147,7 +148,64 @@ namespace FramePFX.Core.RBC {
             writer.Write(this.Value);
         }
 
-        public override RBEBase CloneCore() => this.Clone();
-        public RBEDouble Clone() => new RBEDouble(this.Value);
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEDouble CloneCore() => new RBEDouble(this.Value);
+    }
+
+    /// <summary>
+    /// An RBE element that stores a string. Max string length is an unsigned short (<see cref="ushort.MaxValue"/>)
+    /// </summary>
+    public class RBEString : RBEBase {
+        public override RBEType Type => RBEType.String;
+
+        public string Value { get; set; }
+
+        public RBEString() {
+
+        }
+
+        public RBEString(string value) {
+            this.Value = value;
+        }
+
+        /// <summary>
+        /// Reads a ushort (as a length prefix) and then reads that many chars as a string
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static string ReadString(BinaryReader reader) {
+            int length = reader.ReadUInt16();
+            if (length < 1) {
+                return null;
+            }
+            else {
+                char[] chars = reader.ReadChars(length);
+                return new string(chars);
+            }
+        }
+
+        /// <summary>
+        /// Writes a ushort (as a length prefix) and then the chars of the string. If the string is too long, the excess is not written
+        /// </summary>
+        public static void WriteString(string text, BinaryWriter writer) {
+            if (string.IsNullOrEmpty(text)) {
+                writer.Write((ushort) 0);
+            }
+            else {
+                writer.Write((ushort) text.Length);
+                writer.Write(text.ToCharArray(0, Math.Min(text.Length, ushort.MaxValue)));
+            }
+        }
+
+        public override void Read(BinaryReader reader) {
+            this.Value = ReadString(reader);
+        }
+
+        public override void Write(BinaryWriter writer) {
+            WriteString(this.Value, writer);
+        }
+
+        public override RBEBase Clone() => this.CloneCore();
+        public RBEString CloneCore() => new RBEString(this.Value);
     }
 }

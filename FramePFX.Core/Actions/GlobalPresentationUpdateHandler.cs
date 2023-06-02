@@ -1,4 +1,4 @@
-namespace FramePFX.Core.Actions {
+namespace FrameControlEx.Core.Actions {
     /// <summary>
     /// A delegate for presentation update handlers
     /// </summary>

@@ -1,11 +1,8 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using FramePFX.Core.Utils;
-using OpenTK.Graphics.ES30;
-using Buffer = System.Buffer;
 
-namespace FramePFX.Core.RBC {
+namespace FrameControlEx.Core.RBC {
     /// <summary>
     /// Used to store unmanaged structs in the little-endian format. Struct can have a max size of 65535 (<see cref="ushort.MaxValue"/>) bytes
     /// <para>
@@ -20,6 +17,12 @@ namespace FramePFX.Core.RBC {
 
         public RBEStruct() {
 
+        }
+
+        public static RBEStruct ForValue<T>(in T value) where T : unmanaged {
+            RBEStruct rbe = new RBEStruct();
+            rbe.SetValue(value);
+            return rbe;
         }
 
         public override void Read(BinaryReader reader) {
@@ -55,6 +58,18 @@ namespace FramePFX.Core.RBC {
             }
         }
 
+        public bool TryGetValue<T>(out T value) where T : unmanaged {
+            unsafe {
+                if (this.data == null || this.data.Length != sizeof(T)) {
+                    value = default;
+                    return false;
+                }
+
+                value = ReadStruct<T>(this.data, 0, sizeof(T));
+                return true;
+            }
+        }
+
         public void SetValue<T>(in T value) where T : unmanaged {
             unsafe {
                 this.data = new byte[sizeof(T)];
@@ -74,9 +89,9 @@ namespace FramePFX.Core.RBC {
             BinaryUtils.WriteArray((byte*) &value, array, offset, size);
         }
 
-        public override RBEBase CloneCore() => this.Clone();
+        public override RBEBase Clone() => this.CloneCore();
 
-        public RBEStruct Clone() {
+        public RBEStruct CloneCore() {
             byte[] src = this.data;
             byte[] dest = null;
             if (src != null) {

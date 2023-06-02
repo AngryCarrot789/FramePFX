@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using FramePFX.Core.Actions.Contexts;
+using FrameControlEx.Core.Actions.Contexts;
+using FrameControlEx.Core.Utils;
 
-namespace FramePFX.Core.Actions {
+namespace FrameControlEx.Core.Actions {
     public class ActionManager {
+        public static ActionManager Instance { get; set; }
+
         private readonly Dictionary<string, LinkedList<GlobalPresentationUpdateHandler>> updateEventMap;
-
-        public static ActionManager Instance => IoC.ActionManager;
-
         private readonly Dictionary<string, AnAction> actions;
 
         public ActionManager() {
@@ -22,22 +24,41 @@ namespace FramePFX.Core.Actions {
         /// </summary>
         /// <exception cref="Exception"></exception>
         public static void SearchAndRegisterActions(ActionManager manager) {
+            List<(TypeInfo, ActionRegistrationAttribute)> attributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
                 foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
                     ActionRegistrationAttribute attribute = typeInfo.GetCustomAttribute<ActionRegistrationAttribute>();
                     if (attribute != null) {
-                        AnAction action;
-                        try {
-                            action = (AnAction) Activator.CreateInstance(typeInfo, true);
-                        }
-                        catch (Exception e) {
-                            throw new Exception($"Failed to create an instance of the registered action '{typeInfo.FullName}'", e);
-                        }
-
-                        manager.Register(attribute.ActionId, action);
+                        attributes.Add((typeInfo, attribute));
                     }
                 }
             }
+
+            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in attributes.OrderBy(x => x.Item2.RegistrationOrder)) {
+                AnAction action;
+                try {
+                    action = (AnAction) Activator.CreateInstance(type, true);
+                }
+                catch (Exception e) {
+                    throw new Exception($"Failed to create an instance of the registered action '{type.FullName}'", e);
+                }
+
+                if (attribute.OverrideExisting && manager.GetAction(attribute.ActionId) != null) {
+                    manager.Unregister(attribute.ActionId);
+                }
+
+                manager.Register(attribute.ActionId, action);
+            }
+        }
+
+        public AnAction Unregister(string id) {
+            ValidateId(id);
+            if (this.actions.TryGetValue(id, out AnAction action)) {
+                this.actions.Remove(id);
+                return action;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -52,7 +73,7 @@ namespace FramePFX.Core.Actions {
             ValidateId(id);
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
-            this.actions[id] = action;
+            this.RegisterInternal(id, action);
         }
 
         /// <summary>
@@ -65,7 +86,15 @@ namespace FramePFX.Core.Actions {
         /// <exception cref="ArgumentNullException">Action is null</exception>
         public void Register<T>(string id) where T : AnAction, new() {
             ValidateId(id);
-            this.actions[id] = new T();
+            this.RegisterInternal(id, new T());
+        }
+
+        private void RegisterInternal(string id, AnAction action) {
+            if (this.actions.TryGetValue(id, out AnAction existing)) {
+                throw new Exception($"An action is already registered with the ID '{id}': {existing?.GetType()}");
+            }
+
+            this.actions[id] = action;
         }
 
         /// <summary>
@@ -76,28 +105,52 @@ namespace FramePFX.Core.Actions {
         }
 
         /// <summary>
-        /// Tries to execute an action with the given ID and context. The args will be created and errors are handled and passed to <see cref="OnActionException"/>
+        /// Executes an action with the given ID and context
         /// </summary>
         /// <param name="id">The action ID to execute</param>
         /// <param name="context">The context to use. Cannot be null</param>
-        /// <param name="isUserInitiated">Whether a user caused the action to need to be executed. Supply false if this was invoked by a task or scheduler for example</param>
+        /// <param name="isUserInitiated">
+        /// Whether a user executed the action, e.g. via a button/menu click or clicking a check box.
+        /// Supply false if this was invoked by, for example, a task or scheduler. A non-user initiated
+        /// execution usually won't create error dialogs and may instead log to the console or just throw an exception
+        /// </param>
         /// <returns>False if no such action exists, or the action could not execute. Otherwise, true, meaning the action executed successfully</returns>
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the action threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public virtual Task<bool> Execute(string id, IDataContext context, bool isUserInitiated = true) {
+        public Task<bool> Execute(string id, IDataContext context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
+            AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
             if (this.actions.TryGetValue(id, out AnAction action)) {
-                AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
-                return action.ExecuteAsync(args);
+                return this.ExecuteCore(action, args);
             }
             else {
-                return this.GetNoSuchActionResult(id, context);
+                return this.GetNoSuchActionResult(args);
             }
         }
 
-        public virtual Task<bool> GetNoSuchActionResult(string actionId, IDataContext context) {
+        protected virtual async Task<bool> ExecuteCore(AnAction action, AnActionEventArgs e) {
+            if (e.IsUserInitiated) {
+                if (Debugger.IsAttached) {
+                    return await action.ExecuteAsync(e);
+                }
+                else {
+                    try {
+                        return await action.ExecuteAsync(e);
+                    }
+                    catch (Exception ex) {
+                        await IoC.MessageDialogs.ShowMessageExAsync("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
+                        return true;
+                    }
+                }
+            }
+            else {
+                return await action.ExecuteAsync(e);
+            }
+        }
+
+        public virtual Task<bool> GetNoSuchActionResult(AnActionEventArgs e) {
             return Task.FromResult(false);
         }
 
@@ -114,20 +167,20 @@ namespace FramePFX.Core.Actions {
         public virtual Presentation GetPresentation(string id, IDataContext context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
+            AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
             if (this.actions.TryGetValue(id, out AnAction action)) {
-                AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
                 return action.GetPresentation(args);
             }
             else {
-                return this.GetNoSuchActionPresentation(id, context);
+                return this.GetNoSuchActionPresentation(args);
             }
         }
 
-        public virtual Presentation GetNoSuchActionPresentation(string actionId, IDataContext context) {
+        public virtual Presentation GetNoSuchActionPresentation(AnActionEventArgs e) {
             return Presentation.VisibleAndDisabled;
         }
 
-        public void AddPresentationUpdateEventHandler(string id, GlobalPresentationUpdateHandler handler) {
+        public void AddPresentationUpdateHandler(string id, GlobalPresentationUpdateHandler handler) {
             ValidateId(id);
             if (handler == null) {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
@@ -140,7 +193,7 @@ namespace FramePFX.Core.Actions {
             list.AddLast(handler);
         }
 
-        public void RemovePresentationUpdateEventHandler(string id, GlobalPresentationUpdateHandler handler) {
+        public void RemovePresentationUpdateHandler(string id, GlobalPresentationUpdateHandler handler) {
             ValidateId(id);
             if (handler == null) {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
@@ -166,19 +219,16 @@ namespace FramePFX.Core.Actions {
             ValidateContext(context);
             if (!this.updateEventMap.TryGetValue(id, out LinkedList<GlobalPresentationUpdateHandler> list))
                 return false;
-
-            if (this.actions.TryGetValue(id, out AnAction action)) {
-                AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
-                Presentation presentation = action.GetPresentation(args);
-                foreach (GlobalPresentationUpdateHandler handler in list) {
-                    handler(id, action, args, presentation);
-                }
-
-                return true;
-            }
-            else {
+            if (!this.actions.TryGetValue(id, out AnAction action))
                 return false;
+
+            AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
+            Presentation presentation = action.GetPresentation(args);
+            foreach (GlobalPresentationUpdateHandler handler in list) {
+                handler(id, action, args, presentation);
             }
+
+            return true;
         }
 
         public static void ValidateId(string id) {

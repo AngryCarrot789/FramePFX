@@ -2,13 +2,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using FramePFX.Core.AdvancedContextService;
-using FramePFX.Core.AdvancedContextService.Base;
-using FramePFX.Core.AdvancedContextService.Commands;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Managing;
+using FrameControlEx.Core.AdvancedContextService;
+using FrameControlEx.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Managing;
 
-namespace FramePFX.Core.Shortcuts.ViewModels {
+namespace FrameControlEx.Core.Shortcuts.ViewModels {
     public class ShortcutViewModel : BaseShortcutItemViewModel, IContextProvider {
         public GroupedShortcut TheShortcut { get; }
 
@@ -44,30 +42,28 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             this.TheShortcut = reference;
             this.Name = reference.Name;
             this.DisplayName = reference.DisplayName ?? reference.Name;
-            this.Path = reference.Path;
+            this.Path = reference.FullPath;
             this.Description = reference.Description;
             this.isGlobal = reference.IsGlobal;
-            this.inherit = reference.Inherit;
+            this.inherit = reference.IsInherited;
             this.InputStrokes = new ObservableCollection<InputStrokeViewModel>();
             this.AddKeyStrokeCommand = new RelayCommand(this.AddKeyStrokeAction);
             this.AddMouseStrokeCommand = new RelayCommand(this.AddMouseStrokeAction);
-            this.RemoveStrokeCommand = new RelayCommand<InputStrokeViewModel>(this.RemoveStrokeAction);
+            this.RemoveStrokeCommand = new RelayCommand<InputStrokeViewModel>(this.RemoveStrokeAction, (x) => x != null);
             foreach (IInputStroke stroke in reference.Shortcut.InputStrokes) {
                 this.InputStrokes.Add(InputStrokeViewModel.CreateFrom(stroke));
             }
         }
 
-        public List<IContextEntry> GetContext(List<IContextEntry> list) {
+        public void GetContext(List<IContextEntry> list) {
             list.Add(new CommandContextEntry("Add key stroke...", this.AddKeyStrokeCommand));
             list.Add(new CommandContextEntry("Add mouse stroke...", this.AddMouseStrokeCommand));
             if (this.InputStrokes.Count > 0) {
-                list.Add(ContextEntrySeparator.Instance);
+                list.Add(SeparatorEntry.Instance);
                 foreach (InputStrokeViewModel stroke in this.InputStrokes) {
                     list.Add(new CommandContextEntry("Remove " + stroke.ToReadableString(), this.RemoveStrokeCommand, stroke));
                 }
             }
-
-            return list;
         }
 
         public void AddKeyStrokeAction() {

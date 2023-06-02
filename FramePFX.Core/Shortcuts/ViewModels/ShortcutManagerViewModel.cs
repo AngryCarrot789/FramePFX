@@ -1,6 +1,6 @@
-using FramePFX.Core.Shortcuts.Managing;
+using FrameControlEx.Core.Shortcuts.Managing;
 
-namespace FramePFX.Core.Shortcuts.ViewModels {
+namespace FrameControlEx.Core.Shortcuts.ViewModels {
     public class ShortcutManagerViewModel : BaseViewModel {
         private ShortcutGroupViewModel root;
         public ShortcutGroupViewModel Root {

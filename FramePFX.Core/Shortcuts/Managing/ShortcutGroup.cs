@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Serialization;
-using FramePFX.Core.Utils;
+using FrameControlEx.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Utils;
 
-namespace FramePFX.Core.Shortcuts.Managing {
+namespace FrameControlEx.Core.Shortcuts.Managing {
     /// <summary>
     /// A collection of shortcuts
     /// </summary>
@@ -20,7 +19,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
         /// <summary>
         /// This group's full path (containing the parent's path and this group's name into one).
-        /// It will either be null (meaning no parent), or a non-empty string. It will also never consist of only whitespaces
+        /// It will either be null (meaning no parent), or a non-empty string; it will never consist of only whitespaces
         /// </summary>
         public string FullPath { get; }
 
@@ -47,7 +46,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// <summary>
         /// Inherits shortcuts from the parent group
         /// </summary>
-        public bool InheritFromParent { get; }
+        public bool Inherit { get; set; }
 
         /// <summary>
         /// All shortcuts in this focus group
@@ -62,7 +61,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public ShortcutGroup(ShortcutGroup parent, string name, bool isGlobal = false, bool inherit = false) {
             this.FullPath = (parent != null && name != null) ? parent.GetPathForName(name) : name;
             this.Name = name;
-            this.InheritFromParent = inherit;
+            this.Inherit = inherit;
             this.IsGlobal = isGlobal;
             this.Parent = parent;
             this.groups = new List<ShortcutGroup>();
@@ -105,7 +104,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         }
 
         public bool ContainsShortcutByName(string name) {
-            return this.mapToItem.TryGetValue(name, out object value) && value is Shortcut;
+            return this.mapToItem.TryGetValue(name, out object value) && value is ShortcutGroup;
         }
 
         public bool ContainsGroupByName(string name) {
@@ -129,13 +128,16 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 group.CollectShortcutsInternal(stroke, focus, list);
             }
 
-            bool requireGlobal = !this.IsGlobal && !this.IsValidSearchForGroup(focus);
+            bool requireGlobal = !this.IsGlobal && !IsFocusPathInScope(this.FullPath, focus, this.Inherit);
             foreach (GroupedShortcut shortcut in this.shortcuts) {
                 if (requireGlobal && !shortcut.IsGlobal) {
-                    if (shortcut.Inherit && IsValidSearchForGroup(this.FullPath, focus, true)) {
-                        IInputStroke primary = shortcut.Shortcut.PrimaryStroke; // saves potentially boxing Key/Mouse strokes multiple times
-                        if (!allowDuplicateInheritedShortcuts && list.Find(x => x.Shortcut.IsPrimaryStroke(primary)) != null) {
-                            continue;
+                    // I actually can't remember if this.FullPath should be used here or shortcut.Path
+                    if (shortcut.IsInherited && IsFocusPathInScope(this.FullPath, focus, true)) {
+                        if (!allowDuplicateInheritedShortcuts && list.Count > 0) {
+                            IInputStroke primary = shortcut.Shortcut.PrimaryStroke; // saves potentially boxing Key/Mouse strokes multiple times
+                            if (list.Find(x => x.Shortcut.IsPrimaryStroke(primary)) != null) {
+                                continue;
+                            }
                         }
                     }
                     else {
@@ -149,11 +151,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
             }
         }
 
-        private bool IsValidSearchForGroup(string focusedGroup) {
-            return IsValidSearchForGroup(this.FullPath, focusedGroup, this.InheritFromParent);
-        }
-
-        private static bool IsValidSearchForGroup(string path, string focused, bool inherit) {
+        private static bool IsFocusPathInScope(string path, string focused, bool inherit) {
             return path != null && focused != null && (inherit ? focused.StartsWith(path) : focused.Equals(path));
         }
 

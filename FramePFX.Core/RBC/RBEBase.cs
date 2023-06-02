@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace FramePFX.Core.RBC {
+namespace FrameControlEx.Core.RBC {
     /// <summary>
     /// The base class for the RBE (REghZy Binary Element... i know right what a sexy acronym)
     /// <para>
@@ -36,7 +36,7 @@ namespace FramePFX.Core.RBC {
         /// Creates a deep clone of this element
         /// </summary>
         /// <returns>A new element which contains no references (at all) to the instance that was originally cloned</returns>
-        public abstract RBEBase CloneCore();
+        public abstract RBEBase Clone();
 
         public static RBEBase ReadIdAndElement(BinaryReader reader) {
             byte id = reader.ReadByte();
@@ -60,6 +60,7 @@ namespace FramePFX.Core.RBC {
                 case RBEType.Long:        return new RBELong();
                 case RBEType.Float:       return new RBEFloat();
                 case RBEType.Double:      return new RBEDouble();
+                case RBEType.String:      return new RBEString();
                 case RBEType.Struct:      return new RBEStruct();
                 case RBEType.ByteArray:   return new RBEByteArray();
                 case RBEType.ShortArray:  return new RBEShortArray();
@@ -67,9 +68,37 @@ namespace FramePFX.Core.RBC {
                 case RBEType.LongArray:   return new RBELongArray();
                 case RBEType.FloatArray:  return new RBEFloatArray();
                 case RBEType.DoubleArray: return new RBEDoubleArray();
+                case RBEType.StringArray: return new RBEStringArray();
                 case RBEType.StructArray: return new RBEStructArray();
-                default: throw new ArgumentOutOfRangeException(nameof(id), id, "Unknown element ID: " + id);
+                default: throw new ArgumentOutOfRangeException(nameof(id), id, "Unknown RBE for id: " + (int) id);
             }
+        }
+
+        public static bool TryGetIdByType(Type type, out RBEType rbeType) {
+            if (type == typeof(RBEDictionary))       rbeType = RBEType.Dictionary;
+            else if (type == typeof(RBEList))        rbeType = RBEType.List;
+            else if (type == typeof(RBEByte))        rbeType = RBEType.Byte;
+            else if (type == typeof(RBEShort))       rbeType = RBEType.Short;
+            else if (type == typeof(RBEInt))         rbeType = RBEType.Int;
+            else if (type == typeof(RBELong))        rbeType = RBEType.Long;
+            else if (type == typeof(RBEFloat))       rbeType = RBEType.Float;
+            else if (type == typeof(RBEDouble))      rbeType = RBEType.Double;
+            else if (type == typeof(RBEString))      rbeType = RBEType.String;
+            else if (type == typeof(RBEStruct))      rbeType = RBEType.Struct;
+            else if (type == typeof(RBEByteArray))   rbeType = RBEType.ByteArray;
+            else if (type == typeof(RBEShortArray))  rbeType = RBEType.ShortArray;
+            else if (type == typeof(RBEIntArray))    rbeType = RBEType.IntArray;
+            else if (type == typeof(RBELongArray))   rbeType = RBEType.LongArray;
+            else if (type == typeof(RBEFloatArray))  rbeType = RBEType.FloatArray;
+            else if (type == typeof(RBEDoubleArray)) rbeType = RBEType.DoubleArray;
+            else if (type == typeof(RBEStringArray)) rbeType = RBEType.StringArray;
+            else if (type == typeof(RBEStructArray)) rbeType = RBEType.StructArray;
+            else {
+                rbeType = RBEType.Unknown;
+                return false;
+            }
+
+            return true;
         }
     }
 }

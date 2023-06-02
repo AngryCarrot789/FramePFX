@@ -1,11 +1,13 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Managing {
+namespace FrameControlEx.Core.Shortcuts.Managing {
     /// <summary>
     /// A class for storing and managing shortcuts
     /// </summary>
     public abstract class ShortcutManager {
+        public static ShortcutManager Instance { get; set; }
+
         private List<GroupedShortcut> allShortcuts;
         private Dictionary<string, LinkedList<GroupedShortcut>> actionToShortcut; // linked because there will only really be like 1 or 2 ever
         private Dictionary<string, GroupedShortcut> pathToShortcut;
@@ -105,8 +107,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
                     list.AddLast(shortcut);
                 }
 
-                if (!string.IsNullOrWhiteSpace(shortcut.Path)) { // should only be null or non-empty
-                    this.pathToShortcut[shortcut.Path] = shortcut;
+                if (!string.IsNullOrWhiteSpace(shortcut.FullPath)) { // should only be null or non-empty
+                    this.pathToShortcut[shortcut.FullPath] = shortcut;
                 }
             }
         }
@@ -114,6 +116,15 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public virtual void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focusedGroup, List<GroupedShortcut> shortcutList) {
             // could implement caching here at some point... but the focusedGroup thingy makes it a bit tricky
             this.root.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, shortcutList);
+        }
+
+        public IEnumerable<GroupedShortcut> FindShortcutsByPaths(IEnumerable<string> paths) {
+            foreach (string path in paths) {
+                GroupedShortcut shortcut = this.FindShortcutByPath(path);
+                if (shortcut != null) {
+                    yield return shortcut;
+                }
+            }
         }
     }
 }

@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using FramePFX.Core.Shortcuts.Managing;
-using FramePFX.Core.Utils;
+using FrameControlEx.Core.Shortcuts.Managing;
+using FrameControlEx.Core.Utils;
 
-namespace FramePFX.Core.Shortcuts.ViewModels {
+namespace FrameControlEx.Core.Shortcuts.ViewModels {
     public class ShortcutGroupViewModel : BaseShortcutItemViewModel {
-        private readonly EfficientObservableCollection<BaseShortcutItemViewModel> children;
+        private readonly ObservableCollectionEx<BaseShortcutItemViewModel> children;
 
-        public ShortcutGroup GroupReference { get; set; }
+        public ShortcutGroup TheGroup { get; set; }
 
         public string FullPath { get; }
 
@@ -23,13 +23,13 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
         public ReadOnlyObservableCollection<BaseShortcutItemViewModel> Children { get; }
 
         public ShortcutGroupViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, ShortcutGroup reference) : base(manager, parent) {
-            this.GroupReference = reference;
+            this.TheGroup = reference;
             this.IsGlobal = reference.IsGlobal;
-            this.InheritFromParent = reference.InheritFromParent;
+            this.InheritFromParent = reference.Inherit;
             this.Name = reference.Name;
             this.DisplayName = reference.DisplayName ?? reference.Name;
             this.FullPath = reference.FullPath;
-            this.children = new EfficientObservableCollection<BaseShortcutItemViewModel>();
+            this.children = new ObservableCollectionEx<BaseShortcutItemViewModel>();
             this.Children = new ReadOnlyObservableCollection<BaseShortcutItemViewModel>(this.children);
         }
 
@@ -41,7 +41,7 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
         }
 
         public ShortcutGroup SaveToRealGroup() {
-            ShortcutGroup group = new ShortcutGroup(this.Parent?.GroupReference, this.FullPath, this.IsGlobal, this.InheritFromParent);
+            ShortcutGroup group = new ShortcutGroup(this.Parent?.TheGroup, this.FullPath, this.IsGlobal, this.InheritFromParent);
             foreach (ShortcutGroupViewModel innerGroup in this.children.OfType<ShortcutGroupViewModel>()) {
                 group.AddGroup(innerGroup.SaveToRealGroup());
             }

@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core.Actions {
+namespace FrameControlEx.Core.Actions {
     public abstract class ToggleAction : AnAction {
         public const string IsToggledKey = "toggled";
 
-        protected ToggleAction(Func<string> header, Func<string> description) : base(header, description) {
+        protected ToggleAction(Func<string> header, Func<string> description) : base() {
 
         }
 
@@ -66,7 +66,7 @@ namespace FramePFX.Core.Actions {
         }
 
         public virtual Presentation GetPresentation(AnActionEventArgs e, bool isToggled) {
-            return isToggled ? Presentation.VisibleAndEnabled : Presentation.VisibleAndDisabled;
+            return Presentation.VisibleAndEnabled;
         }
 
         public virtual Presentation GetPresentationNoToggle(AnActionEventArgs e) {

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Usage;
+using FrameControlEx.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Usage;
 
-namespace FramePFX.Core.Shortcuts {
+namespace FrameControlEx.Core.Shortcuts {
     public interface IKeyboardShortcut : IShortcut {
         /// <summary>
         /// All of the Key Strokes that this shortcut contains

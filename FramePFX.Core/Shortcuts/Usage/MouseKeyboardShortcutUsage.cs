@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace FrameControlEx.Core.Shortcuts.Usage {
     public class MouseKeyboardShortcutUsage : IKeyboardShortcutUsage, IMouseShortcutUsage {
         private readonly MouseKeyboardShortcut shortcut;
         // private int clickCounter;
@@ -13,9 +13,9 @@ namespace FramePFX.Core.Shortcuts.Usage {
 
         public IMouseShortcut MouseShortcut => this.shortcut;
 
-        public KeyStroke CurrentKeyStroke => this.currentStroke.Value is KeyStroke value ? value : default;
+        public KeyStroke CurrentKeyStroke => this.currentStroke?.Value is KeyStroke value ? value : default;
 
-        public MouseStroke CurrentMouseStroke => this.currentStroke.Value is MouseStroke value ? value : default;
+        public MouseStroke CurrentMouseStroke => this.currentStroke?.Value is MouseStroke value ? value : default;
 
         public IShortcut Shortcut {
             get => this.KeyboardShortcut;

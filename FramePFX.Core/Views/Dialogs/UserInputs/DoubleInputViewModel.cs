@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using FramePFX.Core.Views.ViewModels;
-
-namespace FramePFX.Core.Views.Dialogs.UserInputs {
-    public class DoubleInputViewModel : BaseConfirmableDialogViewModel, IErrorInfoHandler {
+﻿namespace FrameControlEx.Core.Views.Dialogs.UserInputs {
+    public class DoubleInputViewModel : BaseConfirmableDialogViewModel {
         private string title;
         private string msgA;
         private string msgB;
@@ -39,10 +36,6 @@ namespace FramePFX.Core.Views.Dialogs.UserInputs {
 
         public DoubleInputViewModel() {
 
-        }
-
-        public void OnErrorsUpdated(Dictionary<string, object> errors) {
-            this.ConfirmCommand.IsEnabled = errors.Count < 1;
         }
     }
 }

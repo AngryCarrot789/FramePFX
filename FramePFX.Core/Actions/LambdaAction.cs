@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core.Actions {
+namespace FrameControlEx.Core.Actions {
     public class LambdaAction : AnAction {
         public Func<AnActionEventArgs, Task<bool>> MyAction { get; }
 
         public Func<AnActionEventArgs, Presentation> MyGetPresentation { get; }
 
-        public LambdaAction(Func<string> header, Func<string> description, Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation) : base(header, description) {
+        public LambdaAction(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation) : base() {
             this.MyAction = action ?? throw new ArgumentNullException(nameof(action), "Action function cannot be null");
             this.MyGetPresentation = getPresentation;
         }
@@ -20,44 +20,44 @@ namespace FramePFX.Core.Actions {
             return this.MyGetPresentation != null ? this.MyGetPresentation(e) : base.GetPresentation(e);
         }
 
-        public static AnAction Lambda(Func<AnActionEventArgs, Task<bool>> action, string header = null, string description = null) {
-            return new LambdaAction(() => header, () => description, action, null);
+        public static AnAction Lambda(Func<AnActionEventArgs, Task<bool>> action) {
+            return new LambdaAction(action, null);
         }
 
-        public static AnAction LambdaEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation, string header = null, string description = null) {
-            return new LambdaAction(() => header, () => description, action, getPresentation);
+        public static AnAction LambdaEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation) {
+            return new LambdaAction(action, getPresentation);
         }
 
-        public static AnAction LambdaForContext<T>(Func<T, Task<bool>> action, string header = null, string description = null) {
-            return Lambda(GetLambdaExecutor(action), header, description);
+        public static AnAction LambdaForContext<T>(Func<T, Task<bool>> action) {
+            return Lambda(GetLambdaExecutor(action));
         }
 
-        public static AnAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, string header = null, string description = null) {
-            return LambdaForContextEx(action, presentation, Presentation.VisibleAndDisabled, header, description);
+        public static AnAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation) {
+            return LambdaForContextEx(action, presentation, Presentation.VisibleAndDisabled);
         }
 
-        public static AnAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, Presentation noContextAvailable, string header = null, string description = null) {
-            return LambdaEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable), header, description);
+        public static AnAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, Presentation noContextAvailable) {
+            return LambdaEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable));
         }
 
-        public static AnAction LambdaI18N(Func<AnActionEventArgs, Task<bool>> action, Func<string> header = null, Func<string> description = null) {
-            return new LambdaAction(header, description, action, null);
+        public static AnAction LambdaI18N(Func<AnActionEventArgs, Task<bool>> action) {
+            return new LambdaAction(action, null);
         }
 
-        public static AnAction LambdaI18NEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation, Func<string> header = null, Func<string> description = null) {
-            return new LambdaAction(header, description, action, getPresentation);
+        public static AnAction LambdaI18NEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation) {
+            return new LambdaAction(action, getPresentation);
         }
 
-        public static AnAction LambdaForContextI18N<T>(Func<T, Task<bool>> action, Func<string> header = null, Func<string> description = null) {
-            return LambdaI18N(GetLambdaExecutor(action), header, description);
+        public static AnAction LambdaForContextI18N<T>(Func<T, Task<bool>> action) {
+            return LambdaI18N(GetLambdaExecutor(action));
         }
 
-        public static AnAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, Func<string> header = null, Func<string> description = null) {
-            return LambdaForContextI18NEx(action, presentation, Presentation.VisibleAndDisabled, header, description);
+        public static AnAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation) {
+            return LambdaForContextI18NEx(action, presentation, Presentation.VisibleAndDisabled);
         }
 
-        public static AnAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, Presentation noContextAvailable, Func<string> header = null, Func<string> description = null) {
-            return LambdaI18NEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable), header, description);
+        public static AnAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, Presentation noContextAvailable) {
+            return LambdaI18NEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable));
         }
 
         private static Func<AnActionEventArgs, Task<bool>> GetLambdaExecutor<T>(Func<T, Task<bool>> action) {

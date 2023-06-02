@@ -1,8 +1,8 @@
-namespace FramePFX.Core.RBC {
+namespace FrameControlEx.Core.RBC {
     public enum RBEType : byte {
         // In order for old data to be compatible, the existing type values
         // should not be modified. There can only be 255 different types of element (1-255)
-        None        = 0,
+        Unknown     = 0,
         Dictionary  = 1,
         List        = 2,
         Byte        = 3,
@@ -11,13 +11,15 @@ namespace FramePFX.Core.RBC {
         Long        = 6,
         Float       = 7,
         Double      = 8,
-        Struct      = 9,
-        ByteArray   = 10,
-        ShortArray  = 11,
-        IntArray    = 12,
-        LongArray   = 13,
-        FloatArray  = 14,
-        DoubleArray = 15,
-        StructArray = 16,
+        String      = 9,
+        Struct      = 10,
+        ByteArray   = 11,
+        ShortArray  = 12,
+        IntArray    = 13,
+        LongArray   = 14,
+        FloatArray  = 15,
+        DoubleArray = 16,
+        StringArray = 17,
+        StructArray = 18,
     }
 }

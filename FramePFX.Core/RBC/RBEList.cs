@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Core.RBC {
+namespace FrameControlEx.Core.RBC {
     /// <summary>
     /// Used to store an ordered list of elements
     /// </summary>
@@ -180,7 +178,11 @@ namespace FramePFX.Core.RBC {
             value = element?.GetValues<T>();
             return value != null;
         }
-        
+
+        public void Add(RBEBase element) {
+            this.List.Add(element);
+        }
+
         public void AddDictionary(Dictionary<string, RBEBase> value) {
             this.List.Add(new RBEDictionary(value));
         }
@@ -240,14 +242,14 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
+        public override RBEBase Clone() => this.CloneCore();
 
-        public RBEList Clone() {
+        public RBEList CloneCore() {
             List<RBEBase> list = new List<RBEBase>(this.List);
             // not using Select because there's a possibility it causes a stack overflow exception,
             // because there could be a huge chain of elements (lists in lists in lists etc...)
             foreach (RBEBase element in this.List)
-                list.Add(element.CloneCore());
+                list.Add(element.Clone());
             return new RBEList(list);
         }
     }

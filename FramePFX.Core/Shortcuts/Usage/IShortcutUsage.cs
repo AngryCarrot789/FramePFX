@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace FrameControlEx.Core.Shortcuts.Usage {
     /// <summary>
     /// An interface for all shortcut "usages". Usages are used when a shortcut requires
     /// more than 1 input stroke to activate it

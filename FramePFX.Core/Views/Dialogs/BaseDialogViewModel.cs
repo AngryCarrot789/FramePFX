@@ -1,12 +1,21 @@
-namespace FramePFX.Core.Views.Dialogs {
-    /// <summary>
-    /// A helper base view model that has a reference to the dialog associated with this view model
-    /// </summary>
+using System.Windows.Input;
+
+namespace FrameControlEx.Core.Views.Dialogs {
     public class BaseDialogViewModel : BaseViewModel {
         public IDialog Dialog { get; set; }
 
-        public BaseDialogViewModel() {
+        public ICommand CloseCommand { get; }
 
+        public BaseDialogViewModel() {
+            this.CloseCommand = new RelayCommand(this.CloseDialogAction, this.CanCloseDialog);
+        }
+
+        protected virtual bool CanCloseDialog() {
+            return this.Dialog != null;
+        }
+
+        protected virtual void CloseDialogAction() {
+            this.Dialog?.CloseDialog(false);
         }
     }
 }

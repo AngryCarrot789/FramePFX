@@ -1,4 +1,4 @@
-namespace FramePFX.Core.Shortcuts.ViewModels {
+namespace FrameControlEx.Core.Shortcuts.ViewModels {
     /// <summary>
     /// A base view model for shortcuts and shortcut groups
     /// </summary>

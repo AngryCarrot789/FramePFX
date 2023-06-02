@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Usage;
+using FrameControlEx.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Usage;
 
-namespace FramePFX.Core.Shortcuts {
+namespace FrameControlEx.Core.Shortcuts {
     public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut {
         public static readonly MouseShortcut EmptyMouseKeyboardShortcut = new MouseShortcut();
 
@@ -45,18 +45,15 @@ namespace FramePFX.Core.Shortcuts {
         }
 
         public IMouseShortcutUsage CreateMouseUsage() {
-            return this.CreateUsageInternal();
+            return (IMouseShortcutUsage) this.CreateUsage();
         }
 
+
         public IKeyboardShortcutUsage CreateKeyUsage() {
-            return this.CreateUsageInternal();
+            return (IKeyboardShortcutUsage) this.CreateUsage();
         }
 
         public IShortcutUsage CreateUsage() {
-            return this.CreateUsageInternal();
-        }
-
-        private MouseKeyboardShortcutUsage CreateUsageInternal() {
             return this.IsEmpty ? throw new InvalidOperationException("Shortcut is empty. Cannot create a usage") : new MouseKeyboardShortcutUsage(this);
         }
 

@@ -1,9 +1,10 @@
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
+namespace FrameControlEx.Core.Shortcuts.Usage {
     public class KeyboardShortcutUsage : IKeyboardShortcutUsage {
         private LinkedListNode<KeyStroke> currentStroke;
+        private LinkedListNode<KeyStroke> previousStroke;
 
         public IKeyboardShortcut KeyboardShortcut { get; }
 

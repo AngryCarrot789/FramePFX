@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Usage;
+using FrameControlEx.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Usage;
 
-namespace FramePFX.Core.Shortcuts {
+namespace FrameControlEx.Core.Shortcuts {
     public class MouseShortcut : IMouseShortcut {
-        public static readonly MouseShortcut EmptyMouseShortcut = new MouseShortcut();
+        public static MouseShortcut EmptyMouseShortcut = new MouseShortcut();
 
         private readonly List<MouseStroke> mouseStrokes;
 
@@ -22,7 +22,7 @@ namespace FramePFX.Core.Shortcuts {
 
         public bool IsMouse => true;
 
-        public bool IsEmpty => this.mouseStrokes.Count < 1;
+        public bool IsEmpty => this.mouseStrokes.Count <= 0;
 
         public bool HasSecondaryStrokes => this.mouseStrokes.Count > 1;
 

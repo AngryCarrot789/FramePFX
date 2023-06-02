@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FramePFX.Core.Actions;
-using FramePFX.Core.Actions.Contexts;
-using FramePFX.Core.Shortcuts.Inputs;
-using FramePFX.Core.Shortcuts.Usage;
+using System.Windows.Input;
+using FrameControlEx.Core.Actions;
+using FrameControlEx.Core.Actions.Contexts;
+using FrameControlEx.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Usage;
 
-namespace FramePFX.Core.Shortcuts.Managing {
+namespace FrameControlEx.Core.Shortcuts.Managing {
     /// <summary>
     /// A shortcut processor. This is used for each focus root (which is typically a window), and
     /// should only really be used by a single thread at a time (not designed to be thread safe)
@@ -53,6 +54,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 return await this.OnSecondShortcutUsageCompleted(usage, shortcut);
             }
             finally {
+                // The OnKeyStroke/OnMouseStroke functions immediately return the return of OnUnexpectedCompletedUsage,
+                // so clearing this is safe to do
                 this.ActiveUsages.Clear();
             }
         }
@@ -348,27 +351,69 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
         public virtual async Task<bool> OnShortcutActivated(GroupedShortcut shortcut) {
-            if (string.IsNullOrWhiteSpace(shortcut.ActionId) || this.CurrentDataContext == null)
+            IDataContext context = this.CurrentDataContext;
+            if (context == null) {
                 return false;
-            return await ActionManager.Instance.Execute(shortcut.ActionId, this.CurrentDataContext);
+            }
+
+            foreach (object obj in context.Context) {
+                if (obj is IShortcutHandler handler && await handler.OnShortcutActivated(this, shortcut)) {
+                    return true;
+                }
+                else if (obj is IShortcutToCommand converter) {
+                    ICommand command = converter.GetCommandForShortcut(shortcut.FullPath);
+                    if (command is BaseAsyncRelayCommand asyncCommand) {
+                        IoC.BroadcastShortcutActivity($"Activating shortcut: {shortcut} via command...");
+                        if (await asyncCommand.TryExecuteAsync(null)) {
+                            IoC.BroadcastShortcutActivity($"Activating shortcut: {shortcut} via command... Complete!");
+                            return true;
+                        }
+                    }
+                    else if (command != null && command.CanExecute(null)) {
+                        IoC.BroadcastShortcutActivity($"Activated shortcut: {shortcut} via command... Complete!");
+                        command.Execute(null);
+                        return true;
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(shortcut.ActionId)) {
+                return false;
+            }
+
+            if (shortcut.ActionContext != null) {
+                DataContext newCtx = new DataContext();
+                newCtx.Merge(context);
+                newCtx.Merge(shortcut.ActionContext);
+                context = newCtx;
+            }
+
+            IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
+            if (await ActionManager.Instance.Execute(shortcut.ActionId, context)) {
+                IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
+                return true;
+            }
+
+            IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Incomplete!");
+            return false;
         }
 
         /// <summary>
-        /// Whether to ignore the received key stroke. By default, this returns true if the current
+        /// Whether to ignore the received key stroke
         /// </summary>
         /// <param name="usage"></param>
         /// <param name="shortcut"></param>
         /// <param name="input"></param>
-        /// <param name="currentKeyStroke"></param>
+        /// <param name="currentUsageKeyStroke"></param>
         /// <returns></returns>
-        protected virtual bool ShouldIgnoreKeyStroke(IKeyboardShortcutUsage usage, GroupedShortcut shortcut, KeyStroke input, KeyStroke currentKeyStroke) {
-            if (currentKeyStroke.IsKeyRelease && !input.IsKeyRelease) {
+        protected virtual bool ShouldIgnoreKeyStroke(IKeyboardShortcutUsage usage, GroupedShortcut shortcut, KeyStroke input, KeyStroke currentUsageKeyStroke) {
+            if (currentUsageKeyStroke.IsKeyRelease && !input.IsKeyRelease) {
                 if (this.ShouldIgnorePressWhenRequiredStrokeIsRelease(usage, shortcut, input)) {
                     return true;
                 }
             }
 
-            if (input.IsKeyRelease && !usage.IsCompleted && !currentKeyStroke.IsKeyRelease) {
+            if (input.IsKeyRelease && !usage.IsCompleted && !currentUsageKeyStroke.IsKeyRelease) {
                 if (this.ShouldIgnoreReleaseWhenRequiredStrokeIsPress(usage, shortcut, input)) {
                     return true;
                 }

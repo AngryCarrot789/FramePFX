@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core {
+namespace FrameControlEx.Core {
     /// <summary>
-    /// A simple relay command, which does not take any parameters
+    /// A simple async relay command, which does not take any parameters
     /// </summary>
     public class AsyncRelayCommand : BaseAsyncRelayCommand {
         private readonly Func<Task> execute;
@@ -18,19 +18,26 @@ namespace FramePFX.Core {
             this.canExecute = canExecute;
         }
 
-        public override bool CanExecute(object parameter) {
-            return base.CanExecute(parameter) && (this.canExecute == null || this.canExecute());
+        protected override bool CanExecuteCore(object parameter) {
+            return this.canExecute == null || this.canExecute();
         }
 
-        protected override Task ExecuteAsync(object parameter) {
+        protected override Task ExecuteCoreAsync(object parameter) {
             return this.execute();
         }
     }
 
+    /// <summary>
+    /// A simple async relay command, which may take a parameter
+    /// </summary>
+    /// <typeparam name="T">The type of parameter</typeparam>
     public class AsyncRelayCommand<T> : BaseAsyncRelayCommand {
         private readonly Func<T, Task> execute;
         private readonly Func<T, bool> canExecute;
 
+        /// <summary>
+        /// Whether or not to convert the parameter to <see cref="T"/> (e.g. if T is a boolean and the parameter is a string, it is easily convertible)
+        /// </summary>
         public bool ConvertParameter { get; set; }
 
         public AsyncRelayCommand(Func<T, Task> execute, Func<T, bool> canExecute = null, bool convertParameter = true) {
@@ -43,19 +50,26 @@ namespace FramePFX.Core {
             this.ConvertParameter = convertParameter;
         }
 
-        public override bool CanExecute(object parameter) {
-            if (base.CanExecute(parameter)) {
-                parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
-                return (parameter == null || parameter is T) && this.canExecute((T) parameter);
+        protected override bool CanExecuteCore(object parameter) {
+            if (this.ConvertParameter) {
+                parameter = GetConvertedParameter<T>(parameter);
             }
 
-            return false;
+            return this.canExecute == null ||
+                   parameter == null && this.canExecute(default) ||
+                   parameter is T t && this.canExecute(t);
         }
 
-        protected override Task ExecuteAsync(object parameter) {
-            parameter = ImplicitConvertParameter<T>(parameter, this.ConvertParameter);
-            if (parameter == null || parameter is T) {
-                return this.execute((T) parameter);
+        protected override Task ExecuteCoreAsync(object parameter) {
+            if (this.ConvertParameter) {
+                parameter = GetConvertedParameter<T>(parameter);
+            }
+
+            if (parameter == null) {
+                return this.execute(default);
+            }
+            else if (parameter is T value) {
+                return this.execute(value);
             }
             else {
                 return Task.CompletedTask;

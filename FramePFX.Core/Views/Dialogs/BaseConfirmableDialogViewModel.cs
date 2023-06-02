@@ -1,19 +1,17 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using FramePFX.Core.Views.ViewModels;
+using FrameControlEx.Core.Views.ViewModels;
 
-namespace FramePFX.Core.Views.Dialogs {
-    /// <summary>
-    /// A helper base view model for managing a dialog and the standard Confirm/Cancel behaviour. In order to disable
-    /// the confirm button when errors are present, implement and override <see cref="IErrorInfoHandler.OnErrorsUpdated(System.Collections.Generic.Dictionary{string, object})"/>,
-    /// and set the <see cref="BaseRelayCommand.IsEnabled"/> state to true/false depending if the dictionary is empty/not empty, respectively
-    /// </summary>
-    public class BaseConfirmableDialogViewModel : BaseDialogViewModel {
-        public RelayCommand ConfirmCommand { get; }
-        public RelayCommand CancelCommand { get; }
+namespace FrameControlEx.Core.Views.Dialogs {
+    public class BaseConfirmableDialogViewModel : BaseDialogViewModel, IErrorInfoHandler {
+        protected bool HasErrors { get; private set; }
+
+        public AsyncRelayCommand ConfirmCommand { get; }
+        public AsyncRelayCommand CancelCommand { get; }
 
         public BaseConfirmableDialogViewModel() {
-            this.ConfirmCommand = new RelayCommand(async () => await this.ConfirmAction());
-            this.CancelCommand = new RelayCommand(async () => await this.CancelAction());
+            this.ConfirmCommand = new AsyncRelayCommand(this.ConfirmAction, this.CanConfirm);
+            this.CancelCommand = new AsyncRelayCommand(this.CancelAction);
         }
 
         public BaseConfirmableDialogViewModel(IDialog dialog) : this() {
@@ -21,17 +19,20 @@ namespace FramePFX.Core.Views.Dialogs {
         }
 
         public virtual async Task ConfirmAction() {
-            if (await this.CanConfirm()) {
-                await this.OnDialogClosing(true);
+            if (await this.CanConfirmAsync()) {
                 await this.Dialog.CloseDialogAsync(true);
-                await this.OnDialogClosed(true);
             }
         }
 
         public virtual async Task CancelAction() {
-            await this.OnDialogClosing(false);
-            await this.Dialog.CloseDialogAsync(false);
-            await this.OnDialogClosed(false);
+            if (await this.CanCancelAsync()) {
+                await this.Dialog.CloseDialogAsync(false);
+            }
+        }
+
+        public virtual void OnErrorsUpdated(Dictionary<string, object> errors) {
+            this.HasErrors = errors.Count > 0;
+            this.ConfirmCommand.RaiseCanExecuteChanged();
         }
 
         /// <summary>
@@ -41,24 +42,21 @@ namespace FramePFX.Core.Views.Dialogs {
         /// This method can also be used to set some final state in the dialog
         /// </para>
         /// </summary>
-        public virtual Task<bool> CanConfirm() {
-            if (this.Dialog is IHasErrorInfo errors && errors.Errors.Count > 0) {
-                // Should a window really be shown? It's probably better just use WPF's
-                // validation templates + adorners and just disable the confirm command
+        public virtual Task<bool> CanConfirmAsync() {
+            return Task.FromResult(this.CanConfirm());
+        }
 
-                // await IoC.ErrorInfo.ShowDialogAsync(dictionary.Select(x => new Tuple<string, string>(x.Key, x.Value)));
-                return Task.FromResult(false);
-            }
+        protected virtual bool CanConfirm() {
+            return !this.HasErrors;
+        }
 
+        /// <summary>
+        /// Called just before the cancel action is executed, to check if this
+        /// dialog actually can close. This should never really return anything except true,
+        /// otherwise the user will be unable to close the dialog (except for clicking the X button)
+        /// </summary>
+        public virtual Task<bool> CanCancelAsync() {
             return Task.FromResult(true);
-        }
-
-        public virtual Task OnDialogClosing(bool result) {
-            return Task.CompletedTask;
-        }
-
-        public virtual Task OnDialogClosed(bool result) {
-            return Task.CompletedTask;
         }
     }
 }

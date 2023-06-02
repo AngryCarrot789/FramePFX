@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FramePFX.Core.RBC {
+namespace FrameControlEx.Core.RBC {
     /// <summary>
     /// Used to store named elements using a dictionary
     /// </summary>
@@ -34,201 +34,162 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public bool TryGet(string key, out RBEBase value) {
-            return (value = this[key]) != null;
-        }
-
-        private bool GetElementByType<T>(string key, out T value) where T : RBEBase {
-            key = ValidateKey(key);
-            if (this.Map.TryGetValue(key, out RBEBase rbe)) {
-                if (rbe is T val) {
-                    value = val;
-                    return true;
-                }
-                else {
-                    throw new Exception($"Incompatible types: Attempted to get element named {key} of type {typeof(T)}, but type {rbe?.GetType()} was found");
-                }
+        public T GetElement<T>(string key) where T : RBEBase {
+            if (this.TryGetElement(key, out T value)) {
+                return value;
             }
             else {
-                value = default;
-                return false;
+                string readableTypeName = TryGetIdByType(typeof(T), out var type) ? type.ToString() : typeof(T).ToString();
+                throw new Exception($"No such {readableTypeName} named '{key}'");
             }
         }
 
-        public RBEDictionary GetDictionaryElement(string key) {
-            return this.GetElementByType(key, out RBEDictionary rbe) ? rbe : null;
+        public bool TryGetElement<T>(string key, out T element) where T : RBEBase {
+            if (this.Map.TryGetValue(ValidateKey(key), out RBEBase rbeBase)) {
+                if (rbeBase is T rbe) {
+                    element = rbe;
+                    return true;
+                }
+            }
+
+            element = default;
+            return false;
         }
 
-        public Dictionary<string, RBEBase> GetDictionary(string key, Dictionary<string, RBEBase> def = null) {
-            return this.GetElementByType(key, out RBEDictionary rbe) ? rbe.Map : def;
+        public bool TryGetElementValue<TElement, T>(string key, Func<TElement, T> elemToVal, out T value) where TElement : RBEBase {
+            if (this.TryGetElement(key, out TElement element)) {
+                value = elemToVal(element);
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
-        public bool TryGetDictionary(string key, out Dictionary<string, RBEBase> value) {
-            RBEDictionary element = this.GetDictionaryElement(key);
-            value = element?.Map;
-            return element != null;
+        public Dictionary<string, RBEBase> GetDictionary(string key) => this.GetElement<RBEDictionary>(key).Map;
+        public Dictionary<string, RBEBase> GetDictionary(string key, Dictionary<string, RBEBase> def) => this.TryGetElement(key, out RBEDictionary rbe) ? rbe.Map : def;
+        public bool TryGetDictionary(string key, out Dictionary<string, RBEBase> value) => (value = this.GetDictionary(key)) != null;
+        public RBEDictionary GetOrCreateDictionaryElement(string key) {
+            if (!this.TryGetElement(key, out RBEDictionary dictionary))
+                this[key] = dictionary = new RBEDictionary();
+            return dictionary;
         }
 
-        public RBEDictionary GetOrCreateDictionary(string key) {
-            RBEDictionary element = this.GetDictionaryElement(key);
-            if (element == null)
-                this[key] = element = new RBEDictionary();
-            return element;
+        public Dictionary<string, RBEBase> GetOrCreateDictionary(string key) => this.GetOrCreateDictionaryElement(key).Map;
+
+        public List<RBEBase> GetList(string key) => this.GetElement<RBEList>(key).List;
+        public List<RBEBase> GetList(string key, List<RBEBase> def) => this.TryGetElement(key, out RBEList rbe) ? rbe.List : def;
+        public bool TryGetList(string key, out List<RBEBase> value) => (value = this.GetList(key)) != null;
+        public RBEList GetOrCreateListElement(string key) {
+            if (!this.TryGetElement(key, out RBEList dictionary))
+                this[key] = dictionary = new RBEList();
+            return dictionary;
         }
 
-        public RBEList GetListElement(string key) {
-            return this.GetElementByType(key, out RBEList rbe) ? rbe : null;
-        }
+        public List<RBEBase> GetOrCreateList(string key) => this.GetOrCreateListElement(key).List;
 
-        public List<RBEBase> GetList(string key, List<RBEBase> def = null) {
-            return this.GetElementByType(key, out RBEList rbe) ? rbe.List : def;
-        }
+        public bool GetBool(string key) => this.GetByte(key) != 0;
+        public bool GetBool(string key, bool def) => this.TryGetElement(key, out RBEByte rbe) ? (rbe.Value != 0) : def;
+        public bool TryGetBool(string key, out bool value) => this.TryGetElementValue<RBEByte, bool>(key, (e) => e.Value != 0, out value);
 
-        public bool TryGetList(string key, out List<RBEBase> value) {
-            RBEList element = this.GetListElement(key);
-            value = element?.List;
-            return element != null;
-        }
+        public byte GetByte(string key) => this.GetElement<RBEByte>(key).Value;
+        public byte GetByte(string key, byte def) => this.TryGetElement(key, out RBEByte rbe) ? rbe.Value : def;
+        public bool TryGetByte(string key, out byte value) => this.TryGetElementValue<RBEByte, byte>(key, (e) => e.Value, out value);
 
-        public RBEByte GetByteElement(string key) {
-            return this.GetElementByType(key, out RBEByte rbe) ? rbe : null;
-        }
+        public short GetShort(string key) => this.GetElement<RBEShort>(key).Value;
+        public short GetShort(string key, short def) => this.TryGetElement(key, out RBEShort rbe) ? rbe.Value : def;
+        public bool TryGetShort(string key, out short value) => this.TryGetElementValue<RBEShort, short>(key, (e) => e.Value, out value);
 
-        public byte GetByte(string key, byte def = default) {
-            return this.GetElementByType(key, out RBEByte rbe) ? rbe.Value : def;
-        }
+        public int GetInt(string key) => this.GetElement<RBEInt>(key).Value;
+        public int GetInt(string key, int def) => this.TryGetElement(key, out RBEInt rbe) ? rbe.Value : def;
+        public bool TryGetInt(string key, out int value) => this.TryGetElementValue<RBEInt, int>(key, (e) => e.Value, out value);
 
-        public bool TryGetByte(string key, out byte value) {
-            RBEByte element = this.GetByteElement(key);
-            value = element?.Value ?? default;
-            return element != null;
-        }
+        public long GetLong(string key) => this.GetElement<RBELong>(key).Value;
+        public long GetLong(string key, long def) => this.TryGetElement(key, out RBELong rbe) ? rbe.Value : def;
+        public bool TryGetLong(string key, out long value) => this.TryGetElementValue<RBELong, long>(key, (e) => e.Value, out value);
 
-        public RBEShort GetShortElement(string key) {
-            return this.GetElementByType(key, out RBEShort rbe) ? rbe : null;
-        }
+        public float GetFloat(string key) => this.GetElement<RBEFloat>(key).Value;
+        public float GetFloat(string key, float def) => this.TryGetElement(key, out RBEFloat rbe) ? rbe.Value : def;
+        public bool TryGetFloat(string key, out float value) => this.TryGetElementValue<RBEFloat, float>(key, (e) => e.Value, out value);
 
-        public short GetShort(string key, short def = default) {
-            return this.GetElementByType(key, out RBEShort rbe) ? rbe.Value : def;
-        }
+        public double GetDouble(string key) => this.GetElement<RBEDouble>(key).Value;
+        public double GetDouble(string key, double def) => this.TryGetElement(key, out RBEDouble rbe) ? rbe.Value : def;
+        public bool TryGetDouble(string key, out double value) => this.TryGetElementValue<RBEDouble, double>(key, (e) => e.Value, out value);
 
-        public bool TryGetShort(string key, out short value) {
-            RBEShort element = this.GetShortElement(key);
-            value = element?.Value ?? default;
-            return element != null;
-        }
+        public string GetString(string key) => this.GetElement<RBEString>(key).Value;
+        public string GetString(string key, string def) => this.TryGetElement(key, out RBEString rbe) ? rbe.Value : def;
+        public bool TryGetString(string key, out string value) => this.TryGetElementValue<RBEString, string>(key, (e) => e.Value, out value);
 
-        public RBEInt GetIntElement(string key) {
-            return this.GetElementByType(key, out RBEInt rbe) ? rbe : null;
-        }
-
-        public int GetInt(string key, int def = default) {
-            return this.GetElementByType(key, out RBEInt rbe) ? rbe.Value : def;
-        }
-
-        public bool TryGetInt(string key, out int value) {
-            RBEInt element = this.GetIntElement(key);
-            value = element?.Value ?? default;
-            return element != null;
-        }
-
-        public RBELong GetLongElement(string key) {
-            return this.GetElementByType(key, out RBELong rbe) ? rbe : null;
-        }
-
-        public long GetLong(string key, long def = default) {
-            return this.GetElementByType(key, out RBELong rbe) ? rbe.Value : def;
-        }
-
-        public bool TryGetLong(string key, out long value) {
-            RBELong element = this.GetLongElement(key);
-            value = element?.Value ?? default;
-            return element != null;
-        }
-
-        public RBEFloat GetFloatElement(string key) {
-            return this.GetElementByType(key, out RBEFloat rbe) ? rbe : null;
-        }
-
-        public float GetFloat(string key, float def = default) {
-            return this.GetElementByType(key, out RBEFloat rbe) ? rbe.Value : def;
-        }
-
-        public bool TryGetFloat(string key, out float value) {
-            RBEFloat element = this.GetFloatElement(key);
-            value = element?.Value ?? default;
-            return element != null;
-        }
-
-        public RBEDouble GetDoubleElement(string key) {
-            return this.GetElementByType(key, out RBEDouble rbe) ? rbe : null;
-        }
-
-        public double GetDouble(string key, double def = default) {
-            return this.GetElementByType(key, out RBEDouble rbe) ? rbe.Value : def;
-        }
-
-        public bool TryGetDouble(string key, out double value) {
-            RBEDouble element = this.GetDoubleElement(key);
-            value = element?.Value ?? default;
-            return element != null;
-        }
-
-        public RBEStruct GetStructElement(string key) {
-            return this.GetElementByType(key, out RBEStruct rbe) ? rbe : null;
-        }
-
-        public T GetStruct<T>(string key) where T : unmanaged {
-            return this.GetElementByType(key, out RBEStruct value) ? value.GetValue<T>() : default;
-        }
-
-        public T GetStruct<T>(string key, T def) where T : unmanaged {
-            return this.GetElementByType(key, out RBEStruct value) ? value.GetValue<T>() : def;
-        }
+        public T GetStruct<T>(string key) where T : unmanaged => this.GetElement<RBEStruct>(key).GetValue<T>();
+        public T GetStruct<T>(string key, T def) where T : unmanaged => this.TryGetElement(key, out RBEStruct rbe) ? rbe.GetValue<T>() : def;
 
         public bool TryGetStruct<T>(string key, out T value) where T : unmanaged {
-            RBEStruct element = this.GetStructElement(key);
-            value = element?.GetValue<T>() ?? default;
-            return element != null;
+            if (this.TryGetElement(key, out RBEStruct rbe) && rbe.TryGetValue(out value)) {
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
-        public void SetDictionary(string key, Dictionary<string, RBEBase> value) {
-            this[key] = new RBEDictionary(value);
+        public byte[] GetByteArray(string key) => this.GetElement<RBEByteArray>(key).Array;
+        public byte[] GetByteArray(string key, byte[] def) => this.TryGetElement(key, out RBEByteArray rbe) ? rbe.Array : def;
+        public bool TryGetByteArray(string key, out byte[] value) => this.TryGetElementValue<RBEByteArray, byte[]>(key, (e) => e.Array, out value);
+
+        public short[] GetShortArray(string key) => this.GetElement<RBEShortArray>(key).Array;
+        public short[] GetShortArray(string key, short[] def) => this.TryGetElement(key, out RBEShortArray rbe) ? rbe.Array : def;
+        public bool TryGetShortArray(string key, out short[] value) => this.TryGetElementValue<RBEShortArray, short[]>(key, (e) => e.Array, out value);
+
+        public int[] GetIntArray(string key) => this.GetElement<RBEIntArray>(key).Array;
+        public int[] GetIntArray(string key, int[] def) => this.TryGetElement(key, out RBEIntArray rbe) ? rbe.Array : def;
+        public bool TryGetIntArray(string key, out int[] value) => this.TryGetElementValue<RBEIntArray, int[]>(key, (e) => e.Array, out value);
+
+        public long[] GetLongArray(string key) => this.GetElement<RBELongArray>(key).Array;
+        public long[] GetLongArray(string key, long[] def) => this.TryGetElement(key, out RBELongArray rbe) ? rbe.Array : def;
+        public bool TryGetLongArray(string key, out long[] value) => this.TryGetElementValue<RBELongArray, long[]>(key, (e) => e.Array, out value);
+
+        public float[] GetFloatArray(string key) => this.GetElement<RBEFloatArray>(key).Array;
+        public float[] GetFloatArray(string key, float[] def) => this.TryGetElement(key, out RBEFloatArray rbe) ? rbe.Array : def;
+        public bool TryGetFloatArray(string key, out float[] value) => this.TryGetElementValue<RBEFloatArray, float[]>(key, (e) => e.Array, out value);
+
+        public double[] GetDoubleArray(string key) => this.GetElement<RBEDoubleArray>(key).Array;
+        public double[] GetDoubleArray(string key, double[] def) => this.TryGetElement(key, out RBEDoubleArray rbe) ? rbe.Array : def;
+        public bool TryGetDoubleArray(string key, out double[] value) => this.TryGetElementValue<RBEDoubleArray, double[]>(key, (e) => e.Array, out value);
+
+        public string[] GetStringArray(string key) => this.GetElement<RBEStringArray>(key).Array;
+        public string[] GetStringArray(string key, string[] def) => this.TryGetElement(key, out RBEStringArray rbe) ? rbe.Array : def;
+        public bool TryGetStringArray(string key, out string[] value) => this.TryGetElementValue<RBEStringArray, string[]>(key, (e) => e.Array, out value);
+
+        public T[] GetStructArray<T>(string key) where T : unmanaged => this.GetElement<RBEStructArray>(key).GetValues<T>();
+        public T[] GetStructArray<T>(string key, T[] def) where T : unmanaged => this.TryGetElement(key, out RBEStructArray rbe) ? rbe.GetValues<T>() : def;
+        public bool TryGetStructArray<T>(string key, out T[] value) where T : unmanaged {
+            if (this.TryGetElement(key, out RBEStructArray rbe) && rbe.TryGetValues(out value)) {
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
-        public void SetList(string key, List<RBEBase> value) {
-            this[key] = new RBEList(value);
-        }
-
-        public void SetByte(string key, byte value) {
-            this[key] = new RBEByte(value);
-        }
-
-        public void SetShort(string key, short value) {
-            this[key] = new RBEShort(value);
-        }
-
-        public void SetInt(string key, int value) {
-            this[key] = new RBEInt(value);
-        }
-
-        public void SetLong(string key, long value) {
-            this[key] = new RBELong(value);
-        }
-
-        public void SetFloat(string key, float value) {
-            this[key] = new RBEFloat(value);
-        }
-
-        public void SetDouble(string key, double value) {
-            this[key] = new RBEDouble(value);
-        }
-
-        public void SetStruct<T>(string key, in T value) where T : unmanaged {
-            RBEStruct obj = new RBEStruct();
-            this[key] = obj;
-            obj.SetValue(value);
-        }
+        public void SetDictionary(string key, Dictionary<string, RBEBase> value) => this[key] = new RBEDictionary(value);
+        public void SetList(string key, List<RBEBase> value) => this[key] = new RBEList(value);
+        public void SetBool(string key, bool value) => this[key] = new RBEByte((byte) (value ? 1 : 0));
+        public void SetByte(string key, byte value) => this[key] = new RBEByte(value);
+        public void SetShort(string key, short value) => this[key] = new RBEShort(value);
+        public void SetInt(string key, int value) => this[key] = new RBEInt(value);
+        public void SetLong(string key, long value) => this[key] = new RBELong(value);
+        public void SetFloat(string key, float value) => this[key] = new RBEFloat(value);
+        public void SetDouble(string key, double value) => this[key] = new RBEDouble(value);
+        public void SetString(string key, string value) => this[key] = new RBEString(value);
+        public void SetStruct<T>(string key, in T value) where T : unmanaged => this[key] = RBEStruct.ForValue(in value);
+        public void SetByteArray(string key, byte[] array) => this[key] = new RBEByteArray(array);
+        public void SetShortArray(string key, short[] array) => this[key] = new RBEShortArray(array);
+        public void SetIntArray(string key, int[] array) => this[key] = new RBEIntArray(array);
+        public void SetLongArray(string key, long[] array) => this[key] = new RBELongArray(array);
+        public void SetFloatArray(string key, float[] array) => this[key] = new RBEFloatArray(array);
+        public void SetDoubleArray(string key, double[] array) => this[key] = new RBEDoubleArray(array);
+        public void SetStringArray(string key, string[] array) => this[key] = new RBEStringArray(array);
+        public void SetStructArray<T>(string key, T[] array) where T : unmanaged => this[key] = RBEStructArray.ForValues(array);
 
         public override void Read(BinaryReader reader) {
             int length = reader.ReadUInt16();
@@ -266,12 +227,12 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override RBEBase CloneCore() => this.Clone();
+        public override RBEBase Clone() => this.CloneCore();
 
-        public RBEDictionary Clone() {
+        public RBEDictionary CloneCore() {
             Dictionary<string, RBEBase> map = new Dictionary<string, RBEBase>(this.Map.Count);
             foreach (KeyValuePair<string, RBEBase> element in this.Map)
-                map[element.Key] = element.Value.CloneCore();
+                map[element.Key] = element.Value.Clone();
             return new RBEDictionary(map);
         }
     }

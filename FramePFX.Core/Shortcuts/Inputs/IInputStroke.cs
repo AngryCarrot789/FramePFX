@@ -1,4 +1,4 @@
-namespace FramePFX.Core.Shortcuts.Inputs {
+namespace FrameControlEx.Core.Shortcuts.Inputs {
     /// <summary>
     /// An interface defining behaviour for input strokes
     /// </summary>

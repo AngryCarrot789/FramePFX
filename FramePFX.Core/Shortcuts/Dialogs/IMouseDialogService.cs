@@ -1,6 +1,6 @@
-using FramePFX.Core.Shortcuts.Inputs;
+using FrameControlEx.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Dialogs {
+namespace FrameControlEx.Core.Shortcuts.Dialogs {
     public interface IMouseDialogService {
         MouseStroke? ShowGetMouseStrokeDialog();
     }

@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace FramePFX.Core.Shortcuts.Inputs {
+namespace FrameControlEx.Core.Shortcuts.Inputs {
     /// <summary>
     /// Represents a key stroke, as in, a key press or release which may have modifier keys present
     /// <para>

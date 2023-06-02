@@ -1,17 +1,12 @@
 using System;
 using System.Text;
 
-namespace FramePFX.Core.Shortcuts.Inputs {
+namespace FrameControlEx.Core.Shortcuts.Inputs {
     public readonly struct MouseStroke : IInputStroke {
         /// <summary>
         /// A non-null function for converting a mouse button into a string representation
         /// </summary>
         public static Func<int, string> MouseButtonToStringProvider { get; set; } = (x) => new StringBuilder(20).Append("MOUSE(").Append(x).Append(')').ToString();
-
-        /// <summary>
-        /// A non-null function for converting a keyboard modifier flag set into a string representation
-        /// </summary>
-        public static Func<int, bool, string> ModifierToStringProvider { get; set; } = (x, s) => new StringBuilder(16).Append("MOD(").Append(x).Append(')').ToString();
 
         /// <summary>
         /// The mouse button that was clicked. Special care must be taken for mouse wheel inputs
@@ -96,12 +91,12 @@ namespace FramePFX.Core.Shortcuts.Inputs {
         }
 
         public override string ToString() {
-            return this.ToString(true, true, true);
+            return this.ToString(true, true, false);
         }
 
         public string ToString(bool appendClickCount, bool appendDelta, bool useSpacers) {
             StringBuilder sb = new StringBuilder();
-            string mod = ModifierToStringProvider(this.Modifiers, useSpacers);
+            string mod = KeyStroke.ModifierToStringProvider(this.Modifiers, useSpacers);
             if (mod.Length > 0) {
                 sb.Append(mod).Append(useSpacers ? " + " : "+");
             }

@@ -2,20 +2,21 @@ using FramePFX.Core.ResourceManaging.Resources;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
-    public class ResourceRGBAViewModel : ResourceItemViewModel {
-        public new ResourceRGBA Model => (ResourceRGBA) base.Model;
+    public class ResourceARGBViewModel : ResourceItemViewModel {
+        public new ResourceARGB Model => (ResourceARGB) base.Model;
 
         public float A {
             get => this.Model.A;
             set {
                 this.Model.A = value; this.RaisePropertyChanged();
+                this.Model.OnModified?.Invoke(this.Model, nameof(this.Model.A));
             }
         }
 
         public byte ByteA {
-            get => (byte) Maths.Clamp((int) (this.Model.A * 255F), 0, 255);
+            get => (byte) Maths.Clamp((int) (this.A * 255F), 0, 255);
             set {
-                this.Model.A = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
+                this.A = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
             }
         }
 
@@ -23,13 +24,14 @@ namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
             get => this.Model.R;
             set {
                 this.Model.R = value; this.RaisePropertyChanged();
+                this.Model.OnModified?.Invoke(this.Model, nameof(this.Model.R));
             }
         }
 
         public byte ByteR {
-            get => (byte) Maths.Clamp((int) (this.Model.R * 255F), 0, 255);
+            get => (byte) Maths.Clamp((int) (this.R * 255F), 0, 255);
             set {
-                this.Model.R = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
+                this.R = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
             }
         }
 
@@ -37,13 +39,14 @@ namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
             get => this.Model.G;
             set {
                 this.Model.G = value; this.RaisePropertyChanged();
+                this.Model.OnModified?.Invoke(this.Model, nameof(this.Model.G));
             }
         }
 
         public byte ByteG {
-            get => (byte) Maths.Clamp((int) (this.Model.G * 255F), 0, 255);
+            get => (byte) Maths.Clamp((int) (this.G * 255F), 0, 255);
             set {
-                this.Model.G = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
+                this.G = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
             }
         }
 
@@ -51,17 +54,18 @@ namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
             get => this.Model.B;
             set {
                 this.Model.B = value; this.RaisePropertyChanged();
+                this.Model.OnModified?.Invoke(this.Model, nameof(this.Model.B));
             }
         }
 
         public byte ByteB {
-            get => (byte) Maths.Clamp((int) (this.Model.B * 255F), 0, 255);
+            get => (byte) Maths.Clamp((int) (this.B * 255F), 0, 255);
             set {
-                this.Model.B = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
+                this.B = Maths.Clamp(value / 255f, 0f, 1f); this.RaisePropertyChanged();
             }
         }
 
-        public ResourceRGBAViewModel(ResourceManagerViewModel manager, ResourceRGBA model) : base(manager, model) {
+        public ResourceARGBViewModel(ResourceManagerViewModel manager, ResourceARGB model) : base(manager, model) {
 
         }
     }

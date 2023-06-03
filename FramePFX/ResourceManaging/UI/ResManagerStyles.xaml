@@ -4,8 +4,8 @@
                     xmlns:controls="clr-namespace:FramePFX.Controls"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:viewModels="clr-namespace:FramePFX.ResourceManaging.ViewModels"
                     xmlns:ui="clr-namespace:FramePFX.ResourceManaging.UI"
+                    xmlns:viewModels="clr-namespace:FramePFX.Core.ResourceManaging.ViewModels;assembly=FramePFX.Core"
                     mc:Ignorable="d">
     <ContextMenu x:Key="SharedResourceItemContextMenu" x:Shared="True" d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}">
         <MenuItem Header="Rename" Command="{Binding RenameCommand, Mode=OneTime}"/>

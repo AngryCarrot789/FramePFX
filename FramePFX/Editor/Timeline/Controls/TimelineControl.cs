@@ -5,11 +5,13 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using FramePFX.Core;
+using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
+using FramePFX.Editor.Timeline.Layer;
 using FramePFX.Editor.Timeline.Utils;
-using FramePFX.Editor.Timeline.ViewModels;
-using FramePFX.Editor.Timeline.ViewModels.Clips;
-using FramePFX.Editor.Timeline.ViewModels.Layer;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineControl : ItemsControl, ITimelineHandle {
@@ -69,7 +71,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             set => this.SetValue(PlayHeadAreaHeightProperty, value);
         }
 
-        public PFXTimeline ViewModel => this.DataContext as PFXTimeline;
+        public TimelineViewModel ViewModel => this.DataContext as TimelineViewModel;
 
         private ScrollViewer PART_ScrollViewer;
         private ItemsPresenter PART_ItemsPresenter;
@@ -87,8 +89,8 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.HorizontalContentAlignment = HorizontalAlignment.Stretch;
             ScrollViewer.SetCanContentScroll(this, false);
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is PFXTimeline vm) {
-                    vm.Handle = this;
+                if (args.NewValue is TimelineViewModel vm) {
+                    BaseViewModel.SetInternalData(vm, typeof(TimelineViewModel), this);
                 }
             };
 
@@ -96,8 +98,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            if (this.DataContext is PFXTimeline vm) {
-                vm.PlayHeadHandle = this.PART_PlayHead;
+            if (this.DataContext is TimelineViewModel vm) {
+                // TODO: this
+                // vm.PlayHeadHandle = this.PART_PlayHead;
             }
         }
 
@@ -107,8 +110,8 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public bool GetViewModel(out PFXTimeline timeline) {
-            return (timeline = this.DataContext as PFXTimeline) != null;
+        public bool GetViewModel(out TimelineViewModel timeline) {
+            return (timeline = this.DataContext as TimelineViewModel) != null;
         }
 
         public bool HasActiveDrag() {
@@ -143,8 +146,9 @@ namespace FramePFX.Editor.Timeline.Controls {
                 this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X, e, true);
             }
 
-            if (this.DataContext is PFXTimeline timeline) {
-                timeline.PlayHeadHandle = this.PART_PlayHead;
+            if (this.DataContext is TimelineViewModel timeline) {
+                // TODO: this
+                // timeline.PlayHeadHandle = this.PART_PlayHead;
             }
 
             this.MouseLeftButtonDown += (s,e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
@@ -153,7 +157,7 @@ namespace FramePFX.Editor.Timeline.Controls {
         private void MovePlayheadForMouseButtonEvent(double x, MouseButtonEventArgs e, bool enableThumbDragging = true) {
             if (x >= 0d) {
                 long frameX = TimelineUtils.PixelToFrame(x, this.UnitZoom);
-                if (frameX >= 0 && this.GetViewModel(out PFXTimeline vm) && frameX < vm.MaxDuration) {
+                if (frameX >= 0 && this.GetViewModel(out TimelineViewModel vm) && frameX < vm.MaxDuration) {
                     vm.PlayHeadFrame = frameX;
                 }
 
@@ -276,8 +280,8 @@ namespace FramePFX.Editor.Timeline.Controls {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
             if (element is VideoTimelineLayerControl layer) {
-                if (item is PFXTimelineLayer viewModel) {
-                    viewModel.Control = layer;
+                if (item is TimelineLayerViewModel viewModel) {
+                    BaseViewModel.SetInternalData(viewModel, typeof(ILayerHandle), layer);
                 }
                 // else {
                 //     throw new Exception($"Expected item of type {nameof(LayerViewModel)}, got {item?.GetType()}");
@@ -293,8 +297,12 @@ namespace FramePFX.Editor.Timeline.Controls {
         protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
             base.ClearContainerForItemOverride(element, item);
             if (element is VideoTimelineLayerControl layer && ReferenceEquals(layer.Timeline, this)) {
-                if (item is PFXTimelineLayer viewModel && ReferenceEquals(viewModel.Control, element)) {
-                    viewModel.Control = null;
+                // if (item is TimelineLayerViewModel viewModel && BaseViewModel.TryGetInternalData(viewModel, typeof(ILayerHandle), out ILayerHandle handle) && ReferenceEquals(handle, element)) {
+                //     BaseViewModel.ClearInternalData(viewModel, typeof(ILayerHandle));
+                // }
+
+                if (item is TimelineLayerViewModel viewModel) {
+                    BaseViewModel.ClearInternalData(viewModel, typeof(ILayerHandle));
                 }
 
                 layer.Timeline = null;
@@ -322,11 +330,11 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public bool GetLayerControl(object item, out VideoTimelineLayerControl layer) {
-            return (layer = ICGenUtils.GetContainerForItem<PFXTimelineLayer, VideoTimelineLayerControl>(item, this.ItemContainerGenerator, x => x.Control as VideoTimelineLayerControl)) != null;
+            return (layer = ICGenUtils.GetContainerForItem<TimelineLayerViewModel, VideoTimelineLayerControl>(item, this.ItemContainerGenerator, x => BaseViewModel.GetInternalData(x, typeof(ILayerHandle)) as VideoTimelineLayerControl)) != null;
         }
 
-        public bool GetLayerViewModel(object item, out PFXTimelineLayer timelineLayer) {
-            return ICGenUtils.GetItemForContainer<VideoTimelineLayerControl, PFXTimelineLayer>(item, this.ItemContainerGenerator, x => x.ViewModel, out timelineLayer);
+        public bool GetLayerViewModel(object item, out TimelineLayerViewModel timelineLayer) {
+            return ICGenUtils.GetItemForContainer<VideoTimelineLayerControl, TimelineLayerViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out timelineLayer);
         }
 
         public IEnumerable<VideoTimelineLayerControl> GetLayerControls() {
@@ -337,7 +345,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<PFXTimelineLayer> GetLayerViewModels() {
+        public IEnumerable<TimelineLayerViewModel> GetLayerViewModels() {
             foreach (object item in this.Items) {
                 if (this.GetLayerViewModel(item, out var layer)) {
                     yield return layer;
@@ -353,9 +361,9 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<PFXVideoClipViewModel> GetAllSelectedClipModels() {
+        public IEnumerable<VideoClipViewModel> GetAllSelectedClipModels() {
             foreach (VideoTimelineLayerControl layer in this.GetLayerControls()) {
-                foreach (PFXVideoClipViewModel clip in layer.GetSelectedClipViewModels()) {
+                foreach (VideoClipViewModel clip in layer.GetSelectedClipViewModels()) {
                     yield return clip;
                 }
             }
@@ -406,7 +414,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.DragData.OnBegin(list);
         }
 
-        public IEnumerable<PFXVideoClipViewModel> GetSelectedClips() {
+        public IEnumerable<VideoClipViewModel> GetSelectedClips() {
             return this.GetAllSelectedClipModels();
         }
     }

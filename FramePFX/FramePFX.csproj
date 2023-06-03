@@ -50,9 +50,6 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="SixLabors.ImageSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13">
       <HintPath>..\packages\SixLabors.ImageSharp.2.1.4\lib\net472\SixLabors.ImageSharp.dll</HintPath>
@@ -133,7 +130,7 @@
     <Compile Include="Controls\Helpers\ActionControlHelper.cs" />
     <Compile Include="Controls\Helpers\AttachedInteractivity.cs" />
     <Compile Include="Controls\Helpers\GridLatchSplitter.cs" />
-    <Compile Include="Controls\Helpers\ListBoxHelper.cs" />
+    <Compile Include="Controls\Helpers\SelectorHelper.cs" />
     <Compile Include="Controls\Helpers\ScrollViewerHelper.cs" />
     <Compile Include="Controls\Helpers\TextBlockHelper.cs" />
     <Compile Include="Controls\Helpers\TextBoxHelper.cs" />
@@ -154,15 +151,22 @@
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\VerticalScrollBinder.cs" />
-    <Compile Include="Editor\PFXVideoEditor.cs" />
-    <Compile Include="Editor\PFXViewportPlayback.cs" />
-    <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsDialogService.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsViewModel.cs" />
     <Compile Include="Editor\Project\ViewModels\PFXProject.cs" />
+    <Compile Include="Editor\Properties\Pages\PropertyPageBaseClip.xaml.cs">
+      <DependentUpon>PropertyPageBaseClip.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\Properties\Pages\PropertyPageShapeClip.xaml.cs">
+      <DependentUpon>PropertyPageShapeClip.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\Properties\Pages\PropertyPageVideoClip.xaml.cs">
+      <DependentUpon>PropertyPageVideoClip.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\Properties\PropertyPageRegistry.cs" />
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewLayerActions.cs" />
     <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
@@ -177,46 +181,23 @@
     <Compile Include="Editor\Timeline\Layer\Clips\IAudioClip.cs" />
     <Compile Include="Editor\Timeline\Layer\Clips\IClip.cs" />
     <Compile Include="Editor\Timeline\Layer\Clips\IClipHandle.cs" />
-    <Compile Include="Editor\Timeline\Layer\Clips\IVideoClip.cs" />
     <Compile Include="Editor\Timeline\Layer\ILayerHandle.cs" />
     <Compile Include="Editor\Timeline\Layer\IndexMap.cs" />
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
-    <Compile Include="Editor\Timeline\Utils\IHasZoom.cs" />
-    <Compile Include="Editor\Timeline\Utils\IPlayHeadHandle.cs" />
-    <Compile Include="Editor\Timeline\Utils\IResourceDropNotifier.cs" />
-    <Compile Include="Editor\Timeline\Utils\ITimelineHandle.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineClipDragData.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Clips\PFXClipViewModel.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXAdjustableVideoClip.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXShapeClip.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Clips\PFXVideoClipViewModel.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Layer\PFXTimelineLayer.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Layer\LayerColours.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Layer\Removals\VideoClipCut.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Layer\Removals\VideoClipRangeRemoval.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Layer\PFXVideoLayer.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\PFXTimeline.cs" />
     <Compile Include="Highlighting\HighlightableString.cs" />
     <Compile Include="Highlighting\InlineHelper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="PlayAction.cs" />
     <Compile Include="ResourceLocator.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceImage.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceMedia.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceRGBA.cs" />
-    <Compile Include="ResourceManaging\Items\ResourceText.cs" />
-    <Compile Include="ResourceManaging\ResourceItem.cs" />
-    <Compile Include="ResourceManaging\ResourceManager.cs" />
-    <Compile Include="ResourceManaging\ResourceType.cs" />
     <Compile Include="ResourceManaging\UI\IResourceControl.cs" />
     <Compile Include="ResourceManaging\UI\IResourceListHandle.cs" />
     <Compile Include="ResourceManaging\UI\ResourceItemControl.cs" />
     <Compile Include="ResourceManaging\UI\ResourceListControl.cs" />
-    <Compile Include="ResourceManaging\ViewModels\Items\ResourceMediaViewModel.cs" />
-    <Compile Include="ResourceManaging\ViewModels\ResourceItemViewModel.cs" />
-    <Compile Include="ResourceManaging\ViewModels\ResourceManagerViewModel.cs" />
     <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Services\WinExplorerService.cs" />
@@ -329,6 +310,18 @@
     <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Editor\Properties\Pages\PropertyPageBaseClip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editor\Properties\Pages\PropertyPageShapeClip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editor\Properties\Pages\PropertyPageVideoClip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Editor\Timeline\TimelineStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -423,7 +416,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -457,6 +449,9 @@
     <Content Include="Resources\Shaders\textureatlas.vert" />
     <Content Include="Resources\Shaders\xyz.frag" />
     <Content Include="Resources\Shaders\xyz.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ResourceManaging\Items\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

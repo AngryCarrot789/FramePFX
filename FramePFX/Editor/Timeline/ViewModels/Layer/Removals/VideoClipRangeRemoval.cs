@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
-using FramePFX.Editor.Timeline.Utils;
-using FramePFX.Editor.Timeline.ViewModels.Clips;
 
 namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
     public class VideoClipRangeRemoval {
         public List<VideoClipCut> ModifiedClips { get; }
 
-        public IEnumerable<PFXVideoClipViewModel> RemovedClips => this.ModifiedClips.Where(x => x.IsClipRemoved).Select(x => x.Clip);
+        public IEnumerable<VideoClipViewModel> RemovedClips => this.ModifiedClips.Where(x => x.IsClipRemoved).Select(x => x.Clip);
 
         public VideoClipRangeRemoval(List<VideoClipCut> modifiedClips) {
             this.ModifiedClips = modifiedClips ?? throw new ArgumentNullException(nameof(modifiedClips), "modifiedClips list cannot be null");
@@ -24,7 +23,8 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
                 ClipSpan? cutLeft = cut.CutLeft;
                 ClipSpan? cutRight = cut.CutRight;
                 if (cutLeft.HasValue && cutRight.HasValue) { // double split
-                    cut.Clip.VideoLayer.SplitClip(cut.Clip, cutLeft.Value, cutRight.Value);
+                    throw new NotImplementedException();
+                    // cut.Clip.Layer.SplitClip(cut.Clip, cutLeft.Value, cutRight.Value);
                 }
                 else if (cutLeft.HasValue) { // make clip take up the left span
                     cut.Clip.Span = cutLeft.Value;
@@ -33,16 +33,17 @@ namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
                     cut.Clip.Span = cutRight.Value;
                 }
                 else { // remove clip
-                    cut.Clip.Layer.RemoveClip(cut.Clip);
+                    throw new NotImplementedException();
+                    // cut.Clip.Layer.RemoveClip(cut.Clip);
                 }
             }
         }
 
-        public void AddRemovedClip(PFXVideoClipViewModel clip) {
+        public void AddRemovedClip(VideoClipViewModel clip) {
             this.ModifiedClips.Add(new VideoClipCut(clip.Span, null, null, clip));
         }
 
-        public void AddSplitClip(PFXVideoClipViewModel clip, ClipSpan? a, ClipSpan? b) {
+        public void AddSplitClip(VideoClipViewModel clip, ClipSpan? a, ClipSpan? b) {
             this.ModifiedClips.Add(new VideoClipCut(clip.Span, a, b, clip));
         }
     }

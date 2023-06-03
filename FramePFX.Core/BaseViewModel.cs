@@ -27,23 +27,27 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
+        public virtual bool RaisePropertyChanged([CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
-            if (this.RaisePropertyChangingCore(propertyName))
-                return;
-            this.RaisePropertyChangedCore(propertyName);
+            bool handled = this.RaisePropertyChangingCore(propertyName);
+            if (!handled)
+                this.RaisePropertyChangedCore(propertyName);
+            return handled;
         }
 
         /// <summary>
         /// Raises the <see cref="PropertyChanging"/> event, sets <see cref="property"/> to <see cref="newValue"/>, and then raises the <see cref="PropertyChanged"/> event
         /// </summary>
-        public virtual void RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+        public virtual bool RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
-            if (this.RaisePropertyChangingCore(propertyName))
-                return;
-            this.RaisePropertyChangedCore(propertyName);
+            bool handled = this.RaisePropertyChangingCore(propertyName);
+            if (!handled) {
+                property = newValue;
+                this.RaisePropertyChangedCore(propertyName);
+            }
+            return handled;
         }
 
         /// <summary>
@@ -51,15 +55,17 @@ namespace FramePFX.Core {
         /// type <see cref="T"/>, then nothing happens. Otherwise, the <see cref="PropertyChanging"/> event is raised, <see cref="property"/> is
         /// set to <see cref="newValue"/>, and then the <see cref="PropertyChanged"/> event is raised
         /// </summary>
-        public virtual void RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+        public virtual bool RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
             if (EqualityComparer<T>.Default.Equals(property, newValue))
-                return;
-            if (this.RaisePropertyChangingCore(propertyName))
-                return;
-            property = newValue;
-            this.RaisePropertyChangedCore(propertyName);
+                return false;
+            bool handled = this.RaisePropertyChangingCore(propertyName);
+            if (!handled) {
+                property = newValue;
+                this.RaisePropertyChangedCore(propertyName);
+            }
+            return handled;
         }
 
         #endregion

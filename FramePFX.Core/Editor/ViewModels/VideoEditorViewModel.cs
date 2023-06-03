@@ -8,16 +8,31 @@ namespace FramePFX.Core.Editor.ViewModels {
     /// A view model that represents a video editor
     /// </summary>
     public class VideoEditorViewModel : BaseViewModel, IDisposable {
-        private ProjectViewModel project;
+        private ProjectViewModel activeProject;
 
         /// <summary>
         /// The project that is currently being edited in this editor. May be null if no project is loaded
         /// </summary>
-        public ProjectViewModel Project {
-            get => this.project;
+        public ProjectViewModel ActiveProject {
+            get => this.activeProject;
             private set {
-                this.Model.CurrentProject = value?.Model;
-                this.RaisePropertyChanged(ref this.project, value);
+                if (ReferenceEquals(this.activeProject, value)) {
+                    return;
+                }
+
+                if (this.activeProject != null) {
+                    this.activeProject.Editor = null;
+                }
+
+                if (value != null) {
+                    this.Model.ActiveProject = value.Model;
+                    value.Editor = this;
+                }
+                else {
+                    this.Model.ActiveProject = null;
+                }
+
+                this.RaisePropertyChanged(ref this.activeProject, value);
             }
         }
 
@@ -37,32 +52,48 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public IVideoEditor View { get; }
 
+        public AsyncRelayCommand NewProjectCommand { get; }
+
         public VideoEditorViewModel(IVideoEditor view, ApplicationViewModel app) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditorModel();
             this.App = app;
             this.Playback = new EditorPlaybackViewModel(this);
+            this.Playback.Model.OnStepFrame = () => {
+                this.ActiveProject?.Timeline.OnStepFrameTick();
+            };
+
+            this.NewProjectCommand = new AsyncRelayCommand(async () => {
+                ProjectViewModel project = new ProjectViewModel(new ProjectModel());
+                project.Settings.Resolution = new Resolution(500, 500);
+                await this.LoadProjectAction(project);
+            });
+        }
+
+        public async Task LoadProjectAction(ProjectViewModel project) {
+            if (this.ActiveProject != null) {
+                await this.CloseProjectAction();
+            }
+
+            await this.SetProject(project);
         }
 
         public async Task SetProject(ProjectViewModel project) {
             await this.Playback.OnProjectChanging(project);
-            this.Project = project;
+            this.ActiveProject = project;
             await this.Playback.OnProjectChanged(project);
         }
 
         public void Dispose() {
             IoC.App.OnUserSettingsModified -= this.OnUserSettingsModified;
             using (ExceptionStack stack = new ExceptionStack("Exception occurred while disposing video editor")) {
-                ProjectViewModel activeProject = this.Project;
-                if (activeProject != null) {
+                if (this.ActiveProject != null) {
                     try {
-                        activeProject.Dispose();
+                        this.ActiveProject.Dispose();
                     }
                     catch (Exception e) {
                         stack.Push(new Exception("Exception disposing active project", e));
                     }
-
-                    this.Project = null;
                 }
 
                 try {
@@ -79,25 +110,32 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task CloseProjectAction() {
-            this.Project.Dispose();
+            await this.ActiveProject.DisposeAsync();
+            await this.SetProject(null);
         }
 
         public async Task OnProjectSaving(ProjectViewModel project) {
-            if (project != this.Project) {
+            if (project != this.ActiveProject) {
                 throw new Exception("Project does not equal the given project");
             }
 
             this.IsProjectSaving = true;
+            await this.Playback.OnProjectSaving();
             await this.Playback.StopRenderTimer();
         }
 
         public async Task OnProjectSaved(ProjectViewModel project) {
-            if (project != this.Project) {
+            if (project != this.ActiveProject) {
                 throw new Exception("Project does not equal the given project");
             }
 
             this.IsProjectSaving = false;
+            await this.Playback.OnProjectSaved();
             this.Playback.StartRenderTimer();
+        }
+
+        public void DoRender(bool schedule = false) {
+            this.View.RenderViewPort(schedule);
         }
     }
 }

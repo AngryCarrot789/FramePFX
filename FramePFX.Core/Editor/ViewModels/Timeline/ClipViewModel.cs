@@ -4,7 +4,15 @@ using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
+    /// <summary>
+    /// The base view model for all types of clips (video, audio, etc)
+    /// </summary>
     public abstract class ClipViewModel : BaseViewModel {
+        private TimelineLayerViewModel layer;
+
+        /// <summary>
+        /// The clip's display/readable name, editable by a user
+        /// </summary>
         public string DisplayName {
             get => this.Model.DisplayName;
             set {
@@ -13,7 +21,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
-        private TimelineLayerViewModel layer;
+        /// <summary>
+        /// The layer this clip is located in
+        /// </summary>
         public TimelineLayerViewModel Layer {
             get => this.layer;
             set {
@@ -46,11 +56,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         protected virtual void OnLayerChanging(TimelineLayerViewModel oldLayer, TimelineLayerViewModel newLayer) {
-
+            this.Model.OnLayerChanging(oldLayer?.Model, newLayer?.Model);
         }
 
         protected virtual void OnLayerChanged(TimelineLayerViewModel oldLayer, TimelineLayerViewModel newLayer) {
-
+            this.Model.OnLayerChanged(oldLayer?.Model, newLayer?.Model);
         }
 
         public void Dispose() {
@@ -65,6 +75,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         protected virtual void DisposeCore(ExceptionStack stack) {
+
+        }
+
+        public bool IntersectsFrameAt(long frame) => this.Model.IntersectsFrameAt(frame);
+
+        public virtual void OnTimelinePlayBegin() {
+
+        }
+
+        public virtual void OnTimelinePlayEnd() {
 
         }
     }

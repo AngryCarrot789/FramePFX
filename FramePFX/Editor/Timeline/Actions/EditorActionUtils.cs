@@ -1,21 +1,21 @@
 using FramePFX.Core.Actions.Contexts;
-using FramePFX.Editor.Timeline.ViewModels;
-using FramePFX.Editor.Timeline.ViewModels.Clips;
-using FramePFX.Editor.Timeline.ViewModels.Layer;
+using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 
 namespace FramePFX.Editor.Timeline.Actions {
     public static class EditorActionUtils {
-        public static PFXTimeline FindTimeline(IDataContext context) {
-            if (context.TryGetContext(out PFXVideoEditor editor)) {
+        public static TimelineViewModel FindTimeline(IDataContext context) {
+            if (context.TryGetContext(out VideoEditorViewModel editor)) {
                 return editor.ActiveProject?.Timeline;
             }
-            else if (context.TryGetContext(out PFXTimeline timeline)) {
+            else if (context.TryGetContext(out TimelineViewModel timeline)) {
                 return timeline;
             }
-            else if (context.TryGetContext(out PFXTimelineLayer layer)) {
+            else if (context.TryGetContext(out TimelineLayerViewModel layer)) {
                 return layer.Timeline;
             }
-            else if (context.TryGetContext(out PFXClipViewModel clip)) {
+            else if (context.TryGetContext(out VideoClipViewModel clip)) {
                 return clip.Layer?.Timeline;
             }
             else {

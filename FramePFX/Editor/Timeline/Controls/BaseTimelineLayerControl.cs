@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using FramePFX.Core;
+using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer;
 using FramePFX.Editor.Timeline.Utils;
-using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.ResourceManaging.ViewModels;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class BaseTimelineLayerControl : MultiSelector, ILayerHandle {
@@ -51,7 +53,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             set => this.timeline = value;
         }
 
-        public PFXTimelineLayer ViewModel => this.DataContext as PFXTimelineLayer;
+        public TimelineLayerViewModel ViewModel => this.DataContext as TimelineLayerViewModel;
 
         protected bool isUpdatingUnitZoom;
         protected TimelineControl timeline;
@@ -59,8 +61,8 @@ namespace FramePFX.Editor.Timeline.Controls {
         public BaseTimelineLayerControl() {
             this.CanSelectMultipleItems = true;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is PFXTimelineLayer vm) {
-                    vm.Control = this;
+                if (args.NewValue is TimelineLayerViewModel vm) {
+                    BaseViewModel.SetInternalData(vm, typeof(ILayerHandle), this);
                 }
             };
 
@@ -110,7 +112,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected virtual async Task OnDropResource(ResourceItemViewModel item, Point mouse) {
             // lazy
-            if (this is VideoTimelineLayerControl layer) {
+            if (item.IsRegistered && this is VideoTimelineLayerControl layer) {
                 long frame = layer.GetFrameFromPixel(mouse.X);
                 frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
                 await this.ResourceDropNotifier.OnVideoResourceDropped(item, frame);

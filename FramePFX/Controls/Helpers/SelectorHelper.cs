@@ -1,25 +1,24 @@
 using System.Collections;
 using System.Collections.Specialized;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Controls.Helpers {
-    public static class ListBoxHelper {
+    public static class SelectorHelper {
         public static readonly DependencyProperty SelectedItemsProperty =
             DependencyProperty.RegisterAttached(
                 "SelectedItems",
                 typeof(IList),
-                typeof(ListBoxHelper),
+                typeof(SelectorHelper),
                 new FrameworkPropertyMetadata(null, OnSelectedItemsChanged));
 
         public static readonly DependencyProperty UpdateSelectedItemsOnChangeProperty =
             DependencyProperty.RegisterAttached(
                 "UpdateSelectedItemsOnChange",
                 typeof(bool),
-                typeof(ListBoxHelper),
+                typeof(SelectorHelper),
                 new PropertyMetadata(BoolBox.False, OnUpdateSelectedItemsOnChangeChanged));
 
         public static IList GetSelectedItems(DependencyObject obj) {
@@ -59,10 +58,10 @@ namespace FramePFX.Controls.Helpers {
         }
 
         private static void OnUpdateSelectedItemsOnChangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (d is Selector listBox) {
-                listBox.SelectionChanged -= OnSelectionChanged;
+            if (d is Selector selector) {
+                selector.SelectionChanged -= OnSelectionChanged;
                 if ((bool) e.NewValue) {
-                    listBox.SelectionChanged += OnSelectionChanged;
+                    selector.SelectionChanged += OnSelectionChanged;
                 }
             }
         }
@@ -79,13 +78,36 @@ namespace FramePFX.Controls.Helpers {
                 }
 
                 IS_UPDATING_SELECTION = true;
-                selectedItems.Clear();
 
+                IList enumerable;
+                switch (selector) {
+                    case ListBox lb: enumerable = lb.SelectedItems; break;
+                    case MultiSelector ms: enumerable = ms.SelectedItems; break;
+                    default: enumerable = null; break;
+                }
 
-                foreach (object item in selector.SelectedItems)
-                    selectedItems.Add(item);
+                if (enumerable != null) {
+                    selectedItems.Clear();
+                    foreach (object item in enumerable)
+                        selectedItems.Add(item);
+                }
+                else {
+                    if (e.RemovedItems != null) {
+                        foreach (object value in e.RemovedItems) {
+                            selectedItems.Remove(value);
+                        }
+                    }
+
+                    if (e.AddedItems != null) {
+                        foreach (object value in e.AddedItems) {
+                            selectedItems.Add(value);
+                        }
+                    }
+                }
+
                 if (!(selectedItems is INotifyCollectionChanged))
                     SetSelectedItems(selector, selectedItems);
+
                 IS_UPDATING_SELECTION = false;
             }
         }

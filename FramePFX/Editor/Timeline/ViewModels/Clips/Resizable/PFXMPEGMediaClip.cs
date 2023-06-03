@@ -1,13 +1,7 @@
-using System;
-using System.Threading.Tasks;
-using FFmpeg.Wrapper;
-using FramePFX.Core.Utils;
-using FramePFX.Render;
-using FramePFX.ResourceManaging.Items;
-using OpenTK.Graphics.OpenGL;
-
 namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
-    public class PFXMPEGMediaClip : PFXAdjustableVideoClip, IDisposable {
+    /*
+
+    public class PFXMPEGMediaClip : IDisposable, IContextProvider, IVideoClip {
         private ResourceMedia resource;
         public ResourceMedia Resource {
             get => this.resource;
@@ -41,7 +35,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
             }
         }
 
-        public override void RenderCore(IViewPort vp, long frame) {
+        public virtual void RenderCore(IViewPort vp, long frame) {
             if (this.Resource == null) {
                 return;
             }
@@ -185,15 +179,17 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
             }
         }
 
-        public override PFXClipViewModel NewInstanceOverride() {
+        public override VideoClipViewModel NewInstanceOverride() {
             return new PFXMPEGMediaClip();
         }
 
-        public override void LoadDataIntoClone(PFXClipViewModel clone) {
+        public override void LoadDataIntoClone(VideoClipViewModel clone) {
             base.LoadDataIntoClone(clone);
             if (clone is PFXMPEGMediaClip clip) {
                 clip.resource = this.resource;
             }
         }
     }
+
+    */
 }

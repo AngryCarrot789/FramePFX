@@ -4,7 +4,7 @@ using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.ResourceManaging.Items {
+namespace FramePFX.Core.ResourceManaging.Resources {
     public class ResourceMedia : ResourceItem {
         public string FilePath { get; set; }
 
@@ -42,7 +42,6 @@ namespace FramePFX.ResourceManaging.Items {
         }
 
         public VideoFrame GetFrameAt(TimeSpan timestamp) {
-            this.EnsureNotDisposed();
             if (!this.HasVideoStream) {
                 return null;
             }
@@ -102,7 +101,6 @@ namespace FramePFX.ResourceManaging.Items {
         }
 
         private void ReopenDemuxer() {
-            this.EnsureNotDisposed();
             try {
                 this.ReleaseDecoder();
                 this.Demuxer = new MediaDemuxer(this.FilePath);
@@ -158,7 +156,6 @@ namespace FramePFX.ResourceManaging.Items {
         /// Deallocates media decoders and internal frames.
         /// </summary>
         public void ReleaseDecoder() {
-            this.EnsureNotDisposed();
             this.decoder?.Dispose();
             this.decoder = null;
 
@@ -168,8 +165,8 @@ namespace FramePFX.ResourceManaging.Items {
             this.hasHardwareDecoder = false;
         }
 
-        protected override void DisposeResource(ExceptionStack stack) {
-            base.DisposeResource(stack);
+        protected override void DisposeCore(ExceptionStack stack) {
+            base.DisposeCore(stack);
             try {
                 this.ReleaseDecoder();
             }
@@ -185,6 +182,16 @@ namespace FramePFX.ResourceManaging.Items {
             }
             finally {
                 this.Demuxer = null;
+            }
+
+            try {
+                this.frameQueue?.Dispose();
+            }
+            catch (Exception e) {
+                stack.Push(new Exception("Failed to dispose frame queue", e));
+            }
+            finally {
+                this.frameQueue = null;
             }
         }
 

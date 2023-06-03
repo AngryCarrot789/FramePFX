@@ -1,4 +1,4 @@
-namespace FramePFX.Editor.Timeline.Utils {
+namespace FramePFX.Core.Editor {
     public interface IPlayHeadHandle {
         long PlayHeadFrame { get; set; }
     }

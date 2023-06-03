@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
@@ -11,6 +10,14 @@ namespace FramePFX.Core.Editor.ViewModels {
     public class ProjectViewModel : BaseViewModel, IDisposable {
         private bool hasSavedOnce;
         private string projectFilePath;
+
+        public ProjectSettingsViewModel Settings { get; }
+
+        public ProjectModel Model { get; }
+
+        public TimelineViewModel Timeline { get; }
+
+        public ResourceManagerViewModel ResourceManager { get; }
 
         /// <summary>
         /// The path of the project file, which links all of the saved data the project references
@@ -33,24 +40,18 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public AsyncRelayCommand SaveAsCommand { get; }
 
-        public ProjectSettingsViewModel Settings { get; }
-        public ProjectModel Model { get; }
-        public TimelineViewModel Timeline { get; }
-
-        public ResourceManagerViewModel ResourceManager { get; }
-
         public ProjectViewModel(ProjectModel project) {
             this.Model = project ?? throw new ArgumentNullException(nameof(project));
-            this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
             this.Settings = new ProjectSettingsViewModel(project.Settings);
+            this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
             this.Timeline = new TimelineViewModel(this, project.Timeline);
 
-            this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => !this.Model.IsSaving);
-            this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => !this.Model.IsSaving);
+            this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.Model.IsSaving);
+            this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.Model.IsSaving);
         }
 
         public async Task<bool> SaveActionAsync() {
-            if (this.Model.IsSaving) {
+            if (this.Editor == null || this.Model.IsSaving) {
                 return false;
             }
 
@@ -64,7 +65,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task<bool> SaveAsActionAsync() {
-            if (this.Model.IsSaving) {
+            if (this.Editor == null || this.Model.IsSaving) {
                 return false;
             }
 
@@ -81,10 +82,12 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task SaveActionAsync(string file) {
-            this.Model.IsSaving = true;
-            if (this.Editor != null) {
-                await this.Editor.OnProjectSaving(this);
+            if (this.Editor == null) {
+                return;
             }
+
+            this.Model.IsSaving = true;
+            await this.Editor.OnProjectSaving(this);
 
             Exception e = null;
             await Task.Run(() => {
@@ -98,17 +101,14 @@ namespace FramePFX.Core.Editor.ViewModels {
 
             this.Model.IsSaving = false;
             this.hasSavedOnce = true;
-
-            if (this.Editor != null) {
-                await this.Editor.OnProjectSaved(this);
-            }
+            await this.Editor.OnProjectSaved(this);
 
             if (e != null) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error saving", "An exception occurred while saving project", e.GetToString());
             }
         }
 
-        public async Task CloseProjectAction() {
+        public async Task DisposeAsync() {
             try {
                 this.Timeline.Dispose();
             }
@@ -118,7 +118,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public void Dispose() {
-
+            this.Timeline.Dispose();
         }
     }
 }

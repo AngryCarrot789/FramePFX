@@ -4,10 +4,29 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FramePFX.Editor.Properties.Pages"
+             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core" 
+             xmlns:controls="clr-namespace:FramePFX.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance ShapeClipViewModel}">
+             Height="32" d:DesignWidth="400"
+             d:DataContext="{d:DesignInstance clips:SquareClipViewModel}">
     <Grid>
-            
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="75" SharedSizeGroup="SharedColumn0"/>
+                <ColumnDefinition Width="163*" SharedSizeGroup="SharedColumn1"/>
+                <ColumnDefinition Width="162*"/>
+            </Grid.ColumnDefinitions>
+
+            <!--
+            <TextBlock Padding="3,1" Grid.Row="0" VerticalAlignment="Center" Text="Position" helpers:AttachedInteractivity.DoubleClickCommand="{Binding EditPosCommand, Mode=OneTime}" Height="18" Margin="0,3"/>
+            <TextBlock Padding="3,1" Grid.Row="2" VerticalAlignment="Center" Text="Scale X" helpers:AttachedInteractivity.DoubleClickCommand="{Binding EditScaleCommand, Mode=OneTime}" Height="18" Margin="0,3"/>
+            <TextBlock Padding="3,1" Grid.Row="4" VerticalAlignment="Center" Text="Origin X" helpers:AttachedInteractivity.DoubleClickCommand="{Binding EditScaleOriginCommand, Mode=OneTime}" Height="18" Margin="0,3"/>
+            -->
+
+            <TextBlock Text="Size" FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" Margin="0,7"/>
+            <controls:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+            <controls:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+        </Grid>
     </Grid>
 </UserControl>
+

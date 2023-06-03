@@ -1,10 +1,11 @@
-using System;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.ResourceManaging;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
     public class ProjectModel {
-        public ProjectSettingsModel Settings { get; set; }
+        public ProjectSettingsModel Settings { get; }
+
         public string ProjectDir { get; set; }
 
         public volatile bool IsSaving;
@@ -19,8 +20,13 @@ namespace FramePFX.Core.Editor {
         public ResourceManager ResourceManager { get; }
 
         public ProjectModel() {
-            this.Timeline = new TimelineModel(this);
+            this.Settings = new ProjectSettingsModel() {
+                Resolution = new Resolution(1920, 1080), FrameRate = 30
+            };
+
             this.ResourceManager = new ResourceManager(this);
+            this.Timeline = new TimelineModel(this);
+            this.Timeline.MaxDuration = 10000;
         }
 
         public void SaveProject(string file) {

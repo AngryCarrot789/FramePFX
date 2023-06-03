@@ -5,5 +5,9 @@ namespace FramePFX.Core.Editor {
         public Resolution Resolution { get; set; }
 
         public double FrameRate { get; set; }
+
+        public ProjectSettingsModel() {
+            
+        }
     }
 }

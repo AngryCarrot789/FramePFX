@@ -1,5 +1,4 @@
 using System;
-using System.Windows.Input;
 
 namespace FramePFX.Core.ResourceManaging.ViewModels {
     public abstract class ResourceItemViewModel : BaseViewModel, IDisposable {
@@ -7,13 +6,15 @@ namespace FramePFX.Core.ResourceManaging.ViewModels {
 
         public ResourceManagerViewModel Manager { get; }
 
-        public string Id {
-            get => this.Model.Id;
+        public string UniqueId {
+            get => this.Model.UniqueId;
             set {
-                this.Model.Id = value;
+                this.Model.UniqueId = value;
                 this.RaisePropertyChanged();
             }
         }
+
+        public bool IsRegistered => this.Model.IsRegistered;
 
         public AsyncRelayCommand RenameCommand { get; }
         public AsyncRelayCommand DeleteCommand { get; }

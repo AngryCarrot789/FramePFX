@@ -1,20 +1,5 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using FramePFX.Core;
-using FramePFX.Core.RBC;
-using FramePFX.Core.Utils;
-using FramePFX.Core.Views.Dialogs;
-using FramePFX.Editor.Project.EditorDialogs;
-using FramePFX.Editor.Timeline.ViewModels;
-using FramePFX.Editor.Timeline.ViewModels.Clips.Resizable;
-using FramePFX.Editor.Timeline.ViewModels.Layer;
-using FramePFX.ResourceManaging;
-using FramePFX.ResourceManaging.Items;
-using FramePFX.ResourceManaging.ViewModels;
-
 namespace FramePFX.Editor.Project.ViewModels {
+    /*
     // Could rename this to something else, but naming it Project might be tricky as that's the namespace name
     public class PFXProject : BaseViewModel {
         private double frameRate;
@@ -30,7 +15,7 @@ namespace FramePFX.Editor.Project.ViewModels {
         /// <summary>
         /// This project's timeline
         /// </summary>
-        public PFXTimeline Timeline { get; }
+        public TimelineViewModel Timeline { get; }
 
         /// <summary>
         /// This project's resources
@@ -70,7 +55,7 @@ namespace FramePFX.Editor.Project.ViewModels {
 
         public PFXProject(PFXVideoEditor videoEditor) {
             this.VideoEditor = videoEditor;
-            this.Timeline = new PFXTimeline(this);
+            this.Timeline = new TimelineViewModel(this);
             this.ResourceManager = new ResourceManagerViewModel(new ResourceManager());
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync);
@@ -174,18 +159,18 @@ namespace FramePFX.Editor.Project.ViewModels {
             manager.AddResource("Resource_GREEN", greenColour);
             manager.AddResource("Resource_BLUE", blueColour);
 
-            PFXTimelineLayer l1 = this.Timeline.CreateVideoLayer("Layer 1");
+            TimelineLayerViewModel l1 = this.Timeline.CreateVideoLayer("Layer 1");
             CreateSquare(l1, 0, 50, redColour, 5f, 5f, 100f, 100f, "Red_0");
             CreateSquare(l1, 100, 150, redColour, 105f, 5f, 100f, 100f, "Red_1");
             CreateSquare(l1, 275, 50, greenColour, 210f, 5f, 100f, 100f, "Green_0");
 
-            PFXTimelineLayer l2 = this.Timeline.CreateVideoLayer("Layer 2");
+            TimelineLayerViewModel l2 = this.Timeline.CreateVideoLayer("Layer 2");
             CreateSquare(l2, 0, 100, greenColour, 5f, 105f, 100f, 100f, "Green_1");
             CreateSquare(l2, 100, 50, blueColour, 105f, 105f, 100f, 100f, "Blue_0");
             CreateSquare(l2, 175, 75, blueColour, 210f, 105f, 100f, 100f, "Blue_1");
         }
 
-        public static void CreateSquare(PFXTimelineLayer timelineLayer, long begin, long duration, ResourceRGBA colour, float x, float y, float w, float h, string name) {
+        public static void CreateSquare(TimelineLayerViewModel timelineLayer, long begin, long duration, ResourceRGBA colour, float x, float y, float w, float h, string name) {
             PFXShapeClip timelineClip = timelineLayer.CreateSquareClip(begin, duration, colour);
             timelineClip.DisplayName = name;
             timelineClip.SetShape(x, y, w, h);
@@ -199,4 +184,5 @@ namespace FramePFX.Editor.Project.ViewModels {
             this.Timeline.OnPlayEnd();
         }
     }
+    */
 }

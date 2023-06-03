@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FramePFX.Core.Editor;
 
 namespace FramePFX.Core.ResourceManaging {
@@ -9,6 +10,8 @@ namespace FramePFX.Core.ResourceManaging {
         private readonly Dictionary<string, ResourceItem> uuidToItem;
 
         public ProjectModel Project { get; }
+
+        public IEnumerable<(string, ResourceItem)> Items => this.uuidToItem.Select(x => (x.Key, x.Value));
 
         public ResourceManager(ProjectModel project) {
             this.uuidToItem = new Dictionary<string, ResourceItem>();
@@ -21,7 +24,7 @@ namespace FramePFX.Core.ResourceManaging {
             ValidateId(id);
             this.uuidToItem.TryGetValue(id, out ResourceItem oldItem);
             this.uuidToItem[id] = item;
-            item.Id = id;
+            item.UniqueId = id;
             return oldItem;
         }
 
@@ -35,25 +38,25 @@ namespace FramePFX.Core.ResourceManaging {
         public bool RemoveItem(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
-            if (string.IsNullOrWhiteSpace(item.Id))
+            if (string.IsNullOrWhiteSpace(item.UniqueId))
                 throw new ArgumentException("Item ID cannot be null, empty or consist of entirely whitespaces", nameof(item));
-            return this.uuidToItem.Remove(item.Id);
+            return this.uuidToItem.Remove(item.UniqueId);
         }
 
         public bool RenameResource(ResourceItem item, string newId) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
-            if (string.IsNullOrWhiteSpace(item.Id))
+            if (string.IsNullOrWhiteSpace(item.UniqueId))
                 throw new ArgumentException("Old Item ID cannot be null, empty or consist of entirely whitespaces", nameof(item));
             if (string.IsNullOrWhiteSpace(newId))
                 throw new ArgumentException("New ID cannot be null, empty or consist of entirely whitespaces", nameof(newId));
-            if (this.uuidToItem.TryGetValue(item.Id, out ResourceItem idItem)) {
+            if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem idItem)) {
                 if (ReferenceEquals(item, idItem)) {
-                    item.Id = newId;
+                    item.UniqueId = newId;
                     return true;
                 }
                 else {
-                    throw new Exception($"Existing item and parameter item have the same ID but are not reference equal. Id = {item.Id}");
+                    throw new Exception($"Existing item and parameter item have the same ID but are not reference equal. Id = {item.UniqueId}");
                 }
             }
             else {
@@ -67,7 +70,7 @@ namespace FramePFX.Core.ResourceManaging {
             if (string.IsNullOrWhiteSpace(newId))
                 throw new ArgumentException("New ID cannot be null, empty or consist of entirely whitespaces", nameof(newId));
             if (this.uuidToItem.TryGetValue(oldId, out ResourceItem item)) {
-                item.Id = newId;
+                item.UniqueId = newId;
                 return true;
             }
             else {
@@ -102,7 +105,7 @@ namespace FramePFX.Core.ResourceManaging {
         public bool ResourceExists(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
-            return this.ResourceExists(item.Id);
+            return this.ResourceExists(item.UniqueId);
         }
 
         public void AddHandler(string id, ResourceRemovedEventHandler handler) {

@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels {
     /// <summary>
@@ -17,7 +16,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         /// </summary>
         public VideoEditorViewModel Editor { get; }
 
-        public ProjectViewModel Project => this.Editor.Project;
+        public ProjectViewModel Project => this.Editor.ActiveProject;
 
         public bool UsePrecisionTimingMode {
             get => this.Model.UsePrecisionTimingMode;
@@ -45,10 +44,10 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.Model = new EditorPlaybackModel(editor.Model);
 
-            this.PlayCommand = new AsyncRelayCommand(this.PlayAction, () => this.Project != null && !this.IsPlaying);
-            this.PauseCommand = new AsyncRelayCommand(this.PauseAction, () => this.Project != null &&  this.IsPlaying);
-            this.StopCommand = new AsyncRelayCommand(this.StopAction, () => this.Project != null && this.IsPlaying);
-            this.TogglePlayCommand = new AsyncRelayCommand(this.TogglePlayAction, () => this.Project != null);
+            this.PlayCommand = new AsyncRelayCommand(this.PlayAction, () => this.Project != null && !this.Editor.IsProjectSaving && !this.IsPlaying);
+            this.PauseCommand = new AsyncRelayCommand(this.PauseAction, () => this.Project != null && !this.Editor.IsProjectSaving &&  this.IsPlaying);
+            this.StopCommand = new AsyncRelayCommand(this.StopAction, () => this.Project != null && !this.Editor.IsProjectSaving && this.IsPlaying);
+            this.TogglePlayCommand = new AsyncRelayCommand(this.TogglePlayAction, () => this.Project != null && !this.Editor.IsProjectSaving);
             this.SwitchPrecisionTimingModeCommand = new AsyncRelayCommand(this.SwitchPrecisionMode);
         }
 
@@ -60,11 +59,11 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public void StartRenderTimer() {
-            this.Model.Timer.Start(this.UsePrecisionTimingMode);
+            this.Model.FrameStepTimer.Start(this.UsePrecisionTimingMode);
         }
 
         public Task StopRenderTimer() {
-            return this.Model.Timer.StopAsync();
+            return this.Model.FrameStepTimer.StopAsync();
         }
 
         public async Task PlayAction() {
@@ -72,6 +71,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return;
             }
 
+            this.StartRenderTimer();
             this.IsPlaying = true;
             this.UpdatePlaybackCommands();
         }
@@ -81,6 +81,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return;
             }
 
+            await this.StopRenderTimer();
             this.IsPlaying = false;
             this.UpdatePlaybackCommands();
         }
@@ -90,6 +91,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return;
             }
 
+            await this.StopRenderTimer();
             this.IsPlaying = false;
             this.UpdatePlaybackCommands();
         }
@@ -109,15 +111,17 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public async Task OnProjectChanging(ProjectViewModel project) {
             if (this.IsPlaying) {
-                await this.StopAction();
+                await this.StopRenderTimer();
+                this.IsPlaying = false;
+                this.UpdatePlaybackCommands();
             }
 
             if (project == null) {
-                await this.Model.Timer.StopAsync();
+                await this.Model.FrameStepTimer.StopAsync();
             }
 
             if (this.Project != null) {
-                await this.Project.CloseProjectAction();
+                await this.Project.DisposeAsync();
             }
         }
 
@@ -126,21 +130,35 @@ namespace FramePFX.Core.Editor.ViewModels {
                 this.SetTimerFrameRate(project.Settings.FrameRate);
             }
             else {
-                await this.Model.Timer.StopAsync();
+                await this.Model.FrameStepTimer.StopAsync();
             }
+
+            this.UpdatePlaybackCommands();
         }
 
         public void SetTimerFrameRate(double frameRate) {
-            this.Model.Timer.Interval = (long) Math.Round(1000d / frameRate);
+            if (frameRate < 1)
+                frameRate = 1;
+            this.Model.FrameStepTimer.Interval = (long) Math.Round(1000d / frameRate);
         }
 
         private async Task SwitchPrecisionMode() {
             this.UsePrecisionTimingMode = !this.UsePrecisionTimingMode;
-            await this.Model.Timer.RestartAsync(this.UsePrecisionTimingMode);
+            await this.Model.FrameStepTimer.RestartAsync(this.UsePrecisionTimingMode);
         }
 
         public void Dispose() {
-            this.Model.Timer.Dispose();
+            this.Model.FrameStepTimer.Dispose();
+        }
+
+        public async Task OnProjectSaving() {
+            await this.StopRenderTimer();
+            this.UpdatePlaybackCommands();
+        }
+
+        public async Task OnProjectSaved() {
+            this.StartRenderTimer();
+            this.UpdatePlaybackCommands();
         }
     }
 }

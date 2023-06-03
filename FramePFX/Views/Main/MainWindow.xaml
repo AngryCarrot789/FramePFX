@@ -9,15 +9,16 @@
             xmlns:s="clr-namespace:FramePFX.Shortcuts"
             xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
             xmlns:ui="clr-namespace:FramePFX.ResourceManaging.UI"
-            xmlns:layer="clr-namespace:FramePFX.Editor.Timeline.ViewModels.Layer"
             xmlns:controls="clr-namespace:FramePFX.Editor.Timeline.Controls"
-            xmlns:clips="clr-namespace:FramePFX.Editor.Timeline.ViewModels.Clips"
             xmlns:core="clr-namespace:FramePFX.Core;assembly=FramePFX.Core"
-            xmlns:editor="clr-namespace:FramePFX.Editor"
-            xmlns:static="clr-namespace:FramePFX.AdvancedContextService.Static" xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
+            xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
             xmlns:v="clr-namespace:FramePFX.Views"
+            xmlns:clips1="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
+            xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
+            xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
+            xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
             mc:Ignorable="d"
-            d:DataContext="{d:DesignInstance editor:PFXVideoEditor}"
+            d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Title="Bootleg sony vegas (FramePFX, or Frame Pixel Frame X i guess... PixelFrame?)" Width="1408" Height="792"
             Style="{StaticResource CustomWindowStyle}"
             Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}"
@@ -41,7 +42,7 @@
     <Grid>
         <Menu VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 0 0 1">
             <MenuItem Header="File">
-                <MenuItem Header="New Project" Command="{Binding NewProjectCommand}"/>
+                <MenuItem Header="New Project" Command="{Binding NewProjectCommand, Mode=OneTime}"/>
             </MenuItem>
         </Menu>
         <Grid Margin="0,19,0,0">
@@ -61,7 +62,7 @@
                 <Grid Grid.Column="2" DataContext="{Binding Playback}">
                     <Border VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
-                            <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayPauseCommand, Mode=OneTime}" Margin="5,5,0,5"/>
+                            <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}" Margin="5,5,0,5"/>
                             <Button Width="26" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="80,5,0,5">
                                 <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
                             </Button>
@@ -75,16 +76,16 @@
                         </Grid>
                     </Border>
                     <Viewbox Margin="0,0,0,35">
-                        <wpf:SKElement Width="{Binding Source={x:Static core:IoC.App}, Path=ActiveSettings.Width, FallbackValue=500}"
-                                       Height="{Binding Source={x:Static core:IoC.App}, Path=ActiveSettings.Height, FallbackValue=500}"
+                        <wpf:SKElement Width="{Binding Source={x:Static core:IoC.App}, Path=UserSettings.Width, FallbackValue=500}"
+                                       Height="{Binding Source={x:Static core:IoC.App}, Path=UserSettings.Height, FallbackValue=500}"
                                        x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
                     </Viewbox>
                 </Grid>
-                <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Converter={StaticResource NullToDisabledConverter}}" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
+                <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
                             <Grid>
-                                <ui:ResourceListControl FileDropNotifier="{Binding}" ItemsSource="{Binding Items, Mode=OneTime}" BorderThickness="0">
+                                <ui:ResourceListControl FileDropNotifier="{Binding}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0">
                                     <ui:ResourceListControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -92,7 +93,7 @@
                                     </ui:ResourceListControl.ItemsPanel>
                                     <ui:ResourceListControl.ItemContainerStyle>
                                         <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:ResourceItemControl}}">
-                                            <Setter Property="UniqueIDHeader" Value="{Binding UniqueID, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <Setter Property="UniqueIDHeader" Value="{Binding UniqueId, UpdateSourceTrigger=PropertyChanged}"/>
                                             <Setter Property="ContextMenu">
                                                 <Setter.Value>
                                                     <ContextMenu>
@@ -105,7 +106,7 @@
                                     </ui:ResourceListControl.ItemContainerStyle>
                                     <ui:ResourceListControl.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Path=UniqueID}"/>
+                                            <TextBlock Text="{Binding Path=UniqueId}"/>
                                         </DataTemplate>
                                     </ui:ResourceListControl.ItemTemplate>
                                 </ui:ResourceListControl>
@@ -113,26 +114,42 @@
                         </TabItem>
                         <TabItem Header="Clip Properties">
                             <!--
-                            <Grid Visibility="Collapsed" DataContext="{Binding Timeline.MainSelectedClip, UpdateSourceTrigger=PropertyChanged}" d:DataContext="{d:DesignInstance Type=resizable:ShapeClipViewModel}">
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="X:" Width="60"/>
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="Y:" Width="60" Margin="0,26,0,0"/>
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="Width:" Width="60" Margin="0,52,0,0"/>
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="Height:" Width="60" Margin="0,78,0,0"/>
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="R:" Width="60" Margin="0,104,0,0"/>
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="G:" Width="60" Margin="0,130,0,0"/>
-                                <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="B:" Width="60" Margin="0,156,0,0"/>
-                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,0,0,0" Height="26" Minimum="0" Maximum="1920" Value="{Binding ShapeX, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,26,0,0" Height="26" Minimum="0" Maximum="1080" Value="{Binding ShapeY, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,52,0,0" Height="26" Minimum="0" Maximum="1920" Value="{Binding ShapeWidth, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,78,0,0" Height="26" Minimum="0" Maximum="1080" Value="{Binding ShapeHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,104,0,0" Height="26" SmallChange="0.01" LargeChange="0.1" Minimum="0" Maximum="1" Value="{Binding R, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,130,0,0" Height="26" SmallChange="0.01" LargeChange="0.1" Minimum="0" Maximum="1" Value="{Binding G, UpdateSourceTrigger=PropertyChanged}"/>
-                                <Slider AutoToolTipPlacement="TopLeft" VerticalAlignment="Top" Margin="60,156,0,0" Height="26" SmallChange="0.01" LargeChange="0.1" Minimum="0" Maximum="1" Value="{Binding B, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Grid Grid.IsSharedSizeScope="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150" SharedSizeGroup="SharedColumn0"/>
+                                    <ColumnDefinition Width="*" SharedSizeGroup="SharedColumn1"/>
+                                </Grid.ColumnDefinitions>
+                                <ItemsControl x:Name="ClipPropertyPanelList" Grid.ColumnSpan="2" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                                </ItemsControl>
                             </Grid>
                             -->
-                            <Grid>
 
+                            <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" CanContentScroll="False" helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
+                                <ItemsControl x:Name="ClipPropertyPanelList" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- 
+                                Maybe create some sort of base user control called "PropertyPage" which maps to a specific class/type of clip,
+                                then when a selected item changes, iterate through the type hierarchy and generate the pages accordingly?
+                            -->
+                            <!-- d:DataContext="{d:DesignInstance sources:LoopbackSourceViewModel}" -->
+                            <!--
+                            <Grid x:Name="SettingsPanel" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ContentPresenter Content="{Binding}">
+                                        <ContentPresenter.Resources>
+                                            <DataTemplate DataType="{x:Type clips1:ImageClipViewModel}">
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type clips1:SquareClipViewModel}">
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type clips1:VideoClipViewModel}">
+                                            </DataTemplate>
+                                        </ContentPresenter.Resources>
+                                    </ContentPresenter>
+                                </ScrollViewer>
                             </Grid>
+                            -->
                         </TabItem>
                     </TabControl>
                 </Border>
@@ -151,12 +168,12 @@
                         </StackPanel>
                     </Border>
                 </Border>
-                <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" 
-                        IsEnabled="{Binding Converter={StaticResource NullToDisabledConverter}}" Margin="0,0,0,20"
+                <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}"
+                        IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Margin="0,0,0,20"
                         s:UIFocusGroup.FocusGroupPath="Application/Timeline">
                     <Border.InputBindings>
-                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/LayerControllers/DeleteSelectedLayer" Command="{Binding Timeline.DeleteSelectedLayerCommand}"/>
-                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/Surface/PlayPauseAction" Command="{Binding VideoEditor.Playback.PlayPauseCommand}"/>
+                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/LayerControllers/DeleteSelectedLayer" Command="{Binding Timeline.RemoveSelectedLayersCommand}"/>
+                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/Surface/PlayPauseAction" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
                     </Border.InputBindings>
                     <Grid DataContext="{Binding Timeline}">
                         <Grid.RowDefinitions>
@@ -176,7 +193,10 @@
                         <Border s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" Grid.Row="1"/>
                         <ListBox s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" 
                                  ItemsSource="{Binding Layers, Mode=OneTime}" 
-                                 SelectedItem="{Binding SelectedTimelineLayer, UpdateSourceTrigger=PropertyChanged}"
+                                 SelectedItem="{Binding PrimarySelectedLayer, UpdateSourceTrigger=PropertyChanged}"
+                                 helpers:SelectorHelper.SelectedItems="{Binding SelectedLayers}"
+                                 helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
+                                 SelectionMode="Extended"
                                  Grid.Column="0" Background="Transparent" BorderBrush="Transparent" 
                                  HorizontalContentAlignment="Stretch" Grid.Row="1"
                                  Padding="0" x:Name="LayerListBox"
@@ -226,7 +246,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
-                                                    <Grid d:DataContext="{d:DesignInstance layer:PFXTimelineLayer}">
+                                                    <Grid d:DataContext="{d:DesignInstance timeline:TimelineLayerViewModel}">
                                                         <Rectangle Fill="{Binding LayerColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                                         <Grid Margin="23,4,6,4">
                                                             <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
@@ -272,7 +292,7 @@
                                 </Style>
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.Resources>
-                                <DataTemplate DataType="{x:Type layer:PFXVideoLayer}">
+                                <DataTemplate DataType="{x:Type timeline:TimelineLayerViewModel}">
                                     <Grid>
                                         <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                         <Slider VerticalAlignment="Center" Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" SmallChange="0.1" TickFrequency="0.1"/>
@@ -285,7 +305,8 @@
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0"
                                                   BorderBrush="{DynamicResource AREghZyBrush.Tone2.Border.Static}"
-                                                  MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2"
+                                                  MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
+                                                  Grid.RowSpan="2"
                                                   s:UIFocusGroup.FocusGroupPath="Application/Timeline/Surface">
                             <UIElement.InputBindings>
                                 <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/Surface/DeleteSelectClips" Command="{Binding DeleteSelectedClipsCommand}"/>
@@ -346,8 +367,22 @@
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                     <Setter Property="Focusable" Value="True"/>
+                                    <Setter Property="SelectedItem" Value="{Binding PrimarySelectedClip}"/>
+                                    <Setter Property="helpers:SelectorHelper.SelectedItems" Value="{Binding SelectedClips}"/>
+                                    <Setter Property="helpers:SelectorHelper.UpdateSelectedItemsOnChange" Value="True"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type controls:VideoTimelineLayerControl}">
+                                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
+                                                    <!-- IsItemHost must be true in order for it's items to sync with the TimelineLayerControl's items -->
+                                                    <Grid IsItemsHost="True" Background="{TemplateBinding Background}"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
+                                            <!-- d:DataContext="{d:DesignInstance clips1:VideoClipViewModel}" -->
                                             <Style TargetType="{x:Type controls:TimelineVideoClipControl}">
                                                 <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone4.Background.Static}"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
@@ -358,11 +393,13 @@
                                                 <Setter Property="Focusable" Value="True"/>
                                                 <Setter Property="FrameBegin" Value="{Binding FrameBegin, UpdateSourceTrigger=PropertyChanged}"/>
                                                 <Setter Property="FrameDuration" Value="{Binding FrameDuration, UpdateSourceTrigger=PropertyChanged}"/>
+                                                <Setter Property="MinHeight" Value="{Binding Layer.MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
+                                                <Setter Property="MaxHeight" Value="{Binding Layer.MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                                 <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="{x:Type controls:TimelineVideoClipControl}">
-                                                            <Grid d:DataContext="{d:DesignInstance clips:PFXVideoClipViewModel}" acs:AdvancedContextMenu.ContextProvider="{Binding}">
+                                                            <Grid d:DataContext="{d:DesignInstance clips1:VideoClipViewModel}">
                                                                 <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
                                                                     <Border Background="{Binding Layer.LayerColour}" VerticalAlignment="Top" Height="20">
                                                                         <Grid>
@@ -395,19 +432,6 @@
                                                     </Setter.Value>
                                                 </Setter>
                                             </Style>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type controls:VideoTimelineLayerControl}">
-                                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
-                                                    <!--
-                                                        IsItemHost must be true in order for it's items
-                                                        to sync with the TimelineLayerControl's items
-                                                    -->
-                                                    <Grid IsItemsHost="True" Background="{TemplateBinding Background}"/>
-                                                </Border>
-                                            </ControlTemplate>
                                         </Setter.Value>
                                     </Setter>
                                 </Style>

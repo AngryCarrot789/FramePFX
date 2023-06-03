@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using FramePFX.Core.RBC;
-using FramePFX.Core.ResourceManaging;
 
 namespace FramePFX.Core.Editor.Timeline {
-    public class ClipModel : IRBESerialisable {
+    public abstract class ClipModel : IRBESerialisable {
         public TimelineLayerModel Layer { get; set; }
 
         public string DisplayName { get; set; }
@@ -16,7 +14,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public string TypeId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
 
-        public ClipModel() {
+        protected ClipModel() {
 
         }
 
@@ -40,6 +38,16 @@ namespace FramePFX.Core.Editor.Timeline {
             data.SetString(nameof(this.TypeId), id);
             if (!string.IsNullOrEmpty(this.DisplayName))
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
+        }
+
+        public abstract bool IntersectsFrameAt(long frame);
+
+        public virtual void OnLayerChanging(TimelineLayerModel oldLayer, TimelineLayerModel newLayer) {
+
+        }
+
+        public virtual void OnLayerChanged(TimelineLayerModel oldLayer, TimelineLayerModel newLayer) {
+
         }
     }
 }

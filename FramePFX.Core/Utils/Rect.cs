@@ -1,4 +1,5 @@
-using OpenTK;
+
+using System.Numerics;
 
 namespace FramePFX.Core.Utils {
     public readonly struct Rect {

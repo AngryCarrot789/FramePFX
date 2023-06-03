@@ -1,4 +1,4 @@
-namespace FramePFX.ResourceManaging.Items {
+namespace FramePFX.Core.ResourceManaging.Resources {
     public class ResourceText : ResourceItem {
         public string Text { get; set; }
 

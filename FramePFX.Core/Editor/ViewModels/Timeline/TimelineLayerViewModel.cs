@@ -6,21 +6,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.ResourceManaging.Resources;
+using FramePFX.Core.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for a timeline layer. This could be a video or audio layer (or others...)
     /// </summary>
-    public abstract class TimelineLayerViewModel : BaseViewModel {
+    public abstract class TimelineLayerViewModel : BaseViewModel, IResourceDropNotifier {
         private readonly ObservableCollectionEx<ClipViewModel> clips;
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
-        private IList<ClipViewModel> selectedClips;
-        public IList<ClipViewModel> SelectedClips {
-            get => this.selectedClips ?? (this.SelectedClips = null);
-            set => this.RaisePropertyChanged(ref this.selectedClips, value ?? new List<ClipViewModel>());
-        }
+        public ObservableCollectionEx<ClipViewModel> SelectedClips { get; }
 
         private ClipViewModel primarySelectedClip;
         public ClipViewModel PrimarySelectedClip {
@@ -28,21 +27,122 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             set => this.RaisePropertyChanged(ref this.primarySelectedClip, value);
         }
 
+        public float Opacity {
+            get => this.Model.Opacity;
+            set {
+                this.Model.Opacity = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public string Name {
+            get => this.Model.Name;
+            set {
+                this.Model.Name = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public double MinHeight {
+            get => this.Model.MinHeight;
+            set {
+                this.Model.MinHeight = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public double MaxHeight {
+            get => this.Model.MaxHeight;
+            set {
+                this.Model.MaxHeight = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public double Height {
+            get => this.Model.Height;
+            set {
+                this.Model.Height = Math.Max(Math.Min(value, this.MaxHeight), this.MinHeight);
+                this.RaisePropertyChanged();
+            }
+        }
+
+        // Feels so wrong having colours here for some reason... should be done in a converter with enums maybe?
+        public string LayerColour {
+            get => this.Model.LayerColour;
+            set {
+                this.Model.LayerColour = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public AsyncRelayCommand RenameLayerCommand { get; }
+
         public AsyncRelayCommand RemoveSelectedClipsCommand { get; }
 
         public TimelineViewModel Timeline { get; }
 
         public TimelineLayerModel Model { get; }
 
+        protected bool addToModelList;
+        protected bool removeFromModelList;
+
         protected TimelineLayerViewModel(TimelineViewModel timeline, TimelineLayerModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
+            this.SelectedClips = new ObservableCollectionEx<ClipViewModel>();
+            this.SelectedClips.CollectionChanged += (sender, args) => {
+                this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
+                this.Timeline.Project.Editor?.View.UpdateSelectionPropertyPages();
+            };
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
-            foreach (ClipModel clip in model.Clips) {
-                this.clips.Add(ClipRegistry.Instance.CreateViewModelFromModel(clip));
+            this.RenameLayerCommand = new AsyncRelayCommand(async () => {
+                string result = await IoC.UserInput.ShowSingleInputDialogAsync("Change layer name", "Input a new layer name:", this.Name ?? "", this.Timeline.LayerNameValidator);
+                if (result != null) {
+                    this.Name = result;
+                }
+            });
+
+            this.addToModelList = this.removeFromModelList = false;
+            foreach (ClipModel clip in model.Clips)
+                this.CreateClip(clip);
+            this.addToModelList = this.removeFromModelList = true;
+        }
+
+        protected void CreateClip(ClipModel model) {
+            this.AddClip(ClipRegistry.Instance.CreateViewModelFromModel(model));
+        }
+
+        protected void AddClip(ClipViewModel clip) {
+            clip.Layer = this;
+            if (this.addToModelList)
+                this.Model.Clips.Add(clip.Model);
+            this.clips.Add(clip);
+        }
+
+        protected void AddClip(ClipViewModel clip, int index) {
+            clip.Layer = this;
+            if (this.addToModelList)
+                this.Model.Clips.Insert(index, clip.Model);
+            this.clips.Insert(index, clip);
+        }
+
+        protected void RemoveClip(ClipViewModel clip) {
+            int index = this.clips.IndexOf(clip);
+            if (index < 0) {
+                return;
             }
+
+            this.RemoveClip(clip, index);
+        }
+
+        protected void RemoveClip(ClipViewModel clip, int index) {
+            if (this.removeFromModelList)
+                this.Model.Clips.RemoveAt(index);
+            this.clips.RemoveAt(index);
+            clip.Layer = null;
         }
 
         public Task RemoveSelectedClipsAction() {
@@ -100,7 +200,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                         this.Model.Clips.RemoveAt(index);
                     }
 
-                    this.clips.RemoveAt(index);
+                    this.RemoveClip(clip, index);
                 }
             }
         }
@@ -125,6 +225,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     catch (Exception e) {
                         innerStack.Push(e);
                     }
+
+                    clip.Model.Layer = null;
+                    clip.Layer = null;
                 }
 
                 this.clips.Clear();
@@ -133,6 +236,67 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     stack.Push(ex);
                 }
             }
+        }
+
+        public IEnumerable<ClipViewModel> GetClipsAtFrame(long frame) {
+            return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
+        }
+
+        public void MakeTopMost(VideoClipViewModel clip) {
+            int endIndex = this.Clips.Count - 1;
+            int index = this.Clips.IndexOf(clip);
+            if (index == -1 || index == endIndex) {
+                return;
+            }
+
+            this.clips.Move(index, endIndex);
+
+            ClipModel removedItem = this.Model.Clips[index];
+            this.Model.Clips.RemoveAt(index);
+            this.Model.Clips.Insert(endIndex, removedItem);
+        }
+
+        public async Task OnVideoResourceDropped(ResourceItemViewModel resource, long frameBegin) {
+            double fps = this.Timeline.Project.Settings.FrameRate;
+            long duration = Math.Min((long) Math.Floor(fps * 5), this.Timeline.MaxDuration - frameBegin);
+            if (duration <= 0) {
+                return;
+            }
+
+            if (resource.Model is ResourceARGB argb) {
+                SquareClipModel clip = new SquareClipModel() {
+                    FrameSpan = new ClipSpan(frameBegin, duration),
+                    Width = 200, Height = 200,
+                    DisplayName = argb.UniqueId,
+                    ImageResourceId = argb.UniqueId
+                };
+
+                this.CreateClip(clip);
+            }
+            else if (resource.Model is ResourceImage img) {
+                ImageClipModel clip = new ImageClipModel() {
+                    FrameSpan = new ClipSpan(frameBegin, duration),
+                    DisplayName = img.UniqueId,
+                    ImageResourceId = img.UniqueId
+                };
+
+                this.CreateClip(clip);
+            }
+            // else if (resource.Model is ResourceMedia media) {
+            //     media.OpenDecoder();
+            //     TimeSpan span = media.GetDuration();
+            //     long dur = (long) Math.Floor(span.TotalSeconds * fps);
+            //     if (dur < 2) {
+            //         // image files are 1
+            //         dur = duration;
+            //     }
+            //     if (dur > 0) {
+            //         this.CreateMediaClip(frameBegin, dur, media);
+            //     }
+            //     else {
+            //         await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+            //     }
+            // }
         }
     }
 }

@@ -5,6 +5,8 @@ namespace FramePFX.Core.Editor {
     /// An interface for a video editor view
     /// </summary>
     public interface IVideoEditor : IViewBase {
+        void RenderViewPort(bool schedule = false);
 
+        void UpdateSelectionPropertyPages();
     }
 }

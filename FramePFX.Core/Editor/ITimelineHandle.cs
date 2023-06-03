@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 
-namespace FramePFX.Editor.Timeline.Utils {
+namespace FramePFX.Core.Editor {
     public interface ITimelineHandle : IHasZoom {
         long MaxDuration { get; set; }
 

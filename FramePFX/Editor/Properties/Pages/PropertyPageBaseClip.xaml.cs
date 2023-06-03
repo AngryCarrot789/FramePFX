@@ -2,10 +2,10 @@
 
 namespace FramePFX.Editor.Properties.Pages {
     /// <summary>
-    /// Interaction logic for PropertyPageVideoClip.xaml
+    /// Interaction logic for PropertyPageBaseClip.xaml
     /// </summary>
-    public partial class PropertyPageVideoClip : UserControl {
-        public PropertyPageVideoClip() {
+    public partial class PropertyPageBaseClip : UserControl {
+        public PropertyPageBaseClip() {
             InitializeComponent();
         }
     }

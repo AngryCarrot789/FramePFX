@@ -2,11 +2,11 @@
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.Core;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
-using FramePFX.Editor.Timeline.ViewModels.Clips;
-using FramePFX.Render.OGL;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineVideoClipControl : BaseTimelineClipControl {
@@ -104,13 +104,12 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public new VideoTimelineLayerControl Layer => this.ParentSelector as VideoTimelineLayerControl;
 
-        public PFXVideoClipViewModel ViewModel => this.DataContext as PFXVideoClipViewModel;
+        public VideoClipViewModel ViewModel => this.DataContext as VideoClipViewModel;
 
         public bool IsMovingControl { get; set; }
 
         private bool isUpdatingFrameBegin;
         private bool isUpdatingFrameDuration;
-        private OGLViewportControl PART_ViewPort;
 
         public ClipDragData DragData { get; set; }
 
@@ -119,8 +118,8 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is PFXVideoClipViewModel vm) {
-                    vm.Handle = this;
+                if (args.NewValue is VideoClipViewModel vm) {
+                    BaseViewModel.SetInternalData(vm, typeof(IClipHandle), this);
                 }
             };
 
@@ -138,7 +137,6 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            this.PART_ViewPort = this.GetTemplateElement<OGLViewportControl>("PART_ViewPort");
         }
 
         public double GetMouseDifference(double mouseX) {

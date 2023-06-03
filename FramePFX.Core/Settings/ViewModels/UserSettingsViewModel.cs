@@ -10,6 +10,9 @@ namespace FramePFX.Core.Settings.ViewModels {
             }
         }
 
+        public int Width {get;} = 1920;
+        public int Height {get;} = 1080;
+
         public UserSettingsViewModel() {
             this.Model = new UserSettingsModel();
         }

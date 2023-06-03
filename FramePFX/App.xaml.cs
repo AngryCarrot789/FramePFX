@@ -8,6 +8,7 @@ using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.ResourceManaging.Resources;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
@@ -107,15 +108,18 @@ namespace FramePFX {
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Show();
-            this.Dispatcher.Invoke(() => {
-                this.OnVideoEditorLoaded((VideoEditorViewModel) window.DataContext);
+            await this.Dispatcher.Invoke(async () => {
+                await this.OnVideoEditorLoaded(window.Editor);
             }, DispatcherPriority.Loaded);
         }
 
-        public void OnVideoEditorLoaded(VideoEditorViewModel editor) {
-            editor.SetProject(new ProjectViewModel(new ProjectModel()) {
-                Settings = { FrameRate = 30, Resolution = new Resolution(1920, 1080)}
-            });
+        public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
+            ProjectModel project = new ProjectModel();
+            project.ResourceManager.AddResource("colour_red", new ResourceARGB(project.ResourceManager) {R = 0.9f, G = 0.05f, B = 0.05f });
+            project.ResourceManager.AddResource("colour_green", new ResourceARGB(project.ResourceManager) {R = 0.05f, G = 0.9f, B = 0.05f });
+            project.ResourceManager.AddResource("colour_blue", new ResourceARGB(project.ResourceManager) {R = 0.05f, G = 0.05f, B = 0.9f });
+            project.Settings.Resolution = new Resolution(1920, 1080);
+            await editor.LoadProjectAction(new ProjectViewModel(project));
         }
 
         protected override void OnExit(ExitEventArgs e) {

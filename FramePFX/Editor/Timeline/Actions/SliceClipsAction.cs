@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
-using FramePFX.Editor.Timeline.ViewModels;
-using FramePFX.Editor.Timeline.ViewModels.Clips;
-using FramePFX.Editor.Timeline.ViewModels.Layer;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 
 namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.SliceClips")]
@@ -15,7 +15,7 @@ namespace FramePFX.Editor.Timeline.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            PFXTimeline timeline = EditorActionUtils.FindTimeline(e.DataContext);
+            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
                 if (e.IsUserInitiated) {
                     await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
@@ -25,7 +25,7 @@ namespace FramePFX.Editor.Timeline.Actions {
             }
 
             long frame = timeline.PlayHeadFrame;
-            List<PFXVideoClipViewModel> selected = timeline.Handle.GetSelectedClips().ToList();
+            List<VideoClipViewModel> selected = timeline.Layers.SelectMany(x => x.SelectedClips).OfType<VideoClipViewModel>().ToList();
             selected.RemoveAll(x => !x.IntersectsFrameAt(frame));
             if (selected.Count > 0) {
                 CutAllAtFrame(timeline, selected, frame);
@@ -38,15 +38,15 @@ namespace FramePFX.Editor.Timeline.Actions {
         }
 
         public override Presentation GetPresentation(AnActionEventArgs e) {
-            PFXTimeline timeline = EditorActionUtils.FindTimeline(e.DataContext);
+            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
             return timeline == null ? Presentation.VisibleAndDisabled : base.GetPresentation(e);
         }
 
-        public static void CutAllOnPlayHead(PFXTimeline timeline) {
+        public static void CutAllOnPlayHead(TimelineViewModel timeline) {
             long frame = timeline.PlayHeadFrame;
-            List<PFXClipViewModel> list = new List<PFXClipViewModel>();
-            foreach (PFXTimelineLayer layer in timeline.Layers) {
-                foreach (PFXClipViewModel clip in layer.Clips) {
+            List<VideoClipViewModel> list = new List<VideoClipViewModel>();
+            foreach (TimelineLayerViewModel layer in timeline.Layers) {
+                foreach (VideoClipViewModel clip in layer.Clips) {
                     if (clip.IntersectsFrameAt(frame)) {
                         list.Add(clip);
                     }
@@ -58,13 +58,17 @@ namespace FramePFX.Editor.Timeline.Actions {
             }
         }
 
-        public static void CutAllAtFrame(PFXTimeline timeline, IEnumerable<PFXClipViewModel> clips, long frame) {
-            foreach (PFXClipViewModel clip in clips) {
+        public static void CutAllAtFrame(TimelineViewModel timeline, IEnumerable<VideoClipViewModel> clips, long frame) {
+            foreach (VideoClipViewModel clip in clips) {
                 if (!clip.IntersectsFrameAt(frame)) { // shouldn't return false
                     continue;
                 }
 
-                clip.Layer.SliceClip(clip, frame);
+                if (!(clip.Layer is VideoLayerViewModel videoLayerModel)) {
+                    continue;
+                }
+
+                videoLayerModel.SliceClip(clip, frame);
             }
         }
     }

@@ -4,15 +4,23 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.ResourceManaging {
     public abstract class ResourceItem : IRBESerialisable, IDisposable {
+        public delegate void ResourceModifiedEventHandler(ResourceItem sender, string property);
+
         public string TypeId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         /// <summary>
         /// This resource item's unique identifier
         /// </summary>
-        public string Id { get; set; }
+        public string UniqueId { get; set; }
 
-        public ResourceItem() {
+        public bool IsRegistered => !string.IsNullOrWhiteSpace(this.UniqueId) && this.Manager.ResourceExists(this.UniqueId);
 
+        public ResourceManager Manager { get; }
+
+        public ResourceModifiedEventHandler OnModified;
+
+        protected ResourceItem(ResourceManager manager) {
+            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
 
         public virtual void WriteToRBE(RBEDictionary data) {

@@ -30,6 +30,12 @@ namespace FramePFX.Core.Utils {
             }
         }
 
+        public static void MoveItem<T>(this IList<T> list, int oldIndex, int newIndex) {
+            T removedItem = list[oldIndex];
+            list.RemoveAt(oldIndex);
+            list.Insert(newIndex, removedItem);
+        }
+
         public static IEnumerable<T> SingleItem<T>(in T value) {
             return new List<T> {value};
         }

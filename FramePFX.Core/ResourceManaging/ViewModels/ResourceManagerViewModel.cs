@@ -1,6 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Utils;
@@ -9,21 +8,21 @@ using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.ResourceManaging.ViewModels {
     public class ResourceManagerViewModel : BaseViewModel {
-        public ResourceManager Manager { get; }
+        public readonly InputValidator ResourceIdValidator;
+
+        private readonly ObservableCollection<ResourceItemViewModel> resources;
+        public ReadOnlyObservableCollection<ResourceItemViewModel> Resources { get; }
+
+        public ResourceManager Model { get; }
 
         public ProjectViewModel Project { get; }
 
-        private readonly ObservableCollection<ResourceItemViewModel> resources;
-        private readonly InputValidator validator;
-
-        public ReadOnlyObservableCollection<ResourceItemViewModel> Resources { get; }
-
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
-            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.resources = new ObservableCollection<ResourceItemViewModel>();
             this.Resources = new ReadOnlyObservableCollection<ResourceItemViewModel>(this.resources);
-            this.validator = new InputValidator((string input, out string message) => {
+            this.ResourceIdValidator = new InputValidator((string input, out string message) => {
                 if (string.IsNullOrEmpty(input)) {
                     message = "Input cannot be empty";
                     return true;
@@ -32,7 +31,7 @@ namespace FramePFX.Core.ResourceManaging.ViewModels {
                     message = "Input cannot be empty or consist of only whitespaces";
                     return true;
                 }
-                else if (this.Manager.ResourceExists(input)) {
+                else if (this.Model.ResourceExists(input)) {
                     message = "Resource already exists with this ID";
                     return true;
                 }
@@ -41,16 +40,20 @@ namespace FramePFX.Core.ResourceManaging.ViewModels {
                     return false;
                 }
             });
+
+            foreach ((string _, ResourceItem item) in manager.Items) {
+                this.resources.Add(ResourceTypeRegistry.Instance.CreateViewModelFromModel(this, item));
+            }
         }
 
         public async Task<string> SelectNewResourceId(string msg, string value = "id") {
-            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "", this.validator);
+            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "", this.ResourceIdValidator);
             return string.IsNullOrWhiteSpace(id) ? null : id;
         }
 
         public async Task<bool> RenameResourceAction(ResourceItemViewModel item) {
             ResourceItem resource = item.Model;
-            string uuid = await IoC.UserInput.ShowSingleInputDialogAsync("Rename resource UUID", "Input a new UUID for the resource", string.IsNullOrWhiteSpace(item.Id) ? "unique id here" : item.Id, this.validator);
+            string uuid = await IoC.UserInput.ShowSingleInputDialogAsync("Rename resource UUID", "Input a new UUID for the resource", string.IsNullOrWhiteSpace(item.UniqueId) ? "unique id here" : item.UniqueId, this.ResourceIdValidator);
             if (uuid == null) {
                 return false;
             }
@@ -59,24 +62,24 @@ namespace FramePFX.Core.ResourceManaging.ViewModels {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid UUID", "UUID cannot be an empty string or consist of only whitespaces");
                 return false;
             }
-            else if (this.Manager.ResourceExists(uuid)) {
+            else if (this.Model.ResourceExists(uuid)) {
                 await IoC.MessageDialogs.ShowMessageAsync("Resource already exists", "Resource already exists with the UUID: " + uuid);
                 return false;
             }
 
-            this.Manager.RenameResource(resource, uuid);
-            item.Id = uuid;
+            this.Model.RenameResource(resource, uuid);
+            item.UniqueId = uuid;
             return true;
         }
 
         public async Task<bool> DeleteResourceAction(ResourceItemViewModel item, bool skipDialog = false) {
-            if (string.IsNullOrWhiteSpace(item.Id)) {
+            if (string.IsNullOrWhiteSpace(item.UniqueId)) {
                 await IoC.MessageDialogs.ShowMessageAsync("Error", "Resource has an invalid UUID... this shouldn't be possible wtf?!?!");
                 return false;
             }
 
             if (!skipDialog) {
-                MsgDialogResult result = await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource: {item.Id}?", MsgDialogType.OKCancel);
+                MsgDialogResult result = await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource: {item.UniqueId}?", MsgDialogType.OKCancel);
                 if (result != MsgDialogResult.OK) {
                     return false;
                 }
@@ -89,7 +92,7 @@ namespace FramePFX.Core.ResourceManaging.ViewModels {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error disposing item", $"Failed to dispose resource. Press OK to show the exception details", e.GetToString());
             }
 
-            this.Manager.RemoveItem(item.Model);
+            this.Model.RemoveItem(item.Model);
             this.resources.Remove(item);
             return true;
         }

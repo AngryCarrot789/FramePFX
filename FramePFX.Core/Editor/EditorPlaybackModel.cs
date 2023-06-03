@@ -6,7 +6,7 @@ namespace FramePFX.Core.Editor {
     public class EditorPlaybackModel {
         private volatile bool isPlaying;
 
-        public PrecisionTimer Timer { get; }
+        public PrecisionTimer FrameStepTimer { get; }
 
         public bool UsePrecisionTimingMode { get; set; }
 
@@ -15,20 +15,24 @@ namespace FramePFX.Core.Editor {
             set => this.isPlaying = value;
         }
 
-        public Action PlaybackCallback {
-            get => this.Timer.TickCallback;
-            set => this.Timer.TickCallback = value;
+        public Action OnStepFrame {
+            get => this.FrameStepTimer.TickCallback;
+            set => this.FrameStepTimer.TickCallback = value;
         }
 
         public VideoEditorModel Editor { get; }
 
         public EditorPlaybackModel(VideoEditorModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
-            this.Timer = new PrecisionTimer();
+            this.FrameStepTimer = new PrecisionTimer();
+        }
+
+        public void StartTimer() {
+            this.FrameStepTimer.Start(this.UsePrecisionTimingMode);
         }
 
         public Task PauseTimerAsync() {
-            return this.Timer.StopAsync();
+            return this.FrameStepTimer.StopAsync();
         }
     }
 }

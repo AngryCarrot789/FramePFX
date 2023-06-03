@@ -5,9 +5,8 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Interactivity;
+using FramePFX.Core.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timeline.Utils;
-using FramePFX.ResourceManaging.ViewModels;
-using ResourceManagerViewModel = FramePFX.ResourceManaging.ViewModels.ResourceManagerViewModel;
 
 namespace FramePFX.ResourceManaging.UI {
     public class ResourceListControl : MultiSelector, IResourceListHandle {
@@ -24,13 +23,13 @@ namespace FramePFX.ResourceManaging.UI {
             this.AllowDrop = true;
             this.DataContextChanged += (sender, args) => {
                 if (args.NewValue is ResourceManagerViewModel vm) {
-                    vm.Handle = this;
+                    BaseViewModel.SetInternalData(vm, typeof(IResourceListHandle), this);
                 }
             };
         }
 
         public bool GetClipControl(object item, out ResourceItemControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<ResourceItemViewModel, ResourceItemControl>(item, this.ItemContainerGenerator, x => x.Handle as ResourceItemControl)) != null;
+            return (clip = ICGenUtils.GetContainerForItem<ResourceItemViewModel, ResourceItemControl>(item, this.ItemContainerGenerator, x => BaseViewModel.GetInternalData(x, typeof(IResourceControl)) as ResourceItemControl)) != null;
         }
 
         public bool GetClipViewModel(object item, out ResourceItemViewModel clip) {
@@ -80,13 +79,22 @@ namespace FramePFX.ResourceManaging.UI {
 
         protected override void OnDragEnter(DragEventArgs e) {
             base.OnDragEnter(e);
+            if (ReferenceEquals(e.Source, this)) {
+                e.Handled = true;
+                return;
+            }
+
             if (this.FileDropNotifier == null) {
-                e.Effects = DragDropEffects.None;
                 e.Handled = true;
             }
         }
 
         protected override async void OnDrop(DragEventArgs e) {
+            if (ReferenceEquals(e.Source, this)) {
+                e.Handled = true;
+                return;
+            }
+
             if (this.FileDropNotifier == null) {
                 await IoC.MessageDialogs.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
                 return;
@@ -112,14 +120,14 @@ namespace FramePFX.ResourceManaging.UI {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
             if (element is ResourceItemControl control && item is ResourceItemViewModel viewModel) {
-                viewModel.Handle = control;
+                BaseViewModel.SetInternalData(viewModel, typeof(IResourceControl), control);
             }
         }
 
         protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
             base.ClearContainerForItemOverride(element, item);
             if (item is ResourceItemViewModel viewModel) {
-                viewModel.Handle = null;
+                BaseViewModel.SetInternalData(viewModel, typeof(IResourceControl), null);
             }
         }
 

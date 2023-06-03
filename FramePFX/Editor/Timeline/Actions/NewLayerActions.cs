@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
-using FramePFX.Editor.Timeline.ViewModels;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 
 namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.NewVideoLayer")]
@@ -11,7 +12,7 @@ namespace FramePFX.Editor.Timeline.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            PFXTimeline timeline = EditorActionUtils.FindTimeline(e.DataContext);
+            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
                 if (e.IsUserInitiated) {
                     await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to add a new video layer");
@@ -28,7 +29,8 @@ namespace FramePFX.Editor.Timeline.Actions {
                 }
             }
 
-            timeline.CreateVideoLayer(name);
+            VideoLayerViewModel layer = await timeline.AddVideoLayerAction();
+            layer.Name = name;
             return true;
         }
     }

@@ -1,16 +1,19 @@
-using FramePFX.ResourceManaging.Items;
+using FramePFX.Core.ResourceManaging.Resources;
 
-namespace FramePFX.ResourceManaging.ViewModels.Items {
+namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
     public class ResourceMediaViewModel : ResourceItemViewModel {
-        private string filePath;
+        public new ResourceMedia Model => (ResourceMedia) base.Model;
+
         public string FilePath {
-            get => this.filePath;
-            set => this.RaisePropertyChanged(ref this.filePath, value);
+            get => this.Model.FilePath;
+            set {
+                this.Model.FilePath = value;
+                this.RaisePropertyChanged();
+                this.Model.OnModified?.Invoke(this.Model, nameof(this.Model.FilePath));
+            }
         }
 
-        public ResourceMedia Media { get; set; }
-
-        public ResourceMediaViewModel(ResourceManagerViewModel manager) : base(manager) {
+        public ResourceMediaViewModel(ResourceManagerViewModel manager, ResourceMedia media) : base(manager, media) {
 
         }
     }

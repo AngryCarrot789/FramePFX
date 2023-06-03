@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.Editor.Timeline.ViewModels.Layer {
+namespace FramePFX.Core.Editor {
     public static class LayerColours {
         private static readonly Random random = new Random();
 

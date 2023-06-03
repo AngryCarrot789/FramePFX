@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.Core.Editor;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 using Keyboard = System.Windows.Input.Keyboard;

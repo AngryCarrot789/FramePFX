@@ -1,8 +1,4 @@
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Clip;
-using FramePFX.Core.Editor.Timeline.Layers;
-using FramePFX.Core.Editor.ViewModels;
 using SkiaSharp;
 
 namespace FramePFX.Core.Rendering {
@@ -32,28 +28,6 @@ namespace FramePFX.Core.Rendering {
             this.Surface = surface;
             this.Canvas = canvas;
             this.FrameInfo = frameInfo;
-        }
-
-        public void RenderTimeline(TimelineModel timeline) {
-            foreach (TimelineLayerModel layer in timeline.Layers) {
-                if (layer is VideoLayerModel videoLayer) {
-                    this.RenderTimelineLayer(videoLayer);
-                }
-            }
-        }
-
-        public void RenderTimelineLayer(VideoLayerModel layer) {
-            foreach (ClipModel clip in layer.Clips) {
-                if (clip is VideoClipModel videoClip) {
-                    this.RenderTimelineClip(videoClip);
-                }
-            }
-        }
-
-        public void RenderTimelineClip(VideoClipModel clip) {
-            this.Canvas.Save();
-
-            this.Canvas.Restore();
         }
     }
 }

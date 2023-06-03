@@ -1,15 +1,17 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
-using FramePFX.Editor;
-using FramePFX.Editor.Timeline.ViewModels.Layer;
+using FramePFX.Editor.Properties;
+using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 
 namespace FramePFX.Views.Main {
@@ -17,7 +19,9 @@ namespace FramePFX.Views.Main {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : WindowEx, IVideoEditor {
-        public VideoEditorViewModel Editor { get; }
+        public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
+
+        private readonly Action renderCallback;
 
         public MainWindow() {
             this.InitializeComponent();
@@ -26,15 +30,81 @@ namespace FramePFX.Views.Main {
 
             };
 
-            this.DataContext = this.Editor = new VideoEditorViewModel(this, IoC.App);
+            this.DataContext = new VideoEditorViewModel(this, IoC.App);
+            this.renderCallback = () => {
+                this.ViewPortElement.InvalidateVisual();
+            };
+        }
+
+        public void UpdateSelectionPropertyPages() {
+            this.ClipPropertyPanelList.Items.Clear();
+            if (this.Editor.ActiveProject is ProjectViewModel project) {
+                List<ClipViewModel> list = project.Timeline.Layers.SelectMany(x => x.SelectedClips).ToList();
+                if (list.Count != 1) {
+                    return;
+                }
+
+                this.GeneratePropertyPages(list[0]);
+            }
+        }
+
+        public void GeneratePropertyPages(ClipViewModel clip) {
+            Type root = typeof(ClipViewModel);
+            List<Type> types = new List<Type>();
+            for (Type type = clip.GetType(); type != null && root.IsAssignableFrom(type); type = type.BaseType) {
+                types.Add(type);
+            }
+
+            if (types.Count > 0) {
+                types.Reverse();
+                this.GeneratePropertyPages(types, clip);
+            }
+        }
+
+        public void GeneratePropertyPages(List<Type> types, ClipViewModel clip) {
+            List<FrameworkElement> controls = new List<FrameworkElement>(types.Count);
+            foreach (Type type in types) {
+                if (PropertyPageRegistry.GenerateControl(type, clip, out FrameworkElement control)) {
+                    control.DataContext = clip;
+                    controls.Add(control);
+                }
+            }
+
+            if (controls.Count < 1) {
+                return;
+            }
+
+            // this.ClipPropertyPanelList.Items.Add(controls[0]);
+            for (int i = 0; i < controls.Count; i++) {
+                this.ClipPropertyPanelList.Items.Add(controls[i]);
+            }
+        }
+
+        public void RenderViewPort(bool schedule) {
+            if (schedule) {
+                this.Dispatcher.InvokeAsync(this.renderCallback);
+            }
+            else {
+                this.Dispatcher.Invoke(this.renderCallback);
+            }
         }
 
         private void OnPaintViewPortSurface(object sender, SKPaintSurfaceEventArgs e) {
             VideoEditorViewModel editor = this.Editor;
+            ProjectViewModel project = editor.ActiveProject;
+            if (project == null) {
+                return;
+            }
+
             if (editor.IsProjectSaving) {
                 return;
             }
 
+            RenderContext context = new RenderContext(editor.Model, e.Surface, e.Surface.Canvas, e.RawInfo);
+            context.Canvas.Clear(SKColors.Black);
+            context.Canvas.Save();
+            project.Timeline.Model.Render(context);
+            context.Canvas.Restore();
         }
 
         protected override async Task<bool> OnClosingAsync() {
@@ -56,17 +126,17 @@ namespace FramePFX.Views.Main {
         }
 
         private void ThumbTop(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is PFXTimelineLayer layer) {
+            if ((sender as Thumb)?.DataContext is TimelineLayerViewModel layer) {
                 double layerHeight = layer.Height - e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
-                    if (layer.Timeline.GetPrevious(layer) is PFXTimelineLayer behind1) {
+                    if (layer.Timeline.GetPrevious(layer) is TimelineLayerViewModel behind1) {
                         double behindHeight = behind1.Height + e.VerticalChange;
                         if (behindHeight < behind1.MinHeight || behindHeight > behind1.MaxHeight)
                             return;
                         behind1.Height = behindHeight;
                     }
                 }
-                else if (layer.Timeline.GetPrevious(layer) is PFXTimelineLayer behind2) {
+                else if (layer.Timeline.GetPrevious(layer) is TimelineLayerViewModel behind2) {
                     double behindHeight = behind2.Height + e.VerticalChange;
                     if (behindHeight < behind2.MinHeight || behindHeight > behind2.MaxHeight) {
                         return;
@@ -79,7 +149,7 @@ namespace FramePFX.Views.Main {
         }
 
         private void ThumbBottom(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is PFXTimelineLayer layer) {
+            if ((sender as Thumb)?.DataContext is TimelineLayerViewModel layer) {
                 double layerHeight = layer.Height + e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
                     return;

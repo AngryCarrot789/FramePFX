@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using FramePFX.ResourceManaging.ViewModels;
+using FramePFX.Core.ResourceManaging.ViewModels;
 
 namespace FramePFX.ResourceManaging.UI {
     public class ResourceItemControl : ContentControl, IResourceControl {
@@ -47,9 +47,7 @@ namespace FramePFX.ResourceManaging.UI {
 
         public ResourceListControl ParentList => ItemsControl.ItemsControlFromItemContainer(this) as ResourceListControl;
 
-        public ResourceItemViewModel Resource {
-            get => this.DataContext as ResourceItemViewModel;
-        }
+        public ResourceItemViewModel Resource => this.DataContext as ResourceItemViewModel;
 
         private Point originMousePoint;
         private bool isDragActive;

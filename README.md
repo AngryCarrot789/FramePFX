@@ -15,11 +15,7 @@ I also don't know if it's a good idea for the ViewModels (e.g SquareClipViewMode
 ![](FramePFX_2023-04-16_18.56.57.png)
 
 ## Rendering
-Rendering the main view port (and soon the clip/text resource previews) is done with OpenGL. I made another git repo showing the minimum amount of code to render OpenGL in WPF using nothing but OpenTK (but with this app i came up with a new way of rendering though, and this way seems to be faster in general but possibly more unsafe and may result in visual glitches when rendering occours very quickly... maybe)
-
-Basically, OpenGL is just rendering into a framebuffer, and then copying the framebuffer pixels to a WritableBitmap's BackBuffer (all on another thread). The BackBuffer can be access even if the bitmap isn't locked, but you need to store the bitmap BackBuffer pointer as a field to access it off the WPF thread
-
-Then, you just create a DispatcherTimer to Lock, Mark the dirty region and then unlock, which lets WPF render. This means you can draw OpenGL and copy that into the pointer, and render the WPF side at the same time
+Rendering the main view port (and soon the clip/text resource previews) is done with SkiaSharp. Originally was done with OpenGL (using OpenTK) but SkiaSharp is much simpler to use (easy image loading, not sure about video yet though, easy texture drawing, etc)
 
 ## Resource list
 `ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)
@@ -34,4 +30,7 @@ draw the clips each frame, and then copy the pixels from OpenGL to an encoder. M
 To run this, you just need to download this repo and also the ffmpeg's shared x64 libraries (https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest, specifically  https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip). You place all of the files in the bin folder (apart from the ffmpeg exes) into the bin folder of this project (FramePFX/Bin/Debug or Release depending on how you compiled it)
 
 And to drag videos into the editor, you drag and drop a video file to the top left "resource manager", and then drag one of those items into the timeline. Will soon support directly dropping a clip into the timeline
+
+## ViewModels/Models
+I tried to wrap all models with view models so that the app could still function moderately well even if it had no view models. However, view models still take a lot of big responsibilities of the models (e.g. firing the model events when view model properties change in order to force a re-render), and it also opens up the possibility for viewmodel-model desynchronisation which hopefully won't happen
 

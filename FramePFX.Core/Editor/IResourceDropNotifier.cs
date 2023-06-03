@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using FramePFX.ResourceManaging.ViewModels;
+using FramePFX.Core.ResourceManaging.ViewModels;
 
 namespace FramePFX.Editor.Timeline.Utils {
     public interface IResourceDropNotifier {

@@ -7,7 +7,7 @@ using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
     public class ImageResourceViewModel : ResourceItemViewModel {
-        public new ImageResourceItem Model => (ImageResourceItem) base.Model;
+        public new ResourceImage Model => (ResourceImage) base.Model;
 
         private bool requireImageReload;
         public bool RequireImageReload {
@@ -27,7 +27,7 @@ namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
         public AsyncRelayCommand SelectFileCommand { get; }
         public AsyncRelayCommand RefreshCommand { get; }
 
-        public ImageResourceViewModel(ResourceManagerViewModel manager, ImageResourceItem model) : base(manager, model) {
+        public ImageResourceViewModel(ResourceManagerViewModel manager, ResourceImage model) : base(manager, model) {
             this.SelectFileCommand = new AsyncRelayCommand(this.SelectFileActionAsync);
             this.RefreshCommand = new AsyncRelayCommand(this.RefreshActionAsync);
         }

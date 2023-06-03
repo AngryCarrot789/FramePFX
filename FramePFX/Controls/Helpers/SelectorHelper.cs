@@ -1,6 +1,9 @@
 using System.Collections;
+using System.Collections.Specialized;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Controls.Helpers {
@@ -10,7 +13,7 @@ namespace FramePFX.Controls.Helpers {
                 "SelectedItems",
                 typeof(IList),
                 typeof(ListBoxHelper),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemsChanged));
+                new FrameworkPropertyMetadata(null, OnSelectedItemsChanged));
 
         public static readonly DependencyProperty UpdateSelectedItemsOnChangeProperty =
             DependencyProperty.RegisterAttached(
@@ -56,7 +59,7 @@ namespace FramePFX.Controls.Helpers {
         }
 
         private static void OnUpdateSelectedItemsOnChangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (d is ListBox listBox) {
+            if (d is Selector listBox) {
                 listBox.SelectionChanged -= OnSelectionChanged;
                 if ((bool) e.NewValue) {
                     listBox.SelectionChanged += OnSelectionChanged;
@@ -69,16 +72,20 @@ namespace FramePFX.Controls.Helpers {
                 return;
             }
 
-            if (sender is ListBox listBox) {
-                IList selectedItems = GetSelectedItems(listBox);
+            if (sender is Selector selector) {
+                IList selectedItems = GetSelectedItems(selector);
                 if (selectedItems == null) {
                     return;
                 }
 
                 IS_UPDATING_SELECTION = true;
                 selectedItems.Clear();
-                foreach (object item in listBox.SelectedItems)
+
+
+                foreach (object item in selector.SelectedItems)
                     selectedItems.Add(item);
+                if (!(selectedItems is INotifyCollectionChanged))
+                    SetSelectedItems(selector, selectedItems);
                 IS_UPDATING_SELECTION = false;
             }
         }

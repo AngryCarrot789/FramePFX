@@ -1,4 +1,4 @@
-namespace FramePFX.ResourceManaging.Items {
+namespace FramePFX.Core.ResourceManaging.Resources {
     public class ResourceRGBA : ResourceItem {
         public float R { get; set; }
         public float G { get; set; }

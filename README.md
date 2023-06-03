@@ -6,13 +6,12 @@ and some of them just lack basic features (e.g zoom in the view port with CTRL +
 
 I doubt this will ever even come close to those editors... but hopefully this will at least support "editing" videos, even if it's just cutting up clips
 
-I'm still using the old deprecated functions because i was lazy lol... I may try and convert it to using shaders, VBOs, etc, at some point
-
-I also don't know if it's a good idea for the ViewModels (e.g SquareClipViewModel) to have access to OpenGL and to be primarily responsible for rendering... but i'm not sure how else to do it
-
 # Preview
 
 ![](FramePFX_2023-04-16_18.56.57.png)
+
+## ViewModels/Models
+I tried to wrap all models with view models so that the app could still function moderately well even if it had no view models. However, view models still take a lot of big responsibilities of the models (e.g. firing the model events when view model properties change in order to force a re-render), and it also opens up the possibility for viewmodel-model desynchronisation which hopefully won't happen
 
 ## Rendering
 Rendering the main view port (and soon the clip/text resource previews) is done with SkiaSharp. Originally was done with OpenGL (using OpenTK) but SkiaSharp is much simpler to use (easy image loading, not sure about video yet though, easy texture drawing, etc)
@@ -30,7 +29,4 @@ draw the clips each frame, and then copy the pixels from OpenGL to an encoder. M
 To run this, you just need to download this repo and also the ffmpeg's shared x64 libraries (https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest, specifically  https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip). You place all of the files in the bin folder (apart from the ffmpeg exes) into the bin folder of this project (FramePFX/Bin/Debug or Release depending on how you compiled it)
 
 And to drag videos into the editor, you drag and drop a video file to the top left "resource manager", and then drag one of those items into the timeline. Will soon support directly dropping a clip into the timeline
-
-## ViewModels/Models
-I tried to wrap all models with view models so that the app could still function moderately well even if it had no view models. However, view models still take a lot of big responsibilities of the models (e.g. firing the model events when view model properties change in order to force a re-render), and it also opens up the possibility for viewmodel-model desynchronisation which hopefully won't happen
 

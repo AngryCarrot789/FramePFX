@@ -11,7 +11,7 @@ namespace FramePFX.Core.ResourceManaging {
             base.Register<ResourceARGB, ResourceARGBViewModel>("resource_argb");
             base.Register<ResourceImage, ResourceImageViewModel>("resource_image");
             base.Register<ResourceMedia, ResourceMediaViewModel>("resource_media");
-            // base.Register<ResourceText, ResourceTextViewModel>("resource_argb");
+            base.Register<ResourceText, ResourceTextViewModel>("resource_argb");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : ResourceItem where TViewModel : ResourceItemViewModel {

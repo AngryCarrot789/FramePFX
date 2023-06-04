@@ -4,7 +4,7 @@ using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.ResourceManaging.Resources {
+namespace FramePFX.Core.Editor.ResourceManaging.Resources {
     public class ResourceMedia : ResourceItem {
         public string FilePath { get; set; }
 

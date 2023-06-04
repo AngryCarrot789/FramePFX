@@ -1,6 +1,7 @@
+using System.Diagnostics;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.RBC;
-using FramePFX.Core.ResourceManaging;
 
 namespace FramePFX.Core.Editor {
     /// <summary>
@@ -9,39 +10,50 @@ namespace FramePFX.Core.Editor {
     /// <typeparam name="T">Resource type</typeparam>
     public abstract class BaseResourceVideoClip<T> : VideoClipModel where T : ResourceItem {
         public delegate void ResourceStateChangedEventHandler(VideoClipModel sender);
+        public delegate void ResourceIdChangedEventHandler(VideoClipModel clip, string oldId, string newId);
+        public delegate void ResourceModifiedEventHandler(VideoClipModel clip, T resource, string property);
+        public delegate void ResourceEventHandler(VideoClipModel clip, T resource);
 
-        private string imageResourceId;
-        public string ImageResourceId {
-            get => this.imageResourceId;
+        private string resourceId;
+        private bool? isResourceOnline;
+
+        public string ResourceId {
+            get => this.resourceId;
             set {
-                this.imageResourceId = value;
-                this.IsResourceOffline = false;
+                this.resourceId = value;
+                this.IsResourceOnline = null;
             }
         }
 
-        private bool isResourceOffline;
-        public bool IsResourceOffline {
-            get => this.isResourceOffline;
+        /// <summary>
+        /// Indicates if this clip's resource is available or not. Null means "don't know", true
+        /// means it is was online the last time it was checked, and false means offline
+        /// </summary>
+        public bool? IsResourceOnline {
+            get => this.isResourceOnline;
             set {
-                this.isResourceOffline = value;
-                this.OnResourceStateChanged();
+                this.isResourceOnline = value;
+                this.OnResourceOnlineChanged();
             }
         }
 
         private T cachedItem;
 
-        public event ResourceStateChangedEventHandler ResourceStateChanged;
+        public event ResourceStateChangedEventHandler ResourceOnlineChanged;
+        public event ResourceIdChangedEventHandler ResourceRenamed;
+        public event ResourceModifiedEventHandler DataModified;
+        public event ResourceEventHandler ResourceRemoved;
 
         protected BaseResourceVideoClip() {
 
         }
 
-        protected virtual void OnResourceStateChanged() {
-            this.ResourceStateChanged?.Invoke(this);
+        protected virtual void OnResourceOnlineChanged() {
+            this.ResourceOnlineChanged?.Invoke(this);
         }
 
         public bool TryGetResource(out T resource) {
-            if (this.IsResourceOffline) {
+            if (this.IsResourceOnline == false) {
                 resource = default;
                 return false;
             }
@@ -51,7 +63,7 @@ namespace FramePFX.Core.Editor {
                 return true;
             }
 
-            if (this.Layer == null || string.IsNullOrWhiteSpace(this.ImageResourceId)) {
+            if (this.Layer == null || string.IsNullOrWhiteSpace(this.ResourceId)) {
                 resource = null;
                 return false;
             }
@@ -60,27 +72,80 @@ namespace FramePFX.Core.Editor {
             // should be a function that runs to detect missing resource ids, and offer to replace them or just offline the clip
             // And eventually a "removed" event should be created
             ResourceManager manager = this.Layer.Timeline.Project.ResourceManager;
-            if (!manager.TryGetResource(this.ImageResourceId, out ResourceItem resItem) || !(resItem is T r)) {
-                this.IsResourceOffline = true;
+            if (!manager.TryGetResource(this.ResourceId, out ResourceItem resItem) || !(resItem is T item)) {
+                this.IsResourceOnline = false;
                 resource = default;
                 return false;
             }
 
-            this.cachedItem = resource = r;
+            this.cachedItem = resource = item;
+            item.DataModified += this.OnResourceModifiedInternal;
+            manager.ResourceRemoved += this.OnResourceRemovedInternal;
+            manager.ResourceRenamed += this.OnResourceRenamedInternal;
+            this.IsResourceOnline = true;
             return true;
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            if (data.TryGetString(nameof(this.ImageResourceId), out string id)) {
-                this.ImageResourceId = id;
+            if (data.TryGetString(nameof(this.ResourceId), out string id)) {
+                this.ResourceId = id;
             }
         }
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            if (!string.IsNullOrEmpty(this.ImageResourceId))
-                data.SetString(nameof(this.ImageResourceId), this.ImageResourceId);
+            if (!string.IsNullOrEmpty(this.ResourceId))
+                data.SetString(nameof(this.ResourceId), this.ResourceId);
+        }
+
+        private void OnResourceRemovedInternal(ResourceManager man, ResourceItem res) {
+            if (this.cachedItem != null && this.cachedItem == res) {
+                try {
+                    this.OnResourceRemoved(this.cachedItem);
+                }
+                finally {
+                    this.cachedItem = null;
+                    res.DataModified -= this.OnResourceModifiedInternal;
+                    man.ResourceRemoved -= this.OnResourceRemovedInternal;
+                }
+
+                this.IsResourceOnline = null;
+            }
+        }
+
+        private void OnResourceRenamedInternal(ResourceManager man, ResourceItem res, string a, string b) {
+            if (this.cachedItem != null && this.cachedItem == res) {
+                this.OnResourceRenamed(a, b);
+            }
+        }
+
+        private void OnResourceModifiedInternal(ResourceItem sender, string property) {
+            if (this.cachedItem == null) {
+                sender.DataModified -= this.OnResourceModifiedInternal;
+                Debug.WriteLine($"Warning! Item DataModified event was not removed: {sender.UniqueId}");
+            }
+            else if (sender != this.cachedItem) {
+                Debug.WriteLine($"Warning! Cached item and sender do not match: {this.cachedItem} != {sender} ({this.ResourceId} != {sender.UniqueId})");
+            }
+            else {
+                this.OnResourceModified(this.cachedItem, property);
+            }
+        }
+
+        protected virtual void OnResourceModified(T resource, string property) {
+            this.DataModified?.Invoke(this, resource, property);
+        }
+
+        protected virtual void OnResourceRemoved(T resource) {
+            Debug.WriteLine($"Resource removed: {resource.UniqueId}");
+            this.ResourceRemoved?.Invoke(this, resource);
+        }
+
+        protected virtual void OnResourceRenamed(string oldId, string newId) {
+            Debug.WriteLine($"Resource renamed: {oldId} -> {newId}");
+            this.ResourceId = newId;
+            this.ResourceRenamed?.Invoke(this, oldId, newId);
         }
     }
 }

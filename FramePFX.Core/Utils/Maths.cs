@@ -33,5 +33,9 @@ namespace FramePFX.Core.Utils {
         public static bool Equals(float a, float b, float tolerance = 0.001f) {
             return Math.Abs(a - b) < tolerance;
         }
+
+        public static bool IsOne(double value) => Math.Abs(value - 1.0) < 2.22044604925031E-15;
+
+        public static bool IsZero(double value) => Math.Abs(value) < 2.22044604925031E-15; // 0.00000000000000222044604925031
     }
 }

@@ -29,9 +29,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             set {
                 this.Model.Layer = value?.Model;
                 TimelineLayerViewModel oldLayer = this.layer;
-                this.OnLayerChanging(oldLayer, value);
                 this.RaisePropertyChanged(ref this.layer, value);
-                this.OnLayerChanging(oldLayer, value);
+                this.OnLayerChanged(oldLayer, value);
             }
         }
 
@@ -55,16 +54,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             });
         }
 
-        protected virtual void OnLayerChanging(TimelineLayerViewModel oldLayer, TimelineLayerViewModel newLayer) {
-            this.Model.OnLayerChanging(oldLayer?.Model, newLayer?.Model);
-        }
-
         protected virtual void OnLayerChanged(TimelineLayerViewModel oldLayer, TimelineLayerViewModel newLayer) {
             this.Model.OnLayerChanged(oldLayer?.Model, newLayer?.Model);
         }
 
         public void Dispose() {
-            using (ExceptionStack stack = new ExceptionStack("Exception disposing clip")) {
+            using (ExceptionStack stack = new ExceptionStack()) {
                 try {
                     this.DisposeCore(stack);
                 }

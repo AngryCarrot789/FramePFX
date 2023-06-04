@@ -40,25 +40,33 @@ namespace FramePFX.Core.Utils {
             this.useFirstException = useFirstException;
         }
 
+        /// <summary>
+        /// Creates an exception stack that is not pushed onto the global stack
+        /// </summary>
+        /// <param name="message">Message to use if an exception must be thrown and <see cref="ThrowOnDispose"/> is true. Ignored if <see cref="useFirstException"/> is true</param>
+        /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Dispose"/> is called</param>
+        /// <param name="useFirstException">Whether to use the first pushed exception as the main exception or to instead create one using <see cref="Message"/></param>
         public ExceptionStack(string message, bool throwOnDispose = true, bool useFirstException = false) : this(message, false, throwOnDispose, useFirstException) {
 
         }
 
+        /// <summary>
+        /// Creates an exception stack that uses the first exception pushed as the root/thrown exception when <see cref="Dispose"/> is
+        /// called. If <see cref="ThrowOnDispose"/> is false though, then no exception will be thrown on the dispose call
+        /// </summary>
+        /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Dispose"/> is called</param>
         public ExceptionStack(bool throwOnDispose = true) : this(null, false, throwOnDispose, true) {
 
         }
 
         /// <summary>
-        /// Pushes a new exception stack onto the current thread' stack
+        /// Pushes a new exception stack onto the current thread' global stack
         /// </summary>
         /// <param name="exceptionMessage">Optional exception message to use when throwing the final exception in <see cref="Dispose"/></param>
         /// <param name="throwOnDispose">Whenther to actually throw the final exception in <see cref="Dispose"/></param>
         /// <returns>The pushed stack</returns>
-        public static ExceptionStack Push(string exceptionMessage = null, bool throwOnDispose = true) {
-            ExceptionStack es = new ExceptionStack(exceptionMessage, true, false) {
-                ThrowOnDispose = throwOnDispose
-            };
-            
+        public static ExceptionStack CreateNew(string exceptionMessage = null, bool throwOnDispose = true) {
+            ExceptionStack es = new ExceptionStack(exceptionMessage, true, throwOnDispose, exceptionMessage == null);
             Stack<ExceptionStack> stack = ThreadStackStorage.Value;
 
             #if DEBUG
@@ -77,7 +85,7 @@ namespace FramePFX.Core.Utils {
         /// Pushes an exception onto the top of the current exception stack
         /// </summary>
         /// <param name="exception"></param>
-        public static void AddToCurrent(Exception exception) {
+        public static void PushCurrent(Exception exception) {
             ExceptionStack stack;
             try {
                 stack = ThreadStackStorage.Value.Peek();

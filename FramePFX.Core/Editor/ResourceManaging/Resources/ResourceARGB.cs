@@ -1,6 +1,6 @@
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.ResourceManaging.Resources {
+namespace FramePFX.Core.Editor.ResourceManaging.Resources {
     public class ResourceARGB : ResourceItem {
         public float R { get; set; }
         public float G { get; set; }

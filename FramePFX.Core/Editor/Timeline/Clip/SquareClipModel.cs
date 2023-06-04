@@ -1,6 +1,6 @@
 using System.Numerics;
+using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
-using FramePFX.Core.ResourceManaging.Resources;
 using FramePFX.Core.Utils;
 using SkiaSharp;
 
@@ -15,25 +15,37 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
 
         }
 
-        protected override void OnResourceStateChanged() {
-            base.OnResourceStateChanged();
+        protected override void OnResourceOnlineChanged() {
+            base.OnResourceOnlineChanged();
         }
 
         public override Vector2 GetSize() {
             return new Vector2(this.Width, this.Height);
         }
 
-        public override void Render(RenderContext ctx, long frame) {
+        public override void Render(RenderContext render, long frame) {
             if (!this.TryGetResource(out ResourceARGB c)) {
                 return;
             }
 
-            this.Transform(ctx.Canvas, out Rect rect, out SKMatrix oldMatrix);
-            ctx.Canvas.DrawRect(rect.X1, rect.Y1, rect.Width, rect.Height, new SKPaint() {
+            this.Transform(render.Canvas, out Rect rect, out SKMatrix oldMatrix);
+            render.Canvas.DrawRect(rect.X1, rect.Y1, rect.Width, rect.Height, new SKPaint() {
                 Color = new SKColor(c.ByteR, c.ByteG, c.ByteB, c.ByteA)
             });
 
-            ctx.Canvas.SetMatrix(oldMatrix);
+            render.Canvas.SetMatrix(oldMatrix);
+        }
+
+        protected override void OnResourceModified(ResourceARGB resource, string property) {
+            base.OnResourceModified(resource, property);
+            switch (property) {
+                case nameof(resource.A):
+                case nameof(resource.R):
+                case nameof(resource.G):
+                case nameof(resource.B):
+                    this.OnRenderInvalidated();
+                    break;
+            }
         }
     }
 }

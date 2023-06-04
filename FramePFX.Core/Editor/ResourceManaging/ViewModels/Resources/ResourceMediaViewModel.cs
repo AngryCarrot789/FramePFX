@@ -1,6 +1,6 @@
-using FramePFX.Core.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.Resources;
 
-namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
     public class ResourceMediaViewModel : ResourceItemViewModel {
         public new ResourceMedia Model => (ResourceMedia) base.Model;
 
@@ -9,7 +9,6 @@ namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.FilePath = value;
                 this.RaisePropertyChanged();
-                this.Model.OnModified?.Invoke(this.Model, nameof(this.Model.FilePath));
             }
         }
 

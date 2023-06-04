@@ -13,7 +13,7 @@ using FramePFX.Core.Utils;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Controls {
-    public class FreeMoveViewPort : Decorator {
+    public class FreeMoveViewPortV2 : Border {
         private static readonly object ZeroDoubleObject = 0d;
         private static readonly object DefaultMinZoomObject = 0.1d;
         private static readonly object DefaultZoomObject = 1d;
@@ -21,58 +21,59 @@ namespace FramePFX.Controls {
 
         #region Dependency Properties
 
-        public static readonly DependencyProperty BackgroundProperty =
-            DependencyProperty.Register(
-                "Background",
-                typeof(Brush),
-                typeof(FreeMoveViewPort),
-                new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender));
-
         public static readonly DependencyProperty MinimumZoomScaleProperty =
             DependencyProperty.Register(
                 "MinimumZoomScale",
                 typeof(double),
-                typeof(FreeMoveViewPort),
+                typeof(FreeMoveViewPortV2),
                 new FrameworkPropertyMetadata(
                     DefaultMinZoomObject,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    (d, e) => OnMinimumZoomChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
+                    (d, e) => OnMinimumZoomChanged((FreeMoveViewPortV2) d, (double) e.OldValue, (double) e.NewValue),
                     CoerceMinimumZoom));
 
         public static readonly DependencyProperty MaximumZoomScaleProperty =
             DependencyProperty.Register(
                 "MaximumZoomScale",
                 typeof(double),
-                typeof(FreeMoveViewPort),
+                typeof(FreeMoveViewPortV2),
                 new FrameworkPropertyMetadata(
                     DefaultMaxZoomObject,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    (d, e) => OnMaximumZoomChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
+                    (d, e) => OnMaximumZoomChanged((FreeMoveViewPortV2) d, (double) e.OldValue, (double) e.NewValue),
                     CoerceMaximumZoom));
 
         public static readonly DependencyProperty ZoomScaleProperty = DependencyProperty.Register(
             "ZoomScale",
             typeof(double),
-            typeof(FreeMoveViewPort),
+            typeof(FreeMoveViewPortV2),
             new FrameworkPropertyMetadata(
                 DefaultZoomObject,
                 FrameworkPropertyMetadataOptions.AffectsMeasure,
-                (d, e) => OnZoomChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
+                (d, e) => OnZoomChanged((FreeMoveViewPortV2) d, (double) e.OldValue, (double) e.NewValue),
                 CoerceZoom));
 
         public static readonly DependencyProperty HorizontalOffsetProperty =
             DependencyProperty.Register(
                 "HorizontalOffset",
                 typeof(double),
-                typeof(FreeMoveViewPort),
-                new FrameworkPropertyMetadata(ZeroDoubleObject, FrameworkPropertyMetadataOptions.AffectsMeasure));
+                typeof(FreeMoveViewPortV2),
+                new FrameworkPropertyMetadata(
+                    ZeroDoubleObject,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure,
+                    (d, e) => OnHorizontalOffsetChanged((FreeMoveViewPortV2) d, (double) e.OldValue, (double) e.NewValue),
+                    CoerceHorizontalOffset));
 
         public static readonly DependencyProperty VerticalOffsetProperty =
             DependencyProperty.Register(
                 "VerticalOffset",
                 typeof(double),
-                typeof(FreeMoveViewPort),
-                new FrameworkPropertyMetadata(ZeroDoubleObject, FrameworkPropertyMetadataOptions.AffectsMeasure));
+                typeof(FreeMoveViewPortV2),
+                new FrameworkPropertyMetadata(
+                    ZeroDoubleObject,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure,
+                    (d, e) => OnVerticalOffsetChanged((FreeMoveViewPortV2) d, (double) e.OldValue, (double) e.NewValue),
+                    CoerceVerticalOffset));
 
         #endregion
 
@@ -155,9 +156,10 @@ namespace FramePFX.Controls {
             }
         }
 
-        public FreeMoveViewPort() {
+        public FreeMoveViewPortV2() {
             this.Loaded += this.OnLoaded;
             this.PreviewMouseWheel += this.OnPreviewMouseWheel;
+            this.Background = Brushes.Transparent;
         }
 
         private void OnMinimumZoomChanged(double oldValue, double newValue) {
@@ -172,22 +174,65 @@ namespace FramePFX.Controls {
 
         }
 
+        private void OnHorizontalOffsetChanged(double oldValue, double newValue) {
+
+        }
+
+        private void OnVerticalOffsetChanged(double oldValue, double newValue) {
+
+        }
+
         private void OnLoaded(object sender, RoutedEventArgs e) {
+            // UIElement child = this.InternalChild;
+            // if (child == null) {
+            //     return;
+            // }
+            // Size size = child.DesiredSize;
+            // double scale = this.ZoomScale;
+            // Size mySize = this.DesiredSize;
+            // double cX = (mySize.Width / 2d) - (size.Width / 2d);
+            // double cY = (mySize.Height / 2d) - (size.Height / 2d);
+            // this.HorizontalOffset = cX / scale;
+            // this.VerticalOffset = cY / scale;
+            this.FitContentToCenter();
+        }
+
+        public void FitContentToCenter() {
             UIElement child = this.InternalChild;
             if (child == null) {
                 return;
             }
 
-            Size size = child.DesiredSize;
-            double scale = this.ZoomScale;
+            this.HorizontalOffset = 0;
+            this.VerticalOffset = 0;
 
-            Size mySize = this.DesiredSize;
+            Size size = this.DesiredSize;
+            Size childSize = child.DesiredSize;
+            if (childSize.Width < childSize.Height) {
+                this.ZoomScale = size.Height / childSize.Height;
+            }
+            else if (childSize.Width > 0) {
+                this.ZoomScale = size.Width / childSize.Width;
+            }
+        }
 
-            double cX = (mySize.Width / 2d) - (size.Width / 2d);
-            double cY = (mySize.Height / 2d) - (size.Height / 2d);
+        public void FitContentToCenter(bool vertical) {
+            UIElement child = this.InternalChild;
+            if (child == null) {
+                return;
+            }
 
-            this.HorizontalOffset = cX / scale;
-            this.VerticalOffset = cY / scale;
+            this.HorizontalOffset = 0;
+            this.VerticalOffset = 0;
+
+            Size size = this.DesiredSize;
+            Size childSize = child.DesiredSize;
+            if (vertical) {
+                this.ZoomScale = size.Height / childSize.Height;
+            }
+            else {
+                this.ZoomScale = size.Width / childSize.Width;
+            }
         }
 
         private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e) {
@@ -196,87 +241,100 @@ namespace FramePFX.Controls {
                 return;
             }
 
-            if ((modifiers & (ModifierKeys.Alt | ModifierKeys.Control)) != 0) { // zoom in or out
-                double change = e.Delta / 120d;
-                if ((modifiers & ModifierKeys.Alt) != 0) {
-                    change *= 0.5d;
-                }
-
-                double oldZoom = this.ZoomScale;
-                this.ZoomScale = oldZoom + change;
-                double newZoom = this.ZoomScale;
-                if (Maths.Equals(oldZoom, newZoom)) {
-                    return; // hit the minimum or maximum zoom
-                }
-
-                Point mouse = e.GetPosition(this);
-
-                double offsetX = this.HorizontalOffset;
-                double offsetY = this.VerticalOffset;
-
+            if ((modifiers & (ModifierKeys.Alt | ModifierKeys.Control)) != 0) {
+                // zoom in or out
+                // I spent so much time trying to get this working myself but could never figure it out,
+                // but this post worked first try. Smh my head. I changed a few things, like flipping zoom
+                // https://gamedev.stackexchange.com/a/182177/160952
                 Size size = this.DesiredSize;
-                offsetX += ((size.Width / 2d) - mouse.X);
-                offsetY += ((size.Height / 2d) - mouse.Y);
+                double oldzoom = this.ZoomScale;
+                double newzoom = oldzoom * (e.Delta > 0 ? 1.1 : 0.9);
+                this.ZoomScale = newzoom;
+                newzoom = this.ZoomScale;
 
-                this.Dispatcher.Invoke(() => {
-                    this.HorizontalOffset = offsetX * this.ZoomScale;
-                    this.VerticalOffset = offsetY * this.ZoomScale;
-                }, DispatcherPriority.Background);
+                // size.Width *= newzoom;
+                // size.Height *= newzoom;
+                // Point pos = e.GetPosition(this);
+                // double pixels_difference_w = (size.Width / oldzoom) - (size.Width / newzoom);
+                // double side_ratio_x = (pos.X - (size.Width / 2)) / size.Width;
+                // this.HorizontalOffset -= pixels_difference_w * side_ratio_x;
+                // double pixels_difference_h = (size.Height / oldzoom) - (size.Height / newzoom);
+                // double side_ratio_h = (pos.Y - (size.Height / 2)) / size.Height;
+                // this.VerticalOffset -= pixels_difference_h * side_ratio_h;
             }
             else if ((modifiers & ModifierKeys.Shift) != 0) { // horizontally offset
-                this.HorizontalOffset += e.Delta / 12d;
+                this.HorizontalOffset += (e.Delta / 120d) * (1d / this.ZoomScale) * 20d;
             }
             else { // vertically offset
-                this.VerticalOffset += e.Delta / 12d;
+                this.VerticalOffset += (e.Delta / 120d) * (1d / this.ZoomScale) * 20d;
             }
 
             e.Handled = true;
         }
 
+        private Point lastMousePoint = new Point();
+
+        protected override void OnMouseEnter(MouseEventArgs e) {
+            base.OnMouseEnter(e);
+            this.lastMousePoint = e.GetPosition(this);
+        }
+
+        protected override void OnPreviewMouseMove(MouseEventArgs e) {
+            base.OnPreviewMouseMove(e);
+            Point position = e.GetPosition(this);
+            if (e.MiddleButton == MouseButtonState.Pressed) {
+                if (!this.IsMouseCaptured) {
+                    this.CaptureMouse();
+                }
+
+                Vector change = position - this.lastMousePoint;
+                this.HorizontalOffset += change.X / this.ZoomScale;
+                this.VerticalOffset += change.Y / this.ZoomScale;
+            }
+            else {
+                this.ReleaseMouseCapture();
+            }
+
+            this.lastMousePoint = position;
+        }
+
         #region Measure and Arrangement
 
         protected override Size MeasureOverride(Size constraint) {
+            // return base.MeasureOverride(constraint);
             UIElement child = this.InternalChild;
-            Size availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
+            Size size = new Size();
             if (child != null) {
+                Size availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
                 child.Measure(availableSize);
+                Size desiredSize = child.DesiredSize;
+                size.Width = desiredSize.Width * this.ZoomScale;
+                size.Height = desiredSize.Height * this.ZoomScale;
             }
-            return availableSize;
+
+            return size;
         }
 
         protected override Size ArrangeOverride(Size arrangeSize) {
             UIElement child = this.InternalChild;
             if (child != null) {
-                double scale = this.ZoomScale;
-                double x = this.HorizontalOffset;
-                double y = this.VerticalOffset;
-                this.InternalTransform = new ScaleTransform(scale, scale);
-                child.Arrange(new Rect(new Point(x, y), child.DesiredSize));
+                Size desired = child.DesiredSize;
+                double left = (arrangeSize.Width - desired.Width) / 2;
+                double top = (arrangeSize.Height - desired.Height) / 2;
+
+                left += this.HorizontalOffset;
+                top += this.VerticalOffset;
+
+                TransformGroup group = new TransformGroup();
+                group.Children.Add(new ScaleTransform(this.ZoomScale, this.ZoomScale, arrangeSize.Width / 2d, arrangeSize.Height / 2d));
+                // group.Children.Add(new TranslateTransform(left, top));
+                // this.InternalTransform = new ScaleTransform(this.ZoomScale, this.ZoomScale, arrangeSize.Width / 2d, arrangeSize.Height / 2d);
+                this.InternalTransform = group;
+
+                child.Arrange(new Rect(new Point(left, top), desired));
             }
 
             return arrangeSize;
-        }
-
-        public static Size ComputeScaleFactor(Size availableSize, Size contentSize) {
-            bool isWidthPositiveInfinite = double.IsPositiveInfinity(availableSize.Width);
-            bool isHeightPositiveInfinite = double.IsPositiveInfinity(availableSize.Height);
-            if (isWidthPositiveInfinite && isHeightPositiveInfinite) {
-                return new Size(1, 1);
-            }
-
-            double width = Maths.IsZero(contentSize.Width) ? 0.0 : availableSize.Width / contentSize.Width;
-            double height = Maths.IsZero(contentSize.Height) ? 0.0 : availableSize.Height / contentSize.Height;
-            if (isWidthPositiveInfinite) {
-                width = height;
-            }
-            else if (isHeightPositiveInfinite) {
-                height = width;
-            }
-            else {
-                width = height = (width < height ? width : height);
-            }
-
-            return new Size(width, height);
         }
 
         #endregion
@@ -314,75 +372,37 @@ namespace FramePFX.Controls {
             return scale > (double) max ? max : value;
         }
 
-        private static void OnMinimumZoomChanged(FreeMoveViewPort port, double oldValue, double newValue) {
+        private static object CoerceHorizontalOffset(DependencyObject port, object value) {
+            return value;
+        }
+
+        private static object CoerceVerticalOffset(DependencyObject port, object value) {
+            return value;
+        }
+
+        private static void OnMinimumZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.CoerceValue(MaximumZoomScaleProperty);
             port.CoerceValue(ZoomScaleProperty);
             port.OnMinimumZoomChanged(oldValue, newValue);
         }
 
-        private static void OnMaximumZoomChanged(FreeMoveViewPort port, double oldValue, double newValue) {
+        private static void OnMaximumZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.CoerceValue(ZoomScaleProperty);
             port.OnMaximumZoomChanged(oldValue, newValue);
         }
 
-        private static void OnZoomChanged(FreeMoveViewPort port, double oldValue, double newValue) {
+        private static void OnZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.OnZoomChanged(oldValue, newValue);
         }
 
-        #endregion
-
-        protected override void OnRender(DrawingContext dc) {
-            base.OnRender(dc);
-            dc.DrawRectangle(this.Background, null, new Rect(this.DesiredSize));
+        private static void OnHorizontalOffsetChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
+            port.OnHorizontalOffsetChanged(oldValue, newValue);
         }
 
-            /*
-            UIElement child = this.InternalChild;
-            if (child != null) {
-                double scale = this.ZoomScale;
-                Size childSize = child.DesiredSize;
-                Size selfSize = this.DesiredSize;
-                TransformGroup group = new TransformGroup();
+        private static void OnVerticalOffsetChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
+            port.OnVerticalOffsetChanged(oldValue, newValue);
+        }
 
-                double x = this.HorizontalOffset;
-                double y = this.VerticalOffset;
-
-                arrangeSize.Width = scale * childSize.Width;
-                arrangeSize.Height = scale * childSize.Height;
-
-                if (selfSize.Width < arrangeSize.Width) {
-                    double diff = (arrangeSize.Width - selfSize.Width) / 2d;
-                    x -= diff / scale;
-                }
-
-                if (selfSize.Height < arrangeSize.Height) {
-                    double diff = (arrangeSize.Height - selfSize.Height) / 2d;
-                    y -= diff / scale;
-                }
-
-                group.Children.Add(new TranslateTransform(x, y));
-                group.Children.Add(new ScaleTransform(scale, scale));
-                this.InternalTransform = group;
-                child.Arrange(new Rect(new Point(), child.DesiredSize));
-            }
-            return arrangeSize;
-            */
-
-            /*
-            UIElement child = this.InternalChild;
-            if (child != null) {
-                double scale = this.ZoomScale;
-                Size childSize = child.DesiredSize;
-                TransformGroup group = new TransformGroup();
-                double x = this.HorizontalOffset;
-                double y = this.VerticalOffset;
-                arrangeSize.Width = scale * childSize.Width;
-                arrangeSize.Height = scale * childSize.Height;
-                group.Children.Add(new TranslateTransform(x, y));
-                group.Children.Add(new ScaleTransform(scale, scale));
-                this.InternalTransform = group;
-                child.Arrange(new Rect(new Point(), child.DesiredSize));
-            }
-            */
+        #endregion
     }
 }

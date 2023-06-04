@@ -1,12 +1,13 @@
 using System;
+using System.Runtime.CompilerServices;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.ResourceManaging {
+namespace FramePFX.Core.Editor.ResourceManaging {
     public abstract class ResourceItem : IRBESerialisable, IDisposable {
         public delegate void ResourceModifiedEventHandler(ResourceItem sender, string property);
 
-        public string TypeId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
+        public string RegistryId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         /// <summary>
         /// This resource item's unique identifier
@@ -17,28 +18,34 @@ namespace FramePFX.Core.ResourceManaging {
 
         public ResourceManager Manager { get; }
 
-        public ResourceModifiedEventHandler OnModified;
+        public event ResourceModifiedEventHandler DataModified;
 
         protected ResourceItem(ResourceManager manager) {
             this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
         }
 
         public virtual void WriteToRBE(RBEDictionary data) {
-            if (!(this.TypeId is string id))
+            if (!(this.RegistryId is string id))
                 throw new Exception($"Model Type is not registered: {this.GetType()}");
-            data.SetString(nameof(this.TypeId), id);
+            data.SetString(nameof(this.RegistryId), id);
         }
 
         public virtual void ReadFromRBE(RBEDictionary data) {
-            string typeId = this.TypeId;
-            if (!data.TryGetString(nameof(this.TypeId), out string id) || id != typeId) {
-                if (typeId == null) {
+            string registryId = this.RegistryId;
+            if (!data.TryGetString(nameof(this.RegistryId), out string id) || id != registryId) {
+                if (registryId == null) {
                     throw new Exception($"Model Type is not registered: {this.GetType()}");
                 }
                 else {
-                    throw new Exception($"Model Type Id mis match. Data contained '{id}' but the registered type is {typeId}");
+                    throw new Exception($"Model Registry Id mis match. Data contained '{id}' but the registered type is {registryId}");
                 }
             }
+        }
+
+        public void RaiseDataModified([CallerMemberName] string propertyName = null) {
+            if (propertyName == null)
+                throw new ArgumentNullException(nameof(propertyName));
+            this.DataModified?.Invoke(this, propertyName);
         }
 
         /// <summary>

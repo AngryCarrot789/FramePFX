@@ -6,7 +6,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.ResourceManaging.Resources {
+namespace FramePFX.Core.Editor.ResourceManaging.Resources {
     public class ResourceImage : ResourceItem {
         public string FilePath { get; set; }
 

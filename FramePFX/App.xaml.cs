@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -7,8 +8,10 @@ using FFmpeg.AutoGen;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.ResourceManaging.Resources;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
@@ -119,7 +122,16 @@ namespace FramePFX {
             project.ResourceManager.AddResource("colour_green", new ResourceARGB(project.ResourceManager) {R = 0.05f, G = 0.9f, B = 0.05f });
             project.ResourceManager.AddResource("colour_blue", new ResourceARGB(project.ResourceManager) {R = 0.05f, G = 0.05f, B = 0.9f });
             project.Settings.Resolution = new Resolution(1920, 1080);
+
+            VideoLayerModel layer1 = new VideoLayerModel(project.Timeline);
+            VideoLayerModel layer2 = new VideoLayerModel(project.Timeline);
+            project.Timeline.Layers.Add(layer1);
+            project.Timeline.Layers.Add(layer2);
+            layer1.AddClip(new SquareClipModel() {MediaPosition = new Vector2(0, 0), Width = 200, Height = 200, FrameSpan = new ClipSpan(0, 120), ResourceId = "colour_red", DisplayName = "Clip colour_red"});
+            layer1.AddClip(new SquareClipModel() {MediaPosition = new Vector2(200, 200), Width = 200, Height = 200, FrameSpan = new ClipSpan(150, 30), ResourceId = "colour_green", DisplayName = "Clip colour_green"});
+            layer2.AddClip(new SquareClipModel() {MediaPosition = new Vector2(200, 0), Width = 300, Height = 540, FrameSpan = new ClipSpan(300, 90), ResourceId = "colour_blue", DisplayName = "Clip colour_blue"});
             await editor.LoadProjectAction(new ProjectViewModel(project));
+            editor.View.RenderViewPort(false);
         }
 
         protected override void OnExit(ExitEventArgs e) {

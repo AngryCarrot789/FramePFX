@@ -1,31 +1,47 @@
+using FramePFX.Core.Editor.ResourceManaging;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
-using FramePFX.Core.ResourceManaging;
-using FramePFX.Core.ResourceManaging.ViewModels;
 
 namespace FramePFX.Core.Editor.ViewModels {
     public class BaseResourceVideoClipViewModel<TModel, TViewModel> : VideoClipViewModel where TModel : ResourceItem where TViewModel : ResourceItemViewModel {
         public new BaseResourceVideoClip<TModel> Model => (BaseResourceVideoClip<TModel>) ((ClipViewModel) this).Model;
 
-        public string ImageResourceId {
-            get => this.Model.ImageResourceId;
+        public string ResourceId {
+            get => this.Model.ResourceId;
             set {
-                this.Model.ImageResourceId = value;
+                this.Model.ResourceId = value;
                 this.RaisePropertyChanged();
             }
         }
 
-        public bool IsOffline {
-            get => this.Model.IsResourceOffline;
-            set => this.Model.IsResourceOffline = value;
+        public bool? IsOnline {
+            get => this.Model.IsResourceOnline;
+            set => this.Model.IsResourceOnline = value;
         }
 
         public BaseResourceVideoClipViewModel(BaseResourceVideoClip<TModel> model) : base(model) {
-            model.ResourceStateChanged += this.OnResourceStateChanged;
+            model.ResourceOnlineChanged += this.OnResourceOnlineChanged;
+            model.ResourceRenamed += this.OnResourceRenamed;
+            model.DataModified += this.OnResourceModified;
+            model.ResourceRemoved += this.OnResourceRemoved;
         }
 
-        private void OnResourceStateChanged(object clip) { // ImageClipModel clip
-            this.RaisePropertyChanged(nameof(this.IsOffline));
+        private void OnResourceOnlineChanged(object clip) {
+            this.RaisePropertyChanged(nameof(this.IsOnline));
+        }
+
+        protected virtual void OnResourceRenamed(VideoClipModel clip, string oldid, string newid) {
+
+        }
+
+        protected virtual void OnResourceModified(VideoClipModel clip, TModel resource, string property) {
+
+        }
+
+        protected virtual void OnResourceRemoved(VideoClipModel clip, TModel resource) {
+
         }
     }
 }

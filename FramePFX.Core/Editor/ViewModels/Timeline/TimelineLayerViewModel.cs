@@ -4,11 +4,11 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
-using FramePFX.Core.ResourceManaging.Resources;
-using FramePFX.Core.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
@@ -84,9 +84,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public TimelineLayerModel Model { get; }
 
-        protected bool addToModelList;
-        protected bool removeFromModelList;
-
         protected TimelineLayerViewModel(TimelineViewModel timeline, TimelineLayerModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
@@ -105,41 +102,43 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
             });
 
-            this.addToModelList = this.removeFromModelList = false;
-            foreach (ClipModel clip in model.Clips)
-                this.CreateClip(clip);
-            this.addToModelList = this.removeFromModelList = true;
+            foreach (ClipModel clip in model.Clips) {
+                this.CreateClip(clip, false);
+            }
         }
 
-        protected void CreateClip(ClipModel model) {
-            this.AddClip(ClipRegistry.Instance.CreateViewModelFromModel(model));
+        protected ClipViewModel CreateClip(ClipModel model, bool addToModel = true) {
+            ClipViewModel vm = ClipRegistry.Instance.CreateViewModelFromModel(model);
+            this.AddClip(vm, addToModel);
+            return vm;
         }
 
-        protected void AddClip(ClipViewModel clip) {
+        public void AddClip(ClipViewModel clip, bool addToModel = true) {
             clip.Layer = this;
-            if (this.addToModelList)
+            if (addToModel)
                 this.Model.Clips.Add(clip.Model);
             this.clips.Add(clip);
         }
 
-        protected void AddClip(ClipViewModel clip, int index) {
+        public void AddClip(ClipViewModel clip, int index, bool addToModel = true) {
             clip.Layer = this;
-            if (this.addToModelList)
+            if (addToModel)
                 this.Model.Clips.Insert(index, clip.Model);
             this.clips.Insert(index, clip);
         }
 
-        protected void RemoveClip(ClipViewModel clip) {
+        public bool RemoveClip(ClipViewModel clip, bool removeFromModel = true) {
             int index = this.clips.IndexOf(clip);
             if (index < 0) {
-                return;
+                return false;
             }
 
-            this.RemoveClip(clip, index);
+            this.RemoveClip(clip, index, removeFromModel);
+            return true;
         }
 
-        protected void RemoveClip(ClipViewModel clip, int index) {
-            if (this.removeFromModelList)
+        public void RemoveClip(ClipViewModel clip, int index, bool removeFromModel = true) {
+            if (removeFromModel)
                 this.Model.Clips.RemoveAt(index);
             this.clips.RemoveAt(index);
             clip.Layer = null;
@@ -268,7 +267,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     FrameSpan = new ClipSpan(frameBegin, duration),
                     Width = 200, Height = 200,
                     DisplayName = argb.UniqueId,
-                    ImageResourceId = argb.UniqueId
+                    ResourceId = argb.UniqueId
                 };
 
                 this.CreateClip(clip);
@@ -277,7 +276,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 ImageClipModel clip = new ImageClipModel() {
                     FrameSpan = new ClipSpan(frameBegin, duration),
                     DisplayName = img.UniqueId,
-                    ImageResourceId = img.UniqueId
+                    ResourceId = img.UniqueId
                 };
 
                 this.CreateClip(clip);

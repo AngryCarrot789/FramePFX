@@ -162,10 +162,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.MediaScale = new Vector2(1f, 1f);
                 this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
             });
+
+            this.Model.RenderInvalidated += (x, s) => this.OnInvalidateRender(s);
         }
 
-        public virtual void OnInvalidateRender() {
-            this.Layer.Timeline.DoRender(true);
+        public virtual void OnInvalidateRender(bool schedule = true) {
+            this.Layer.Timeline.DoRender(schedule);
         }
     }
 }

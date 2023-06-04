@@ -2,6 +2,11 @@ using System;
 using System.Collections.Generic;
 
 namespace FramePFX.Core {
+    /// <summary>
+    /// A helper "registry" class, for mapping type of models to view models and the reverse, along with storing unique identifiers for a model-viewmodel entry
+    /// </summary>
+    /// <typeparam name="TModel"></typeparam>
+    /// <typeparam name="TViewModel"></typeparam>
     public class ModelRegistry<TModel, TViewModel> where TModel : class where TViewModel : BaseViewModel {
         private readonly Dictionary<string, Entry> IdToRegistry;
         private readonly Dictionary<Type, Entry> ViewModelToRegistry;
@@ -35,6 +40,19 @@ namespace FramePFX.Core {
 
         public Type GetViewModelType(string id) {
             return this.GetEntry(id).ViewModelType;
+        }
+
+        public bool GetEntry(string id, out Type modelType, out Type viewModelType) {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("ID cannot be null or empty", nameof(id));
+            if (this.IdToRegistry.TryGetValue(id, out Entry entry)) {
+                modelType = entry.ModelType;
+                viewModelType = entry.ViewModelType;
+                return true;
+            }
+
+            modelType = viewModelType = null;
+            return false;
         }
 
         public Type GetViewModelTypeFromModel(TModel model) {

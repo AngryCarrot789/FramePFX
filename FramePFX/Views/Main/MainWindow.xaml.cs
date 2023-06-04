@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -80,12 +81,19 @@ namespace FramePFX.Views.Main {
             }
         }
 
+        private volatile int isRenderScheduled;
+
         public void RenderViewPort(bool schedule) {
+            if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
+                return;
+            }
+
             if (schedule) {
                 this.Dispatcher.InvokeAsync(this.renderCallback);
             }
             else {
                 this.Dispatcher.Invoke(this.renderCallback);
+                this.isRenderScheduled = 0;
             }
         }
 
@@ -105,6 +113,7 @@ namespace FramePFX.Views.Main {
             context.Canvas.Save();
             project.Timeline.Model.Render(context);
             context.Canvas.Restore();
+            this.isRenderScheduled = 0;
         }
 
         protected override async Task<bool> OnClosingAsync() {
@@ -162,6 +171,10 @@ namespace FramePFX.Views.Main {
         private void FrameworkElement_OnRequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
             // Prevent the timeline scrolling when you select a clip
             e.Handled = true;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            this.VPViewBox.FitContentToCenter();
         }
     }
 }

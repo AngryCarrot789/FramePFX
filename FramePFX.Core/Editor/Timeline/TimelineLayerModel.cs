@@ -26,5 +26,21 @@ namespace FramePFX.Core.Editor.Timeline {
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {
             return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
         }
+
+        public void AddClip(ClipModel model) {
+            this.Clips.Add(model);
+            model.Layer = this;
+        }
+
+        public void RemoveClip(ClipModel model) {
+            this.Clips.Remove(model);
+            model.Layer = null;
+        }
+
+        public void RemoveClipAt(int index) {
+            ClipModel clip = this.Clips[index];
+            this.Clips.RemoveAt(index);
+            clip.Layer = null;
+        }
     }
 }

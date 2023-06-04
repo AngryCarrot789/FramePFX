@@ -22,11 +22,11 @@ namespace FramePFX.Core.Editor.Timeline {
             this.Render(render, this.PlayHead);
         }
 
-        public void Render(RenderContext render, long playhead) {
-            List<ClipModel> clips = this.GetClipsAtFrame(playhead).ToList();
+        public void Render(RenderContext render, long frame) {
+            List<ClipModel> clips = this.GetClipsAtFrame(frame).ToList();
             foreach (ClipModel layer in clips) {
                 if (layer is VideoClipModel vc) {
-                    vc.Render(render, playhead);
+                    vc.Render(render, frame);
                 }
             }
         }

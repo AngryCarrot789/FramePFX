@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.Core.ResourceManaging.ViewModels {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
     public abstract class ResourceItemViewModel : BaseViewModel, IDisposable {
         public ResourceItem Model { get; }
 

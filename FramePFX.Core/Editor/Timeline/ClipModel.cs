@@ -3,6 +3,8 @@ using FramePFX.Core.RBC;
 
 namespace FramePFX.Core.Editor.Timeline {
     public abstract class ClipModel : IRBESerialisable {
+        public delegate void RenderInvalidatedEventHandler(ClipModel clip, bool schedule = true);
+
         public TimelineLayerModel Layer { get; set; }
 
         public string DisplayName { get; set; }
@@ -13,6 +15,8 @@ namespace FramePFX.Core.Editor.Timeline {
         public bool IsBeingRemoved { get; set; }
 
         public string TypeId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
+
+        public event RenderInvalidatedEventHandler RenderInvalidated;
 
         protected ClipModel() {
 
@@ -42,12 +46,12 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public abstract bool IntersectsFrameAt(long frame);
 
-        public virtual void OnLayerChanging(TimelineLayerModel oldLayer, TimelineLayerModel newLayer) {
-
+        public virtual void OnLayerChanged(TimelineLayerModel oldLayer, TimelineLayerModel newLayer) {
+            this.Layer = newLayer;
         }
 
-        public virtual void OnLayerChanged(TimelineLayerModel oldLayer, TimelineLayerModel newLayer) {
-
+        protected virtual void OnRenderInvalidated() {
+            this.RenderInvalidated?.Invoke(this, true);
         }
     }
 }

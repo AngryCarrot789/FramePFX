@@ -8,23 +8,15 @@ using FramePFX.Core.Utils;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Controls {
-    public class FreeMoveViewPort : Decorator {
-        public static readonly DependencyProperty StretchProperty =
-            DependencyProperty.Register(
-                nameof(Stretch),
-                typeof(Stretch),
-                typeof(FreeMoveViewPort),
-                new FrameworkPropertyMetadata(Stretch.Uniform, FrameworkPropertyMetadataOptions.AffectsMeasure), ValidateStretchValue);
-
+    public class ViewBoxClone : Decorator {
         public static readonly DependencyProperty StretchDirectionProperty =
             DependencyProperty.Register(
                 nameof(StretchDirection),
                 typeof(StretchDirection),
-                typeof(FreeMoveViewPort),
+                typeof(ViewBoxClone),
                 new FrameworkPropertyMetadata(StretchDirection.Both, FrameworkPropertyMetadataOptions.AffectsMeasure), ValidateStretchDirectionValue);
 
         private ContainerVisual _internalVisual;
-
         private ContainerVisual InternalVisual {
             get {
                 if (this._internalVisual == null) {
@@ -72,17 +64,12 @@ namespace FramePFX.Controls {
 
         protected override IEnumerator LogicalChildren => (this.InternalChild == null ? new List<object>() : new List<object>() {this.InternalChild}).GetEnumerator();
 
-        public Stretch Stretch {
-            get => (Stretch) this.GetValue(StretchProperty);
-            set => this.SetValue(StretchProperty, value);
-        }
-
         public StretchDirection StretchDirection {
             get => (StretchDirection) this.GetValue(StretchDirectionProperty);
             set => this.SetValue(StretchDirectionProperty, value);
         }
 
-        public FreeMoveViewPort() {
+        public ViewBoxClone() {
         }
 
         protected override Visual GetVisualChild(int index) {
@@ -98,7 +85,7 @@ namespace FramePFX.Controls {
                 Size availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
                 internalChild.Measure(availableSize);
                 Size desiredSize = internalChild.DesiredSize;
-                Size scaleFactor = ComputeScaleFactor(constraint, desiredSize, this.Stretch, this.StretchDirection);
+                Size scaleFactor = ComputeScaleFactor(constraint, desiredSize, this.StretchDirection);
                 size.Width = scaleFactor.Width * desiredSize.Width;
                 size.Height = scaleFactor.Height * desiredSize.Height;
             }
@@ -110,7 +97,7 @@ namespace FramePFX.Controls {
             UIElement internalChild = this.InternalChild;
             if (internalChild != null) {
                 Size desiredSize = internalChild.DesiredSize;
-                Size scaleFactor = ComputeScaleFactor(arrangeSize, desiredSize, this.Stretch, this.StretchDirection);
+                Size scaleFactor = ComputeScaleFactor(arrangeSize, desiredSize, this.StretchDirection);
                 this.InternalTransform = new ScaleTransform(scaleFactor.Width, scaleFactor.Height);
                 internalChild.Arrange(new Rect(new Point(), internalChild.DesiredSize));
                 arrangeSize.Width = scaleFactor.Width * desiredSize.Width;
@@ -120,26 +107,24 @@ namespace FramePFX.Controls {
             return arrangeSize;
         }
 
-        internal static Size ComputeScaleFactor(Size availableSize, Size contentSize, Stretch stretch, StretchDirection stretchDirection) {
-            bool isWidthFinite = !double.IsPositiveInfinity(availableSize.Width);
-            bool isHeightFinite = !double.IsPositiveInfinity(availableSize.Height);
-            if ((stretch != Stretch.Uniform && stretch != Stretch.UniformToFill && stretch != Stretch.Fill) || !(isWidthFinite | isHeightFinite)) {
+        public static Size ComputeScaleFactor(Size availableSize, Size contentSize, StretchDirection stretchDirection) {
+            bool isWidthPositiveInfinite = double.IsPositiveInfinity(availableSize.Width);
+            bool isHeightPositiveInfinite = double.IsPositiveInfinity(availableSize.Height);
+            if (isWidthPositiveInfinite && isHeightPositiveInfinite) {
                 return new Size(1, 1);
             }
 
             double width = Maths.Equals(contentSize.Width, 0) ? 0.0 : availableSize.Width / contentSize.Width;
             double height = Maths.Equals(contentSize.Height, 0) ? 0.0 : availableSize.Height / contentSize.Height;
-            if (!isWidthFinite) {
+            if (isWidthPositiveInfinite) {
                 width = height;
             }
-            else if (!isHeightFinite) {
+            else if (isHeightPositiveInfinite) {
                 height = width;
             }
             else {
-                switch (stretch) {
-                    case Stretch.Uniform:       width = height = (width < height ? width : height); break;
-                    case Stretch.UniformToFill: width = height = (width > height ? width : height); break;
-                }
+                double value = (width < height ? width : height);
+                width = height = value;
             }
 
             switch (stretchDirection) {
@@ -159,6 +144,7 @@ namespace FramePFX.Controls {
             }
 
             return new Size(width, height);
+
         }
 
         private static bool ValidateStretchValue(object value) {

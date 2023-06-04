@@ -127,6 +127,8 @@
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
+    <Compile Include="Controls\FreeMoveViewPortV2.cs" />
+    <Compile Include="Controls\ViewBoxClone.cs" />
     <Compile Include="Controls\Helpers\ActionControlHelper.cs" />
     <Compile Include="Controls\Helpers\AttachedInteractivity.cs" />
     <Compile Include="Controls\Helpers\GridLatchSplitter.cs" />

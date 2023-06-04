@@ -6,7 +6,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
-namespace FramePFX.Core.ResourceManaging.ViewModels {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
     public class ResourceManagerViewModel : BaseViewModel {
         public readonly InputValidator ResourceIdValidator;
 

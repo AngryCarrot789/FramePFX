@@ -90,7 +90,15 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             rect = new Rect(0, 0, size.X, size.Y);
         }
 
-        public abstract void Render(RenderContext ctx, long frame);
+        public void Transform(SKCanvas canvas, out Rect rect) {
+            Vector2 size = this.GetSize();
+            Vector2 scale = this.MediaScale, pos = this.MediaPosition, origin = this.MediaScaleOrigin;
+            canvas.Translate(pos.X, pos.Y);
+            canvas.Scale(scale.X, scale.Y, size.X * origin.X, size.Y * origin.Y);
+            rect = new Rect(0, 0, size.X, size.Y);
+        }
+
+        public abstract void Render(RenderContext render, long frame);
 
         public override bool IntersectsFrameAt(long frame) {
             long begin = this.FrameBegin;

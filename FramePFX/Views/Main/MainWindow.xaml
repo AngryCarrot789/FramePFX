@@ -17,6 +17,7 @@
             xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
             xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
             xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
+            xmlns:controls1="clr-namespace:FramePFX.Controls"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Title="Bootleg sony vegas (FramePFX, or Frame Pixel Frame X i guess... PixelFrame?)" Width="1408" Height="792"
@@ -62,11 +63,12 @@
                 <Grid Grid.Column="2" DataContext="{Binding Playback}">
                     <Border VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
-                            <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}" Margin="5,5,0,5"/>
-                            <Button Width="26" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="80,5,0,5">
+                            <Button Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="Button_Click"/>
+                            <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}" Margin="96,5,0,5"/>
+                            <Button Width="26" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="171,5,0,5">
                                 <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
                             </Button>
-                            <Button Width="26" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="111,5,0,5">
+                            <Button Width="26" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="202,5,0,5">
                                 <Grid Width="14" Height="16">
                                     <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
                                     <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
@@ -75,11 +77,11 @@
                             <Button Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>
-                    <Viewbox Margin="0,0,0,35">
+                    <controls1:FreeMoveViewPortV2 x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True">
                         <wpf:SKElement Width="{Binding Source={x:Static core:IoC.App}, Path=UserSettings.Width, FallbackValue=500}"
                                        Height="{Binding Source={x:Static core:IoC.App}, Path=UserSettings.Height, FallbackValue=500}"
                                        x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
-                    </Viewbox>
+                    </controls1:FreeMoveViewPortV2>
                 </Grid>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
@@ -110,6 +112,17 @@
                                         </DataTemplate>
                                     </ui:ResourceListControl.ItemTemplate>
                                 </ui:ResourceListControl>
+                                <!--
+                                <Grid Background="Black" HorizontalAlignment="Stretch">
+                                    <controls1:FreeMoveViewPortV2 x:Name="OK">
+                                        <Button Content="OK LOL" Width="100" Height="100" VerticalAlignment="Center"/>
+                                    </controls1:FreeMoveViewPortV2>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ElementName=OK, Path=HorizontalOffset, StringFormat='Horz = {0}'}"/>
+                                        <TextBlock Text="{Binding ElementName=OK, Path=VerticalOffset, StringFormat='Vert = {0}'}"/>
+                                    </StackPanel>
+                                </Grid>
+                                -->
                             </Grid>
                         </TabItem>
                         <TabItem Header="Clip Properties">

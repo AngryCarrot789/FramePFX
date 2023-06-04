@@ -1,11 +1,11 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using FramePFX.Core.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 
-namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
     public class ResourceImageViewModel : ResourceItemViewModel {
         public new ResourceImage Model => (ResourceImage) base.Model;
 
@@ -21,7 +21,6 @@ namespace FramePFX.Core.ResourceManaging.ViewModels.Resources {
                 this.Model.FilePath = value;
                 this.RaisePropertyChanged();
                 this.RequireImageReload = true; // just in case FilePath is bound to a text box or something
-                this.Model.OnModified?.Invoke(this.Model, nameof(this.Model.FilePath));
             }
         }
 

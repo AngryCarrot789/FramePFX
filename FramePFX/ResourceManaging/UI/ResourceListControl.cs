@@ -4,8 +4,8 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Interactivity;
-using FramePFX.Core.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.ResourceManaging.UI {

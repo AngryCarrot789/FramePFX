@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using FramePFX.Core.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
 namespace FramePFX.ResourceManaging.UI {
     public class ResourceItemControl : ContentControl, IResourceControl {

@@ -14,6 +14,6 @@
             <ColumnDefinition Width="*" SharedSizeGroup="SharedColumn1"/>
         </Grid.ColumnDefinitions>
         <TextBlock Text="Display Name" Padding="4" VerticalAlignment="Center"/>
-        <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" VerticalContentAlignment="Center" Padding="5,2"/>
+        <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" VerticalContentAlignment="Center" Padding="5,2" VerticalAlignment="Center" BorderThickness="0,0,0,1" Margin="5,2"/>
     </Grid>
 </UserControl>

@@ -172,7 +172,7 @@ namespace FramePFX.Core.RBC {
         /// Reads a ushort (as a length prefix) and then reads that many chars as a string
         /// </summary>
         /// <param name="reader"></param>
-        /// <returns></returns>
+        /// <returns>A string with more than 0 character, or null. This function does not return an empty string</returns>
         public static string ReadString(BinaryReader reader) {
             int length = reader.ReadUInt16();
             if (length < 1) {

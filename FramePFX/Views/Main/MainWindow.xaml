@@ -64,16 +64,19 @@
                     <Border VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
                             <Button Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="Button_Click"/>
-                            <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}" Margin="96,5,0,5"/>
-                            <Button Width="26" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="171,5,0,5">
-                                <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
-                            </Button>
-                            <Button Width="26" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="202,5,0,5">
-                                <Grid Width="14" Height="16">
-                                    <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
-                                    <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
-                                </Grid>
-                            </Button>
+                            <CheckBox IsChecked="{Binding ElementName=VPViewBox, Path=PanToCursorOnUserZoom}" Content="Zoom to cursor" Width="110" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"/>
+                            <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}"/>
+                                <Button Width="26" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="5,0,0,0">
+                                    <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                                </Button>
+                                <Button Width="26" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="5,0,0,0">
+                                    <Grid Width="14" Height="16">
+                                        <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                                        <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                                    </Grid>
+                                </Button>
+                            </StackPanel>
                             <Button Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>

@@ -25,13 +25,16 @@ namespace FramePFX.Editor.Timeline.Actions {
             }
 
             long frame = timeline.PlayHeadFrame;
-            List<VideoClipViewModel> selected = timeline.Layers.SelectMany(x => x.SelectedClips).OfType<VideoClipViewModel>().ToList();
-            selected.RemoveAll(x => !x.IntersectsFrameAt(frame));
+            List<ClipViewModel> selected = timeline.Layers.SelectMany(x => x.SelectedClips).ToList();
             if (selected.Count > 0) {
-                CutAllAtFrame(timeline, selected, frame);
+                foreach (ClipViewModel clip in (IEnumerable<ClipViewModel>) selected) {
+                    if (clip.IntersectsFrameAt(frame)) {
+                        await clip.Layer.SliceClipAction(clip, frame);
+                    }
+                }
             }
             else {
-                CutAllOnPlayHead(timeline);
+                await CutAllOnPlayHead(timeline);
             }
 
             return true;
@@ -42,34 +45,22 @@ namespace FramePFX.Editor.Timeline.Actions {
             return timeline == null ? Presentation.VisibleAndDisabled : base.GetPresentation(e);
         }
 
-        public static void CutAllOnPlayHead(TimelineViewModel timeline) {
+        public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {
             long frame = timeline.PlayHeadFrame;
-            List<VideoClipViewModel> list = new List<VideoClipViewModel>();
+            List<ClipViewModel> list = new List<ClipViewModel>();
             foreach (TimelineLayerViewModel layer in timeline.Layers) {
-                foreach (VideoClipViewModel clip in layer.Clips) {
-                    if (clip.IntersectsFrameAt(frame)) {
-                        list.Add(clip);
-                    }
-                }
+                list.AddRange(layer.Clips);
             }
 
             if (list.Count > 0) {
-                CutAllAtFrame(timeline, list, frame);
+                foreach (ClipViewModel clip in list) {
+                    if (clip.IntersectsFrameAt(frame)) {
+                        await clip.Layer.SliceClipAction(clip, frame);
+                    }
+                }
             }
         }
 
-        public static void CutAllAtFrame(TimelineViewModel timeline, IEnumerable<VideoClipViewModel> clips, long frame) {
-            foreach (VideoClipViewModel clip in clips) {
-                if (!clip.IntersectsFrameAt(frame)) { // shouldn't return false
-                    continue;
-                }
-
-                if (!(clip.Layer is VideoLayerViewModel videoLayerModel)) {
-                    continue;
-                }
-
-                videoLayerModel.SliceClip(clip, frame);
-            }
-        }
+        // Unsafe as in assuming the given frame intersects all of the clips
     }
 }

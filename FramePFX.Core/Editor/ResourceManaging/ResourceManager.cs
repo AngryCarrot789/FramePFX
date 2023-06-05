@@ -1,20 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FramePFX.Core.Editor.ResourceManaging.Events;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
     public class ResourceManager {
-        public delegate void ResourceEventHandler(ResourceManager manager, ResourceItem item);
-        public delegate void ResourceRenamedEventHandler(ResourceManager manager, ResourceItem item, string oldId, string newId);
-
+        private const string EmptyIdErrorMessage = "ID cannot be null, empty or consist of entirely whitespaces";
         private readonly Dictionary<string, ResourceItem> uuidToItem;
 
         public ProjectModel Project { get; }
 
         public IEnumerable<(string, ResourceItem)> Items => this.uuidToItem.Select(x => (x.Key, x.Value));
 
-        public event ResourceEventHandler ResourceAdded;
-        public event ResourceEventHandler ResourceRemoved;
+        public event ResourceItemEventHandler ResourceAdded;
+        public event ResourceItemEventHandler ResourceRemoved;
         public event ResourceRenamedEventHandler ResourceRenamed;
 
         public ResourceManager(ProjectModel project) {
@@ -25,7 +24,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public ResourceItem AddResource(string id, ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
-            ValidateId(id);
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             this.uuidToItem.TryGetValue(id, out ResourceItem oldItem);
             this.uuidToItem[id] = item;
             item.UniqueId = id;
@@ -35,7 +35,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         public ResourceItem RemoveItem(string id) {
             if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("ID cannot be null, empty or consist of entirely whitespaces", nameof(id));
+                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             if (this.uuidToItem.TryGetValue(id, out ResourceItem item)) {
                 if (item.UniqueId != id) {
                     throw new Exception($"Resource manager corrupt; mapped {id} to {item.GetType()} but the item's unique ID was {item.UniqueId}");
@@ -101,38 +101,28 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        public static void ValidateId(string id, string paramName = "id") {
-            if (string.IsNullOrWhiteSpace(id)) {
-                throw new ArgumentException("ID cannot be null, empty or consist of entirely whitespaces", paramName ?? "id");
-            }
-        }
-
         public ResourceItem GetResource(string id) {
             if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("ID cannot be null, empty or consist of entirely whitespaces", nameof(id));
+                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             return this.uuidToItem.TryGetValue(id, out ResourceItem item) ? item : null;
         }
 
         public bool TryGetResource(string id, out ResourceItem resource) {
             if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("ID cannot be null, empty or consist of entirely whitespaces", nameof(id));
+                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             return this.uuidToItem.TryGetValue(id, out resource);
         }
 
         public bool ResourceExists(string id) {
             if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("ID cannot be null, empty or consist of entirely whitespaces", nameof(id));
+                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             return this.uuidToItem.ContainsKey(id);
         }
 
         public bool ResourceExists(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
-            return this.ResourceExists(item.UniqueId);
-        }
-
-        public void AddHandler(string id, ResourceEventHandler handler) {
-            
+            return !string.IsNullOrWhiteSpace(item.UniqueId) && this.uuidToItem.ContainsKey(item.UniqueId);
         }
     }
 }

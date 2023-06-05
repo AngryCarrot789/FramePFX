@@ -1,3 +1,3 @@
 namespace FramePFX.Core.Editor.ResourceManaging.Events {
-    public delegate void ResourceEventHandler(ResourceManager manager, ResourceItem item);
+    public delegate void ResourceItemEventHandler(ResourceManager manager, ResourceItem item);
 }

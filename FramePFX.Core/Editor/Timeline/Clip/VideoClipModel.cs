@@ -56,15 +56,6 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
-            this.MediaPosition = data.GetStruct<Vector2>(nameof(this.MediaPosition));
-            this.MediaScale = data.GetStruct<Vector2>(nameof(this.MediaScale));
-            this.MediaScaleOrigin = data.GetStruct<Vector2>(nameof(this.MediaScaleOrigin));
-            this.FrameSpan = data.GetStruct<ClipSpan>(nameof(this.FrameSpan));
-        }
-
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
@@ -72,6 +63,15 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             data.SetStruct(nameof(this.MediaScale), this.MediaScale);
             data.SetStruct(nameof(this.MediaScaleOrigin), this.MediaScaleOrigin);
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
+            this.MediaPosition = data.GetStruct<Vector2>(nameof(this.MediaPosition));
+            this.MediaScale = data.GetStruct<Vector2>(nameof(this.MediaScale));
+            this.MediaScaleOrigin = data.GetStruct<Vector2>(nameof(this.MediaScaleOrigin));
+            this.FrameSpan = data.GetStruct<ClipSpan>(nameof(this.FrameSpan));
         }
 
         /// <summary>

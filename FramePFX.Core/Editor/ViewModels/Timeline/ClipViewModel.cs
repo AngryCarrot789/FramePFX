@@ -7,9 +7,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel {
-        private TimelineLayerViewModel layer;
-
+    public abstract class ClipViewModel : BaseViewModel, IDisposable {
         /// <summary>
         /// The clip's display/readable name, editable by a user
         /// </summary>
@@ -24,21 +22,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         /// <summary>
         /// The layer this clip is located in
         /// </summary>
-        public TimelineLayerViewModel Layer {
-            get => this.layer;
-            set {
-                this.Model.Layer = value?.Model;
-                TimelineLayerViewModel oldLayer = this.layer;
-                this.RaisePropertyChanged(ref this.layer, value);
-                this.OnLayerChanged(oldLayer, value);
-            }
-        }
+        public TimelineLayerViewModel Layer { get; private set; }
 
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
         public RelayCommand RemoveClipCommand { get; }
 
         public ClipModel Model { get; }
+
+        public bool IsDisposing { get; private set; }
 
         protected ClipViewModel(ClipModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -50,12 +42,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             });
 
             this.RemoveClipCommand = new RelayCommand(() => {
-                this.layer?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
+                this.Layer?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
             });
         }
 
-        protected virtual void OnLayerChanged(TimelineLayerViewModel oldLayer, TimelineLayerViewModel newLayer) {
-            this.Model.OnLayerChanged(oldLayer?.Model, newLayer?.Model);
+        public static void SetLayer(ClipViewModel viewModel, TimelineLayerViewModel layer, bool fireLayerChangedEvent = true) {
+            ClipModel.SetLayer(viewModel.Model, layer?.Model, fireLayerChangedEvent);
+            viewModel.Layer = layer;
         }
 
         public void Dispose() {
@@ -69,8 +62,23 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
-        protected virtual void DisposeCore(ExceptionStack stack) {
+        public virtual void OnBeginDispose() {
+            this.IsDisposing = true;
+        }
 
+        protected virtual void DisposeCore(ExceptionStack stack) {
+            if (this.Model is IDisposable disposable) {
+                try {
+                    disposable.Dispose();
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Exception disposing model", e));
+                }
+            }
+        }
+
+        public virtual void OnEndDispose() {
+            this.IsDisposing = false;
         }
 
         public bool IntersectsFrameAt(long frame) => this.Model.IntersectsFrameAt(frame);

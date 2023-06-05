@@ -189,8 +189,6 @@
     <Compile Include="Editor\Timeline\Utils\TimelineClipDragData.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Layer\Removals\VideoClipCut.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Layer\Removals\VideoClipRangeRemoval.cs" />
     <Compile Include="Highlighting\HighlightableString.cs" />
     <Compile Include="Highlighting\InlineHelper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />

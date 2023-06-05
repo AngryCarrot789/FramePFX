@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
@@ -109,39 +110,50 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         protected ClipViewModel CreateClip(ClipModel model, bool addToModel = true) {
             ClipViewModel vm = ClipRegistry.Instance.CreateViewModelFromModel(model);
-            this.AddClip(vm, addToModel);
+            this.AddClipToLayer(vm, addToModel);
             return vm;
         }
 
-        public void AddClip(ClipViewModel clip, bool addToModel = true) {
-            clip.Layer = this;
-            if (addToModel)
-                this.Model.Clips.Add(clip.Model);
-            this.clips.Add(clip);
-        }
-
-        public void AddClip(ClipViewModel clip, int index, bool addToModel = true) {
-            clip.Layer = this;
-            if (addToModel)
-                this.Model.Clips.Insert(index, clip.Model);
-            this.clips.Insert(index, clip);
-        }
-
-        public bool RemoveClip(ClipViewModel clip, bool removeFromModel = true) {
-            int index = this.clips.IndexOf(clip);
-            if (index < 0) {
-                return false;
+        public void RemoveClipFromLayer(int index, bool removeFromModel = true) {
+            ClipViewModel clip = this.clips[index];
+            if (!ReferenceEquals(this, clip.Layer)) {
+                throw new Exception($"Clip layer does not match the current instance: {clip.Layer} != {this}");
             }
 
-            this.RemoveClip(clip, index, removeFromModel);
-            return true;
+            using (ExceptionStack stack = new ExceptionStack()) {
+                if (removeFromModel) {
+                    this.Model.RemoveClipAt(index, false);
+                }
+
+                this.clips.RemoveAt(index);
+                ClipViewModel.SetLayer(clip, null);
+
+                try {
+                    clip.RaisePropertyChanged(nameof(clip.Layer));
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception($"Failed to raise clip's property changed event for layer", e));
+                }
+            }
         }
 
-        public void RemoveClip(ClipViewModel clip, int index, bool removeFromModel = true) {
-            if (removeFromModel)
-                this.Model.Clips.RemoveAt(index);
-            this.clips.RemoveAt(index);
-            clip.Layer = null;
+        public void AddClipToLayer(int index, ClipViewModel clip, bool addToModel = true) {
+            if (index < 0 || index > this.clips.Count) {
+                throw new IndexOutOfRangeException($"Index < 0 || Index > Count. Index = {index}, Count = {this.clips.Count}");
+            }
+
+            Validate.Exception(!ReferenceEquals(this, clip.Layer), "Attempted to add clip to a layer it was already in");
+            if (addToModel) {
+                this.Model.InsertClip(index, clip.Model, false);
+            }
+
+            this.clips.Insert(index, clip);
+            ClipViewModel.SetLayer(clip, this);
+            clip.RaisePropertyChanged(nameof(clip.Layer));
+        }
+
+        public void AddClipToLayer(ClipViewModel clip, bool addToModel = true) {
+            this.AddClipToLayer(this.clips.Count, clip, addToModel);
         }
 
         public Task RemoveSelectedClipsAction() {
@@ -178,6 +190,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                         continue;
                     }
 
+                    Validate.Exception(index < this.Model.Clips.Count, "Model-ViewModel list desynchronized");
+                    Validate.Exception(ReferenceEquals(clip.Model, this.Model.Clips[index]), "Model-ViewModel list desynchronized");
+                    this.RemoveClipFromLayer(index);
                     if (clip is IDisposable disposable) {
                         try {
                             disposable.Dispose();
@@ -186,20 +201,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                             stack.Push(new Exception($"Failed to dispose {clip.GetType()} properly", e));
                         }
                     }
-
-                    if (index >= this.Model.Clips.Count) {
-                        Debug.WriteLine($"Warning! {this.GetType()} and {this.Model.GetType()} clip list desynchronized; {this.clips.Count} != {this.Model.Clips.Count}");
-                        this.Model.Clips.Remove(clip.Model);
-                    }
-                    else if (clip.Model != this.Model.Clips[index]) {
-                        Debug.WriteLine($"Warning! {this.GetType()} and {this.Model.GetType()} clip list desynchronized; clip's mode != this layer's model's clip");
-                        this.Model.Clips.Remove(clip.Model);
-                    }
-                    else {
-                        this.Model.Clips.RemoveAt(index);
-                    }
-
-                    this.RemoveClip(clip, index);
                 }
             }
         }
@@ -217,16 +218,22 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         protected virtual void DisposeCore(ExceptionStack stack) {
             using (ExceptionStack innerStack = new ExceptionStack("Exception disposing a clip", false)) {
-                foreach (ClipViewModel clip in this.clips) {
+                for (int i = this.clips.Count - 1; i >= 0; i--) {
+                    ClipViewModel clip = this.clips[i];
+
+                    try {
+                        this.RemoveClipFromLayer(i);
+                    }
+                    catch (Exception e) {
+                        innerStack.Push(new Exception("Failed to remove clip from layer", e));
+                    }
+
                     try {
                         clip.Dispose();
                     }
                     catch (Exception e) {
-                        innerStack.Push(e);
+                        innerStack.Push(new Exception($"Failed to dispose clip: {clip}", e));
                     }
-
-                    clip.Model.Layer = null;
-                    clip.Layer = null;
                 }
 
                 this.clips.Clear();
@@ -249,10 +256,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
 
             this.clips.Move(index, endIndex);
-
-            ClipModel removedItem = this.Model.Clips[index];
-            this.Model.Clips.RemoveAt(index);
-            this.Model.Clips.Insert(endIndex, removedItem);
+            this.Model.Clips.MoveItem(index, endIndex);
         }
 
         public async Task OnVideoResourceDropped(ResourceItemViewModel resource, long frameBegin) {
@@ -262,23 +266,26 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 return;
             }
 
+            Validate.Exception(!string.IsNullOrEmpty(resource.Model.UniqueId), "Expected valid resource UniqueId");
+            Validate.Exception(resource.Model.IsRegistered, "Expected resource to be registered");
+
             if (resource.Model is ResourceARGB argb) {
                 SquareClipModel clip = new SquareClipModel() {
                     FrameSpan = new ClipSpan(frameBegin, duration),
                     Width = 200, Height = 200,
-                    DisplayName = argb.UniqueId,
-                    ResourceId = argb.UniqueId
+                    DisplayName = argb.UniqueId
                 };
 
+                clip.SetTargetResourceId(argb.UniqueId);
                 this.CreateClip(clip);
             }
             else if (resource.Model is ResourceImage img) {
                 ImageClipModel clip = new ImageClipModel() {
                     FrameSpan = new ClipSpan(frameBegin, duration),
-                    DisplayName = img.UniqueId,
-                    ResourceId = img.UniqueId
+                    DisplayName = img.UniqueId
                 };
 
+                clip.SetTargetResourceId(img.UniqueId);
                 this.CreateClip(clip);
             }
             // else if (resource.Model is ResourceMedia media) {
@@ -297,5 +304,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             //     }
             // }
         }
+
+        /// <summary>
+        /// Slices the given clip at the given frame. The given frame will always be above the clip's start frame and less than the clip's end frame; it is guaranteed to intersect
+        /// </summary>
+        /// <param name="clip"></param>
+        /// <param name="frame"></param>
+        /// <returns></returns>
+        public abstract Task SliceClipAction(ClipViewModel clip, long frame);
     }
 }

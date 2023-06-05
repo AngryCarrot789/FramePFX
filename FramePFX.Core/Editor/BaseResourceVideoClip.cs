@@ -4,10 +4,7 @@ using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.RBC;
 
 namespace FramePFX.Core.Editor {
-    /// <summary>
-    /// Base video clip class that uses a single resources
-    /// </summary>
-    /// <typeparam name="T">Resource type</typeparam>
+    // I don't use this class, but i'm keeping it anyway because why not
     public abstract class BaseResourceVideoClip<T> : VideoClipModel where T : ResourceItem {
         public delegate void ResourceStateChangedEventHandler(VideoClipModel sender);
         public delegate void ResourceIdChangedEventHandler(VideoClipModel clip, string oldId, string newId);

@@ -1,4 +1,5 @@
 using System.Numerics;
+using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Utils;
 
@@ -156,6 +157,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
 
         public RelayCommand ResetTransformationCommand { get; }
 
+        private readonly ClipModel.RenderInvalidatedEventHandler renderCallback;
+
         public VideoClipViewModel(VideoClipModel model) : base(model) {
             this.ResetTransformationCommand = new RelayCommand(() => {
                 this.MediaPosition = new Vector2(0f, 0f);
@@ -163,11 +166,17 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
             });
 
-            this.Model.RenderInvalidated += (x, s) => this.OnInvalidateRender(s);
+            this.renderCallback = (x, s) => this.OnInvalidateRender(s);
+            this.Model.RenderInvalidated += this.renderCallback;
         }
 
         public virtual void OnInvalidateRender(bool schedule = true) {
-            this.Layer.Timeline.DoRender(schedule);
+            this.Layer?.Timeline.DoRender(schedule);
+        }
+
+        protected override void DisposeCore(ExceptionStack stack) {
+            base.DisposeCore(stack);
+            this.Model.RenderInvalidated -= this.renderCallback;
         }
     }
 }

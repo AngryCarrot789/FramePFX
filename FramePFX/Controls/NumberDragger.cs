@@ -269,16 +269,32 @@ namespace FramePFX.Controls {
 
             if (this.IsDragging) {
                 this.Cursor = cursor;
-                this.PART_TextBlock.ClearValue(CursorProperty);
+                if (this.PART_TextBlock != null) {
+                    this.PART_TextBlock.ClearValue(CursorProperty);
+                }
+                else {
+                    Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
+                }
             }
             else {
                 if (this.IsEditingTextBox) {
-                    this.PART_TextBlock.ClearValue(CursorProperty);
+                    if (this.PART_TextBlock != null) {
+                        this.PART_TextBlock.ClearValue(CursorProperty);
+                    }
+                    else {
+                        Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
+                    }
+
                     this.ClearValue(CursorProperty);
                 }
                 else {
                     this.Cursor = cursor;
-                    this.PART_TextBlock.Cursor = cursor;
+                    if (this.PART_TextBlock != null) {
+                        this.PART_TextBlock.Cursor = cursor;
+                    }
+                    else {
+                        Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
+                    }
                 }
             }
         }

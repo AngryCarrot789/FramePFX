@@ -8,6 +8,7 @@ using FFmpeg.AutoGen;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.Timeline.Layers;
@@ -117,19 +118,64 @@ namespace FramePFX {
         }
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
+            // Demo project -- projects can be created as entirely models
+
             ProjectModel project = new ProjectModel();
-            project.ResourceManager.AddResource("colour_red", new ResourceARGB(project.ResourceManager) {R = 0.9f, G = 0.05f, B = 0.05f });
-            project.ResourceManager.AddResource("colour_green", new ResourceARGB(project.ResourceManager) {R = 0.05f, G = 0.9f, B = 0.05f });
-            project.ResourceManager.AddResource("colour_blue", new ResourceARGB(project.ResourceManager) {R = 0.05f, G = 0.05f, B = 0.9f });
             project.Settings.Resolution = new Resolution(1920, 1080);
 
-            VideoLayerModel layer1 = new VideoLayerModel(project.Timeline);
-            VideoLayerModel layer2 = new VideoLayerModel(project.Timeline);
-            project.Timeline.Layers.Add(layer1);
-            project.Timeline.Layers.Add(layer2);
-            layer1.AddClip(new SquareClipModel() {MediaPosition = new Vector2(0, 0), Width = 200, Height = 200, FrameSpan = new ClipSpan(0, 120), ResourceId = "colour_red", DisplayName = "Clip colour_red"});
-            layer1.AddClip(new SquareClipModel() {MediaPosition = new Vector2(200, 200), Width = 200, Height = 200, FrameSpan = new ClipSpan(150, 30), ResourceId = "colour_green", DisplayName = "Clip colour_green"});
-            layer2.AddClip(new SquareClipModel() {MediaPosition = new Vector2(200, 0), Width = 300, Height = 540, FrameSpan = new ClipSpan(300, 90), ResourceId = "colour_blue", DisplayName = "Clip colour_blue"});
+            {
+                ResourceManager manager = project.ResourceManager;
+                manager.AddResource("colour_red", new ResourceARGB(manager) {R = 0.9f, G = 0.1f, B = 0.1f});
+                manager.AddResource("colour_green", new ResourceARGB(manager) {R = 0.1f, G = 0.9f, B = 0.1f});
+                manager.AddResource("colour_blue", new ResourceARGB(manager) {R = 0.1f, G = 0.1f, B = 0.9f});
+            }
+
+            {
+                VideoLayerModel layer1 = new VideoLayerModel(project.Timeline);
+                project.Timeline.AddLayer(layer1);
+
+                SquareClipModel clip1 = new SquareClipModel {
+                    MediaPosition = new Vector2(0, 0),
+                    Width = 200, Height = 200,
+                    FrameSpan = new ClipSpan(0, 120),
+                    DisplayName = "Clip colour_red"
+                };
+                clip1.SetTargetResourceId("colour_red");
+                layer1.AddClip(clip1);
+
+                SquareClipModel clip2 = new SquareClipModel {
+                    MediaPosition = new Vector2(200, 200),
+                    Width = 200, Height = 200,
+                    FrameSpan = new ClipSpan(150, 30),
+                    DisplayName = "Clip colour_green"
+                };
+                clip2.SetTargetResourceId("colour_green");
+                layer1.AddClip(clip2);
+            }
+            {
+                VideoLayerModel layer2 = new VideoLayerModel(project.Timeline);
+                project.Timeline.AddLayer(layer2);
+
+                SquareClipModel clip1 = new SquareClipModel {
+                    MediaPosition = new Vector2(200, 400),
+                    Width = 400, Height = 400,
+                    FrameSpan = new ClipSpan(300, 90),
+                    DisplayName = "Clip colour_blue"
+                };
+
+                clip1.SetTargetResourceId("colour_blue");
+                layer2.AddClip(clip1);
+                SquareClipModel clip2 = new SquareClipModel {
+                    MediaPosition = new Vector2(400, 400),
+                    Width = 100, Height = 1000,
+                    FrameSpan = new ClipSpan(15, 25),
+                    DisplayName = "Clip colour_green"
+                };
+
+                clip2.SetTargetResourceId("colour_green");
+                layer2.AddClip(clip2);
+            }
+
             await editor.LoadProjectAction(new ProjectViewModel(project));
             editor.View.RenderViewPort(false);
         }

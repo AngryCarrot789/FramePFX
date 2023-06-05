@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Rendering;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline {
     public class TimelineModel {
@@ -16,6 +18,32 @@ namespace FramePFX.Core.Editor.Timeline {
         public TimelineModel(ProjectModel project) {
             this.Project = project;
             this.Layers = new List<TimelineLayerModel>();
+        }
+
+        public void AddLayer(TimelineLayerModel layer) {
+            Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
+            this.Layers.Add(layer);
+        }
+
+        public bool RemoveLayer(TimelineLayerModel layer) {
+            Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
+            int index = this.Layers.IndexOf(layer);
+            if (index < 0) {
+                return false;
+            }
+
+            this.Layers.RemoveAt(index);
+            return true;
+        }
+
+        public void RemoveLayer(int index) {
+            TimelineLayerModel layer = this.Layers[index];
+            Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
+            this.Layers.RemoveAt(index);
+        }
+
+        public void ClearLayers() {
+            this.Layers.Clear();
         }
 
         public void Render(RenderContext render) {

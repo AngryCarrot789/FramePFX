@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using FFmpeg.AutoGen;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline {
     public class TimelineLayerModel {
@@ -27,20 +30,31 @@ namespace FramePFX.Core.Editor.Timeline {
             return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
         }
 
-        public void AddClip(ClipModel model) {
-            this.Clips.Add(model);
-            model.Layer = this;
+        public void AddClip(ClipModel model, bool fireLayerChangedEvent = true) {
+            this.InsertClip(this.Clips.Count, model, fireLayerChangedEvent);
         }
 
-        public void RemoveClip(ClipModel model) {
-            this.Clips.Remove(model);
-            model.Layer = null;
+        public void InsertClip(int index, ClipModel model, bool fireLayerChangedEvent = true) {
+            this.Clips.Insert(index, model);
+            ClipModel.SetLayer(model, this, fireLayerChangedEvent);
         }
 
-        public void RemoveClipAt(int index) {
+        public bool RemoveClip(ClipModel model, bool fireLayerChangedEvent = true) {
+            Validate.Exception(ReferenceEquals(this, model.Layer), "Expected model (to remove)'s layer to equal this instance");
+            int index = this.Clips.IndexOf(model);
+            if (index < 0) {
+                return false;
+            }
+
+            this.RemoveClipAt(index, fireLayerChangedEvent);
+            return true;
+        }
+
+        public void RemoveClipAt(int index, bool fireLayerChangedEvent = true) {
             ClipModel clip = this.Clips[index];
+            Validate.Exception(ReferenceEquals(this, clip.Layer), "Expected model (to remove)'s layer to equal this instance");
             this.Clips.RemoveAt(index);
-            clip.Layer = null;
+            ClipModel.SetLayer(clip, null, fireLayerChangedEvent);
         }
     }
 }

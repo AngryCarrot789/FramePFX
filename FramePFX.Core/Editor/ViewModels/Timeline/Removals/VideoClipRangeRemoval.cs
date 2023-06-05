@@ -4,7 +4,7 @@ using System.Linq;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Editor.Timeline.ViewModels.Layer.Removals {
+namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
     public class VideoClipRangeRemoval {
         public List<VideoClipCut> ModifiedClips { get; }
 

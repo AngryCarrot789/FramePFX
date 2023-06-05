@@ -83,12 +83,12 @@ namespace FramePFX.Views.Main {
 
         private volatile int isRenderScheduled;
 
-        public void RenderViewPort(bool schedule) {
+        public void RenderViewPort(bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
 
-            if (schedule) {
+            if (scheduleRender) {
                 this.Dispatcher.InvokeAsync(this.renderCallback);
             }
             else {

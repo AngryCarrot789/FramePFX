@@ -98,16 +98,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public void AddLayer(VideoLayerViewModel layer, bool addToModel = true) {
             if (addToModel)
-                this.Model.Layers.Add(layer.Model);
+                this.Model.AddLayer(layer.Model);
             this.layers.Add(layer);
         }
 
-        public void OnPlayHeadMoved(long oldFrame, long newFrame, bool? enqueue) {
-            if (oldFrame == newFrame || !(enqueue is bool schedule)) {
+        public void OnPlayHeadMoved(long oldFrame, long newFrame, bool? scheduleRender) {
+            if (oldFrame == newFrame || !(scheduleRender is bool b)) {
                 return;
             }
 
-            this.Project.Editor.View.RenderViewPort(schedule);
+            this.Project.Editor.View.RenderViewPort(b);
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
@@ -174,7 +174,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     }
 
                     this.layers.Remove(item);
-                    this.Model.Layers.Remove(item.Model);
+                    this.Model.RemoveLayer(item.Model);
                 }
             }
         }
@@ -284,7 +284,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
 
                 this.layers.Clear();
-                this.Model.Layers.Clear();
+                this.Model.ClearLayers();
                 if (innerStack.TryGetException(out Exception ex)) {
                     stack.Push(ex);
                 }

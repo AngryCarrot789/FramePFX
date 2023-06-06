@@ -5,7 +5,7 @@ using FFmpeg.AutoGen;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline {
-    public class TimelineLayerModel {
+    public class LayerModel {
         public TimelineModel Timeline { get; }
 
         public List<ClipModel> Clips { get; }
@@ -17,7 +17,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public double Height { get; set; }
         public string LayerColour { get; set; }
 
-        public TimelineLayerModel(TimelineModel timeline) {
+        public LayerModel(TimelineModel timeline) {
             this.Timeline = timeline;
             this.Clips = new List<ClipModel>();
             this.MinHeight = 40;

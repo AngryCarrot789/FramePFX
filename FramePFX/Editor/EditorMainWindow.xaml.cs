@@ -19,12 +19,12 @@ namespace FramePFX.Views.Main {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : WindowEx, IVideoEditor {
+    public partial class EditorMainWindow : WindowEx, IVideoEditor {
         public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
 
         private readonly Action renderCallback;
 
-        public MainWindow() {
+        public EditorMainWindow() {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             IoC.BroadcastShortcutActivity = (x) => {
@@ -135,17 +135,17 @@ namespace FramePFX.Views.Main {
         }
 
         private void ThumbTop(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is TimelineLayerViewModel layer) {
+            if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
                 double layerHeight = layer.Height - e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
-                    if (layer.Timeline.GetPrevious(layer) is TimelineLayerViewModel behind1) {
+                    if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind1) {
                         double behindHeight = behind1.Height + e.VerticalChange;
                         if (behindHeight < behind1.MinHeight || behindHeight > behind1.MaxHeight)
                             return;
                         behind1.Height = behindHeight;
                     }
                 }
-                else if (layer.Timeline.GetPrevious(layer) is TimelineLayerViewModel behind2) {
+                else if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind2) {
                     double behindHeight = behind2.Height + e.VerticalChange;
                     if (behindHeight < behind2.MinHeight || behindHeight > behind2.MaxHeight) {
                         return;
@@ -158,7 +158,7 @@ namespace FramePFX.Views.Main {
         }
 
         private void ThumbBottom(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is TimelineLayerViewModel layer) {
+            if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
                 double layerHeight = layer.Height + e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
                     return;

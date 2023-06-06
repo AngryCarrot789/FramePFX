@@ -1,4 +1,4 @@
-﻿<v:WindowEx x:Class="FramePFX.Views.Main.MainWindow"
+﻿<v:WindowEx x:Class="FramePFX.Views.Main.EditorMainWindow"
             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -18,6 +18,7 @@
             xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
             xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
             xmlns:controls1="clr-namespace:FramePFX.Controls"
+            xmlns:rm="clr-namespace:FramePFX.Core.Editor.ResourceManaging;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Title="Bootleg sony vegas (FramePFX, or Frame Pixel Frame X i guess... PixelFrame?)" Width="1408" Height="792"
@@ -89,8 +90,8 @@
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
-                            <Grid>
-                                <ui:ResourceListControl FileDropNotifier="{Binding}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0">
+                            <Grid s:UIFocusGroup.FocusGroupPath="Application/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+                                <ui:ResourceListControl FileDropNotifier="{Binding}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0" helpers:SelectorHelper.SelectedItems="{Binding SelectedItems}" helpers:SelectorHelper.UpdateSelectedItemsOnChange="True">
                                     <ui:ResourceListControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -140,8 +141,13 @@
                             </Grid>
                             -->
 
-                            <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" CanContentScroll="False" helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+                                          VerticalScrollBarVisibility="Auto" CanContentScroll="False" 
+                                          helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True" 
+                                          Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}"
+                                          d:DataContext="{d:DesignInstance clips1:TextClipViewModel}">
                                 <ItemsControl x:Name="ClipPropertyPanelList" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                                    
                                 </ItemsControl>
                             </ScrollViewer>
 
@@ -262,7 +268,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
-                                                    <Grid d:DataContext="{d:DesignInstance timeline:TimelineLayerViewModel}">
+                                                    <Grid d:DataContext="{d:DesignInstance timeline:LayerViewModel}">
                                                         <Rectangle Fill="{Binding LayerColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                                         <Grid Margin="23,4,6,4">
                                                             <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
@@ -308,7 +314,7 @@
                                 </Style>
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.Resources>
-                                <DataTemplate DataType="{x:Type timeline:TimelineLayerViewModel}">
+                                <DataTemplate DataType="{x:Type timeline:LayerViewModel}">
                                     <Grid>
                                         <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                         <Slider VerticalAlignment="Center" Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" SmallChange="0.1" TickFrequency="0.1"/>
@@ -324,9 +330,6 @@
                                                   MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
                                                   Grid.RowSpan="2"
                                                   s:UIFocusGroup.FocusGroupPath="Application/Timeline/Surface">
-                            <UIElement.InputBindings>
-                                <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/Surface/DeleteSelectClips" Command="{Binding DeleteSelectedClipsCommand}"/>
-                            </UIElement.InputBindings>
                             <controls:TimelineControl.Style>
                                 <Style TargetType="{x:Type controls:TimelineControl}">
                                     <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone2.Background.Static}"/>
@@ -421,7 +424,7 @@
                                                                         <Grid>
                                                                             <TextBlock Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1">
                                                                                 <TextBlock.InputBindings>
-                                                                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding RenameCommand, Mode=OneTime}"/>
+                                                                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
                                                                                 </TextBlock.InputBindings>
                                                                             </TextBlock>
                                                                         </Grid>
@@ -442,6 +445,10 @@
                                                                 </Trigger>
                                                                 <Trigger Property="IsSelected" Value="False">
                                                                     <Setter TargetName="OutlineBorder" Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
+                                                                </Trigger>
+                                                                <Trigger Property="IsDroppableTargetOver" Value="True">
+                                                                    <Setter TargetName="OutlineBorder" Property="BorderBrush" Value="OrangeRed"/>
+                                                                    <Setter TargetName="OutlineBorder" Property="BorderThickness" Value="3"/>
                                                                 </Trigger>
                                                             </ControlTemplate.Triggers>
                                                         </ControlTemplate>

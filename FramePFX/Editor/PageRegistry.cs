@@ -6,7 +6,7 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Editor.Properties.Pages;
 
-namespace FramePFX.Editor.Properties {
+namespace FramePFX.Editor {
     public static class PropertyPageRegistry {
         private static readonly Dictionary<Type, Func<ClipViewModel, UserControl>> Map;
 

@@ -50,10 +50,16 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             set => this.FrameSpan = this.FrameSpan.SetEndIndex(value);
         }
 
+        public event ClipRenderInvalidatedEventHandler RenderInvalidated;
+
         protected VideoClipModel() {
             this.MediaPosition = new Vector2();
             this.MediaScale = new Vector2(1f, 1f);
             this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
+        }
+
+        public virtual void InvalidateRender(bool schedule = true) {
+            this.RenderInvalidated?.Invoke(this, schedule);
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -98,7 +104,7 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             rect = new Rect(0, 0, size.X, size.Y);
         }
 
-        public abstract void Render(RenderContext render, long frame);
+        public abstract void Render(RenderContext render, long frame, SKColorFilter alphaFilter);
 
         public override bool IntersectsFrameAt(long frame) {
             long begin = this.FrameBegin;

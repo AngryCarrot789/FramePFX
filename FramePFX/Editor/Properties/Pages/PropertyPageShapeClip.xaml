@@ -8,7 +8,7 @@
              xmlns:controls="clr-namespace:FramePFX.Controls"
              mc:Ignorable="d" 
              Height="32" d:DesignWidth="400"
-             d:DataContext="{d:DesignInstance clips:SquareClipViewModel}">
+             d:DataContext="{d:DesignInstance clips:ShapeClipViewModel}">
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>

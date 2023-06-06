@@ -9,6 +9,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.Text = value;
                 this.RaisePropertyChanged();
+                this.Model.RaiseDataModified(nameof(this.Model.Text));
             }
         }
 
@@ -17,6 +18,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.FontSize = value;
                 this.RaisePropertyChanged();
+                this.Model.RaiseDataModified(nameof(this.Model.FontSize));
             }
         }
 
@@ -25,6 +27,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.SkewX = value;
                 this.RaisePropertyChanged();
+                this.Model.RaiseDataModified(nameof(this.Model.SkewX));
             }
         }
 
@@ -33,6 +36,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.FontFamily = value;
                 this.RaisePropertyChanged();
+                this.Model.RaiseDataModified(nameof(this.Model.FontFamily));
             }
         }
 

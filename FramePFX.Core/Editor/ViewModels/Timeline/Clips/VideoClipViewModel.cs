@@ -31,7 +31,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaPositionX));
                 this.RaisePropertyChanged(nameof(this.MediaPositionY));
-                this.OnInvalidateRender();
+                this.Model.InvalidateRender();
             }
         }
 
@@ -55,7 +55,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleY));
-                this.OnInvalidateRender();
+                this.Model.InvalidateRender();
             }
         }
 
@@ -79,7 +79,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
-                this.OnInvalidateRender();
+                this.Model.InvalidateRender();
             }
         }
 
@@ -95,7 +95,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             set {
                 this.Model.MediaFrameOffset = value;
                 this.RaisePropertyChanged();
-                this.OnInvalidateRender();
+                this.Model.InvalidateRender();
             }
         }
 
@@ -121,7 +121,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged(nameof(this.FrameBegin));
                 this.RaisePropertyChanged(nameof(this.FrameDuration));
                 this.RaisePropertyChanged(nameof(this.FrameEndIndex));
-                this.OnInvalidateRender();
+                this.Model.InvalidateRender();
             }
         }
 
@@ -156,8 +156,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         }
 
         public RelayCommand ResetTransformationCommand { get; }
+        public RelayCommand ResetPositionCommand { get; }
+        public RelayCommand ResetScaleCommand { get; }
+        public RelayCommand ResetScaleOriginCommand { get; }
 
-        private readonly ClipModel.RenderInvalidatedEventHandler renderCallback;
+        private readonly ClipRenderInvalidatedEventHandler renderCallback;
 
         public VideoClipViewModel(VideoClipModel model) : base(model) {
             this.ResetTransformationCommand = new RelayCommand(() => {
@@ -165,6 +168,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.MediaScale = new Vector2(1f, 1f);
                 this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
             });
+
+            this.ResetPositionCommand = new RelayCommand(() => this.MediaPosition = new Vector2(0f, 0f));
+            this.ResetScaleCommand = new RelayCommand(() => this.MediaScale = new Vector2(1f, 1f));
+            this.ResetScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = new Vector2(0.5f, 0.5f));
 
             this.renderCallback = (x, s) => this.OnInvalidateRender(s);
             this.Model.RenderInvalidated += this.renderCallback;

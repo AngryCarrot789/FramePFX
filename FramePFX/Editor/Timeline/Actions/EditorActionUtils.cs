@@ -15,7 +15,7 @@ namespace FramePFX.Editor.Timeline.Actions {
             else if (context.TryGetContext(out VideoEditorViewModel editor)) {
                 return editor.ActiveProject?.Timeline;
             }
-            else if (context.TryGetContext(out TimelineLayerViewModel layer)) {
+            else if (context.TryGetContext(out LayerViewModel layer)) {
                 return layer.Timeline;
             }
             else if (context.TryGetContext(out ClipViewModel clip)) {

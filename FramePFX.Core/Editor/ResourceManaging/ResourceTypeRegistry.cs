@@ -8,7 +8,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public static ResourceTypeRegistry Instance { get; } = new ResourceTypeRegistry();
 
         private ResourceTypeRegistry() {
-            base.Register<ResourceARGB, ResourceARGBViewModel>("resource_argb");
+            base.Register<ResourceColour, ResourceColourViewModel>("resource_argb");
             base.Register<ResourceImage, ResourceImageViewModel>("resource_image");
             base.Register<ResourceMedia, ResourceMediaViewModel>("resource_media");
             base.Register<ResourceText, ResourceTextViewModel>("resource_text");

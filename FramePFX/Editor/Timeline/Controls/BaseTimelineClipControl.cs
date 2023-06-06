@@ -4,6 +4,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Threading;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
 
@@ -25,6 +29,8 @@ namespace FramePFX.Editor.Timeline.Controls {
                     false,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
                     (d, e) => ((BaseTimelineClipControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
+
+        public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(BaseTimelineClipControl), new PropertyMetadata(BoolBox.False));
 
         public static readonly DependencyProperty HeaderBrushProperty =
             DependencyProperty.Register(
@@ -59,6 +65,11 @@ namespace FramePFX.Editor.Timeline.Controls {
             set => this.SetValue(HeaderBrushProperty, value);
         }
 
+        public bool IsDroppableTargetOver {
+            get => (bool) this.GetValue(IsDroppableTargetOverProperty);
+            set => this.SetValue(IsDroppableTargetOverProperty, value);
+        }
+
         public event RoutedEventHandler Selected {
             add => this.AddHandler(SelectedEvent, value);
             remove => this.RemoveHandler(SelectedEvent, value);
@@ -90,8 +101,61 @@ namespace FramePFX.Editor.Timeline.Controls {
         protected bool isCancellingDragAction;
         protected bool isProcessingMouseAction;
 
-        protected BaseTimelineClipControl() {
+        private bool isProcessingDrop;
 
+        protected BaseTimelineClipControl() {
+            this.AllowDrop = true;
+            this.Drop += this.OnDrop;
+        }
+
+        protected override void OnDragEnter(DragEventArgs e) {
+            base.OnDragEnter(e);
+
+        }
+
+        protected override void OnDragOver(DragEventArgs e) {
+            base.OnDragOver(e);
+            if (e.Data.GetDataPresent("ResourceItem")) {
+                object obj = e.Data.GetData("ResourceItem");
+                if (obj is ResourceItemViewModel resource && this.DataContext is IDropClipResource drop && drop.CanDropResource(resource)) {
+                    this.IsDroppableTargetOver = true;
+                    e.Effects = DragDropEffects.Move;
+                    return;
+                }
+            }
+
+            this.ClearValue(IsDroppableTargetOverProperty);
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        protected override void OnDragLeave(DragEventArgs e) {
+            base.OnDragLeave(e);
+            this.Dispatcher.Invoke(() => {
+                this.ClearValue(IsDroppableTargetOverProperty);
+            }, DispatcherPriority.Loaded);
+        }
+
+        private void OnDrop(object sender, DragEventArgs e) {
+            e.Handled = true;
+            if (this.isProcessingDrop) {
+                return;
+            }
+
+            this.isProcessingDrop = true;
+            this.OnItemDrop(e);
+        }
+
+        private async void OnItemDrop(DragEventArgs e) {
+            if (e.Data.GetDataPresent("ResourceItem")) {
+                object obj = e.Data.GetData("ResourceItem");
+                if (obj is ResourceItemViewModel resource && this.DataContext is IDropClipResource drop) {
+                    await drop.OnDropResource(resource);
+                }
+            }
+
+            this.isProcessingDrop = false;
+            this.ClearValue(IsDroppableTargetOverProperty);
         }
 
         public override void OnApplyTemplate() {

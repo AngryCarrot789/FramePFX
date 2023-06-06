@@ -153,6 +153,10 @@
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\VerticalScrollBinder.cs" />
+    <Compile Include="Editor\EditorMainWindow.xaml.cs">
+      <DependentUpon>EditorMainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
@@ -162,13 +166,18 @@
     <Compile Include="Editor\Properties\Pages\PropertyPageBaseClip.xaml.cs">
       <DependentUpon>PropertyPageBaseClip.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Editor\Properties\Pages\PropertyPageRegistry.cs" />
     <Compile Include="Editor\Properties\Pages\PropertyPageShapeClip.xaml.cs">
       <DependentUpon>PropertyPageShapeClip.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\Properties\Pages\PropertyPageTextClip.xaml.cs">
+      <DependentUpon>PropertyPageTextClip.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\Properties\Pages\PropertyPageVideoClip.xaml.cs">
       <DependentUpon>PropertyPageVideoClip.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\Properties\PropertyPageRegistry.cs" />
+    <Compile Include="Editor\PageRegistry.cs" />
+    <Compile Include="Editor\Properties\PropertyGroupExpander.cs" />
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewLayerActions.cs" />
     <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
@@ -274,10 +283,6 @@
     </Compile>
     <Compile Include="Views\FilePicking\FilePickDialogService.cs" />
     <Compile Include="Views\FilePicking\FolderPicker.cs" />
-    <Compile Include="Views\Main\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Views\Message\CurrentQueueCheckBoxConverter.cs" />
     <Compile Include="Views\Message\MessageDialogService.cs" />
     <Compile Include="Views\Message\MessageWindow.xaml.cs">
@@ -307,6 +312,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Editor\EditorMainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -318,7 +327,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Editor\Properties\Pages\PropertyPageTextClip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Editor\Properties\Pages\PropertyPageVideoClip.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editor\Properties\PropertyStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -376,10 +393,6 @@
     <Page Include="Views\Exceptions\ExceptionViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Main\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Message\MessageWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -452,6 +465,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ResourceManaging\Items\" />
+    <Folder Include="Views\Main\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using FFmpeg.AutoGen;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
@@ -10,8 +9,17 @@ using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
-    public class VideoLayerViewModel : TimelineLayerViewModel {
+    public class VideoLayerViewModel : LayerViewModel {
         public new VideoLayerModel Model => (VideoLayerModel) base.Model;
+
+        public float Opacity {
+            get => this.Model.Opacity;
+            set {
+                this.Model.Opacity = value;
+                this.RaisePropertyChanged();
+                this.Timeline.DoRender(true);
+            }
+        }
 
         public VideoLayerViewModel(TimelineViewModel timeline, VideoLayerModel model) : base(timeline, model) {
 
@@ -40,18 +48,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 image.FrameEndIndex = frame;
                 this.AddClipToLayer(clone);
             }
-            else if (clip is SquareClipViewModel square) {
-                SquareClipModel cloneModel = new SquareClipModel() {
+            else if (clip is ShapeClipViewModel square) {
+                ShapeClipModel cloneModel = new ShapeClipModel() {
                     Width = square.Width,
                     Height = square.Height,
                 };
 
-                ResourcePath<ResourceARGB> imgPath = square.Model.ResourcePath;
+                ResourcePath<ResourceColour> imgPath = square.Model.ResourcePath;
                 if (imgPath?.UniqueId != null) {
                     cloneModel.SetTargetResourceId(imgPath.UniqueId);
                 }
 
-                SquareClipViewModel clone = new SquareClipViewModel(cloneModel) {
+                ShapeClipViewModel clone = new ShapeClipViewModel(cloneModel) {
                     Span = ClipSpan.FromIndex(frame, square.FrameEndIndex),
                     MediaPosition = square.MediaPosition,
                     MediaScale = square.MediaScale,

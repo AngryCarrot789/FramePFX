@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Utils;
 
@@ -7,7 +9,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IDisposable {
+    public abstract class ClipViewModel : BaseViewModel, IUserRenameable, IDropClipResource, IDisposable {
         /// <summary>
         /// The clip's display/readable name, editable by a user
         /// </summary>
@@ -22,7 +24,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         /// <summary>
         /// The layer this clip is located in
         /// </summary>
-        public TimelineLayerViewModel Layer { get; private set; }
+        public LayerViewModel Layer { get; private set; }
 
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
@@ -46,7 +48,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             });
         }
 
-        public static void SetLayer(ClipViewModel viewModel, TimelineLayerViewModel layer, bool fireLayerChangedEvent = true) {
+        public static void SetLayer(ClipViewModel viewModel, LayerViewModel layer, bool fireLayerChangedEvent = true) {
             ClipModel.SetLayer(viewModel.Model, layer?.Model, fireLayerChangedEvent);
             viewModel.Layer = layer;
         }
@@ -89,6 +91,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public virtual void OnTimelinePlayEnd() {
 
+        }
+
+        public virtual bool CanDropResource(ResourceItemViewModel resource) {
+            return false;
+        }
+
+        public virtual async Task OnDropResource(ResourceItemViewModel resource) {
+            if (!ReferenceEquals(resource.Manager, this.Layer?.Timeline.Project.ResourceManager)) {
+                await IoC.MessageDialogs.ShowMessageAsync("Incompatible project resource", $"Cannot drop a resource that belongs to a different project compared to this clip");
+            }
         }
     }
 }

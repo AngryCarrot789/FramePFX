@@ -5,8 +5,8 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
-    public class SquareClipViewModel : VideoClipViewModel, IDropClipResource {
-        public new SquareClipModel Model => (SquareClipModel) base.Model;
+    public class ShapeClipViewModel : VideoClipViewModel, IDropClipResource {
+        public new ShapeClipModel Model => (ShapeClipModel) base.Model;
 
         public float Width {
             get => this.Model.Width;
@@ -26,7 +26,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
         }
 
-        public SquareClipViewModel(SquareClipModel model) : base(model) {
+        public ShapeClipViewModel(ShapeClipModel model) : base(model) {
 
         }
 
@@ -41,7 +41,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
 
             this.Model.SetTargetResourceId(colour.UniqueId);
-            this.OnInvalidateRender();
+            this.Model.InvalidateRender();
         }
     }
 }

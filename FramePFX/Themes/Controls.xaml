@@ -1764,7 +1764,7 @@
                             </Grid.ColumnDefinitions>
                             <Ellipse x:Name="circle" Fill="{DynamicResource Expander.Static.Circle.Fill}" HorizontalAlignment="Center" Height="19" Stroke="{DynamicResource Expander.Static.Circle.Stroke}" VerticalAlignment="Center" Width="19" />
                             <Path x:Name="arrow" Data="M 1,1.5 L 4.5,5 L 8,1.5" HorizontalAlignment="Center" SnapsToDevicePixels="false" Stroke="{DynamicResource Expander.Static.Arrow.Stroke}" StrokeThickness="2" VerticalAlignment="Center" />
-                            <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" Margin="4,0,0,0" RecognizesAccessKey="True" SnapsToDevicePixels="True" VerticalAlignment="Center" />
+                            <ContentPresenter Grid.Column="1" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="4,0,0,0" RecognizesAccessKey="True" SnapsToDevicePixels="True" VerticalAlignment="Center" />
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -2971,7 +2971,7 @@
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.TickPlacement.Foreground}" />
+        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.Foreground}" />
         <Setter Property="Template" Value="{StaticResource SliderHorizontal}" />
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Vertical">
@@ -2984,7 +2984,7 @@
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.TickPlacement.Foreground}" />
+        <Setter Property="Foreground" Value="{DynamicResource SliderThumb.Static.Foreground}" />
         <Setter Property="Template" Value="{StaticResource AbletonSliderHorizontal}" />
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Vertical">

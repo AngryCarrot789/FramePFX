@@ -109,12 +109,16 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task DisposeAsync() {
+            #if DEBUG
+            this.Timeline.Dispose();
+            #else
             try {
                 this.Timeline.Dispose();
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Timeline exception", "An exception occurred while cleaning up timeline", e.GetToString());
             }
+            #endif
         }
 
         public void Dispose() {

@@ -1,5 +1,3 @@
 namespace FramePFX.Core.Editor.ResourceManaging.Events {
-    public class ResourceModifiedEventHandler {
-        
-    }
+    public delegate void ResourceModifiedEventHandler(ResourceItem sender, string property);
 }

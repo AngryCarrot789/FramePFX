@@ -48,7 +48,7 @@ namespace FramePFX.Editor.Timeline.Actions {
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {
             long frame = timeline.PlayHeadFrame;
             List<ClipViewModel> list = new List<ClipViewModel>();
-            foreach (TimelineLayerViewModel layer in timeline.Layers) {
+            foreach (LayerViewModel layer in timeline.Layers) {
                 list.AddRange(layer.Clips);
             }
 

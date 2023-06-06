@@ -1,16 +1,16 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using FFmpeg.AutoGen;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline {
+    /// <summary>
+    /// A model that represents a timeline layer, which can contain clips
+    /// </summary>
     public class LayerModel {
         public TimelineModel Timeline { get; }
 
         public List<ClipModel> Clips { get; }
 
-        public float Opacity { get; set; }
         public string Name { get; set; }
         public double MinHeight { get; set; }
         public double MaxHeight { get; set; }

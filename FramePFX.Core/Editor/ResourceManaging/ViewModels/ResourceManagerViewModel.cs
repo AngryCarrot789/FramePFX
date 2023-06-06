@@ -1,6 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
@@ -13,6 +16,10 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         private readonly ObservableCollection<ResourceItemViewModel> resources;
         public ReadOnlyObservableCollection<ResourceItemViewModel> Resources { get; }
 
+        public ObservableCollection<ResourceItemViewModel> SelectedItems { get; }
+
+        public AsyncRelayCommand<string> CreateResourceCommand { get; }
+
         public ResourceManager Model { get; }
 
         public ProjectViewModel Project { get; }
@@ -22,6 +29,12 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.resources = new ObservableCollection<ResourceItemViewModel>();
             this.Resources = new ReadOnlyObservableCollection<ResourceItemViewModel>(this.resources);
+            this.SelectedItems = new ObservableCollectionEx<ResourceItemViewModel>();
+            this.SelectedItems.CollectionChanged += (sender, args) => {
+                // this.Timeline.Project.Editor?.View.UpdateSelectionPropertyPages();
+            };
+
+            this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);
             this.ResourceIdValidator = new InputValidator((string input, out string message) => {
                 if (string.IsNullOrEmpty(input)) {
                     message = "Input cannot be empty";
@@ -42,8 +55,48 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             });
 
             foreach ((string _, ResourceItem item) in manager.Items) {
-                this.resources.Add(ResourceTypeRegistry.Instance.CreateViewModelFromModel(this, item));
+                this.AddResource(item, false);
             }
+        }
+
+        public void AddResource(ResourceItem item, bool addToModel = true) {
+            this.AddResource(ResourceTypeRegistry.Instance.CreateViewModelFromModel(this, item), addToModel);
+        }
+
+        public void AddResource(ResourceItemViewModel item, bool addToModel = true) {
+            if (addToModel)
+                this.Model.AddResource(item.UniqueId, item.Model);
+            this.resources.Add(item);
+        }
+
+        public void AddNewResource(ResourceItemViewModel item, string id) {
+            item.UniqueId = id;
+            this.AddResource(item);
+        }
+
+        private async Task CreateResourceAction(string type) {
+            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input resource ID", "Input a resource ID for the new resource:", $"My {type}", this.ResourceIdValidator);
+            if (string.IsNullOrWhiteSpace(id) || this.Model.ResourceExists(id)) {
+                return;
+            }
+
+            ResourceItemViewModel item;
+
+            switch (type) {
+                case nameof(ResourceColour):
+                    item = new ResourceColourViewModel(this, new ResourceColour(this.Model));
+                    break;
+                case nameof(ResourceImage):
+                    item = new ResourceImageViewModel(this, new ResourceImage(this.Model));
+                    break;
+                case nameof(ResourceText):
+                    item = new ResourceTextViewModel(this, new ResourceText(this.Model));
+                    break;
+                default: return;
+            }
+
+            item.UniqueId = id;
+            this.AddResource(item);
         }
 
         public async Task<string> SelectNewResourceId(string msg, string value = "id") {
@@ -95,6 +148,39 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.Model.RemoveItem(item.Model);
             this.resources.Remove(item);
             return true;
+        }
+
+        public bool RemoveClipFromLayer(ResourceItemViewModel resource, bool removeFromModel = true) {
+            int index = this.resources.IndexOf(resource);
+            if (index < 0) {
+                return false;
+            }
+
+            this.RemoveClipFromLayer(index, removeFromModel);
+            return true;
+        }
+
+        public void RemoveClipFromLayer(int index, bool removeFromModel = true) {
+            ResourceItemViewModel clip = this.resources[index];
+            if (!ReferenceEquals(this, clip.Manager))
+                throw new Exception($"Clip layer does not match the current instance: {clip.Manager} != {this}");
+            if (removeFromModel)
+                this.Model.RemoveItem(clip.UniqueId);
+            this.resources.RemoveAt(index);
+            clip.Dispose();
+        }
+
+        public void DeleteSelection() {
+            using (ExceptionStack stack = new ExceptionStack()) {
+                foreach (ResourceItemViewModel item in this.SelectedItems.ToList()) {
+                    try {
+                        this.RemoveClipFromLayer(item);
+                    }
+                    catch (Exception e) {
+                        stack.Push(e);
+                    }
+                }
+            }
         }
     }
 }

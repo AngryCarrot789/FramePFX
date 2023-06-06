@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
@@ -12,18 +11,16 @@ using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
     public class TimelineViewModel : BaseViewModel {
-        private readonly ObservableCollectionEx<TimelineLayerViewModel> layers;
-        public ReadOnlyObservableCollection<TimelineLayerViewModel> Layers { get; }
+        private readonly ObservableCollectionEx<LayerViewModel> layers;
+        public ReadOnlyObservableCollection<LayerViewModel> Layers { get; }
 
-        public ObservableCollectionEx<TimelineLayerViewModel> SelectedLayers { get; }
+        public ObservableCollectionEx<LayerViewModel> SelectedLayers { get; }
 
-        public ICommand DeleteSelectedClipsCommand { get; }
-
-        private TimelineLayerViewModel primarySelectedLayer;
+        private LayerViewModel primarySelectedLayer;
         private bool ignorePlayHeadPropertyChange;
         private bool isFramePropertyChangeScheduled;
 
-        public TimelineLayerViewModel PrimarySelectedLayer {
+        public LayerViewModel PrimarySelectedLayer {
             get => this.primarySelectedLayer;
             set => this.RaisePropertyChanged(ref this.primarySelectedLayer, value);
         }
@@ -75,9 +72,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public TimelineViewModel(ProjectViewModel project, TimelineModel model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            this.layers = new ObservableCollectionEx<TimelineLayerViewModel>();
-            this.Layers = new ReadOnlyObservableCollection<TimelineLayerViewModel>(this.layers);
-            this.SelectedLayers = new ObservableCollectionEx<TimelineLayerViewModel>();
+            this.layers = new ObservableCollectionEx<LayerViewModel>();
+            this.Layers = new ReadOnlyObservableCollection<LayerViewModel>(this.layers);
+            this.SelectedLayers = new ObservableCollectionEx<LayerViewModel>();
             this.SelectedLayers.CollectionChanged += (sender, args) => {
                 this.RemoveSelectedLayersCommand.RaiseCanExecuteChanged();
             };
@@ -87,7 +84,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.AddVideoLayerCommand = new AsyncRelayCommand(this.AddVideoLayerAction);
             this.AddAudioLayerCommand = new AsyncRelayCommand(this.AddAudioLayerAction, () => false);
             this.LayerNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Layer name cannot be empty" : null);
-            foreach (TimelineLayerModel layer in this.Model.Layers) {
+            foreach (LayerModel layer in this.Model.Layers) {
                 this.layers.Add(LayerRegistry.Instance.CreateViewModelFromModel(this, layer));
             }
 
@@ -102,8 +99,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.layers.Add(layer);
         }
 
-        public void OnPlayHeadMoved(long oldFrame, long newFrame, bool? scheduleRender) {
-            if (oldFrame == newFrame || !(scheduleRender is bool b)) {
+        public void OnPlayHeadMoved(long oldFrame, long newFrame, bool? schedule) {
+            if (oldFrame == newFrame || !(schedule is bool b)) {
                 return;
             }
 
@@ -139,7 +136,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public async Task RemoveSelectedLayersAction(bool confirm) {
-            IList<TimelineLayerViewModel> list = this.SelectedLayers;
+            IList<LayerViewModel> list = this.SelectedLayers;
             if (list.Count < 1) {
                 return;
             }
@@ -152,7 +149,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             await this.DisposeAndRemoveItemsAction(list);
         }
 
-        public async Task DisposeAndRemoveItemsAction(IEnumerable<TimelineLayerViewModel> list) {
+        public async Task DisposeAndRemoveItemsAction(IEnumerable<LayerViewModel> list) {
             try {
                 this.DisposeAndRemoveItemsUnsafe(list.ToList());
             }
@@ -161,9 +158,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
-        public void DisposeAndRemoveItemsUnsafe(IList<TimelineLayerViewModel> list) {
+        public void DisposeAndRemoveItemsUnsafe(IList<LayerViewModel> list) {
             using (ExceptionStack stack = new ExceptionStack("Exception disposing layers")) {
-                foreach (TimelineLayerViewModel item in list) {
+                foreach (LayerViewModel item in list) {
                     if (item is IDisposable disposable) {
                         try {
                             disposable.Dispose();
@@ -185,7 +182,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
 
             List<int> selection = new List<int>();
-            foreach (TimelineLayerViewModel item in this.SelectedLayers) {
+            foreach (LayerViewModel item in this.SelectedLayers) {
                 int index = this.layers.IndexOf(item);
                 if (index < 0) {
                     continue;
@@ -229,11 +226,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.StepFrame();
         }
 
-        public void StepFrame(long change = 1L, bool enqueue = false) {
+        public void StepFrame(long change = 1L, bool schedule = false) {
             this.ignorePlayHeadPropertyChange = true;
             long oldFrame = this.PlayHeadFrame;
             this.PlayHeadFrame = Periodic.Add(oldFrame, change, 0L, this.MaxDuration);
-            this.OnPlayHeadMoved(oldFrame, this.PlayHeadFrame, enqueue);
+            this.OnPlayHeadMoved(oldFrame, this.PlayHeadFrame, schedule);
             if (!this.isFramePropertyChangeScheduled) {
                 this.isFramePropertyChangeScheduled = true;
                 IoC.Dispatcher.Invoke(() => {
@@ -246,7 +243,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public void OnPlayBegin() {
-            foreach (TimelineLayerViewModel layer in this.layers) {
+            foreach (LayerViewModel layer in this.layers) {
                 foreach (ClipViewModel clip in layer.Clips) {
                     clip.OnTimelinePlayBegin();
                 }
@@ -254,7 +251,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public void OnPlayEnd() {
-            foreach (TimelineLayerViewModel layer in this.layers) {
+            foreach (LayerViewModel layer in this.layers) {
                 foreach (ClipViewModel clip in layer.Clips) {
                     clip.OnTimelinePlayEnd();
                 }
@@ -274,7 +271,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         protected virtual void DisposeCore(ExceptionStack stack) {
             using (ExceptionStack innerStack = new ExceptionStack(false)) {
-                foreach (TimelineLayerViewModel clip in this.layers) {
+                foreach (LayerViewModel clip in this.layers) {
                     try {
                         clip.Dispose();
                     }
@@ -291,7 +288,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
-        public TimelineLayerViewModel GetPrevious(TimelineLayerViewModel layer) {
+        public LayerViewModel GetPrevious(LayerViewModel layer) {
             int index = this.layers.IndexOf(layer);
             return index > 0 ? this.layers[index - 1] : null;
         }

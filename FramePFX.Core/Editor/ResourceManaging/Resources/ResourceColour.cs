@@ -1,7 +1,7 @@
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Resources {
-    public class ResourceARGB : ResourceItem {
+    public class ResourceColour : ResourceItem {
         public float R { get; set; }
         public float G { get; set; }
         public float B { get; set; }
@@ -27,7 +27,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             set => this.B = Maths.Clamp(value / 255f, 0f, 1f);
         }
 
-        public ResourceARGB(ResourceManager manager) : base(manager) {
+        public ResourceColour(ResourceManager manager) : base(manager) {
 
         }
     }

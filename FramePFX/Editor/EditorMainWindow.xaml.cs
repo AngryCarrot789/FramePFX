@@ -12,10 +12,12 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Properties;
+using FramePFX.Editor.Properties.Pages;
+using FramePFX.Views;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 
-namespace FramePFX.Views.Main {
+namespace FramePFX.Editor {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -65,7 +67,7 @@ namespace FramePFX.Views.Main {
         public void GeneratePropertyPages(List<Type> types, ClipViewModel clip) {
             List<FrameworkElement> controls = new List<FrameworkElement>(types.Count);
             foreach (Type type in types) {
-                if (PropertyPageRegistry.GenerateControl(type, clip, out FrameworkElement control)) {
+                if (PropertyPageRegistry.Instance.GenerateControl(type, clip, out FrameworkElement control)) {
                     control.DataContext = clip;
                     controls.Add(control);
                 }
@@ -134,7 +136,7 @@ namespace FramePFX.Views.Main {
             return true;
         }
 
-        private void ThumbTop(object sender, DragDeltaEventArgs e) {
+        private void OnTopThumbDrag(object sender, DragDeltaEventArgs e) {
             if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
                 double layerHeight = layer.Height - e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
@@ -157,7 +159,7 @@ namespace FramePFX.Views.Main {
             }
         }
 
-        private void ThumbBottom(object sender, DragDeltaEventArgs e) {
+        private void OnBottomThumbDrag(object sender, DragDeltaEventArgs e) {
             if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
                 double layerHeight = layer.Height + e.VerticalChange;
                 if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
@@ -168,12 +170,12 @@ namespace FramePFX.Views.Main {
             }
         }
 
-        private void FrameworkElement_OnRequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
+        private void OnTimelineControlContentRequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
             // Prevent the timeline scrolling when you select a clip
             e.Handled = true;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e) {
+        private void OnFitContentToWindowClick(object sender, RoutedEventArgs e) {
             this.VPViewBox.FitContentToCenter();
         }
     }

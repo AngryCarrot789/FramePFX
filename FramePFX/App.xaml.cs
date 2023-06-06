@@ -16,11 +16,11 @@ using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
+using FramePFX.Editor;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
 using FramePFX.Views;
-using FramePFX.Views.Main;
 
 namespace FramePFX {
     /// <summary>
@@ -107,7 +107,7 @@ namespace FramePFX {
             }
 
             await this.SetActivity("Loading FramePFX main window...");
-            MainWindow window = new MainWindow();
+            EditorMainWindow window = new EditorMainWindow();
             this.splash.Close();
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -125,16 +125,16 @@ namespace FramePFX {
 
             {
                 ResourceManager manager = project.ResourceManager;
-                manager.AddResource("colour_red", new ResourceARGB(manager) {R = 0.9f, G = 0.1f, B = 0.1f});
-                manager.AddResource("colour_green", new ResourceARGB(manager) {R = 0.1f, G = 0.9f, B = 0.1f});
-                manager.AddResource("colour_blue", new ResourceARGB(manager) {R = 0.1f, G = 0.1f, B = 0.9f});
+                manager.ReplaceResource("colour_red", new ResourceColour(manager) {R = 0.9f, G = 0.1f, B = 0.1f});
+                manager.ReplaceResource("colour_green", new ResourceColour(manager) {R = 0.1f, G = 0.9f, B = 0.1f});
+                manager.ReplaceResource("colour_blue", new ResourceColour(manager) {R = 0.1f, G = 0.1f, B = 0.9f});
             }
 
             {
                 VideoLayerModel layer1 = new VideoLayerModel(project.Timeline);
                 project.Timeline.AddLayer(layer1);
 
-                SquareClipModel clip1 = new SquareClipModel {
+                ShapeClipModel clip1 = new ShapeClipModel {
                     MediaPosition = new Vector2(0, 0),
                     Width = 200, Height = 200,
                     FrameSpan = new ClipSpan(0, 120),
@@ -143,7 +143,7 @@ namespace FramePFX {
                 clip1.SetTargetResourceId("colour_red");
                 layer1.AddClip(clip1);
 
-                SquareClipModel clip2 = new SquareClipModel {
+                ShapeClipModel clip2 = new ShapeClipModel {
                     MediaPosition = new Vector2(200, 200),
                     Width = 200, Height = 200,
                     FrameSpan = new ClipSpan(150, 30),
@@ -156,7 +156,7 @@ namespace FramePFX {
                 VideoLayerModel layer2 = new VideoLayerModel(project.Timeline);
                 project.Timeline.AddLayer(layer2);
 
-                SquareClipModel clip1 = new SquareClipModel {
+                ShapeClipModel clip1 = new ShapeClipModel {
                     MediaPosition = new Vector2(200, 400),
                     Width = 400, Height = 400,
                     FrameSpan = new ClipSpan(300, 90),
@@ -165,7 +165,7 @@ namespace FramePFX {
 
                 clip1.SetTargetResourceId("colour_blue");
                 layer2.AddClip(clip1);
-                SquareClipModel clip2 = new SquareClipModel {
+                ShapeClipModel clip2 = new ShapeClipModel {
                     MediaPosition = new Vector2(400, 400),
                     Width = 100, Height = 1000,
                     FrameSpan = new ClipSpan(15, 25),

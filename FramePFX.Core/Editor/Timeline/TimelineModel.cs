@@ -1,15 +1,16 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
+using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline {
     public class TimelineModel {
         public ProjectModel Project { get; }
 
-        public List<TimelineLayerModel> Layers { get; }
+        public List<LayerModel> Layers { get; }
 
         public long PlayHead { get; set; }
 
@@ -17,15 +18,15 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public TimelineModel(ProjectModel project) {
             this.Project = project;
-            this.Layers = new List<TimelineLayerModel>();
+            this.Layers = new List<LayerModel>();
         }
 
-        public void AddLayer(TimelineLayerModel layer) {
+        public void AddLayer(LayerModel layer) {
             Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
             this.Layers.Add(layer);
         }
 
-        public bool RemoveLayer(TimelineLayerModel layer) {
+        public bool RemoveLayer(LayerModel layer) {
             Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
             int index = this.Layers.IndexOf(layer);
             if (index < 0) {
@@ -37,7 +38,7 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void RemoveLayer(int index) {
-            TimelineLayerModel layer = this.Layers[index];
+            LayerModel layer = this.Layers[index];
             Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
             this.Layers.RemoveAt(index);
         }
@@ -51,11 +52,38 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void Render(RenderContext render, long frame) {
-            List<ClipModel> clips = this.GetClipsAtFrame(frame).ToList();
-            foreach (ClipModel layer in clips) {
-                if (layer is VideoClipModel vc) {
-                    vc.Render(render, frame);
+            for (int i = this.Layers.Count - 1; i >= 0; i--) {
+                if (!(this.Layers[i] is VideoLayerModel layer)) {
+                    continue;
                 }
+
+                List<ClipModel> clips = layer.Clips.Where(x => x.IntersectsFrameAt(frame)).ToList();
+                if (clips.Count > 0) {
+                    SKColorFilter filter = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F)), SKBlendMode.DstIn);
+                    foreach (ClipModel clip in clips) {
+                        render.Canvas.Save();
+                        ((VideoClipModel) clip).Render(render, frame, filter);
+                        render.Canvas.Restore();
+                    }
+                }
+
+                // SKRect clipping = render.Canvas.LocalClipBounds;
+                // int save = render.Canvas.SaveLayer(clipping, new SKPaint());
+                // foreach (ClipModel clip in clipsOverFrame) {
+                //     if (clip.IntersectsFrameAt(frame)) {
+                //         render.Canvas.Save();
+                //         ((VideoClipModel) clip).Render(render, frame);
+                //         render.Canvas.Restore();
+                //     }
+                // }
+                // byte alpha = (byte) Maths.Clamp(layer.Opacity * 255f, 0F, 255F);
+                // SKColorFilter blend = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, alpha), SKBlendMode.DstOut);
+                // SKPaint paint = new SKPaint() {
+                //     Style = SKPaintStyle.Fill,
+                //     ColorFilter = blend
+                // };
+                // render.Canvas.DrawRect(clipping, paint);
+                // render.Canvas.RestoreToCount(save);
             }
         }
 

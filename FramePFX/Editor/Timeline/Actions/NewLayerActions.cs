@@ -5,7 +5,7 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 
 namespace FramePFX.Editor.Timeline.Actions {
-    [ActionRegistration("actions.editor.timeline.NewVideoLayer")]
+    [ActionRegistration("actions.editor.NewVideoLayer")]
     public class NewVideoLayerAction : AnAction {
         public NewVideoLayerAction() {
 

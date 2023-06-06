@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
@@ -16,7 +14,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for a timeline layer. This could be a video or audio layer (or others...)
     /// </summary>
-    public abstract class TimelineLayerViewModel : BaseViewModel, IResourceDropNotifier {
+    public abstract class LayerViewModel : BaseViewModel, IResourceDropNotifier {
         private readonly ObservableCollectionEx<ClipViewModel> clips;
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
@@ -26,14 +24,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public ClipViewModel PrimarySelectedClip {
             get => this.primarySelectedClip;
             set => this.RaisePropertyChanged(ref this.primarySelectedClip, value);
-        }
-
-        public float Opacity {
-            get => this.Model.Opacity;
-            set {
-                this.Model.Opacity = value;
-                this.RaisePropertyChanged();
-            }
         }
 
         public string Name {
@@ -83,11 +73,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public TimelineViewModel Timeline { get; }
 
-        public TimelineLayerModel Model { get; }
+        public LayerModel Model { get; }
 
-        protected TimelineLayerViewModel(TimelineViewModel timeline, TimelineLayerModel model) {
+        protected LayerViewModel(TimelineViewModel timeline, LayerModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
+            if (!ReferenceEquals(timeline.Model, model.Timeline))
+                throw new ArgumentException($"The timeline's model and then given layer model's timeline do not match");
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
             this.SelectedClips = new ObservableCollectionEx<ClipViewModel>();
@@ -269,8 +261,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             Validate.Exception(!string.IsNullOrEmpty(resource.Model.UniqueId), "Expected valid resource UniqueId");
             Validate.Exception(resource.Model.IsRegistered, "Expected resource to be registered");
 
-            if (resource.Model is ResourceARGB argb) {
-                SquareClipModel clip = new SquareClipModel() {
+            if (resource.Model is ResourceColour argb) {
+                ShapeClipModel clip = new ShapeClipModel() {
                     FrameSpan = new ClipSpan(frameBegin, duration),
                     Width = 200, Height = 200,
                     DisplayName = argb.UniqueId
@@ -286,6 +278,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 };
 
                 clip.SetTargetResourceId(img.UniqueId);
+                this.CreateClip(clip);
+            }
+            else if (resource.Model is ResourceText text) {
+                TextClipModel clip = new TextClipModel() {
+                    FrameSpan = new ClipSpan(frameBegin, duration),
+                    DisplayName = text.UniqueId
+                };
+
+                clip.SetTargetResourceId(text.UniqueId);
                 this.CreateClip(clip);
             }
             // else if (resource.Model is ResourceMedia media) {

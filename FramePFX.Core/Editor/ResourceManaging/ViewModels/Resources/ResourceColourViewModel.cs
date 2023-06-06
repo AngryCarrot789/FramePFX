@@ -1,7 +1,7 @@
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
-    public class ResourceARGBViewModel : ResourceItemViewModel {
+    public class ResourceColourViewModel : ResourceItemViewModel {
         public new ResourceColour Model => (ResourceColour) base.Model;
 
         public float A {
@@ -76,7 +76,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public ResourceARGBViewModel(ResourceManagerViewModel manager, ResourceColour model) : base(manager, model) {
+        public ResourceColourViewModel(ResourceManagerViewModel manager, ResourceColour model) : base(manager, model) {
 
         }
     }

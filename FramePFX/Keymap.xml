@@ -1,6 +1,17 @@
 ﻿<?xml version="1.0"?>
 <KeyMap>
     <Group Name="Application">
+        <Group Name="Resources">
+            <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
+                <Keystroke Key="Delete"/>
+            </Shortcut>
+            <Shortcut Name="RenameItem" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
+                <Keystroke Key="F2"/>
+            </Shortcut>
+            <Shortcut Name="RenameItem2" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
+                <Keystroke Mods="CTRL" Key="R"/>
+            </Shortcut>
+        </Group>
         <Group Name="Timeline">
             <Group Name="Surface">
                 <Shortcut Name="DeleteSelectClips" Description="Deletes all of the selected clips">
@@ -18,7 +29,7 @@
                     <Keystroke Key="Delete"/>
                 </Shortcut>
             </Group>
-            <Shortcut Name="NewVideoLayer" ActionId="actions.editor.timeline.NewVideoLayer" Inherit="true" Description="Creates a new video layer">
+            <Shortcut Name="NewVideoLayer" ActionId="actions.editor.NewVideoLayer" Inherit="true" Description="Creates a new video layer">
                 <Keystroke Mods="CTRL+SHIFT" Key="Q"/>
             </Shortcut>
         </Group>

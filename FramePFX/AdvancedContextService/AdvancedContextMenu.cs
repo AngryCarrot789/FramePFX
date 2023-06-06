@@ -126,15 +126,22 @@ namespace FramePFX.AdvancedContextService {
                     }
                     else {
                         DataContext context = new DataContext();
+                        object tarDc = VisualTreeUtils.GetDataContext(targetObject);
+                        if (tarDc != null)
+                            context.AddContext(tarDc);
+                        context.AddContext(targetObject);
+
                         object srcDc = VisualTreeUtils.GetDataContext(sourceObject);
                         if (srcDc != null)
                             context.AddContext(srcDc);
                         context.AddContext(sourceObject);
 
-                        object tarDc = VisualTreeUtils.GetDataContext(targetObject);
-                        if (tarDc != null)
-                            context.AddContext(tarDc);
-                        context.AddContext(targetObject);
+                        if (Window.GetWindow(sourceObject) is Window window) {
+                            object winDc = VisualTreeUtils.GetDataContext(window);
+                            if (winDc != null)
+                                context.AddContext(winDc);
+                            context.AddContext(window);
+                        }
 
                         generator.Generate(list, context);
                     }

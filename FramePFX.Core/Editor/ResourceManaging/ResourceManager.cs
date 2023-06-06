@@ -21,7 +21,20 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
         }
 
-        public ResourceItem AddResource(string id, ResourceItem item) {
+        public void AddResource(string id, ResourceItem item) {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
+            if (this.uuidToItem.TryGetValue(id, out ResourceItem oldItem))
+                throw new Exception($"Resource already exists: {oldItem}");
+
+            this.uuidToItem[id] = item;
+            item.UniqueId = id;
+            this.ResourceAdded?.Invoke(this, item);
+        }
+
+        public ResourceItem ReplaceResource(string id, ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "ResourceItem cannot be null");
             if (string.IsNullOrWhiteSpace(id))

@@ -59,11 +59,11 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public void StartRenderTimer() {
-            this.Model.FrameStepTimer.Start(this.UsePrecisionTimingMode);
+            this.Model.PlaybackTimer.Start(this.UsePrecisionTimingMode);
         }
 
         public Task StopRenderTimer() {
-            return this.Model.FrameStepTimer.StopAsync();
+            return this.Model.PlaybackTimer.StopAsync();
         }
 
         public async Task PlayAction() {
@@ -117,7 +117,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             if (project == null) {
-                await this.Model.FrameStepTimer.StopAsync();
+                await this.Model.PlaybackTimer.StopAsync();
             }
 
             if (this.Project != null) {
@@ -130,7 +130,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 this.SetTimerFrameRate(project.Settings.FrameRate);
             }
             else {
-                await this.Model.FrameStepTimer.StopAsync();
+                await this.Model.PlaybackTimer.StopAsync();
             }
 
             this.UpdatePlaybackCommands();
@@ -139,16 +139,16 @@ namespace FramePFX.Core.Editor.ViewModels {
         public void SetTimerFrameRate(double frameRate) {
             if (frameRate < 1)
                 frameRate = 1;
-            this.Model.FrameStepTimer.Interval = (long) Math.Round(1000d / frameRate);
+            this.Model.PlaybackTimer.Interval = (long) Math.Round(1000d / frameRate);
         }
 
         private async Task SwitchPrecisionMode() {
             this.UsePrecisionTimingMode = !this.UsePrecisionTimingMode;
-            await this.Model.FrameStepTimer.RestartAsync(this.UsePrecisionTimingMode);
+            await this.Model.PlaybackTimer.RestartAsync(this.UsePrecisionTimingMode);
         }
 
         public void Dispose() {
-            this.Model.FrameStepTimer.Dispose();
+            this.Model.PlaybackTimer.Dispose();
         }
 
         public async Task OnProjectSaving() {

@@ -1,12 +1,11 @@
 using System;
 using System.Runtime.CompilerServices;
+using FramePFX.Core.Editor.ResourceManaging.Events;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
     public abstract class ResourceItem : IRBESerialisable, IDisposable {
-        public delegate void ResourceModifiedEventHandler(ResourceItem sender, string property);
-
         public string RegistryId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         /// <summary>
@@ -14,6 +13,9 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public string UniqueId { get; set; }
 
+        /// <summary>
+        /// Whether or not this resource item's ID is valid and is registered with the manager associated with it
+        /// </summary>
         public bool IsRegistered => !string.IsNullOrWhiteSpace(this.UniqueId) && this.Manager.ResourceExists(this.UniqueId);
 
         public ResourceManager Manager { get; }
@@ -42,6 +44,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
+        /// <summary>
+        /// Raises the <see cref="DataModified"/> event for this resource item with the given property, allowing listeners
+        /// to invalidate their objects that relied on the previous state of the property that changed e.g. text blobs)
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void RaiseDataModified([CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));

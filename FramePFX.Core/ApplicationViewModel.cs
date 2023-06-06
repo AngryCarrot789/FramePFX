@@ -13,7 +13,7 @@ namespace FramePFX.Core {
             }
         }
 
-        public UserSettingsChangedEventHandler OnUserSettingsModified;
+        public event UserSettingsChangedEventHandler OnUserSettingsModified;
 
         public ApplicationViewModel() {
             this.UserSettings = new UserSettingsViewModel();

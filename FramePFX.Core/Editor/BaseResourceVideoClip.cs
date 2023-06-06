@@ -1,10 +1,6 @@
-using System.Diagnostics;
-using FramePFX.Core.Editor.ResourceManaging;
-using FramePFX.Core.Editor.Timeline.Clip;
-using FramePFX.Core.RBC;
-
 namespace FramePFX.Core.Editor {
     // I don't use this class, but i'm keeping it anyway because why not
+    /*
     public abstract class BaseResourceVideoClip<T> : VideoClipModel where T : ResourceItem {
         public delegate void ResourceStateChangedEventHandler(VideoClipModel sender);
         public delegate void ResourceIdChangedEventHandler(VideoClipModel clip, string oldId, string newId);
@@ -145,4 +141,5 @@ namespace FramePFX.Core.Editor {
             this.ResourceRenamed?.Invoke(this, oldId, newId);
         }
     }
+    */
 }

@@ -53,7 +53,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             set => this.timeline = value;
         }
 
-        public TimelineLayerViewModel ViewModel => this.DataContext as TimelineLayerViewModel;
+        public LayerViewModel ViewModel => this.DataContext as LayerViewModel;
 
         protected bool isUpdatingUnitZoom;
         protected TimelineControl timeline;
@@ -61,13 +61,14 @@ namespace FramePFX.Editor.Timeline.Controls {
         public BaseTimelineLayerControl() {
             this.CanSelectMultipleItems = true;
             this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is TimelineLayerViewModel vm) {
+                if (args.NewValue is LayerViewModel vm) {
                     BaseViewModel.SetInternalData(vm, typeof(ILayerHandle), this);
                 }
             };
 
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
+            this.DragEnter += this.OnDragEnter;
         }
 
         public long GetFrameFromPixel(double pixel) {
@@ -93,6 +94,14 @@ namespace FramePFX.Editor.Timeline.Controls {
                     yield return clip2;
                 }
             }
+        }
+
+        private void OnDragEnter(object sender, DragEventArgs e) {
+            if (this.ResourceDropNotifier == null) {
+                e.Effects = DragDropEffects.None;
+            }
+
+            e.Handled = true;
         }
 
         private async void OnDrop(object sender, DragEventArgs e) {

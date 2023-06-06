@@ -1,20 +1,38 @@
 using System;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline {
+    /// <summary>
+    /// A model that represents a timeline layer clip, such as a video or audio clip
+    /// </summary>
     public abstract class ClipModel : IRBESerialisable, IDisposable {
-        public delegate void RenderInvalidatedEventHandler(ClipModel clip, bool schedule = true);
+        /// <summary>
+        /// Returns the layer that this clip is currently in
+        /// </summary>
+        public LayerModel Layer { get; private set; }
 
-        public TimelineLayerModel Layer { get; private set; }
+        /// <summary>
+        /// Returns the timeline associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that it null
+        /// </summary>
+        public TimelineModel Timeline => this.Layer?.Timeline;
+
+        /// <summary>
+        /// Returns the project associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that it null
+        /// </summary>
+        public ProjectModel Project => this.Layer?.Timeline.Project;
+
+        /// <summary>
+        /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that it null
+        /// </summary>
+        public ResourceManager ResourceManager => this.Layer?.Timeline.Project.ResourceManager;
 
         public string DisplayName { get; set; }
 
         public string TypeId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         public bool IsDisposing { get; private set; }
-
-        public event RenderInvalidatedEventHandler RenderInvalidated;
 
         protected ClipModel() {
 
@@ -26,9 +44,9 @@ namespace FramePFX.Core.Editor.Timeline {
         /// <param name="model">Model to set the layer of</param>
         /// <param name="layer">New layer</param>
         /// <param name="fireLayerChangedEvent">Whether to invoke the model's <see cref="OnAddedToLayer"/> function. If false, it must be called manually</param>
-        public static void SetLayer(ClipModel model, TimelineLayerModel layer, bool fireLayerChangedEvent = true) {
+        public static void SetLayer(ClipModel model, LayerModel layer, bool fireLayerChangedEvent = true) {
             if (fireLayerChangedEvent) {
-                TimelineLayerModel oldLayer = model.Layer;
+                LayerModel oldLayer = model.Layer;
                 model.Layer = layer;
                 model.OnAddedToLayer(oldLayer, layer);
             }
@@ -61,11 +79,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public abstract bool IntersectsFrameAt(long frame);
 
-        protected virtual void OnRenderInvalidated() {
-            this.RenderInvalidated?.Invoke(this, true);
-        }
-
-        protected virtual void OnAddedToLayer(TimelineLayerModel oldLayer, TimelineLayerModel newLayer) {
+        protected virtual void OnAddedToLayer(LayerModel oldLayer, LayerModel newLayer) {
 
         }
 

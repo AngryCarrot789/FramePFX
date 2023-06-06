@@ -280,7 +280,7 @@ namespace FramePFX.Editor.Timeline.Controls {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
             if (element is VideoTimelineLayerControl layer) {
-                if (item is TimelineLayerViewModel viewModel) {
+                if (item is LayerViewModel viewModel) {
                     BaseViewModel.SetInternalData(viewModel, typeof(ILayerHandle), layer);
                 }
                 // else {
@@ -301,7 +301,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 //     BaseViewModel.ClearInternalData(viewModel, typeof(ILayerHandle));
                 // }
 
-                if (item is TimelineLayerViewModel viewModel) {
+                if (item is LayerViewModel viewModel) {
                     BaseViewModel.ClearInternalData(viewModel, typeof(ILayerHandle));
                 }
 
@@ -330,11 +330,11 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public bool GetLayerControl(object item, out VideoTimelineLayerControl layer) {
-            return (layer = ICGenUtils.GetContainerForItem<TimelineLayerViewModel, VideoTimelineLayerControl>(item, this.ItemContainerGenerator, x => BaseViewModel.GetInternalData(x, typeof(ILayerHandle)) as VideoTimelineLayerControl)) != null;
+            return (layer = ICGenUtils.GetContainerForItem<LayerViewModel, VideoTimelineLayerControl>(item, this.ItemContainerGenerator, x => BaseViewModel.GetInternalData(x, typeof(ILayerHandle)) as VideoTimelineLayerControl)) != null;
         }
 
-        public bool GetLayerViewModel(object item, out TimelineLayerViewModel timelineLayer) {
-            return ICGenUtils.GetItemForContainer<VideoTimelineLayerControl, TimelineLayerViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out timelineLayer);
+        public bool GetLayerViewModel(object item, out LayerViewModel timelineLayer) {
+            return ICGenUtils.GetItemForContainer<VideoTimelineLayerControl, LayerViewModel>(item, this.ItemContainerGenerator, x => x.ViewModel, out timelineLayer);
         }
 
         public IEnumerable<VideoTimelineLayerControl> GetLayerControls() {
@@ -345,7 +345,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<TimelineLayerViewModel> GetLayerViewModels() {
+        public IEnumerable<LayerViewModel> GetLayerViewModels() {
             foreach (object item in this.Items) {
                 if (this.GetLayerViewModel(item, out var layer)) {
                     yield return layer;

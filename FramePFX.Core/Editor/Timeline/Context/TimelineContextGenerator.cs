@@ -1,5 +1,5 @@
-namespace FramePFX.Core.Editor.Timeline {
+namespace FramePFX.Core.Editor.Timeline.Context {
     public class TimelineContextGenerator {
-        
+
     }
 }

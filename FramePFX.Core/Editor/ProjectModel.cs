@@ -21,12 +21,14 @@ namespace FramePFX.Core.Editor {
 
         public ProjectModel() {
             this.Settings = new ProjectSettingsModel() {
-                Resolution = new Resolution(1920, 1080), FrameRate = 30
+                Resolution = new Resolution(1920, 1080),
+                FrameRate = 30
             };
 
             this.ResourceManager = new ResourceManager(this);
-            this.Timeline = new TimelineModel(this);
-            this.Timeline.MaxDuration = 10000;
+            this.Timeline = new TimelineModel(this) {
+                MaxDuration = 10000
+            };
         }
 
         public void SaveProject(string file) {

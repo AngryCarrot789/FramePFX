@@ -3,21 +3,27 @@ using SkiaSharp;
 namespace FramePFX.Core.Editor.ResourceManaging.Resources {
     public class ResourceText : ResourceItem {
         public string Text { get; set; }
+
         public double FontSize { get; set; }
+
         public double SkewX { get; set; }
+
         public string FontFamily { get; set; }
 
+        public SKColor Foreground { get; set; }
+
+        public SKColor Border { get; set; }
+
+        public double BorderThickness { get; }
+
         public ResourceText(ResourceManager manager) : base(manager) {
+            this.FontSize = 40;
+            this.FontFamily = "Consolas";
+            this.Text = "Text Here";
 
-        }
-
-        public SKTextBlob CreateBlob() {
-            if (string.IsNullOrEmpty(this.Text)) {
-                return null;
-            }
-
-            SKFont font = new SKFont(SKTypeface.FromFamilyName(this.FontFamily), (float) this.FontSize, 1F, (float) this.SkewX);
-            return SKTextBlob.Create(this.Text, font);
+            this.Foreground = SKColors.White;
+            this.Border = SKColors.DarkGray;
+            this.BorderThickness = 5d;
         }
     }
 }

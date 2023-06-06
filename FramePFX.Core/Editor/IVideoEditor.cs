@@ -8,5 +8,7 @@ namespace FramePFX.Core.Editor {
         void RenderViewPort(bool scheduleRender = false);
 
         void UpdateSelectionPropertyPages();
+
+        void PushNotificationMessage(string message);
     }
 }

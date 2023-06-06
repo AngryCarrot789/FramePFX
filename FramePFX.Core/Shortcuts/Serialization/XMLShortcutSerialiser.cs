@@ -261,18 +261,18 @@ namespace FramePFX.Core.Shortcuts.Serialization {
 
         #region Util functions
 
-        protected static bool GetIsGlobal(XmlElement element) {
+        protected static bool GetIsGlobal(XmlElement element) { // false by default
             string attrib = element.GetAttribute("IsGlobal");
             if (string.IsNullOrWhiteSpace(attrib))
                 attrib = element.GetAttribute("Global");
             return !string.IsNullOrWhiteSpace(attrib) && attrib.Equals("True", StringComparison.OrdinalIgnoreCase);
         }
 
-        protected static bool GetIsInherit(XmlElement element) {
+        protected static bool GetIsInherit(XmlElement element) { // true by default
             string attrib = element.GetAttribute("IsInherit");
             if (string.IsNullOrWhiteSpace(attrib))
                 attrib = element.GetAttribute("Inherit");
-            return !string.IsNullOrWhiteSpace(attrib) && attrib.Equals("True", StringComparison.OrdinalIgnoreCase);
+            return string.IsNullOrWhiteSpace(attrib) || attrib.Equals("True", StringComparison.OrdinalIgnoreCase);
         }
 
         protected static string GetDescription(XmlElement element) {

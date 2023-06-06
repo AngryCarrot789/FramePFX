@@ -1,5 +1,52 @@
+using System.Threading.Tasks;
+using FramePFX.Core.Actions;
+using FramePFX.Core.Actions.Contexts;
+using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.History.ViewModels;
+
 namespace FramePFX.Core.History.Actions {
-    public class UndoAction {
-        
+    [ActionRegistration("actions.project.history.Undo")]
+    public class UndoAction : AnAction {
+        public static HistoryManagerViewModel GetHistoryManager(IDataContext context, out VideoEditorViewModel editor) {
+            if (context.TryGetContext(out ClipViewModel clip) && clip.Layer != null && (editor = clip.Layer.Timeline.Project.Editor) != null) {
+                return editor.HistoryManager;
+            }
+            else if (context.TryGetContext(out TimelineViewModel timeline) && (editor = timeline.Project.Editor) != null) {
+                return editor.HistoryManager;
+            }
+            else if (context.TryGetContext(out ProjectViewModel project) && (editor = project.Editor) != null) {
+                return editor.HistoryManager;
+            }
+            else if (context.TryGetContext(out editor)) {
+                return editor.HistoryManager;
+            }
+            else if (context.TryGetContext(out HistoryManagerViewModel manager)) {
+                return manager;
+            }
+            else {
+                return null;
+            }
+        }
+
+        public static bool TryGetHistoryManager(IDataContext context, out HistoryManagerViewModel manager, out VideoEditorViewModel editor) {
+            return (manager = GetHistoryManager(context, out editor)) != null;
+        }
+
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+            if (TryGetHistoryManager(e.DataContext, out var manager, out var editor)) {
+                if (manager.CanUndo) {
+                    await manager.UndoAction();
+                }
+                else {
+                    editor.View.PushNotificationMessage("Nothing to undo!");
+                }
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
     }
 }

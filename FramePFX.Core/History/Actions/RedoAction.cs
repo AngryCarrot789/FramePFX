@@ -3,10 +3,17 @@ using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.History.Actions {
-    public class UndoAction : AnAction {
+    [ActionRegistration("actions.project.history.Redo")]
+    public class RedoAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (e.DataContext.TryGetContext(out TimelineViewModel timeline)) {
-                await timeline.HistoryManager.UndoAction();
+            if (UndoAction.TryGetHistoryManager(e.DataContext, out var manager, out var editor)) {
+                if (manager.CanRedo) {
+                    await manager.RedoAction();
+                }
+                else {
+                    editor.View.PushNotificationMessage("Nothing to redo!");
+                }
+
                 return true;
             }
             else {

@@ -70,7 +70,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         public DataContext ActionContext { get; set; }
 
-        public GroupedShortcut(ShortcutGroup @group, string name, IShortcut shortcut, bool isGlobal = false, bool isInherited = false) {
+        public GroupedShortcut(ShortcutGroup @group, string name, IShortcut shortcut, bool isGlobal = false, bool isInherited = true) {
             this.Group = @group ?? throw new ArgumentNullException(nameof(@group), "Collection cannot be null");
             this.Shortcut = shortcut;
             this.FullPath = @group.GetPathForName(name);

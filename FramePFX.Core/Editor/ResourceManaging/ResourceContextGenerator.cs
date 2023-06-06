@@ -16,11 +16,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             if (context.TryGetContext(out ResourceItemViewModel item)) {
                 ObservableCollection<ResourceItemViewModel> selected = item.Manager.SelectedItems;
                 if (selected.Count > 0) {
-                    list.Add(new ActionContextEntry(item.Manager, "actions.resources.DeleteItems"));
                     if (selected.Count == 1) {
-                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.RenameItem"));
+                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.RenameItem", "Rename"));
+                        list.Add(SeparatorEntry.Instance);
                     }
 
+                    list.Add(new ActionContextEntry(item.Manager, "actions.resources.DeleteItems", "Delete"));
                     return;
                 }
             }

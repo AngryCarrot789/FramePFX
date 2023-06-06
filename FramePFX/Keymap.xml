@@ -1,37 +1,48 @@
 ﻿<?xml version="1.0"?>
 <KeyMap>
     <Group Name="Application">
-        <Group Name="Resources">
-            <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
-                <Keystroke Key="Delete"/>
+        <Group Name="Editor">
+            <Shortcut Name="UndoShortcut" ActionId="actions.project.history.Undo">
+                <Keystroke Mods="CTRL" Key="Z"/>
             </Shortcut>
-            <Shortcut Name="RenameItem" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
-                <Keystroke Key="F2"/>
+            <Shortcut Name="RedoShortcut1" ActionId="actions.project.history.Redo">
+                <Keystroke Mods="CTRL+SHIFT" Key="Z"/>
             </Shortcut>
-            <Shortcut Name="RenameItem2" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
-                <Keystroke Mods="CTRL" Key="R"/>
+            <Shortcut Name="RedoShortcut2" ActionId="actions.project.history.Redo">
+                <Keystroke Mods="CTRL" Key="Y"/>
             </Shortcut>
-        </Group>
-        <Group Name="Timeline">
-            <Group Name="Surface">
-                <Shortcut Name="DeleteSelectClips" Description="Deletes all of the selected clips">
+            <Group Name="Resources">
+                <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
                     <Keystroke Key="Delete"/>
                 </Shortcut>
-                <Shortcut Name="PlayPauseAction" Description="Causes the timeline to play or pause">
-                    <Keystroke Key="Space"/>
+                <Shortcut Name="RenameItem" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
+                    <Keystroke Key="F2"/>
                 </Shortcut>
-                <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
-                    <Keystroke Key="S"/>
-                </Shortcut>
-            </Group>
-            <Group Name="LayerControllers">
-                <Shortcut Name="DeleteSelectedLayer" Description="Deletes the selected layer">
-                    <Keystroke Key="Delete"/>
+                <Shortcut Name="RenameItem2" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
+                    <Keystroke Mods="CTRL" Key="R"/>
                 </Shortcut>
             </Group>
-            <Shortcut Name="NewVideoLayer" ActionId="actions.editor.NewVideoLayer" Inherit="true" Description="Creates a new video layer">
-                <Keystroke Mods="CTRL+SHIFT" Key="Q"/>
-            </Shortcut>
+            <Group Name="Timeline">
+                <Group Name="Surface">
+                    <Shortcut Name="DeleteSelectClips" Description="Deletes all of the selected clips">
+                        <Keystroke Key="Delete"/>
+                    </Shortcut>
+                    <Shortcut Name="PlayPauseAction" Description="Causes the timeline to play or pause">
+                        <Keystroke Key="Space"/>
+                    </Shortcut>
+                    <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
+                        <Keystroke Key="S"/>
+                    </Shortcut>
+                </Group>
+                <Group Name="LayerControllers">
+                    <Shortcut Name="DeleteSelectedLayer" Description="Deletes the selected layer">
+                        <Keystroke Key="Delete"/>
+                    </Shortcut>
+                </Group>
+                <Shortcut Name="NewVideoLayer" ActionId="actions.editor.NewVideoLayer" Inherit="true" Description="Creates a new video layer">
+                    <Keystroke Mods="CTRL+SHIFT" Key="Q"/>
+                </Shortcut>
+            </Group>
         </Group>
     </Group>
 </KeyMap>

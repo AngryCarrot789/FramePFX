@@ -271,6 +271,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Validators\FontFamilyValidationRule.cs" />
     <Compile Include="Views\AppSplashScreen.xaml.cs">
       <DependentUpon>AppSplashScreen.xaml</DependentUpon>
     </Compile>

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Settings.ViewModels;
 using FramePFX.Core.Utils;
 
@@ -54,9 +55,12 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public AsyncRelayCommand NewProjectCommand { get; }
 
+        public HistoryManagerViewModel HistoryManager { get; }
+
         public VideoEditorViewModel(IVideoEditor view, ApplicationViewModel app) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditorModel();
+            this.HistoryManager = new HistoryManagerViewModel(this.Model.HistoryManager);
             this.App = app;
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.Model.OnStepFrame = () => {

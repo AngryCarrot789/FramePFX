@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
+using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
@@ -64,9 +65,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public AsyncRelayCommand AddVideoLayerCommand { get; }
         public AsyncRelayCommand AddAudioLayerCommand { get; }
 
+        public TimelineModel Model { get; }
+
         public ProjectViewModel Project { get; }
 
-        public TimelineModel Model { get; }
         public InputValidator LayerNameValidator { get; set; }
 
         public TimelineViewModel(ProjectViewModel project, TimelineModel model) {

@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
+using FramePFX.Core.History;
 
 namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.SliceClips")]
@@ -61,6 +63,16 @@ namespace FramePFX.Editor.Timeline.Actions {
             }
         }
 
-        // Unsafe as in assuming the given frame intersects all of the clips
+        public class SliceHistoryAction : IHistoryAction {
+
+
+            public Task UndoAsync() {
+                throw new System.NotImplementedException();
+            }
+
+            public Task RedoAsync() {
+                throw new System.NotImplementedException();
+            }
+        }
     }
 }

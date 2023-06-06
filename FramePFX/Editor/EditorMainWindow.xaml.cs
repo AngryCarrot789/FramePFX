@@ -30,10 +30,9 @@ namespace FramePFX.Editor {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             IoC.BroadcastShortcutActivity = (x) => {
-
             };
 
-            this.DataContext = new VideoEditorViewModel(this, IoC.App);
+                this.DataContext = new VideoEditorViewModel(this, IoC.App);
             this.renderCallback = () => {
                 this.ViewPortElement.InvalidateVisual();
             };
@@ -49,6 +48,10 @@ namespace FramePFX.Editor {
 
                 this.GeneratePropertyPages(list[0]);
             }
+        }
+
+        public void PushNotificationMessage(string message) {
+            this.NotificationBarTextBlock.Text = message;
         }
 
         public void GeneratePropertyPages(ClipViewModel clip) {

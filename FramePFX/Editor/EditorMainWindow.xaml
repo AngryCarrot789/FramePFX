@@ -25,7 +25,8 @@
             Style="{StaticResource CustomWindowStyle}"
             Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}"
             BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"
-            s:UIFocusGroup.IsGlobalShortcutFocusTarget="True">
+            s:UIFocusGroup.IsGlobalShortcutFocusTarget="True"
+            s:UIFocusGroup.FocusGroupPath="Application/Editor">
     <Window.Resources>
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True"/>
         <Style TargetType="{x:Type Slider}">
@@ -90,7 +91,7 @@
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
-                            <Grid s:UIFocusGroup.FocusGroupPath="Application/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+                            <Grid s:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
                                 <ui:ResourceListControl FileDropNotifier="{Binding}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0" helpers:SelectorHelper.SelectedItems="{Binding SelectedItems}" helpers:SelectorHelper.UpdateSelectedItemsOnChange="True">
                                     <ui:ResourceListControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -100,14 +101,6 @@
                                     <ui:ResourceListControl.ItemContainerStyle>
                                         <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:ResourceItemControl}}">
                                             <Setter Property="UniqueIDHeader" Value="{Binding UniqueId, UpdateSourceTrigger=PropertyChanged}"/>
-                                            <Setter Property="ContextMenu">
-                                                <Setter.Value>
-                                                    <ContextMenu>
-                                                        <MenuItem Header="Rename" Command="{Binding RenameCommand, Mode=OneTime}"/>
-                                                        <MenuItem Background="DarkRed" Header="Delete" Command="{Binding DeleteCommand, Mode=OneTime}"/>
-                                                    </ContextMenu>
-                                                </Setter.Value>
-                                            </Setter>
                                         </Style>
                                     </ui:ResourceListControl.ItemContainerStyle>
                                     <ui:ResourceListControl.ItemTemplate>
@@ -179,15 +172,16 @@
                     <!-- Status bar -->
                     <Border Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" Margin="0,-1,0,0">
                         <StackPanel Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center" x:Name="NotificationBarTextBlock" Padding="3,0"/>
                         </StackPanel>
                     </Border>
                 </Border>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}"
                         IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Margin="0,0,0,20"
-                        s:UIFocusGroup.FocusGroupPath="Application/Timeline">
+                        s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
                     <Border.InputBindings>
-                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/LayerControllers/DeleteSelectedLayer" Command="{Binding Timeline.RemoveSelectedLayersCommand}"/>
-                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Timeline/Surface/PlayPauseAction" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
+                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/LayerControllers/DeleteSelectedLayer" Command="{Binding Timeline.RemoveSelectedLayersCommand}"/>
+                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/Surface/PlayPauseAction" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
                     </Border.InputBindings>
                     <Grid DataContext="{Binding Timeline}">
                         <Grid.RowDefinitions>
@@ -204,8 +198,8 @@
                                 <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0"/>
                             </Grid>
                         </Border>
-                        <Border s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" Grid.Row="1"/>
-                        <ListBox s:UIFocusGroup.FocusGroupPath="Application/Timeline/LayerControllers" 
+                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" Grid.Row="1"/>
+                        <ListBox s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
                                  ItemsSource="{Binding Layers, Mode=OneTime}" 
                                  SelectedItem="{Binding PrimarySelectedLayer, UpdateSourceTrigger=PropertyChanged}"
                                  helpers:SelectorHelper.SelectedItems="{Binding SelectedLayers}"
@@ -314,7 +308,7 @@
                                                   BorderBrush="{DynamicResource AREghZyBrush.Tone2.Border.Static}"
                                                   MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
                                                   Grid.RowSpan="2"
-                                                  s:UIFocusGroup.FocusGroupPath="Application/Timeline/Surface">
+                                                  s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                             <controls:TimelineControl.Style>
                                 <Style TargetType="{x:Type controls:TimelineControl}">
                                     <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone2.Background.Static}"/>

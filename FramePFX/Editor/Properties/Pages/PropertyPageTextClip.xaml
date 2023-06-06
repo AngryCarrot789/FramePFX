@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FramePFX.Editor.Properties.Pages"
-             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core" xmlns:controls="clr-namespace:FramePFX.Controls"
+             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core" xmlns:controls="clr-namespace:FramePFX.Controls" xmlns:validators="clr-namespace:FramePFX.Validators"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance clips:TextClipViewModel}">
@@ -13,14 +13,19 @@
         <StackPanel Orientation="Horizontal">
             <TextBlock Padding="5" Text="Text:" HorizontalAlignment="Left"/>
             <controls:NumberDragger Margin="2,2,0,2" Minimum="0" Maximum="4000" Value="{Binding FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone4.Border.Static}" BorderThickness="1" Width="32"/>
-            <ComboBox Margin="2,2,0,2" Width="100" SelectedItem="{Binding FontFamily, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" IsEditable="True">
-                <ComboBoxItem>Arial</ComboBoxItem>
-                <ComboBoxItem>Consolas</ComboBoxItem>
-            </ComboBox>
+            <TextBox Margin="2,2,0,2" Width="100" VerticalContentAlignment="Center">
+                <TextBox.Text>
+                    <Binding Path="FontFamily" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                        <Binding.ValidationRules>
+                            <validators:FontFamilyValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
             <Button Content="B" Margin="2,2,0,2" HorizontalAlignment="Left" Width="22" FontWeight="Bold" FontFamily="Consolas"/>
             <Button Content="I" Margin="2,2,0,2" HorizontalAlignment="Left" Width="22" FontStyle="Italic" FontFamily="Consolas"/>
         </StackPanel>
-        <TextBox MinHeight="40" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+        <TextBox MinHeight="40" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" AcceptsReturn="True" AcceptsTab="True">
             
         </TextBox>
     </StackPanel>

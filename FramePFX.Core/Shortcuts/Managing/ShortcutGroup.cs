@@ -94,7 +94,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
             this.groups.Add(group);
         }
 
-        public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false, bool inherit = false) {
+        public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false, bool inherit = true) {
             ValidateName(name, "Shortcut name cannot be null or consist of only whitespaces");
             this.ValidateNameNotInUse(name);
             GroupedShortcut managed = new GroupedShortcut(this, name, shortcut, isGlobal, inherit);

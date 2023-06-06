@@ -5,8 +5,8 @@ namespace FramePFX.Core {
     /// <summary>
     /// A helper "registry" class, for mapping type of models to view models and the reverse, along with storing unique identifiers for a model-viewmodel entry
     /// </summary>
-    /// <typeparam name="TModel"></typeparam>
-    /// <typeparam name="TViewModel"></typeparam>
+    /// <typeparam name="TModel">The type of model</typeparam>
+    /// <typeparam name="TViewModel">The type of view model</typeparam>
     public class ModelRegistry<TModel, TViewModel> where TModel : class where TViewModel : BaseViewModel {
         private readonly Dictionary<string, Entry> IdToRegistry;
         private readonly Dictionary<Type, Entry> ViewModelToRegistry;

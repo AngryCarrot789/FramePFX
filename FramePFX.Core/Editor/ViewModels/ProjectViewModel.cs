@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 

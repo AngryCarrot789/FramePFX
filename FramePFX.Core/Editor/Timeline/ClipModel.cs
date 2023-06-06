@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
@@ -8,6 +9,9 @@ namespace FramePFX.Core.Editor.Timeline {
     /// A model that represents a timeline layer clip, such as a video or audio clip
     /// </summary>
     public abstract class ClipModel : IRBESerialisable, IDisposable {
+        // not a chance anyone's creating 9 quintillion clips
+        private static long _nextClipId;
+
         /// <summary>
         /// Returns the layer that this clip is currently in
         /// </summary>
@@ -34,8 +38,13 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public bool IsDisposing { get; private set; }
 
-        protected ClipModel() {
+        private long clipId = -1;
+        public long ClipId {
+            get => this.clipId >= 0 ? this.clipId : (this.clipId = Interlocked.Increment(ref _nextClipId));
+            set => this.clipId = value;
+        }
 
+        protected ClipModel() {
         }
 
         /// <summary>

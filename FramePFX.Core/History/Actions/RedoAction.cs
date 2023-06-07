@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Actions;
-using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.History.Actions {
     [ActionRegistration("actions.project.history.Redo")]

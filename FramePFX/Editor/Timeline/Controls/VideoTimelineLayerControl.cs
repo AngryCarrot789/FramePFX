@@ -316,10 +316,6 @@ namespace FramePFX.Editor.Timeline.Controls {
             else {
                 this.SelectedItems.Remove(x);
             }
-
-            // TODO: something here
-            // this.Timeline.ViewModel.MainSelectedClip = item.ViewModel;
-            // this.Timeline.ViewModel.OnUpdateSelection(this.GetSelectedClipViewModels());
         }
 
         public bool SetItemSelectedPropertyAtIndex(int index, bool selected) {

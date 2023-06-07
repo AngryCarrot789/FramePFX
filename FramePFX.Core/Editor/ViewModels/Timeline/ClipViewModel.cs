@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.History;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.History.Tasks;
+using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
@@ -10,12 +13,22 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
     public abstract class ClipViewModel : BaseViewModel, IUserRenameable, IDropClipResource, IDisposable {
+        private readonly DelayedEnqueuement<HistoryClipDisplayName> displayNameHistory = new DelayedEnqueuement<HistoryClipDisplayName>();
+
+        public bool IsHistoryChanging { get; set; }
+
         /// <summary>
         /// The clip's display/readable name, editable by a user
         /// </summary>
         public string DisplayName {
             get => this.Model.DisplayName;
             set {
+                if (!this.IsHistoryChanging && this.Layer != null) {
+                    if (!this.displayNameHistory.TryGetAction(out HistoryClipDisplayName action))
+                        this.displayNameHistory.PushAction(this.HistoryManager, action = new HistoryClipDisplayName(this), "Edit media duration");
+                    action.DisplayName.SetCurrent(value);
+                }
+
                 this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
             }
@@ -25,6 +38,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         /// The layer this clip is located in
         /// </summary>
         public LayerViewModel Layer { get; private set; }
+
+        public TimelineViewModel Timeline => this.Layer?.Timeline;
+
+        public ProjectViewModel Project => this.Layer?.Timeline.Project;
+
+        public VideoEditorViewModel Editor => this.Layer?.Timeline.Project.Editor;
+
+        public HistoryManagerViewModel HistoryManager => this.Editor?.HistoryManager;
 
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
@@ -93,14 +114,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         }
 
-        public virtual bool CanDropResource(ResourceItemViewModel resource) {
-            return false;
+        public virtual bool CanDropResource(ResourceItem resource) {
+            return ReferenceEquals(resource.Manager, this.Layer?.Timeline.Project.ResourceManager.Model);
         }
 
-        public virtual async Task OnDropResource(ResourceItemViewModel resource) {
-            if (!ReferenceEquals(resource.Manager, this.Layer?.Timeline.Project.ResourceManager)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Incompatible project resource", $"Cannot drop a resource that belongs to a different project compared to this clip");
-            }
+        public virtual Task OnDropResource(ResourceItem resource) {
+            return IoC.MessageDialogs.ShowMessageAsync("Resource dropped", "This clip can't do anything with that resource!");
         }
     }
 }

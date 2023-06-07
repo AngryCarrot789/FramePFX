@@ -104,9 +104,9 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        private const int LEN_U1 = 0b01; // unsigned byte
-        private const int LEN_U2 = 0b10; // unsigned short
-        private const int LEN_S4 = 0b11; // signed int
+        private const int LEN_U1 = 0b00; // unsigned byte
+        private const int LEN_U2 = 0b01; // unsigned short
+        private const int LEN_S4 = 0b10; // signed int
         private const int MAX_U1 = (byte.MaxValue) >> 2; // 63
         private const int MAX_U2 = (byte.MaxValue  << 8)  | MAX_U1; // 65,343
         private const int MAX_S4 = (short.MaxValue << 16) | MAX_U2 | MAX_U1; // 2,147,483,455. Not using ushort because that results in integer overflow to -193

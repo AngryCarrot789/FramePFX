@@ -2,10 +2,14 @@
 
 namespace FramePFX.Editor.Timeline.Utils {
     public static class TimelineUtils {
-        public const double MinUnitZoom = 0.0001d;
+        public const double MinUnitZoom = 0.001d;
 
         public static object ClampUnit(object value) {
             return (double) value < MinUnitZoom ? MinUnitZoom : value;
+        }
+
+        public static double ClampUnit(double value) {
+            return value < MinUnitZoom ? MinUnitZoom : value;
         }
 
         public static bool IsUnitEqual(double a, double b) {

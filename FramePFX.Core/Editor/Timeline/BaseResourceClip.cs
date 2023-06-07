@@ -29,7 +29,9 @@ namespace FramePFX.Core.Editor.Timeline {
 
         protected override void OnAddedToLayer(LayerModel oldLayer, LayerModel newLayer) {
             base.OnAddedToLayer(oldLayer, newLayer);
-            this.ResourcePath?.SetManager(newLayer?.Timeline.Project.ResourceManager);
+            if (newLayer == null || this.ResourcePath == null)
+                return;
+            this.ResourcePath.SetManager(newLayer.Timeline.Project.ResourceManager);
         }
 
         public void SetTargetResourceId(string id) {
@@ -99,6 +101,13 @@ namespace FramePFX.Core.Editor.Timeline {
                 catch (Exception e) {
                     stack.Push(e);
                 }
+            }
+        }
+
+        protected override void LoadDataIntoClone(VideoClipModel clone) {
+            base.LoadDataIntoClone(clone);
+            if (this.ResourcePath != null) {
+                ((BaseResourceClip<T>) clone).SetTargetResourceId(this.ResourcePath.ResourceId);
             }
         }
     }

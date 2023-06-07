@@ -15,11 +15,11 @@ namespace FramePFX.Core.RBC {
             this.Value = value;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Value = reader.ReadByte();
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
 
@@ -40,11 +40,11 @@ namespace FramePFX.Core.RBC {
             this.Value = value;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Value = reader.ReadInt16();
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
 
@@ -65,11 +65,11 @@ namespace FramePFX.Core.RBC {
             this.Value = value;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Value = reader.ReadInt32();
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
 
@@ -90,11 +90,11 @@ namespace FramePFX.Core.RBC {
             this.Value = value;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Value = reader.ReadInt64();
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
 
@@ -115,11 +115,11 @@ namespace FramePFX.Core.RBC {
             this.Value = value;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Value = reader.ReadSingle();
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
 
@@ -140,11 +140,11 @@ namespace FramePFX.Core.RBC {
             this.Value = value;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Value = reader.ReadDouble();
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write(this.Value);
         }
 
@@ -197,11 +197,11 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Value = ReadString(reader);
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             WriteString(this.Value, writer);
         }
 

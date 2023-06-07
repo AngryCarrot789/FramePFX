@@ -82,9 +82,8 @@
                             <Button Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>
-                    <controls1:FreeMoveViewPortV2 x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True">
-                        <wpf:SKElement Width="{Binding Source={x:Static core:IoC.App}, Path=UserSettings.Width, FallbackValue=500}"
-                                       Height="{Binding Source={x:Static core:IoC.App}, Path=UserSettings.Height, FallbackValue=500}"
+                    <controls1:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True">
+                        <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}"
                                        x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
                     </controls1:FreeMoveViewPortV2>
                 </Grid>
@@ -92,7 +91,7 @@
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
                             <Grid s:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
-                                <ui:ResourceListControl FileDropNotifier="{Binding}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0" helpers:SelectorHelper.SelectedItems="{Binding SelectedItems}" helpers:SelectorHelper.UpdateSelectedItemsOnChange="True">
+                                <ui:ResourceListControl FileDropNotifier="{Binding .}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0" helpers:SelectorHelper.SelectedItems="{Binding SelectedItems}" helpers:SelectorHelper.UpdateSelectedItemsOnChange="True">
                                     <ui:ResourceListControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -359,7 +358,7 @@
                                     <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
                                     <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Setter Property="ResourceDropNotifier" Value="{Binding}"/>
+                                    <Setter Property="DropNotifier" Value="{Binding}"/>
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="ItemsSource" Value="{Binding Clips, Mode=OneTime}"/>
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>

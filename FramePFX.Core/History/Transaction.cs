@@ -1,5 +1,5 @@
 namespace FramePFX.Core.History {
-    public class ValueTransaction<T> {
+    public class Transaction<T> {
         /// <summary>
         /// The original value, before any change
         /// </summary>
@@ -10,11 +10,11 @@ namespace FramePFX.Core.History {
         /// </summary>
         public T Current { get; set; }
 
-        public ValueTransaction(T original) {
+        public Transaction(T original) {
             this.Original = original;
         }
 
-        public ValueTransaction(T original, T current) : this(original) {
+        public Transaction(T original, T current) : this(original) {
             this.Current = current;
         }
 

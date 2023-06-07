@@ -109,7 +109,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
-        private void OnUserSettingsModified(UserSettingsViewModel settings) {
+        private void OnUserSettingsModified(AppSettingsViewModel settings) {
 
         }
 
@@ -135,7 +135,6 @@ namespace FramePFX.Core.Editor.ViewModels {
 
             this.IsProjectSaving = false;
             await this.Playback.OnProjectSaved();
-            this.Playback.StartRenderTimer();
         }
 
         public void DoRender(bool schedule = false) {

@@ -1,5 +1,5 @@
 namespace FramePFX.Core.Settings {
-    public class UserSettingsModel {
+    public class AppSettingsModel {
         // /// <summary>
         // /// Sets the parent settings that this instance will access if a property is not set
         // /// </summary>
@@ -7,7 +7,7 @@ namespace FramePFX.Core.Settings {
 
         public bool StopOnTogglePlay { get; set; }
 
-        public UserSettingsModel() {
+        public AppSettingsModel() {
 
         }
 

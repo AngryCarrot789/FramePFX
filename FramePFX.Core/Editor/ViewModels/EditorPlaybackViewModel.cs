@@ -40,6 +40,8 @@ namespace FramePFX.Core.Editor.ViewModels {
         public AsyncRelayCommand TogglePlayCommand { get; }
         public AsyncRelayCommand SwitchPrecisionTimingModeCommand { get; }
 
+        private bool wasPlayingAtSave;
+
         public EditorPlaybackViewModel(VideoEditorViewModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.Model = new EditorPlaybackModel(editor.Model);
@@ -60,10 +62,12 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public void StartRenderTimer() {
             this.Model.PlaybackTimer.Start(this.UsePrecisionTimingMode);
+            this.IsPlaying = true;
         }
 
-        public Task StopRenderTimer() {
-            return this.Model.PlaybackTimer.StopAsync();
+        public async Task StopRenderTimer() {
+            await this.Model.PlaybackTimer.StopAsync();
+            this.IsPlaying = false;
         }
 
         public async Task PlayAction() {
@@ -72,7 +76,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             this.StartRenderTimer();
-            this.IsPlaying = true;
             this.UpdatePlaybackCommands();
         }
 
@@ -82,7 +85,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             await this.StopRenderTimer();
-            this.IsPlaying = false;
             this.UpdatePlaybackCommands();
         }
 
@@ -92,7 +94,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             await this.StopRenderTimer();
-            this.IsPlaying = false;
             this.UpdatePlaybackCommands();
         }
 
@@ -102,7 +103,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             if (this.IsPlaying) {
-                return IoC.App.UserSettings.StopOnTogglePlay ? this.StopAction() : this.PauseAction();
+                return this.Editor.App.AppSettings.StopOnTogglePlay ? this.StopAction() : this.PauseAction();
             }
             else {
                 return this.PlayAction();
@@ -112,7 +113,6 @@ namespace FramePFX.Core.Editor.ViewModels {
         public async Task OnProjectChanging(ProjectViewModel project) {
             if (this.IsPlaying) {
                 await this.StopRenderTimer();
-                this.IsPlaying = false;
                 this.UpdatePlaybackCommands();
             }
 
@@ -126,11 +126,9 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task OnProjectChanged(ProjectViewModel project) {
+            await this.Model.PlaybackTimer.StopAsync();
             if (project != null) {
                 this.SetTimerFrameRate(project.Settings.FrameRate);
-            }
-            else {
-                await this.Model.PlaybackTimer.StopAsync();
             }
 
             this.UpdatePlaybackCommands();
@@ -144,7 +142,9 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         private async Task SwitchPrecisionMode() {
             this.UsePrecisionTimingMode = !this.UsePrecisionTimingMode;
-            await this.Model.PlaybackTimer.RestartAsync(this.UsePrecisionTimingMode);
+            if (this.IsPlaying) {
+                await this.Model.PlaybackTimer.RestartAsync(this.UsePrecisionTimingMode);
+            }
         }
 
         public void Dispose() {
@@ -152,12 +152,20 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task OnProjectSaving() {
-            await this.StopRenderTimer();
+            this.wasPlayingAtSave = this.IsPlaying;
+            if (this.wasPlayingAtSave) {
+                await this.StopRenderTimer();
+            }
+
             this.UpdatePlaybackCommands();
         }
 
         public async Task OnProjectSaved() {
-            this.StartRenderTimer();
+            if (this.wasPlayingAtSave) {
+                this.wasPlayingAtSave = false;
+                this.StartRenderTimer();
+            }
+
             this.UpdatePlaybackCommands();
         }
     }

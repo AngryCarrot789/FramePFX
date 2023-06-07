@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.History.ViewModels;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 
@@ -92,11 +92,21 @@ namespace FramePFX.Core.Editor.ViewModels {
 
             Exception e = null;
             await Task.Run(() => {
+                RBEDictionary dictionary = new RBEDictionary();
                 try {
-                    this.Model.SaveProject(file);
+                    this.Model.WriteToRBE(dictionary);
                 }
                 catch (Exception exception) {
                     e = exception;
+                }
+
+                if (e == null) {
+                    try {
+                        RBEUtils.WriteToFile(dictionary, file);
+                    }
+                    catch (Exception exception) {
+                        e = exception;
+                    }
                 }
             });
 

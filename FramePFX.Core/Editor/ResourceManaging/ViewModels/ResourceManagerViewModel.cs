@@ -1,16 +1,19 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Interactivity;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public class ResourceManagerViewModel : BaseViewModel {
+    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier {
         public readonly InputValidator ResourceIdValidator;
 
         private readonly ObservableCollection<ResourceItemViewModel> resources;
@@ -56,6 +59,45 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
             foreach ((string _, ResourceItem item) in manager.Items) {
                 this.AddResource(item, false);
+            }
+        }
+
+        public string GenerateIdForFile(string filePath) {
+            string fileName = Path.GetFileName(filePath);
+            if (!this.Model.ResourceExists(fileName)) {
+                return fileName;
+            }
+
+            for (int i = 0; i < 100000; i++) {
+                string id = fileName + " (" + i + ")";
+                if (!this.Model.ResourceExists(id)) {
+                    return id;
+                }
+            }
+
+            if (!this.Model.ResourceExists(filePath)) {
+                return filePath;
+            }
+
+            for (int i = 0; i < 100000; i++) {
+                string id = filePath + " (" + i + ")";
+                if (!this.Model.ResourceExists(id)) {
+                    return id;
+                }
+            }
+
+            // what the ass. last resort
+            Random random = new Random();
+            while (true) {
+                StringBuilder sb = new StringBuilder(32);
+                for (int i = 0; i < 32; i++) {
+                    sb.Append(random.Next('a', 'z'));
+                }
+
+                string id = sb.ToString();
+                if (!this.Model.ResourceExists(id)) {
+                    return id;
+                }
             }
         }
 
@@ -179,6 +221,34 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     catch (Exception e) {
                         stack.Push(e);
                     }
+                }
+            }
+        }
+
+        public Task<bool> CanDrop(string[] paths, ref FileDropType type) {
+            type = FileDropType.Copy;
+            return Task.FromResult(true);
+        }
+
+        public async Task OnFilesDropped(string[] paths) {
+            foreach (string path in paths) {
+                switch (Path.GetExtension(path).ToLower()) {
+                    case ".mp4":
+                    case ".mov":
+                    case ".mkv":
+                    case ".flv":
+                        this.AddResource(new ResourceMedia(this.Model) {
+                            FilePath = path, UniqueId = this.GenerateIdForFile(path)
+                        });
+                        break;
+                    case ".png":
+                    case ".bmp":
+                    case ".jpg":
+                    case ".jpeg":
+                        this.AddResource(new ResourceImage(this.Model) {
+                            FilePath = path, UniqueId = this.GenerateIdForFile(path)
+                        });
+                        break;
                 }
             }
         }

@@ -1,13 +1,18 @@
 using System.Numerics;
+using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline {
+namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     /// <summary>
     /// Base view model class for video clips that are placed on a video layer
     /// </summary>
-    public class VideoClipViewModel : ClipViewModel {
+    public abstract class VideoClipViewModel : ClipViewModel {
+        private readonly DelayedEnqueuement<HistoryClipMediaTransformation> transformationHistory = new DelayedEnqueuement<HistoryClipMediaTransformation>();
+        private readonly DelayedEnqueuement<HistoryVideoClipPosition> clipSpanHistory = new DelayedEnqueuement<HistoryVideoClipPosition>();
+
         private float bothPos;
         private float bothScale;
         private float bothScaleOrigin;
@@ -30,6 +35,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public Vector2 MediaPosition {
             get => this.Model.MediaPosition;
             set {
+                if (!this.IsHistoryChanging && this.Layer != null) {
+                    if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
+                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit media transformation");
+                    action.MediaPosition.SetCurrent(value);
+                }
+
                 this.Model.MediaPosition = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaPositionX));
@@ -54,6 +65,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public Vector2 MediaScale {
             get => this.Model.MediaScale;
             set {
+                if (!this.IsHistoryChanging && this.Layer != null) {
+                    if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
+                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit media transformation");
+                    action.MediaScale.SetCurrent(value);
+                }
+
                 this.Model.MediaScale = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleX));
@@ -78,6 +95,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public Vector2 MediaScaleOrigin {
             get => this.Model.MediaScaleOrigin;
             set {
+                if (!this.IsHistoryChanging && this.Layer != null) {
+                    if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
+                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit media transformation");
+                    action.MediaScaleOrigin.SetCurrent(value);
+                }
+
                 this.Model.MediaScaleOrigin = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
@@ -96,6 +119,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public long MediaFrameOffset {
             get => this.Model.MediaFrameOffset;
             set {
+                if (!this.IsHistoryChanging && this.Layer != null) {
+                    if (!this.clipSpanHistory.TryGetAction(out HistoryVideoClipPosition action))
+                        this.clipSpanHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                    action.MediaFrameOffset.SetCurrent(value);
+                }
+
                 this.Model.MediaFrameOffset = value;
                 this.RaisePropertyChanged();
                 this.Model.InvalidateRender();
@@ -120,6 +149,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public ClipSpan Span {
             get => this.Model.FrameSpan;
             set {
+                if (!this.IsHistoryChanging && this.Layer != null) {
+                    if (!this.clipSpanHistory.TryGetAction(out HistoryVideoClipPosition action))
+                        this.clipSpanHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                    action.Span.SetCurrent(value);
+                }
+
                 this.Model.FrameSpan = value;
                 this.RaisePropertyChanged(nameof(this.FrameBegin));
                 this.RaisePropertyChanged(nameof(this.FrameDuration));
@@ -165,7 +200,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         private readonly ClipRenderInvalidatedEventHandler renderCallback;
 
-        public VideoClipViewModel(VideoClipModel model) : base(model) {
+        protected VideoClipViewModel(VideoClipModel model) : base(model) {
             this.ResetTransformationCommand = new RelayCommand(() => {
                 this.MediaPosition = new Vector2(0f, 0f);
                 this.MediaScale = new Vector2(1f, 1f);
@@ -176,7 +211,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.ResetScaleCommand = new RelayCommand(() => this.MediaScale = new Vector2(1f, 1f));
             this.ResetScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = new Vector2(0.5f, 0.5f));
 
-            this.renderCallback = (x, s) => this.OnInvalidateRender(s);
+            this.renderCallback = (x, s) => {
+                // assert ReferenceEquals(this.Model, x)
+                this.OnInvalidateRender(s);
+            };
             this.Model.RenderInvalidated += this.renderCallback;
         }
 

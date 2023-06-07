@@ -5,8 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
@@ -108,25 +108,23 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.Drop += this.OnDrop;
         }
 
-        protected override void OnDragEnter(DragEventArgs e) {
-            base.OnDragEnter(e);
-
-        }
-
         protected override void OnDragOver(DragEventArgs e) {
-            base.OnDragOver(e);
             if (e.Data.GetDataPresent("ResourceItem")) {
                 object obj = e.Data.GetData("ResourceItem");
-                if (obj is ResourceItemViewModel resource && this.DataContext is IDropClipResource drop && drop.CanDropResource(resource)) {
+                if (obj is ResourceItem resource && this.DataContext is IDropClipResource drop && drop.CanDropResource(resource)) {
                     this.IsDroppableTargetOver = true;
                     e.Effects = DragDropEffects.Move;
-                    return;
+                    e.Handled = true;
+                    goto end;
                 }
             }
 
             this.ClearValue(IsDroppableTargetOverProperty);
             e.Effects = DragDropEffects.None;
+
+            end:
             e.Handled = true;
+            base.OnDragOver(e);
         }
 
         protected override void OnDragLeave(DragEventArgs e) {
@@ -149,13 +147,15 @@ namespace FramePFX.Editor.Timeline.Controls {
         private async void OnItemDrop(DragEventArgs e) {
             if (e.Data.GetDataPresent("ResourceItem")) {
                 object obj = e.Data.GetData("ResourceItem");
-                if (obj is ResourceItemViewModel resource && this.DataContext is IDropClipResource drop) {
-                    await drop.OnDropResource(resource);
+                if (obj is ResourceItem resource && this.DataContext is IDropClipResource drop) {
+                    if (drop.CanDropResource(resource)) {
+                        await drop.OnDropResource(resource);
+                    }
                 }
             }
 
-            this.isProcessingDrop = false;
             this.ClearValue(IsDroppableTargetOverProperty);
+            this.isProcessingDrop = false;
         }
 
         public override void OnApplyTemplate() {

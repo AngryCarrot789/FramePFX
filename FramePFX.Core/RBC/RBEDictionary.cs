@@ -191,7 +191,7 @@ namespace FramePFX.Core.RBC {
         public void SetStringArray(string key, string[] array) => this[key] = new RBEStringArray(array);
         public void SetStructArray<T>(string key, T[] array) where T : unmanaged => this[key] = RBEStructArray.ForValues(array);
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadUInt16();
             this.Map = new Dictionary<string, RBEBase>(length);
             for (int i = 0; i < length; i++) {
@@ -201,7 +201,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write((ushort) this.Map.Count);
             foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
                 int length = entry.Key.Length;

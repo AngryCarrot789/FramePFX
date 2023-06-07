@@ -227,7 +227,7 @@ namespace FramePFX.Core.RBC {
             this.List.Add(obj);
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadUInt16();
             this.List = new List<RBEBase>(length);
             for (int i = 0; i < length; i++) {
@@ -235,7 +235,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             writer.Write((ushort) this.List.Count);
             foreach (RBEBase child in this.List) {
                 WriteIdAndElement(writer, child);

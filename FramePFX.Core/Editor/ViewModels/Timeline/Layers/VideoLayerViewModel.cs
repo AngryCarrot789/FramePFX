@@ -1,15 +1,29 @@
 using System;
 using System.Threading.Tasks;
-using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
 using FramePFX.Core.Utils;
+using FramePFX.Core.Views.Dialogs.Message;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
     public class VideoLayerViewModel : LayerViewModel {
+        private static readonly MessageDialog SliceCloneTextResourceDialog;
+
+        static VideoLayerViewModel() {
+            SliceCloneTextResourceDialog = new MessageDialog("reference") {
+                ShowAlwaysUseNextResultOption = true,
+                Header = "Reference or copy text resource?",
+                Message = "Do you want to reference the same text resource (shared text, font, etc), or clone it (creating a new resource)?"
+            };
+            SliceCloneTextResourceDialog.AddButton("Reference", "reference", true);
+            SliceCloneTextResourceDialog.AddButton("Copy", "copy", true);
+            SliceCloneTextResourceDialog.AddButton("Cancel", "cancel", true);
+        }
+
         public new VideoLayerModel Model => (VideoLayerModel) base.Model;
 
         public float Opacity {
@@ -25,55 +39,39 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
 
         }
 
-        public override Task SliceClipAction(ClipViewModel clip, long frame) {
-            // TODO: Implement factory method to clone clips
-            // And maybe use a virtual function that clips override, to set specific data for a cloned clip?
-            // (e.g. base virtual function sets media pos/scale/origin,
-            // and an image or video clip will try to set the target resource path)
+        public override async Task SliceClipAction(ClipViewModel clip, long frame) {
+            // assert clip.Layer == this.Model
 
-            if (clip is ImageClipViewModel image) {
-                ImageClipModel cloneModel = new ImageClipModel();
-                ResourcePath<ResourceImage> imgPath = image.Model.ResourcePath;
-                if (imgPath?.UniqueId != null) {
-                    cloneModel.SetTargetResourceId(imgPath.UniqueId);
+            string imageCloneResult = null;
+            ResourceText resourceText = null;
+            if (clip.Model is TextClipModel txt1 && txt1.ResourcePath != null && txt1.ResourcePath.TryGetResource(out resourceText)) {
+                imageCloneResult = await SliceCloneTextResourceDialog.ShowAsync();
+                if (imageCloneResult == null || imageCloneResult == "cancel") {
+                    return;
                 }
-
-                ImageClipViewModel clone = new ImageClipViewModel(cloneModel) {
-                    Span = ClipSpan.FromIndex(frame, image.FrameEndIndex),
-                    MediaPosition = image.MediaPosition,
-                    MediaScale = image.MediaScale,
-                    MediaScaleOrigin = image.MediaScaleOrigin
-                };
-
-                image.FrameEndIndex = frame;
-                this.AddClipToLayer(clone);
-            }
-            else if (clip is ShapeClipViewModel square) {
-                ShapeClipModel cloneModel = new ShapeClipModel() {
-                    Width = square.Width,
-                    Height = square.Height,
-                };
-
-                ResourcePath<ResourceColour> imgPath = square.Model.ResourcePath;
-                if (imgPath?.UniqueId != null) {
-                    cloneModel.SetTargetResourceId(imgPath.UniqueId);
-                }
-
-                ShapeClipViewModel clone = new ShapeClipViewModel(cloneModel) {
-                    Span = ClipSpan.FromIndex(frame, square.FrameEndIndex),
-                    MediaPosition = square.MediaPosition,
-                    MediaScale = square.MediaScale,
-                    MediaScaleOrigin = square.MediaScaleOrigin
-                };
-
-                square.FrameEndIndex = frame;
-                this.AddClipToLayer(clone);
-            }
-            else {
-                throw new Exception($"Unsupported clip to slice: {clip}");
             }
 
-            return Task.CompletedTask;
+            ClipModel cloned = clip.Model.CloneCore();
+            ClipSpan oldSpan = clip.Model.FrameSpan;
+            cloned.FrameSpan = ClipSpan.FromIndex(frame, oldSpan.EndIndex);
+            clip.Model.FrameSpan = oldSpan.SetEndIndex(frame);
+            if (imageCloneResult != null && imageCloneResult == "copy") {
+                string path = TextIncrement.GetNextNumber(resourceText.UniqueId);
+                ResourceText imgRes = new ResourceText(resourceText.Manager) {
+                    Border = resourceText.Border,
+                    Foreground = resourceText.Foreground,
+                    Text = resourceText.Text,
+                    FontFamily = resourceText.FontFamily,
+                    SkewX = resourceText.SkewX,
+                    FontSize = resourceText.FontSize,
+                    UniqueId = path
+                };
+
+                clip.Project.ResourceManager.AddResource(imgRes);
+                ((TextClipModel) cloned).SetTargetResourceId(path);
+            }
+
+            this.CreateClip(cloned);
         }
 
         public VideoClipRangeRemoval GetRangeRemoval(long spanBegin, long spanDuration) {
@@ -115,34 +113,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 }
             }
             return range;
-        }
-
-        public void SplitClip(VideoClipViewModel clip, ClipSpan left, ClipSpan right) {
-            throw new NotImplementedException("TODO: implement cloning clips, might need to be async too to confirm user actions, e.g. use resource by ref or copy resource");
-            // VideoClipViewModel rightClone = (VideoClipViewModel) clip.NewInstanceOverride();
-            // clip.Span = left;
-            // this.clips.Add(rightClone);
-            // rightClone.Span = right;
-        }
-
-        public virtual VideoClipViewModel SliceClip(VideoClipViewModel clip, long frame) {
-            if (!(clip is VideoClipViewModel videoClip)) {
-                throw new ArgumentException("Clip is not a video clip");
-            }
-
-            if (frame == videoClip.FrameBegin || frame == videoClip.FrameEndIndex) {
-                return null;
-            }
-
-            throw new NotImplementedException();
-
-            // long endIndex = videoClip.FrameEndIndex;
-            // VideoClipViewModel clone = (VideoClipViewModel) videoClip.NewInstanceOverride();
-            // videoClip.FrameEndIndex = frame;
-            // clone.FrameBegin = frame;
-            // clone.FrameEndIndex = endIndex;
-            // this.AddClip(clone);
-            // return clone;
         }
     }
 }

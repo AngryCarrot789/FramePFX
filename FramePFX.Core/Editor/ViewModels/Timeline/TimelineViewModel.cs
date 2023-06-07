@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
-using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 

@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.Timeline.Layers;
-using FramePFX.Core.History;
-using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using SkiaSharp;

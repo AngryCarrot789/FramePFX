@@ -1,10 +1,10 @@
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.History;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
-    public class ProjectModel {
+    public class ProjectModel : IRBESerialisable {
         public ProjectSettingsModel Settings { get; }
 
         public string ProjectDir { get; set; }
@@ -20,6 +20,9 @@ namespace FramePFX.Core.Editor {
 
         public ResourceManager ResourceManager { get; }
 
+        // not a chance anyone's creating more than 9 quintillion clips
+        public long CurrentClipId { get; private set; }
+
         public ProjectModel() {
             this.Settings = new ProjectSettingsModel() {
                 Resolution = new Resolution(1920, 1080),
@@ -32,11 +35,15 @@ namespace FramePFX.Core.Editor {
             };
         }
 
-        public void SaveProject(string file) {
+        public long GetNextClipId() {
+            return this.CurrentClipId++;
+        }
+
+        public void WriteToRBE(RBEDictionary data) {
 
         }
 
-        public void LoadProject(string file) {
+        public void ReadFromRBE(RBEDictionary data) {
 
         }
     }

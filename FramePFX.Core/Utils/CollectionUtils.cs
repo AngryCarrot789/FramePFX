@@ -24,6 +24,24 @@ namespace FramePFX.Core.Utils {
             }
         }
 
+        public static void ForEachThenClear<T>(this ICollection<T> list, Action<T> consumer) {
+            using (ExceptionStack stack = new ExceptionStack()) {
+                int i = 0;
+                foreach (T item in list) {
+                    try {
+                        consumer(item);
+                    }
+                    catch (Exception e) {
+                        stack.Push(new Exception($"Failed to dispose Item[{i}]", e));
+                    }
+
+                    i++;
+                }
+
+                list.Clear();
+            }
+        }
+
         public static void EnsureLength<T>(T[] array, int count) {
             if (array == null || array.Length != count) {
                 throw new Exception("Expected an array of size " + count + ". Got: " + (array != null ? array.Length.ToString() : "null"));

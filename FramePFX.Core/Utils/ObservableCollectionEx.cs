@@ -67,6 +67,18 @@ namespace FramePFX.Core.Utils {
             return -1;
         }
 
+        public int FindIndexOfReverse(Predicate<T> matchFunction) {
+            IList<T> list = this.Items;
+            for (int i = list.Count - 1; i >= 0; i++) {
+                T value = this.Items[i];
+                if (matchFunction(value)) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         public void AddRange(IEnumerable<T> collection) {
             this.InsertRange(this.Count, collection);
         }
@@ -214,9 +226,15 @@ namespace FramePFX.Core.Utils {
             }
         }
 
-        public bool RemoveFirst(Predicate<T> canRemove) {
+        /// <summary>
+        /// Finds the first item that matches the given predicate, then removes it
+        /// </summary>
+        /// <param name="canRemove">The predicate to match items</param>
+        /// <param name="reverse">Whether to search from the end of the list to the start, instead of start to end (a performance helper parameter)</param>
+        /// <returns>True if the item was removed, otherwise false</returns>
+        public bool RemoveFirst(Predicate<T> canRemove, bool reverse = false) {
             this.CheckReentrancy();
-            int index = this.FindIndexOf(canRemove);
+            int index = reverse ? this.FindIndexOfReverse(canRemove) : this.FindIndexOf(canRemove);
             if (index == -1)
                 return false;
             this.RemoveAt(index);

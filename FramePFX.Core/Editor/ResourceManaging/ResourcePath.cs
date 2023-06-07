@@ -20,7 +20,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         public ResourceManager Manager { get; protected set; }
 
-        public string UniqueId { get; protected set; }
+        public string ResourceId { get; protected set; }
 
         public bool? IsOnline { get; protected set; }
 
@@ -30,8 +30,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public event EventHandler Disposed;
 
-        protected ResourcePathBase(ResourceManager manager, string uniqueId) {
-            this.UniqueId = string.IsNullOrWhiteSpace(uniqueId) ? throw new ArgumentException("Unique id cannot be null, empty or whitespaces") : uniqueId;
+        protected ResourcePathBase(ResourceManager manager, string resourceId) {
+            this.ResourceId = string.IsNullOrWhiteSpace(resourceId) ? throw new ArgumentException("Unique id cannot be null, empty or whitespaces") : resourceId;
             this.resourceAddedHandler = this.OnManagerResourceAdded;
             this.resourceRemovedHandler = this.OnManagerResourceRemoved;
             this.resourceRenamedHandler = this.OnManagerResourceRenamed;
@@ -51,7 +51,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            this.UnsetInternalResource(fireResourceChanged);
+            this.ClearInternalResource(fireResourceChanged);
 
             this.Manager = newManager;
 
@@ -68,7 +68,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        protected abstract void UnsetInternalResource(bool fireResourceChanged);
+        protected abstract void ClearInternalResource(bool fireResourceChanged);
 
         ~ResourcePathBase() {
             this.Dispose(false);
@@ -102,9 +102,9 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
     }
 
-    public class ResourcePath : ResourcePathBase {
+    public sealed class ResourcePath : ResourcePathBase {
         public delegate void ResourceChangedEventHandler(ResourceItem oldItem, ResourceItem newItem);
-        protected ResourceItem cached;
+        private ResourceItem cached;
 
         /// <summary>
         /// An event that gets fired when this path's internal cached resource changes, e.g. due to <see cref="TryGetResource"/> being
@@ -112,7 +112,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public event ResourceChangedEventHandler ResourceChanged;
 
-        public ResourcePath(ResourceManager manager, string uniqueId) : base(manager, uniqueId) {
+        public ResourcePath(ResourceManager manager, string resourceId) : base(manager, resourceId) {
         }
 
         private void SetInternalResource(ResourceItem item, bool fireEvent = true) {
@@ -157,12 +157,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new ArgumentException("Unique id cannot be null, empty or whitespaces");
             }
 
-            if (this.UniqueId == uniqueId) {
+            if (this.ResourceId == uniqueId) {
                 Debug.WriteLine($"[{this.GetType().Name}] Attempted to set the same resource ID");
                 return;
             }
 
-            this.UniqueId = uniqueId;
+            this.ResourceId = uniqueId;
             if (this.IsOnline == true) {
                 this.SetInternalResource(null, fireResourceChanged);
             }
@@ -190,7 +190,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     return false;
                 default: {
                     ResourceManager manager = this.Manager;
-                    if (manager != null && manager.TryGetResource(this.UniqueId, out ResourceItem res) && res is T value) {
+                    if (manager != null && manager.TryGetResource(this.ResourceId, out ResourceItem res) && res is T value) {
                         this.SetInternalResource(resource = value);
                         return true;
                     }
@@ -202,8 +202,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        protected override void UnsetInternalResource(bool fireResourceChanged) {
-            if (this.cached != null) {  // lazy; let SetInternalResource throw exceptions
+        protected override void ClearInternalResource(bool fireResourceChanged) {
+            if (this.GetInternalResource() != null) {  // lazy; let SetInternalResource throw exceptions
                 this.SetInternalResource(null, fireResourceChanged);
             }
         }
@@ -214,7 +214,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (item.UniqueId != this.UniqueId)
+            if (item.UniqueId != this.ResourceId)
                 return;
             if (this.IsOnline == true)
                 throw new Exception("Expected the resource to be offline/unknown, not online");
@@ -229,7 +229,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (item.UniqueId != this.UniqueId) {
+            if (item.UniqueId != this.ResourceId) {
                 return;
             }
 
@@ -252,7 +252,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (oldId == this.UniqueId) {
+            if (oldId == this.ResourceId) {
                 // our possibly active resource was renamed
                 if (this.IsOnline == true) {
                     if (this.cached == null)
@@ -273,9 +273,9 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     }
                 }
 
-                this.UniqueId = newId;
+                this.ResourceId = newId;
             }
-            else if (newId == this.UniqueId) {
+            else if (newId == this.ResourceId) {
                 // a random resource was named our resource; try to use it
                 if (this.IsOnline == true) {
                     throw new Exception("Expected online state to be offline or unknown, not online");
@@ -320,11 +320,11 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         public static void WriteToRBE(ResourcePath resource, RBEDictionary data) {
-            data.SetString(nameof(resource.UniqueId), resource.UniqueId);
+            data.SetString(nameof(resource.ResourceId), resource.ResourceId);
         }
 
         public static ResourcePath ReadFromRBE(ResourceManager manager, RBEDictionary data) {
-            string id = data.GetString(nameof(UniqueId));
+            string id = data.GetString(nameof(ResourceId));
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("Resource ID from the data was null, empty or whitespaces");
             return new ResourcePath(manager, id);
@@ -334,7 +334,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
     /// <summary>
     /// A helper class for managing a single resource
     /// </summary>
-    public class ResourcePath<T> : ResourcePathBase where T : ResourceItem {
+    public sealed class ResourcePath<T> : ResourcePathBase where T : ResourceItem {
         public delegate void ResourceChangedEventHandler(T oldItem, T newItem);
         private T cached;
 
@@ -344,7 +344,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public event ResourceChangedEventHandler ResourceChanged;
 
-        public ResourcePath(ResourceManager manager, string uniqueId) : base(manager, uniqueId) {
+        public ResourcePath(ResourceManager manager, string resourceId) : base(manager, resourceId) {
 
         }
 
@@ -390,12 +390,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new ArgumentException("Unique id cannot be null, empty or whitespaces");
             }
 
-            if (this.UniqueId == uniqueId) {
+            if (this.ResourceId == uniqueId) {
                 Debug.WriteLine($"[{this.GetType().Name}] Attempted to set the same resource ID");
                 return;
             }
 
-            this.UniqueId = uniqueId;
+            this.ResourceId = uniqueId;
             if (this.IsOnline == true) {
                 this.SetInternalResource(null, fireResourceChanged);
             }
@@ -403,8 +403,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.IsOnline = null;
         }
 
-        protected override void UnsetInternalResource(bool fireResourceChanged) {
-            if (this.cached != null) {
+        protected override void ClearInternalResource(bool fireResourceChanged) {
+            if (this.GetInternalResource() != null) {
                 // lazy; let SetInternalResource throw exceptions
                 this.SetInternalResource(null, fireResourceChanged);
             }
@@ -425,7 +425,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     return true;
                 default: {
                     ResourceManager manager = this.Manager;
-                    if (manager != null && manager.TryGetResource(this.UniqueId, out ResourceItem res) && res is T value) {
+                    if (manager != null && manager.TryGetResource(this.ResourceId, out ResourceItem res) && res is T value) {
                         this.SetInternalResource(resource = value);
                         return true;
                     }
@@ -443,7 +443,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (item.UniqueId != this.UniqueId)
+            if (item.UniqueId != this.ResourceId)
                 return;
             if (this.IsOnline == true)
                 throw new Exception("Expected the resource to be offline/unknown, not online");
@@ -465,7 +465,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (item.UniqueId != this.UniqueId) {
+            if (item.UniqueId != this.ResourceId) {
                 return;
             }
 
@@ -488,7 +488,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (oldId == this.UniqueId) {
+            if (oldId == this.ResourceId) {
                 // our possibly active resource was renamed
                 if (this.IsOnline == true) {
                     if (this.cached == null)
@@ -509,9 +509,9 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     }
                 }
 
-                this.UniqueId = newId;
+                this.ResourceId = newId;
             }
-            else if (newId == this.UniqueId) {
+            else if (newId == this.ResourceId) {
                 // a random resource was named our resource; try to use it
                 if (this.IsOnline == true) {
                     throw new Exception("Expected online state to be offline or unknown, not online");
@@ -556,11 +556,11 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         public static void WriteToRBE(ResourcePath<T> resource, RBEDictionary data) {
-            data.SetString(nameof(resource.UniqueId), resource.UniqueId);
+            data.SetString(nameof(resource.ResourceId), resource.ResourceId);
         }
 
         public static ResourcePath<T> ReadFromRBE(ResourceManager manager, RBEDictionary data) {
-            string id = data.GetString(nameof(UniqueId));
+            string id = data.GetString(nameof(ResourceId));
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("Resource ID from the data was null, empty or whitespaces");
             return new ResourcePath<T>(manager, id);

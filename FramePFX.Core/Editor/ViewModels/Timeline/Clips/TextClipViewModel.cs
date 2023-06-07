@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
@@ -123,17 +122,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
         }
 
-        public override bool CanDropResource(ResourceItemViewModel resource) {
-            return resource is ResourceTextViewModel;
+        public override bool CanDropResource(ResourceItem resource) {
+            return resource is ResourceText;
         }
 
-        public override async Task OnDropResource(ResourceItemViewModel resource) {
-            if (!(resource is ResourceTextViewModel txt)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Incompatible resource", $"Square clips cannot accept {resource.GetType().Name}");
-                return;
-            }
-
-            this.Model.SetTargetResourceId(txt.UniqueId);
+        public override async Task OnDropResource(ResourceItem resource) {
+            this.Model.SetTargetResourceId(((ResourceText) resource).UniqueId);
             this.Model.InvalidateRender();
         }
     }

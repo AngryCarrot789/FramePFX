@@ -24,7 +24,7 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
         /// <summary>
         /// The position of this video clip, in the form of a <see cref="ClipSpan"/> which has a begin and duration property
         /// </summary>
-        public ClipSpan FrameSpan { get; set; }
+        public override ClipSpan FrameSpan { get; set; }
 
         /// <summary>
         /// The number of frames that are skipped relative to <see cref="ClipStart"/>. This will be positive if the
@@ -110,6 +110,23 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             long begin = this.FrameBegin;
             long duration = this.FrameDuration;
             return frame >= begin && frame < (begin + duration);
+        }
+
+        protected abstract VideoClipModel NewInstance();
+
+        protected virtual void LoadDataIntoClone(VideoClipModel clone) {
+            clone.MediaFrameOffset = this.MediaFrameOffset;
+            clone.MediaPosition = this.MediaPosition;
+            clone.MediaScale = this.MediaScale;
+            clone.MediaScaleOrigin = this.MediaScaleOrigin;
+            clone.FrameSpan = this.FrameSpan;
+            clone.DisplayName = this.DisplayName;
+        }
+
+        public override ClipModel CloneCore() {
+            VideoClipModel clip = this.NewInstance();
+            this.LoadDataIntoClone(clip);
+            return clip;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace FramePFX.Core.Editor {
             this.Register<ImageClipModel, ImageClipViewModel>("image_clip");
             this.Register<ShapeClipModel, ShapeClipViewModel>("square_clip");
             this.Register<TextClipModel, TextClipViewModel>("text_clip");
+            this.Register<MediaClipModel, MediaClipViewModel>("media_clip");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : ClipModel where TViewModel : ClipViewModel {

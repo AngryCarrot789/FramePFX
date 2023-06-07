@@ -30,6 +30,10 @@ namespace FramePFX.Core.Editor.Timeline {
 
         protected override void OnAddedToLayer(LayerModel oldLayer, LayerModel newLayer) {
             base.OnAddedToLayer(oldLayer, newLayer);
+            if (newLayer == null) {
+                return;
+            }
+
             ResourceManager manager = newLayer.Timeline.Project.ResourceManager;
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (ResourcePathEntry entry in this.ResourceMap.Values) {

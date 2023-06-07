@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging;
 
 namespace FramePFX.Core.Editor {
-    public interface IResourceDropNotifier {
-        Task OnVideoResourceDropped(ResourceItemViewModel resource, long frameBegin);
+    public interface ILayerDropable {
+        Task OnResourceDropped(ResourceItem resource, long frameBegin);
     }
 }

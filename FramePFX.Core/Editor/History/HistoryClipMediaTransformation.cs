@@ -4,13 +4,13 @@ using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.History;
 
 namespace FramePFX.Core.Editor.History {
-    public class HistoryMediaTransformation : IHistoryAction {
+    public class HistoryClipMediaTransformation : IHistoryAction {
         public VideoClipViewModel Clip { get; }
         public Transaction<Vector2> MediaPosition { get; }
         public Transaction<Vector2> MediaScale { get; }
         public Transaction<Vector2> MediaScaleOrigin { get; }
 
-        public HistoryMediaTransformation(VideoClipViewModel clip) {
+        public HistoryClipMediaTransformation(VideoClipViewModel clip) {
             this.Clip = clip;
             this.MediaPosition = Transactions.Immutable(clip.MediaPosition);
             this.MediaScale = Transactions.Immutable(clip.MediaScale);

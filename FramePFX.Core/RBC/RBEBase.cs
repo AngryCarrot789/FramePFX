@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace FramePFX.Core.RBC {
@@ -12,25 +13,50 @@ namespace FramePFX.Core.RBC {
     /// </para>
     /// </summary>
     public abstract class RBEBase {
+        private static readonly Dictionary<Type, RBEType> TypeToIdTable;
+
         public static LengthReadStrategy LengthReadStrategy { get; set; } = LengthReadStrategy.LazyLength;
 
         public abstract RBEType Type { get; }
+
+        static RBEBase() {
+            TypeToIdTable = new Dictionary<Type, RBEType> {
+                {typeof(RBEDictionary), RBEType.Dictionary},
+                {typeof(RBEList), RBEType.List},
+                {typeof(RBEByte), RBEType.Byte},
+                {typeof(RBEShort), RBEType.Short},
+                {typeof(RBEInt), RBEType.Int},
+                {typeof(RBELong), RBEType.Long},
+                {typeof(RBEFloat), RBEType.Float},
+                {typeof(RBEDouble), RBEType.Double},
+                {typeof(RBEString), RBEType.String},
+                {typeof(RBEStruct), RBEType.Struct},
+                {typeof(RBEByteArray), RBEType.ByteArray},
+                {typeof(RBEShortArray), RBEType.ShortArray},
+                {typeof(RBEIntArray), RBEType.IntArray},
+                {typeof(RBELongArray), RBEType.LongArray},
+                {typeof(RBEFloatArray), RBEType.FloatArray},
+                {typeof(RBEDoubleArray), RBEType.DoubleArray},
+                {typeof(RBEStringArray), RBEType.StringArray},
+                {typeof(RBEStructArray), RBEType.StructArray}
+            };
+        }
 
         protected RBEBase() {
 
         }
 
         /// <summary>
-        /// Reads this element's data from the given binary reader
+        /// Reads this element's data from the given binary reader. This may be a recursive operation (for lists, dictionaries, etc)
         /// </summary>
         /// <param name="reader">The reader (data source)</param>
-        public abstract void Read(BinaryReader reader);
+        protected abstract void Read(BinaryReader reader);
 
         /// <summary>
-        /// Writes this element's data into the given binary writer
+        /// Writes this element's data into the given binary writer. This may be a recursive operation (for lists, dictionaries, etc)
         /// </summary>
         /// <param name="writer">The writer (data target)</param>
-        public abstract void Write(BinaryWriter writer);
+        protected abstract void Write(BinaryWriter writer);
 
         /// <summary>
         /// Creates a deep clone of this element
@@ -45,9 +71,9 @@ namespace FramePFX.Core.RBC {
             return element;
         }
 
-        public static void WriteIdAndElement(BinaryWriter writer, RBEBase value) {
-            writer.Write((byte) value.Type);
-            value.Write(writer);
+        public static void WriteIdAndElement(BinaryWriter writer, RBEBase rbe) {
+            writer.Write((byte) rbe.Type);
+            rbe.Write(writer);
         }
 
         public static RBEBase CreateById(RBEType id) {
@@ -75,30 +101,30 @@ namespace FramePFX.Core.RBC {
         }
 
         public static bool TryGetIdByType(Type type, out RBEType rbeType) {
-            if (type == typeof(RBEDictionary))       rbeType = RBEType.Dictionary;
-            else if (type == typeof(RBEList))        rbeType = RBEType.List;
-            else if (type == typeof(RBEByte))        rbeType = RBEType.Byte;
-            else if (type == typeof(RBEShort))       rbeType = RBEType.Short;
-            else if (type == typeof(RBEInt))         rbeType = RBEType.Int;
-            else if (type == typeof(RBELong))        rbeType = RBEType.Long;
-            else if (type == typeof(RBEFloat))       rbeType = RBEType.Float;
-            else if (type == typeof(RBEDouble))      rbeType = RBEType.Double;
-            else if (type == typeof(RBEString))      rbeType = RBEType.String;
-            else if (type == typeof(RBEStruct))      rbeType = RBEType.Struct;
-            else if (type == typeof(RBEByteArray))   rbeType = RBEType.ByteArray;
-            else if (type == typeof(RBEShortArray))  rbeType = RBEType.ShortArray;
-            else if (type == typeof(RBEIntArray))    rbeType = RBEType.IntArray;
-            else if (type == typeof(RBELongArray))   rbeType = RBEType.LongArray;
-            else if (type == typeof(RBEFloatArray))  rbeType = RBEType.FloatArray;
-            else if (type == typeof(RBEDoubleArray)) rbeType = RBEType.DoubleArray;
-            else if (type == typeof(RBEStringArray)) rbeType = RBEType.StringArray;
-            else if (type == typeof(RBEStructArray)) rbeType = RBEType.StructArray;
-            else {
-                rbeType = RBEType.Unknown;
-                return false;
-            }
-
-            return true;
+            return TypeToIdTable.TryGetValue(type, out rbeType);
+            // if (type == typeof(RBEDictionary))       rbeType = RBEType.Dictionary;
+            // else if (type == typeof(RBEList))        rbeType = RBEType.List;
+            // else if (type == typeof(RBEByte))        rbeType = RBEType.Byte;
+            // else if (type == typeof(RBEShort))       rbeType = RBEType.Short;
+            // else if (type == typeof(RBEInt))         rbeType = RBEType.Int;
+            // else if (type == typeof(RBELong))        rbeType = RBEType.Long;
+            // else if (type == typeof(RBEFloat))       rbeType = RBEType.Float;
+            // else if (type == typeof(RBEDouble))      rbeType = RBEType.Double;
+            // else if (type == typeof(RBEString))      rbeType = RBEType.String;
+            // else if (type == typeof(RBEStruct))      rbeType = RBEType.Struct;
+            // else if (type == typeof(RBEByteArray))   rbeType = RBEType.ByteArray;
+            // else if (type == typeof(RBEShortArray))  rbeType = RBEType.ShortArray;
+            // else if (type == typeof(RBEIntArray))    rbeType = RBEType.IntArray;
+            // else if (type == typeof(RBELongArray))   rbeType = RBEType.LongArray;
+            // else if (type == typeof(RBEFloatArray))  rbeType = RBEType.FloatArray;
+            // else if (type == typeof(RBEDoubleArray)) rbeType = RBEType.DoubleArray;
+            // else if (type == typeof(RBEStringArray)) rbeType = RBEType.StringArray;
+            // else if (type == typeof(RBEStructArray)) rbeType = RBEType.StructArray;
+            // else {
+            //     rbeType = RBEType.Unknown;
+            //     return false;
+            // }
+            // return true;
         }
     }
 }

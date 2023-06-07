@@ -6,7 +6,7 @@ namespace FramePFX.Core.Editor.Timeline {
     /// <summary>
     /// A model that represents a timeline layer, which can contain clips
     /// </summary>
-    public class LayerModel {
+    public abstract class LayerModel {
         public TimelineModel Timeline { get; }
 
         public List<ClipModel> Clips { get; }
@@ -30,31 +30,37 @@ namespace FramePFX.Core.Editor.Timeline {
             return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
         }
 
-        public void AddClip(ClipModel model, bool fireLayerChangedEvent = true) {
-            this.InsertClip(this.Clips.Count, model, fireLayerChangedEvent);
+        public void AddClip(ClipModel model, bool setLayer = true) {
+            this.InsertClip(this.Clips.Count, model, setLayer);
         }
 
-        public void InsertClip(int index, ClipModel model, bool fireLayerChangedEvent = true) {
+        public void InsertClip(int index, ClipModel model, bool setLayer = true) {
             this.Clips.Insert(index, model);
-            ClipModel.SetLayer(model, this, fireLayerChangedEvent);
+            if (setLayer) {
+                ClipModel.SetLayer(model, this);
+            }
         }
 
-        public bool RemoveClip(ClipModel model, bool fireLayerChangedEvent = true) {
+        public bool RemoveClip(ClipModel model, bool clearLayer = true) {
             Validate.Exception(ReferenceEquals(this, model.Layer), "Expected model (to remove)'s layer to equal this instance");
             int index = this.Clips.IndexOf(model);
             if (index < 0) {
                 return false;
             }
 
-            this.RemoveClipAt(index, fireLayerChangedEvent);
+            this.RemoveClipAt(index, clearLayer);
             return true;
         }
 
-        public void RemoveClipAt(int index, bool fireLayerChangedEvent = true) {
+        public void RemoveClipAt(int index, bool clearLayer = true) {
             ClipModel clip = this.Clips[index];
             Validate.Exception(ReferenceEquals(this, clip.Layer), "Expected model (to remove)'s layer to equal this instance");
             this.Clips.RemoveAt(index);
-            ClipModel.SetLayer(clip, null, fireLayerChangedEvent);
+            if (clearLayer) {
+                ClipModel.SetLayer(clip, null);
+            }
         }
+
+        public abstract LayerModel CloneCore();
     }
 }

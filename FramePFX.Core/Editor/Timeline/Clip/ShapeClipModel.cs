@@ -55,5 +55,16 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
 
             render.Canvas.SetMatrix(oldMatrix);
         }
+
+        protected override VideoClipModel NewInstance() {
+            return new ShapeClipModel();
+        }
+
+        protected override void LoadDataIntoClone(VideoClipModel clone) {
+            base.LoadDataIntoClone(clone);
+            ShapeClipModel clip = (ShapeClipModel) clone;
+            clip.Width = this.Width;
+            clip.Height = this.Height;
+        }
     }
 }

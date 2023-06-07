@@ -26,7 +26,7 @@ namespace FramePFX.Core.RBC {
             return rbe;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadUInt16();
             this.data = new byte[length];
             if (reader.Read(this.data, 0, length) != length) {
@@ -34,7 +34,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.data == null) {
                 throw new InvalidOperationException("Array has not been set yet");
             }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -44,6 +46,23 @@ namespace FramePFX.Editor.Timeline.Utils {
             else {
                 return null;
             }
+        }
+
+        public static bool GetContainerForItem2<TItem, TContainer>(Predicate<TItem> predicate, ItemContainerGenerator generator, out TContainer result) where TContainer : DependencyObject {
+            int index = 0;
+            foreach (object item in generator.Items) {
+                if (item is TItem src && predicate(src))
+                    break;
+                index++;
+            }
+
+            if (index < generator.Items.Count && generator.ContainerFromIndex(index) is TContainer container) {
+                result = container;
+                return true;
+            }
+
+            result = default;
+            return false;
         }
 
         public static bool GetItemForContainer<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter, out TResult result) where TSource : DependencyObject {

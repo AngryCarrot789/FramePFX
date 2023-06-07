@@ -18,8 +18,13 @@ namespace FramePFX.Core.Editor.ViewModels {
             set {
                 this.Model.Resolution = value;
                 this.RaisePropertyChanged();
+                this.RaisePropertyChanged(nameof(this.Width));
+                this.RaisePropertyChanged(nameof(this.Height));
             }
         }
+
+        public int Width => this.Model.Resolution.Width;
+        public int Height => this.Model.Resolution.Height;
 
         public ProjectSettingsViewModel(ProjectSettingsModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));

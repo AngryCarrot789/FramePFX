@@ -1,5 +1,11 @@
 using System;
+using System.Diagnostics;
+using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Controls;
+using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Layer.Clips {
     public class ClipDragData {
@@ -58,19 +64,34 @@ namespace FramePFX.Editor.Timeline.Layer.Clips {
 
         public void CreateCopiedClip() {
             this.ValidateFinalizationState();
-            if (this.HasCopy || this.CopiedClip != null) {
+            if (this.HasCopy) {
                 return;
             }
 
-            // TODO: interface with viewmodel to create duplicate clip somehow...
+            // TODO: maybe a better way of creating clips?
+            if (this.Clip.DataContext is ClipViewModel clip) {
+                ClipModel clone = clip.Model.CloneCore();
+                clone.FrameSpan = clone.FrameSpan.SetBegin(this.OriginalFrameBegin);
+                clone.DisplayName = TextIncrement.GetNextNumber(clone.DisplayName);
+                clip.Layer.CreateClip(clone);
+                this.HasCopy = true;
+                if (ICGenUtils.GetContainerForItem2<ClipViewModel, TimelineVideoClipControl>((x) => x.Model == clone, this.Clip.Layer.ItemContainerGenerator, out var control)) {
+                    this.CopiedClip = control;
+                }
+
+                clip.Layer.MakeTopMost(clip);
+            }
         }
 
         public void DestroyCopiedClip() {
             this.ValidateFinalizationState();
             if (this.HasCopy && this.CopiedClip != null) {
-                this.CopiedClip.Layer.RemoveClip(this.CopiedClip);
+                ClipViewModel clip = this.CopiedClip.DataContext as ClipViewModel;
+                clip.Layer.RemoveClipFromLayer(clip);
+                // this.CopiedClip.Layer.RemoveClip(this.CopiedClip);
                 this.CopiedClip.DragData = null; // should be null anyway
                 this.CopiedClip = null;
+                this.HasCopy = false;
             }
         }
 

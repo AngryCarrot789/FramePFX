@@ -77,24 +77,16 @@ namespace FramePFX.ResourceManaging.UI {
             this.UnselectAll();
         }
 
-        protected override void OnDragEnter(DragEventArgs e) {
-            base.OnDragEnter(e);
-            if (ReferenceEquals(e.Source, this)) {
+        protected override void OnDragOver(DragEventArgs e) {
+            if (this.FileDropNotifier == null) {
+                e.Effects = DragDropEffects.None;
                 e.Handled = true;
-                return;
             }
 
-            if (this.FileDropNotifier == null) {
-                e.Handled = true;
-            }
+            base.OnDragOver(e);
         }
 
         protected override async void OnDrop(DragEventArgs e) {
-            if (ReferenceEquals(e.Source, this)) {
-                e.Handled = true;
-                return;
-            }
-
             if (this.FileDropNotifier == null) {
                 await IoC.MessageDialogs.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
                 return;

@@ -1,5 +1,5 @@
 namespace FramePFX.Core.Settings.ViewModels {
-    public class UserSettingsViewModel : BaseViewModel {
+    public class AppSettingsViewModel : BaseViewModel {
         public AppSettingsModel Model { get; }
 
         public bool StopOnTogglePlay {
@@ -10,17 +10,11 @@ namespace FramePFX.Core.Settings.ViewModels {
             }
         }
 
-        public int Width {
-            get => this.width;
-            set => this.RaisePropertyChanged(ref this.width, value);
-        }
-
         public int Width {get;} = 1920;
         public int Height {get;} = 1080;
 
-        public UserSettingsViewModel() {
+        public AppSettingsViewModel() {
             this.Model = new AppSettingsModel();
-            this.width = 1920;
         }
     }
 }

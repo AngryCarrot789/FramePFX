@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
@@ -13,10 +14,10 @@ using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class BaseTimelineLayerControl : MultiSelector, ILayerHandle {
-        public static readonly DependencyProperty ResourceDropNotifierProperty =
+        public static readonly DependencyProperty DropNotifierProperty =
             DependencyProperty.Register(
-                "ResourceDropNotifier",
-                typeof(IResourceDropNotifier),
+                "DropNotifier",
+                typeof(ILayerDropable),
                 typeof(BaseTimelineLayerControl),
                 new PropertyMetadata(null));
 
@@ -29,9 +30,9 @@ namespace FramePFX.Editor.Timeline.Controls {
                     (d, e) => ((BaseTimelineLayerControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
                     (d, v) => TimelineUtils.ClampUnit(v)));
 
-        public IResourceDropNotifier ResourceDropNotifier {
-            get => (IResourceDropNotifier) this.GetValue(ResourceDropNotifierProperty);
-            set => this.SetValue(ResourceDropNotifierProperty, value);
+        public ILayerDropable DropNotifier {
+            get => (ILayerDropable) this.GetValue(DropNotifierProperty);
+            set => this.SetValue(DropNotifierProperty, value);
         }
 
         /// <summary>
@@ -97,15 +98,17 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         private void OnDragEnter(object sender, DragEventArgs e) {
-            if (this.ResourceDropNotifier == null) {
+            if (this.DropNotifier == null) {
                 e.Effects = DragDropEffects.None;
             }
 
             e.Handled = true;
         }
 
-        private async void OnDrop(object sender, DragEventArgs e) {
-            if (this.ResourceDropNotifier == null) {
+        protected bool isProcessingDrop;
+
+        private void OnDrop(object sender, DragEventArgs e) {
+            if (this.isProcessingDrop || this.DropNotifier == null) {
                 e.Effects = DragDropEffects.None;
                 e.Handled = true;
                 return;
@@ -113,19 +116,22 @@ namespace FramePFX.Editor.Timeline.Controls {
 
             if (e.Data.GetDataPresent("ResourceItem")) {
                 object obj = e.Data.GetData("ResourceItem");
-                if (obj is ResourceItemViewModel resource) {
-                    await this.OnDropResource(resource, e.GetPosition(this));
+                if (obj is ResourceItem resource) {
+                    this.isProcessingDrop = true;
+                    this.OnDropResource(resource, e.GetPosition(this));
                 }
             }
         }
 
-        protected virtual async Task OnDropResource(ResourceItemViewModel item, Point mouse) {
+        protected async void OnDropResource(ResourceItem item, Point mouse) {
             // lazy
             if (item.IsRegistered && this is VideoTimelineLayerControl layer) {
                 long frame = layer.GetFrameFromPixel(mouse.X);
                 frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
-                await this.ResourceDropNotifier.OnVideoResourceDropped(item, frame);
+                await this.DropNotifier.OnResourceDropped(item, frame);
             }
+
+            this.isProcessingDrop = false;
         }
 
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {

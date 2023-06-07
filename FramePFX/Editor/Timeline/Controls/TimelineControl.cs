@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ViewModels.Timeline;
@@ -170,50 +171,48 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
             base.OnPreviewMouseWheel(e);
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control || (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
-                double offset = e.Delta / 120d;
+            if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Alt)) != 0) {
+                double multiplier;
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {
-                    offset /= 2d;
+                    multiplier = e.Delta > 0 ? 1.05 : 0.95;
+                }
+                else {
+                    multiplier = e.Delta > 0 ? 1.1 : 0.9;
                 }
 
-                double oldZoom = this.UnitZoom;
-                double zoom = Math.Max(oldZoom + offset, 1);
-                if (TimelineUtils.IsUnitEqual(zoom, oldZoom)) {
+                double oldzoom = this.UnitZoom;
+                double newzoom = TimelineUtils.ClampUnit(oldzoom * multiplier);
+                if (TimelineUtils.IsUnitEqual(oldzoom, newzoom)) {
                     return;
                 }
 
-                // offset = 1d / offset;
-                ScrollViewer scroller = this.PART_ScrollViewer;
-                if (scroller != null) {
-                    double viewport = scroller.ViewportWidth;  //  1,000
-                    double mouseX = e.GetPosition(scroller).X; //    500
-                    double offsetFrameX = mouseX / oldZoom;
-                    this.UnitZoom = zoom;
-                    double frameWidth = viewport / zoom;
-                    this.UpdateLayout();
-                    scroller.UpdateLayout();
+                this.UnitZoom = newzoom;
+                if (this.PART_ScrollViewer is ScrollViewer scroller) {
+                    // CBA to get this working. It works for the FreeMoveViewPortV2 but not this for some reason...
+                    // even after debugging the view port code, pixels_difference_w is not the same as
+                    // the difference in screen pixels but yet the math still works? wtff
+                    // newzoom = this.UnitZoom;
+                    // Size size = new Size(scroller.ActualWidth, scroller.ActualHeight);
+                    // Point pos = e.GetPosition(scroller);
+                    // double pixels_difference_w = (size.Width / oldzoom) - (size.Width / newzoom);
+                    // double side_ratio_x = (pos.X - (size.Width / 2)) / size.Width;
+                    // double offset = scroller.HorizontalOffset;
+                    // scroller.ScrollToHorizontalOffset(offset - (pixels_difference_w * side_ratio_x));
 
-                    // scrollable = 10,000
-                    // viewport   =  1,000
-                    // Mouse X    =    500
-                    // multiplier =    0.5
-                    // CurrOffset =  6,000
-                    // NewOffset  =  6,250
-
-                    // double scrollable = scroller.ExtentWidth;      // 10,000
-                    // double currOffset = scroller.HorizontalOffset; //  6,000
-                    double oldFrameScrolled = scroller.HorizontalOffset / oldZoom;
-                    double newFrameScrolled = oldFrameScrolled * zoom;
-                    newFrameScrolled = offset < 0 ? (newFrameScrolled - (frameWidth / 2d)) : (newFrameScrolled + offsetFrameX);
-
-                    if (double.IsNaN(newFrameScrolled)) {
-                        newFrameScrolled = 0d;
-                    }
-
-                    scroller.ScrollToHorizontalOffset(newFrameScrolled);
-                }
-                else {
-                    this.UnitZoom = zoom;
+                    // double viewport = scroller.ViewportWidth;  //  1,000
+                    // double mouseX = e.GetPosition(scroller).X; //    500
+                    // double offsetFrameX = mouseX / oldzoom;
+                    // this.UnitZoom = newzoom;
+                    // double frameWidth = viewport / newzoom;
+                    // this.UpdateLayout();
+                    // scroller.UpdateLayout();
+                    // double oldFrameScrolled = scroller.HorizontalOffset / oldzoom;
+                    // double newFrameScrolled = oldFrameScrolled * newzoom;
+                    // newFrameScrolled = e.Delta < 0 ? (newFrameScrolled - (frameWidth / 2d)) : (newFrameScrolled + offsetFrameX);
+                    // if (double.IsNaN(newFrameScrolled)) {
+                    //     newFrameScrolled = 0d;
+                    // }
+                    // scroller.ScrollToHorizontalOffset(newFrameScrolled);
                 }
             }
             else if (this.PART_ScrollViewer != null && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {

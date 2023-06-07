@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
+using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
@@ -263,6 +264,32 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
             else if (e.Key == Key.Delete && this.IsSelected) {
                 this.Layer.RemoveClip(this);
+            }
+            else {
+                if (this.IsMovingControl || this.isProcessingMouseAction || this.isCancellingDragAction) {
+                    return;
+                }
+
+                if (!this.isClipDragActivated) {
+                    return;
+                }
+
+                if (this.PART_ThumbLeft.IsDragging || this.PART_ThumbRight.IsDragging) {
+                    return;
+                }
+
+                if (this.Timeline.HasActiveDrag()) {
+                    if (this.Timeline.DragData.IsBeingDragged(this)) {
+                        if (this.IsMouseCaptured || this.CaptureMouse()) {
+                            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+                                this.Timeline.DragData.OnEnterCopyMove();
+                            }
+                            else if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {
+                                this.Timeline.DragData.OnEnterMoveMode();
+                            }
+                        }
+                    }
+                }
             }
         }
 

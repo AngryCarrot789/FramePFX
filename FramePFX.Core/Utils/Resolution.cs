@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace FramePFX.Core.Utils {
     public readonly struct Resolution : IComparable<Resolution>, IEqualityComparer<Resolution> {
@@ -55,6 +56,14 @@ namespace FramePFX.Core.Utils {
 
         public int GetHashCode(Resolution obj) {
             return obj.GetHashCode();
+        }
+
+        public static implicit operator Vector2(in Resolution res) {
+            return new Vector2(res.Width, res.Height);
+        }
+
+        public static explicit operator Resolution(in Vector2 res) {
+            return new Resolution((int) Math.Floor(res.X), (int) Math.Floor(res.Y));
         }
     }
 }

@@ -177,6 +177,7 @@ namespace FramePFX {
             }
 
             await editor.LoadProjectAction(new ProjectViewModel(project));
+            ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.View.RenderViewPort(false);
         }
 

@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
@@ -9,9 +8,6 @@ namespace FramePFX.Core.Editor.Timeline {
     /// A model that represents a timeline layer clip, such as a video or audio clip
     /// </summary>
     public abstract class ClipModel : IRBESerialisable, IDisposable {
-        // not a chance anyone's creating 9 quintillion clips
-        private static long _nextClipId;
-
         /// <summary>
         /// Returns the layer that this clip is currently in
         /// </summary>
@@ -39,10 +35,30 @@ namespace FramePFX.Core.Editor.Timeline {
         public bool IsDisposing { get; private set; }
 
         private long clipId = -1;
-        public long ClipId {
-            get => this.clipId >= 0 ? this.clipId : (this.clipId = Interlocked.Increment(ref _nextClipId));
+
+        /// <summary>
+        /// A unique identifier for this clip, relative to the project. Returns -1 if the clip does not have an
+        /// ID assigned and is not associated with a layer yet (otherwise, a new id is assigned through the project model)
+        /// </summary>
+        public long UniqueClipId {
+            get => this.clipId >= 0 ? this.clipId : (this.clipId = this.Layer?.Timeline.Project.GetNextClipId() ?? -1);
             set => this.clipId = value;
         }
+
+        /// <summary>
+        /// Whether or not this clip has an ID assigned or not
+        /// </summary>
+        public bool HasClipId => this.clipId >= 0;
+
+        /// <summary>
+        /// The position of this clip in terms of video frames, in the form of a <see cref="ClipSpan"/> which has a begin and duration property
+        /// <para>
+        /// Video clips don't need conversion, but audio clips convert an audio position into video clips
+        /// </para>
+        /// </summary>
+        public abstract ClipSpan FrameSpan { get; set; }
+
+        // TODO: Audio position maybe/AudioSpan?
 
         protected ClipModel() {
         }
@@ -114,5 +130,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public virtual void OnEndDispose() {
             this.IsDisposing = false;
         }
+
+        public abstract ClipModel CloneCore();
     }
 }

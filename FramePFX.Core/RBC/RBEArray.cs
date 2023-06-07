@@ -37,12 +37,12 @@ namespace FramePFX.Core.RBC {
             this.Array = array;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             this.Array = new byte[reader.ReadInt32()];
             reader.Read(this.Array, 0, this.Array.Length);
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 writer.Write(this.Array);
@@ -75,7 +75,7 @@ namespace FramePFX.Core.RBC {
             this.Array = array;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadInt32();
             short[] array = this.Array = new short[length];
             for (int i = 0; i < length; i++) {
@@ -83,7 +83,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 foreach (short value in this.Array) {
@@ -121,7 +121,7 @@ namespace FramePFX.Core.RBC {
             this.Array = array;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadInt32();
             int[] array = this.Array = new int[length];
             for (int i = 0; i < length; i++) {
@@ -132,7 +132,7 @@ namespace FramePFX.Core.RBC {
             // for (int i = 0, end = length >> 1; i <= end; i++) { }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 foreach (int value in this.Array) {
@@ -167,7 +167,7 @@ namespace FramePFX.Core.RBC {
             this.Array = array;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadInt32();
             long[] array = this.Array = new long[length];
             for (int i = 0; i < length; i++) {
@@ -178,7 +178,7 @@ namespace FramePFX.Core.RBC {
             // for (int i = 0, end = length >> 1; i <= end; i++) { }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 foreach (long value in this.Array) {
@@ -213,7 +213,7 @@ namespace FramePFX.Core.RBC {
             this.Array = array;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadInt32();
             float[] array = this.Array = new float[length];
             for (int i = 0; i < length; i++) {
@@ -221,7 +221,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 foreach (float value in this.Array) {
@@ -256,7 +256,7 @@ namespace FramePFX.Core.RBC {
             this.Array = array;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadInt32();
             double[] array = this.Array = new double[length];
             for (int i = 0; i < length; i++) {
@@ -264,7 +264,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 foreach (double value in this.Array) {
@@ -295,7 +295,7 @@ namespace FramePFX.Core.RBC {
             this.Array = array;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadInt32();
             string[] array = this.Array = new string[length];
             for (int i = 0; i < length; i++) {
@@ -303,7 +303,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 foreach (string value in this.Array) {
@@ -334,7 +334,7 @@ namespace FramePFX.Core.RBC {
             return rbe;
         }
 
-        public override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader) {
             int length = reader.ReadInt32();
             this.data = new byte[length];
             if (reader.Read(this.data, 0, length) != length) {
@@ -342,7 +342,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer) {
             if (this.data == null) {
                 throw new InvalidOperationException("Array has not been set yet");
             }

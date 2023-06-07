@@ -14,6 +14,18 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
         public string CustomText { get; set; }
 
         public TextClipModel() {
+
+        }
+
+        protected override VideoClipModel NewInstance() {
+            return new TextClipModel();
+        }
+
+        protected override void LoadDataIntoClone(VideoClipModel clone) {
+            base.LoadDataIntoClone(clone);
+            TextClipModel text = (TextClipModel) clone;
+            text.UseCustomText = this.UseCustomText;
+            text.CustomText = this.CustomText;
         }
 
         protected override void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {

@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for a timeline layer. This could be a video or audio layer (or others...)
     /// </summary>
-    public abstract class LayerViewModel : BaseViewModel, IResourceDropNotifier {
+    public abstract class LayerViewModel : BaseViewModel, ILayerDropable {
         private readonly ObservableCollectionEx<ClipViewModel> clips;
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
@@ -100,16 +99,30 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
-        protected ClipViewModel CreateClip(ClipModel model, bool addToModel = true) {
+        public ClipViewModel CreateClip(ClipModel model, bool addToModel = true) {
             ClipViewModel vm = ClipRegistry.Instance.CreateViewModelFromModel(model);
             this.AddClipToLayer(vm, addToModel);
             return vm;
+        }
+
+        public bool RemoveClipFromLayer(ClipViewModel clip, bool removeFromModel = true) {
+            int index = this.clips.IndexOf(clip);
+            if (index < 0) {
+                return false;
+            }
+
+            this.RemoveClipFromLayer(index, removeFromModel);
+            return true;
         }
 
         public void RemoveClipFromLayer(int index, bool removeFromModel = true) {
             ClipViewModel clip = this.clips[index];
             if (!ReferenceEquals(this, clip.Layer)) {
                 throw new Exception($"Clip layer does not match the current instance: {clip.Layer} != {this}");
+            }
+
+            if (!ReferenceEquals(this.Model.Clips[index], clip.Model)) {
+                throw new Exception($"Layer model clip list desynchronized");
             }
 
             using (ExceptionStack stack = new ExceptionStack()) {
@@ -240,7 +253,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
         }
 
-        public void MakeTopMost(VideoClipViewModel clip) {
+        public void MakeTopMost(ClipViewModel clip) {
             int endIndex = this.Clips.Count - 1;
             int index = this.Clips.IndexOf(clip);
             if (index == -1 || index == endIndex) {
@@ -251,59 +264,80 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.Model.Clips.MoveItem(index, endIndex);
         }
 
-        public async Task OnVideoResourceDropped(ResourceItemViewModel resource, long frameBegin) {
+        public async Task OnResourceDropped(ResourceItem resource, long frameBegin) {
+            Validate.Exception(!string.IsNullOrEmpty(resource.UniqueId), "Expected valid resource UniqueId");
+            Validate.Exception(resource.IsRegistered, "Expected resource to be registered");
+
             double fps = this.Timeline.Project.Settings.FrameRate;
-            long duration = Math.Min((long) Math.Floor(fps * 5), this.Timeline.MaxDuration - frameBegin);
-            if (duration <= 0) {
-                return;
+            long defaultDuration = (long) (fps * 5);
+
+            ClipModel newClip = null;
+            if (resource is ResourceMedia media) {
+                media.OpenMediaFromFile();
+                TimeSpan span = media.GetDuration();
+                long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                if (dur < 2) {
+                    // image files are 1
+                    dur = defaultDuration;
+                }
+
+                if (dur > 0) {
+                    long newProjectDuration = frameBegin + dur + 600;
+                    if (newProjectDuration > this.Timeline.MaxDuration) {
+                        this.Timeline.MaxDuration = newProjectDuration;
+                    }
+
+                    MediaClipModel clip = new MediaClipModel() {
+                        FrameSpan = new ClipSpan(frameBegin, dur),
+                        DisplayName = media.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(media.UniqueId);
+                    newClip = clip;
+                }
+                else {
+                    await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                    return;
+                }
+            }
+            else {
+                if (resource is ResourceColour argb) {
+                    ShapeClipModel clip = new ShapeClipModel() {
+                        FrameSpan = new ClipSpan(frameBegin, defaultDuration),
+                        Width = 200, Height = 200,
+                        DisplayName = argb.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(argb.UniqueId);
+                    newClip = clip;
+                }
+                else if (resource is ResourceImage img) {
+                    ImageClipModel clip = new ImageClipModel() {
+                        FrameSpan = new ClipSpan(frameBegin, defaultDuration),
+                        DisplayName = img.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(img.UniqueId);
+                    newClip = clip;
+                }
+                else if (resource is ResourceText text) {
+                    TextClipModel clip = new TextClipModel() {
+                        FrameSpan = new ClipSpan(frameBegin, defaultDuration),
+                        DisplayName = text.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(text.UniqueId);
+                    newClip = clip;
+                }
+                else {
+                    return;
+                }
             }
 
-            Validate.Exception(!string.IsNullOrEmpty(resource.Model.UniqueId), "Expected valid resource UniqueId");
-            Validate.Exception(resource.Model.IsRegistered, "Expected resource to be registered");
-
-            if (resource.Model is ResourceColour argb) {
-                ShapeClipModel clip = new ShapeClipModel() {
-                    FrameSpan = new ClipSpan(frameBegin, duration),
-                    Width = 200, Height = 200,
-                    DisplayName = argb.UniqueId
-                };
-
-                clip.SetTargetResourceId(argb.UniqueId);
-                this.CreateClip(clip);
+            this.CreateClip(newClip);
+            if (newClip is VideoClipModel videoClipModel) {
+                videoClipModel.InvalidateRender();
             }
-            else if (resource.Model is ResourceImage img) {
-                ImageClipModel clip = new ImageClipModel() {
-                    FrameSpan = new ClipSpan(frameBegin, duration),
-                    DisplayName = img.UniqueId
-                };
-
-                clip.SetTargetResourceId(img.UniqueId);
-                this.CreateClip(clip);
-            }
-            else if (resource.Model is ResourceText text) {
-                TextClipModel clip = new TextClipModel() {
-                    FrameSpan = new ClipSpan(frameBegin, duration),
-                    DisplayName = text.UniqueId
-                };
-
-                clip.SetTargetResourceId(text.UniqueId);
-                this.CreateClip(clip);
-            }
-            // else if (resource.Model is ResourceMedia media) {
-            //     media.OpenDecoder();
-            //     TimeSpan span = media.GetDuration();
-            //     long dur = (long) Math.Floor(span.TotalSeconds * fps);
-            //     if (dur < 2) {
-            //         // image files are 1
-            //         dur = duration;
-            //     }
-            //     if (dur > 0) {
-            //         this.CreateMediaClip(frameBegin, dur, media);
-            //     }
-            //     else {
-            //         await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
-            //     }
-            // }
         }
 
         /// <summary>

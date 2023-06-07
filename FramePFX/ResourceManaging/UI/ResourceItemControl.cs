@@ -112,7 +112,7 @@ namespace FramePFX.ResourceManaging.UI {
 
                     this.isDragDropping = true;
                     try {
-                        DragDrop.DoDragDrop(this, new DataObject("ResourceItem", resource), DragDropEffects.Copy | DragDropEffects.Move);
+                        DragDrop.DoDragDrop(this, new DataObject("ResourceItem", resource.Model), DragDropEffects.Copy | DragDropEffects.Move);
                     }
                     finally {
                         this.isDragDropping = false;

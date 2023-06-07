@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging;
 
-namespace FramePFX.Core.Editor.ViewModels {
+namespace FramePFX.Core.Editor {
     public interface IDropClipResource {
         bool CanDropResource(ResourceItem resource);
 

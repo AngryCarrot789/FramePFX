@@ -5,12 +5,12 @@ using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.History {
-    public class HistoryClipPosition : IHistoryAction {
+    public class HistoryVideoClipPosition : IHistoryAction {
         public VideoClipViewModel Clip { get; }
         public Transaction<ClipSpan> Span { get; }
         public Transaction<long> MediaFrameOffset { get; }
 
-        public HistoryClipPosition(VideoClipViewModel clip) {
+        public HistoryVideoClipPosition(VideoClipViewModel clip) {
             this.Clip = clip;
             this.Span = Transactions.Immutable(clip.Span);
             this.MediaFrameOffset = Transactions.Immutable(clip.MediaFrameOffset);

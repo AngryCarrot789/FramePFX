@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:FramePFX.Editor.Properties.Pages"
              xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core" xmlns:controls="clr-namespace:FramePFX.Controls"
              xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
+             xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
              mc:Ignorable="d" 
              Height="72" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">

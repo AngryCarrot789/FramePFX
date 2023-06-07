@@ -23,8 +23,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         }
 
-        public void ReloadMediaFromFile() {
-            this.ReopenDemuxer();
+        public void OpenMediaFromFile() {
+            this.OpenFileAndDemuxer();
         }
 
         public unsafe Resolution GetResolution() {
@@ -47,7 +47,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             }
 
             if (this.decoder == null) {
-                this.OpenDecoder();
+                this.OpenVideoDecoder();
             }
 
             //Images have a single frame, which we'll miss if we don't clamp timestamp to zero.
@@ -100,7 +100,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             }
         }
 
-        private void ReopenDemuxer() {
+        private void OpenFileAndDemuxer() {
             try {
                 this.ReleaseDecoder();
                 this.Demuxer = new MediaDemuxer(this.FilePath);
@@ -123,7 +123,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             }
         }
 
-        public void OpenDecoder() {
+        public void OpenVideoDecoder() {
             this.EnsureHasVideoStream();
             this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, open: false);
             this.frameQueue = new FrameQueue(this.stream, 2);
@@ -163,6 +163,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             this.frameQueue = null;
 
             this.hasHardwareDecoder = false;
+        }
+
+        public void CloseFile() {
+            this.ReleaseDecoder();
+            this.Demuxer?.Dispose();
+            this.Demuxer = null;
+            this.frameQueue?.Dispose();
+            this.frameQueue = null;
         }
 
         protected override void DisposeCore(ExceptionStack stack) {

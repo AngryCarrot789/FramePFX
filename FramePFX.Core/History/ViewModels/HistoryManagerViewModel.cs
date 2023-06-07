@@ -9,8 +9,8 @@ namespace FramePFX.Core.History.ViewModels {
         public AsyncRelayCommand UndoCommand { get; }
         public AsyncRelayCommand RedoCommand { get; }
         public AsyncRelayCommand ClearCommand { get; }
-        public AsyncRelayCommand SetMaxUndoCommand { get; }
-        public AsyncRelayCommand SetMaxRedoCommand { get; }
+        public AsyncRelayCommand EditMaxUndoCommand { get; }
+        public AsyncRelayCommand EditMaxRedoCommand { get; }
 
         public int MaxUndo => this.Model.MaxUndo;
         public int MaxRedo => this.Model.MaxRedo;
@@ -23,8 +23,8 @@ namespace FramePFX.Core.History.ViewModels {
             this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.Model.IsActionActive && this.Model.CanUndo);
             this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.Model.IsActionActive && this.Model.CanRedo);
             this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.Model.IsActionActive && (this.Model.CanRedo || this.Model.CanUndo));
-            this.SetMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.Model.IsActionActive);
-            this.SetMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.Model.IsActionActive);
+            this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.Model.IsActionActive);
+            this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.Model.IsActionActive);
         }
 
         public async Task SetMaxUndoAction() {
@@ -49,8 +49,9 @@ namespace FramePFX.Core.History.ViewModels {
             }
         }
 
-        public void AddAction(IHistoryAction action) {
-
+        public HistoryActionViewModel AddAction(IHistoryAction action, string information = null) {
+            HistoryActionModel model = this.Model.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
+            return new HistoryActionViewModel(this, model, action, information);
         }
 
         public async Task UndoAction() {
@@ -59,11 +60,12 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             if (this.CanUndo) {
+                HistoryActionModel action = this.Model.NextUndo;
                 #if DEBUG
                 await this.Model.OnUndoAsync();
                 #else
                 try {
-                    await this.Model.OnUndoAsync();
+                    action = await this.Model.OnUndoAsync();
                 }
                 catch (Exception e) {
                     await IoC.MessageDialogs.ShowMessageExAsync("Exception undoing", "An exception occurred while undoing an action", e.GetToString());
@@ -80,6 +82,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             if (this.CanRedo) {
+                HistoryActionModel action = this.Model.NextUndo;
                 #if DEBUG
                 await this.Model.OnRedoAsync();
                 #else

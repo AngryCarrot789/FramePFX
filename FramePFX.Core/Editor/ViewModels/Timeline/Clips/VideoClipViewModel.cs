@@ -3,7 +3,10 @@ using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
+namespace FramePFX.Core.Editor.ViewModels.Timeline {
+    /// <summary>
+    /// Base view model class for video clips that are placed on a video layer
+    /// </summary>
     public class VideoClipViewModel : ClipViewModel {
         private float bothPos;
         private float bothScale;

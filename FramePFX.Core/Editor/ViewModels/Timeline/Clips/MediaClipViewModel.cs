@@ -1,0 +1,5 @@
+namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
+    public class MediaClipViewModel {
+        
+    }
+}

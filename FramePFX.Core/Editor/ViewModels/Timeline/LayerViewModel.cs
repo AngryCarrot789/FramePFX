@@ -117,37 +117,27 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public void RemoveClipFromLayer(int index, bool removeFromModel = true) {
             ClipViewModel clip = this.clips[index];
-            if (!ReferenceEquals(this, clip.Layer)) {
+            if (!ReferenceEquals(this, clip.Layer))
                 throw new Exception($"Clip layer does not match the current instance: {clip.Layer} != {this}");
-            }
-
-            if (!ReferenceEquals(this.Model.Clips[index], clip.Model)) {
+            if (!ReferenceEquals(this.Model.Clips[index], clip.Model))
                 throw new Exception($"Layer model clip list desynchronized");
+
+            if (removeFromModel) {
+                this.Model.RemoveClipAt(index, false);
             }
 
-            using (ExceptionStack stack = new ExceptionStack()) {
-                if (removeFromModel) {
-                    this.Model.RemoveClipAt(index, false);
-                }
+            this.clips.RemoveAt(index);
+            ClipViewModel.SetLayer(clip, null);
 
-                this.clips.RemoveAt(index);
-                ClipViewModel.SetLayer(clip, null);
-
-                try {
-                    clip.RaisePropertyChanged(nameof(clip.Layer));
-                }
-                catch (Exception e) {
-                    stack.Push(new Exception($"Failed to raise clip's property changed event for layer", e));
-                }
-            }
+            clip.RaisePropertyChanged(nameof(clip.Layer));
         }
 
         public void AddClipToLayer(int index, ClipViewModel clip, bool addToModel = true) {
-            if (index < 0 || index > this.clips.Count) {
+            if (index < 0 || index > this.clips.Count)
                 throw new IndexOutOfRangeException($"Index < 0 || Index > Count. Index = {index}, Count = {this.clips.Count}");
-            }
+            if (ReferenceEquals(this, clip.Layer))
+                throw new InvalidOperationException("Attempted to add clip to a layer it was already in");
 
-            Validate.Exception(!ReferenceEquals(this, clip.Layer), "Attempted to add clip to a layer it was already in");
             if (addToModel) {
                 this.Model.InsertClip(index, clip.Model, false);
             }

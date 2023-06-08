@@ -1,3 +1,7 @@
+using System;
+using System.Threading.Tasks;
+using FramePFX.Core.Utils;
+
 namespace FramePFX.Core.History {
     public class HistoryActionModel {
         public delegate void UndoEventHandler(HistoryActionModel action);
@@ -19,17 +23,59 @@ namespace FramePFX.Core.History {
             this.Action = action;
         }
 
-        public void OnUndo() {
-            this.Undo?.Invoke(this);
+        public async Task UndoAsync() {
+            using (ExceptionStack stack = new ExceptionStack()) {
+                try {
+                    await this.Action.UndoAsync();
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to undo action", e));
+                }
+
+                try {
+                    this.Undo?.Invoke(this);
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to fire model's undo event", e));
+                }
+            }
         }
 
-        public void OnRedo() {
-            this.Redo?.Invoke(this);
+        public async Task RedoAsync() {
+            using (ExceptionStack stack = new ExceptionStack()) {
+                try {
+                    await this.Action.RedoAsync();
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to redo action", e));
+                }
+
+                try {
+                    this.Redo?.Invoke(this);
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to fire model's redo event", e));
+                }
+            }
         }
 
         public void OnRemoved() {
             this.IsRemoved = true;
-            this.Removed?.Invoke(this);
+            using (ExceptionStack stack = new ExceptionStack()) {
+                try {
+                    this.Action.OnRemoved();
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to remove action", e));
+                }
+
+                try {
+                    this.Removed?.Invoke(this);
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to fire model's removed event", e));
+                }
+            }
         }
     }
 }

@@ -70,11 +70,10 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return false;
             }
 
-            DialogResult<string> result = IoC.FilePicker.ShowFolderPickerDialog(Path.GetDirectoryName(this.ProjectFilePath), "Select a folder, in which the project data will be saved into");
+            DialogResult<string> result = IoC.FilePicker.ShowSaveFileDialog(Path.GetDirectoryName(this.ProjectFilePath), "Select a folder, in which the project data will be saved into");
             if (result.IsSuccess) {
-                string filePath = Path.Combine(result.Value, "");
-                this.ProjectFilePath = filePath;
-                await this.SaveActionAsync(filePath);
+                this.ProjectFilePath = result.Value;
+                await this.SaveActionAsync(this.ProjectFilePath);
                 return true;
             }
             else {
@@ -119,21 +118,30 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
-        public async Task DisposeAsync() {
-            #if DEBUG
-            this.Timeline.Dispose();
-            #else
-            try {
-                this.Timeline.Dispose();
-            }
-            catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Timeline exception", "An exception occurred while cleaning up timeline", e.GetToString());
-            }
-            #endif
-        }
-
         public void Dispose() {
-            this.Timeline.Dispose();
+            using (ExceptionStack stack1 = new ExceptionStack()) {
+                try {
+                    this.Timeline.Dispose();
+                }
+                catch (Exception e) {
+                    stack1.Push(e);
+                }
+
+                using (ExceptionStack stack2 = new ExceptionStack("Exception disposing resource manager", false)) {
+                    foreach (ResourceItemViewModel resource in this.ResourceManager.Resources) {
+                        try {
+                            resource.Dispose();
+                        }
+                        catch (Exception e) {
+                            stack2.Push(e);
+                        }
+                    }
+
+                    if (stack2.TryGetException(out Exception exception)) {
+                        stack1.Push(exception);
+                    }
+                }
+            }
         }
     }
 }

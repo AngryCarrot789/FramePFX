@@ -1,24 +1,54 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.Timeline.Layers;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline {
-    public class TimelineModel {
+    public class TimelineModel : IRBESerialisable {
         public ProjectModel Project { get; }
-
-        public List<LayerModel> Layers { get; }
 
         public long PlayHead { get; set; }
 
         public long MaxDuration { get; set; }
 
+        public List<LayerModel> Layers { get; }
+
         public TimelineModel(ProjectModel project) {
             this.Project = project;
             this.Layers = new List<LayerModel>();
+        }
+
+        public void WriteToRBE(RBEDictionary data) {
+            data.SetLong(nameof(this.PlayHead), this.PlayHead);
+            data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
+            RBEList list = data.CreateList(nameof(this.Layers));
+            foreach (LayerModel layer in this.Layers) {
+                if (!(layer.RegistryId is string registryId))
+                    throw new Exception("Unknown layer type: " + layer.GetType());
+                RBEDictionary dictionary = list.AddDictionary();
+                dictionary.SetString(nameof(LayerModel.RegistryId), registryId);
+                layer.WriteToRBE(dictionary.CreateDictionary("Data"));
+            }
+        }
+
+        public void ReadFromRBE(RBEDictionary data) {
+            this.PlayHead = data.GetLong(nameof(this.PlayHead));
+            this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
+            foreach (RBEBase entry in data.GetList(nameof(this.Layers)).List) {
+                if (!(entry is RBEDictionary dictionary))
+                    throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
+                string registryId = dictionary.GetString(nameof(LayerModel.RegistryId));
+                LayerModel layer = LayerRegistry.Instance.CreateLayerModel(this, registryId);
+                layer.ReadFromRBE(dictionary.GetDictionary("Data"));
+                this.AddLayer(layer);
+            }
+
+            this.MaxDuration = Math.Max(this.MaxDuration, this.Layers.Count < 1 ? 0 : this.Layers.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
         }
 
         public void AddLayer(LayerModel layer) {

@@ -1,3 +1,4 @@
+using System;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.RBC;
@@ -5,23 +6,21 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
     public class ProjectModel : IRBESerialisable {
+        public volatile bool IsSaving;
+
         public ProjectSettingsModel Settings { get; }
 
-        public string ProjectDir { get; set; }
+        public ResourceManager ResourceManager { get; }
 
-        public volatile bool IsSaving;
+        public TimelineModel Timeline { get; }
+
+        // not a chance anyone's creating more than 9 quintillion clips
+        private long nextClipId;
 
         /// <summary>
         /// The video editor that this project is currently in
         /// </summary>
         public VideoEditorModel Editor { get; set; }
-
-        public TimelineModel Timeline { get; }
-
-        public ResourceManager ResourceManager { get; }
-
-        // not a chance anyone's creating more than 9 quintillion clips
-        public long CurrentClipId { get; private set; }
 
         public ProjectModel() {
             this.Settings = new ProjectSettingsModel() {
@@ -36,15 +35,25 @@ namespace FramePFX.Core.Editor {
         }
 
         public long GetNextClipId() {
-            return this.CurrentClipId++;
+            return this.nextClipId++;
         }
 
         public void WriteToRBE(RBEDictionary data) {
-
+            data.SetLong("NextClipId", this.nextClipId);
+            this.Settings.WriteToRBE(data.CreateDictionary(nameof(this.Settings)));
+            this.ResourceManager.WriteToRBE(data.CreateDictionary(nameof(this.ResourceManager)));
+            this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
         }
 
         public void ReadFromRBE(RBEDictionary data) {
+            this.nextClipId = data.GetLong("NextClipId");
+            if (this.nextClipId < 0) {
+                throw new Exception("Invalid next clip id");
+            }
 
+            this.Settings.ReadFromRBE(data.GetDictionary(nameof(this.Settings)));
+            this.ResourceManager.ReadFromRBE(data.GetDictionary(nameof(this.ResourceManager)));
+            this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
         }
     }
 }

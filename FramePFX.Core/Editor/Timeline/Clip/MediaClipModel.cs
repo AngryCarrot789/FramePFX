@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
@@ -9,13 +10,10 @@ using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline.Clip {
     public class MediaClipModel : BaseResourceClip<ResourceMedia> {
-        private VideoFrame frameRgb, downloadedHwFrame;
+        private VideoFrame renderFrameRgb, downloadedHwFrame;
         private SwScaler scaler;
-        private long targetFrame;
-        private long currentFrameNo = -1;
-        private TimeSpan frameTimestamp = TimeSpan.Zero;
-        private Task catchUpTask;
         private VideoFrame readyFrame;
+        private long currentFrame = -1;
 
         public MediaClipModel() {
         }
@@ -27,19 +25,17 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
         }
 
         public override void Render(RenderContext render, long frame, SKColorFilter alphaFilter) {
-            if (!this.TryGetResource(out ResourceMedia resource)) {
-                return;
-            }
-
-            if (frame != this.currentFrameNo) {
-                // this.EnsureTaskRunning();
-                this.ResyncFrame(frame, render, resource);
-                this.currentFrameNo = frame;
-                this.targetFrame = frame;
+            if (frame != this.currentFrame) {
+                if (!this.TryGetResource(out ResourceMedia resource))
+                    return;
+                if (resource.Demuxer == null)
+                    resource.OpenMediaFromFile();
+                this.ResyncFrame(frame, resource);
+                this.currentFrame = frame;
             }
 
             if (this.readyFrame != null) {
-                this.Transform(render.Canvas, out var rect);
+                this.Transform(render.Canvas);
                 this.UploadFrame(this.readyFrame, render);
             }
         }
@@ -48,23 +44,32 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             return new MediaClipModel();
         }
 
-        private void CreateTexture(RenderContext render, Resolution resolution) {
-            //Select the smallest size from either clip or source for our temp frames
-            int frameW = resolution.Width;
-            int frameH = resolution.Height;
-            this.frameRgb = new VideoFrame(frameW, frameH, PixelFormats.RGBA);
+        protected override void OnResourceChanged(ResourceMedia oldItem, ResourceMedia newItem) {
+            base.OnResourceChanged(oldItem, newItem);
+            this.renderFrameRgb?.Dispose();
+            this.renderFrameRgb = null;
+            this.downloadedHwFrame?.Dispose();
+            this.downloadedHwFrame = null;
+            this.readyFrame?.Dispose();
+            this.readyFrame = null;
+            this.scaler?.Dispose();
+            this.scaler = null;
         }
 
-        private void ResyncFrame(long frameNo, RenderContext render, ResourceMedia media) {
-            if (this.frameRgb == null) {
-                this.CreateTexture(render, media.GetResolution());
-                return;
+        private void ResyncFrame(long frame, ResourceMedia media) {
+            if (this.renderFrameRgb == null) {
+                Resolution resolution = media.GetResolution();
+                this.renderFrameRgb = new VideoFrame(resolution.Width, resolution.Height, PixelFormats.RGBA);
             }
 
             double timeScale = this.Project.Settings.FrameRate;
-            TimeSpan timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin + this.MediaFrameOffset) / timeScale);
+            TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
+            // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
             this.readyFrame = media.GetFrameAt(timestamp);
         }
+
+        // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
+        // a project preview resolution so that decoding is lightning fast for low resolution?
 
         private void UploadFrame(VideoFrame frame, RenderContext render) {
             if (frame.IsHardwareFrame) {
@@ -76,14 +81,14 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             }
 
             if (this.scaler == null) {
-                this.scaler = new SwScaler(frame.Format, this.frameRgb.Format);
+                this.scaler = new SwScaler(frame.Format, this.renderFrameRgb.Format);
             }
 
-            this.scaler.Convert(frame, this.frameRgb);
+            this.scaler.Convert(frame, this.renderFrameRgb);
             unsafe {
-                Span<byte> pixelData = this.frameRgb.GetPlaneSpan<byte>(0, out int rowBytes);
+                Span<byte> pixelData = this.renderFrameRgb.GetPlaneSpan<byte>(0, out int rowBytes);
                 fixed (byte* ptr = pixelData) {
-                    SKImageInfo image = new SKImageInfo(this.frameRgb.Width, this.frameRgb.Height, SKColorType.Rgba8888);
+                    SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
                     using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
                         render.Canvas.DrawImage(img, 0, 0, null);
                     }

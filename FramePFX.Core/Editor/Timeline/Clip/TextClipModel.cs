@@ -83,14 +83,15 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
                 return;
             }
 
-            this.Transform(render.Canvas, out Rect rect, out SKMatrix oldMatrix);
-            render.Canvas.DrawText(this.blob, rect.X1, rect.Y1 + (this.blob.Bounds.Height / 2), this.paint);
-            // render.Canvas.DrawRect(rect.X1, rect.Y1, rect.Width, rect.Height, new SKPaint() {
-            //     Color = new SKColor(r.ByteR, r.ByteG, r.ByteB, r.ByteA),
-            //     ColorFilter = alphaFilter
-            // });
+            this.Transform(render.Canvas, out Vector2 size);
+            render.Canvas.DrawText(this.blob, size.X, size.Y + (this.blob.Bounds.Height / 2), this.paint);
+        }
 
-            render.Canvas.SetMatrix(oldMatrix);
+        public void InvalidateTextCache() {
+            this.blob?.Dispose();
+            this.blob = null;
+            this.paint?.Dispose();
+            this.paint = null;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             if (await this.GetInput("Set max undo", "Input a new maximum undo count:", this.Model.MaxUndo) is int value) {
-                this.Model.SetMaxUndo(value);
+                this.Model.SetMaxUndoAsync(value);
                 this.RaisePropertyChanged(nameof(this.MaxUndo));
             }
         }
@@ -60,17 +60,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             if (this.CanUndo) {
-                HistoryActionModel action = this.Model.NextUndo;
-                #if DEBUG
                 await this.Model.OnUndoAsync();
-                #else
-                try {
-                    action = await this.Model.OnUndoAsync();
-                }
-                catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Exception undoing", "An exception occurred while undoing an action", e.GetToString());
-                }
-                #endif
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
             }
@@ -82,17 +72,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             if (this.CanRedo) {
-                HistoryActionModel action = this.Model.NextUndo;
-                #if DEBUG
                 await this.Model.OnRedoAsync();
-                #else
-                try {
-                    await this.Model.OnRedoAsync();
-                }
-                catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Exception redoing", "An exception occurred while redoing an action", e.GetToString());
-                }
-                #endif
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
             }

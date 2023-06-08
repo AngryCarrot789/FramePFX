@@ -61,6 +61,18 @@ namespace FramePFX.Views.Message {
             return clickedId == "yes";
         }
 
+        public async Task<bool?> ShowYesNoCancelDialogAsync(string caption, string message, bool? defaultResult = true) {
+            MessageDialog dialog = Dialogs.YesNoCancelDialog;
+            string id = defaultResult == true ? "yes" : (defaultResult != null ? "no" : null);
+            MessageWindow.DODGY_PRIMARY_SELECTION = id;
+            string clickedId = await dialog.ShowAsync(caption, message);
+            switch (clickedId) {
+                case "yes": return true;
+                case "no": return false;
+                default: return null;
+            }
+        }
+
         public bool? ShowDialogMainThread(MessageDialog dialog) {
             MessageWindow window = new MessageWindow {
                 DataContext = dialog

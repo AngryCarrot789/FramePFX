@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Resources {
@@ -21,6 +22,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         public ResourceMedia(ResourceManager manager) : base(manager) {
 
+        }
+
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            data.SetString(nameof(this.FilePath), this.FilePath);
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            this.FilePath = data.GetString(nameof(this.FilePath), null);
         }
 
         public void OpenMediaFromFile() {

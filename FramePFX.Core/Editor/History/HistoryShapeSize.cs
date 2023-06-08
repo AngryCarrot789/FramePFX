@@ -36,5 +36,9 @@ namespace FramePFX.Core.Editor.History {
                 this.Clip.IsHistoryChanging = false;
             }
         }
+
+        public void OnRemoved() {
+
+        }
     }
 }

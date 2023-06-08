@@ -19,6 +19,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                     this.text = resource.Text;
                 }
 
+                this.Model.InvalidateTextCache();
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.Text));
                 this.Model.InvalidateRender();

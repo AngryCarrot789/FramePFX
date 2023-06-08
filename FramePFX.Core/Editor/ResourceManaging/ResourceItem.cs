@@ -11,7 +11,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <summary>
         /// This resource item's unique identifier
         /// </summary>
-        public string UniqueId { get; set; }
+        public string UniqueId { get; private set; }
 
         /// <summary>
         /// Whether or not this resource item's ID is valid and is registered with the manager associated with it
@@ -27,21 +27,11 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         public virtual void WriteToRBE(RBEDictionary data) {
-            if (!(this.RegistryId is string id))
-                throw new Exception($"Model Type is not registered: {this.GetType()}");
-            data.SetString(nameof(this.RegistryId), id);
+
         }
 
         public virtual void ReadFromRBE(RBEDictionary data) {
-            string registryId = this.RegistryId;
-            if (!data.TryGetString(nameof(this.RegistryId), out string id) || id != registryId) {
-                if (registryId == null) {
-                    throw new Exception($"Model Type is not registered: {this.GetType()}");
-                }
-                else {
-                    throw new Exception($"Model Registry Id mis match. Data contained '{id}' but the registered type is {registryId}");
-                }
-            }
+
         }
 
         /// <summary>
@@ -78,6 +68,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <param name="isDisposing"></param>
         protected virtual void DisposeCore(ExceptionStack stack) {
 
+        }
+
+        public static void SetUniqueId(ResourceItem item, string id) {
+            item.UniqueId = id;
         }
     }
 }

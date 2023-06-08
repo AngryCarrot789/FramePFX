@@ -27,20 +27,26 @@ namespace FramePFX.Core.Editor.Timeline {
             this.resourceChangedHandler = this.OnResourceChangedInternal;
         }
 
-        protected override void OnAddedToLayer(LayerModel oldLayer, LayerModel newLayer) {
-            base.OnAddedToLayer(oldLayer, newLayer);
+        protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
+            base.OnLayerChanged(oldLayer, newLayer);
             if (newLayer == null || this.ResourcePath == null)
                 return;
             this.ResourcePath.SetManager(newLayer.Timeline.Project.ResourceManager);
         }
 
+        /// <summary>
+        /// Sets this <see cref="BaseResourceClip{T}"/>'s target resource ID. The previous <see cref="ResourcePath{T}"/> is
+        /// disposed and replace with a new instance using the same <see cref="ResourceManager"/>
+        /// </summary>
+        /// <param name="id">The target resource ID. Cannot be null, empty, or consist of only whitespaces</param>
         public void SetTargetResourceId(string id) {
             if (this.ResourcePath != null) {
                 this.ResourcePath.ResourceChanged -= this.resourceChangedHandler;
                 this.ResourcePath.Dispose();
+                this.ResourcePath = null; // just in case the code below throws, don't reference a disposed instance
             }
 
-            this.ResourcePath = new ResourcePath<T>(this.Layer?.Timeline.Project.ResourceManager, id);
+            this.ResourcePath = new ResourcePath<T>(this.ResourceManager, id);
             this.ResourcePath.ResourceChanged += this.resourceChangedHandler;
         }
 
@@ -62,6 +68,11 @@ namespace FramePFX.Core.Editor.Timeline {
             this.ClipResourceDataModified?.Invoke((T) sender, property);
         }
 
+        /// <summary>
+        /// C
+        /// </summary>
+        /// <param name="oldItem"></param>
+        /// <param name="newItem"></param>
         protected virtual void OnResourceChanged(T oldItem, T newItem) {
             this.InvalidateRender();
         }
@@ -73,7 +84,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             if (this.ResourcePath != null)
-                ResourcePath<T>.WriteToRBE(this.ResourcePath, data.GetOrCreateDictionaryElement(nameof(this.ResourcePath)));
+                ResourcePath<T>.WriteToRBE(this.ResourcePath, data.CreateDictionary(nameof(this.ResourcePath)));
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
@@ -91,8 +102,8 @@ namespace FramePFX.Core.Editor.Timeline {
             return this.ResourcePath.TryGetResource(out resource);
         }
 
-        protected override void DisporeCore(ExceptionStack stack) {
-            base.DisporeCore(stack);
+        protected override void DisposeCore(ExceptionStack stack) {
+            base.DisposeCore(stack);
             if (this.ResourcePath != null && !this.ResourcePath.IsDisposed) {
                 try {
                     // this shouldn't throw unless it was already disposed for some reason. Might as well handle that case

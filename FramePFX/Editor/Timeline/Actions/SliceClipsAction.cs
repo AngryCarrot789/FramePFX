@@ -7,7 +7,6 @@ using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
-using FramePFX.Core.History;
 
 namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.SliceClips")]
@@ -60,18 +59,6 @@ namespace FramePFX.Editor.Timeline.Actions {
                         await clip.Layer.SliceClipAction(clip, frame);
                     }
                 }
-            }
-        }
-
-        public class SliceHistoryAction : IHistoryAction {
-
-
-            public Task UndoAsync() {
-                throw new System.NotImplementedException();
-            }
-
-            public Task RedoAsync() {
-                throw new System.NotImplementedException();
             }
         }
     }

@@ -10,7 +10,8 @@ namespace FramePFX.Core.Utils {
                    AddAllFiles().
                    ToString();
 
-        public static readonly string FrameControlSceneDeckType = Filter.Of().AddFilter("Scene Deck", "fcsd").AddAllFiles().ToString();
+        public static readonly string ProjectTypeAndAllFiles =
+            Filter.Of().AddFilter("FramePFX Project", "fpfx").AddAllFiles().ToString();
 
         public static readonly string VideoFormatsAndAll =
             Filter.Of().

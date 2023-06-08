@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml.Schema;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.History {
     public class HistoryManager {
@@ -34,37 +36,38 @@ namespace FramePFX.Core.History {
         public HistoryManager(int maxUndo = 200, int maxRedo = 200) {
             this.undoList = new LinkedList<HistoryActionModel>();
             this.redoList = new LinkedList<HistoryActionModel>();
-            this.SetMaxUndo(maxUndo);
-            this.SetMaxRedo(maxRedo);
+            this.MaxUndo = maxUndo < 1 ? throw new ArgumentOutOfRangeException(nameof(maxUndo), "maxUndo must be greater than 0") : maxUndo;
+            this.MaxRedo = maxRedo < 1 ? throw new ArgumentOutOfRangeException(nameof(maxRedo), "maxRedo must be greater than 0") : maxRedo;
         }
 
-        private static HistoryActionModel RemoveFirst(LinkedList<HistoryActionModel> list) {
+        private static void RemoveFirst(LinkedList<HistoryActionModel> list) {
             HistoryActionModel model = list.First.Value;
-            model.OnRemoved();
             list.RemoveFirst();
-            return model;
-        }
-
-        private static HistoryActionModel RemoveLast(LinkedList<HistoryActionModel> list) {
-            HistoryActionModel model = list.Last.Value;
             model.OnRemoved();
-            list.RemoveLast();
-            return model;
         }
 
-        public void SetMaxUndo(int maxUndo) {
+        public void SetMaxUndoAsync(int maxUndo) {
             if (maxUndo < 1) {
                 throw new ArgumentOutOfRangeException(nameof(maxUndo), "Value must be greater than 0");
             }
 
-            if (maxUndo < this.MaxUndo) {
-                int count = this.undoList.Count - maxUndo;
-                for (int i = 0; i < count; i++) {
-                    RemoveFirst(this.undoList);
-                }
+            int oldUndo = this.MaxUndo;
+            this.MaxUndo = maxUndo;
+            if (maxUndo >= oldUndo) {
+                return;
             }
 
-            this.MaxUndo = maxUndo;
+            int count = this.undoList.Count - maxUndo;
+            using (ExceptionStack stack = new ExceptionStack()) {
+                for (int i = 0; i < count; i++) {
+                    try {
+                        RemoveFirst(this.undoList);
+                    }
+                    catch (Exception e) {
+                        stack.Push(new Exception("Failed to remove excessive undo-able action", e));
+                    }
+                }
+            }
         }
 
         public void SetMaxRedo(int maxRedo) {
@@ -72,14 +75,23 @@ namespace FramePFX.Core.History {
                 throw new ArgumentOutOfRangeException(nameof(maxRedo), "Value must be greater than 0");
             }
 
-            if (maxRedo < this.MaxRedo) {
-                int count = this.redoList.Count - maxRedo;
-                for (int i = 0; i < count; i++) {
-                    RemoveFirst(this.redoList);
-                }
+            int oldRedo = this.MaxRedo;
+            this.MaxRedo = maxRedo;
+            if (maxRedo >= oldRedo) {
+                return;
             }
 
-            this.MaxRedo = maxRedo;
+            int count = this.redoList.Count - maxRedo;
+            using (ExceptionStack stack = new ExceptionStack()) {
+                for (int i = 0; i < count; i++) {
+                    try {
+                        RemoveFirst(this.redoList);
+                    }
+                    catch (Exception e) {
+                        stack.Push(new Exception("Failed to remove excessive redo-able action", e));
+                    }
+                }
+            }
         }
 
         public HistoryActionModel AddAction(IHistoryAction action) {
@@ -91,13 +103,16 @@ namespace FramePFX.Core.History {
                 throw new Exception("Redo is in progress");
 
             HistoryActionModel model = new HistoryActionModel(this, action);
-
-            foreach (HistoryActionModel item in this.redoList)
+            foreach (HistoryActionModel item in this.redoList) {
                 item.OnRemoved();
+            }
 
             this.redoList.Clear();
             this.undoList.AddLast(model);
-            this.RemoveExcessiveFirstUndo();
+            while (this.undoList.Count > this.MaxUndo) { // loop just in case
+                RemoveFirst(this.undoList);
+            }
+
             return model;
         }
 
@@ -133,15 +148,25 @@ namespace FramePFX.Core.History {
             HistoryActionModel action = this.undoList.Last.Value;
             this.undoList.RemoveLast();
 
-            try {
-                this.IsUndoing = true;
-                await action.Action.UndoAsync();
-            }
-            finally {
-                action.OnUndo();
+            using (ExceptionStack stack = new ExceptionStack(false)) {
+                try {
+                    this.IsUndoing = true;
+                    await action.UndoAsync();
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to undo action", e));
+                }
+
                 this.IsUndoing = false;
                 this.redoList.AddLast(action);
-                this.RemoveExcessiveFirstRedo();
+                while (this.redoList.Count > this.MaxRedo) { // loop just in case
+                    try {
+                        RemoveFirst(this.redoList);
+                    }
+                    catch (Exception e) {
+                        stack.Push(new Exception("Failed to remove excessive undo-able action", e));
+                    }
+                }
             }
 
             return action;
@@ -164,30 +189,28 @@ namespace FramePFX.Core.History {
             HistoryActionModel action = this.redoList.Last.Value;
             this.redoList.RemoveLast();
 
-            try {
-                this.IsRedoing = true;
-                await action.Action.RedoAsync();
-            }
-            finally {
-                action.OnRedo();
+            using (ExceptionStack stack = new ExceptionStack(false)) {
+                try {
+                    this.IsRedoing = true;
+                    await action.RedoAsync();
+                }
+                catch (Exception e) {
+                    stack.Push(new Exception("Failed to redo action", e));
+                }
+
                 this.IsRedoing = false;
                 this.undoList.AddLast(action);
-                this.RemoveExcessiveFirstUndo();
+                while (this.undoList.Count > this.MaxUndo) { // loop just in case
+                    try {
+                        RemoveFirst(this.undoList);
+                    }
+                    catch (Exception e) {
+                        stack.Push(new Exception("Failed to remove excessive redo-able action", e));
+                    }
+                }
             }
 
             return action;
-        }
-
-        private void RemoveExcessiveFirstUndo() {
-            while (this.undoList.Count > this.MaxUndo) { // loop just in case
-                RemoveFirst(this.undoList);
-            }
-        }
-
-        private void RemoveExcessiveFirstRedo() {
-            while (this.redoList.Count > this.MaxUndo) { // loop just in case
-                RemoveFirst(this.redoList);
-            }
         }
     }
 }

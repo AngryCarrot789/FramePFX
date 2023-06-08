@@ -37,7 +37,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             set {
                 if (!this.IsHistoryChanging && this.Layer != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit media transformation");
+                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaPosition.SetCurrent(value);
                 }
 
@@ -67,7 +67,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             set {
                 if (!this.IsHistoryChanging && this.Layer != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit media transformation");
+                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScale.SetCurrent(value);
                 }
 
@@ -97,7 +97,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             set {
                 if (!this.IsHistoryChanging && this.Layer != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit media transformation");
+                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScaleOrigin.SetCurrent(value);
                 }
 
@@ -166,30 +166,27 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public float BothPos {
             get => this.bothPos;
             set {
-                float actualValue = value - this.bothPos;
-                this.MediaPosition += new Vector2(actualValue);
+                this.MediaPosition += new Vector2(value - this.bothPos);
                 this.RaisePropertyChanged();
-                this.bothPos = value;
+                this.bothPos = 0;
             }
         }
 
         public float BothScale {
             get => this.bothScale;
             set {
-                float actualValue = value - this.bothScale;
-                this.MediaScale += new Vector2(actualValue);
+                this.MediaScale += new Vector2(value - this.bothScale);
                 this.RaisePropertyChanged();
-                this.bothScale = value;
+                this.bothScale = 0;
             }
         }
 
         public float BothScaleOrigin {
             get => this.bothScaleOrigin;
             set {
-                float actualValue = value - this.bothScaleOrigin;
-                this.MediaScaleOrigin += new Vector2(actualValue);
+                this.MediaScaleOrigin += new Vector2(value - this.bothScaleOrigin);
                 this.RaisePropertyChanged();
-                this.bothScaleOrigin = value;
+                this.bothScaleOrigin = 0;
             }
         }
 

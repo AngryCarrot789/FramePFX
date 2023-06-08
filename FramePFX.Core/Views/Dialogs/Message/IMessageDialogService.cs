@@ -31,6 +31,7 @@ namespace FramePFX.Core.Views.Dialogs.Message {
         Task<MsgDialogResult> ShowDialogAsync(string caption, string message, MsgDialogType type = MsgDialogType.OK, MsgDialogResult defaultResult = MsgDialogResult.OK);
 
         Task<bool> ShowYesNoDialogAsync(string caption, string message, bool defaultResult = true);
+        Task<bool?> ShowYesNoCancelDialogAsync(string caption, string message, bool? defaultResult = true);
 
         /// <summary>
         /// Shows an actual dialog view model. <see cref="MessageDialog.Dialog"/> is the only property which will

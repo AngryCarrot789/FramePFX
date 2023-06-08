@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
@@ -9,28 +10,28 @@ namespace FramePFX.Core.Editor.Timeline {
     /// </summary>
     public abstract class ClipModel : IRBESerialisable, IDisposable {
         /// <summary>
-        /// Returns the layer that this clip is currently in
+        /// Returns the layer that this clip is currently in. When this changes, <see cref="OnLayerChanged"/> is always called
         /// </summary>
         public LayerModel Layer { get; private set; }
 
         /// <summary>
-        /// Returns the timeline associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that it null
+        /// Returns the timeline associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that is null
         /// </summary>
         public TimelineModel Timeline => this.Layer?.Timeline;
 
         /// <summary>
-        /// Returns the project associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that it null
+        /// Returns the project associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that is null
         /// </summary>
         public ProjectModel Project => this.Layer?.Timeline.Project;
 
         /// <summary>
-        /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that it null
+        /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that is null
         /// </summary>
         public ResourceManager ResourceManager => this.Layer?.Timeline.Project.ResourceManager;
 
         public string DisplayName { get; set; }
 
-        public string TypeId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
+        public string RegistryId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         public bool IsDisposing { get; private set; }
 
@@ -68,69 +69,117 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         /// <param name="model">Model to set the layer of</param>
         /// <param name="layer">New layer</param>
-        /// <param name="fireLayerChangedEvent">Whether to invoke the model's <see cref="OnAddedToLayer"/> function. If false, it must be called manually</param>
+        /// <param name="fireLayerChangedEvent">Whether to invoke the model's <see cref="OnLayerChanged"/> function. If false, it must be called manually</param>
         public static void SetLayer(ClipModel model, LayerModel layer, bool fireLayerChangedEvent = true) {
             if (fireLayerChangedEvent) {
                 LayerModel oldLayer = model.Layer;
-                model.Layer = layer;
-                model.OnAddedToLayer(oldLayer, layer);
+                if (ReferenceEquals(oldLayer, layer)) {
+                    Debug.WriteLine("Attempted to set the layer to the same instance.\n" + new Exception().GetToString());
+                }
+                else {
+                    model.Layer = layer;
+                    model.OnLayerChanged(oldLayer, layer);
+                }
             }
             else {
                 model.Layer = layer;
             }
         }
 
+        /// <summary>
+        /// Reads this clip's data
+        /// </summary>
+        /// <param name="data"></param>
         public virtual void ReadFromRBE(RBEDictionary data) {
-            string typeId = this.TypeId;
-            if (!data.TryGetString(nameof(this.TypeId), out string id) || id != typeId) {
-                if (typeId == null) {
-                    throw new Exception($"Model Type is not registered: {this.GetType()}");
-                }
-                else {
-                    throw new Exception($"Model Type Id mis match. Data contained '{id}' but the registered type is {typeId}");
-                }
-            }
-
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
+            if (data.TryGetLong(nameof(this.UniqueClipId), out long id) && id >= 0)
+                this.clipId = id;
         }
 
+        /// <summary>
+        /// Writes this clip's data
+        /// </summary>
+        /// <param name="data"></param>
         public virtual void WriteToRBE(RBEDictionary data) {
-            if (!(this.TypeId is string id))
-                throw new Exception($"Model Type is not registered: {this.GetType()}");
-            data.SetString(nameof(this.TypeId), id);
             if (!string.IsNullOrEmpty(this.DisplayName))
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
+            if (this.clipId >= 0)
+                data.SetLong(nameof(this.UniqueClipId), this.clipId);
         }
 
+        /// <summary>
+        /// Whether or not this clip (video, audio, etc) intersects the given video frame
+        /// </summary>
+        /// <param name="frame">Target frame</param>
+        /// <returns>Intersection</returns>
         public abstract bool IntersectsFrameAt(long frame);
 
-        protected virtual void OnAddedToLayer(LayerModel oldLayer, LayerModel newLayer) {
+        /// <summary>
+        /// Called when this clip's layer changes, either by the clip being added to it for the first time (in which case,
+        /// <paramref name="oldLayer"/> will be null and <paramref name="newLayer"/> will not be null), or by a user dragging
+        /// this clip from layer to layer
+        /// </summary>
+        /// <param name="oldLayer"></param>
+        /// <param name="newLayer"></param>
+        protected virtual void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
 
         }
 
+        /// <summary>
+        /// Disposes this clip, releasing any resources it is using. This is called when a clip is about to no longer reachable
+        /// <para>
+        /// When clips are removed from the timeline, they are serialised and stored in the history manager, and then deserialised when
+        /// a user undoes the clip deletion. This means that, dispose is called just after a clip is serialised
+        /// </para>
+        /// <para>
+        /// Dispose only throws an exception in truely exceptional cases
+        /// </para>
+        /// </summary>
         public void Dispose() {
             using (ExceptionStack stack = new ExceptionStack()) {
+                this.OnBeginDispose();
                 try {
-                    this.DisporeCore(stack);
+                    this.DisposeCore(stack);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception($"{nameof(this.DisporeCore)} threw an unexpected exception", e));
+                    stack.Push(new Exception($"{nameof(this.DisposeCore)} threw an unexpected exception", e));
                 }
+                this.OnEndDispose();
             }
         }
 
+        /// <summary>
+        /// Called just before <see cref="DisposeCore(ExceptionStack)"/>. This should not throw any exceptions
+        /// </summary>
         public virtual void OnBeginDispose() {
             this.IsDisposing = true;
         }
 
-        protected virtual void DisporeCore(ExceptionStack stack) {
+        /// <summary>
+        /// Disposes this clip's resources, if nessesary. Shared resources (e.g. stored in <see cref="ResourceItem"/> 
+        /// instances) shouldn't be disposed as other clips may reference the same data
+        /// <para>
+        /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ExceptionStack"/>
+        /// </para>
+        /// </summary>
+        /// <param name="stack">The exception stack in which to add any encountered exceptions during disposal</param>
+        protected virtual void DisposeCore(ExceptionStack stack) {
 
         }
 
+        /// <summary>
+        /// Called just after <see cref="DisposeCore(ExceptionStack)"/>. This should not throw any exceptions
+        /// </summary>
         public virtual void OnEndDispose() {
             this.IsDisposing = false;
         }
 
+        /// <summary>
+        /// Creates a clone of this clip, referencing the same resources, same display name, media 
+        /// transformations, etc (but not the same Clip ID, if one is present). This is typically called when 
+        /// splitting or duplicating clips, or even duplicating a layer
+        /// </summary>
+        /// <returns></returns>
         public abstract ClipModel CloneCore();
     }
 }

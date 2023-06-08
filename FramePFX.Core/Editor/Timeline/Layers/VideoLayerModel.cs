@@ -19,7 +19,7 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
             };
 
             foreach (ClipModel clip in this.Clips) {
-                layer.AddClip(clip.CloneCore(), true);
+                layer.AddClip(clip.CloneCore());
             }
 
             return layer;

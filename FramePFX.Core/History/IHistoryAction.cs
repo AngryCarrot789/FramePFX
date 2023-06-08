@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace FramePFX.Core.History {
@@ -17,5 +18,14 @@ namespace FramePFX.Core.History {
         /// </summary>
         /// <returns></returns>
         Task RedoAsync();
+
+        /// <summary>
+        /// Called once this history action is no longer reachable, e.g. it is removed from the history queue because there were too many actions to undo/redo
+        /// <para>
+        /// This should clean up any resources that, for example, implement <see cref="IDisposable"/>. This method should also not throw an exception
+        /// </para>
+        /// </summary>
+        /// <returns></returns>
+        void OnRemoved();
     }
 }

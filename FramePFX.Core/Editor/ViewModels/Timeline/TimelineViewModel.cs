@@ -10,7 +10,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
-    public class TimelineViewModel : BaseViewModel {
+    public class TimelineViewModel : BaseViewModel, IDisposable {
         private readonly ObservableCollectionEx<LayerViewModel> layers;
         public ReadOnlyObservableCollection<LayerViewModel> Layers { get; }
 
@@ -88,10 +88,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             foreach (LayerModel layer in this.Model.Layers) {
                 this.layers.Add(LayerRegistry.Instance.CreateViewModelFromModel(this, layer));
             }
-
-            this.AddLayer(new VideoLayerViewModel(this, new VideoLayerModel(this.Model)) {
-                Name = "Video Layer 1"
-            });
         }
 
         public void AddLayer(VideoLayerViewModel layer, bool addToModel = true) {

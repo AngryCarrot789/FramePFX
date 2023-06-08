@@ -57,17 +57,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
             clip.Model.FrameSpan = oldSpan.SetEndIndex(frame);
             if (imageCloneResult != null && imageCloneResult == "copy") {
                 string path = TextIncrement.GetNextNumber(resourceText.UniqueId);
-                ResourceText imgRes = new ResourceText(resourceText.Manager) {
+                ResourceText textRes = new ResourceText(resourceText.Manager) {
                     Border = resourceText.Border,
                     Foreground = resourceText.Foreground,
                     Text = resourceText.Text,
                     FontFamily = resourceText.FontFamily,
                     SkewX = resourceText.SkewX,
-                    FontSize = resourceText.FontSize,
-                    UniqueId = path
+                    FontSize = resourceText.FontSize
                 };
 
-                clip.Project.ResourceManager.AddResource(imgRes);
+                clip.Project.ResourceManager.AddModel(textRes, path);
                 ((TextClipModel) cloned).SetTargetResourceId(path);
             }
 

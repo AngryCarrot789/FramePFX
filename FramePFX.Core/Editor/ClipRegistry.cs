@@ -19,12 +19,12 @@ namespace FramePFX.Core.Editor {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public ClipModel CreateLayerModel(TimelineModel timeline, string id) {
-            return (ClipModel) Activator.CreateInstance(base.GetModelType(id), timeline);
+        public ClipModel CreateLayerModel(string id) {
+            return (ClipModel) Activator.CreateInstance(base.GetModelType(id));
         }
 
-        public ClipViewModel CreateLayerViewModel(TimelineViewModel timeline, string id) {
-            return (ClipViewModel) Activator.CreateInstance(base.GetViewModelType(id), timeline);
+        public ClipViewModel CreateLayerViewModel(string id) {
+            return (ClipViewModel) Activator.CreateInstance(base.GetViewModelType(id));
         }
 
         public ClipViewModel CreateViewModelFromModel(ClipModel model) {

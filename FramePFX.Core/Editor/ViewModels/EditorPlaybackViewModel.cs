@@ -121,7 +121,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             if (this.Project != null) {
-                await this.Project.DisposeAsync();
+                this.Project.Dispose();
             }
         }
 

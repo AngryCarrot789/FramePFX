@@ -46,6 +46,9 @@
         <Menu VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 0 0 1">
             <MenuItem Header="File">
                 <MenuItem Header="New Project" Command="{Binding NewProjectCommand, Mode=OneTime}"/>
+                <MenuItem Header="Open Project" Command="{Binding OpenProjectCommand, Mode=OneTime}"/>
+                <MenuItem Header="Save Project" Command="{Binding ActiveProject.SaveCommand}" IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}"/>
+                <MenuItem Header="Save Project As..." Command="{Binding ActiveProject.SaveAsCommand}" IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}"/>
             </MenuItem>
         </Menu>
         <Grid Margin="0,19,0,0">
@@ -99,12 +102,12 @@
                                     </ui:ResourceListControl.ItemsPanel>
                                     <ui:ResourceListControl.ItemContainerStyle>
                                         <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:ResourceItemControl}}">
-                                            <Setter Property="UniqueIDHeader" Value="{Binding UniqueId, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <Setter Property="UniqueIDHeader" Value="{Binding UniqueId, Mode=OneWay}"/>
                                         </Style>
                                     </ui:ResourceListControl.ItemContainerStyle>
                                     <ui:ResourceListControl.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Path=UniqueId}"/>
+                                            <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}"/>
                                         </DataTemplate>
                                     </ui:ResourceListControl.ItemTemplate>
                                 </ui:ResourceListControl>

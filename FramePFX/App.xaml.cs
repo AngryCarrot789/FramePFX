@@ -13,6 +13,7 @@ using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
@@ -131,7 +132,9 @@ namespace FramePFX {
             }
 
             {
-                VideoLayerModel layer1 = new VideoLayerModel(project.Timeline);
+                VideoLayerModel layer1 = new VideoLayerModel(project.Timeline) {
+                    Name = "Layer 1 with stuff"
+                };
                 project.Timeline.AddLayer(layer1);
 
                 ShapeClipModel clip1 = new ShapeClipModel {
@@ -153,7 +156,9 @@ namespace FramePFX {
                 layer1.AddClip(clip2);
             }
             {
-                VideoLayerModel layer2 = new VideoLayerModel(project.Timeline);
+                VideoLayerModel layer2 = new VideoLayerModel(project.Timeline) {
+                    Name = "Layer 2"
+                };
                 project.Timeline.AddLayer(layer2);
 
                 ShapeClipModel clip1 = new ShapeClipModel {
@@ -175,8 +180,16 @@ namespace FramePFX {
                 clip2.SetTargetResourceId("colour_green");
                 layer2.AddClip(clip2);
             }
+            {
+                VideoLayerModel layer1 = new VideoLayerModel(project.Timeline) {
+                    Name = "Empty layer"
+                };
+                project.Timeline.AddLayer(layer1);
+            }
 
-            await editor.LoadProjectAction(new ProjectViewModel(project));
+            ProjectViewModel project1 = new ProjectViewModel(project);
+
+            await editor.SetProject(project1);
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.View.RenderViewPort(false);
         }

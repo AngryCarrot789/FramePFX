@@ -25,7 +25,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
                     using (MemoryStream stream = new MemoryStream(this.bitmap.ByteCount)) {
                         this.bitmap.Encode(stream, SKEncodedImageFormat.Bmp, 5);
                         data.SetBool(nameof(this.IsRawBitmapMode), true);
-                        data.SetByteArray(nameof(this.bitmap), stream.ToArray());
+                        data.Set(nameof(this.bitmap), stream.ToArray());
                     }
                 }
             }

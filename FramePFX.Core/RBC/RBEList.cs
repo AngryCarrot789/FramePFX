@@ -183,12 +183,16 @@ namespace FramePFX.Core.RBC {
             this.List.Add(element);
         }
 
-        public void AddDictionary(Dictionary<string, RBEBase> value) {
-            this.List.Add(new RBEDictionary(value));
+        public RBEDictionary AddDictionary(Dictionary<string, RBEBase> value = null) {
+            RBEDictionary dictionary = new RBEDictionary(value ?? new Dictionary<string, RBEBase>());
+            this.List.Add(dictionary);
+            return dictionary;
         }
 
-        public void AddList(List<RBEBase> value) {
-            this.List.Add(new RBEList(value));
+        public RBEList AddList(List<RBEBase> value = null) {
+            RBEList list = new RBEList(value ?? new List<RBEBase>());
+            this.List.Add(list);
+            return list;
         }
 
         public void AddInt8(byte value) {

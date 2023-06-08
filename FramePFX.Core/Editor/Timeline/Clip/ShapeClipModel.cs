@@ -47,13 +47,11 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
                 return;
             }
 
-            this.Transform(render.Canvas, out Rect rect, out SKMatrix oldMatrix);
-            render.Canvas.DrawRect(rect.X1, rect.Y1, rect.Width, rect.Height, new SKPaint() {
+            this.Transform(render.Canvas, out Vector2 size);
+            render.Canvas.DrawRect(0, 0, size.X, size.Y, new SKPaint() {
                 Color = new SKColor(r.ByteR, r.ByteG, r.ByteB, r.ByteA),
                 ColorFilter = alphaFilter
             });
-
-            render.Canvas.SetMatrix(oldMatrix);
         }
 
         protected override VideoClipModel NewInstance() {

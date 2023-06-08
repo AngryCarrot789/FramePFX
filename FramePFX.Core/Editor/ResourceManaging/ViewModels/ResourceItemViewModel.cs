@@ -6,13 +6,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public ResourceManagerViewModel Manager { get; }
 
-        public string UniqueId {
-            get => this.Model.UniqueId;
-            set {
-                this.Model.UniqueId = value;
-                this.RaisePropertyChanged();
-            }
-        }
+        public string UniqueId => this.Model.UniqueId;
 
         public bool IsRegistered => this.Model.IsRegistered;
 

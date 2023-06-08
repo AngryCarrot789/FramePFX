@@ -1,4 +1,6 @@
+using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
+using SkiaSharp;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Resources {
     public class ResourceColour : ResourceItem {
@@ -29,6 +31,20 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         public ResourceColour(ResourceManager manager) : base(manager) {
 
+        }
+
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            data.SetStruct("Colour", new SKColorF(this.R, this.G, this.B, this.A));
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            SKColorF colour = data.GetStruct<SKColorF>("Colour");
+            this.R = colour.Red;
+            this.G = colour.Green;
+            this.B = colour.Blue;
+            this.A = colour.Alpha;
         }
     }
 }

@@ -37,7 +37,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         /// <summary>
         /// The layer this clip is located in
         /// </summary>
-        public LayerViewModel Layer { get; private set; }
+        private LayerViewModel layer;
+        public LayerViewModel Layer {
+            get => this.layer;
+            set {
+                if (!ReferenceEquals(this.layer, value)) {
+                    this.RaisePropertyChanged(ref this.layer, value);
+                }
+            }
+        }
 
         public TimelineViewModel Timeline => this.Layer?.Timeline;
 
@@ -70,7 +78,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public static void SetLayer(ClipViewModel viewModel, LayerViewModel layer, bool fireLayerChangedEvent = true) {
-            ClipModel.SetLayer(viewModel.Model, layer?.Model, fireLayerChangedEvent);
+            LayerModel oldLayer = viewModel.Model.Layer;
+            LayerModel newLayer = layer?.Model;
+            if (!ReferenceEquals(oldLayer, newLayer)) {
+                ClipModel.SetLayer(viewModel.Model, layer?.Model, fireLayerChangedEvent);
+            }
+
             viewModel.Layer = layer;
         }
 

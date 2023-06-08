@@ -8,6 +8,7 @@ using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Interactivity;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
@@ -58,7 +59,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             });
 
             foreach ((string _, ResourceItem item) in manager.Items) {
-                this.AddResource(item, false);
+                this.AddModel(item, item.UniqueId, false);
             }
         }
 
@@ -68,7 +69,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 return fileName;
             }
 
-            for (int i = 0; i < 100000; i++) {
+            for (int i = 1; i < 100000; i++) {
                 string id = fileName + " (" + i + ")";
                 if (!this.Model.ResourceExists(id)) {
                     return id;
@@ -79,7 +80,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 return filePath;
             }
 
-            for (int i = 0; i < 100000; i++) {
+            for (int i = 1; i < 100000; i++) {
                 string id = filePath + " (" + i + ")";
                 if (!this.Model.ResourceExists(id)) {
                     return id;
@@ -101,19 +102,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public void AddResource(ResourceItem item, bool addToModel = true) {
-            this.AddResource(ResourceTypeRegistry.Instance.CreateViewModelFromModel(this, item), addToModel);
+        public void AddModel(ResourceItem item, string id, bool addToModel = true) {
+            ResourceItemViewModel viewModel = ResourceTypeRegistry.Instance.CreateViewModelFromModel(this, item);
+            this.AddViewModel(viewModel, id, addToModel);
         }
 
-        public void AddResource(ResourceItemViewModel item, bool addToModel = true) {
+        public void AddViewModel(ResourceItemViewModel item, string id, bool addToModel = true) {
             if (addToModel)
-                this.Model.AddResource(item.UniqueId, item.Model);
+                this.Model.AddResource(id, item.Model);
             this.resources.Add(item);
-        }
-
-        public void AddNewResource(ResourceItemViewModel item, string id) {
-            item.UniqueId = id;
-            this.AddResource(item);
+            item.RaisePropertyChanged(nameof(item.UniqueId));
         }
 
         private async Task CreateResourceAction(string type) {
@@ -123,72 +121,64 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
 
             ResourceItemViewModel item;
-
             switch (type) {
-                case nameof(ResourceColour):
-                    item = new ResourceColourViewModel(this, new ResourceColour(this.Model));
-                    break;
-                case nameof(ResourceImage):
-                    item = new ResourceImageViewModel(this, new ResourceImage(this.Model));
-                    break;
-                case nameof(ResourceText):
-                    item = new ResourceTextViewModel(this, new ResourceText(this.Model));
-                    break;
+                case nameof(ResourceColour): item = new ResourceColourViewModel(this, new ResourceColour(this.Model)); break;
+                case nameof(ResourceImage):  item = new ResourceImageViewModel(this, new ResourceImage(this.Model)); break;
+                case nameof(ResourceText):   item = new ResourceTextViewModel(this, new ResourceText(this.Model)); break;
                 default: return;
             }
 
-            item.UniqueId = id;
-            this.AddResource(item);
+            this.AddViewModel(item, id);
         }
 
         public async Task<string> SelectNewResourceId(string msg, string value = "id") {
-            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "", this.ResourceIdValidator);
-            return string.IsNullOrWhiteSpace(id) ? null : id;
+            return await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "", this.ResourceIdValidator);
         }
 
         public async Task<bool> RenameResourceAction(ResourceItemViewModel item) {
-            ResourceItem resource = item.Model;
-            string uuid = await IoC.UserInput.ShowSingleInputDialogAsync("Rename resource UUID", "Input a new UUID for the resource", string.IsNullOrWhiteSpace(item.UniqueId) ? "unique id here" : item.UniqueId, this.ResourceIdValidator);
-            if (uuid == null) {
+            string newId = await this.SelectNewResourceId("Input a new UUID for the resource", item.UniqueId);
+            if (newId == null) {
                 return false;
             }
-
-            if (string.IsNullOrWhiteSpace(uuid)) {
+            else if (string.IsNullOrWhiteSpace(newId)) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid UUID", "UUID cannot be an empty string or consist of only whitespaces");
                 return false;
             }
-            else if (this.Model.ResourceExists(uuid)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Resource already exists", "Resource already exists with the UUID: " + uuid);
+            else if (!this.Model.ResourceExists(item.UniqueId)) {
+                await IoC.MessageDialogs.ShowMessageAsync("Resource no long exists", "The original resource no longer exists");
                 return false;
             }
-
-            this.Model.RenameResource(resource, uuid);
-            item.UniqueId = uuid;
-            return true;
+            else if (this.Model.ResourceExists(newId)) {
+                await IoC.MessageDialogs.ShowMessageAsync("Resource already exists", "Resource already exists with the UUID: " + newId);
+                return false;
+            }
+            else {
+                this.Model.RenameResource(item.Model, newId);
+                item.RaisePropertyChanged(nameof(item.UniqueId));
+                return true;
+            }
         }
 
-        public async Task<bool> DeleteResourceAction(ResourceItemViewModel item, bool skipDialog = false) {
+        public async Task<bool> DeleteResourceAction(ResourceItemViewModel item, bool showConfirmation = true) {
             if (string.IsNullOrWhiteSpace(item.UniqueId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Error", "Resource has an invalid UUID... this shouldn't be possible wtf?!?!");
+                await IoC.MessageDialogs.ShowMessageExAsync("Invalid item", "This resource has no identifier...?", new Exception().GetToString());
                 return false;
             }
 
-            if (!skipDialog) {
-                MsgDialogResult result = await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource: {item.UniqueId}?", MsgDialogType.OKCancel);
-                if (result != MsgDialogResult.OK) {
-                    return false;
-                }
+            if (showConfirmation && MsgDialogResult.OK != await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource '{item.UniqueId}'?", MsgDialogType.OKCancel)) {
+                return false;
             }
+
+            this.Model.DeleteItem(item.Model);
+            this.resources.Remove(item);
 
             try {
                 item.Dispose();
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error disposing item", $"Failed to dispose resource. Press OK to show the exception details", e.GetToString());
+                await IoC.MessageDialogs.ShowMessageExAsync("Error disposing item", "Failed to dispose resource. Press OK to show the exception details", e.GetToString());
             }
 
-            this.Model.RemoveItem(item.Model);
-            this.resources.Remove(item);
             return true;
         }
 
@@ -207,7 +197,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             if (!ReferenceEquals(this, clip.Manager))
                 throw new Exception($"Clip layer does not match the current instance: {clip.Manager} != {this}");
             if (removeFromModel)
-                this.Model.RemoveItem(clip.UniqueId);
+                this.Model.DeleteItemById(clip.UniqueId);
             this.resources.RemoveAt(index);
             clip.Dispose();
         }
@@ -237,17 +227,22 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     case ".mov":
                     case ".mkv":
                     case ".flv":
-                        this.AddResource(new ResourceMedia(this.Model) {
-                            FilePath = path, UniqueId = this.GenerateIdForFile(path)
-                        });
+                        this.AddModel(new ResourceMedia(this.Model) {FilePath = path}, this.GenerateIdForFile(path));
                         break;
                     case ".png":
                     case ".bmp":
                     case ".jpg":
                     case ".jpeg":
-                        this.AddResource(new ResourceImage(this.Model) {
-                            FilePath = path, UniqueId = this.GenerateIdForFile(path)
-                        });
+                        ResourceImage img = new ResourceImage(this.Model) { FilePath = path };
+                        try {
+                            await img.LoadImageAsync(path);
+                        }
+                        catch (Exception e) {
+                            await IoC.MessageDialogs.ShowMessageExAsync("Image error", "Failed to load image file at " + path, e.GetToString());
+                            break;
+                        }
+
+                        this.AddModel(img, this.GenerateIdForFile(path));
                         break;
                 }
             }

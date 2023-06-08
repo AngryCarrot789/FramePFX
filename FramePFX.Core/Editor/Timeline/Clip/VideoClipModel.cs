@@ -35,21 +35,34 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
         /// </summary>
         public long MediaFrameOffset { get; set; }
 
+        /// <summary>
+        /// Helper property for getting and setting the <see cref="ClipSpan.Begin"/> property
+        /// </summary>
         public long FrameBegin {
             get => this.FrameSpan.Begin;
             set => this.FrameSpan = this.FrameSpan.SetBegin(value);
         }
 
+        /// <summary>
+        /// Helper property for getting and setting the <see cref="ClipSpan.Duration"/> property
+        /// </summary>
         public long FrameDuration {
             get => this.FrameSpan.Duration;
             set => this.FrameSpan = this.FrameSpan.SetDuration(value);
         }
 
+        /// <summary>
+        /// Helper property for getting and setting the <see cref="ClipSpan.EndIndex"/> property
+        /// </summary>
         public long FrameEndIndex {
             get => this.FrameSpan.EndIndex;
             set => this.FrameSpan = this.FrameSpan.SetEndIndex(value);
         }
 
+        /// <summary>
+        /// An event invoked when this video clip changes in some way that affects its render. 
+        /// Typically handled by the view model, which schedules the video editor window's view port to render at some point in the furture
+        /// </summary>
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
         protected VideoClipModel() {
@@ -87,21 +100,20 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
         /// <returns></returns>
         public abstract Vector2 GetSize();
 
-        public void Transform(SKCanvas canvas, out Rect rect, out SKMatrix oldMatrix) {
-            Vector2 size = this.GetSize();
-            Vector2 scale = this.MediaScale, pos = this.MediaPosition, origin = this.MediaScaleOrigin;
+        public void Transform(SKCanvas canvas, out Vector2 size, out SKMatrix oldMatrix) {
             oldMatrix = canvas.TotalMatrix;
-            canvas.Translate(pos.X, pos.Y);
-            canvas.Scale(scale.X, scale.Y, size.X * origin.X, size.Y * origin.Y);
-            rect = new Rect(0, 0, size.X, size.Y);
+            this.Transform(canvas, out size);
         }
 
-        public void Transform(SKCanvas canvas, out Rect rect) {
-            Vector2 size = this.GetSize();
-            Vector2 scale = this.MediaScale, pos = this.MediaPosition, origin = this.MediaScaleOrigin;
+        public void Transform(SKCanvas canvas, out Vector2 size) {
+            Vector2 pos = this.MediaPosition, scale = this.MediaScale, origin = this.MediaScaleOrigin;
+            size = this.GetSize();
             canvas.Translate(pos.X, pos.Y);
             canvas.Scale(scale.X, scale.Y, size.X * origin.X, size.Y * origin.Y);
-            rect = new Rect(0, 0, size.X, size.Y);
+        }
+
+        public void Transform(SKCanvas canvas) {
+            this.Transform(canvas, out _);
         }
 
         public abstract void Render(RenderContext render, long frame, SKColorFilter alphaFilter);

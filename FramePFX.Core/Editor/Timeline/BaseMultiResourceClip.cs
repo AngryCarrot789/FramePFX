@@ -28,13 +28,9 @@ namespace FramePFX.Core.Editor.Timeline {
             this.ResourceMap[key] = new ResourcePathEntry(this, key);
         }
 
-        protected override void OnAddedToLayer(LayerModel oldLayer, LayerModel newLayer) {
-            base.OnAddedToLayer(oldLayer, newLayer);
-            if (newLayer == null) {
-                return;
-            }
-
-            ResourceManager manager = newLayer.Timeline.Project.ResourceManager;
+        protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
+            base.OnLayerChanged(oldLayer, newLayer);
+            ResourceManager manager = newLayer?.Timeline.Project.ResourceManager;
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
                     try {
@@ -62,7 +58,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             if (this.ResourceMap.Count > 0) {
-                RBEDictionary resourceMapDictionary = data.GetOrCreateDictionaryElement(nameof(this.ResourceMap));
+                RBEDictionary resourceMapDictionary = data.CreateDictionary(nameof(this.ResourceMap));
                 foreach (KeyValuePair<string, ResourcePathEntry> entry in this.ResourceMap) {
                     Debug.Assert(entry.Key == entry.Value.key, "Map pair key and entry key do not match");
                     ResourcePathEntry.WriteToRBE(entry.Value, resourceMapDictionary);
@@ -91,8 +87,8 @@ namespace FramePFX.Core.Editor.Timeline {
             return false;
         }
 
-        protected override void DisporeCore(ExceptionStack stack) {
-            base.DisporeCore(stack);
+        protected override void DisposeCore(ExceptionStack stack) {
+            base.DisposeCore(stack);
             foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
                 entry.Dispose(stack);
             }
@@ -145,7 +141,7 @@ namespace FramePFX.Core.Editor.Timeline {
                     return;
                 }
 
-                RBEDictionary dictionary = resourceMapDictionary.GetOrCreateDictionaryElement(entry.key);
+                RBEDictionary dictionary = resourceMapDictionary.CreateDictionary(entry.key);
                 ResourcePath.WriteToRBE(entry.path, dictionary);
             }
 

@@ -15,7 +15,10 @@ namespace FramePFX.Core.Utils {
 
         public static readonly string VideoFormatsAndAll =
             Filter.Of().
-                   AddFilter("MP4 Container", "mp4").
+                   AddFilter("MP4", "mp4").
+                   AddFilter("MOV", "mov").
+                   AddFilter("MKV", "mkv").
+                   AddFilter("FLV", "flv").
                    AddAllFiles().
                    ToString();
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Views.Dialogs.FilePicking {
     public sealed class Filter {
@@ -36,28 +37,26 @@ namespace FramePFX.Core.Views.Dialogs.FilePicking {
         }
 
         public Filter AddFilter(string readableName, params string[] extensions) {
-            if (string.IsNullOrWhiteSpace(readableName)) {
+            if (string.IsNullOrWhiteSpace(readableName))
                 throw new ArgumentException("Readable name cannot be null, empty, or consist of only whitespaces", nameof(readableName));
-            }
-
-            if (extensions.Any(string.IsNullOrEmpty)) {
+            if (extensions.Any(string.IsNullOrEmpty))
                 throw new ArgumentException("One of the extension was null, empty, or consisted of only whitespaces", nameof(extensions));
-            }
+            if (extensions.Any(x => x[0] == '.'))
+                throw new ArgumentException("Extension should not contain a . char at the start", nameof(extensions));
 
             this.Prepare().Append(readableName).Append('|').Append(string.Join(";", extensions.Select(x => "*." + x)));
             return this;
         }
 
         public Filter AddFilter(string readableName, string extension) {
-            if (string.IsNullOrWhiteSpace(readableName)) {
+            if (string.IsNullOrWhiteSpace(readableName))
                 throw new ArgumentException("Readable name cannot be null, empty, or consist of only whitespaces", nameof(readableName));
-            }
-
-            if (string.IsNullOrEmpty(extension)) {
+            if (string.IsNullOrEmpty(extension))
                 throw new ArgumentException("Extension was null, empty, or consisted of only whitespaces", nameof(extension));
-            }
+            if (extension[0] == '.')
+                throw new ArgumentException("Extension should not contain a . char at the start: " + extension, nameof(extension));
 
-            this.Prepare().Append(readableName).Append('|').Append("*.").Append(extension);
+            this.Prepare().Append(readableName).Append('|').Append("*.").Append(extension.StartsWith(".") ? extension.Substring(1) : extension);
             return this;
         }
 

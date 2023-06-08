@@ -1,4 +1,7 @@
+using System.IO;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceChecker;
+using FramePFX.Core.Editor.ResourceChecker.Resources;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
@@ -27,6 +30,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             if (file.IsSuccess && file.Value.Length == 1) {
                 this.FilePath = file.Value[0];
                 this.Model.CloseFile();
+            }
+        }
+
+        public override void Validate(ResourceCheckerViewModel checker) {
+            base.Validate(checker);
+            if (string.IsNullOrEmpty(this.FilePath) || !File.Exists(this.FilePath)) {
+                checker.Add(new InvalidVideoViewModel(this));
             }
         }
     }

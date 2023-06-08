@@ -1,8 +1,8 @@
 ﻿using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 
 namespace FramePFX.Core.Editor.ResourceChecker.Resources {
-    public class InvalidImageViewModel : InvalidResourceViewModel {
-        public new ResourceImageViewModel Resource => (ResourceImageViewModel) base.Resource;
+    public class InvalidVideoViewModel : InvalidResourceViewModel {
+        public new ResourceMediaViewModel Resource => (ResourceMediaViewModel) base.Resource;
 
         private string filePath;
         public string FilePath {
@@ -10,7 +10,7 @@ namespace FramePFX.Core.Editor.ResourceChecker.Resources {
             set => this.RaisePropertyChanged(ref this.filePath, value);
         }
 
-        public InvalidImageViewModel(ResourceImageViewModel resource) : base(resource) {
+        public InvalidVideoViewModel(ResourceMediaViewModel resource) : base(resource) {
             this.filePath = resource.FilePath;
         }
     }

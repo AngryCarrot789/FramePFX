@@ -12,6 +12,12 @@ namespace FramePFX.Core.Editor.ViewModels {
         private bool hasSavedOnce;
         private string projectFilePath;
 
+        private bool hasUnsavedChanges;
+        public bool HasUnsavedChanges {
+            get => this.hasUnsavedChanges;
+            private set => this.RaisePropertyChanged(ref this.hasUnsavedChanges, value);
+        }
+
         public ProjectSettingsViewModel Settings { get; }
 
         public ProjectModel Model { get; }
@@ -51,13 +57,23 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.Model.IsSaving);
         }
 
+        public void OnModified() {
+            this.SetHasUnsavedChanges(true);
+        }
+
+        public void SetHasUnsavedChanges(bool value) {
+            if (this.HasUnsavedChanges != value) {
+                this.HasUnsavedChanges = value;
+            }
+        }
+
         public async Task<bool> SaveActionAsync() {
             if (this.Editor == null || this.Model.IsSaving) {
                 return false;
             }
 
             if (File.Exists(this.ProjectFilePath) || (!string.IsNullOrEmpty(this.ProjectFilePath) && this.hasSavedOnce)) {
-                await this.SaveActionAsync(this.ProjectFilePath);
+                await this.SaveToFileAsync();
                 return true;
             }
             else {
@@ -73,7 +89,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             DialogResult<string> result = IoC.FilePicker.ShowSaveFileDialog(Path.GetDirectoryName(this.ProjectFilePath), "Select a folder, in which the project data will be saved into");
             if (result.IsSuccess) {
                 this.ProjectFilePath = result.Value;
-                await this.SaveActionAsync(this.ProjectFilePath);
+                await this.SaveToFileAsync();
                 return true;
             }
             else {
@@ -81,13 +97,14 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
-        public async Task SaveActionAsync(string file) {
-            if (this.Editor == null) {
+        public async Task SaveToFileAsync() {
+            if (this.Editor == null)
                 return;
-            }
+            if (!ReferenceEquals(this, this.Editor.ActiveProject))
+                throw new Exception("The editor's project does not match the current instance");
 
             this.Model.IsSaving = true;
-            await this.Editor.OnProjectSaving(this);
+            await this.Editor.OnProjectSaving();
 
             Exception e = null;
             await Task.Run(() => {
@@ -96,24 +113,25 @@ namespace FramePFX.Core.Editor.ViewModels {
                     this.Model.WriteToRBE(dictionary);
                 }
                 catch (Exception exception) {
-                    e = exception;
+                    e = new Exception("Failed to serialise project", exception);
                 }
 
                 if (e == null) {
                     try {
-                        RBEUtils.WriteToFile(dictionary, file);
+                        RBEUtils.WriteToFile(dictionary, this.ProjectFilePath);
                     }
                     catch (Exception exception) {
-                        e = exception;
+                        e = new Exception("Failed to write project to the disk", exception);
                     }
                 }
             });
 
             this.Model.IsSaving = false;
-            this.hasSavedOnce = true;
-            await this.Editor.OnProjectSaved(this);
-
-            if (e != null) {
+            await this.Editor.OnProjectSaved(e == null);
+            if (e == null) {
+                this.hasSavedOnce = true;
+            }
+            else {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error saving", "An exception occurred while saving project", e.GetToString());
             }
         }

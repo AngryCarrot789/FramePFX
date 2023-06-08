@@ -4,7 +4,7 @@ using FramePFX.Core.Views.Dialogs.FilePicking;
 using Microsoft.Win32;
 
 namespace FramePFX.Views.FilePicking {
-    [Service(typeof(IFilePickDialogService))]
+    [ServiceImplementation(typeof(IFilePickDialogService))]
     public class FilePickDialogService : IFilePickDialogService {
         public DialogResult<string[]> ShowFilePickerDialog(string filter, string defaultPath = null, string titleBar = null, bool multiSelect = false) {
             OpenFileDialog dialog = new OpenFileDialog {

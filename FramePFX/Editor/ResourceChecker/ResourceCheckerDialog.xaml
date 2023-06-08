@@ -1,12 +1,68 @@
-﻿<Window x:Class="FramePFX.Editor.ResourceChecker.ResourceCheckerDialog"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FramePFX.Editor.ResourceChecker"
-        mc:Ignorable="d"
-        Title="ResourceCheckerDialog" Height="450" Width="800">
+﻿<views:BaseDialog x:Class="FramePFX.Editor.ResourceChecker.ResourceCheckerDialog"
+                  xmlns:views="clr-namespace:FramePFX.Views"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:local="clr-namespace:FramePFX.Editor.ResourceChecker"
+                  xmlns:attached="clr-namespace:FramePFX.Themes.Attached"
+                  xmlns:rc="clr-namespace:FramePFX.Core.Editor.ResourceChecker;assembly=FramePFX.Core"
+                  xmlns:r="clr-namespace:FramePFX.Core.Editor.ResourceChecker.Resources;assembly=FramePFX.Core"
+                  mc:Ignorable="d"
+                  Title="ResourceCheckerDialog" Height="450" Width="800"
+                  Style="{DynamicResource CustomWindowStyleEx}"
+                  TitlebarBrush="{DynamicResource AREghZyBrush.Tone4.Background.Static}"
+                  d:DataContext="{d:DesignInstance rc:ResourceCheckerViewModel}">
+    <Window.InputBindings>
+        <KeyBinding Key="Esc" Command="{Binding OfflineAllCommand, Mode=OneTime}"/>
+    </Window.InputBindings>
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="343*"/>
+            <RowDefinition Height="44*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="104*"/>
+            <ColumnDefinition Width="291*"/>
+        </Grid.ColumnDefinitions>
+        <Border x:Name="ButtonBarBorder" Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="0" Grid.Column="1" Grid.Row="1">
+            <Grid>
+                <Button Command="{Binding OfflineAllCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline All" Height="25" Margin="0,0,182,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding OfflineCurrentCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Cancel" Height="25" Margin="0,0,10,0" HorizontalAlignment="Right" Width="72" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline" Height="25" Margin="0,0,92,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
+            </Grid>
+        </Border>
+        <Grid Grid.RowSpan="2">
+            <ListBox HorizontalAlignment="Left" Width="208"
+                     BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="0"
+                     ItemsSource="{Binding Resources}"
+                     SelectedIndex="{Binding CurrentIndex, UpdateSourceTrigger=PropertyChanged}"
+                     SelectedItem="{Binding CurrentItem, UpdateSourceTrigger=PropertyChanged}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Resource.UniqueId, Mode=OneWay}" VerticalAlignment="Center"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+        <Border Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="1,1,0,1">
+            <ContentPresenter Content="{Binding CurrentItem, Mode=TwoWay}">
+                <ContentPresenter.Resources>
+                    <DataTemplate DataType="{x:Type r:InvalidImageViewModel}">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Image file path: " Padding="5"/>
+                            <DockPanel Height="24">
+                                <Button Content="..." Command="{Binding SelectFileCommand, Mode=OneTime}" DockPanel.Dock="Right" Height="24" Width="24"/>
+                                <TextBox Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" Padding="4,1" VerticalContentAlignment="Center" VerticalAlignment="Stretch"/>
+                            </DockPanel>
+                            <Button Margin="0,5,0,0" Content="Refresh Image" Command="{Binding LoadImageCommand, Mode=OneTime}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type r:InvalidVideoViewModel}">
+
+                    </DataTemplate>
+                </ContentPresenter.Resources>
+            </ContentPresenter>
+        </Border>
     </Grid>
-</Window>
+</views:BaseDialog>

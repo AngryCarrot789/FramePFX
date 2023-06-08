@@ -4,7 +4,7 @@ using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Utils;
 
 namespace FramePFX.Views.UserInputs {
-    [Service(typeof(IUserInputDialogService))]
+    [ServiceImplementation(typeof(IUserInputDialogService))]
     public class UserInputDialogService : IUserInputDialogService {
         public async Task<string> ShowSingleInputDialogAsync(string title = "Input a value", string message = "Input a new valid", string def = null, InputValidator validator = null) {
             SingleInputViewModel vm = new SingleInputViewModel() {

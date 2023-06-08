@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceChecker;
+using FramePFX.Core.Editor.ResourceChecker.Resources;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
@@ -70,6 +72,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
                 catch (Exception e) {
                     await IoC.MessageDialogs.ShowMessageExAsync("Error opening image", $"Exception occurred while opening {path}", e.GetToString());
                 }
+            }
+        }
+
+        public override void Validate(ResourceCheckerViewModel checker) {
+            base.Validate(checker);
+            if (string.IsNullOrEmpty(this.FilePath) || !File.Exists(this.FilePath)) {
+                checker.Add(new InvalidImageViewModel(this));
             }
         }
     }

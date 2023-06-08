@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
+
 namespace FramePFX.Core.Editor.ResourceChecker {
-    public class IResourceCheckerService {
-        
+    public interface IResourceCheckerService {
+        Task<bool> ShowCheckerDialog(ResourceCheckerViewModel checkerViewModel);
     }
 }

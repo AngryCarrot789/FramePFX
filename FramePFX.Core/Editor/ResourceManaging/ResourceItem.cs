@@ -18,9 +18,16 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public bool IsRegistered => !string.IsNullOrWhiteSpace(this.UniqueId) && this.Manager.ResourceExists(this.UniqueId);
 
+        /// <summary>
+        /// Whether or not this resource is online and in a valid state or not. When offline, it should not be used
+        /// as some of the data may be missing or unloaded (e.g. media file does not exist, therefore no decoder would be available)
+        /// </summary>
+        public bool IsOnline { get; set; }
+
         public ResourceManager Manager { get; }
 
         public event ResourceModifiedEventHandler DataModified;
+        public event ResourceItemEventHandler OnlineStateChanged;
 
         protected ResourceItem(ResourceManager manager) {
             this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
@@ -44,6 +51,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));
             this.DataModified?.Invoke(this, propertyName);
+        }
+
+        public void RaiseOnlineStateChanged() {
+            this.OnlineStateChanged?.Invoke(this.Manager, this);
         }
 
         /// <summary>

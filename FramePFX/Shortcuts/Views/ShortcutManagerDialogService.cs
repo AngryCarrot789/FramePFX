@@ -4,7 +4,7 @@ using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 
 namespace FramePFX.Shortcuts.Views {
-    [Service(typeof(IShortcutManagerDialogService))]
+    [ServiceImplementation(typeof(IShortcutManagerDialogService))]
     public class ShortcutManagerDialogService : IShortcutManagerDialogService {
         private ShortcutEditorWindow window;
 

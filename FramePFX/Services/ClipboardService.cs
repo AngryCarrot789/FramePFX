@@ -3,7 +3,7 @@ using FramePFX.Core;
 using FramePFX.Core.Services;
 
 namespace FramePFX.Services {
-    [Service(typeof(IClipboardService))]
+    [ServiceImplementation(typeof(IClipboardService))]
     public class ClipboardService : IClipboardService {
         public string ReadableText {
             get => Clipboard.GetText(TextDataFormat.UnicodeText);

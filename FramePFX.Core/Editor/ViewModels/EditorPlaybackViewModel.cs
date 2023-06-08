@@ -40,7 +40,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public AsyncRelayCommand TogglePlayCommand { get; }
         public AsyncRelayCommand SwitchPrecisionTimingModeCommand { get; }
 
-        private bool wasPlayingAtSave;
+        private bool wasPlayingBeforeSave;
 
         public EditorPlaybackViewModel(VideoEditorViewModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
@@ -119,10 +119,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             if (project == null) {
                 await this.Model.PlaybackTimer.StopAsync();
             }
-
-            if (this.Project != null) {
-                this.Project.Dispose();
-            }
         }
 
         public async Task OnProjectChanged(ProjectViewModel project) {
@@ -132,6 +128,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             this.UpdatePlaybackCommands();
+            this.RaisePropertyChanged(nameof(this.Project));
         }
 
         public void SetTimerFrameRate(double frameRate) {
@@ -152,20 +149,20 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task OnProjectSaving() {
-            this.wasPlayingAtSave = this.IsPlaying;
-            if (this.wasPlayingAtSave) {
+            this.wasPlayingBeforeSave = this.IsPlaying;
+            if (this.IsPlaying) {
                 await this.StopRenderTimer();
             }
 
             this.UpdatePlaybackCommands();
         }
 
-        public async Task OnProjectSaved() {
-            if (this.wasPlayingAtSave) {
-                this.wasPlayingAtSave = false;
+        public async Task OnProjectSaved(bool canResumePlaying = true) {
+            if (canResumePlaying && this.wasPlayingBeforeSave) {
                 this.StartRenderTimer();
             }
 
+            this.wasPlayingBeforeSave = false;
             this.UpdatePlaybackCommands();
         }
     }

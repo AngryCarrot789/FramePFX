@@ -5,7 +5,7 @@ using FramePFX.Core;
 using FramePFX.Core.Services;
 
 namespace FramePFX.Services {
-    [Service(typeof(IExplorerService))]
+    [ServiceImplementation(typeof(IExplorerService))]
     public class WinExplorerService : IExplorerService {
         public void OpenFileInExplorer(string filePath) {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(filePath)) {

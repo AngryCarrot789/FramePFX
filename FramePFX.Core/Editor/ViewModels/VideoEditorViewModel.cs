@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.History.ViewModels;
@@ -22,17 +23,14 @@ namespace FramePFX.Core.Editor.ViewModels {
         public ProjectViewModel ActiveProject {
             get => this.activeProject;
             private set {
-                if (ReferenceEquals(this.activeProject, value)) {
+                if (ReferenceEquals(this.activeProject, value))
                     return;
-                }
-
-                if (this.activeProject != null) {
+                if (this.activeProject != null)
                     this.activeProject.Editor = null;
-                }
 
                 if (value != null) {
                     this.Model.ActiveProject = value.Model;
-                    value.Editor = this;
+                    value.Editor = this; // this also sets the project model's editor
                 }
                 else {
                     this.Model.ActiveProject = null;
@@ -44,7 +42,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public bool IsProjectSaving {
             get => this.Model.IsProjectSaving;
-            set {
+            private set {
                 this.Model.IsProjectSaving = value;
                 this.RaisePropertyChanged();
             }
@@ -70,96 +68,106 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.HistoryManager = new HistoryManagerViewModel(this.Model.HistoryManager);
             this.App = app;
             this.Playback = new EditorPlaybackViewModel(this);
-            this.Playback.Model.OnStepFrame = () => {
-                this.ActiveProject?.Timeline.OnStepFrameTick();
-            };
-
-            this.NewProjectCommand = new AsyncRelayCommand(async () => {
-                ProjectViewModel project = new ProjectViewModel(new ProjectModel());
-                project.Settings.Resolution = new Resolution(500, 500);
-                if (this.ActiveProject != null && !await this.SaveAndCloseProjectAction()) {
-                    return;
-                }
-
-                await this.SetProject(project);
-            });
-
-            this.OpenProjectCommand = new AsyncRelayCommand(async () => {
-                if (this.ActiveProject != null && !await this.SaveProjectAction()) {
-                    return;
-                }
-
-                DialogResult<string[]> result = IoC.FilePicker.ShowFilePickerDialog(Filters.ProjectTypeAndAllFiles);
-                if (!result.IsSuccess || result.Value.Length < 1) {
-                    return;
-                }
-
-                RBEDictionary dictionary;
-                try {
-                    dictionary = RBEUtils.ReadFromFile(result.Value[0]) as RBEDictionary;
-                }
-                catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());
-                    return;
-                }
-
-                if (dictionary == null) {
-                    await IoC.MessageDialogs.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
-                    return;
-                }
-
-                ProjectModel project = new ProjectModel();
-                try {
-                    project.ReadFromRBE(dictionary);
-                }
-                catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
-                    return;
-                }
-
-                if (this.ActiveProject != null) {
-                    try {
-                        await this.CloseProjectAction();
-                    }
-                    catch (Exception e) {
-                        await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
-                    }
-
-                    this.ActiveProject = null;
-                }
-
-                ProjectViewModel vm = new ProjectViewModel(project);
-                await this.SetProject(vm);
-                await this.CheckProjectResources(vm);
-            });
+            this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameTick();
+            this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
+            this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
         }
 
-        public async Task CheckProjectResources(ProjectViewModel project) {
-            // TODO: Implement proper checks for resources that are offline
-            foreach (ResourceItemViewModel resource in project.ResourceManager.Resources) {
-                if (resource is ResourceImageViewModel image) {
-                    if (!string.IsNullOrEmpty(image.FilePath)) {
-                        try {
-                            await image.Model.LoadImageAsync(image.FilePath);
-                        }
-                        catch (Exception e) {
-                            /* ignored, for now */
-                            Debug.WriteLine(e.GetToString());
-                        }
-                    }
-                }
-                else if (resource is ResourceMediaViewModel media) {
-                    if (!string.IsNullOrEmpty(media.FilePath)) {
-                        try {
-                            media.Model.OpenMediaFromFile();
-                        }
-                        catch (Exception e) {
-                            /* ignored, for now */
-                            Debug.WriteLine(e.GetToString());
-                        }
-                    }
-                }
+        private async Task NewProjectAction() {
+            if (this.ActiveProject != null && !await this.SaveProjectAction()) {
+                return;
             }
+
+            ProjectViewModel project = new ProjectViewModel(new ProjectModel());
+            project.Settings.Resolution = new Resolution(1280, 720);
+            await this.CloseProjectAction();
+            await this.SetProject(project);
+        }
+
+        private async Task OpenProjectAction() {
+            DialogResult<string[]> result = IoC.FilePicker.ShowFilePickerDialog(Filters.ProjectTypeAndAllFiles);
+            if (!result.IsSuccess || result.Value.Length < 1) {
+                return;
+            }
+
+            if (this.ActiveProject != null && !await this.SaveProjectAction()) {
+                return;
+            }
+
+            RBEDictionary dictionary;
+            try {
+                dictionary = RBEUtils.ReadFromFile(result.Value[0]) as RBEDictionary;
+            }
+            catch (Exception e) {
+                await IoC.MessageDialogs.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());
+                return;
+            }
+
+            if (dictionary == null) {
+                await IoC.MessageDialogs.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
+                return;
+            }
+
+            ProjectModel projectModel = new ProjectModel();
+            ProjectViewModel project;
+            try {
+                projectModel.ReadFromRBE(dictionary);
+                project = new ProjectViewModel(projectModel);
+            }
+            catch (Exception e) {
+                await IoC.MessageDialogs.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
+                return;
+            }
+
+            if (this.ActiveProject != null) {
+                try {
+                    await this.CloseProjectAction();
+                }
+                catch (Exception e) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
+                }
+
+                this.ActiveProject = null;
+            }
+
+            if (!await this.ProcessProjectForInvalidResources(project)) {
+                #if DEBUG
+                project.Dispose();
+                #else
+                try {
+                    project.Dispose();
+                }
+                catch (Exception e) {
+                    Debug.WriteLine(e);
+                }
+                #endif
+                return;
+            }
+
+            await this.SetProject(project);
+        }
+
+        /// <summary>
+        /// Processes the given project's resources and checks if they are all valid or not. If not, it shows a window to try and fix them
+        /// <para>
+        /// The user can cancel the action, cancelling the project from being loaded, causing the task to return false. Otherwise, returns true
+        /// </para>
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        public async Task<bool> ProcessProjectForInvalidResources(ProjectViewModel project) {
+            // TODO: Implement proper checks for resources that are offline
+
+            ResourceCheckerViewModel checker = new ResourceCheckerViewModel();
+            foreach (ResourceItemViewModel resource in project.ResourceManager.Resources) {
+                resource.Validate(checker);
+            }
+
+            if (checker.Resources.Count < 1) {
+                return true;
+            }
+
+            return await IoC.Provide<IResourceCheckerService>().ShowCheckerDialog(checker);
         }
 
         public async Task SetProject(ProjectViewModel project) {
@@ -235,27 +243,24 @@ namespace FramePFX.Core.Editor.ViewModels {
                 throw new Exception("No active project");
             }
 
-            this.ActiveProject.Dispose();
+            try {
+                this.ActiveProject.Dispose();
+            }
+            catch (Exception e) {
+                await IoC.MessageDialogs.ShowMessageExAsync("Close Project", "An exception occurred while closing project", e.GetToString());
+            }
+
             await this.SetProject(null);
         }
 
-        public async Task OnProjectSaving(ProjectViewModel project) {
-            if (project != this.ActiveProject) {
-                throw new Exception("Project does not equal the given project");
-            }
-
+        public async Task OnProjectSaving() {
             this.IsProjectSaving = true;
             await this.Playback.OnProjectSaving();
-            await this.Playback.StopRenderTimer();
         }
 
-        public async Task OnProjectSaved(ProjectViewModel project) {
-            if (project != this.ActiveProject) {
-                throw new Exception("Project does not equal the given project");
-            }
-
+        public async Task OnProjectSaved(bool success = true) {
             this.IsProjectSaving = false;
-            await this.Playback.OnProjectSaved();
+            await this.Playback.OnProjectSaved(success);
         }
 
         public void DoRender(bool schedule = false) {

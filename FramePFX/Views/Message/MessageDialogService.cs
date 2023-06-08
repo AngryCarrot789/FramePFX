@@ -6,7 +6,7 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Utils;
 
 namespace FramePFX.Views.Message {
-    [Service(typeof(IMessageDialogService))]
+    [ServiceImplementation(typeof(IMessageDialogService))]
     public class MessageDialogService : IMessageDialogService {
         public async Task ShowMessageAsync(string caption, string message) {
             await DispatcherUtils.Invoke(async () => {

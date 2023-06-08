@@ -42,9 +42,21 @@
       <HintPath>..\packages\FFmpeg.AutoGen.6.0.0.2\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FFMpegCore, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\FFMpegCore.5.1.0\lib\netstandard2.0\FFMpegCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FFmpegWrapper, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Instances, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Instances.3.0.0\lib\netstandard2.0\Instances.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.7.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -90,6 +102,22 @@
     </Reference>
     <Reference Include="System.Text.Encoding.CodePages, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\System.Text.Encoding.CodePages.5.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.Text.Encodings.Web.7.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=7.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.Text.Json.7.0.2\lib\net462\System.Text.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
@@ -178,6 +206,10 @@
     </Compile>
     <Compile Include="Editor\PageRegistry.cs" />
     <Compile Include="Editor\Properties\PropertyGroupExpander.cs" />
+    <Compile Include="Editor\ResourceChecker\ResourceCheckerDialog.xaml.cs">
+      <DependentUpon>ResourceCheckerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\ResourceChecker\ResourceCheckerService.cs" />
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewLayerActions.cs" />
     <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
@@ -340,6 +372,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Editor\ResourceChecker\ResourceCheckerDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Editor\Timeline\TimelineStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -451,6 +487,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="README.md" />
     <Content Include="Resources\Shaders\pink.frag" />
     <Content Include="Resources\Shaders\pink.vert" />
     <Content Include="Resources\Shaders\rgb.frag" />

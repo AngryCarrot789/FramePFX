@@ -11,12 +11,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using FramePFX.Views;
 
 namespace FramePFX.Editor.ResourceChecker {
     /// <summary>
     /// Interaction logic for ResourceCheckerDialog.xaml
     /// </summary>
-    public partial class ResourceCheckerDialog : Window {
+    public partial class ResourceCheckerDialog : BaseDialog {
         public ResourceCheckerDialog() {
             InitializeComponent();
         }

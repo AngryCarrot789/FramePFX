@@ -41,17 +41,17 @@ namespace FramePFX.Core {
         public static void LoadServicesFromAttributes() {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
                 foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
-                    ServiceAttribute attribute = typeInfo.GetCustomAttribute<ServiceAttribute>();
-                    if (attribute != null && attribute.Type != null) {
+                    ServiceImplementationAttribute implementationAttribute = typeInfo.GetCustomAttribute<ServiceImplementationAttribute>();
+                    if (implementationAttribute != null && implementationAttribute.Type != null) {
                         object instance;
                         try {
                             instance = Activator.CreateInstance(typeInfo);
                         }
                         catch (Exception e) {
-                            throw new Exception($"Failed to create implementation of {attribute.Type} as {typeInfo}", e);
+                            throw new Exception($"Failed to create implementation of {implementationAttribute.Type} as {typeInfo}", e);
                         }
 
-                        Instance.Register(attribute.Type, instance);
+                        Instance.Register(implementationAttribute.Type, instance);
                     }
                 }
             }

@@ -30,3 +30,6 @@ To run this, you just need to download this repo and also the ffmpeg's shared x6
 
 And to drag videos into the editor, you drag and drop a video file to the top left "resource manager", and then drag one of those items into the timeline. Will soon support directly dropping a clip into the timeline
 
+## Cross platform
+Currently there's only a WPF implementation, but I hope to switch to avalonia at some point or MAUI. Most of the classes are implented in the .NET Standard project, so it's relatively easy to port the app over to different platforms, but then there's also SkiaSharp, FFmpeg, etc, dependencies too...
+

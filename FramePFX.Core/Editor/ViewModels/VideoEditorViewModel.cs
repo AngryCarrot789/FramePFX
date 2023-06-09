@@ -1,9 +1,7 @@
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Settings.ViewModels;
@@ -48,6 +46,12 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
+        private bool isClosingProject;
+        public bool IsClosingProject {
+            get => this.isClosingProject;
+            set => this.RaisePropertyChanged(ref this.isClosingProject, value);
+        }
+
         public EditorPlaybackViewModel Playback { get; }
 
         public ApplicationViewModel App { get; }
@@ -85,7 +89,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         private async Task OpenProjectAction() {
-            DialogResult<string[]> result = IoC.FilePicker.ShowFilePickerDialog(Filters.ProjectTypeAndAllFiles);
+            DialogResult<string[]> result = IoC.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
             if (!result.IsSuccess || result.Value.Length < 1) {
                 return;
             }
@@ -130,7 +134,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 this.ActiveProject = null;
             }
 
-            if (!await this.ProcessProjectForInvalidResources(project)) {
+            if (!await ResourceCheckerViewModel.ProcessProjectForInvalidResources(project, true)) {
                 #if DEBUG
                 project.Dispose();
                 #else
@@ -145,29 +149,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             await this.SetProject(project);
-        }
-
-        /// <summary>
-        /// Processes the given project's resources and checks if they are all valid or not. If not, it shows a window to try and fix them
-        /// <para>
-        /// The user can cancel the action, cancelling the project from being loaded, causing the task to return false. Otherwise, returns true
-        /// </para>
-        /// </summary>
-        /// <param name="project"></param>
-        /// <returns></returns>
-        public async Task<bool> ProcessProjectForInvalidResources(ProjectViewModel project) {
-            // TODO: Implement proper checks for resources that are offline
-
-            ResourceCheckerViewModel checker = new ResourceCheckerViewModel();
-            foreach (ResourceItemViewModel resource in project.ResourceManager.Resources) {
-                resource.Validate(checker);
-            }
-
-            if (checker.Resources.Count < 1) {
-                return true;
-            }
-
-            return await IoC.Provide<IResourceCheckerService>().ShowCheckerDialog(checker);
         }
 
         public async Task SetProject(ProjectViewModel project) {
@@ -210,6 +191,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 throw new Exception("No active project");
             }
 
+            this.IsClosingProject = true;
             bool? result = await IoC.MessageDialogs.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
             if (result == true) {
                 await this.ActiveProject.SaveActionAsync();
@@ -219,6 +201,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             await this.CloseProjectAction();
+            this.IsClosingProject = false;
             return true;
         }
 

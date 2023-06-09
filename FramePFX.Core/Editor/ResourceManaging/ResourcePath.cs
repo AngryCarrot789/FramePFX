@@ -13,6 +13,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         protected readonly ResourceItemEventHandler resourceRemovedHandler;
         protected readonly ResourceRenamedEventHandler resourceRenamedHandler;
         protected readonly ResourceReplacedEventHandler resourceReplacedHandler;
+        protected readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         // volatile juuust in case...
         protected volatile bool isDisposing;
@@ -27,17 +28,18 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public string ResourceId { get; protected set; }
 
         /// <summary>
-        /// The online state of this resource. True means the resource is online and accessible. False
-        /// means the resource is offline and cannot be access. Null means the resource hasn't been resolved yet or
+        /// The online state of this resource. True means the state is valid and accessible. False
+        /// means the state is invalid and cannot be access. Null means the resource hasn't been resolved yet or
         /// there is no manager associated with this instance
         /// </summary>
-        public bool? IsOnline { get; protected set; }
+        public bool? IsValid { get; protected set; }
 
         /// <summary>
         /// An event called when this resource path is disposed. This is only
         /// called when explicitly disposed; finalizer does not call this event
         /// </summary>
         public event EventHandler Disposed;
+        public event ResourceItemEventHandler OnlineStateChanged;
 
         protected ResourcePathBase(ResourceManager manager, string resourceId) {
             this.ResourceId = string.IsNullOrWhiteSpace(resourceId) ? throw new ArgumentException("Unique id cannot be null, empty or whitespaces") : resourceId;
@@ -45,9 +47,14 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.resourceRemovedHandler = this.OnManagerResourceRemoved;
             this.resourceRenamedHandler = this.OnManagerResourceRenamed;
             this.resourceReplacedHandler = this.OnManagerResourceReplaced;
+            this.onlineStateChangedHandler = this.OnOnlineStateChanged;
             if (manager != null) {
                 this.SetManager(manager);
             }
+        }
+
+        ~ResourcePathBase() {
+            this.Dispose(false);
         }
 
         public void SetManager(ResourceManager newManager, bool fireResourceChanged = true) {
@@ -64,7 +71,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.ClearInternalResource(fireResourceChanged);
 
             this.Manager = newManager;
-
             if (oldManager != null) {
                 oldManager.ResourceAdded -= this.resourceAddedHandler;
                 oldManager.ResourceDeleted -= this.resourceRemovedHandler;
@@ -80,12 +86,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        protected abstract void ClearInternalResource(bool fireResourceChanged);
-
-        ~ResourcePathBase() {
-            this.Dispose(false);
-        }
-
         protected abstract void OnManagerResourceAdded(ResourceManager manager, ResourceItem item);
 
         protected abstract void OnManagerResourceRemoved(ResourceManager manager, ResourceItem item);
@@ -93,6 +93,19 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         protected abstract void OnManagerResourceRenamed(ResourceManager manager, ResourceItem item, string oldId, string newId);
 
         protected abstract void OnManagerResourceReplaced(ResourceManager manager, string id, ResourceItem oldItem, ResourceItem newItem);
+
+        protected virtual void OnOnlineStateChanged(ResourceManager manager, ResourceItem item) {
+            this.OnlineStateChanged?.Invoke(manager, item);
+        }
+
+        protected abstract void ClearInternalResource(bool fireResourceChanged);
+
+        protected virtual void OnResourceChanged(ResourceItem oldItem, ResourceItem newItem) {
+            if (oldItem != null)
+                oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
+            if (newItem != null)
+                newItem.OnlineStateChanged += this.onlineStateChangedHandler;
+        }
 
         /// <summary>
         /// Disposes this resource path, removing all <see cref="ResourceManager"/> handlers that it has registered,
@@ -106,7 +119,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         protected virtual void Dispose(bool disposing) {
-
+            // finalizer call. Most likely means Manager is null, because otherwise how
+            // could there be no references if the event handlers are still registered??
+            ResourceManager manager = this.Manager;
+            if (manager != null) {
+                manager.ResourceAdded -= this.resourceAddedHandler;
+                manager.ResourceDeleted -= this.resourceRemovedHandler;
+                manager.ResourceRenamed -= this.resourceRenamedHandler;
+                manager.ResourceReplaced -= this.resourceReplacedHandler;
+            }
         }
 
         protected void EnsureNotDispose(string message = null) {
@@ -131,13 +152,13 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         private void SetInternalResource(ResourceItem item, bool fireEvent = true) {
             ResourceItem oldItem = this.cached;
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (oldItem == null)
-                    throw new Exception("Expected non-null cached item when resource is online");
-                this.IsOnline = null;
+                    throw new Exception("Expected non-null cached item when state is valid");
+                this.IsValid = null;
             }
             else if (oldItem != null) {
-                throw new Exception("Expected null cached item when resource is offline or unknown");
+                throw new Exception("Expected null cached item when state is invalid or unknown");
             }
 
             if (ReferenceEquals(oldItem, item)) {
@@ -146,7 +167,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
 
             this.cached = item;
-            this.IsOnline = item != null ? (bool?) true : null;
+            this.IsValid = item != null ? (bool?) true : null;
+            this.OnResourceChanged(oldItem, item);
             if (fireEvent) {
                 this.ResourceChanged?.Invoke(oldItem, item);
             }
@@ -154,14 +176,14 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         private ResourceItem GetInternalResource() {
             ResourceItem item = this.cached;
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (item == null)
-                    throw new Exception("Expected non-null cached item when resource is online");
+                    throw new Exception("Expected non-null cached item when state is valid");
                 return item;
             }
 
             if (item != null)
-                throw new Exception("Expected null cached item when resource is offline or unknown");
+                throw new Exception("Expected null cached item when state is invalid or unknown");
             return null;
         }
 
@@ -177,27 +199,27 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
 
             this.ResourceId = uniqueId;
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 this.SetInternalResource(null, fireResourceChanged);
             }
 
-            this.IsOnline = null;
+            this.IsValid = null;
         }
 
-        public bool TryGetResource<T>(out T resource) where T : ResourceItem {
+        public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
             this.EnsureNotDispose();
-            switch (this.IsOnline) {
+            switch (this.IsValid) {
                 case false:
                     if (this.cached != null)
-                        throw new Exception("Expected null cached item when resource is offline");
+                        throw new Exception("Expected null cached item when state is invalid");
                     resource = null;
                     return false;
                 case true:
                     if (this.cached == null)
-                        throw new Exception("Expected non-null cached item when resource is online");
+                        throw new Exception("Expected non-null cached item when state is valid");
                     if (this.cached is T t) {
                         resource = t;
-                        return true;
+                        return !requireIsOnline || t.IsOnline;
                     }
 
                     this.SetInternalResource(resource = null);
@@ -206,10 +228,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     ResourceManager manager = this.Manager;
                     if (manager != null && manager.TryGetResource(this.ResourceId, out ResourceItem res) && res is T value) {
                         this.SetInternalResource(resource = value);
-                        return true;
+                        return !requireIsOnline || value.IsOnline;
                     }
 
-                    this.IsOnline = false;
+                    this.IsValid = false;
                     resource = null;
                     return false;
                 }
@@ -230,8 +252,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
             if (item.UniqueId != this.ResourceId)
                 return;
-            if (this.IsOnline == true)
-                throw new Exception("Expected the resource to be offline/unknown, not online");
+            if (this.IsValid == true)
+                throw new Exception("Expected the state to be invalid or unknown, not valid");
             if (this.cached != null)
                 throw new Exception("Expected the cached item to be null");
             this.SetInternalResource(item);
@@ -247,7 +269,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (this.cached == null)
                     throw new Exception("Expected our cached item to not be null");
                 if (!ReferenceEquals(this.cached, item))
@@ -265,15 +287,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
             if (oldId == this.ResourceId) {
                 // our possibly active resource was renamed
-                if (this.IsOnline == true) {
+                if (this.IsValid == true) {
                     if (this.cached == null)
                         throw new Exception("Expected our cached item to not be null");
                     if (!ReferenceEquals(this.cached, item))
                         throw new Exception("Expected the cached item to equal the removed item");
                 }
                 else {
-                    if (this.IsOnline != null) {
-                        throw new Exception("Expected online state to be unknown, not offline");
+                    if (this.IsValid != null) {
+                        throw new Exception("Expected state to be unknown, not invalid");
                     }
 
                     if (item != null) {
@@ -288,15 +310,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
             else if (newId == this.ResourceId) {
                 // a random resource was named our resource; try to use it
-                if (this.IsOnline == true) {
-                    throw new Exception("Expected online state to be offline or unknown, not online");
+                if (this.IsValid == true) {
+                    throw new Exception("Expected state to be invalid or unknown, not online");
                 }
 
                 if (item != null) {
                     this.SetInternalResource(item);
                 }
                 else {
-                    this.IsOnline = false;
+                    this.IsValid = false;
                 }
             }
         }
@@ -311,7 +333,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (this.cached == null)
                     throw new Exception("Expected our cached item to not be null");
                 if (!ReferenceEquals(this.cached, oldItem))
@@ -323,15 +345,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         protected override void Dispose(bool disposing) {
             if (!disposing) {
-                // finalizer call. Most likely means Manager is null, because otherwise how
-                // could there be no references if the event handlers are still registered??
-                ResourceManager manager = this.Manager;
-                if (manager != null) {
-                    manager.ResourceAdded -= this.resourceAddedHandler;
-                    manager.ResourceDeleted -= this.resourceRemovedHandler;
-                    manager.ResourceRenamed -= this.resourceRenamedHandler;
-                }
-
                 return;
             }
 
@@ -381,13 +394,13 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         private void SetInternalResource(T item, bool fireEvent = true) {
             T oldItem = this.cached;
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (oldItem == null)
-                    throw new Exception("Expected non-null cached item when resource is online");
-                this.IsOnline = null;
+                    throw new Exception("Expected non-null cached item when state is valid");
+                this.IsValid = null;
             }
             else if (oldItem != null) {
-                throw new Exception("Expected null cached item when resource is offline or unknown");
+                throw new Exception("Expected null cached item when state is invalid or unknown");
             }
 
             if (ReferenceEquals(oldItem, item)) {
@@ -396,7 +409,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
 
             this.cached = item;
-            this.IsOnline = item != null ? (bool?) true : null;
+            this.IsValid = item != null ? (bool?) true : null;
+            this.OnResourceChanged(oldItem, item);
             if (fireEvent) {
                 this.ResourceChanged?.Invoke(oldItem, item);
             }
@@ -404,14 +418,14 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         private T GetInternalResource() {
             T item = this.cached;
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (item == null)
-                    throw new Exception("Expected non-null cached item when resource is online");
+                    throw new Exception("Expected non-null cached item when state is valid");
                 return item;
             }
 
             if (item != null)
-                throw new Exception("Expected null cached item when resource is offline or unknown");
+                throw new Exception("Expected null cached item when state is invalid or unknown");
             return null;
         }
 
@@ -427,11 +441,11 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
 
             this.ResourceId = uniqueId;
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 this.SetInternalResource(null, fireResourceChanged);
             }
 
-            this.IsOnline = null;
+            this.IsValid = null;
         }
 
         protected override void ClearInternalResource(bool fireResourceChanged) {
@@ -441,27 +455,27 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        public bool TryGetResource(out T resource) {
+        public bool TryGetResource(out T resource, bool requireIsOnline = true) {
             this.EnsureNotDispose();
-            switch (this.IsOnline) {
+            switch (this.IsValid) {
                 case false:
                     if (this.cached != null)
-                        throw new Exception("Expected null cached item when resource is offline");
+                        throw new Exception("Expected null cached item when state is invalid");
                     resource = null;
                     return false;
                 case true:
                     if (this.cached == null)
-                        throw new Exception("Expected non-null cached item when resource is online");
+                        throw new Exception("Expected non-null cached item when state is valid");
                     resource = this.cached;
-                    return true;
+                    return !requireIsOnline || resource.IsOnline;
                 default: {
                     ResourceManager manager = this.Manager;
                     if (manager != null && manager.TryGetResource(this.ResourceId, out ResourceItem res) && res is T value) {
                         this.SetInternalResource(resource = value);
-                        return true;
+                        return !requireIsOnline || resource.IsOnline;
                     }
 
-                    this.IsOnline = false;
+                    this.IsValid = false;
                     resource = null;
                     return false;
                 }
@@ -476,13 +490,13 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
             if (item.UniqueId != this.ResourceId)
                 return;
-            if (this.IsOnline == true)
-                throw new Exception("Expected the resource to be offline/unknown, not online");
+            if (this.IsValid == true)
+                throw new Exception("Expected the resource to be invalid/unknown, not online");
             if (this.cached != null)
                 throw new Exception("Expected the cached item to be null");
 
             if (!(item is T value)) {
-                this.IsOnline = false;
+                this.IsValid = false;
                 return;
             }
 
@@ -499,7 +513,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (this.cached == null) {
                     throw new Exception("Expected our cached item to not be null");
                 }
@@ -520,15 +534,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
             if (oldId == this.ResourceId) {
                 // our possibly active resource was renamed
-                if (this.IsOnline == true) {
+                if (this.IsValid == true) {
                     if (this.cached == null)
                         throw new Exception("Expected our cached item to not be null");
                     if (!ReferenceEquals(this.cached, item))
                         throw new Exception("Expected the cached item to equal the removed item");
                 }
                 else {
-                    if (this.IsOnline != null) {
-                        throw new Exception("Expected online state to be unknown, not offline");
+                    if (this.IsValid != null) {
+                        throw new Exception("Expected state to be unknown, not invalid");
                     }
 
                     if (item is T value) {
@@ -543,15 +557,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
             else if (newId == this.ResourceId) {
                 // a random resource was named our resource; try to use it
-                if (this.IsOnline == true) {
-                    throw new Exception("Expected online state to be offline or unknown, not online");
+                if (this.IsValid == true) {
+                    throw new Exception("Expected state to be invalid or unknown, not online");
                 }
 
                 if (item is T value) {
                     this.SetInternalResource(value);
                 }
                 else {
-                    this.IsOnline = false;
+                    this.IsValid = false;
                 }
             }
         }
@@ -566,7 +580,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return;
             }
 
-            if (this.IsOnline == true) {
+            if (this.IsValid == true) {
                 if (this.cached == null)
                     throw new Exception("Expected our cached item to not be null");
                 if (!ReferenceEquals(this.cached, oldItem))
@@ -574,7 +588,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
 
             if (!(newItem is T value)) {
-                this.IsOnline = false;
+                this.IsValid = false;
                 return;
             }
 
@@ -583,15 +597,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         protected override void Dispose(bool disposing) {
             if (!disposing) {
-                // finalizer call. Most likely means Manager is null, because otherwise how
-                // could there be no references if the event handlers are still registered??
-                ResourceManager manager = this.Manager;
-                if (manager != null) {
-                    manager.ResourceAdded -= this.resourceAddedHandler;
-                    manager.ResourceDeleted -= this.resourceRemovedHandler;
-                    manager.ResourceRenamed -= this.resourceRenamedHandler;
-                }
-
                 return;
             }
 

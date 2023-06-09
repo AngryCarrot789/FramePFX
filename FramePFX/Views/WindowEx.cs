@@ -190,7 +190,7 @@ namespace FramePFX.Views {
         // Binding a checkbox to the window's Topmost property is more effective and works both ways
         [ActionRegistration("actions.views.MakeWindowTopMost")]
         private class MakeTopMostAction : ToggleAction {
-            public MakeTopMostAction() : base(() => "Make window top-most", () => "Makes the window top most, so that non-top-most windows cannot be on top of it") {
+            public MakeTopMostAction() {
 
             }
 

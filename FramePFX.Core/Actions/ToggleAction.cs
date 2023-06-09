@@ -1,13 +1,8 @@
-using System;
 using System.Threading.Tasks;
 
 namespace FramePFX.Core.Actions {
     public abstract class ToggleAction : AnAction {
         public const string IsToggledKey = "toggled";
-
-        protected ToggleAction(Func<string> header, Func<string> description) : base() {
-
-        }
 
         /// <summary>
         /// Asynchronously gets whether the current context is toggled or not

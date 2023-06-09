@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.History;
-using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.History {
     public class HistoryShapeSize : IHistoryAction {

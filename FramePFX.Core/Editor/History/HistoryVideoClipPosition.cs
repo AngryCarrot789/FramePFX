@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.History;

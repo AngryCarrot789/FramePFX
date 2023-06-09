@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using FramePFX.Core.Actions;
 using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.AdvancedContextService;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
@@ -22,6 +23,21 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     }
 
                     list.Add(new ActionContextEntry(item.Manager, "actions.resources.DeleteItems", "Delete"));
+                    list.Add(SeparatorEntry.Instance);
+
+                    if (selected.Count == 1) {
+                        if (item.IsOnline == true) {
+                            list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, false));
+                        }
+                        else {
+                            list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, true));
+                        }
+                    }
+                    else {
+                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, true));
+                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, false));
+                    }
+
                     return;
                 }
             }

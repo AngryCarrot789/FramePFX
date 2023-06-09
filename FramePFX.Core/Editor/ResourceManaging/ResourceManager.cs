@@ -56,6 +56,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public void AddResource(string id, ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
+            if (!ReferenceEquals(this, item.Manager))
+                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             if (this.uuidToItem.TryGetValue(id, out ResourceItem oldItem))
@@ -76,6 +78,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public ResourceItem ReplaceResource(string id, ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
+            if (!ReferenceEquals(this, item.Manager))
+                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             this.uuidToItem.TryGetValue(id, out ResourceItem oldItem);
@@ -99,6 +103,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public bool DeleteItem(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
+            if (!ReferenceEquals(this, item.Manager))
+                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
             if (string.IsNullOrWhiteSpace(item.UniqueId))
                 throw new ArgumentException("Item ID cannot be null, empty or consist of entirely whitespaces", nameof(item));
             if (!this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
@@ -112,6 +118,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public void RenameResource(ResourceItem item, string newId) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
+            if (!ReferenceEquals(this, item.Manager))
+                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
             string oldId = item.UniqueId;
             if (string.IsNullOrWhiteSpace(oldId))
                 throw new ArgumentException("Old Item ID cannot be null, empty or consist of entirely whitespaces. Did you mean to add the resource?", nameof(item));
@@ -164,6 +172,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public bool ResourceExists(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
+            if (!ReferenceEquals(this, item.Manager))
+                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
             return !string.IsNullOrWhiteSpace(item.UniqueId) && this.uuidToItem.ContainsKey(item.UniqueId);
         }
     }

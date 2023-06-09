@@ -1,3 +1,5 @@
+using System;
+using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceChecker;
@@ -15,7 +17,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             private set {
                 this.Model.FilePath = value;
                 this.RaisePropertyChanged();
-                this.Model.RaiseDataModified(nameof(this.Model.FilePath));
+                this.Model.OnDataModified(nameof(this.Model.FilePath));
             }
         }
 
@@ -26,17 +28,36 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public async Task OpenFileAction() {
-            DialogResult<string[]> file = IoC.FilePicker.ShowFilePickerDialog(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
+            DialogResult<string[]> file = IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
             if (file.IsSuccess && file.Value.Length == 1) {
                 this.FilePath = file.Value[0];
+                #if DEBUG
                 this.Model.CloseFile();
+                #else
+                try {
+                    this.Model.CloseFile();
+                }
+                catch (Exception e) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Exception closing file", e.GetToString());
+                }
+                #endif
             }
         }
 
-        public override void Validate(ResourceCheckerViewModel checker) {
-            base.Validate(checker);
-            if (string.IsNullOrEmpty(this.FilePath) || !File.Exists(this.FilePath)) {
+        public override async Task<bool> ValidateOnlineState(ResourceCheckerViewModel checker, ExceptionStack stack) {
+            if (string.IsNullOrEmpty(this.FilePath) || File.Exists(this.FilePath)) {
+                return true;
+            }
+            else {
+                try {
+                    this.Model.Dispose();
+                }
+                catch (Exception e) {
+                    stack.Push(e);
+                }
+
                 checker.Add(new InvalidVideoViewModel(this));
+                return false;
             }
         }
     }

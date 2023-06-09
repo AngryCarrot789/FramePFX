@@ -19,6 +19,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public event ClipResourceChangedEventHandler ClipResourceChanged;
         public event ClipResourceModifiedEventHandler ClipResourceDataModified;
+        public event ResourceItemEventHandler OnlineStateChanged;
 
         protected BaseMultiResourceClip() {
             this.ResourceMap = new Dictionary<string, ResourcePathEntry>();
@@ -45,6 +46,10 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public void SetTargetResourceId(string key, string id) {
             this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
+        }
+
+        protected virtual void OnOnlineStateChanged(ResourceItem item) {
+            this.InvalidateRender();
         }
 
         protected virtual void OnResourceChanged(string key, ResourceItem oldItem, ResourceItem newItem) {
@@ -97,21 +102,24 @@ namespace FramePFX.Core.Editor.Timeline {
         private class ResourcePathEntry {
             public readonly string key;
             private readonly BaseMultiResourceClip clip;
-            private readonly ResourceModifiedEventHandler dataModifiedHandler;
             private readonly ResourcePath.ResourceChangedEventHandler resourceChangedHandler;
+            private readonly ResourceModifiedEventHandler dataModifiedHandler;
+            private readonly ResourceItemEventHandler onlineStateChangedHandler;
             public ResourcePath path;
 
             public ResourcePathEntry(BaseMultiResourceClip clip, string key) {
                 this.clip = clip ?? throw new ArgumentNullException();
                 this.key = key ?? throw new ArgumentNullException();
-                this.dataModifiedHandler = this.OnEntryResourceDataModifiedInternal;
                 this.resourceChangedHandler = this.OnEntryResourceChangedInternal;
+                this.dataModifiedHandler = this.OnEntryResourceDataModifiedInternal;
+                this.onlineStateChangedHandler = this.OnEntryOnlineStateChangedInternal;
             }
 
             public void SetTargetResourceId(string id, ResourceManager manager) {
                 if (this.path != null) {
                     this.path.ResourceChanged -= this.resourceChangedHandler;
                     this.path.Dispose();
+                    this.path = null; // just in case the code below throws, don't reference a disposed instance
                 }
 
                 this.path = new ResourcePath(manager, id);
@@ -119,10 +127,16 @@ namespace FramePFX.Core.Editor.Timeline {
             }
 
             private void OnEntryResourceChangedInternal(ResourceItem oldItem, ResourceItem newItem) {
-                if (oldItem != null)
+                if (oldItem != null) {
+                    oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
                     oldItem.DataModified -= this.dataModifiedHandler;
-                if (newItem != null)
+                }
+
+                if (newItem != null) {
+                    newItem.OnlineStateChanged += this.onlineStateChangedHandler;
                     newItem.DataModified += this.dataModifiedHandler;
+                }
+
                 this.clip.OnResourceChanged(this.key, oldItem, newItem);
                 this.clip.ClipResourceChanged?.Invoke(this.key, oldItem, newItem);
             }
@@ -134,6 +148,13 @@ namespace FramePFX.Core.Editor.Timeline {
                     throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
                 this.clip.OnResourceDataModified(this.key, property);
                 this.clip.ClipResourceDataModified?.Invoke(this.key, sender, property);
+            }
+
+            private void OnEntryOnlineStateChangedInternal(ResourceManager manager, ResourceItem item) {
+                if (!this.path.IsCachedItemEqualTo(item))
+                    throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
+                this.clip.OnOnlineStateChanged(item);
+                this.clip.OnlineStateChanged?.Invoke(manager, item);
             }
 
             public static void WriteToRBE(ResourcePathEntry entry, RBEDictionary resourceMapDictionary) {

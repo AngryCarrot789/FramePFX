@@ -86,7 +86,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return false;
             }
 
-            DialogResult<string> result = IoC.FilePicker.ShowSaveFileDialog(Path.GetDirectoryName(this.ProjectFilePath), "Select a folder, in which the project data will be saved into");
+            DialogResult<string> result = IoC.FilePicker.SaveFile(Path.GetDirectoryName(this.ProjectFilePath), "Select a folder, in which the project data will be saved into");
             if (result.IsSuccess) {
                 this.ProjectFilePath = result.Value;
                 await this.SaveToFileAsync();

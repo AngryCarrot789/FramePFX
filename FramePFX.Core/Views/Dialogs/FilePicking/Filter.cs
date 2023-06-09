@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Text;
-using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Views.Dialogs.FilePicking {
     public sealed class Filter {

@@ -67,6 +67,10 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
             this.bitmap = loadedBitmap;
             this.image = await Task.Run(() => SKImage.FromBitmap(this.bitmap));
+            if (!this.IsOnline) {
+                this.IsOnline = true;
+                this.OnIsOnlineStateChanged();
+            }
         }
 
         protected override void DisposeCore(ExceptionStack stack) {

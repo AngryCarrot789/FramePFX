@@ -8,7 +8,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public new MediaClipModel Model => (MediaClipModel) ((ClipViewModel) this).Model;
 
         public MediaClipViewModel(MediaClipModel model) : base(model) {
-
+            
         }
 
         public override bool CanDropResource(ResourceItem resource) {

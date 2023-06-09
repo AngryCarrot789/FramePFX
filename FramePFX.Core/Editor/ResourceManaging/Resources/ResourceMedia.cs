@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.RBC;
@@ -22,6 +23,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         public ResourceMedia(ResourceManager manager) : base(manager) {
 
+        }
+
+        public override async Task SetOfflineAsync(ExceptionStack stack) {
+            this.DisposeCore(stack);
+            await base.SetOfflineAsync(stack);
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -137,15 +143,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         public void OpenVideoDecoder() {
             this.EnsureHasVideoStream();
             this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, open: false);
-            this.frameQueue = new FrameQueue(this.stream, 2);
+            this.frameQueue = new FrameQueue(this.stream, 4);
             this.hasHardwareDecoder = this.TrySetupHardwareDecoder();
             this.decoder.Open();
         }
 
         private bool TrySetupHardwareDecoder() {
             if (this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P &&
-                this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P10LE
-            ) {
+                this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P10LE) {
                 //TODO: SetupHardwareAccelerator() will return NONE from get_format() rather than fallback to sw formats,
                 //      causing SendPacket() to throw with InvalidData for sources with unsupported hw pixel formats like YUV444.
                 return false;
@@ -180,8 +185,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             this.ReleaseDecoder();
             this.Demuxer?.Dispose();
             this.Demuxer = null;
-            this.frameQueue?.Dispose();
-            this.frameQueue = null;
         }
 
         protected override void DisposeCore(ExceptionStack stack) {
@@ -190,7 +193,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
                 this.ReleaseDecoder();
             }
             catch (Exception e) {
-                stack.Push(new Exception("Failed to release decoder", e));
+                stack.Push(new Exception("Failed to release decoder and frame queue", e));
             }
 
             try {
@@ -201,16 +204,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             }
             finally {
                 this.Demuxer = null;
-            }
-
-            try {
-                this.frameQueue?.Dispose();
-            }
-            catch (Exception e) {
-                stack.Push(new Exception("Failed to dispose frame queue", e));
-            }
-            finally {
-                this.frameQueue = null;
             }
         }
 

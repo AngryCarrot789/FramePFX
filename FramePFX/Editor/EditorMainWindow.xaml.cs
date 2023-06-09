@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Rendering;
@@ -26,16 +27,44 @@ namespace FramePFX.Editor {
 
         private readonly Action renderCallback;
 
+        private long lastRefreshTime;
+        private bool isRefreshing;
+        private const long RefreshInterval = 5000;
+
         public EditorMainWindow() {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             IoC.BroadcastShortcutActivity = (x) => {
             };
 
-                this.DataContext = new VideoEditorViewModel(this, IoC.App);
+            this.DataContext = new VideoEditorViewModel(this, IoC.App);
             this.renderCallback = () => {
                 this.ViewPortElement.InvalidateVisual();
             };
+
+            this.lastRefreshTime = Time.GetSystemMillis();
+        }
+
+        protected override void OnActivated(EventArgs e) {
+            base.OnActivated(e);
+            if (this.isRefreshing || this.Editor.IsClosingProject) {
+                return;
+            }
+
+            long time = Time.GetSystemMillis();
+            if ((time - this.lastRefreshTime) >= RefreshInterval) {
+                this.isRefreshing = true;
+                this.RefreshAction();
+            }
+        }
+
+        private async void RefreshAction() {
+            if (this.Editor.ActiveProject is ProjectViewModel vm) {
+                await ResourceCheckerViewModel.ProcessProjectForInvalidResources(vm, false);
+            }
+
+            this.isRefreshing = false;
+            this.lastRefreshTime = Time.GetSystemMillis();
         }
 
         public void UpdateSelectionPropertyPages() {

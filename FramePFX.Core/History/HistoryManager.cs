@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.History {

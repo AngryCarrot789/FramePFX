@@ -27,8 +27,9 @@ namespace FramePFX.Core.AdvancedContextService {
 
         }
 
-        public void SetActionKey(string key, object value) {
+        public ActionContextEntry Set(string key, object value) {
             base.SetContextKey(key, value);
+            return this;
         }
     }
 }

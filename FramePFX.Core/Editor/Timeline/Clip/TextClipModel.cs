@@ -1,7 +1,6 @@
 using System.Numerics;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
-using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline.Clip {

@@ -6,7 +6,7 @@ using Microsoft.Win32;
 namespace FramePFX.Views.FilePicking {
     [ServiceImplementation(typeof(IFilePickDialogService))]
     public class FilePickDialogService : IFilePickDialogService {
-        public DialogResult<string[]> ShowFilePickerDialog(string filter, string defaultPath = null, string titleBar = null, bool multiSelect = false) {
+        public DialogResult<string[]> OpenFiles(string filter, string defaultPath = null, string titleBar = null, bool multiSelect = false) {
             OpenFileDialog dialog = new OpenFileDialog {
                 Filter = filter,
                 Multiselect = multiSelect,
@@ -20,7 +20,7 @@ namespace FramePFX.Views.FilePicking {
             return dialog.ShowDialog() == true ? new DialogResult<string[]>(dialog.FileNames) : new DialogResult<string[]>(false);
         }
 
-        public DialogResult<string> ShowFolderPickerDialog(string defaultPath = null, string titleBar = null) {
+        public DialogResult<string> OpenFolder(string defaultPath = null, string titleBar = null) {
             FolderPicker picker = new FolderPicker {
                 Title = titleBar ?? "Select a folder"
             };
@@ -32,7 +32,7 @@ namespace FramePFX.Views.FilePicking {
             return picker.ShowDialog() == true ? new DialogResult<string>(picker.ResultPath) : new DialogResult<string>(false);
         }
 
-        public DialogResult<string> ShowSaveFileDialog(string filter, string defaultPath = null, string titleBar = null) {
+        public DialogResult<string> SaveFile(string filter, string defaultPath = null, string titleBar = null) {
             SaveFileDialog dialog = new SaveFileDialog {
                 Title = titleBar ?? "Save a file",
                 Filter = filter ?? "All files|*.*"

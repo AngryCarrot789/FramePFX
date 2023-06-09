@@ -103,6 +103,11 @@
                                     <ui:ResourceListControl.ItemContainerStyle>
                                         <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:ResourceItemControl}}">
                                             <Setter Property="UniqueIDHeader" Value="{Binding UniqueId, Mode=OneWay}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsOnline}" Value="False">
+                                                    <Setter Property="Background" Value="DarkRed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
                                         </Style>
                                     </ui:ResourceListControl.ItemContainerStyle>
                                     <ui:ResourceListControl.ItemTemplate>

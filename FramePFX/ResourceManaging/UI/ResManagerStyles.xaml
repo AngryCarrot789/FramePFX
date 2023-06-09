@@ -57,8 +57,9 @@
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
         <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone5.Background.Static}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}" />
+        <Setter Property="ContentBackground" Value="{DynamicResource AREghZyBrush.Tone3.Background.Static}" />
         <Setter Property="HeaderBackground" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
         <Setter Property="Template">
@@ -68,11 +69,16 @@
                         <Grid>
                             <Border VerticalAlignment="Bottom" Height="24" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding HeaderBackground}" BorderThickness="0 1 0 0">
                                 <Grid>
-                                    <TextBlock Text="{TemplateBinding UniqueIDHeader}" Padding="3" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{TemplateBinding UniqueIDHeader}"/>
+                                    <TextBlock Text="{TemplateBinding UniqueIDHeader}"
+                                               Padding="3" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{TemplateBinding UniqueIDHeader}"/>
                                 </Grid>
                             </Border>
-                            <Border Margin="0,0,0,24" Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}" SnapsToDevicePixels="True">
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            <Border Margin="0,0,0,24" Background="{TemplateBinding ContentBackground}" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             </Border>
                         </Grid>
                     </Border>

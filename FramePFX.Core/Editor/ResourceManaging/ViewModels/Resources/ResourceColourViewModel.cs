@@ -9,7 +9,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.A = value;
                 this.RaisePropertyChanged();
-                this.Model.RaiseDataModified(nameof(this.Model.A));
+                this.Model.OnDataModified(nameof(this.ByteA));
             }
         }
 
@@ -27,7 +27,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.R = value;
                 this.RaisePropertyChanged();
-                this.Model.RaiseDataModified(nameof(this.Model.R));
+                this.Model.OnDataModified(nameof(this.ByteR));
             }
         }
 
@@ -45,7 +45,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.G = value;
                 this.RaisePropertyChanged();
-                this.Model.RaiseDataModified(nameof(this.Model.G));
+                this.Model.OnDataModified(nameof(this.ByteG));
             }
         }
 
@@ -63,7 +63,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             set {
                 this.Model.B = value;
                 this.RaisePropertyChanged();
-                this.Model.RaiseDataModified(nameof(this.Model.B));
+                this.Model.OnDataModified(nameof(this.ByteB));
             }
         }
 

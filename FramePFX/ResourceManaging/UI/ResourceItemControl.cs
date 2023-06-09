@@ -13,7 +13,7 @@ namespace FramePFX.ResourceManaging.UI {
                 "UniqueIDHeader",
                 typeof(string),
                 typeof(ResourceItemControl),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                new FrameworkPropertyMetadata(null));
 
         public static readonly DependencyProperty HeaderBackgroundProperty =
             DependencyProperty.Register(
@@ -22,9 +22,21 @@ namespace FramePFX.ResourceManaging.UI {
                 typeof(ResourceItemControl),
                 new PropertyMetadata(null));
 
+        public static readonly DependencyProperty ContentBackgroundProperty =
+            DependencyProperty.Register(
+                "ContentBackground",
+                typeof(Brush),
+                typeof(ResourceItemControl),
+                new PropertyMetadata(null));
+
         public Brush HeaderBackground {
             get => (Brush) this.GetValue(HeaderBackgroundProperty);
             set => this.SetValue(HeaderBackgroundProperty, value);
+        }
+
+        public Brush ContentBackground {
+            get => (Brush) this.GetValue(ContentBackgroundProperty);
+            set => this.SetValue(ContentBackgroundProperty, value);
         }
 
         public static readonly DependencyProperty IsSelectedProperty =

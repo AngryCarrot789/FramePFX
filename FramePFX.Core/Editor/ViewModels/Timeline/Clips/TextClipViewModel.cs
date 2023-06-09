@@ -39,7 +39,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
                 else {
                     resource.Text = value;
-                    resource.RaiseDataModified(nameof(resource.Text));
+                    resource.OnDataModified(nameof(resource.Text));
                 }
 
                 this.RaisePropertyChanged();
@@ -54,7 +54,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged(ref this.fontFamily, value);
                 if (this.Model.TryGetResource(out ResourceText resource)) {
                     resource.FontFamily = value;
-                    resource.RaiseDataModified(nameof(resource.FontFamily));
+                    resource.OnDataModified(nameof(resource.FontFamily));
                 }
             }
         }
@@ -66,7 +66,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged(ref this.fontSize, value);
                 if (this.Model.TryGetResource(out ResourceText resource)) {
                     resource.FontSize = value;
-                    resource.RaiseDataModified(nameof(resource.FontSize));
+                    resource.OnDataModified(nameof(resource.FontSize));
                 }
             }
         }
@@ -78,7 +78,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged(ref this.skewX, value);
                 if (this.Model.TryGetResource(out ResourceText resource)) {
                     resource.SkewX = value;
-                    resource.RaiseDataModified(nameof(resource.SkewX));
+                    resource.OnDataModified(nameof(resource.SkewX));
                 }
             }
         }

@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 
@@ -35,6 +38,44 @@ namespace FramePFX.Core.Editor.ResourceChecker {
             this.OfflineAllCommand = new AsyncRelayCommand(this.OfflineAllAction);
         }
 
+        public static Task<bool> ProcessProjectForInvalidResources(ProjectViewModel project, bool forceValidate) {
+            return ProcessResources(project.ResourceManager.Resources, forceValidate);
+        }
+
+        /// <summary>
+        /// Processes the given resources and checks if they are all valid. If not, it shows a window to try and fix them
+        /// <para>
+        /// The user can cancel the action, cancelling the project from being loaded, causing the task to return false. Otherwise, returns true
+        /// </para>
+        /// </summary>
+        /// <param name="resources"></param>
+        /// <param name="forceValidate">If the resource was forced offline by the user, setting this to true will force it to be validated anyway</param>
+        /// <returns>Whether the UI operation was successful or cancelled</returns>
+        public static async Task<bool> ProcessResources(IEnumerable<ResourceItemViewModel> resources, bool forceValidate = false) {
+            ResourceCheckerViewModel checker = new ResourceCheckerViewModel();
+            using (ExceptionStack stack = new ExceptionStack(false)) {
+                foreach (ResourceItemViewModel resource in resources) {
+                    if (forceValidate || !resource.Model.IsOfflineByUser) {
+                        bool isOnline = await resource.ValidateOnlineState(checker, stack);
+                        if (isOnline != resource.Model.IsOnline) {
+                            resource.Model.IsOnline = isOnline;
+                            resource.Model.OnIsOnlineStateChanged();
+                        }
+                    }
+                }
+
+                if (stack.TryGetException(out Exception exception)) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Exceptions", "One or more exceptions occurred while checking the resource validation states. This can be ignored", exception.GetToString());
+                }
+            }
+
+            if (checker.Resources.Count < 1) {
+                return true;
+            }
+
+            return await IoC.Provide<IResourceCheckerService>().ShowCheckerDialog(checker);
+        }
+
         private async Task CancelAction() {
             await this.Dialog.CloseDialogAsync(false);
         }
@@ -42,7 +83,9 @@ namespace FramePFX.Core.Editor.ResourceChecker {
         private async Task OfflineCurrentAction() {
             int index = this.currentIndex;
             if (index >= 0 && index < this.resources.Count) {
-                this.resources[index].Checker = null;
+                InvalidResourceViewModel resource = this.resources[index];
+                await resource.SetResourceOfflineAsync();
+                resource.Checker = null;
                 this.resources.RemoveAt(index);
             }
 
@@ -52,8 +95,11 @@ namespace FramePFX.Core.Editor.ResourceChecker {
         }
 
         private async Task OfflineAllAction() {
-            foreach (InvalidResourceViewModel item in this.resources)
+            foreach (InvalidResourceViewModel item in this.resources) {
+                await item.SetResourceOfflineAsync();
                 item.Checker = null;
+            }
+
             this.resources.Clear();
             await this.Dialog.CloseDialogAsync(true);
         }

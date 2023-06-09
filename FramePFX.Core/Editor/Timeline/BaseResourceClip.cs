@@ -14,17 +14,20 @@ namespace FramePFX.Core.Editor.Timeline {
         public delegate void ClipResourceModifiedEventHandler(T resource, string property);
         public delegate void ClipResourceChangedEventHandler(T oldItem, T newItem);
 
-        private readonly ResourceModifiedEventHandler dataModifiedHandler;
         private readonly ResourcePath<T>.ResourceChangedEventHandler resourceChangedHandler;
+        private readonly ResourceModifiedEventHandler dataModifiedHandler;
+        private readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         public ResourcePath<T> ResourcePath { get; private set; }
 
         public event ClipResourceChangedEventHandler ClipResourceChanged;
         public event ClipResourceModifiedEventHandler ClipResourceDataModified;
+        public event ResourceItemEventHandler OnlineStateChanged;
 
         protected BaseResourceClip() {
-            this.dataModifiedHandler = this.OnResourceDataModifiedInternal;
             this.resourceChangedHandler = this.OnResourceChangedInternal;
+            this.dataModifiedHandler = this.OnResourceDataModifiedInternal;
+            this.onlineStateChangedHandler = this.OnOnlineStateChangedInternal;
         }
 
         protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
@@ -51,10 +54,16 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         private void OnResourceChangedInternal(T oldItem, T newItem) {
-            if (oldItem != null)
+            if (oldItem != null) {
+                oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
                 oldItem.DataModified -= this.dataModifiedHandler;
-            if (newItem != null)
+            }
+
+            if (newItem != null) {
+                newItem.OnlineStateChanged += this.onlineStateChangedHandler;
                 newItem.DataModified += this.dataModifiedHandler;
+            }
+
             this.OnResourceChanged(oldItem, newItem);
             this.ClipResourceChanged?.Invoke(oldItem, newItem);
         }
@@ -68,11 +77,17 @@ namespace FramePFX.Core.Editor.Timeline {
             this.ClipResourceDataModified?.Invoke((T) sender, property);
         }
 
-        /// <summary>
-        /// C
-        /// </summary>
-        /// <param name="oldItem"></param>
-        /// <param name="newItem"></param>
+        private void OnOnlineStateChangedInternal(ResourceManager manager, ResourceItem item) {
+            if (!this.ResourcePath.IsCachedItemEqualTo(item))
+                throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
+            this.OnOnlineStateChanged((T) item);
+            this.OnlineStateChanged?.Invoke(manager, item);
+        }
+
+        protected virtual void OnOnlineStateChanged(T item) {
+            this.InvalidateRender();
+        }
+
         protected virtual void OnResourceChanged(T oldItem, T newItem) {
             this.InvalidateRender();
         }

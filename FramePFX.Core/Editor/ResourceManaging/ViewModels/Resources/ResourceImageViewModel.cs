@@ -27,6 +27,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public AsyncRelayCommand SelectFileCommand { get; }
+
         public AsyncRelayCommand RefreshCommand { get; }
 
         public ResourceImageViewModel(ResourceManagerViewModel manager, ResourceImage model) : base(manager, model) {
@@ -55,7 +56,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public async Task SelectFileActionAsync() {
-            DialogResult<string[]> result = IoC.FilePicker.ShowFilePickerDialog(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
+            DialogResult<string[]> result = IoC.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
             if (result.IsSuccess && result.Value.Length == 1) {
                 string path = result.Value[0];
                 if (string.IsNullOrEmpty(path)) {
@@ -75,10 +76,20 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public override void Validate(ResourceCheckerViewModel checker) {
-            base.Validate(checker);
-            if (string.IsNullOrEmpty(this.FilePath) || !File.Exists(this.FilePath)) {
+        public override async Task<bool> ValidateOnlineState(ResourceCheckerViewModel checker, ExceptionStack stack) {
+            if (string.IsNullOrEmpty(this.FilePath) || File.Exists(this.FilePath)) {
+                return true;
+            }
+            else {
+                try {
+                    this.Model.Dispose();
+                }
+                catch (Exception e) {
+                    stack.Push(e);
+                }
+
                 checker.Add(new InvalidImageViewModel(this));
+                return false;
             }
         }
     }

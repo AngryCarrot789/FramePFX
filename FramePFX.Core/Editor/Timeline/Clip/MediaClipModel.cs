@@ -1,7 +1,5 @@
 using System;
 using System.Numerics;
-using System.Threading.Tasks;
-using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;

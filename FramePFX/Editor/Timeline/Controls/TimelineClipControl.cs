@@ -12,35 +12,31 @@ using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public abstract class BaseTimelineClipControl : ContentControl, IClipHandle {
-        public static readonly DependencyProperty UnitZoomProperty =
-            BaseTimelineLayerControl.UnitZoomProperty.AddOwner(
-                typeof(BaseTimelineClipControl),
-                new FrameworkPropertyMetadata(
-                    1d,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((BaseTimelineClipControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
-                    (d, v) => TimelineUtils.ClampUnit(v)));
-
+    public abstract class TimelineClipControl : ContentControl, IClipHandle {
         public static readonly DependencyProperty IsSelectedProperty =
             Selector.IsSelectedProperty.AddOwner(
-                typeof(BaseTimelineClipControl),
+                typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
-                    false,
+                    BoolBox.False,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
-                    (d, e) => ((BaseTimelineClipControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
+                    (d, e) => ((TimelineClipControl) d).OnIsSelectedChanged((bool) e.OldValue, (bool) e.NewValue)));
 
-        public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(BaseTimelineClipControl), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty IsDroppableTargetOverProperty =
+            DependencyProperty.Register(
+                "IsDroppableTargetOver",
+                typeof(bool),
+                typeof(TimelineClipControl),
+                new PropertyMetadata(BoolBox.False));
 
         public static readonly DependencyProperty HeaderBrushProperty =
             DependencyProperty.Register(
                 "HeaderBrush",
                 typeof(Brush),
-                typeof(BaseTimelineClipControl),
+                typeof(TimelineClipControl),
                 new PropertyMetadata(null));
 
-        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(BaseTimelineClipControl));
-        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(BaseTimelineClipControl));
+        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
+        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
 
         /// <summary>
         /// The zoom level of this timeline layer
@@ -49,8 +45,10 @@ namespace FramePFX.Editor.Timeline.Controls {
         /// </para>
         /// </summary>
         public double UnitZoom {
-            get => (double) this.GetValue(UnitZoomProperty);
-            set => this.SetValue(UnitZoomProperty, value);
+            get => this.Layer.UnitZoom;
+            set {
+
+            }
         }
 
         [Category("Appearance")]
@@ -103,7 +101,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         private bool isProcessingDrop;
 
-        protected BaseTimelineClipControl() {
+        protected TimelineClipControl() {
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
         }
@@ -203,14 +201,16 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.RaiseEvent(e);
         }
 
-        protected virtual void OnUnitZoomChanged(double oldZoom, double newZoom) {
-            if (this.isUpdatingUnitZoom)
+        public void OnUnitZoomChanged() {
+            if (this.isUpdatingUnitZoom) {
                 return;
+            }
 
-            TimelineUtils.ValidateNonNegative(newZoom);
-            if (Math.Abs(oldZoom - newZoom) >= TimelineUtils.MinUnitZoom) {
+            try {
                 this.isUpdatingUnitZoom = true;
                 this.UpdatePositionAndSize();
+            }
+            finally {
                 this.isUpdatingUnitZoom = false;
             }
         }

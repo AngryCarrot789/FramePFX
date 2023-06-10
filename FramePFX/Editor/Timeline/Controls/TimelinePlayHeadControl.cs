@@ -13,16 +13,27 @@ using Keyboard = System.Windows.Input.Keyboard;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelinePlayHeadControl : Control, IPlayHeadHandle {
-        public static readonly DependencyProperty FrameBeginProperty =
+        public static readonly DependencyProperty FrameIndexProperty =
             DependencyProperty.Register(
-                "FrameBegin",
+                "FrameIndex",
                 typeof(long),
                 typeof(TimelinePlayHeadControl),
                 new FrameworkPropertyMetadata(
                     0L,
                     FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelinePlayHeadControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
-                    (d, v) => (long) v < 0 ? 0 : v));
+                    (d, v) => {
+                        long value = (long) v;
+                        if (value < 0) {
+                            return 0;
+                        }
+                        else if (((TimelinePlayHeadControl) d).Timeline is TimelineControl timeline && value > timeline.MaxDuration) {
+                            return timeline.MaxDuration;
+                        }
+                        else {
+                            return v;
+                        }
+                    }));
 
         public static readonly DependencyProperty TimelineProperty =
             DependencyProperty.Register(
@@ -34,14 +45,14 @@ namespace FramePFX.Editor.Timeline.Controls {
         /// <summary>
         /// The zero-based frame index where this play head begins
         /// </summary>
-        public long FrameBegin {
-            get => (long) this.GetValue(FrameBeginProperty);
-            set => this.SetValue(FrameBeginProperty, value);
+        public long FrameIndex {
+            get => (long) this.GetValue(FrameIndexProperty);
+            set => this.SetValue(FrameIndexProperty, value);
         }
 
         public long PlayHeadFrame {
-            get => this.FrameBegin;
-            set => this.FrameBegin = Maths.Clamp(value, 0, (this.Timeline?.MaxDuration ?? 1) - 1);
+            get => this.FrameIndex;
+            set => this.FrameIndex = value;
         }
 
         public TimelineControl Timeline {
@@ -87,7 +98,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public static long GetClosestEdge(ClipSpan span, long frame, out bool isEndIndex) {
+        public static long GetClosestEdge(FrameSpan span, long frame, out bool isEndIndex) {
             long endIndex = span.EndIndex;
             long beginDifferenceA = Math.Abs(span.Begin - frame);
             long endDifferenceB = Math.Abs(endIndex - frame);
@@ -112,64 +123,48 @@ namespace FramePFX.Editor.Timeline.Controls {
                 return;
             }
 
-            long frame = this.FrameBegin;
-            long begin = Maths.Clamp(frame + change, 0, timeline.MaxDuration - 1);
-            if (begin == frame) {
+            long oldFrame = this.FrameIndex;
+            long newFrame = Maths.Clamp(oldFrame + change, 0, timeline.MaxDuration - 1);
+            if (newFrame == oldFrame) {
                 return;
             }
 
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
-                TimelineVideoClipControl closestClip = null;
-                long closestFrame = begin;
-                List<TimelineVideoClipControl> clips = timeline.GetClipsInArea(new ClipSpan(begin - 10, 20)).ToList();
-                foreach (TimelineVideoClipControl clip in clips) {
-                    // this code is still broken and doesn't latch to the nearest when the clips list is 
-                    ClipSpan span = clip.Span;
-                    long a = Math.Abs(begin - span.Begin);
-                    long b = Math.Abs(begin - span.EndIndex);
-
-                    if (a <= closestFrame || b < closestFrame) {
-                        if (a <= b) {
-                            closestClip = clip;
-                            closestFrame = span.Begin;
+                const long range = 80;
+                List<TimelineVideoClipControl> clips = timeline.GetClipsInSpan<TimelineVideoClipControl>(new FrameSpan(newFrame - (range / 2), range)).ToList();
+                if (clips.Count >= 1) {
+                    long closestFrame = long.MaxValue;
+                    long targetFrame = newFrame;
+                    foreach (TimelineVideoClipControl clip in clips) {
+                        FrameSpan span = clip.Span;
+                        long distBegin = Math.Abs(span.Begin - newFrame);
+                        long distEnd = Math.Abs(span.EndIndex - newFrame);
+                        if (distBegin <= range && distBegin < closestFrame) {
+                            closestFrame = distBegin;
+                            targetFrame = span.Begin;
                         }
-                        else {
-                            closestClip = clip;
-                            closestFrame = span.EndIndex;
+
+                        if (distEnd <= range && distEnd < closestFrame) {
+                            closestFrame = distEnd;
+                            targetFrame = span.EndIndex;
                         }
                     }
 
-                    // if (a < closestFrame) {
-                    //     closestClip = clip;
-                    //     closestFrame = span.Begin;
-                    // }
-                    // if (b < closestFrame) {
-                    //     closestClip = clip;
-                    //     closestFrame = span.EndIndex;
-                    // }
-                }
-
-                if (closestClip != null) {
-                    if (closestFrame == begin) {
-                        e.Handled = true;
-                    }
-                    else {
-                        this.SetFrameBegin(closestFrame);
-                    }
+                    this.SetFrameIndex(targetFrame);
                 }
                 else {
-                    this.SetFrameBegin(begin);
+                    this.SetFrameIndex(newFrame);
                 }
             }
             else {
-                this.SetFrameBegin(begin);
+                this.SetFrameIndex(newFrame);
             }
         }
 
-        private void SetFrameBegin(long frame) {
+        private void SetFrameIndex(long frame) {
             try {
                 this.isDraggingThumb = true;
-                this.FrameBegin = frame;
+                this.FrameIndex = frame;
             }
             finally {
                 this.isDraggingThumb = false;
@@ -186,7 +181,7 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public void UpdatePosition() {
-            this.RealPixelX = this.FrameBegin * (this.Timeline?.UnitZoom ?? 1d);
+            this.RealPixelX = this.FrameIndex * (this.Timeline?.UnitZoom ?? 1d);
         }
 
         private static readonly FieldInfo IsDraggingPropertyKeyField = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);

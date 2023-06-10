@@ -38,7 +38,7 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             }
         }
 
-        protected override VideoClipModel NewInstance() {
+        protected override ClipModel NewInstance() {
             return new MediaClipModel();
         }
 

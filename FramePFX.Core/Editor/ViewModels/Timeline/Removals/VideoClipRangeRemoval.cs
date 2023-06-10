@@ -20,17 +20,17 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
 
         public void ApplyAll() {
             foreach (VideoClipCut cut in this.ModifiedClips) {
-                ClipSpan? cutLeft = cut.CutLeft;
-                ClipSpan? cutRight = cut.CutRight;
+                FrameSpan? cutLeft = cut.CutLeft;
+                FrameSpan? cutRight = cut.CutRight;
                 if (cutLeft.HasValue && cutRight.HasValue) { // double split
                     throw new NotImplementedException();
                     // cut.Clip.Layer.SplitClip(cut.Clip, cutLeft.Value, cutRight.Value);
                 }
                 else if (cutLeft.HasValue) { // make clip take up the left span
-                    cut.Clip.Span = cutLeft.Value;
+                    cut.Clip.FrameSpan = cutLeft.Value;
                 }
                 else if (cutRight.HasValue) { // make clip take up the right span
-                    cut.Clip.Span = cutRight.Value;
+                    cut.Clip.FrameSpan = cutRight.Value;
                 }
                 else { // remove clip
                     throw new NotImplementedException();
@@ -40,11 +40,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
         }
 
         public void AddRemovedClip(VideoClipViewModel clip) {
-            this.ModifiedClips.Add(new VideoClipCut(clip.Span, null, null, clip));
+            this.ModifiedClips.Add(new VideoClipCut(clip.FrameSpan, null, null, clip));
         }
 
-        public void AddSplitClip(VideoClipViewModel clip, ClipSpan? a, ClipSpan? b) {
-            this.ModifiedClips.Add(new VideoClipCut(clip.Span, a, b, clip));
+        public void AddSplitClip(VideoClipViewModel clip, FrameSpan? a, FrameSpan? b) {
+            this.ModifiedClips.Add(new VideoClipCut(clip.FrameSpan, a, b, clip));
         }
     }
 }

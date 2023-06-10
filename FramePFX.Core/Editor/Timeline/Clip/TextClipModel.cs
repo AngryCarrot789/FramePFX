@@ -16,11 +16,11 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
 
         }
 
-        protected override VideoClipModel NewInstance() {
+        protected override ClipModel NewInstance() {
             return new TextClipModel();
         }
 
-        protected override void LoadDataIntoClone(VideoClipModel clone) {
+        protected override void LoadDataIntoClone(ClipModel clone) {
             base.LoadDataIntoClone(clone);
             TextClipModel text = (TextClipModel) clone;
             text.UseCustomText = this.UseCustomText;

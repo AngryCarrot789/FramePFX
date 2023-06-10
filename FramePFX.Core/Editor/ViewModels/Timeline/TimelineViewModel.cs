@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
+using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
@@ -70,6 +72,17 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public InputValidator LayerNameValidator { get; set; }
 
+        /// <summary>
+        /// A flag used when handing clip drag events so that other clips know if they are being dragged by a source clip (multi-clip drag)
+        /// </summary>
+        public bool IsGloballyDragging { get; set; }
+
+        public ClipViewModel ProcessingDragEventClip { get; set; }
+
+        public List<ClipViewModel> DraggingClips { get; set; }
+
+        public List<HistoryVideoClipPosition> DragStopHistoryList { get; set; }
+
         public TimelineViewModel(ProjectViewModel project, TimelineModel model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -111,6 +124,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public IEnumerable<ClipViewModel> GetClipsAtFrame(long frame) {
             return this.Layers.SelectMany(layer => layer.GetClipsAtFrame(frame));
+        }
+
+        public IEnumerable<ClipViewModel> GetSelectedClips() {
+            return this.layers.SelectMany(x => x.SelectedClips);
         }
 
         public async Task<VideoLayerViewModel> AddVideoLayerAction() {

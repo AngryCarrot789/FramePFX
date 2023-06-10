@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
 namespace FramePFX.ResourceManaging.UI {
@@ -122,9 +123,9 @@ namespace FramePFX.ResourceManaging.UI {
                         return;
                     }
 
-                    this.isDragDropping = true;
                     try {
-                        DragDrop.DoDragDrop(this, new DataObject("ResourceItem", resource.Model), DragDropEffects.Copy | DragDropEffects.Move);
+                        this.isDragDropping = true;
+                        DragDrop.DoDragDrop(this, new DataObject(nameof(ResourceItem), resource.Model), DragDropEffects.Copy | DragDropEffects.Move);
                     }
                     finally {
                         this.isDragDropping = false;

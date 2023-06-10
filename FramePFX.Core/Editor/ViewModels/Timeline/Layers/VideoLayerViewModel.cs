@@ -51,9 +51,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 }
             }
 
-            ClipModel cloned = clip.Model.CloneCore();
-            ClipSpan oldSpan = clip.Model.FrameSpan;
-            cloned.FrameSpan = ClipSpan.FromIndex(frame, oldSpan.EndIndex);
+            ClipModel cloned = clip.Model.Clone();
+            FrameSpan oldSpan = clip.Model.FrameSpan;
+            cloned.FrameSpan = FrameSpan.FromIndex(frame, oldSpan.EndIndex);
             clip.Model.FrameSpan = oldSpan.SetEndIndex(frame);
             if (imageCloneResult != null && imageCloneResult == "copy") {
                 string path = TextIncrement.GetNextNumber(resourceText.UniqueId);
@@ -95,7 +95,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                             continue;
                         }
                         else {
-                            range.AddSplitClip(clip, null, ClipSpan.FromIndex(spanEnd, clipEnd));
+                            range.AddSplitClip(clip, null, FrameSpan.FromIndex(spanEnd, clipEnd));
                         }
                     }
                     else if (spanEnd >= clipEnd) { // cut the right part away
@@ -103,11 +103,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                             continue;
                         }
                         else {
-                            range.AddSplitClip(clip, ClipSpan.FromIndex(clipBegin, spanBegin), null);
+                            range.AddSplitClip(clip, FrameSpan.FromIndex(clipBegin, spanBegin), null);
                         }
                     }
                     else { // fully intersecting; double split
-                        range.AddSplitClip(clip, ClipSpan.FromIndex(clipBegin, spanBegin), ClipSpan.FromIndex(spanEnd, clipEnd));
+                        range.AddSplitClip(clip, FrameSpan.FromIndex(clipBegin, spanBegin), FrameSpan.FromIndex(spanEnd, clipEnd));
                     }
                 }
             }

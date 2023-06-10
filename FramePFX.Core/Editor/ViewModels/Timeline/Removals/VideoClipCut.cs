@@ -6,19 +6,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
         /// <summary>
         /// The clip's old span
         /// </summary>
-        public ClipSpan OldSpan { get; }
+        public FrameSpan OldSpan { get; }
 
         // The left and right spans represent the space that a clip can take up
 
         /// <summary>
         /// The left-part of the cut
         /// </summary>
-        public ClipSpan? CutLeft { get; }
+        public FrameSpan? CutLeft { get; }
 
         /// <summary>
         /// The right-part of the cut
         /// </summary>
-        public ClipSpan? CutRight { get; }
+        public FrameSpan? CutRight { get; }
 
         public VideoClipViewModel Clip { get; }
 
@@ -46,7 +46,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
             }
         }
 
-        public VideoClipCut(ClipSpan oldSpan, ClipSpan? cutLeft, ClipSpan? cutRight, VideoClipViewModel clip) {
+        public VideoClipCut(FrameSpan oldSpan, FrameSpan? cutLeft, FrameSpan? cutRight, VideoClipViewModel clip) {
             this.OldSpan = oldSpan;
             this.CutLeft = cutLeft;
             this.CutRight = cutRight;

@@ -37,7 +37,7 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             render.Canvas.DrawImage(resource.image, 0, 0, new SKPaint() {ColorFilter = alphaFilter});
         }
 
-        protected override VideoClipModel NewInstance() {
+        protected override ClipModel NewInstance() {
             return new ImageClipModel();
         }
     }

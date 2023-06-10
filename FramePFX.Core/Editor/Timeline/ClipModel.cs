@@ -29,13 +29,17 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         public ResourceManager ResourceManager => this.Layer?.Timeline.Project.ResourceManager;
 
+        /// <summary>
+        /// This clip's display name, which the user can chose to identify it
+        /// </summary>
         public string DisplayName { get; set; }
 
-        public string RegistryId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
+        /// <summary>
+        /// This clip's factory ID, used for creating a new instance dynamically via reflection
+        /// </summary>
+        public string FactoryId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         public bool IsDisposing { get; private set; }
-
-        private long clipId = -1;
 
         /// <summary>
         /// A unique identifier for this clip, relative to the project. Returns -1 if the clip does not have an
@@ -52,16 +56,46 @@ namespace FramePFX.Core.Editor.Timeline {
         public bool HasClipId => this.clipId >= 0;
 
         /// <summary>
-        /// The position of this clip in terms of video frames, in the form of a <see cref="ClipSpan"/> which has a begin and duration property
+        /// The position of this clip in terms of video frames, in the form of a <see cref="Utils.FrameSpan"/> which has a begin and duration property
+        /// </summary>
+        public FrameSpan FrameSpan { get; set; }
+
+        /// <summary>
+        /// Helper property for getting and setting the <see cref="Utils.FrameSpan.Begin"/> property
+        /// </summary>
+        public long FrameBegin {
+            get => this.FrameSpan.Begin;
+            set => this.FrameSpan = this.FrameSpan.SetBegin(value);
+        }
+
+        /// <summary>
+        /// Helper property for getting and setting the <see cref="Utils.FrameSpan.Duration"/> property
+        /// </summary>
+        public long FrameDuration {
+            get => this.FrameSpan.Duration;
+            set => this.FrameSpan = this.FrameSpan.SetDuration(value);
+        }
+
+        /// <summary>
+        /// Helper property for getting and setting the <see cref="Utils.FrameSpan.EndIndex"/> property
+        /// </summary>
+        public long FrameEndIndex {
+            get => this.FrameSpan.EndIndex;
+            set => this.FrameSpan = this.FrameSpan.SetEndIndex(value);
+        }
+
+        /// <summary>
+        /// The number of frames that are skipped relative to <see cref="ClipStart"/>
         /// <para>
-        /// Video clips don't need conversion, but audio clips convert an audio position into video clips
+        /// Alternative name: MediaBegin
         /// </para>
         /// </summary>
-        public abstract ClipSpan FrameSpan { get; set; }
+        public long MediaFrameOffset { get; set; }
 
-        // TODO: Audio position maybe/AudioSpan?
+        private long clipId = -1;
 
         protected ClipModel() {
+
         }
 
         /// <summary>
@@ -87,16 +121,6 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         /// <summary>
-        /// Reads this clip's data
-        /// </summary>
-        /// <param name="data"></param>
-        public virtual void ReadFromRBE(RBEDictionary data) {
-            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
-            if (data.TryGetLong(nameof(this.UniqueClipId), out long id) && id >= 0)
-                this.clipId = id;
-        }
-
-        /// <summary>
         /// Writes this clip's data
         /// </summary>
         /// <param name="data"></param>
@@ -105,6 +129,20 @@ namespace FramePFX.Core.Editor.Timeline {
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
             if (this.clipId >= 0)
                 data.SetLong(nameof(this.UniqueClipId), this.clipId);
+            this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
+            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
+        }
+
+        /// <summary>
+        /// Reads this clip's data
+        /// </summary>
+        /// <param name="data"></param>
+        public virtual void ReadFromRBE(RBEDictionary data) {
+            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
+            if (data.TryGetLong(nameof(this.UniqueClipId), out long id) && id >= 0)
+                this.clipId = id;
+            data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
+            data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
         }
 
         /// <summary>
@@ -112,7 +150,11 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         /// <param name="frame">Target frame</param>
         /// <returns>Intersection</returns>
-        public abstract bool IntersectsFrameAt(long frame);
+        public bool IntersectsFrameAt(long frame) {
+            long begin = this.FrameBegin;
+            long duration = this.FrameDuration;
+            return frame >= begin && frame < (begin + duration);
+        }
 
         /// <summary>
         /// Called when this clip's layer changes, either by the clip being added to it for the first time (in which case,
@@ -124,6 +166,28 @@ namespace FramePFX.Core.Editor.Timeline {
         protected virtual void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
 
         }
+
+        /// <summary>
+        /// Creates a clone of this clip, referencing the same resources, same display name, media
+        /// transformations, etc (but not the same Clip ID, if one is present). This is typically called when
+        /// splitting or duplicating clips, or even duplicating a layer
+        /// </summary>
+        /// <returns></returns>
+        public ClipModel Clone() {
+            ClipModel clip = this.NewInstance();
+            this.LoadDataIntoClone(clip);
+            return clip;
+        }
+
+        protected abstract ClipModel NewInstance();
+
+        protected virtual void LoadDataIntoClone(ClipModel clone) {
+            clone.DisplayName = this.DisplayName;
+            clone.FrameSpan = this.FrameSpan;
+            clone.MediaFrameOffset = this.MediaFrameOffset;
+        }
+
+        #region Dispose
 
         /// <summary>
         /// Disposes this clip, releasing any resources it is using. This is called when a clip is about to no longer reachable
@@ -156,7 +220,7 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         /// <summary>
-        /// Disposes this clip's resources, if nessesary. Shared resources (e.g. stored in <see cref="ResourceItem"/> 
+        /// Disposes this clip's resources, if necessary. Shared resources (e.g. stored in <see cref="ResourceItem"/>
         /// instances) shouldn't be disposed as other clips may reference the same data
         /// <para>
         /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ExceptionStack"/>
@@ -174,12 +238,6 @@ namespace FramePFX.Core.Editor.Timeline {
             this.IsDisposing = false;
         }
 
-        /// <summary>
-        /// Creates a clone of this clip, referencing the same resources, same display name, media 
-        /// transformations, etc (but not the same Clip ID, if one is present). This is typically called when 
-        /// splitting or duplicating clips, or even duplicating a layer
-        /// </summary>
-        /// <returns></returns>
-        public abstract ClipModel CloneCore();
+        #endregion
     }
 }

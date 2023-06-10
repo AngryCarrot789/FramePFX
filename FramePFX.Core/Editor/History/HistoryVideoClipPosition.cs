@@ -1,24 +1,25 @@
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.History {
     public class HistoryVideoClipPosition : IHistoryAction {
-        public VideoClipViewModel Clip { get; }
-        public Transaction<ClipSpan> Span { get; }
+        public ClipViewModel Clip { get; }
+        public Transaction<FrameSpan> Span { get; }
         public Transaction<long> MediaFrameOffset { get; }
 
-        public HistoryVideoClipPosition(VideoClipViewModel clip) {
+        public HistoryVideoClipPosition(ClipViewModel clip) {
             this.Clip = clip;
-            this.Span = Transactions.Immutable(clip.Span);
+            this.Span = Transactions.Immutable(clip.FrameSpan);
             this.MediaFrameOffset = Transactions.Immutable(clip.MediaFrameOffset);
         }
 
-        public async Task UndoAsync() {
+        public void Undo() {
             this.Clip.IsHistoryChanging = true;
             try {
-                this.Clip.Span = this.Span.Original;
+                this.Clip.FrameSpan = this.Span.Original;
                 this.Clip.MediaFrameOffset = this.MediaFrameOffset.Original;
             }
             finally {
@@ -26,10 +27,14 @@ namespace FramePFX.Core.Editor.History {
             }
         }
 
+        public async Task UndoAsync() {
+            this.Undo();
+        }
+
         public async Task RedoAsync() {
             this.Clip.IsHistoryChanging = true;
             try {
-                this.Clip.Span = this.Span.Current;
+                this.Clip.FrameSpan = this.Span.Current;
                 this.Clip.MediaFrameOffset = this.MediaFrameOffset.Current;
             }
             finally {

@@ -14,7 +14,6 @@ namespace FramePFX.Editor.Timeline.Layer.Clips {
         public TimelineVideoClipControl CopiedClip { get; set; }
 
         public bool HasCopy { get; set; }
-
         public long OriginalFrameBegin { get; set; }
         public long TargetFrameBegin { get; set; }
         public bool IsFinished { get; set; }
@@ -70,12 +69,12 @@ namespace FramePFX.Editor.Timeline.Layer.Clips {
 
             // TODO: maybe a better way of creating clips?
             if (this.Clip.DataContext is ClipViewModel clip) {
-                ClipModel clone = clip.Model.CloneCore();
+                ClipModel clone = clip.Model.Clone();
                 clone.FrameSpan = clone.FrameSpan.SetBegin(this.OriginalFrameBegin);
                 clone.DisplayName = TextIncrement.GetNextNumber(clone.DisplayName);
                 clip.Layer.CreateClip(clone);
                 this.HasCopy = true;
-                if (ICGenUtils.GetContainerForItem2<ClipViewModel, TimelineVideoClipControl>((x) => x.Model == clone, this.Clip.Layer.ItemContainerGenerator, out var control)) {
+                if (ICGenUtils.GetContainerForItem2<ClipViewModel, TimelineVideoClipControl>(x => x.Model == clone, this.Clip.Layer.ItemContainerGenerator, out TimelineVideoClipControl control)) {
                     this.CopiedClip = control;
                 }
 
@@ -86,9 +85,8 @@ namespace FramePFX.Editor.Timeline.Layer.Clips {
         public void DestroyCopiedClip() {
             this.ValidateFinalizationState();
             if (this.HasCopy && this.CopiedClip != null) {
-                ClipViewModel clip = this.CopiedClip.DataContext as ClipViewModel;
+                ClipViewModel clip = (ClipViewModel) this.CopiedClip.DataContext;
                 clip.Layer.RemoveClipFromLayer(clip);
-                // this.CopiedClip.Layer.RemoveClip(this.CopiedClip);
                 this.CopiedClip.DragData = null; // should be null anyway
                 this.CopiedClip = null;
                 this.HasCopy = false;

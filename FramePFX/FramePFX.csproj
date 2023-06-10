@@ -154,6 +154,7 @@
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
+    <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
     <Compile Include="Controls\ViewBoxClone.cs" />
@@ -210,11 +211,12 @@
       <DependentUpon>ResourceCheckerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\ResourceChecker\ResourceCheckerService.cs" />
+    <Compile Include="Editor\Timeline\Actions\DeleteSelectedClips.cs" />
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewLayerActions.cs" />
     <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
-    <Compile Include="Editor\Timeline\Controls\BaseTimelineClipControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\BaseTimelineLayerControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelineLayerControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineVideoClipControl.cs" />
@@ -227,12 +229,16 @@
     <Compile Include="Editor\Timeline\Layer\ILayerHandle.cs" />
     <Compile Include="Editor\Timeline\Layer\IndexMap.cs" />
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
+    <Compile Include="Editor\Timeline\Utils\InputUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineClipDragData.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
     <Compile Include="Highlighting\HighlightableString.cs" />
     <Compile Include="Highlighting\InlineHelper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
+    <Compile Include="Notifications\NotificationControl.cs" />
+    <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
+    <Compile Include="Notifications\NotificationList.cs" />
     <Compile Include="PlayAction.cs" />
     <Compile Include="ResourceLocator.cs" />
     <Compile Include="ResourceManaging\UI\IResourceControl.cs" />

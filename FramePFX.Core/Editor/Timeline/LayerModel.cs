@@ -76,10 +76,10 @@ namespace FramePFX.Core.Editor.Timeline {
             data.SetString(nameof(this.LayerColour), this.LayerColour);
             RBEList list = data.CreateList(nameof(this.Clips));
             foreach (ClipModel clip in this.Clips) {
-                if (!(clip.RegistryId is string id))
+                if (!(clip.FactoryId is string id))
                     throw new Exception("Unknown clip type: " + clip.GetType());
                 RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(ClipModel.RegistryId), id);
+                dictionary.SetString(nameof(ClipModel.FactoryId), id);
                 clip.WriteToRBE(dictionary.CreateDictionary("Data"));
             }
         }
@@ -93,7 +93,7 @@ namespace FramePFX.Core.Editor.Timeline {
             foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
-                string id = dictionary.GetString(nameof(ClipModel.RegistryId));
+                string id = dictionary.GetString(nameof(ClipModel.FactoryId));
                 ClipModel clip = ClipRegistry.Instance.CreateLayerModel(id);
                 clip.ReadFromRBE(dictionary.GetDictionary("Data"));
                 this.AddClip(clip);

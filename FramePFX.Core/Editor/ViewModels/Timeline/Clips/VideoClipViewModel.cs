@@ -1,7 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 
@@ -10,14 +15,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     /// Base view model class for video clips that are placed on a video layer
     /// </summary>
     public abstract class VideoClipViewModel : ClipViewModel {
-        private readonly DelayedEnqueuement<HistoryClipMediaTransformation> transformationHistory = new DelayedEnqueuement<HistoryClipMediaTransformation>();
-        private readonly DelayedEnqueuement<HistoryVideoClipPosition> clipSpanHistory = new DelayedEnqueuement<HistoryVideoClipPosition>();
+        private readonly HistoryBuffer<HistoryClipMediaTransformation> transformationHistory = new HistoryBuffer<HistoryClipMediaTransformation>();
+        private HistoryVideoClipPosition lastDragHistoryAction;
 
         private float bothPos;
         private float bothScale;
         private float bothScaleOrigin;
 
         public new VideoClipModel Model => (VideoClipModel) base.Model;
+
+        #region Media/Visual properties
 
         public float MediaPositionX {
             get => this.MediaPosition.X;
@@ -109,59 +116,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
         }
 
-        /// <summary>
-        /// The number of frames that are skipped relative to <see cref="ClipStart"/>. This will be positive if the
-        /// left grip of the clip is dragged to the right, and will be 0 when dragged to the left
-        /// <para>
-        /// Alternative name: MediaBegin
-        /// </para>
-        /// </summary>
-        public long MediaFrameOffset {
-            get => this.Model.MediaFrameOffset;
-            set {
-                if (!this.IsHistoryChanging && this.Layer != null) {
-                    if (!this.clipSpanHistory.TryGetAction(out HistoryVideoClipPosition action))
-                        this.clipSpanHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
-                    action.MediaFrameOffset.SetCurrent(value);
-                }
+        #endregion
 
-                this.Model.MediaFrameOffset = value;
-                this.RaisePropertyChanged();
-                this.Model.InvalidateRender();
-            }
-        }
-
-        public long FrameBegin {
-            get => this.Span.Begin;
-            set => this.Span = this.Span.SetBegin(value);
-        }
-
-        public long FrameDuration {
-            get => this.Span.Duration;
-            set => this.Span = this.Span.SetDuration(value);
-        }
-
-        public long FrameEndIndex {
-            get => this.Span.EndIndex;
-            set => this.Span = this.Span.SetEndIndex(value);
-        }
-
-        public ClipSpan Span {
-            get => this.Model.FrameSpan;
-            set {
-                if (!this.IsHistoryChanging && this.Layer != null) {
-                    if (!this.clipSpanHistory.TryGetAction(out HistoryVideoClipPosition action))
-                        this.clipSpanHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
-                    action.Span.SetCurrent(value);
-                }
-
-                this.Model.FrameSpan = value;
-                this.RaisePropertyChanged(nameof(this.FrameBegin));
-                this.RaisePropertyChanged(nameof(this.FrameDuration));
-                this.RaisePropertyChanged(nameof(this.FrameEndIndex));
-                this.Model.InvalidateRender();
-            }
-        }
+        #region WPF NumberDragger helpers
 
         public float BothPos {
             get => this.bothPos;
@@ -190,6 +147,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
         }
 
+        #endregion
+
         public RelayCommand ResetTransformationCommand { get; }
         public RelayCommand ResetPositionCommand { get; }
         public RelayCommand ResetScaleCommand { get; }
@@ -215,6 +174,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             this.Model.RenderInvalidated += this.renderCallback;
         }
 
+        // this is messy asf but it works :DDD
+
+        protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
+            base.OnFrameSpanChanged(oldSpan, newSpan);
+            this.Model.InvalidateRender();
+        }
+
+        protected override void OnMediaFrameOffsetChanged(long oldFrame, long newFrame) {
+            base.OnMediaFrameOffsetChanged(oldFrame, newFrame);
+            this.Model.InvalidateRender();
+        }
+
         public virtual void OnInvalidateRender(bool schedule = true) {
             this.Layer?.Timeline.DoRender(schedule);
         }
@@ -222,6 +193,178 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         protected override void DisposeCore(ExceptionStack stack) {
             base.DisposeCore(stack);
             this.Model.RenderInvalidated -= this.renderCallback;
+        }
+
+        public override void OnLeftThumbDragStart() {
+            base.OnLeftThumbDragStart();
+            this.CreateDragHistoryAction();
+        }
+
+        public override void OnLeftThumbDragStop(bool cancelled) {
+            base.OnLeftThumbDragStop(cancelled);
+            this.PushDragHistoryAction(cancelled);
+        }
+
+        public override void OnRightThumbDragStart() {
+            base.OnRightThumbDragStart();
+            this.CreateDragHistoryAction();
+        }
+
+        public override void OnRightThumbDragStop(bool cancelled) {
+            base.OnRightThumbDragStop(cancelled);
+            this.PushDragHistoryAction(cancelled);
+        }
+
+        public override void OnDragStart() {
+            base.OnDragStart();
+            this.CreateDragHistoryAction();
+            if (this.Timeline is TimelineViewModel timeline) {
+                if (timeline.IsGloballyDragging) {
+                    return;
+                }
+
+                List<ClipViewModel> selected = timeline.GetSelectedClips().ToList();
+                if (selected.Count > 1) {
+                    timeline.IsGloballyDragging = true;
+                    timeline.DraggingClips = selected;
+                    timeline.ProcessingDragEventClip = this;
+                    foreach (ClipViewModel clip in selected.Where(clip => clip != this)) {
+                        clip.OnDragStart();
+                    }
+                    timeline.ProcessingDragEventClip = null;
+                }
+            }
+        }
+
+        public override void OnDragStop(bool cancelled) {
+            base.OnDragStop(cancelled);
+            if (this.Timeline is TimelineViewModel timeline && timeline.IsGloballyDragging) {
+                if (timeline.ProcessingDragEventClip == null) {
+                    timeline.DragStopHistoryList = new List<HistoryVideoClipPosition>();
+                }
+
+                if (cancelled) {
+                    this.lastDragHistoryAction.Undo();
+                }
+                else {
+                    timeline.DragStopHistoryList.Add(this.lastDragHistoryAction);
+                    this.lastDragHistoryAction = null;
+                }
+
+                if (timeline.ProcessingDragEventClip != null) {
+                    return;
+                }
+
+                timeline.ProcessingDragEventClip = this;
+                foreach (ClipViewModel clip in timeline.DraggingClips.Where(clip => this != clip)) {
+                    clip.OnDragStop(cancelled);
+                }
+                timeline.IsGloballyDragging = false;
+                timeline.ProcessingDragEventClip = null;
+                timeline.DraggingClips = null;
+                timeline.Project.Editor.HistoryManager.AddAction(new MultiHistoryAction(new List<IHistoryAction>(timeline.DragStopHistoryList)));
+                timeline.DragStopHistoryList = null;
+            }
+            else {
+                this.PushDragHistoryAction(cancelled);
+            }
+        }
+
+        private long addedOffset;
+
+        public override void OnLeftThumbDelta(long offset) {
+            base.OnLeftThumbDelta(offset);
+            if (!(this.Timeline is TimelineViewModel timeline)) {
+                return;
+            }
+
+            long begin = this.FrameBegin + offset;
+            if (begin < 0) {
+                offset += -begin;
+                begin = 0;
+            }
+
+            long duration = this.FrameDuration - offset;
+            if (duration < 1) {
+                begin += (duration - 1);
+                duration = 1;
+                if (begin < 0) {
+                    return;
+                }
+            }
+
+            this.FrameSpan = new FrameSpan(begin, duration);
+            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
+        }
+
+        public override void OnRightThumbDelta(long offset) {
+            base.OnRightThumbDelta(offset);
+            if (this.Layer == null) {
+                return;
+            }
+
+            FrameSpan span = this.FrameSpan;
+            long newEndIndex = Math.Max(span.EndIndex + offset, span.Begin + 1);
+            if (newEndIndex > this.Timeline.MaxDuration) {
+                this.Timeline.MaxDuration = newEndIndex + 300;
+            }
+
+            this.FrameSpan = span.SetEndIndex(newEndIndex);
+            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
+        }
+
+        public override void OnDragDelta(long offset) {
+            base.OnDragDelta(offset);
+            if (!(this.Timeline is TimelineViewModel timeline)) {
+                return;
+            }
+
+            FrameSpan span = this.FrameSpan;
+            long begin = (span.Begin + offset) - this.addedOffset;
+            this.addedOffset = 0L;
+            if (begin < 0) {
+                this.addedOffset = -begin;
+                begin = 0;
+            }
+
+            long endIndex = begin + span.Duration;
+            if (endIndex > timeline.MaxDuration) {
+                timeline.MaxDuration = endIndex + 300;
+            }
+
+            this.FrameSpan = new FrameSpan(begin, span.Duration);
+
+            if (timeline.IsGloballyDragging) {
+                if (timeline.ProcessingDragEventClip == null) {
+                    timeline.ProcessingDragEventClip = this;
+                    foreach (ClipViewModel clip in timeline.DraggingClips.Where(clip => this != clip)) {
+                        clip.OnDragDelta(offset);
+                    }
+                    timeline.ProcessingDragEventClip = null;
+                }
+            }
+
+            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
+        }
+
+        private void CreateDragHistoryAction() {
+            if (this.lastDragHistoryAction != null) {
+                throw new Exception("Drag history was non-null, which means a drag was started before another drag was completed");
+            }
+
+            this.lastDragHistoryAction = new HistoryVideoClipPosition(this);
+        }
+
+        private void PushDragHistoryAction(bool cancelled) {
+            // throws if this.lastDragHistoryAction is null. It should not be null if there's no bugs in the drag start/end calls
+            if (cancelled) {
+                this.lastDragHistoryAction.Undo();
+            }
+            else {
+                this.HistoryManager?.AddAction(this.lastDragHistoryAction, "Drag clip");
+            }
+
+            this.lastDragHistoryAction = null;
         }
     }
 }

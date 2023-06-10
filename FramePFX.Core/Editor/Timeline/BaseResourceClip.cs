@@ -130,7 +130,7 @@ namespace FramePFX.Core.Editor.Timeline {
             }
         }
 
-        protected override void LoadDataIntoClone(VideoClipModel clone) {
+        protected override void LoadDataIntoClone(ClipModel clone) {
             base.LoadDataIntoClone(clone);
             if (this.ResourcePath != null) {
                 ((BaseResourceClip<T>) clone).SetTargetResourceId(this.ResourcePath.ResourceId);

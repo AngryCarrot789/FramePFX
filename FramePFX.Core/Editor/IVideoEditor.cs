@@ -1,3 +1,4 @@
+using FramePFX.Core.Notifications;
 using FramePFX.Core.Views;
 
 namespace FramePFX.Core.Editor {
@@ -10,5 +11,7 @@ namespace FramePFX.Core.Editor {
         void UpdateSelectionPropertyPages();
 
         void PushNotificationMessage(string message);
+
+        NotificationPanelViewModel NotificationPanel { get; }
     }
 }

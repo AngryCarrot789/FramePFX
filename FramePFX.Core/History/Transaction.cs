@@ -1,4 +1,8 @@
 namespace FramePFX.Core.History {
+    /// <summary>
+    /// A class for storing a transaction of a value; an unchangeable original and a changeable current value
+    /// </summary>
+    /// <typeparam name="T">The value transaction type</typeparam>
     public class Transaction<T> {
         /// <summary>
         /// The original value, before any change
@@ -18,6 +22,10 @@ namespace FramePFX.Core.History {
             this.Current = current;
         }
 
+        /// <summary>
+        /// A function that just sets <see cref="Current"/>
+        /// </summary>
+        /// <param name="current">New current value</param>
         public void SetCurrent(T current) {
             this.Current = current;
         }

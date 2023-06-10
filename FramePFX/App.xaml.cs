@@ -140,7 +140,7 @@ namespace FramePFX {
                 ShapeClipModel clip1 = new ShapeClipModel {
                     MediaPosition = new Vector2(0, 0),
                     Width = 200, Height = 200,
-                    FrameSpan = new ClipSpan(0, 120),
+                    FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
                 clip1.SetTargetResourceId("colour_red");
@@ -149,7 +149,7 @@ namespace FramePFX {
                 ShapeClipModel clip2 = new ShapeClipModel {
                     MediaPosition = new Vector2(200, 200),
                     Width = 200, Height = 200,
-                    FrameSpan = new ClipSpan(150, 30),
+                    FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
                 clip2.SetTargetResourceId("colour_green");
@@ -164,7 +164,7 @@ namespace FramePFX {
                 ShapeClipModel clip1 = new ShapeClipModel {
                     MediaPosition = new Vector2(200, 400),
                     Width = 400, Height = 400,
-                    FrameSpan = new ClipSpan(300, 90),
+                    FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
                 };
 
@@ -173,7 +173,7 @@ namespace FramePFX {
                 ShapeClipModel clip2 = new ShapeClipModel {
                     MediaPosition = new Vector2(400, 400),
                     Width = 100, Height = 1000,
-                    FrameSpan = new ClipSpan(15, 25),
+                    FrameSpan = new FrameSpan(15, 25),
                     DisplayName = "Clip colour_green"
                 };
 

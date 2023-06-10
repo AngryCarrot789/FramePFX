@@ -1,13 +1,15 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.History.Tasks {
     /// <summary>
     /// <para>
-    /// Delayed enqueuement is a misleading name; it should be "delayed final history-action-state"
+    /// A better name would be "delayed final history-action-state"
     /// </para>
     /// <para>
     /// This class allows an instance of a history action to be modifiable for a certain amount of time, before
@@ -23,78 +25,77 @@ namespace FramePFX.Core.History.Tasks {
     /// This class should typically be treated as a singleton for a specific property, e.g. a
     /// single instance for a single text box, and another instance for another text box
     /// </para>
+    /// <para>
+    /// This class is thread safe, and calling <see cref="PushAction"/> (after <see cref="TryGetAction"/> returns false) is inherently
+    /// thread safe because the internal task does not assign the internal action to a non-null value
+    /// </para>
     /// </summary>
-    public class DelayedEnqueuement<T> where T : class, IHistoryAction {
+    public class HistoryBuffer<T> where T : class, IHistoryAction {
         private readonly PropertyChangedEventHandler propertyChangedEventHandler;
         private readonly HistoryActionModel.RemovedEventHandler removedHandler;
         private readonly HistoryActionModel.UndoEventHandler undoHandler;
+        private readonly HistoryActionModel.RedoEventHandler redoHandler;
         private readonly bool canAttachPropertyChangedEvent;
         private readonly long pushBackGapTime;
         private readonly long pushBackTime;
         private readonly long timeoutTime;
+        private readonly object locker;
 
         private long expiryTime;
-        private HistoryActionModel currentAction;
-        private INotifyPropertyChanged propertyChanged;
+        private volatile HistoryActionModel currentAction;
+        private volatile INotifyPropertyChanged propertyChanged;
+        private volatile CancellationTokenSource cancellationTokenSource;
+        private volatile Task expirationTask;
 
-        private bool HasTimeExpired => this.TimeUntilExpiry <= 0;
         private long TimeUntilExpiry => this.expiryTime - Time.GetSystemMillis();
-        private bool IsActive => this.currentAction != null;
 
         /// <summary>
-        /// Creates a new <see cref="DelayedEnqueuement{T}"/>
+        /// Creates a new <see cref="HistoryBuffer{T}"/>
         /// </summary>
         /// <param name="timeoutTime">The amount of time until the action expires and cannot be modified anymore</param>
         /// <param name="pushBackTime">The amount of time to be added to the internal expiry time when the action is modified again</param>
         /// <param name="pushBackGapTime">Only add <see cref="pushBackTime"/> when the time until expiry is less than this value</param>
         /// <param name="canAttachPropertyChangedEvent">Attempt to hook onto the given action's <see cref="INotifyPropertyChanged"/> event, if possible, and then invoke <see cref="OnModified"/> each time a property is modified</param>
-        public DelayedEnqueuement(long timeoutTime = 3000L, long pushBackTime = 1500L, long pushBackGapTime = 1000L, bool canAttachPropertyChangedEvent = false) {
+        public HistoryBuffer(long timeoutTime = 3000L, long pushBackTime = 1500L, long pushBackGapTime = 1000L, bool canAttachPropertyChangedEvent = false) {
+            this.locker = new object();
             this.timeoutTime = timeoutTime;
             this.pushBackTime = pushBackTime;
             this.pushBackGapTime = pushBackGapTime;
             this.canAttachPropertyChangedEvent = canAttachPropertyChangedEvent;
             this.propertyChangedEventHandler = this.OnPropertyChanged;
             this.undoHandler = this.OnActionUndo;
+            this.redoHandler = this.OnActionRedo;
             this.removedHandler = this.OnActionRemoved;
         }
 
+        /// <summary>
+        /// Tries to get the current action, and if it exists, the expiry time may be pushed back a little bit
+        /// </summary>
+        /// <param name="action">The existing actions</param>
+        /// <param name="useLockForPushActionCall">Locks the state of the object, expecting <see cref="PushAction"/> to be invoked if this method returns false</param>
+        /// <returns>True if the action exists, setting the parameter to a non-null value. Otherwise false if the action expired at some point since the last invocation</returns>
         public bool TryGetAction(out T action) {
-            if (this.currentAction == null) {
-                action = default;
-                return false;
-            }
-
-            if (this.HasTimeExpired) {
-                this.OnExpired();
-                action = default;
-                return false;
-            }
-            else {
-                Debug.Assert(!this.currentAction.IsRemoved, "Did not expect the current action to be removed; the event should have been fired");
-                action = (T) this.currentAction.Action;
-                if (this.TimeUntilExpiry <= this.pushBackGapTime) {
-                    this.expiryTime += this.pushBackTime;
+            lock (this.locker) {
+                if (this.currentAction == null) {
+                    action = default;
+                    return false;
                 }
 
-                return true;
-            }
-        }
+                long time = this.TimeUntilExpiry;
+                if (time <= 0) {
+                    this.OnExpired();
+                    action = default;
+                    return false;
+                }
+                else {
+                    Debug.Assert(!this.currentAction.IsRemoved, "Did not expect the current action to be removed; the event should have been fired");
+                    action = (T) this.currentAction.Action;
+                    if (time <= this.pushBackGapTime) {
+                        this.expiryTime += this.pushBackTime;
+                    }
 
-        /// <summary>
-        /// Increments the internal expiry time by the "pushBackTime" supplied to <see cref="PushAction"/>. This is called
-        /// by <see cref="TryGetAction"/> when it returns true, so there typically isn't a need to call this method
-        /// </summary>
-        public void OnModified() {
-            if (this.currentAction == null) {
-                return;
-            }
-
-            long time = this.TimeUntilExpiry;
-            if (time <= 0) {
-                this.OnExpired();
-            }
-            else if (time <= this.pushBackGapTime) {
-                this.expiryTime += this.pushBackTime;
+                    return true;
+                }
             }
         }
 
@@ -106,36 +107,91 @@ namespace FramePFX.Core.History.Tasks {
         /// <param name="information">The information to pass to the manager</param>
         /// <exception cref="InvalidOperationException"></exception>
         public void PushAction(HistoryManagerViewModel manager, T action, string information = null) {
-            if (this.currentAction != null) {
-                throw new InvalidOperationException($"Action time has not expired. {nameof(this.TryGetAction)} should be invoked before this function");
-            }
+            lock (this.locker) {
+                if (this.currentAction != null) {
+                    throw new InvalidOperationException($"Action time has not expired. {nameof(this.TryGetAction)} should be invoked before this function");
+                }
 
-            this.currentAction = manager.AddAction(action, information).Model;
-            this.currentAction.Undo += this.undoHandler;
-            this.currentAction.Removed += this.removedHandler;
-            this.expiryTime = Time.GetSystemMillis() + this.timeoutTime;
-            if (this.canAttachPropertyChangedEvent && action is INotifyPropertyChanged changed) {
-                this.propertyChanged = changed;
-                this.propertyChanged.PropertyChanged += this.propertyChangedEventHandler;
-            }
+                this.currentAction = manager.AddAction(action, information).Model;
+                this.currentAction.Undo += this.undoHandler;
+                this.currentAction.Redo += this.redoHandler;
+                this.currentAction.Removed += this.removedHandler;
+                this.expiryTime = Time.GetSystemMillis() + this.timeoutTime;
+                if (this.canAttachPropertyChangedEvent && action is INotifyPropertyChanged changed) {
+                    this.propertyChanged = changed;
+                    this.propertyChanged.PropertyChanged += this.propertyChangedEventHandler;
+                }
 
-            // if (this.task != null) {
-            //     this.taskCancel?.Cancel();
-            // }
-            // this.taskCancel = new CancellationTokenSource();
-            // this.task = Task.Factory.StartNew(async () => {
-            //     await this.TimerMain(this.taskCancel);
-            // }, this.taskCancel.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+                if (this.expirationTask == null) {
+                    this.cancellationTokenSource = new CancellationTokenSource();
+                    this.expirationTask = Task.Run(() => this.ExpireActionAsync(this.cancellationTokenSource.Token));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Increments the internal expiry time by the "pushBackTime" supplied to <see cref="PushAction"/>. This is called
+        /// by <see cref="TryGetAction"/> when it returns true, so there typically isn't a need to call this method
+        /// </summary>
+        public void OnModified() {
+            lock (this.locker) {
+                if (this.currentAction == null) {
+                    return;
+                }
+
+                long time = this.TimeUntilExpiry;
+                if (time <= 0) {
+                    this.OnExpired();
+                }
+                else if (time <= this.pushBackGapTime) {
+                    this.expiryTime += this.pushBackTime;
+                }
+            }
+        }
+
+        private async Task ExpireActionAsync(CancellationToken token) {
+            do {
+                long time;
+                lock (this.locker) {
+                    time = this.TimeUntilExpiry;
+                }
+
+                if (time > 0) {
+                    await Task.Delay((int) time, token);
+                }
+
+                lock (this.locker) {
+                    if (!token.IsCancellationRequested && this.TimeUntilExpiry <= 0) {
+                        this.OnExpired();
+                        return;
+                    }
+                }
+            } while (true);
         }
 
         private void OnActionUndo(HistoryActionModel action) {
-            Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
-            this.OnExpired();
+            lock (this.locker) {
+                Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
+                this.OnExpired();
+            }
+        }
+
+        private void OnActionRedo(HistoryActionModel action) {
+            lock (this.locker) {
+                Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
+                this.OnExpired();
+            }
         }
 
         private void OnActionRemoved(HistoryActionModel action) {
-            Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
-            this.OnExpired();
+            lock (this.locker) {
+                Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
+                this.OnExpired();
+            }
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+            this.OnModified();
         }
 
         private void OnExpired() {
@@ -145,13 +201,19 @@ namespace FramePFX.Core.History.Tasks {
             }
 
             this.currentAction.Undo -= this.undoHandler;
+            this.currentAction.Redo -= this.redoHandler;
             this.currentAction.Removed -= this.removedHandler;
             this.currentAction = null;
             this.expiryTime = 0;
-        }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            this.OnModified();
+            try {
+                this.cancellationTokenSource?.Cancel();
+            }
+            catch { /* ignored */ }
+            finally {
+                this.cancellationTokenSource = null;
+                this.expirationTask = null;
+            }
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace FramePFX.Editor.Timeline.Utils {
     public static class TimelineUtils {
-        public const double MinUnitZoom = 0.001d;
+        public const double MinUnitZoom = 0.01d;
+        public static readonly object MinUnitZoomObject = MinUnitZoom;
 
         public static object ClampUnit(object value) {
-            return (double) value < MinUnitZoom ? MinUnitZoom : value;
+            return (double) value < MinUnitZoom ? MinUnitZoomObject : value;
         }
 
         public static double ClampUnit(double value) {

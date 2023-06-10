@@ -22,44 +22,6 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
         public Vector2 MediaScaleOrigin { get; set; }
 
         /// <summary>
-        /// The position of this video clip, in the form of a <see cref="ClipSpan"/> which has a begin and duration property
-        /// </summary>
-        public override ClipSpan FrameSpan { get; set; }
-
-        /// <summary>
-        /// The number of frames that are skipped relative to <see cref="ClipStart"/>. This will be positive if the
-        /// left grip of the clip is dragged to the right, and will be 0 when dragged to the left
-        /// <para>
-        /// Alternative name: MediaBegin
-        /// </para>
-        /// </summary>
-        public long MediaFrameOffset { get; set; }
-
-        /// <summary>
-        /// Helper property for getting and setting the <see cref="ClipSpan.Begin"/> property
-        /// </summary>
-        public long FrameBegin {
-            get => this.FrameSpan.Begin;
-            set => this.FrameSpan = this.FrameSpan.SetBegin(value);
-        }
-
-        /// <summary>
-        /// Helper property for getting and setting the <see cref="ClipSpan.Duration"/> property
-        /// </summary>
-        public long FrameDuration {
-            get => this.FrameSpan.Duration;
-            set => this.FrameSpan = this.FrameSpan.SetDuration(value);
-        }
-
-        /// <summary>
-        /// Helper property for getting and setting the <see cref="ClipSpan.EndIndex"/> property
-        /// </summary>
-        public long FrameEndIndex {
-            get => this.FrameSpan.EndIndex;
-            set => this.FrameSpan = this.FrameSpan.SetEndIndex(value);
-        }
-
-        /// <summary>
         /// An event invoked when this video clip changes in some way that affects its render. 
         /// Typically handled by the view model, which schedules the video editor window's view port to render at some point in the furture
         /// </summary>
@@ -77,20 +39,16 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
             data.SetStruct(nameof(this.MediaPosition), this.MediaPosition);
             data.SetStruct(nameof(this.MediaScale), this.MediaScale);
             data.SetStruct(nameof(this.MediaScaleOrigin), this.MediaScaleOrigin);
-            data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             this.MediaPosition = data.GetStruct<Vector2>(nameof(this.MediaPosition));
             this.MediaScale = data.GetStruct<Vector2>(nameof(this.MediaScale));
             this.MediaScaleOrigin = data.GetStruct<Vector2>(nameof(this.MediaScaleOrigin));
-            this.FrameSpan = data.GetStruct<ClipSpan>(nameof(this.FrameSpan));
         }
 
         /// <summary>
@@ -118,27 +76,13 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
 
         public abstract void Render(RenderContext render, long frame, SKColorFilter alphaFilter);
 
-        public override bool IntersectsFrameAt(long frame) {
-            long begin = this.FrameBegin;
-            long duration = this.FrameDuration;
-            return frame >= begin && frame < (begin + duration);
-        }
-
-        protected abstract VideoClipModel NewInstance();
-
-        protected virtual void LoadDataIntoClone(VideoClipModel clone) {
-            clone.MediaFrameOffset = this.MediaFrameOffset;
-            clone.MediaPosition = this.MediaPosition;
-            clone.MediaScale = this.MediaScale;
-            clone.MediaScaleOrigin = this.MediaScaleOrigin;
-            clone.FrameSpan = this.FrameSpan;
-            clone.DisplayName = this.DisplayName;
-        }
-
-        public override ClipModel CloneCore() {
-            VideoClipModel clip = this.NewInstance();
-            this.LoadDataIntoClone(clip);
-            return clip;
+        protected override void LoadDataIntoClone(ClipModel clone) {
+            base.LoadDataIntoClone(clone);
+            if (clone is VideoClipModel vc) {
+                vc.MediaPosition = this.MediaPosition;
+                vc.MediaScale = this.MediaScale;
+                vc.MediaScaleOrigin = this.MediaScaleOrigin;
+            }
         }
     }
 }

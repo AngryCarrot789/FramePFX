@@ -7,7 +7,7 @@ using FramePFX.Core.History.Tasks;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     public class ShapeClipViewModel : VideoClipViewModel, IDropClipResource {
-        private readonly DelayedEnqueuement<HistoryShapeSize> sizeHistory = new DelayedEnqueuement<HistoryShapeSize>();
+        private readonly HistoryBuffer<HistoryShapeSize> sizeHistory = new HistoryBuffer<HistoryShapeSize>();
 
         public new ShapeClipModel Model => (ShapeClipModel) base.Model;
 

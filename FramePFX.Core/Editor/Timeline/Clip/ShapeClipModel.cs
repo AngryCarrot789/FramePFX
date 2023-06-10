@@ -53,11 +53,11 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             });
         }
 
-        protected override VideoClipModel NewInstance() {
+        protected override ClipModel NewInstance() {
             return new ShapeClipModel();
         }
 
-        protected override void LoadDataIntoClone(VideoClipModel clone) {
+        protected override void LoadDataIntoClone(ClipModel clone) {
             base.LoadDataIntoClone(clone);
             ShapeClipModel clip = (ShapeClipModel) clone;
             clip.Width = this.Width;

@@ -24,10 +24,10 @@
             </Group>
             <Group Name="Timeline">
                 <Group Name="Surface">
-                    <Shortcut Name="DeleteSelectClips" Description="Deletes all of the selected clips">
+                    <Shortcut Name="DeleteSelectedClips" ActionId="actions.editor.timeline.DeleteSelectedClips" Description="Deletes all of the selected clips">
                         <Keystroke Key="Delete"/>
                     </Shortcut>
-                    <Shortcut Name="PlayPauseAction" Description="Causes the timeline to play or pause">
+                    <Shortcut Name="PlayPauseAction" ActionId="actions.editor.timeline.DeleteSelectedClips" Description="Causes the timeline to play or pause">
                         <Keystroke Key="Space"/>
                     </Shortcut>
                     <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">

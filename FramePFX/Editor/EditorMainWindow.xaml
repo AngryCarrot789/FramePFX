@@ -9,7 +9,7 @@
             xmlns:s="clr-namespace:FramePFX.Shortcuts"
             xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
             xmlns:ui="clr-namespace:FramePFX.ResourceManaging.UI"
-            xmlns:controls="clr-namespace:FramePFX.Editor.Timeline.Controls"
+            xmlns:c="clr-namespace:FramePFX.Editor.Timeline.Controls"
             xmlns:core="clr-namespace:FramePFX.Core;assembly=FramePFX.Core"
             xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
             xmlns:v="clr-namespace:FramePFX.Views"
@@ -17,8 +17,12 @@
             xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
             xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
             xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
-            xmlns:controls1="clr-namespace:FramePFX.Controls"
+            xmlns:cc="clr-namespace:FramePFX.Controls"
             xmlns:rm="clr-namespace:FramePFX.Core.Editor.ResourceManaging;assembly=FramePFX.Core"
+            xmlns:nn="clr-namespace:FramePFX.Notifications"
+            xmlns:types="clr-namespace:FramePFX.Core.Notifications.Types;assembly=FramePFX.Core"
+            xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
+            xmlns:editor="clr-namespace:FramePFX.Editor"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Title="Bootleg sony vegas (FramePFX, or Frame Pixel Frame X i guess... PixelFrame?)" Width="1408" Height="792"
@@ -50,6 +54,7 @@
                 <MenuItem Header="Save Project" Command="{Binding ActiveProject.SaveCommand}" IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}"/>
                 <MenuItem Header="Save Project As..." Command="{Binding ActiveProject.SaveAsCommand}" IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}"/>
             </MenuItem>
+            <MenuItem Header="test notification" Click="MenuItem_OnClick"/>
         </Menu>
         <Grid Margin="0,19,0,0">
             <Grid.RowDefinitions>
@@ -85,10 +90,10 @@
                             <Button Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>
-                    <controls1:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True">
+                    <cc:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True">
                         <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}"
                                        x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
-                    </controls1:FreeMoveViewPortV2>
+                    </cc:FreeMoveViewPortV2>
                 </Grid>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
@@ -309,15 +314,15 @@
                             </ItemsControl.Resources>
                         </ListBox>
                         <Border Visibility="Collapsed" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
-                        <controls:TimelineControl x:Name="TheTimeline"
+                        <c:TimelineControl x:Name="TheTimeline"
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0"
                                                   BorderBrush="{DynamicResource AREghZyBrush.Tone2.Border.Static}"
                                                   MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
                                                   Grid.RowSpan="2"
                                                   s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
-                            <controls:TimelineControl.Style>
-                                <Style TargetType="{x:Type controls:TimelineControl}">
+                            <c:TimelineControl.Style>
+                                <Style TargetType="{x:Type c:TimelineControl}">
                                     <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone2.Background.Static}"/>
                                     <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
                                     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
@@ -325,7 +330,7 @@
                                     <Setter Property="ScrollViewer.PanningMode" Value="Both" />
                                     <Setter Property="Template">
                                         <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type controls:TimelineControl}">
+                                            <ControlTemplate TargetType="{x:Type c:TimelineControl}">
                                                 <Grid>
                                                     <Border Background="{DynamicResource AREghZyBrush.Tone1.Background.Static}"/>
                                                     <!-- A collection of TimelineLayerControls -->
@@ -341,17 +346,24 @@
                                                                 <RowDefinition Height="40"/>
                                                                 <RowDefinition Height="*"/>
                                                             </Grid.RowDefinitions>
-                                                            <Border Margin="0" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.Row="1">
+                                                            <Border Margin="0" Background="{TemplateBinding Background}"
+                                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                                    Grid.Row="1">
                                                                 <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                                             </Border>
-                                                            <Border Grid.Row="0" x:Name="PART_TimestampBoard" Margin="0" VerticalAlignment="Stretch" BorderThickness="0 0 0 1" Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone4.Border.Static}"/>
-                                                            <controls:TimelinePlayHeadControl x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2"
-                                                                                              VerticalAlignment="Stretch"
-                                                                                              VerticalContentAlignment="Stretch"
-                                                                                              HorizontalAlignment="Left"
-                                                                                              Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                                                                              FrameBegin="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" Width="1"
-                                                                                              Background="{DynamicResource AREghZyBrush.Tone7.Border.Static}"/>
+                                                            <Border Grid.Row="0" x:Name="PART_TimestampBoard"
+                                                                    Margin="0" VerticalAlignment="Stretch"
+                                                                    Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}"
+                                                                    BorderBrush="{DynamicResource AREghZyBrush.Tone4.Border.Static}"
+                                                                    BorderThickness="0 0 0 1" />
+                                                            <c:TimelinePlayHeadControl Background="{DynamicResource AREghZyBrush.Tone7.Border.Static}"
+                                                                                       x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2" Width="1"
+                                                                                       VerticalAlignment="Stretch"
+                                                                                       VerticalContentAlignment="Stretch"
+                                                                                       HorizontalAlignment="Left"
+                                                                                       Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                                                                       FrameIndex="{Binding PlayHeadFrame, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                         </Grid>
                                                     </ScrollViewer>
                                                 </Grid>
@@ -359,14 +371,14 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Style>
-                            </controls:TimelineControl.Style>
-                            <controls:TimelineControl.ItemContainerStyle>
-                                <Style TargetType="{x:Type controls:VideoTimelineLayerControl}">
+                            </c:TimelineControl.Style>
+                            <c:TimelineControl.ItemContainerStyle>
+                                <Style TargetType="{x:Type c:VideoTimelineLayerControl}">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
                                     <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Setter Property="DropNotifier" Value="{Binding}"/>
+                                    <Setter Property="ResourceDropHandler" Value="{Binding}"/>
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="ItemsSource" Value="{Binding Clips, Mode=OneTime}"/>
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
@@ -377,7 +389,7 @@
                                     <Setter Property="helpers:SelectorHelper.UpdateSelectedItemsOnChange" Value="True"/>
                                     <Setter Property="Template">
                                         <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type controls:VideoTimelineLayerControl}">
+                                            <ControlTemplate TargetType="{x:Type c:VideoTimelineLayerControl}">
                                                 <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
                                                     <!-- IsItemHost must be true in order for it's items to sync with the TimelineLayerControl's items -->
                                                     <Grid IsItemsHost="True" Background="{TemplateBinding Background}"/>
@@ -387,8 +399,7 @@
                                     </Setter>
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
-                                            <!-- d:DataContext="{d:DesignInstance clips1:VideoClipViewModel}" -->
-                                            <Style TargetType="{x:Type controls:TimelineVideoClipControl}">
+                                            <Style TargetType="{x:Type c:TimelineVideoClipControl}">
                                                 <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone4.Background.Static}"/>
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
                                                 <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Background.Static}"/>
@@ -403,7 +414,7 @@
                                                 <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
                                                 <Setter Property="Template">
                                                     <Setter.Value>
-                                                        <ControlTemplate TargetType="{x:Type controls:TimelineVideoClipControl}">
+                                                        <ControlTemplate TargetType="{x:Type c:TimelineVideoClipControl}">
                                                             <Grid d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
                                                                 <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
                                                                     <Border Background="{Binding Layer.LayerColour}" VerticalAlignment="Top" Height="20">
@@ -417,13 +428,13 @@
                                                                     </Border>
                                                                     <Grid Margin="1,20,1,0" Background="{TemplateBinding Background}">
                                                                         <!--
-                                                                        <ogl:OGLViewportControl x:Name="PART_ViewPort"/>
+                                                                        Video clip viewport here
                                                                         -->
                                                                     </Grid>
                                                                 </Grid>
                                                                 <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True"/>
-                                                                <Thumb x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
-                                                                <Thumb x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                                                                <cc:CancellableThumb x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                                                                <cc:CancellableThumb x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                                                             </Grid>
                                                             <ControlTemplate.Triggers>
                                                                 <Trigger Property="IsSelected" Value="True">
@@ -444,12 +455,77 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Style>
-                            </controls:TimelineControl.ItemContainerStyle>
-                        </controls:TimelineControl>
+                            </c:TimelineControl.ItemContainerStyle>
+                        </c:TimelineControl>
                         <GridSplitter Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
             </Grid>
         </Grid>
+        <Popup x:Name="NotificationPanelPopup" AllowsTransparency="True" d:DataContext="{d:DesignInstance n:NotificationPanelViewModel}">
+            <Popup.Resources>
+                <nn:NotificationDataTemplateSelector x:Key="NotificationTemplateSelector">
+                    <nn:NotificationDataTemplateSelector.MessageNotificationTemplate>
+                        <DataTemplate DataType="{x:Type types:MessageNotification}">
+                            <Grid>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}"/>
+                                </Grid.InputBindings>
+                                <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource AREghZyBrush.Tone7.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone7.Border.Static}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Label Content="{Binding Header, Mode=OneWay}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
+                                        <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24"/>
+                                    </Grid>
+                                </Border>
+                                <Label Content="{Binding Message, Mode=OneWay}" Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top"/>
+                            </Grid>
+                        </DataTemplate>
+                    </nn:NotificationDataTemplateSelector.MessageNotificationTemplate>
+                </nn:NotificationDataTemplateSelector>
+            </Popup.Resources>
+            <Border Background="Transparent">
+                <ScrollViewer MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ActualHeight}"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                              CanContentScroll="False">
+                    <nn:NotificationList ItemsSource="{Binding Notifications, Mode=OneTime}" ItemTemplateSelector="{StaticResource NotificationTemplateSelector}" MinWidth="300">
+                        <nn:NotificationList.Style>
+                            <Style TargetType="{x:Type nn:NotificationList}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </nn:NotificationList.Style>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="{x:Type nn:NotificationControl}">
+                                <Setter Property="Margin" Value="0,0,5,5"/>
+                                <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone6.Background.Static}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type nn:NotificationControl}">
+                                            <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <MultiTrigger>
+                                                    <MultiTrigger.Conditions>
+                                                        <Condition Property="IsMouseOver" Value="True" />
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Tone8.Border.Static}" />
+                                                </MultiTrigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </nn:NotificationList>
+                </ScrollViewer>
+            </Border>
+        </Popup>
     </Grid>
 </v:WindowEx>

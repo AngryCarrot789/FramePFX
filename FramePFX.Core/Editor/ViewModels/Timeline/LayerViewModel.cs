@@ -13,7 +13,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for a timeline layer. This could be a video or audio layer (or others...)
     /// </summary>
-    public abstract class LayerViewModel : BaseViewModel, ILayerDropable {
+    public abstract class LayerViewModel : BaseViewModel, IResourceDropHandler {
         private readonly ObservableCollectionEx<ClipViewModel> clips;
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
@@ -278,7 +278,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     }
 
                     MediaClipModel clip = new MediaClipModel() {
-                        FrameSpan = new ClipSpan(frameBegin, dur),
+                        FrameSpan = new FrameSpan(frameBegin, dur),
                         DisplayName = media.UniqueId
                     };
 
@@ -293,7 +293,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             else {
                 if (resource is ResourceColour argb) {
                     ShapeClipModel clip = new ShapeClipModel() {
-                        FrameSpan = new ClipSpan(frameBegin, defaultDuration),
+                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         Width = 200, Height = 200,
                         DisplayName = argb.UniqueId
                     };
@@ -303,7 +303,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
                 else if (resource is ResourceImage img) {
                     ImageClipModel clip = new ImageClipModel() {
-                        FrameSpan = new ClipSpan(frameBegin, defaultDuration),
+                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = img.UniqueId
                     };
 
@@ -312,7 +312,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
                 else if (resource is ResourceText text) {
                     TextClipModel clip = new TextClipModel() {
-                        FrameSpan = new ClipSpan(frameBegin, defaultDuration),
+                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = text.UniqueId
                     };
 

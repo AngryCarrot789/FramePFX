@@ -105,6 +105,14 @@ namespace FramePFX.Core.Utils {
             return a.Begin < b.EndIndex && a.EndIndex > b.Begin;
         }
 
+        public static bool operator ==(in FrameSpan a, in FrameSpan b) {
+            return a.Begin == b.Begin && a.Duration == b.Duration;
+        }
+
+        public static bool operator !=(in FrameSpan a, in FrameSpan b) {
+            return a.Begin != b.Begin || a.Duration != b.Duration;
+        }
+
         public override string ToString() {
             return $"{this.Begin} -> {this.EndIndex} ({this.Duration})";
         }

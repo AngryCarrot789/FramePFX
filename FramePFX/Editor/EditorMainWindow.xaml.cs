@@ -4,16 +4,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Notifications;
+using FramePFX.Core.Notifications.Types;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
-using FramePFX.Editor.Properties;
 using FramePFX.Editor.Properties.Pages;
+using FramePFX.Notifications;
+using FramePFX.Shortcuts;
 using FramePFX.Views;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
@@ -22,7 +28,7 @@ namespace FramePFX.Editor {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class EditorMainWindow : WindowEx, IVideoEditor {
+    public partial class EditorMainWindow : WindowEx, IVideoEditor, INotificationHandler {
         public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
 
         private readonly Action renderCallback;
@@ -31,11 +37,15 @@ namespace FramePFX.Editor {
         private bool isRefreshing;
         private const long RefreshInterval = 5000;
 
+        public NotificationPanelViewModel NotificationPanel { get; }
+
         public EditorMainWindow() {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             IoC.BroadcastShortcutActivity = (x) => {
             };
+
+            this.NotificationPanel = new NotificationPanelViewModel(this);
 
             this.DataContext = new VideoEditorViewModel(this, IoC.App);
             this.renderCallback = () => {
@@ -43,6 +53,95 @@ namespace FramePFX.Editor {
             };
 
             this.lastRefreshTime = Time.GetSystemMillis();
+
+            this.NotificationPanelPopup.StaysOpen = true;
+            this.NotificationPanelPopup.Placement = PlacementMode.Absolute;
+            this.NotificationPanelPopup.PlacementTarget = this;
+            this.NotificationPanelPopup.PlacementRectangle = System.Windows.Rect.Empty;
+            this.NotificationPanelPopup.DataContext = this.NotificationPanel;
+            this.RefreshPopupLocation();
+        }
+
+        public void OnNotificationPushed(NotificationViewModel notification) {
+            if (!this.NotificationPanelPopup.IsOpen)
+                this.NotificationPanelPopup.IsOpen = true;
+            this.Dispatcher.InvokeAsync(this.RefreshPopupLocation, DispatcherPriority.Render);
+        }
+
+        public void OnNotificationRemoved(NotificationViewModel notification) {
+            if (this.NotificationPanel.Notifications.Count < 1) {
+                this.NotificationPanelPopup.IsOpen = false;
+            }
+
+            this.Dispatcher.InvokeAsync(this.RefreshPopupLocation, DispatcherPriority.Loaded);
+        }
+
+        public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel> onCompleteCallback = null) {
+            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child);
+            if (list == null) {
+                return;
+            }
+
+            int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
+            if (index == -1) {
+                throw new Exception("Item not present in panel");
+            }
+
+            if (!(list.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control)) {
+                return;
+            }
+
+            DoubleAnimation animation = new DoubleAnimation(1d, 0d, TimeSpan.FromSeconds(2), FillBehavior.Stop);
+            animation.Completed += (sender, args) => {
+                if (onCompleteCallback != null) {
+                    if (!BaseViewModel.GetInternalData<bool>(notification, "IsCancelled"))
+                        onCompleteCallback(notification);
+                }
+            };
+
+            control.BeginAnimation(OpacityProperty, animation);
+        }
+
+        public void CancelNotificationFadeOutAnimation(NotificationViewModel notification) {
+            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child);
+            if (list == null) {
+                return;
+            }
+
+            int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
+            if (index == -1) {
+                throw new Exception("Item not present in panel");
+            }
+
+            if (!(list.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control)) {
+                return;
+            }
+
+            BaseViewModel.SetInternalData(notification, "IsCancelled", BoolBox.True);
+            control.BeginAnimation(OpacityProperty, null);
+        }
+
+        protected override void OnLocationChanged(EventArgs e) {
+            base.OnLocationChanged(e);
+            this.RefreshPopupLocation();
+        }
+
+        public void RefreshPopupLocation() {
+            Popup popup = this.NotificationPanelPopup;
+            if (popup == null || !popup.IsOpen) {
+                return;
+            }
+
+            if (!(popup.Child is FrameworkElement element)) {
+                return;
+            }
+
+            // winpos = X 1663
+            // popup pos = X 1620
+            // popup wid = 300
+
+            popup.VerticalOffset = this.Top + this.ActualHeight - element.ActualHeight;
+            popup.HorizontalOffset = this.Left + this.ActualWidth - element.ActualWidth;
         }
 
         protected override void OnActivated(EventArgs e) {
@@ -110,8 +209,8 @@ namespace FramePFX.Editor {
             }
 
             // this.ClipPropertyPanelList.Items.Add(controls[0]);
-            for (int i = 0; i < controls.Count; i++) {
-                this.ClipPropertyPanelList.Items.Add(controls[i]);
+            foreach (FrameworkElement t in controls) {
+                this.ClipPropertyPanelList.Items.Add(t);
             }
         }
 
@@ -209,6 +308,12 @@ namespace FramePFX.Editor {
 
         private void OnFitContentToWindowClick(object sender, RoutedEventArgs e) {
             this.VPViewBox.FitContentToCenter();
+        }
+
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e) {
+            this.NotificationPanel.PushNotification(new MessageNotification(TimeSpan.FromSeconds(5)) {
+                Header = "Header!!!", Message = "Some message here"
+            });
         }
     }
 }

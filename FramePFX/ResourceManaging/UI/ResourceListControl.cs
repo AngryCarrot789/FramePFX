@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Interactivity;
 using FramePFX.Editor.Timeline.Utils;
@@ -96,8 +97,11 @@ namespace FramePFX.ResourceManaging.UI {
                 e.Handled = true;
                 await this.FileDropNotifier.OnFilesDropped(files);
             }
+            else if (e.Data.GetData(nameof(ResourceItem)) is ResourceItem item) {
+                return;
+            }
             else {
-                await IoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown drag drop data type");
+                await IoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
             }
         }
 
@@ -135,22 +139,14 @@ namespace FramePFX.ResourceManaging.UI {
                 else if (AreModifiersPressed(ModifierKeys.Shift) && this.lastSelectedItem != null && this.SelectedItems.Count > 0) {
                     this.MakeRangedSelection(this.lastSelectedItem, item);
                 }
-                // else if (!item.IsSelected) {
-                //     this.MakePrimarySelection(item);
-                // }
                 else {
                     this.MakePrimarySelection(item);
                 }
             }
             else {
-                if (item.IsSelected) {
-                    if (!AreModifiersPressed(ModifierKeys.Control) && !AreModifiersPressed(ModifierKeys.Shift)) {
-                        this.MakePrimarySelection(item);
-                    }
+                if (item.IsSelected && !AreModifiersPressed(ModifierKeys.Control) && !AreModifiersPressed(ModifierKeys.Shift)) {
+                    this.MakePrimarySelection(item);
                 }
-                // else {
-                //     this.MakePrimarySelection(item);
-                // }
             }
         }
 

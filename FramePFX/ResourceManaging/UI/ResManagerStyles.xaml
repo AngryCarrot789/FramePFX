@@ -15,7 +15,7 @@
     <Style TargetType="ui:ResourceListControl">
         <Setter Property="Background" Value="{DynamicResource ListBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -56,10 +56,10 @@
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone5.Background.Static}" />
-        <Setter Property="ContentBackground" Value="{DynamicResource AREghZyBrush.Tone3.Background.Static}" />
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
+        <Setter Property="ContentBackground" Value="{DynamicResource ABrush.Tone3.Background.Static}" />
         <Setter Property="HeaderBackground" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
         <Setter Property="Template">
@@ -113,7 +113,7 @@
                             -->
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -1,3 +1,4 @@
+using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline.Layers {
@@ -15,14 +16,20 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
                 MinHeight = this.MinHeight,
                 Height = this.Height,
                 LayerColour = this.LayerColour,
-                Name = TextIncrement.GetNextNumber(this.Name)
+                DisplayName = TextIncrement.GetNextNumber(this.DisplayName)
             };
 
             foreach (ClipModel clip in this.Clips) {
+                // assert clip is VideoClipModel
+                // assert CanAccept(clip)
                 layer.AddClip(clip.Clone());
             }
 
             return layer;
+        }
+
+        public override bool CanAccept(ClipModel clip) {
+            return clip is VideoClipModel;
         }
     }
 }

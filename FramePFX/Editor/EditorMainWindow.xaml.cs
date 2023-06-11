@@ -251,7 +251,9 @@ namespace FramePFX.Editor {
 
         protected override async Task<bool> OnClosingAsync() {
             try {
-                await this.Editor.SaveAndCloseProjectAction();
+                if (!await this.Editor.PromptSaveAndCloseProjectAction()) {
+                    return false;
+                }
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "Exception while closing project", e.GetToString());

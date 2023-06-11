@@ -30,7 +30,7 @@ namespace FramePFX.Editor.Timeline.Actions {
             }
 
             VideoLayerViewModel layer = await timeline.AddVideoLayerAction();
-            layer.Name = name;
+            layer.DisplayName = name;
             return true;
         }
     }

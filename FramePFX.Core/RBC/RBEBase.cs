@@ -58,6 +58,18 @@ namespace FramePFX.Core.RBC {
         /// <param name="writer">The writer (data target)</param>
         protected abstract void Write(BinaryWriter writer);
 
+        protected virtual void ReadPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
+            this.Read(reader);
+        }
+
+        protected virtual void WritePacked(BinaryWriter writer, Dictionary<string, int> dictionary) {
+            this.Write(writer);
+        }
+
+        protected internal virtual void AccumulatePackedEntries(Dictionary<string, int> dictionary) {
+
+        }
+
         /// <summary>
         /// Creates a deep clone of this element
         /// </summary>
@@ -74,6 +86,18 @@ namespace FramePFX.Core.RBC {
         public static void WriteIdAndElement(BinaryWriter writer, RBEBase rbe) {
             writer.Write((byte) rbe.Type);
             rbe.Write(writer);
+        }
+
+        public static RBEBase ReadIdAndElementPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
+            byte id = reader.ReadByte();
+            RBEBase element = CreateById((RBEType) id);
+            element.ReadPacked(reader, dictionary);
+            return element;
+        }
+
+        public static void WriteIdAndElementPacked(BinaryWriter writer, RBEBase rbe, Dictionary<string, int> dictionary) {
+            writer.Write((byte) rbe.Type);
+            rbe.WritePacked(writer, dictionary);
         }
 
         public static RBEBase CreateById(RBEType id) {

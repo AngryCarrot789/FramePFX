@@ -2,6 +2,15 @@
 <KeyMap>
     <Group Name="Application">
         <Group Name="Editor">
+            <Shortcut Name="SaveProject" ActionId="actions.project.Save">
+                <Keystroke Mods="CTRL" Key="S"/>
+            </Shortcut>
+            <Shortcut Name="SaveProjectAs" ActionId="actions.project.SaveAs">
+                <Keystroke Mods="CTRL+SHIFT" Key="S"/>
+            </Shortcut>
+            <Shortcut Name="OpenProject" ActionId="actions.project.Open">
+                <Keystroke Mods="CTRL" Key="O"/>
+            </Shortcut>
             <Shortcut Name="UndoShortcut" ActionId="actions.project.history.Undo">
                 <Keystroke Mods="CTRL" Key="Z"/>
             </Shortcut>

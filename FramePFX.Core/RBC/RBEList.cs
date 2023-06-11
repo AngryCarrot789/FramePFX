@@ -239,10 +239,31 @@ namespace FramePFX.Core.RBC {
             }
         }
 
+        protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
+            int length = reader.ReadUInt16();
+            this.List = new List<RBEBase>(length);
+            for (int i = 0; i < length; i++) {
+                this.List.Add(ReadIdAndElementPacked(reader, dictionary));
+            }
+        }
+
         protected override void Write(BinaryWriter writer) {
             writer.Write((ushort) this.List.Count);
             foreach (RBEBase child in this.List) {
                 WriteIdAndElement(writer, child);
+            }
+        }
+
+        protected override void WritePacked(BinaryWriter writer, Dictionary<string, int> dictionary) {
+            writer.Write((ushort) this.List.Count);
+            foreach (RBEBase child in this.List) {
+                WriteIdAndElementPacked(writer, child, dictionary);
+            }
+        }
+
+        protected internal override void AccumulatePackedEntries(Dictionary<string, int> dictionary) {
+            foreach (RBEBase rbe in this.List) {
+                rbe.AccumulatePackedEntries(dictionary);
             }
         }
 

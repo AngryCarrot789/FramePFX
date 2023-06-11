@@ -2,18 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.History;
+using FramePFX.Core.History.Tasks;
+using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for a timeline layer. This could be a video or audio layer (or others...)
     /// </summary>
-    public abstract class LayerViewModel : BaseViewModel, IResourceDropHandler {
+    public abstract class LayerViewModel : BaseViewModel, IModifyProject, IHistoryHolder, IDisplayName, IResourceDropHandler {
+        protected readonly HistoryBuffer<HistoryLayerDisplayName> displayNameHistory = new HistoryBuffer<HistoryLayerDisplayName>();
+
         private readonly ObservableCollectionEx<ClipViewModel> clips;
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
@@ -25,10 +32,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             set => this.RaisePropertyChanged(ref this.primarySelectedClip, value);
         }
 
-        public string Name {
-            get => this.Model.Name;
+        public string DisplayName {
+            get => this.Model.DisplayName;
             set {
-                this.Model.Name = value;
+                if (!this.IsHistoryChanging) {
+                    if (!this.displayNameHistory.TryGetAction(out HistoryLayerDisplayName action))
+                        this.displayNameHistory.PushAction(this.HistoryManager, action = new HistoryLayerDisplayName(this), "Edit media duration");
+                    action.DisplayName.SetCurrent(value);
+                }
+
+                this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
             }
         }
@@ -66,13 +79,24 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
+        public bool IsHistoryChanging { get; set; }
+
         public AsyncRelayCommand RenameLayerCommand { get; }
 
         public AsyncRelayCommand RemoveSelectedClipsCommand { get; }
 
         public TimelineViewModel Timeline { get; }
 
+        public ProjectViewModel Project => this.Timeline?.Project;
+
+        public VideoEditorViewModel Editor => this.Timeline?.Project.Editor;
+
+        public HistoryManagerViewModel HistoryManager => this.Timeline?.Project.Editor.HistoryManager;
+
+
         public LayerModel Model { get; }
+
+        public event ProjectModifiedEvent ProjectModified;
 
         protected LayerViewModel(TimelineViewModel timeline, LayerModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -88,15 +112,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             };
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
             this.RenameLayerCommand = new AsyncRelayCommand(async () => {
-                string result = await IoC.UserInput.ShowSingleInputDialogAsync("Change layer name", "Input a new layer name:", this.Name ?? "", this.Timeline.LayerNameValidator);
+                string result = await IoC.UserInput.ShowSingleInputDialogAsync("Change layer name", "Input a new layer name:", this.DisplayName ?? "", this.Timeline.LayerNameValidator);
                 if (result != null) {
-                    this.Name = result;
+                    this.DisplayName = result;
                 }
             });
 
             foreach (ClipModel clip in model.Clips) {
                 this.CreateClip(clip, false);
             }
+        }
+
+        public virtual void OnProjectModified(object sender, [CallerMemberName] string property = null) {
+            this.ProjectModified?.Invoke(sender, property);
         }
 
         public ClipViewModel CreateClip(ClipModel model, bool addToModel = true) {
@@ -337,5 +365,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         /// <param name="frame"></param>
         /// <returns></returns>
         public abstract Task SliceClipAction(ClipViewModel clip, long frame);
+
+        public virtual bool CanAccept(ClipViewModel clip) {
+            return this.Model.CanAccept(clip.Model);
+        }
     }
 }

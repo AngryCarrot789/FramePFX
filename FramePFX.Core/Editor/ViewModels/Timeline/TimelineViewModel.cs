@@ -12,7 +12,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
-    public class TimelineViewModel : BaseViewModel, IDisposable {
+    public class TimelineViewModel : BaseViewModel, IModifyProject, IDisposable {
         private readonly ObservableCollectionEx<LayerViewModel> layers;
         public ReadOnlyObservableCollection<LayerViewModel> Layers { get; }
 
@@ -77,11 +77,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         /// </summary>
         public bool IsGloballyDragging { get; set; }
 
+        public bool IsAboutToDragAcrossLayers { get; set; }
+
         public ClipViewModel ProcessingDragEventClip { get; set; }
 
         public List<ClipViewModel> DraggingClips { get; set; }
 
         public List<HistoryVideoClipPosition> DragStopHistoryList { get; set; }
+
+        public event ProjectModifiedEvent ProjectModified;
 
         public TimelineViewModel(ProjectViewModel project, TimelineModel model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
@@ -103,10 +107,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
+        public void BeginClipDrag() {
+
+        }
+
         public void AddLayer(VideoLayerViewModel layer, bool addToModel = true) {
             if (addToModel)
                 this.Model.AddLayer(layer.Model);
             this.layers.Add(layer);
+            this.ProjectModified?.Invoke(this, nameof(this.Layers));
         }
 
         public void OnPlayHeadMoved(long oldFrame, long newFrame, bool? schedule) {
@@ -187,6 +196,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     this.layers.Remove(item);
                     this.Model.RemoveLayer(item.Model);
                 }
+
+                this.ProjectModified?.Invoke(this, nameof(this.Layers));
             }
         }
 
@@ -222,6 +233,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 this.Model.Layers.MoveItem(selection[i], target);
                 selection[i] = target;
             }
+
+            this.ProjectModified?.Invoke(this, nameof(this.Layers));
         }
 
         public virtual void MoveSelectedItemUpAction() {
@@ -250,6 +263,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 IoC.Dispatcher.Invoke(() => {
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isFramePropertyChangeScheduled = false;
+
                 });
             }
 
@@ -305,6 +319,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public LayerViewModel GetPrevious(LayerViewModel layer) {
             int index = this.layers.IndexOf(layer);
             return index > 0 ? this.layers[index - 1] : null;
+        }
+
+        public void MoveClip(ClipViewModel clip, LayerViewModel oldLayer, LayerViewModel newLayer) {
+            oldLayer.RemoveClipFromLayer(clip);
+            newLayer.AddClipToLayer(clip);
         }
     }
 }

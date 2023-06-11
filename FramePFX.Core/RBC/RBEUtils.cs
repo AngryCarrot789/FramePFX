@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace FramePFX.Core.RBC {
@@ -26,8 +28,26 @@ namespace FramePFX.Core.RBC {
             }
         }
 
+        public static RBEBase ReadFromFilePacked(string filePath) {
+            using (FileStream stream = File.OpenRead(filePath)) {
+                return ReadFromStreamPacked(stream);
+            }
+        }
+
+        public static RBEBase ReadFromStreamPacked(Stream stream) {
+            return ReadFromStreamPacked(stream, defaultEncoding);
+        }
+
+        public static RBEBase ReadFromStreamPacked(Stream stream, Encoding encoding) {
+            Dictionary<int, string> dictionary = new Dictionary<int, string>();
+            using (BinaryReader reader = new BinaryReader(stream, encoding, true)) {
+                ReadDictionary(reader, dictionary);
+                return RBEBase.ReadIdAndElementPacked(reader, dictionary);
+            }
+        }
+
         public static void WriteToFile(RBEBase rbe, string filePath) {
-            using (FileStream stream = File.OpenWrite(filePath)) {
+            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read)) {
                 WriteToStream(rbe, stream);
             }
         }
@@ -39,6 +59,54 @@ namespace FramePFX.Core.RBC {
         public static void WriteToStream(RBEBase rbe, Stream stream, Encoding encoding) {
             using (BinaryWriter writer = new BinaryWriter(stream, encoding, true)) {
                 RBEBase.WriteIdAndElement(writer, rbe);
+            }
+        }
+
+        public static void WriteToFilePacked(RBEBase rbe, string filePath) {
+            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+                WriteToStreamPacked(rbe, stream);
+            }
+        }
+
+        public static void WriteToStreamPacked(RBEBase rbe, Stream stream) {
+            WriteToStreamPacked(rbe, stream, defaultEncoding);
+        }
+
+        public static void WriteToStreamPacked(RBEBase rbe, Stream stream, Encoding encoding) {
+            // would it be more performant to, instead of running an accumulation sweep then writing,
+            // perform a single sweep like "WriteDynamicPacked", where keys are added to the dictionary when needed?
+
+            // It would require the data to be written to a temporary buffer, then write the dictionary,
+            // then write the temporary buffer, so that the dictionary is first...
+            // I imagine that's the bane of all computer science right there. It's not even logically
+            // possible to do it unless you have a known fixed dictionary size (e.g. 4kb, 32kb)
+            Dictionary<string, int> dictionary = new Dictionary<string, int>();
+            rbe.AccumulatePackedEntries(dictionary);
+            using (BinaryWriter writer = new BinaryWriter(stream, encoding, true)) {
+                WriteDictionary(writer, dictionary);
+                RBEBase.WriteIdAndElementPacked(writer, rbe, dictionary);
+            }
+        }
+
+        private static void WriteDictionary(BinaryWriter writer, Dictionary<string, int> dictionary) {
+            writer.Write(dictionary.Count);
+            foreach (KeyValuePair<string, int> entry in dictionary) {
+                int length = entry.Key.Length;
+                if (length >= byte.MaxValue) {
+                    throw new Exception($"Key is too long ({length}). It must be {byte.MaxValue} or less");
+                }
+
+                writer.Write((byte) length);
+                writer.Write(entry.Key.ToCharArray());
+            }
+        }
+
+        private static void ReadDictionary(BinaryReader reader, Dictionary<int, string> dictionary) {
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++) {
+                int length = reader.ReadByte();
+                char[] chars = reader.ReadChars(length);
+                dictionary[i] = new string(chars);
             }
         }
     }

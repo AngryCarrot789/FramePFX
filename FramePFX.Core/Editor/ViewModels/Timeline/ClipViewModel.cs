@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
@@ -12,9 +14,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IUserRenameable, IDropClipResource, IClipDragHandler, IDisposable {
-        private readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
-        private readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IDropClipResource, IClipDragHandler, IDisposable {
+        protected readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
+        protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
+        protected HistoryVideoClipPosition lastDragHistoryAction;
 
         public bool IsHistoryChanging { get; set; }
 
@@ -38,6 +41,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
                 this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
+                this.Layer?.OnProjectModified(this);
             }
         }
 
@@ -50,6 +54,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             set {
                 if (!ReferenceEquals(this.layer, value)) {
                     this.RaisePropertyChanged(ref this.layer, value);
+                    this.RaisePropertyChanged(nameof(this.Timeline));
+                    this.RaisePropertyChanged(nameof(this.Project));
+                    this.RaisePropertyChanged(nameof(this.Editor));
+                    this.RaisePropertyChanged(nameof(this.HistoryManager));
                 }
             }
         }
@@ -70,6 +78,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     this.RaisePropertyChanged(nameof(this.FrameDuration));
                     this.RaisePropertyChanged(nameof(this.FrameEndIndex));
                     this.OnFrameSpanChanged(oldSpan, value);
+                    this.Layer?.OnProjectModified(this);
                 }
             }
         }
@@ -110,6 +119,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     this.Model.MediaFrameOffset = value;
                     this.RaisePropertyChanged();
                     this.OnMediaFrameOffsetChanged(oldValue, value);
+                    this.Layer?.OnProjectModified(this);
                 }
             }
         }
@@ -120,7 +130,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public VideoEditorViewModel Editor => this.Layer?.Timeline.Project.Editor;
 
-        public HistoryManagerViewModel HistoryManager => this.Editor?.HistoryManager;
+        public HistoryManagerViewModel HistoryManager => this.Layer?.Timeline.Project.Editor.HistoryManager;
 
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
@@ -199,39 +209,238 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public virtual void OnLeftThumbDragStart() {
+            if (this.IsDraggingLeftThumb)
+                throw new Exception("Already dragging left thumb");
             this.IsDraggingLeftThumb = true;
+            this.CreateClipDragHistoryAction();
         }
 
         public virtual void OnLeftThumbDragStop(bool cancelled) {
+            if (!this.IsDraggingLeftThumb)
+                throw new Exception("Not dragging left thumb");
             this.IsDraggingLeftThumb = false;
+            this.PushClipDragHistoryAction(cancelled);
         }
 
         public virtual void OnRightThumbDragStart() {
+            if (this.IsDraggingRightThumb)
+                throw new Exception("Already dragging right thumb");
             this.IsDraggingRightThumb = true;
+            this.CreateClipDragHistoryAction();
         }
 
         public virtual void OnRightThumbDragStop(bool cancelled) {
+            if (!this.IsDraggingRightThumb)
+                throw new Exception("Not dragging right thumb");
             this.IsDraggingRightThumb = false;
+            this.PushClipDragHistoryAction(cancelled);
         }
 
         public virtual void OnDragStart() {
+            if (this.IsDraggingClip)
+                throw new Exception("Already dragging");
             this.IsDraggingClip = true;
+            this.CreateClipDragHistoryAction();
+            if (this.Timeline is TimelineViewModel timeline) {
+                if (timeline.IsGloballyDragging) {
+                    return;
+                }
+
+                List<ClipViewModel> selected = timeline.GetSelectedClips().ToList();
+                if (selected.Count > 1) {
+                    timeline.IsGloballyDragging = true;
+                    timeline.DraggingClips = selected;
+                    timeline.ProcessingDragEventClip = this;
+                    foreach (ClipViewModel clip in selected) {
+                        if (clip != this) {
+                            clip.OnDragStart();
+                        }
+                    }
+
+                    timeline.ProcessingDragEventClip = null;
+                }
+            }
         }
 
         public virtual void OnDragStop(bool cancelled) {
+            if (!this.IsDraggingClip)
+                throw new Exception("Not dragging");
+
             this.IsDraggingClip = false;
+            if (this.Timeline is TimelineViewModel timeline && timeline.IsGloballyDragging) {
+                if (timeline.ProcessingDragEventClip == null) {
+                    timeline.DragStopHistoryList = new List<HistoryVideoClipPosition>();
+                }
+
+                if (cancelled) {
+                    this.lastDragHistoryAction.Undo();
+                }
+                else {
+                    timeline.DragStopHistoryList.Add(this.lastDragHistoryAction);
+                }
+
+                this.lastDragHistoryAction = null;
+                if (timeline.ProcessingDragEventClip != null) {
+                    return;
+                }
+
+                timeline.ProcessingDragEventClip = this;
+                foreach (ClipViewModel clip in timeline.DraggingClips) {
+                    if (this != clip) {
+                        clip.OnDragStop(cancelled);
+                    }
+                }
+
+                timeline.IsGloballyDragging = false;
+                timeline.ProcessingDragEventClip = null;
+                timeline.DraggingClips = null;
+                timeline.Project.Editor.HistoryManager.AddAction(new MultiHistoryAction(new List<IHistoryAction>(timeline.DragStopHistoryList)));
+                timeline.DragStopHistoryList = null;
+            }
+            else {
+                this.PushClipDragHistoryAction(cancelled);
+            }
         }
 
-        public virtual void OnLeftThumbDelta(long offset) {
+        private long addedOffset;
 
+        public virtual void OnLeftThumbDelta(long offset) {
+            if (this.Timeline == null) {
+                return;
+            }
+
+            long begin = this.FrameBegin + offset;
+            if (begin < 0) {
+                offset += -begin;
+                begin = 0;
+            }
+
+            long duration = this.FrameDuration - offset;
+            if (duration < 1) {
+                begin += (duration - 1);
+                duration = 1;
+                if (begin < 0) {
+                    return;
+                }
+            }
+
+            this.FrameSpan = new FrameSpan(begin, duration);
+            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
         }
 
         public virtual void OnRightThumbDelta(long offset) {
+            if (!(this.Timeline is TimelineViewModel timeline)) {
+                return;
+            }
 
+            FrameSpan span = this.FrameSpan;
+            long newEndIndex = Math.Max(span.EndIndex + offset, span.Begin + 1);
+            if (newEndIndex > timeline.MaxDuration) {
+                timeline.MaxDuration = newEndIndex + 300;
+            }
+
+            this.FrameSpan = span.SetEndIndex(newEndIndex);
+            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
         }
 
         public virtual void OnDragDelta(long offset) {
+            if (!(this.Timeline is TimelineViewModel timeline)) {
+                return;
+            }
 
+            FrameSpan span = this.FrameSpan;
+            long begin = (span.Begin + offset) - this.addedOffset;
+            this.addedOffset = 0L;
+            if (begin < 0) {
+                this.addedOffset = -begin;
+                begin = 0;
+            }
+
+            long endIndex = begin + span.Duration;
+            if (endIndex > timeline.MaxDuration) {
+                timeline.MaxDuration = endIndex + 300;
+            }
+
+            this.FrameSpan = new FrameSpan(begin, span.Duration);
+
+            if (timeline.IsGloballyDragging) {
+                if (timeline.ProcessingDragEventClip == null) {
+                    timeline.ProcessingDragEventClip = this;
+                    foreach (ClipViewModel clip in timeline.DraggingClips) {
+                        if (this != clip) {
+                            clip.OnDragDelta(offset);
+                        }
+                    }
+
+                    timeline.ProcessingDragEventClip = null;
+                }
+            }
+
+            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
+        }
+
+        public virtual void OnDragToLayer(int index) {
+            if (!(this.Layer is LayerViewModel layer)) {
+                return;
+            }
+
+            TimelineViewModel timeline = layer.Timeline;
+            if (timeline.IsGloballyDragging && timeline.IsAboutToDragAcrossLayers) {
+                return;
+            }
+
+            int target = Maths.Clamp(index, 0, timeline.Layers.Count - 1);
+            LayerViewModel targetLayer = timeline.Layers[target];
+            if (ReferenceEquals(layer, targetLayer)) {
+                return;
+            }
+
+            if (!targetLayer.CanAccept(this)) {
+                return;
+            }
+
+            if (timeline.IsGloballyDragging) {
+                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Layer, layer))) {
+                    timeline.IsAboutToDragAcrossLayers = true;
+                    foreach (ClipViewModel clip in timeline.DraggingClips) {
+                        if (targetLayer.CanAccept(this)) {
+                            timeline.MoveClip(clip, layer, targetLayer);
+                        }
+                    }
+
+                    timeline.IsAboutToDragAcrossLayers = false;
+                }
+                else {
+                    return;
+                }
+            }
+            else {
+                timeline.MoveClip(this, layer, targetLayer);
+            }
+        }
+
+        public virtual void OnDragToLayerOffset(int offset) {
+
+        }
+
+        protected void CreateClipDragHistoryAction() {
+            if (this.lastDragHistoryAction != null) {
+                throw new Exception("Drag history was non-null, which means a drag was started before another drag was completed");
+            }
+
+            this.lastDragHistoryAction = new HistoryVideoClipPosition(this);
+        }
+
+        protected void PushClipDragHistoryAction(bool cancelled) {
+            // throws if this.lastDragHistoryAction is null. It should not be null if there's no bugs in the drag start/end calls
+            if (cancelled) {
+                this.lastDragHistoryAction.Undo();
+            }
+            else {
+                this.HistoryManager?.AddAction(this.lastDragHistoryAction, "Drag clip");
+            }
+
+            this.lastDragHistoryAction = null;
         }
     }
 }

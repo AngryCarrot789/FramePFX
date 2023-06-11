@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace FramePFX.Editor.Timeline.Utils {
     public static class TimelineUtils {
-        public const double MinUnitZoom = 0.01d;
+        public const double MinUnitZoom = 0.001d;
         public static readonly object MinUnitZoomObject = MinUnitZoom;
 
         public static object ClampUnit(object value) {
@@ -12,10 +12,6 @@ namespace FramePFX.Editor.Timeline.Utils {
 
         public static double ClampUnit(double value) {
             return value < MinUnitZoom ? MinUnitZoom : value;
-        }
-
-        public static bool IsUnitEqual(double a, double b) {
-            return Math.Abs(a - b) <= MinUnitZoom;
         }
 
         public static long PixelToFrame(double pixels, double zoom) {

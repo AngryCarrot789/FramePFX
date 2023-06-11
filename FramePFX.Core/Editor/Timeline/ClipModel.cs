@@ -129,8 +129,8 @@ namespace FramePFX.Core.Editor.Timeline {
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
             if (this.clipId >= 0)
                 data.SetLong(nameof(this.UniqueClipId), this.clipId);
-            this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
-            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
+            data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
+            data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
         }
 
         /// <summary>
@@ -141,8 +141,8 @@ namespace FramePFX.Core.Editor.Timeline {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             if (data.TryGetLong(nameof(this.UniqueClipId), out long id) && id >= 0)
                 this.clipId = id;
-            data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
-            data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
+            this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
+            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
         }
 
         /// <summary>

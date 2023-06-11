@@ -11,7 +11,7 @@
                   mc:Ignorable="d"
                   Title="ResourceCheckerDialog" Height="450" Width="800"
                   Style="{DynamicResource CustomWindowStyleEx}"
-                  TitlebarBrush="{DynamicResource AREghZyBrush.Tone4.Background.Static}"
+                  TitlebarBrush="{DynamicResource ABrush.Tone4.Background.Static}"
                   d:DataContext="{d:DesignInstance rc:ResourceCheckerViewModel}">
     <Window.InputBindings>
         <KeyBinding Key="Esc" Command="{Binding OfflineAllCommand, Mode=OneTime}"/>
@@ -25,16 +25,16 @@
             <ColumnDefinition Width="104*"/>
             <ColumnDefinition Width="291*"/>
         </Grid.ColumnDefinitions>
-        <Border x:Name="ButtonBarBorder" Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="0" Grid.Column="1" Grid.Row="1">
+        <Border x:Name="ButtonBarBorder" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0" Grid.Column="1" Grid.Row="1">
             <Grid>
-                <Button Command="{Binding OfflineAllCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline All" Height="25" Margin="0,0,182,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
-                <Button Command="{Binding OfflineCurrentCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Cancel" Height="25" Margin="0,0,10,0" HorizontalAlignment="Right" Width="72" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
-                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline" Height="25" Margin="0,0,92,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding OfflineAllCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline All" Height="25" Margin="0,0,182,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding OfflineCurrentCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Cancel" Height="25" Margin="0,0,10,0" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline" Height="25" Margin="0,0,92,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
             </Grid>
         </Border>
         <Grid Grid.RowSpan="2">
             <ListBox HorizontalAlignment="Left" Width="208"
-                     BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="0"
+                     BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0"
                      ItemsSource="{Binding Resources}"
                      SelectedIndex="{Binding CurrentIndex, UpdateSourceTrigger=PropertyChanged}"
                      SelectedItem="{Binding CurrentItem, UpdateSourceTrigger=PropertyChanged}">
@@ -45,7 +45,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
-        <Border Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="1,1,0,1">
+        <Border Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="1,1,0,1">
             <ContentPresenter Content="{Binding CurrentItem, Mode=TwoWay}">
                 <ContentPresenter.Resources>
                     <DataTemplate DataType="{x:Type r:InvalidImageViewModel}">

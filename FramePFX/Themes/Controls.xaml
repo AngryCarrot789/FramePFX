@@ -10,7 +10,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Rectangle Margin="2" SnapsToDevicePixels="true"
-                               Stroke="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"
+                               Stroke="{DynamicResource ABrush.ColourfulGlyph.Static}"
                                StrokeThickness="1" StrokeDashArray="1 2" />
                 </ControlTemplate>
             </Setter.Value>
@@ -265,8 +265,8 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
     <Style x:Key="ComboBoxEditableTextBox" TargetType="{x:Type TextBox}">
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
-        <Setter Property="CaretBrush" Value="{DynamicResource AREghZyBrush.Glyph.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource ABrush.Glyph.Static}" />
         <Setter Property="OverridesDefaultStyle" Value="true" />
         <Setter Property="AllowDrop" Value="true" />
         <Setter Property="MinWidth" Value="0" />
@@ -352,7 +352,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -458,29 +458,29 @@
                             <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding BorderBrush}" VerticalAlignment="Top" Margin="0" DockPanel.Dock="Top">
                                 <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
                                     <Button x:Name="btnMinimize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
-                                        <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                        <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2" />
                                     </Button>
                                     <Grid x:Name="ThingButtons">
                                         <Button x:Name="btnRestore" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
                                                 WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
                                             <Grid Width="12" Height="12">
-                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="3,0,0,3" />
-                                                <Rectangle StrokeThickness="2" Fill="{DynamicResource Window.Static.Border}" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0,4,4,0" />
+                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource ABrush.Glyph.Static}" Margin="3,0,0,3" />
+                                                <Rectangle StrokeThickness="2" Fill="{DynamicResource Window.Static.Border}" Stroke="{DynamicResource ABrush.Glyph.Static}" Margin="0,4,4,0" />
                                             </Grid>
                                         </Button>
 
                                         <Button x:Name="btnMaximize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
                                                 WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
                                             <Grid Width="12" Height="12">
-                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0" />
+                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource ABrush.Glyph.Static}" Margin="0" />
                                             </Grid>
                                         </Button>
                                         <Button x:Name="btnWtfEvenLolol" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event" Content="^"/>
                                     </Grid>
                                     <Button x:Name="btnClose" Focusable="False" Background="Transparent" BorderBrush="Transparent" Template="{DynamicResource CloseWindowButton}" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Event">
                                         <Grid Margin="0 1 0 0">
-                                            <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
-                                            <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                            <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2" />
+                                            <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2" />
                                         </Grid>
                                     </Button>
                                 </StackPanel>
@@ -573,29 +573,29 @@
                             <DockPanel Height="30" x:Name="titlebar" Background="{TemplateBinding TitlebarBrush}" VerticalAlignment="Top" Margin="0" DockPanel.Dock="Top">
                                 <StackPanel Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Right" DockPanel.Dock="Right">
                                     <Button x:Name="btnMinimize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" VerticalContentAlignment="Bottom" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Event">
-                                        <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                        <Rectangle Width="10" VerticalAlignment="Center" Margin="1 -24 0 0" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2" />
                                     </Button>
                                     <Grid x:Name="ThingButtons">
                                         <Button x:Name="btnRestore" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
                                                 WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
                                             <Grid Width="12" Height="12">
-                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="3,0,0,3" />
-                                                <Rectangle StrokeThickness="2" Fill="{DynamicResource Window.Static.Border}" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0,4,4,0" />
+                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource ABrush.Glyph.Static}" Margin="3,0,0,3" />
+                                                <Rectangle StrokeThickness="2" Fill="{DynamicResource Window.Static.Border}" Stroke="{DynamicResource ABrush.Glyph.Static}" Margin="0,4,4,0" />
                                             </Grid>
                                         </Button>
 
                                         <Button x:Name="btnMaximize" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40"
                                                 WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event">
                                             <Grid Width="12" Height="12">
-                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" Margin="0" />
+                                                <Rectangle StrokeThickness="2" Stroke="{DynamicResource ABrush.Glyph.Static}" Margin="0" />
                                             </Grid>
                                         </Button>
                                         <Button x:Name="btnWtfEvenLolol" Focusable="False" Background="Transparent" BorderBrush="Transparent" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="AutoMinimize_Event" Content="^"/>
                                     </Grid>
                                     <Button x:Name="btnClose" Focusable="False" Background="Transparent" BorderBrush="Transparent" Template="{DynamicResource CloseWindowButton}" Width="40" WindowChrome.IsHitTestVisibleInChrome="True" Click="CloseWindow_Event">
                                         <Grid Margin="0 1 0 0">
-                                            <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
-                                            <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource AREghZyBrush.Glyph.Static}" StrokeThickness="2" />
+                                            <Line X1="0" Y1="0" X2="11" Y2="11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2" />
+                                            <Line X1="0" Y2="0" Y1="11" X2="11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2" />
                                         </Grid>
                                     </Button>
                                 </StackPanel>
@@ -704,8 +704,8 @@
                 <AdornedElementPlaceholder x:Name="AdornerPlaceholder"/>
             </Border>
             <Grid MaxWidth="{Binding ElementName=AdornerPlaceholder, Path=ActualWidth}">
-                <Border Background="{DynamicResource AREghZyBrush.Tone5.Background.Static}"
-                        BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}"
+                <Border Background="{DynamicResource ABrush.Tone5.Background.Static}"
+                        BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"
                         BorderThickness="1" CornerRadius="3"
                         Opacity="0.8">
                     <Border.Effect>
@@ -721,8 +721,8 @@
         <Setter Property="Validation.ErrorTemplate" Value="{StaticResource TextBoxErrorTemplate}" />
         <Setter Property="Background" Value="{DynamicResource TextBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource TextBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
-        <Setter Property="CaretBrush" Value="{DynamicResource AREghZyBrush.Glyph.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource ABrush.Glyph.Static}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource TextBox.Selection}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
@@ -747,7 +747,7 @@
                                    Padding="{TemplateBinding Padding}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                                   Foreground="{DynamicResource AREghZyBrush.Foreground.Disabled}">
+                                   Foreground="{DynamicResource ABrush.Foreground.Disabled}">
                             <TextBlock.Style>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -798,8 +798,8 @@
         <Setter Property="Validation.ErrorTemplate" Value="{StaticResource TextBoxErrorTemplate}" />
         <Setter Property="Background" Value="{DynamicResource TextBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource TextBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
-        <Setter Property="CaretBrush" Value="{DynamicResource AREghZyBrush.Glyph.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource ABrush.Glyph.Static}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource TextBox.Selection}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
@@ -842,7 +842,7 @@
     <Style TargetType="{x:Type ListBox}">
         <Setter Property="Background" Value="{DynamicResource ListBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -924,7 +924,7 @@
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}" />
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -933,7 +933,7 @@
     </Style>
 
     <Style TargetType="{x:Type Label}">
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Padding" Value="5" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -946,7 +946,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -968,7 +968,7 @@
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
         <Setter Property="Background" Value="{DynamicResource OptionMark.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource OptionMark.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
@@ -1288,9 +1288,9 @@
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
         <Setter Property="Background" Value="{DynamicResource RadioButton.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource RadioButton.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="ap:CornerHelper.CornerRadius" Value="100"/>
         <Setter Property="Template">
@@ -1346,7 +1346,7 @@
         <Setter Property="Background" Value="{DynamicResource TabItem.Selected.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Selected.Border}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TabControl}">
@@ -1395,7 +1395,7 @@
                             <Setter Property="Margin" TargetName="headerPanel" Value="0,2,2,2" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -1405,7 +1405,7 @@
 
     <Style TargetType="{x:Type TabItem}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="Background" Value="{DynamicResource TabItem.Static.Background}" />
         <Setter Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TabControl}, Path=BorderBrush}" />
         <Setter Property="Margin" Value="0" />
@@ -1794,7 +1794,7 @@
     </Style>
 
     <Style TargetType="{x:Type Expander}">
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
@@ -1829,7 +1829,7 @@
                             <Setter Property="Style" TargetName="HeaderSite" Value="{StaticResource ExpanderLeftHeaderStyle}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -1838,7 +1838,7 @@
     </Style>
 
     <Style TargetType="{x:Type GridSplitter}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}" />
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Border.Static}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type GridSplitter}">
@@ -1852,7 +1852,7 @@
     <Style TargetType="{x:Type GroupBox}">
         <Setter Property="Background" Value="{DynamicResource GroupBox.Header.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
@@ -1889,7 +1889,7 @@
     <Style x:Key="NoBorderGroupBox" TargetType="{x:Type GroupBox}">
         <Setter Property="Background" Value="{DynamicResource GroupBox.Header.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="BorderThickness" Value="0" />
@@ -1925,7 +1925,7 @@
     <Style x:Key="ThinGroupBox" TargetType="{x:Type GroupBox}">
         <Setter Property="Background" Value="{DynamicResource GroupBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
             <Setter.Value>
@@ -1962,7 +1962,7 @@
     <Style x:Key="SquaredGroupBox" TargetType="{x:Type GroupBox}">
         <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
         <Setter Property="Background" Value="{DynamicResource GroupBox.Static.Background}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
@@ -2006,7 +2006,7 @@
     <Style x:Key="DefaultGroupbox" TargetType="{x:Type GroupBox}">
         <Setter Property="BorderBrush" Value="{DynamicResource GroupBox.Static.Border}" />
         <Setter Property="Background" Value="{DynamicResource GroupBox.Static.Background}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
@@ -2050,7 +2050,7 @@
     <Style TargetType="{x:Type ContextMenu}">
         <Setter Property="Background" Value="{DynamicResource Popup.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Popup.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -2084,7 +2084,7 @@
         <Setter Property="FontSize" Value="{DynamicResource {x:Static SystemFonts.MenuFontSizeKey}}" />
         <Setter Property="FontStyle" Value="{DynamicResource {x:Static SystemFonts.MenuFontStyleKey}}" />
         <Setter Property="FontWeight" Value="{DynamicResource {x:Static SystemFonts.MenuFontWeightKey}}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
@@ -2182,7 +2182,7 @@
                 <Setter Property="BorderBrush" TargetName="templateRoot" Value="{DynamicResource MenuItem.MouseOver.Border}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                 <Setter Property="Background" Value="{DynamicResource MenuItem.Disabled.Background}" />
             </Trigger>
             <Trigger Property="CanContentScroll" SourceName="SubMenuScrollViewer" Value="False">
@@ -2209,7 +2209,7 @@
                 </Border>
                 <ContentPresenter ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.Column="2" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" HorizontalAlignment="Left" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="4" Margin="{TemplateBinding Padding}" Opacity="0.7" Text="{TemplateBinding InputGestureText}" VerticalAlignment="Center" />
-                <Path x:Name="RightArrow" Grid.Column="5" Data="M0,0L4,3.5 0,7z" Fill="{DynamicResource AREghZyBrush.Glyph.Static}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <Path x:Name="RightArrow" Grid.Column="5" Data="M0,0L4,3.5 0,7z" Fill="{DynamicResource ABrush.Glyph.Static}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" />
                 <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" HorizontalOffset="-2" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}" Placement="Right" VerticalOffset="-3">
                     <Themes:SystemDropShadowChrome Name="MENU_ITEM_SHADOW" Color="#71000000" CornerRadius="0" SnapsToDevicePixels="True" Margin="0 0 5 5">
                         <Border x:Name="SubMenuBorder" BorderBrush="{DynamicResource Popup.Static.Border}" Background="{DynamicResource Popup.Static.Background}" BorderThickness="1" Padding="0">
@@ -2246,7 +2246,7 @@
                 <Setter Property="BorderBrush" TargetName="templateRoot" Value="{DynamicResource MenuItem.MouseOver.Border}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                 <Setter Property="Fill" TargetName="Glyph" Value="{DynamicResource MenuItem.Disabled.Glyph}" />
                 <Setter Property="Fill" TargetName="RightArrow" Value="{DynamicResource MenuItem.Disabled.Glyph}" />
                 <Setter Property="Background" Value="{DynamicResource MenuItem.Disabled.Background}" />
@@ -2275,7 +2275,7 @@
                 </Border>
                 <ContentPresenter ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.Column="2" ContentStringFormat="{TemplateBinding HeaderStringFormat}" ContentSource="Header" HorizontalAlignment="Left" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="4" Margin="{TemplateBinding Padding}" Opacity="0.7" Text="{TemplateBinding InputGestureText}" VerticalAlignment="Center" />
-                <Path x:Name="RightArrow" Grid.Column="5" Data="M0,0L4,3.5 0,7z" Visibility="Hidden" Fill="{DynamicResource AREghZyBrush.Glyph.Static}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <Path x:Name="RightArrow" Grid.Column="5" Data="M0,0L4,3.5 0,7z" Visibility="Hidden" Fill="{DynamicResource ABrush.Glyph.Static}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" />
                 <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False" HorizontalOffset="-2" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}" Placement="Right" VerticalOffset="-3">
                     <Border x:Name="SubMenuBorder" BorderBrush="{DynamicResource Popup.Static.Border}" Background="{DynamicResource Popup.Static.Background}" BorderThickness="1" Padding="0">
                         <ScrollViewer x:Name="SubMenuScrollViewer" Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}">
@@ -2310,7 +2310,7 @@
                 <Setter Property="BorderBrush" TargetName="templateRoot" Value="{DynamicResource MenuItem.MouseOver.Border}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                 <Setter Property="Fill" TargetName="Glyph" Value="{DynamicResource MenuItem.Disabled.Glyph}" />
                 <Setter Property="Fill" TargetName="RightArrow" Value="{DynamicResource MenuItem.Disabled.Glyph}" />
                 <Setter Property="Background" Value="{DynamicResource MenuItem.Disabled.Background}" />
@@ -2325,7 +2325,7 @@
     <Style TargetType="{x:Type ListView}">
         <Setter Property="Background" Value="{DynamicResource ListView.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ListView.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -2413,7 +2413,7 @@
     <Style x:Key="{x:Type GridViewColumnHeader}" TargetType="GridViewColumnHeader">
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="GridViewColumnHeader">
@@ -2513,7 +2513,7 @@
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}" />
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -2525,7 +2525,7 @@
         <Setter Property="PasswordChar" Value="●" />
         <Setter Property="Background" Value="{DynamicResource TextBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource TextBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -2550,7 +2550,7 @@
                                    Padding="{TemplateBinding Padding}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                                   Foreground="{DynamicResource AREghZyBrush.Foreground.Disabled}">
+                                   Foreground="{DynamicResource ABrush.Foreground.Disabled}">
                             <TextBlock.Style>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -2601,7 +2601,7 @@
         <Setter Property="PasswordChar" Value="●" />
         <Setter Property="Background" Value="{DynamicResource TextBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource TextBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -2823,7 +2823,7 @@
                 </Border>
                 <Track x:Name="PART_Track" Grid.Row="1">
                     <Track.DecreaseRepeatButton>
-                        <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Background="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="1 1 0 1" />
+                        <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Background="{DynamicResource ABrush.ColourfulGlyph.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="1 1 0 1" />
                     </Track.DecreaseRepeatButton>
                     <Track.IncreaseRepeatButton>
                         <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Background="Transparent" BorderBrush="Transparent"/>
@@ -2997,7 +2997,7 @@
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextAlignment" Value="Left" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
@@ -3011,7 +3011,7 @@
     <Style TargetType="{x:Type ToolTip}">
         <Setter Property="Background" Value="{DynamicResource Popup.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Popup.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="MaxWidth" Value="800" />
         <Setter Property="OverridesDefaultStyle" Value="true" />
         <Setter Property="HasDropShadow" Value="True" />
@@ -3032,7 +3032,7 @@
                                         <Setter Property="TextWrapping" Value="Wrap" />
                                         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
                                         <Setter Property="TextAlignment" Value="Left" />
-                                        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
                                     </Style>
                                 </ContentPresenter.Resources>
                             </ContentPresenter>
@@ -3050,7 +3050,7 @@
     </Style>
 
     <Style TargetType="{x:Type Separator}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone6.Border.Static}" />
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Border.Static}" />
         <Setter Property="Margin" Value="0,2,0,2" />
         <Setter Property="Focusable" Value="false" />
         <Setter Property="Template">
@@ -3063,7 +3063,7 @@
     </Style>
 
     <Style x:Key="VerticalSeparator" TargetType="{x:Type Separator}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone6.Border.Static}" />
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Border.Static}" />
         <Setter Property="Margin" Value="2,0,2,0" />
         <Setter Property="Focusable" Value="false" />
         <Setter Property="Template">
@@ -3092,7 +3092,7 @@
         <Setter Property="Background" Value="{DynamicResource StatusBar.Static.Background}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource StatusBar.Static.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="FontFamily" Value="{DynamicResource {x:Static SystemFonts.StatusFontFamilyKey}}"/>
         <Setter Property="FontSize" Value="{DynamicResource {x:Static SystemFonts.StatusFontSizeKey}}"/>
         <Setter Property="FontStyle" Value="{DynamicResource {x:Static SystemFonts.StatusFontStyleKey}}"/>
@@ -3266,7 +3266,7 @@
         <Setter Property="Background" Value="{DynamicResource ToolBarHorizontalBackground}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ToolBarHorizontalBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="Padding" Value="2,1,1,1"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -3336,7 +3336,7 @@
                             <Setter Property="Background" Value="{DynamicResource ToolBarVerticalBackground}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -3347,8 +3347,8 @@
     <Style x:Key="{x:Type TextBoxBase}" TargetType="{x:Type TextBoxBase}">
         <Setter Property="Background" Value="{DynamicResource TextBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource TextBox.Static.Border}" />
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
-        <Setter Property="CaretBrush" Value="{DynamicResource AREghZyBrush.Glyph.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource ABrush.Glyph.Static}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource TextBox.Selection}" />
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
@@ -3390,14 +3390,14 @@
         </Style.Triggers>
     </Style>
     <Style x:Key="{x:Type Hyperlink}" TargetType="{x:Type Hyperlink}">
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="TextDecorations" Value="Underline"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="false">
-                <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="true">
                 <Setter Property="Cursor" Value="Hand"/>
@@ -3412,10 +3412,10 @@
             <Style x:Key="{x:Type Hyperlink}" BasedOn="{StaticResource {x:Type Hyperlink}}" TargetType="{x:Type Hyperlink}">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="true">
-                        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
                     </Trigger>
                     <Trigger Property="IsEnabled" Value="false">
-                        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                     </Trigger>
                     <Trigger Property="IsEnabled" Value="true">
                         <Setter Property="Cursor" Value="Hand"/>
@@ -3434,7 +3434,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource TreeView.Static.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="1"/>
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
@@ -3517,7 +3517,7 @@
                                    Stroke="{DynamicResource TreeViewItem.TreeArrow.Static.Stroke}"
                                    StrokeDashArray="2 2"
                                    StrokeThickness="1"/>
-                            <Label x:Name="ExpandText" FontSize="14" Margin="0 -2 0 0" Content="+" Padding="0" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{DynamicResource AREghZyBrush.Foreground.Static}" FontFamily="Consolas"/>
+                            <Label x:Name="ExpandText" FontSize="14" Margin="0 -2 0 0" Content="+" Padding="0" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{DynamicResource ABrush.Foreground.Static}" FontFamily="Consolas"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -3556,7 +3556,7 @@
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
         <Setter Property="Padding" Value="1,0,0,0"/>
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource TreeViewItemFocusVisual}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -3572,8 +3572,8 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
 
-                        <Rectangle x:Name="HorLn" Margin="9,1,0,0" Height="1" Stroke="{DynamicResource AREghZyBrush.Tone7.Border.Static}" StrokeDashCap="Square" StrokeDashArray="0,3" StrokeDashOffset="1" SnapsToDevicePixels="True"/>
-                        <Rectangle x:Name="VerLn" Width="1" Stroke="{DynamicResource AREghZyBrush.Tone7.Border.Static}" StrokeDashCap="Square" StrokeDashArray="0,3" Margin="0,0,1,0" Grid.RowSpan="2" SnapsToDevicePixels="true" Fill="{DynamicResource AREghZyBrush.Tone7.Border.Static}"/>
+                        <Rectangle x:Name="HorLn" Margin="9,1,0,0" Height="1" Stroke="{DynamicResource ABrush.Tone7.Border.Static}" StrokeDashCap="Square" StrokeDashArray="0,3" StrokeDashOffset="1" SnapsToDevicePixels="True"/>
+                        <Rectangle x:Name="VerLn" Width="1" Stroke="{DynamicResource ABrush.Tone7.Border.Static}" StrokeDashCap="Square" StrokeDashArray="0,3" Margin="0,0,1,0" Grid.RowSpan="2" SnapsToDevicePixels="true" Fill="{DynamicResource ABrush.Tone7.Border.Static}"/>
 
                         <ToggleButton x:Name="Expander" ClickMode="Press"
                                       IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
@@ -3608,7 +3608,7 @@
                         <Trigger Property="IsSelected" Value="true">
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Background}"/>
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Border}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Deeper}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Deeper}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -3617,10 +3617,10 @@
                             </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Background}"/>
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Border}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -3676,7 +3676,7 @@
                         <Trigger Property="IsSelected" Value="true">
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Background}"/>
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Border}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Deeper}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Deeper}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -3685,10 +3685,10 @@
                             </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Background}"/>
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource TreeViewItem.Selected.Inactive.Border}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

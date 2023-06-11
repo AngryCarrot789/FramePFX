@@ -247,10 +247,6 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {
-            if (Math.Abs(oldZoom - newZoom) <= TimelineUtils.MinUnitZoom) {
-                return;
-            }
-
             if (this.PART_ItemsPresenter != null) {
                 this.PART_ItemsPresenter.Width = TimelineUtils.FrameToPixel(this.MaxDuration, this.UnitZoom);
             }

@@ -14,7 +14,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public string RegistryId => LayerRegistry.Instance.GetTypeIdForModel(this.GetType());
 
-        public string Name { get; set; }
+        public string DisplayName { get; set; }
         public double MinHeight { get; set; }
         public double MaxHeight { get; set; }
         public double Height { get; set; }
@@ -69,7 +69,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public abstract LayerModel CloneCore();
 
         public void WriteToRBE(RBEDictionary data) {
-            data.SetString(nameof(this.Name), this.Name);
+            data.SetString(nameof(this.DisplayName), this.DisplayName);
             data.SetDouble(nameof(this.MinHeight), this.MinHeight);
             data.SetDouble(nameof(this.MaxHeight), this.MaxHeight);
             data.SetDouble(nameof(this.Height), this.Height);
@@ -85,7 +85,7 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            this.Name = data.GetString(nameof(this.Name), null);
+            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             this.MinHeight = data.GetDouble(nameof(this.MinHeight), 40);
             this.MaxHeight = data.GetDouble(nameof(this.MaxHeight), 200);
             this.Height = data.GetDouble(nameof(this.Height), 60);
@@ -99,5 +99,7 @@ namespace FramePFX.Core.Editor.Timeline {
                 this.AddClip(clip);
             }
         }
+
+        public abstract bool CanAccept(ClipModel clip);
     }
 }

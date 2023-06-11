@@ -5,19 +5,19 @@ using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.Editor.Actions {
-    [ActionRegistration("actions.project.Save")]
-    public class SaveProjectAction : AnAction {
-        public static bool GetProject(IDataContext context, out ProjectViewModel project) {
-            if (context.TryGetContext(out ClipViewModel clip) && clip.Layer != null && (project = clip.Layer.Timeline.Project) != null) {
+    [ActionRegistration("actions.project.Open")]
+    public class OpenProjectAction : AnAction {
+        public static bool GetEditor(IDataContext context, out VideoEditorViewModel editor) {
+            if (context.TryGetContext(out ClipViewModel clip) && clip.Layer != null && (editor = clip.Layer.Timeline.Project.Editor) != null) {
                 return true;
             }
-            else if (context.TryGetContext(out TimelineViewModel timeline) && (project = timeline.Project) != null) {
+            else if (context.TryGetContext(out TimelineViewModel timeline) && (editor = timeline.Project.Editor) != null) {
                 return true;
             }
-            else if (context.TryGetContext(out project)) {
+            else if (context.TryGetContext(out ProjectViewModel project) && (editor = project.Editor) != null) {
                 return true;
             }
-            else if (context.TryGetContext(out project)) {
+            else if (context.TryGetContext(out editor)) {
                 return true;
             }
             else {
@@ -26,23 +26,11 @@ namespace FramePFX.Core.Editor.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!GetProject(e.DataContext, out ProjectViewModel project)) {
+            if (!GetEditor(e.DataContext, out VideoEditorViewModel project)) {
                 return false;
             }
 
-            await project.SaveActionAsync();
-            return true;
-        }
-    }
-
-    [ActionRegistration("actions.project.SaveAs")]
-    public class SaveProjectAsAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!SaveProjectAction.GetProject(e.DataContext, out ProjectViewModel project)) {
-                return false;
-            }
-
-            await project.SaveAsActionAsync();
+            await project.OpenProjectAction();
             return true;
         }
     }

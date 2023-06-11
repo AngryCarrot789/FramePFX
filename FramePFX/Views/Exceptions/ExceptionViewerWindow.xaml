@@ -18,7 +18,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource TreeView.Static.Border}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="1"/>
-            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
             <Setter Property="ScrollViewer.PanningMode" Value="Both"/>

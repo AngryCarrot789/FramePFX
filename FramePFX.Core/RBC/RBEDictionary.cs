@@ -204,6 +204,18 @@ namespace FramePFX.Core.RBC {
             }
         }
 
+        protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
+            int length = reader.ReadUInt16();
+            this.Map = new Dictionary<string, RBEBase>(length);
+            for (int i = 0; i < length; i++) {
+                int index = reader.ReadInt32();
+                if (!dictionary.TryGetValue(index, out string key))
+                    throw new Exception($"No such key for index: {index}");
+                RBEBase element = ReadIdAndElementPacked(reader, dictionary);
+                this.Map[key] = element;
+            }
+        }
+
         protected override void Write(BinaryWriter writer) {
             writer.Write((ushort) this.Map.Count);
             foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
@@ -215,6 +227,24 @@ namespace FramePFX.Core.RBC {
                 writer.Write((byte) length);
                 writer.Write(entry.Key.ToCharArray());
                 WriteIdAndElement(writer, entry.Value);
+            }
+        }
+
+        protected override void WritePacked(BinaryWriter writer, Dictionary<string, int> dictionary) {
+            writer.Write((ushort) this.Map.Count);
+            foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
+                if (!dictionary.TryGetValue(entry.Key, out int index))
+                    throw new Exception($"No such index for key: {entry.Key}");
+                writer.Write(index);
+                WriteIdAndElementPacked(writer, entry.Value, dictionary);
+            }
+        }
+
+        protected internal override void AccumulatePackedEntries(Dictionary<string, int> dictionary) {
+            foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
+                if (!dictionary.ContainsKey(entry.Key))
+                    dictionary[entry.Key] = dictionary.Count;
+                entry.Value.AccumulatePackedEntries(dictionary);
             }
         }
 

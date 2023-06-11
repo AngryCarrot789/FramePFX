@@ -9,8 +9,8 @@
         WindowStyle="None" 
         AllowsTransparency="True"
         ResizeMode="NoResize"
-        Background="{DynamicResource AREghZyBrush.Tone5.Background.Static}"
-        BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}"
+        Background="{DynamicResource ABrush.Tone5.Background.Static}"
+        BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"
         BorderThickness="3">
     <Grid>
         <TextBlock Text="FramePFX v0.1.0" FontSize="64" FontFamily="Consolas" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12"/>

@@ -23,8 +23,9 @@ namespace FramePFX.Core.Editor.ViewModels {
             private set {
                 if (ReferenceEquals(this.activeProject, value))
                     return;
-                if (this.activeProject != null)
+                if (this.activeProject != null) {
                     this.activeProject.Editor = null;
+                }
 
                 if (value != null) {
                     this.Model.ActiveProject = value.Model;
@@ -72,13 +73,18 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.HistoryManager = new HistoryManagerViewModel(this.Model.HistoryManager);
             this.App = app;
             this.Playback = new EditorPlaybackViewModel(this);
+            this.Playback.ProjectModified += this.OnProjectModified;
             this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameTick();
             this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
         }
 
+        private void OnProjectModified(object sender, string property) {
+            this.activeProject?.OnProjectModified(sender, property);
+        }
+
         private async Task NewProjectAction() {
-            if (this.ActiveProject != null && !await this.SaveProjectAction()) {
+            if (this.ActiveProject != null && !await this.PromptSaveProjectAction()) {
                 return;
             }
 
@@ -86,32 +92,38 @@ namespace FramePFX.Core.Editor.ViewModels {
             project.Settings.Resolution = new Resolution(1280, 720);
             await this.CloseProjectAction();
             await this.SetProject(project);
+            this.ActiveProject.SetHasUnsavedChanges(false);
         }
 
-        private async Task OpenProjectAction() {
+        public async Task OpenProjectAction() {
             DialogResult<string[]> result = IoC.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
             if (!result.IsSuccess || result.Value.Length < 1) {
                 return;
             }
 
-            if (this.ActiveProject != null && !await this.SaveProjectAction()) {
+            if (this.ActiveProject != null && !await this.PromptSaveProjectAction()) {
                 return;
             }
 
+            #if DEBUG
+            RBEBase rbe = RBEUtils.ReadFromFilePacked(result.Value[0]);
+            RBEDictionary dictionary = (RBEDictionary) rbe;
+            ProjectModel projectModel = new ProjectModel();
+            projectModel.ReadFromRBE(dictionary);
+            ProjectViewModel project = new ProjectViewModel(projectModel);
+            #else
             RBEDictionary dictionary;
             try {
-                dictionary = RBEUtils.ReadFromFile(result.Value[0]) as RBEDictionary;
+                dictionary = RBEUtils.ReadFromFilePacked(result.Value[0]) as RBEDictionary;
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());
                 return;
             }
-
             if (dictionary == null) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
                 return;
             }
-
             ProjectModel projectModel = new ProjectModel();
             ProjectViewModel project;
             try {
@@ -122,6 +134,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 await IoC.MessageDialogs.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
                 return;
             }
+            #endif
 
             if (this.ActiveProject != null) {
                 try {
@@ -149,6 +162,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             await this.SetProject(project);
+            this.ActiveProject.SetHasUnsavedChanges(false);
         }
 
         public async Task SetProject(ProjectViewModel project) {
@@ -186,29 +200,29 @@ namespace FramePFX.Core.Editor.ViewModels {
         /// Saves and closes the project
         /// </summary>
         /// <returns>True when the project was closed,</returns>
-        public async Task<bool> SaveAndCloseProjectAction() {
+        public async Task<bool> PromptSaveAndCloseProjectAction() {
             if (this.ActiveProject == null) {
                 throw new Exception("No active project");
             }
 
-            this.IsClosingProject = true;
-            bool? result = await IoC.MessageDialogs.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
-            if (result == true) {
-                await this.ActiveProject.SaveActionAsync();
-            }
-            else if (result == null) {
+            if (!await this.PromptSaveProjectAction()) {
                 return false;
             }
 
+            this.IsClosingProject = true;
             await this.CloseProjectAction();
             this.IsClosingProject = false;
             return true;
         }
 
-        public async Task<bool> SaveProjectAction() {
+        public async Task<bool> PromptSaveProjectAction() {
             if (this.ActiveProject == null) {
                 throw new Exception("No active project");
             }
+
+            // if (!this.ActiveProject.HasUnsavedChanges) {
+            //     return true;
+            // }
 
             bool? result = await IoC.MessageDialogs.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
             if (result == true) {

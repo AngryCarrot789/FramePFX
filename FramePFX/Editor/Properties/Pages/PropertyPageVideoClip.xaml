@@ -59,11 +59,11 @@
                 <controls:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
                 <controls:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
             </Grid>
-            <Separator Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Separator Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Button ToolTip="Reset the media position"     Command="{Binding ResetPositionCommand, Mode=OneTime}"    Content="R" Grid.Column="2" Grid.Row="0" BorderThickness="0" Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}"/>
-            <Button ToolTip="Reset the media scale"        Command="{Binding ResetScaleCommand, Mode=OneTime}"       Content="R" Grid.Column="2" Grid.Row="2" BorderThickness="0" Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}"/>
-            <Button ToolTip="Reset the media scale origin" Command="{Binding ResetScaleOriginCommand, Mode=OneTime}" Content="R" Grid.Column="2" Grid.Row="4" BorderThickness="0" Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}"/>
+            <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Button ToolTip="Reset the media position"     Command="{Binding ResetPositionCommand, Mode=OneTime}"    Content="R" Grid.Column="2" Grid.Row="0" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
+            <Button ToolTip="Reset the media scale"        Command="{Binding ResetScaleCommand, Mode=OneTime}"       Content="R" Grid.Column="2" Grid.Row="2" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
+            <Button ToolTip="Reset the media scale origin" Command="{Binding ResetScaleOriginCommand, Mode=OneTime}" Content="R" Grid.Column="2" Grid.Row="4" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
         </Grid>
     </Grid>
 </UserControl>

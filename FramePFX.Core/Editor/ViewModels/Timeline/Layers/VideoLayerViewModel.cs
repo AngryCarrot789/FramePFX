@@ -40,8 +40,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
         }
 
         public override async Task SliceClipAction(ClipViewModel clip, long frame) {
-            // assert clip.Layer == this.Model
+            // assert clip.Layer == this
 
+            // TODO: this function needs some work done; it's super messy and somewhat broken for the text clone
             string imageCloneResult = null;
             ResourceText resourceText = null;
             if (clip.Model is TextClipModel txt1 && txt1.ResourcePath != null && txt1.ResourcePath.TryGetResource(out resourceText)) {

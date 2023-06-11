@@ -10,7 +10,6 @@ using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer;
-using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {

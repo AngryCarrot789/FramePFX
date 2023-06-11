@@ -307,7 +307,7 @@ namespace FramePFX.Core.RBC {
             if (this.Array != null) {
                 writer.Write(this.Array.Length);
                 foreach (string value in this.Array) {
-                    RBEString.WriteString(value, writer);
+                    RBEString.WriteString(writer, value);
                 }
             }
             else {

@@ -28,8 +28,8 @@
             <TextBlock VerticalAlignment="Top" Text="{Binding Message}" Padding="5"/>
             <TextBox x:Name="InputBox" Padding="5,1" VerticalContentAlignment="Center" VerticalAlignment="Top" Height="29"
                      helper:TextBoxHelper.SelectAllOnFocus="True" 
-                     Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}" 
-                     BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}">
+                     Background="{DynamicResource ABrush.Tone2.Background.Static}"
+                     BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}">
                 <Binding Path="Input" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
                     <Binding.ValidationRules>
                         <StaticResource ResourceKey="ValidatorInput"/>
@@ -37,10 +37,10 @@
                 </Binding>
             </TextBox>
         </StackPanel>
-        <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" x:Name="ButtonBarBorder" Background="{DynamicResource AREghZyBrush.Tone4.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
+        <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" x:Name="ButtonBarBorder" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
             <Grid Height="43">
-                <Button Command="{Binding ConfirmCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="OK" Margin="0,0,92,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
-                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource AREghZyBrush.Tone6.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding ConfirmCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="OK" Margin="0,0,92,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
             </Grid>
         </Border>
     </DockPanel>

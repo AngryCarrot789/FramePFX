@@ -133,7 +133,7 @@ namespace FramePFX {
 
             {
                 VideoLayerModel layer1 = new VideoLayerModel(project.Timeline) {
-                    Name = "Layer 1 with stuff"
+                    DisplayName = "Layer 1 with stuff"
                 };
                 project.Timeline.AddLayer(layer1);
 
@@ -157,7 +157,7 @@ namespace FramePFX {
             }
             {
                 VideoLayerModel layer2 = new VideoLayerModel(project.Timeline) {
-                    Name = "Layer 2"
+                    DisplayName = "Layer 2"
                 };
                 project.Timeline.AddLayer(layer2);
 
@@ -182,7 +182,7 @@ namespace FramePFX {
             }
             {
                 VideoLayerModel layer1 = new VideoLayerModel(project.Timeline) {
-                    Name = "Empty layer"
+                    DisplayName = "Empty layer"
                 };
                 project.Timeline.AddLayer(layer1);
             }

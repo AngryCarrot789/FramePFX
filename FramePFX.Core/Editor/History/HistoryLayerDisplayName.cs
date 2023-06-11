@@ -3,32 +3,32 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.History;
 
 namespace FramePFX.Core.Editor.History {
-    public class HistoryClipDisplayName : IHistoryAction {
-        public ClipViewModel Clip { get; }
+    public class HistoryLayerDisplayName : IHistoryAction {
+        public LayerViewModel Layer { get; }
         public Transaction<string> DisplayName { get; }
 
-        public HistoryClipDisplayName(ClipViewModel clip) {
-            this.Clip = clip;
-            this.DisplayName = Transactions.Immutable(clip.DisplayName);
+        public HistoryLayerDisplayName(LayerViewModel layer) {
+            this.Layer = layer;
+            this.DisplayName = Transactions.Immutable(layer.DisplayName);
         }
 
         public async Task UndoAsync() {
             try {
-                this.Clip.IsHistoryChanging = true;
-                this.Clip.DisplayName = this.DisplayName.Original;
+                this.Layer.IsHistoryChanging = true;
+                this.Layer.DisplayName = this.DisplayName.Original;
             }
             finally {
-                this.Clip.IsHistoryChanging = false;
+                this.Layer.IsHistoryChanging = false;
             }
         }
 
         public async Task RedoAsync() {
             try {
-                this.Clip.IsHistoryChanging = true;
-                this.Clip.DisplayName = this.DisplayName.Current;
+                this.Layer.IsHistoryChanging = true;
+                this.Layer.DisplayName = this.DisplayName.Current;
             }
             finally {
-                this.Clip.IsHistoryChanging = false;
+                this.Layer.IsHistoryChanging = false;
             }
         }
 

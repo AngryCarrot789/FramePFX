@@ -50,14 +50,17 @@ namespace FramePFX.Core.Editor.ViewModels {
         public ProjectViewModel(ProjectModel project) {
             this.Model = project ?? throw new ArgumentNullException(nameof(project));
             this.Settings = new ProjectSettingsViewModel(project.Settings);
+            this.Settings.ProjectModified += this.OnProjectModified;
             this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
+            this.ResourceManager.ProjectModified += this.OnProjectModified;
             this.Timeline = new TimelineViewModel(this, project.Timeline);
+            this.Timeline.ProjectModified += this.OnProjectModified;
 
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.Model.IsSaving);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.Model.IsSaving);
         }
 
-        public void OnModified() {
+        public void OnProjectModified(object sender, string property) {
             this.SetHasUnsavedChanges(true);
         }
 
@@ -86,7 +89,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return false;
             }
 
-            DialogResult<string> result = IoC.FilePicker.SaveFile(Path.GetDirectoryName(this.ProjectFilePath), "Select a folder, in which the project data will be saved into");
+            DialogResult<string> result = IoC.FilePicker.SaveFile(Filters.ProjectTypeAndAllFiles, Path.GetDirectoryName(this.ProjectFilePath), "Select a folder, in which the project data will be saved into");
             if (result.IsSuccess) {
                 this.ProjectFilePath = result.Value;
                 await this.SaveToFileAsync();
@@ -107,29 +110,36 @@ namespace FramePFX.Core.Editor.ViewModels {
             await this.Editor.OnProjectSaving();
 
             Exception e = null;
-            await Task.Run(() => {
-                RBEDictionary dictionary = new RBEDictionary();
+            RBEDictionary dictionary = new RBEDictionary();
+            #if DEBUG
+            this.Model.WriteToRBE(dictionary);
+            #else
+            try {
+                this.Model.WriteToRBE(dictionary);
+            }
+            catch (Exception exception) {
+                e = new Exception("Failed to serialise project", exception);
+            }
+            #endif
+
+            #if DEBUG
+            RBEUtils.WriteToFilePacked(dictionary, this.ProjectFilePath);
+            #else
+            if (e == null) {
                 try {
-                    this.Model.WriteToRBE(dictionary);
+                    RBEUtils.WriteToFilePacked(dictionary, this.ProjectFilePath);
                 }
                 catch (Exception exception) {
-                    e = new Exception("Failed to serialise project", exception);
+                    e = new Exception("Failed to write project to the disk", exception);
                 }
-
-                if (e == null) {
-                    try {
-                        RBEUtils.WriteToFile(dictionary, this.ProjectFilePath);
-                    }
-                    catch (Exception exception) {
-                        e = new Exception("Failed to write project to the disk", exception);
-                    }
-                }
-            });
+            }
+            #endif
 
             this.Model.IsSaving = false;
             await this.Editor.OnProjectSaved(e == null);
             if (e == null) {
                 this.hasSavedOnce = true;
+                this.SetHasUnsavedChanges(false);
             }
             else {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error saving", "An exception occurred while saving project", e.GetToString());

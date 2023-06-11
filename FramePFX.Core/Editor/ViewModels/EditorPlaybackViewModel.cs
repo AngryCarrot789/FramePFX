@@ -5,7 +5,7 @@ namespace FramePFX.Core.Editor.ViewModels {
     /// <summary>
     /// A view model responsible for handling the state of the playback (play, pause, etc)
     /// </summary>
-    public class EditorPlaybackViewModel : BaseViewModel, IDisposable {
+    public class EditorPlaybackViewModel : BaseViewModel, IModifyProject, IDisposable {
         /// <summary>
         /// The playback model that this view model delegates to and from
         /// </summary>
@@ -23,6 +23,16 @@ namespace FramePFX.Core.Editor.ViewModels {
             set {
                 this.Model.UsePrecisionTimingMode = value;
                 this.RaisePropertyChanged();
+                this.ProjectModified?.Invoke(this, nameof(this.UsePrecisionTimingMode));
+            }
+        }
+
+        public bool ZoomToCursor {
+            get => this.Model.ZoomToCursor;
+            set {
+                this.Model.ZoomToCursor = value;
+                this.RaisePropertyChanged();
+                this.ProjectModified?.Invoke(this, nameof(this.ZoomToCursor));
             }
         }
 
@@ -41,6 +51,8 @@ namespace FramePFX.Core.Editor.ViewModels {
         public AsyncRelayCommand SwitchPrecisionTimingModeCommand { get; }
 
         private bool wasPlayingBeforeSave;
+
+        public event ProjectModifiedEvent ProjectModified;
 
         public EditorPlaybackViewModel(VideoEditorViewModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));

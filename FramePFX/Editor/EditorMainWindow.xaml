@@ -25,13 +25,14 @@
             xmlns:editor="clr-namespace:FramePFX.Editor"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
-            Title="Bootleg sony vegas (FramePFX, or Frame Pixel Frame X i guess... PixelFrame?)" Width="1408" Height="792"
+            Width="1408" Height="792"
             Style="{StaticResource CustomWindowStyle}"
-            Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}"
-            BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}"
+            Background="{DynamicResource ABrush.Tone2.Background.Static}"
+            BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
             s:UIFocusGroup.IsGlobalShortcutFocusTarget="True"
             s:UIFocusGroup.FocusGroupPath="Application/Editor">
     <Window.Resources>
+        <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg Sony Vegas"/>
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True"/>
         <Style TargetType="{x:Type Slider}">
             <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
@@ -46,8 +47,14 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
+    <Window.Title>
+        <MultiBinding Converter="{StaticResource TitleConverter}">
+            <Binding Path="ActiveProject"/>
+            <Binding Path="ActiveProject.HasUnsavedChanges"/>
+        </MultiBinding>
+    </Window.Title>
     <Grid>
-        <Menu VerticalAlignment="Top" Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 0 0 1">
+        <Menu VerticalAlignment="Top" Background="{DynamicResource ABrush.Tone4.Border.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 0 0 1">
             <MenuItem Header="File">
                 <MenuItem Header="New Project" Command="{Binding NewProjectCommand, Mode=OneTime}"/>
                 <MenuItem Header="Open Project" Command="{Binding OpenProjectCommand, Mode=OneTime}"/>
@@ -62,28 +69,28 @@
                 <RowDefinition Height="5"/>
                 <RowDefinition Height="75*"/>
             </Grid.RowDefinitions>
-            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 1 0 1" SnapsToDevicePixels="True"/>
+            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource ABrush.Tone4.Border.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 1 0 1" SnapsToDevicePixels="True"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*"/>
                     <ColumnDefinition Width="5"/>
                     <ColumnDefinition Width="7*"/>
                 </Grid.ColumnDefinitions>
-                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" Grid.Column="1" Margin="0,-1" SnapsToDevicePixels="True"/>
+                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource ABrush.Tone4.Border.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" Grid.Column="1" Margin="0,-1" SnapsToDevicePixels="True"/>
                 <Grid Grid.Column="2" DataContext="{Binding Playback}">
-                    <Border VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 1 0 0">
+                    <Border VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
                             <Button Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="OnFitContentToWindowClick"/>
                             <CheckBox IsChecked="{Binding ElementName=VPViewBox, Path=PanToCursorOnUserZoom}" Content="Zoom to cursor" Width="110" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"/>
                             <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Content="Play/Pause" Width="70" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}"/>
                                 <Button Width="26" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="5,0,0,0">
-                                    <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                                    <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
                                 </Button>
                                 <Button Width="26" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="5,0,0,0">
                                     <Grid Width="14" Height="16">
-                                        <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
-                                        <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource AREghZyBrush.ColourfulGlyph.Static}"/>
+                                        <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
+                                        <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
                                     </Grid>
                                 </Button>
                             </StackPanel>
@@ -95,8 +102,8 @@
                                        x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
                     </cc:FreeMoveViewPortV2>
                 </Grid>
-                <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
-                    <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
+                <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource ABrush.Tone2.Background.Static}">
+                    <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
                             <Grid s:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
                                 <ui:ResourceListControl FileDropNotifier="{Binding .}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0" helpers:SelectorHelper.SelectedItems="{Binding SelectedItems}" helpers:SelectorHelper.UpdateSelectedItemsOnChange="True">
@@ -149,7 +156,7 @@
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" 
                                           VerticalScrollBarVisibility="Auto" CanContentScroll="False" 
                                           helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True" 
-                                          Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
+                                          Background="{DynamicResource ABrush.Tone2.Background.Static}">
                                 <ItemsControl x:Name="ClipPropertyPanelList" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
                                 </ItemsControl>
                             </ScrollViewer>
@@ -160,7 +167,7 @@
                             -->
                             <!-- d:DataContext="{d:DesignInstance sources:LoopbackSourceViewModel}" -->
                             <!--
-                            <Grid x:Name="SettingsPanel" Background="{DynamicResource AREghZyBrush.Tone2.Background.Static}">
+                            <Grid x:Name="SettingsPanel" Background="{DynamicResource ABrush.Tone2.Background.Static}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ContentPresenter Content="{Binding}">
                                         <ContentPresenter.Resources>
@@ -180,9 +187,9 @@
                 </Border>
             </Grid>
             <Grid Grid.Row="2">
-                <Border VerticalAlignment="Bottom" Height="20" BorderBrush="{DynamicResource AREghZyBrush.Tone4.Border.Static}" BorderThickness="0 1 0 0">
+                <Border VerticalAlignment="Bottom" Height="20" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="0 1 0 0">
                     <!-- Status bar -->
-                    <Border Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" Margin="0,-1,0,0">
+                    <Border Background="{DynamicResource ABrush.Tone4.Border.Static}" Margin="0,-1,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock VerticalAlignment="Center" x:Name="NotificationBarTextBlock" Padding="3,0"/>
                         </StackPanel>
@@ -205,12 +212,12 @@
                             <ColumnDefinition Width="5"/>
                             <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
-                        <Border x:Name="PART_TimestampBoard" Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}">
+                        <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
                             <Grid>
                                 <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0"/>
                             </Grid>
                         </Border>
-                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" Grid.Row="1"/>
+                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" Grid.Row="1"/>
                         <ListBox s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
                                  ItemsSource="{Binding Layers, Mode=OneTime}" 
                                  SelectedItem="{Binding PrimarySelectedLayer, UpdateSourceTrigger=PropertyChanged}"
@@ -252,7 +259,7 @@
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                     <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
                                     <Setter Property="Padding" Value="0"/>
                                     <Setter Property="Margin" Value="0"/>
                                     <Setter Property="Template">
@@ -262,7 +269,7 @@
                                                     <Grid d:DataContext="{d:DesignInstance timeline:LayerViewModel}">
                                                         <Rectangle Fill="{Binding LayerColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                                         <Grid Margin="23,4,6,4">
-                                                            <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
+                                                            <TextBlock Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
                                                             <Grid Margin="0,20,0,0">
                                                                 <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                                             </Grid>
@@ -296,7 +303,7 @@
                                                         <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}" />
                                                     </MultiTrigger>
                                                     <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                                                        <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -313,17 +320,17 @@
                                 </DataTemplate>
                             </ItemsControl.Resources>
                         </ListBox>
-                        <Border Visibility="Collapsed" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
+                        <Border Visibility="Collapsed" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
                         <c:TimelineControl x:Name="TheTimeline"
                                                   ItemsSource="{Binding Layers, Mode=OneTime}"
                                                   Grid.Column="2" BorderThickness="0"
-                                                  BorderBrush="{DynamicResource AREghZyBrush.Tone2.Border.Static}"
+                                                  BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
                                                   MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
                                                   Grid.RowSpan="2"
                                                   s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                             <c:TimelineControl.Style>
                                 <Style TargetType="{x:Type c:TimelineControl}">
-                                    <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone2.Background.Static}"/>
+                                    <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
                                     <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
                                     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
                                     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -332,7 +339,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type c:TimelineControl}">
                                                 <Grid>
-                                                    <Border Background="{DynamicResource AREghZyBrush.Tone1.Background.Static}"/>
+                                                    <Border Background="{DynamicResource ABrush.Tone1.Background.Static}"/>
                                                     <!-- A collection of TimelineLayerControls -->
                                                     <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" 
                                                                   Padding="{TemplateBinding Padding}" 
@@ -354,10 +361,10 @@
                                                             </Border>
                                                             <Border Grid.Row="0" x:Name="PART_TimestampBoard"
                                                                     Margin="0" VerticalAlignment="Stretch"
-                                                                    Background="{DynamicResource AREghZyBrush.Tone3.Background.Static}"
-                                                                    BorderBrush="{DynamicResource AREghZyBrush.Tone4.Border.Static}"
+                                                                    Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                                                    BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
                                                                     BorderThickness="0 0 0 1" />
-                                                            <c:TimelinePlayHeadControl Background="{DynamicResource AREghZyBrush.Tone7.Border.Static}"
+                                                            <c:TimelinePlayHeadControl Background="{DynamicResource ABrush.Tone7.Border.Static}"
                                                                                        x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2" Width="1"
                                                                                        VerticalAlignment="Stretch"
                                                                                        VerticalContentAlignment="Stretch"
@@ -375,7 +382,7 @@
                             <c:TimelineControl.ItemContainerStyle>
                                 <Style TargetType="{x:Type c:VideoTimelineLayerControl}">
                                     <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
                                     <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="ResourceDropHandler" Value="{Binding}"/>
@@ -400,9 +407,9 @@
                                     <Setter Property="ItemContainerStyle">
                                         <Setter.Value>
                                             <Style TargetType="{x:Type c:TimelineVideoClipControl}">
-                                                <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone4.Background.Static}"/>
-                                                <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Border.Static}"/>
-                                                <Setter Property="HeaderBrush" Value="{DynamicResource AREghZyBrush.Tone5.Background.Static}"/>
+                                                <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
+                                                <Setter Property="HeaderBrush" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
                                                 <Setter Property="BorderThickness" Value="1"/>
                                                 <Setter Property="HorizontalAlignment" Value="Left"/>
                                                 <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -457,7 +464,7 @@
                                 </Style>
                             </c:TimelineControl.ItemContainerStyle>
                         </c:TimelineControl>
-                        <GridSplitter Background="{DynamicResource AREghZyBrush.Tone4.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource AREghZyBrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
+                        <GridSplitter Background="{DynamicResource ABrush.Tone4.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
             </Grid>
@@ -471,7 +478,7 @@
                                 <Grid.InputBindings>
                                     <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}"/>
                                 </Grid.InputBindings>
-                                <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource AREghZyBrush.Tone7.Background.Static}" BorderBrush="{DynamicResource AREghZyBrush.Tone7.Border.Static}" BorderThickness="0,0,0,1">
+                                <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource ABrush.Tone7.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone7.Border.Static}" BorderThickness="0,0,0,1">
                                     <Grid>
                                         <Label Content="{Binding Header, Mode=OneWay}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
                                         <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24"/>
@@ -497,8 +504,8 @@
                         <ItemsControl.ItemContainerStyle>
                             <Style TargetType="{x:Type nn:NotificationControl}">
                                 <Setter Property="Margin" Value="0,0,5,5"/>
-                                <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Tone6.Background.Static}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone6.Border.Static}"/>
+                                <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone6.Border.Static}"/>
                                 <Setter Property="BorderThickness" Value="1"/>
                                 <Setter Property="Padding" Value="0"/>
                                 <Setter Property="Template">
@@ -512,10 +519,10 @@
                                                     <MultiTrigger.Conditions>
                                                         <Condition Property="IsMouseOver" Value="True" />
                                                     </MultiTrigger.Conditions>
-                                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Tone8.Border.Static}" />
+                                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.Tone8.Border.Static}" />
                                                 </MultiTrigger>
                                                 <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                                                    <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>

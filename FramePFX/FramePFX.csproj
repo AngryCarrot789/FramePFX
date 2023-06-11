@@ -186,6 +186,7 @@
       <DependentUpon>EditorMainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Editor\EditorTitleConverter.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>

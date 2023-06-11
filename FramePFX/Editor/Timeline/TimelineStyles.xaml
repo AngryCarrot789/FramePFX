@@ -6,8 +6,8 @@
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
     <Style TargetType="{x:Type controls:TimelinePlayHeadControl}">
-        <Setter Property="Background" Value="{DynamicResource AREghZyBrush.Foreground.Static}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AREghZyBrush.Tone7.Border.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone7.Border.Static}"/>
         <Setter Property="MinWidth" Value="15"/>
         <Setter Property="Template">
             <Setter.Value>

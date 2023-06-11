@@ -13,7 +13,7 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier {
+    public class ResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier {
         public readonly InputValidator ResourceIdValidator;
 
         private readonly ObservableCollection<ResourceItemViewModel> resources;
@@ -26,6 +26,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         public ResourceManager Model { get; }
 
         public ProjectViewModel Project { get; }
+
+        public event ProjectModifiedEvent ProjectModified;
 
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
             this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
@@ -111,6 +113,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 this.Model.AddResource(id, item.Model);
             this.resources.Add(item);
             item.RaisePropertyChanged(nameof(item.UniqueId));
+            this.ProjectModified?.Invoke(this, nameof(this.Resources));
         }
 
         private async Task CreateResourceAction(string type) {
@@ -178,20 +181,21 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error disposing item", "Failed to dispose resource. Press OK to show the exception details", e.GetToString());
             }
 
+            this.ProjectModified?.Invoke(this, nameof(this.Resources));
             return true;
         }
 
-        public bool RemoveClipFromLayer(ResourceItemViewModel resource, bool removeFromModel = true) {
+        public bool RemoveResource(ResourceItemViewModel resource, bool removeFromModel = true) {
             int index = this.resources.IndexOf(resource);
             if (index < 0) {
                 return false;
             }
 
-            this.RemoveClipFromLayer(index, removeFromModel);
+            this.RemoveResource(index, removeFromModel);
             return true;
         }
 
-        public void RemoveClipFromLayer(int index, bool removeFromModel = true) {
+        public void RemoveResource(int index, bool removeFromModel = true) {
             ResourceItemViewModel clip = this.resources[index];
             if (!ReferenceEquals(this, clip.Manager))
                 throw new Exception($"Clip layer does not match the current instance: {clip.Manager} != {this}");
@@ -199,13 +203,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 this.Model.DeleteItemById(clip.UniqueId);
             this.resources.RemoveAt(index);
             clip.Dispose();
+            this.ProjectModified?.Invoke(this, nameof(this.Resources));
         }
 
         public void DeleteSelection() {
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (ResourceItemViewModel item in this.SelectedItems.ToList()) {
                     try {
-                        this.RemoveClipFromLayer(item);
+                        this.RemoveResource(item);
                     }
                     catch (Exception e) {
                         stack.Push(e);

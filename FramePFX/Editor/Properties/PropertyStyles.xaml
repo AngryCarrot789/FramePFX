@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:properties="clr-namespace:FramePFX.Editor.Properties">
     <Style TargetType="{x:Type properties:PropertyGroupExpander}">
-        <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Static}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
@@ -50,7 +50,7 @@
                             <Setter Property="Style" TargetName="HeaderSite" Value="{StaticResource ExpanderLeftHeaderStyle}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="{DynamicResource AREghZyBrush.Foreground.Disabled}" />
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -187,7 +187,7 @@ namespace FramePFX.Core.RBC {
         /// <summary>
         /// Writes a ushort (as a length prefix) and then the chars of the string. If the string is too long, the excess is not written
         /// </summary>
-        public static void WriteString(string text, BinaryWriter writer) {
+        public static void WriteString(BinaryWriter writer, string text) {
             if (string.IsNullOrEmpty(text)) {
                 writer.Write((ushort) 0);
             }
@@ -202,7 +202,7 @@ namespace FramePFX.Core.RBC {
         }
 
         protected override void Write(BinaryWriter writer) {
-            WriteString(this.Value, writer);
+            WriteString(writer, this.Value);
         }
 
         public override RBEBase Clone() => this.CloneCore();

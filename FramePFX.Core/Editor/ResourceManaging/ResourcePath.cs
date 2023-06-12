@@ -62,7 +62,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             ResourceManager oldManager = this.Manager;
             if (ReferenceEquals(oldManager, newManager)) {
                 if (newManager != null) {
-                    Debug.WriteLine($"[{this.GetType().Name}] Attempted to set the same manager instance: {new Exception().GetToString()}");
+                    Debug.WriteLine($"[{this.GetType().Name}] Attempted to set the same manager instance:\n{new StackTrace(true)}");
                 }
 
                 return;
@@ -72,15 +72,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
             this.Manager = newManager;
             if (oldManager != null) {
-                oldManager.ResourceAdded -= this.resourceAddedHandler;
-                oldManager.ResourceDeleted -= this.resourceRemovedHandler;
+                oldManager.ResourceRegistered -= this.resourceAddedHandler;
+                oldManager.ResourceUnregistered -= this.resourceRemovedHandler;
                 oldManager.ResourceRenamed -= this.resourceRenamedHandler;
                 oldManager.ResourceReplaced -= this.resourceReplacedHandler;
             }
 
             if (newManager != null) {
-                newManager.ResourceAdded += this.resourceAddedHandler;
-                newManager.ResourceDeleted += this.resourceRemovedHandler;
+                newManager.ResourceRegistered += this.resourceAddedHandler;
+                newManager.ResourceUnregistered += this.resourceRemovedHandler;
                 newManager.ResourceRenamed += this.resourceRenamedHandler;
                 newManager.ResourceReplaced += this.resourceReplacedHandler;
             }
@@ -123,8 +123,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             // could there be no references if the event handlers are still registered??
             ResourceManager manager = this.Manager;
             if (manager != null) {
-                manager.ResourceAdded -= this.resourceAddedHandler;
-                manager.ResourceDeleted -= this.resourceRemovedHandler;
+                manager.ResourceRegistered -= this.resourceAddedHandler;
+                manager.ResourceUnregistered -= this.resourceRemovedHandler;
                 manager.ResourceRenamed -= this.resourceRenamedHandler;
                 manager.ResourceReplaced -= this.resourceReplacedHandler;
             }
@@ -226,7 +226,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     return false;
                 default: {
                     ResourceManager manager = this.Manager;
-                    if (manager != null && manager.TryGetResource(this.ResourceId, out ResourceItem res) && res is T value) {
+                    if (manager != null && manager.TryGetEntryItem(this.ResourceId, out ResourceItem res) && res is T value) {
                         this.SetInternalResource(resource = value);
                         return !requireIsOnline || value.IsOnline;
                     }
@@ -470,7 +470,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     return !requireIsOnline || resource.IsOnline;
                 default: {
                     ResourceManager manager = this.Manager;
-                    if (manager != null && manager.TryGetResource(this.ResourceId, out ResourceItem res) && res is T value) {
+                    if (manager != null && manager.TryGetEntryItem(this.ResourceId, out ResourceItem res) && res is T value) {
                         this.SetInternalResource(resource = value);
                         return !requireIsOnline || resource.IsOnline;
                     }

@@ -3,17 +3,17 @@ using System.Windows.Controls;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
 namespace FramePFX.Editor {
-    public class ResourceItemContainerStyleSelector : StyleSelector {
-        public Style ResourceItemStyle { get; set; }
-        public Style ResourceGroupStyle { get; set; }
+    public class ResourceItemContainerDataTemplateSelector : DataTemplateSelector {
+        public DataTemplate ResourceItemTemplate { get; set; }
+        public DataTemplate ResourceGroupTemplate { get; set; }
 
-        public override Style SelectStyle(object item, DependencyObject container) {
+        public override DataTemplate SelectTemplate(object item, DependencyObject container) {
             switch (item) {
-                case ResourceItemViewModel _: return this.ResourceItemStyle;
-                case ResourceGroupViewModel _: return this.ResourceGroupStyle;
+                case ResourceItemViewModel _: return this.ResourceItemTemplate;
+                case ResourceGroupViewModel _: return this.ResourceGroupTemplate;
             }
 
-            return base.SelectStyle(item, container);
+            return base.SelectTemplate(item, container);
         }
     }
 }

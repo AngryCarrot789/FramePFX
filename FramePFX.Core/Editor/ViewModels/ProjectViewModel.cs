@@ -155,19 +155,11 @@ namespace FramePFX.Core.Editor.ViewModels {
                     stack1.Push(e);
                 }
 
-                using (ExceptionStack stack2 = new ExceptionStack("Exception disposing resource manager", false)) {
-                    foreach (ResourceItemViewModel resource in this.ResourceManager.Resources) {
-                        try {
-                            resource.Dispose();
-                        }
-                        catch (Exception e) {
-                            stack2.Push(e);
-                        }
-                    }
-
-                    if (stack2.TryGetException(out Exception exception)) {
-                        stack1.Push(exception);
-                    }
+                try {
+                    this.ResourceManager.Dispose();
+                }
+                catch (Exception e) {
+                    stack1.Push(e);
                 }
             }
         }

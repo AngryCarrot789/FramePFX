@@ -37,7 +37,7 @@ namespace FramePFX.Core.RBC {
                 return value;
             }
             else {
-                string readableTypeName = TryGetIdByType(typeof(T), out var type) ? type.ToString() : typeof(T).ToString();
+                string readableTypeName = TryGetIdByType(typeof(T), out RBEType type) ? type.ToString() : typeof(T).ToString();
                 throw new Exception($"No such {readableTypeName} named '{key}'");
             }
         }

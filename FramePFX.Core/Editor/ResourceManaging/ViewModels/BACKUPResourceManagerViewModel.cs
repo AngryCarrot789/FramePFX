@@ -13,7 +13,8 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public class ExplorerResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier {
+    /*
+    public class BACKUPResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier {
         public readonly InputValidator ResourceIdValidator;
 
         private readonly ObservableCollection<ResourceItemViewModel> resources;
@@ -29,7 +30,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public event ProjectModifiedEvent ProjectModified;
 
-        public ExplorerResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
+        public BACKUPResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
             this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.resources = new ObservableCollection<ResourceItemViewModel>();
@@ -252,4 +253,5 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
         }
     }
+    */
 }

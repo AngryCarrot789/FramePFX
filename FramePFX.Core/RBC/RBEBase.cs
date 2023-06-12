@@ -58,14 +58,37 @@ namespace FramePFX.Core.RBC {
         /// <param name="writer">The writer (data target)</param>
         protected abstract void Write(BinaryWriter writer);
 
+        /// <summary>
+        /// Reads this element's data in packed form from the given binary reader. By default, this just invokes <see cref="Read"/>.
+        /// Collection based elements are the only ones that need to override this, as they form a recursive read operation
+        /// </summary>
+        /// <param name="reader">The reader (data source)</param>
+        /// <param name="dictionary">
+        /// The dictionary which maps a key index to the actual string key (used by dictionary based elements, like <see cref="RBEDictionary"/>)
+        /// </param>
         protected virtual void ReadPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
             this.Read(reader);
         }
 
+        /// <summary>
+        /// Writes this element's data, in packed form, into the given binary writer. By default, this just invokes <see cref="Write"/>.
+        /// Collection based elements are the only ones that need to override this, as they form a recursive write operation
+        /// </summary>
+        /// <param name="writer">The writer (data target)</param>
+        /// <param name="dictionary">
+        /// A pre-computed dictionary which maps all string keys to an index which should
+        /// be written instead of the actual key (used by dictionary based elements, like <see cref="RBEDictionary"/>)
+        /// </param>
         protected virtual void WritePacked(BinaryWriter writer, Dictionary<string, int> dictionary) {
             this.Write(writer);
         }
 
+        /// <summary>
+        /// Accumulates all of the keys that this element uses. This is a recursive operation, and is invoked before any elements are
+        /// written via <see cref="WritePacked"/>. Entries added to the dictionary should set the index as the dictionary's current count,
+        /// which saves passing an integer reference
+        /// </summary>
+        /// <param name="dictionary">The dictionary, in which entries should be added to</param>
         protected internal virtual void AccumulatePackedEntries(Dictionary<string, int> dictionary) {
 
         }
@@ -75,6 +98,10 @@ namespace FramePFX.Core.RBC {
         /// </summary>
         /// <returns>A new element which contains no references (at all) to the instance that was originally cloned</returns>
         public abstract RBEBase Clone();
+
+        public override string ToString() {
+            return TryGetIdByType(this.GetType(), out RBEType type) ? type.ToString() : this.GetType().ToString();
+        }
 
         public static RBEBase ReadIdAndElement(BinaryReader reader) {
             byte id = reader.ReadByte();

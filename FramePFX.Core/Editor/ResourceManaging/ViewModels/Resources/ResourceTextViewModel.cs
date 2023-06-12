@@ -40,7 +40,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public ResourceTextViewModel(ResourceManagerViewModel manager, ResourceText model) : base(manager, model) {
+        public ResourceTextViewModel(ResourceText model) : base(model) {
 
         }
     }

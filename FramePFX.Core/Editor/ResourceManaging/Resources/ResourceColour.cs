@@ -29,7 +29,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             set => this.B = Maths.Clamp(value / 255f, 0f, 1f);
         }
 
-        public ResourceColour(ResourceManager manager) : base(manager) {
+        public ResourceColour() {
 
         }
 

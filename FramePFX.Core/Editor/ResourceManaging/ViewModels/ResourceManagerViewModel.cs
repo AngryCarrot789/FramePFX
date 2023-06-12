@@ -1,25 +1,30 @@
 using System;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Interactivity;
 using FramePFX.Core.Utils;
-using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
     public class ResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier {
+        private ResourceGroupViewModel currentGroup;
         public readonly InputValidator ResourceIdValidator;
 
-        private readonly ObservableCollection<ResourceItemViewModel> resources;
-        public ReadOnlyObservableCollection<ResourceItemViewModel> Resources { get; }
+        /// <summary>
+        /// This manager's root resource group view model
+        /// </summary>
+        public ResourceGroupViewModel Root { get; }
 
-        public ObservableCollection<ResourceItemViewModel> SelectedItems { get; }
+        /// <summary>
+        /// The group that the UI is currently exploring in
+        /// </summary>
+        public ResourceGroupViewModel CurrentGroup {
+            get => this.currentGroup;
+            set => this.RaisePropertyChanged(ref this.currentGroup, value);
+        }
 
         public AsyncRelayCommand<string> CreateResourceCommand { get; }
 
@@ -32,13 +37,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
             this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
-            this.resources = new ObservableCollection<ResourceItemViewModel>();
-            this.Resources = new ReadOnlyObservableCollection<ResourceItemViewModel>(this.resources);
-            this.SelectedItems = new ObservableCollectionEx<ResourceItemViewModel>();
-            this.SelectedItems.CollectionChanged += (sender, args) => {
-                // this.Timeline.Project.Editor?.View.UpdateSelectionPropertyPages();
-            };
-
+            this.Root = new ResourceGroupViewModel(manager.RootGroup) {manager = this};
+            this.currentGroup = this.Root;
             this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);
             this.ResourceIdValidator = new InputValidator((string input, out string message) => {
                 if (string.IsNullOrEmpty(input)) {
@@ -49,7 +49,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     message = "Input cannot be empty or consist of only whitespaces";
                     return true;
                 }
-                else if (this.Model.ResourceExists(input)) {
+                else if (this.Model.EntryExists(input)) {
                     message = "Resource already exists with this ID";
                     return true;
                 }
@@ -58,165 +58,73 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     return false;
                 }
             });
-
-            foreach ((string _, ResourceItem item) in manager.Items) {
-                this.AddModel(item, item.UniqueId, false);
-            }
         }
 
         public string GenerateIdForFile(string filePath) {
             string fileName = Path.GetFileName(filePath);
-            if (!this.Model.ResourceExists(fileName)) {
+            if (!this.Model.EntryExists(fileName)) {
                 return fileName;
             }
 
-            for (int i = 1; i < 100000; i++) {
-                string id = fileName + " (" + i + ")";
-                if (!this.Model.ResourceExists(id)) {
+            int i = 0;
+            string id = filePath;
+            do {
+                if (!this.Model.EntryExists(id)) {
                     return id;
                 }
-            }
 
-            if (!this.Model.ResourceExists(filePath)) {
-                return filePath;
-            }
+                id = TextIncrement.GetNextNumber(id);
+                i++;
+            } while (i < 1000);
 
-            for (int i = 1; i < 100000; i++) {
-                string id = filePath + " (" + i + ")";
-                if (!this.Model.ResourceExists(id)) {
-                    return id;
-                }
-            }
-
+            int j = 16, k = 0;
             // what the ass. last resort
             Random random = new Random();
+            char[] chars = new char[j];
             while (true) {
-                StringBuilder sb = new StringBuilder(32);
-                for (int i = 0; i < 32; i++) {
-                    sb.Append(random.Next('a', 'z'));
+                if (k > 15) {
+                    k = 0;
+                    j++;
+                    if (j >= 32) { // how
+                        throw new Exception("Total failure generating random unique ID");
+                    }
                 }
 
-                string id = sb.ToString();
-                if (!this.Model.ResourceExists(id)) {
+                for (i = 0; i < j; i++) {
+                    chars[i] = (char) random.Next('a', 'z');
+                }
+
+                id = new string(chars);
+                if (!this.Model.EntryExists(id)) {
                     return id;
                 }
+
+                k++;
             }
-        }
-
-        public void AddModel(ResourceItem item, string id, bool addToModel = true) {
-            ResourceItemViewModel viewModel = ResourceTypeRegistry.Instance.CreateViewModelFromModel(this, item);
-            this.AddViewModel(viewModel, id, addToModel);
-        }
-
-        public void AddViewModel(ResourceItemViewModel item, string id, bool addToModel = true) {
-            if (addToModel)
-                this.Model.AddResource(id, item.Model);
-            this.resources.Add(item);
-            item.RaisePropertyChanged(nameof(item.UniqueId));
-            this.ProjectModified?.Invoke(this, nameof(this.Resources));
         }
 
         private async Task CreateResourceAction(string type) {
+            ResourceItemViewModel item;
+            switch (type) {
+                case nameof(ResourceColour): item = new ResourceColourViewModel(new ResourceColour()); break;
+                case nameof(ResourceImage):  item = new ResourceImageViewModel(new ResourceImage()); break;
+                case nameof(ResourceText):   item = new ResourceTextViewModel(new ResourceText()); break;
+                default:
+                    await IoC.MessageDialogs.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
+                    return;
+            }
+
             string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input resource ID", "Input a resource ID for the new resource:", $"My {type}", this.ResourceIdValidator);
-            if (string.IsNullOrWhiteSpace(id) || this.Model.ResourceExists(id)) {
+            if (string.IsNullOrWhiteSpace(id) || this.Model.EntryExists(id)) {
                 return;
             }
 
-            ResourceItemViewModel item;
-            switch (type) {
-                case nameof(ResourceColour): item = new ResourceColourViewModel(this, new ResourceColour(this.Model)); break;
-                case nameof(ResourceImage):  item = new ResourceImageViewModel(this, new ResourceImage(this.Model)); break;
-                case nameof(ResourceText):   item = new ResourceTextViewModel(this, new ResourceText(this.Model)); break;
-                default: return;
-            }
-
-            this.AddViewModel(item, id);
+            this.Model.RegisterEntry(id, item.Model);
+            this.CurrentGroup.items.Add(item);
         }
 
-        public async Task<string> SelectNewResourceId(string msg, string value = "id") {
-            return await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "", this.ResourceIdValidator);
-        }
-
-        public async Task<bool> RenameResourceAction(ResourceItemViewModel item) {
-            string newId = await this.SelectNewResourceId("Input a new UUID for the resource", item.UniqueId);
-            if (newId == null) {
-                return false;
-            }
-            else if (string.IsNullOrWhiteSpace(newId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid UUID", "UUID cannot be an empty string or consist of only whitespaces");
-                return false;
-            }
-            else if (!this.Model.ResourceExists(item.UniqueId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Resource no long exists", "The original resource no longer exists");
-                return false;
-            }
-            else if (this.Model.ResourceExists(newId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Resource already exists", "Resource already exists with the UUID: " + newId);
-                return false;
-            }
-            else {
-                this.Model.RenameResource(item.Model, newId);
-                item.RaisePropertyChanged(nameof(item.UniqueId));
-                return true;
-            }
-        }
-
-        public async Task<bool> DeleteResourceAction(ResourceItemViewModel item, bool showConfirmation = true) {
-            if (string.IsNullOrWhiteSpace(item.UniqueId)) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Invalid item", "This resource has no identifier...?", new Exception().GetToString());
-                return false;
-            }
-
-            if (showConfirmation && MsgDialogResult.OK != await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource '{item.UniqueId}'?", MsgDialogType.OKCancel)) {
-                return false;
-            }
-
-            this.Model.DeleteItem(item.Model);
-            this.resources.Remove(item);
-
-            try {
-                item.Dispose();
-            }
-            catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error disposing item", "Failed to dispose resource. Press OK to show the exception details", e.GetToString());
-            }
-
-            this.ProjectModified?.Invoke(this, nameof(this.Resources));
-            return true;
-        }
-
-        public bool RemoveResource(ResourceItemViewModel resource, bool removeFromModel = true) {
-            int index = this.resources.IndexOf(resource);
-            if (index < 0) {
-                return false;
-            }
-
-            this.RemoveResource(index, removeFromModel);
-            return true;
-        }
-
-        public void RemoveResource(int index, bool removeFromModel = true) {
-            ResourceItemViewModel clip = this.resources[index];
-            if (!ReferenceEquals(this, clip.Manager))
-                throw new Exception($"Clip layer does not match the current instance: {clip.Manager} != {this}");
-            if (removeFromModel)
-                this.Model.DeleteItemById(clip.UniqueId);
-            this.resources.RemoveAt(index);
-            clip.Dispose();
-            this.ProjectModified?.Invoke(this, nameof(this.Resources));
-        }
-
-        public void DeleteSelection() {
-            using (ExceptionStack stack = new ExceptionStack()) {
-                foreach (ResourceItemViewModel item in this.SelectedItems.ToList()) {
-                    try {
-                        this.RemoveResource(item);
-                    }
-                    catch (Exception e) {
-                        stack.Push(e);
-                    }
-                }
-            }
+        public async Task<string> SelectNewResourceId(string msg, string value = null) {
+            return await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "Resource ID Here", this.ResourceIdValidator);
         }
 
         public Task<bool> CanDrop(string[] paths, ref FileDropType type) {
@@ -231,25 +139,41 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     case ".mov":
                     case ".mkv":
                     case ".flv":
-                        this.AddModel(new ResourceMedia(this.Model) {FilePath = path}, this.GenerateIdForFile(path));
+                        ResourceMediaViewModel media = new ResourceMediaViewModel(new ResourceMedia() {FilePath = path});
+                        ResourceItem.SetUniqueId(media.Model, this.GenerateIdForFile(path));
+                        this.CurrentGroup.AddItem(media, true);
                         break;
                     case ".png":
                     case ".bmp":
                     case ".jpg":
                     case ".jpeg":
-                        ResourceImage img = new ResourceImage(this.Model) { FilePath = path };
+                        ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path});
                         try {
-                            await img.LoadImageAsync(path);
+                            await image.Model.LoadImageAsync(path);
                         }
                         catch (Exception e) {
                             await IoC.MessageDialogs.ShowMessageExAsync("Image error", "Failed to load image file at " + path, e.GetToString());
                             break;
                         }
 
-                        this.AddModel(img, this.GenerateIdForFile(path));
+                        ResourceItem.SetUniqueId(image.Model, this.GenerateIdForFile(path));
+                        this.CurrentGroup.AddItem(image, true);
                         break;
                 }
             }
+        }
+
+        public void OnResourceRenamed(ResourceItemViewModel resource) {
+            this.ProjectModified?.Invoke(this, null);
+        }
+
+        public void OnResourceDeleted(ResourceItemViewModel resource) {
+            this.ProjectModified?.Invoke(this, null);
+        }
+
+        public void Dispose() {
+            this.Model.ClearEntries();
+            this.Root.Dispose();
         }
     }
 }

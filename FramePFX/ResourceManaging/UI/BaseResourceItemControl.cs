@@ -8,26 +8,26 @@ using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
 namespace FramePFX.ResourceManaging.UI {
-    public class ResourceItemControl : ContentControl, IResourceControl {
-        public static readonly DependencyProperty UniqueIDHeaderProperty =
+    public abstract class BaseResourceItemControl : ContentControl {
+        public static readonly DependencyProperty HeaderTextProperty =
             DependencyProperty.Register(
-                "UniqueIDHeader",
+                "HeaderText",
                 typeof(string),
-                typeof(ResourceItemControl),
+                typeof(BaseResourceItemControl),
                 new FrameworkPropertyMetadata(null));
 
         public static readonly DependencyProperty HeaderBackgroundProperty =
             DependencyProperty.Register(
                 "HeaderBackground",
                 typeof(Brush),
-                typeof(ResourceItemControl),
+                typeof(BaseResourceItemControl),
                 new PropertyMetadata(null));
 
         public static readonly DependencyProperty ContentBackgroundProperty =
             DependencyProperty.Register(
                 "ContentBackground",
                 typeof(Brush),
-                typeof(ResourceItemControl),
+                typeof(BaseResourceItemControl),
                 new PropertyMetadata(null));
 
         public Brush HeaderBackground {
@@ -42,31 +42,29 @@ namespace FramePFX.ResourceManaging.UI {
 
         public static readonly DependencyProperty IsSelectedProperty =
             Selector.IsSelectedProperty.AddOwner(
-                typeof(ResourceItemControl),
+                typeof(BaseResourceItemControl),
                 new FrameworkPropertyMetadata(
                     false,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d,e) => ((ResourceItemControl) d).OnIsSelectedChanged(e)));
+                    (d,e) => ((BaseResourceItemControl) d).OnIsSelectedChanged(e)));
 
         public bool IsSelected {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value);
         }
 
-        public string UniqueIDHeader {
-            get => (string) this.GetValue(UniqueIDHeaderProperty);
-            set => this.SetValue(UniqueIDHeaderProperty, value);
+        public string HeaderText {
+            get => (string) this.GetValue(HeaderTextProperty);
+            set => this.SetValue(HeaderTextProperty, value);
         }
 
         public ResourceListControl ParentList => ItemsControl.ItemsControlFromItemContainer(this) as ResourceListControl;
-
-        public ResourceItemViewModel Resource => this.DataContext as ResourceItemViewModel;
 
         private Point originMousePoint;
         private bool isDragActive;
         private bool isDragDropping;
 
-        public ResourceItemControl() {
+        public BaseResourceItemControl() {
 
         }
 
@@ -118,8 +116,7 @@ namespace FramePFX.ResourceManaging.UI {
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 if (change.X > 5 || change.Y > 5) {
-                    ResourceItemViewModel resource = this.Resource;
-                    if (resource == null) {
+                    if (!(this.DataContext is ResourceItemViewModel resource)) {
                         return;
                     }
 

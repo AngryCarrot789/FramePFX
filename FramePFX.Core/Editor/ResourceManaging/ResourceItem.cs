@@ -6,9 +6,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
-    public abstract class ResourceItem : IRBESerialisable, IDisposable {
-        public string RegistryId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
-
+    public abstract class ResourceItem : BaseResourceObject, IRBESerialisable, IDisposable {
         /// <summary>
         /// This resource item's unique identifier
         /// </summary>
@@ -17,7 +15,13 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <summary>
         /// Whether or not this resource item's ID is valid and is registered with the manager associated with it
         /// </summary>
-        public bool IsRegistered => !string.IsNullOrWhiteSpace(this.UniqueId) && this.Manager.ResourceExists(this.UniqueId);
+        public bool IsRegistered {
+            get {
+                if (this.Manager == null || string.IsNullOrWhiteSpace(this.UniqueId))
+                    return false;
+                return this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource) && ReferenceEquals(this, resource);
+            }
+        }
 
         private bool isOnline;
 
@@ -39,13 +43,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public bool IsOfflineByUser { get; set; }
 
-        public ResourceManager Manager { get; }
-
         public event ResourceModifiedEventHandler DataModified;
         public event ResourceItemEventHandler OnlineStateChanged;
 
-        protected ResourceItem(ResourceManager manager) {
-            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
+        protected ResourceItem() {
             this.IsOnline = true;
         }
 
@@ -61,12 +62,19 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             return Task.CompletedTask;
         }
 
-        public virtual void WriteToRBE(RBEDictionary data) {
-
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            if (string.IsNullOrWhiteSpace(this.UniqueId))
+                throw new Exception("Item does not have a valid unique ID");
+            data.SetString(nameof(this.UniqueId), this.UniqueId);
         }
 
-        public virtual void ReadFromRBE(RBEDictionary data) {
-
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            string uniqueId = data.GetString(nameof(this.UniqueId));
+            if (string.IsNullOrWhiteSpace(uniqueId))
+                throw new Exception("Data does not contain a valid unique ID");
+            this.UniqueId = uniqueId;
         }
 
         /// <summary>
@@ -86,20 +94,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         /// <summary>
-        /// Disposes this resource. This should NOT be called from the destructor/finalizer
-        /// </summary>
-        public void Dispose() {
-            using (ExceptionStack stack = new ExceptionStack()) {
-                try {
-                    this.DisposeCore(stack);
-                }
-                catch (Exception e) {
-                    stack.Push(new Exception($"Unexpected exception while invoking {nameof(this.DisposeCore)}", e));
-                }
-            }
-        }
-
-        /// <summary>
         /// The core method for disposing resources used by a resource. This method really should not throw,
         /// and instead, exceptions should be added to the given <see cref="ExceptionStack"/>
         /// <para>
@@ -108,8 +102,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </para>
         /// </summary>
         /// <param name="stack">The exception stack in which exception should be added into when encountered during disposal</param>
-        protected virtual void DisposeCore(ExceptionStack stack) {
-
+        protected override void DisposeCore(ExceptionStack stack) {
+            base.DisposeCore(stack);
         }
 
         public static void SetUniqueId(ResourceItem item, string id) {

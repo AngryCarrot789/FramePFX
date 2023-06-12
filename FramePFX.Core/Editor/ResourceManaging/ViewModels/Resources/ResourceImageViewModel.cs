@@ -30,7 +30,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
 
         public AsyncRelayCommand RefreshCommand { get; }
 
-        public ResourceImageViewModel(ResourceManagerViewModel manager, ResourceImage model) : base(manager, model) {
+        public ResourceImageViewModel(ResourceImage model) : base(model) {
             this.SelectFileCommand = new AsyncRelayCommand(this.SelectFileActionAsync);
             this.RefreshCommand = new AsyncRelayCommand(this.RefreshActionAsync);
         }

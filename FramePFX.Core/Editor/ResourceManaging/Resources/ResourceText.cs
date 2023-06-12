@@ -17,7 +17,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         public double BorderThickness { get; set; }
 
-        public ResourceText(ResourceManager manager) : base(manager) {
+        public ResourceText() {
             this.FontSize = 40;
             this.FontFamily = "Consolas";
             this.Text = "Text Here";

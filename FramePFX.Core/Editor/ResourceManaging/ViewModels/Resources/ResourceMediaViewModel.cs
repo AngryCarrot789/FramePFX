@@ -23,7 +23,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
 
         public AsyncRelayCommand OpenFileCommand { get; }
 
-        public ResourceMediaViewModel(ResourceManagerViewModel manager, ResourceMedia media) : base(manager, media) {
+        public ResourceMediaViewModel(ResourceMedia media) : base(media) {
             this.OpenFileCommand = new AsyncRelayCommand(this.OpenFileAction);
         }
 

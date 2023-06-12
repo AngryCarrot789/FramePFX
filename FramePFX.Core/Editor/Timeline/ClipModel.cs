@@ -85,9 +85,9 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         /// <summary>
-        /// The number of frames that are skipped relative to <see cref="ClipStart"/>
+        /// The number of frames (offset relative to <see cref="FrameBegin"/>) where the media originally begun
         /// <para>
-        /// Alternative name: MediaBegin
+        /// When the left thumb is dragged left, this value is decremented. Whereas, dragging right increments this value
         /// </para>
         /// </summary>
         public long MediaFrameOffset { get; set; }
@@ -95,7 +95,6 @@ namespace FramePFX.Core.Editor.Timeline {
         private long clipId = -1;
 
         protected ClipModel() {
-
         }
 
         /// <summary>

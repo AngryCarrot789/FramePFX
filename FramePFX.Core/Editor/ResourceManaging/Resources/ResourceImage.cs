@@ -15,7 +15,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         private SKBitmap bitmap;
         public SKImage image;
 
-        public ResourceImage(ResourceManager manager) : base(manager) {
+        public ResourceImage() {
         }
 
         public override void WriteToRBE(RBEDictionary data) {

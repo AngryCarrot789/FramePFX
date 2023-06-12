@@ -21,7 +21,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         private FrameQueue frameQueue;
         private bool hasHardwareDecoder;
 
-        public ResourceMedia(ResourceManager manager) : base(manager) {
+        public ResourceMedia() {
 
         }
 

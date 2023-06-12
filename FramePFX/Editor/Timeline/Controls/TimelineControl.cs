@@ -56,6 +56,8 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public TimelineClipDragData DragData { get; set; }
 
+        public Point ClipMousePosForLayerTransition { get; set; }
+
         private ScrollViewer PART_ScrollViewer;
         private ItemsPresenter PART_ItemsPresenter;
         private TimelinePlayHeadControl PART_PlayHead;

@@ -41,7 +41,17 @@ namespace FramePFX.Core.Views.Dialogs.UserInputs {
 
     public static class Validators {
         public static InputValidator ForNonEmptyString(string nullOrEmptyMessage) {
-            return InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? (nullOrEmptyMessage ?? "Input value cannot be null") : null);
+            return InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? (nullOrEmptyMessage ?? "Input value cannot be an empty string") : null);
+        }
+
+        public static InputValidator ForNonWhiteSpaceString(string nullOrEmptyMessage = null) {
+            return InputValidator.FromFunc((x) => {
+                if (string.IsNullOrEmpty(x))
+                    return nullOrEmptyMessage ?? "Value cannot be an empty string";
+                if (string.IsNullOrWhiteSpace(x))
+                    return nullOrEmptyMessage ?? "Value cannot consist of only whitespaces";
+                return null;
+            });
         }
     }
 }

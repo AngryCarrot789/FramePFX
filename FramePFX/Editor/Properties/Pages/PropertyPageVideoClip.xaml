@@ -4,11 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FramePFX.Editor.Properties.Pages"
-             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core" xmlns:controls="clr-namespace:FramePFX.Controls"
+             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
+             xmlns:controls="clr-namespace:FramePFX.Controls"
              xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
              xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
              mc:Ignorable="d" 
-             Height="72" d:DesignWidth="400"
+             Height="96" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
     <Grid>
         <Grid>
@@ -18,6 +19,8 @@
                 <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="1"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="1"/>
                 <RowDefinition Height="*"/>
@@ -34,6 +37,7 @@
             <controls:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" RoundedPlaces="4" Minimum="-100000000000" Maximum="100000000000" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Position" Height="18" Margin="0,2,0,3"/>
             <controls:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="2" VerticalAlignment="Center" RoundedPlaces="4" Minimum="-100000000000" Maximum="100000000000" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Scale" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
             <controls:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="4" VerticalAlignment="Center" RoundedPlaces="4" Minimum="-100000000000" Maximum="100000000000" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+            <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="6" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,2,0,3"/>
 
             <Grid Grid.Column="1" Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -59,8 +63,12 @@
                 <controls:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
                 <controls:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
             </Grid>
+            <Grid Grid.Column="1" Grid.Row="6">
+                <controls:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding MediaFrameOffset, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="1" SmallChange="5" LargeChange="60" MassiveChange="300"/>
+            </Grid>
             <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Button ToolTip="Reset the media position"     Command="{Binding ResetPositionCommand, Mode=OneTime}"    Content="R" Grid.Column="2" Grid.Row="0" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
             <Button ToolTip="Reset the media scale"        Command="{Binding ResetScaleCommand, Mode=OneTime}"       Content="R" Grid.Column="2" Grid.Row="2" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
             <Button ToolTip="Reset the media scale origin" Command="{Binding ResetScaleOriginCommand, Mode=OneTime}" Content="R" Grid.Column="2" Grid.Row="4" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>

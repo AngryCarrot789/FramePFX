@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.Remoting.Messaging;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using FramePFX.Core.Utils;
 
@@ -169,6 +171,18 @@ namespace FramePFX.Controls {
 
         public double RoundedValue => this.GetRoundedValue(this.Value);
 
+        public bool IsReadOnly {
+            get {
+                Binding binding;
+                BindingExpression expression = this.GetBindingExpression(ValueProperty);
+                if (expression == null || (binding = expression.ParentBinding) == null) {
+                    return true;
+                }
+
+                return binding.Mode == BindingMode.OneWay || binding.Mode == BindingMode.OneTime;
+            }
+        }
+
         public NumberDragger() {
             this.Loaded += (s, e) => {
                 this.CoerceValue(IsEditingTextBoxProperty);
@@ -250,33 +264,12 @@ namespace FramePFX.Controls {
                 this.PART_TextBlock.Visibility = Visibility.Visible;
             }
 
+            this.PART_TextBox.IsReadOnly = this.IsReadOnly;
             return isEditing;
         }
 
         public void UpdateCursor() {
-            Cursor cursor;
-            switch (this.Orientation) {
-                case Orientation.Horizontal:
-                    cursor = Cursors.SizeWE;
-                    break;
-                case Orientation.Vertical:
-                    cursor = Cursors.SizeNS;
-                    break;
-                default:
-                    cursor = Cursors.Arrow;
-                    break;
-            }
-
-            if (this.IsDragging) {
-                this.Cursor = cursor;
-                if (this.PART_TextBlock != null) {
-                    this.PART_TextBlock.ClearValue(CursorProperty);
-                }
-                else {
-                    Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
-                }
-            }
-            else {
+            if (this.IsReadOnly) {
                 if (this.IsEditingTextBox) {
                     if (this.PART_TextBlock != null) {
                         this.PART_TextBlock.ClearValue(CursorProperty);
@@ -288,12 +281,57 @@ namespace FramePFX.Controls {
                     this.ClearValue(CursorProperty);
                 }
                 else {
-                    this.Cursor = cursor;
+                    this.Cursor = Cursors.No;
                     if (this.PART_TextBlock != null) {
-                        this.PART_TextBlock.Cursor = cursor;
+                        this.PART_TextBlock.Cursor = Cursors.No;
                     }
                     else {
                         Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
+                    }
+                }
+            }
+            else {
+                Cursor cursor;
+                switch (this.Orientation) {
+                    case Orientation.Horizontal:
+                        cursor = Cursors.SizeWE;
+                        break;
+                    case Orientation.Vertical:
+                        cursor = Cursors.SizeNS;
+                        break;
+                    default:
+                        cursor = Cursors.Arrow;
+                        break;
+                }
+
+                if (this.IsDragging) {
+                    this.Cursor = cursor;
+                    if (this.PART_TextBlock != null) {
+                        this.PART_TextBlock.ClearValue(CursorProperty);
+                    }
+                    else {
+                        Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
+                    }
+                }
+                else {
+                    if (this.IsEditingTextBox) {
+                        if (this.PART_TextBlock != null) {
+                            this.PART_TextBlock.ClearValue(CursorProperty);
+                        }
+                        else {
+                            Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
+                        }
+
+                        this.ClearValue(CursorProperty);
+                    }
+                    else {
+                        this.Cursor = cursor;
+                        if (this.PART_TextBlock != null) {
+                            this.PART_TextBlock.Cursor = cursor;
+                        }
+                        else {
+                            Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
+                        }
                     }
                 }
             }
@@ -367,7 +405,7 @@ namespace FramePFX.Controls {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (this.ignoreMouseMove || this.isUpdatingExternalMouse) {
+            if (this.ignoreMouseMove || this.isUpdatingExternalMouse || this.IsReadOnly) {
                 return;
             }
 
@@ -506,7 +544,7 @@ namespace FramePFX.Controls {
         }
 
         public bool TryCompleteEdit() {
-            if (double.TryParse(this.PART_TextBox.Text, out double value)) {
+            if (!this.IsReadOnly && double.TryParse(this.PART_TextBox.Text, out double value)) {
                 this.CompleteInputEdit(value);
                 return true;
             }

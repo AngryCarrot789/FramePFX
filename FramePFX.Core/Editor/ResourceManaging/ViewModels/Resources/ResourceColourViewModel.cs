@@ -76,7 +76,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public ResourceColourViewModel(ResourceManagerViewModel manager, ResourceColour model) : base(manager, model) {
+        public ResourceColourViewModel(ResourceColour model) : base(model) {
 
         }
     }

@@ -6,20 +6,15 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
     [ActionRegistration("actions.resources.RenameItem")]
     public class RenameResourceAction: AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            ResourceManagerViewModel manager;
-            if (!e.DataContext.TryGetContext(out manager)) {
-                if (!e.DataContext.TryGetContext(out ResourceItemViewModel resItem)) {
-                    return false;
-                }
-
-                manager = resItem.Manager;
+            if (e.DataContext.TryGetContext(out ResourceItemViewModel item)) {
+                await item.RenameSelfAction();
             }
-
-            if (manager.SelectedItems.Count != 1) {
+            else if (e.DataContext.TryGetContext(out ResourceGroupViewModel group)) {
+                await group.RenameSelfAction();
+            }
+            else {
                 return false;
             }
-
-            await manager.RenameResourceAction(manager.SelectedItems[0]);
             return true;
         }
     }

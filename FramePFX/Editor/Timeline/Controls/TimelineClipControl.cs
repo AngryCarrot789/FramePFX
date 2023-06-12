@@ -336,7 +336,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 this.isLoadedWithActiveDrag = false;
                 didJustDragLayer = true;
                 if (handler.IsDraggingClip) {
-                    this.lastLeftClickPoint = e.GetPosition(this);
+                    this.lastLeftClickPoint = this.Timeline.ClipMousePosForLayerTransition;
                     this.isClipDragRunning = true;
                 }
             }
@@ -384,34 +384,13 @@ namespace FramePFX.Editor.Timeline.Controls {
                 double diffX = mousePoint.X - lastClickPoint.X;
                 double diffY = mousePoint.Y - lastClickPoint.Y;
 
-                if (!didJustDragLayer && Math.Abs(diffY) >= 1.0d) {
-                    int index = 0;
-                    List<TimelineLayerControl> layers = this.Timeline.GetLayerContainers().ToList();
-                    foreach (TimelineLayerControl layer in layers) {
-                        // IsMouseOver does not work
-                        Point mpos = e.GetPosition(layer);
-                        if (mpos.Y >= 0 && mpos.Y < layer.ActualHeight)
-                            break;
-                        index++;
-                    }
-
-                    if (index < layers.Count) {
-                        handler.OnDragToLayer(index);
-                    }
-
-                    // if (mousePoint.Y < 0) {
-                    //     handler.OnDragToLayer(-1);
-                    // }
-                    // else if (mousePoint.Y > this.ActualHeight) {
-                    //     handler.OnDragToLayer(1);
-                    // }
-                }
-
+                long negativeFrames = 0;
                 if (Math.Abs(diffX) >= 1.0d) {
                     long offset = (long) (diffX / this.UnitZoom);
                     if (offset != 0) {
                         long begin = this.FrameBegin;
                         if ((begin + offset) < 0) {
+                            negativeFrames = offset;
                             offset = -begin;
                         }
 
@@ -424,6 +403,23 @@ namespace FramePFX.Editor.Timeline.Controls {
                                 this.isProcessingMouseMove = false;
                             }
                         }
+                    }
+                }
+
+                if (!didJustDragLayer && Math.Abs(diffY) >= 1.0d) {
+                    int index = 0;
+                    List<TimelineLayerControl> layers = this.Timeline.GetLayerContainers().ToList();
+                    foreach (TimelineLayerControl layer in layers) {
+                        // IsMouseOver does not work
+                        Point mpos = e.GetPosition(layer);
+                        if (mpos.Y >= 0 && mpos.Y < layer.ActualHeight)
+                            break;
+                        index++;
+                    }
+
+                    if (index < layers.Count) {
+                        this.Timeline.ClipMousePosForLayerTransition = lastClickPoint;
+                        handler.OnDragToLayer(index);
                     }
                 }
             }
@@ -501,9 +497,10 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public void UpdatePosition() {
-            Thickness margin = this.Margin;
-            margin.Left = this.PixelStart;
-            this.Margin = margin;
+            Canvas.SetLeft(this, this.PixelStart);
+            // Thickness margin = this.Margin;
+            // margin.Left = this.PixelStart;
+            // this.Margin = margin;
         }
 
         public void UpdateSize() {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
@@ -16,28 +17,29 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!e.DataContext.TryGetContext(out ResourceManagerViewModel manager)) {
-                if (!e.DataContext.TryGetContext(out ResourceItemViewModel resItem)) {
-                    return false;
-                }
-
-                manager = resItem.Manager;
+            if (!e.DataContext.TryGetContext(out BaseResourceObjectViewModel resItem)) {
+                return false;
             }
 
-            int selected = manager.SelectedItems.Count;
+            ResourceGroupViewModel group;
+
+            if (resItem is ResourceItemViewModel item) {
+                group = item.Group;
+            }
+            else if (resItem is ResourceGroupViewModel) {
+                group = (ResourceGroupViewModel) resItem;
+            }
+            else {
+                return false;
+            }
+
+            int selected = group.SelectedItems.Count;
             if (selected < 1) {
                 return true;
             }
 
-            string caption = $"Delete {selected} item{(selected == 1 ? "" : "s")}";
-            string message = $"Are you sure you want to delete {(selected == 1 ? "this 1 item" : $"these {selected} items")}?";
-            string result = await ConfirmationDialog.ShowAsync(caption, message);
-            if (result != "ok") {
-                return true;
-            }
-
             try {
-                manager.DeleteSelection();
+                await group.DeleteSelectionAction();
             }
             catch (Exception ex) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());

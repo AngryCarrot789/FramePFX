@@ -54,6 +54,14 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.DragEnter += this.OnDragDropEnter;
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e) {
+            if (e.Key == Key.System && e.OriginalSource is TimelineClipControl) {
+                e.Handled = true;
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
+
         public IEnumerable<TimelineClipControl> GetClipContainers() {
             return this.GetClipContainers<TimelineClipControl>(this.Items);
         }
@@ -241,6 +249,14 @@ namespace FramePFX.Editor.Timeline.Controls {
             else {
                 this.SelectedItems.Remove(x);
             }
+        }
+
+        protected override Size MeasureOverride(Size constraint) {
+            return base.MeasureOverride(constraint);
+        }
+
+        protected override Size ArrangeOverride(Size arrangeBounds) {
+            return base.ArrangeOverride(arrangeBounds);
         }
     }
 }

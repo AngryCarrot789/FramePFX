@@ -39,7 +39,8 @@ namespace FramePFX.Core.Editor.ResourceChecker {
         }
 
         public static Task<bool> ProcessProjectForInvalidResources(ProjectViewModel project, bool forceValidate) {
-            return ProcessResources(project.ResourceManager.Resources, forceValidate);
+            return Task.FromResult(true);
+            // return ProcessResources(project.ResourceManager.Resources, forceValidate);
         }
 
         /// <summary>

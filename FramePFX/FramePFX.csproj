@@ -212,6 +212,8 @@
       <DependentUpon>ResourceCheckerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\ResourceChecker\ResourceCheckerService.cs" />
+    <Compile Include="Editor\ResourceItemContainerDataTemplateSelector.cs" />
+    <Compile Include="Editor\ResourceItemContainerStyleSelector.cs" />
     <Compile Include="Editor\Timeline\Actions\DeleteSelectedClips.cs" />
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewLayerActions.cs" />
@@ -244,6 +246,8 @@
     <Compile Include="ResourceLocator.cs" />
     <Compile Include="ResourceManaging\UI\IResourceControl.cs" />
     <Compile Include="ResourceManaging\UI\IResourceListHandle.cs" />
+    <Compile Include="ResourceManaging\UI\BaseResourceItemControl.cs" />
+    <Compile Include="ResourceManaging\UI\ResourceGroupControl.cs" />
     <Compile Include="ResourceManaging\UI\ResourceItemControl.cs" />
     <Compile Include="ResourceManaging\UI\ResourceListControl.cs" />
     <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />

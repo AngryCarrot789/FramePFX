@@ -23,6 +23,7 @@
             xmlns:types="clr-namespace:FramePFX.Core.Notifications.Types;assembly=FramePFX.Core"
             xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
             xmlns:editor="clr-namespace:FramePFX.Editor"
+            xmlns:vm1="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -105,40 +106,50 @@
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource ABrush.Tone2.Background.Static}">
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
-                            <Grid s:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
-                                <ui:ResourceListControl FileDropNotifier="{Binding .}" ItemsSource="{Binding Resources, Mode=OneTime}" BorderThickness="0" helpers:SelectorHelper.SelectedItems="{Binding SelectedItems}" helpers:SelectorHelper.UpdateSelectedItemsOnChange="True">
-                                    <ui:ResourceListControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ui:ResourceListControl.ItemsPanel>
-                                    <ui:ResourceListControl.ItemContainerStyle>
-                                        <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:ResourceItemControl}}">
-                                            <Setter Property="UniqueIDHeader" Value="{Binding UniqueId, Mode=OneWay}"/>
+                            <TabItem.Resources>
+                                <editor:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector">
+                                    <editor:ResourceItemContainerStyleSelector.ResourceItemStyle>
+                                        <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}" d:DataContext="{d:DesignInstance vm1:ResourceItemViewModel}">
+                                            <Setter Property="HeaderText" Value="{Binding UniqueId, Mode=OneWay}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsOnline}" Value="False">
                                                     <Setter Property="Background" Value="DarkRed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </ui:ResourceListControl.ItemContainerStyle>
-                                    <ui:ResourceListControl.ItemTemplate>
-                                        <DataTemplate>
+                                    </editor:ResourceItemContainerStyleSelector.ResourceItemStyle>
+                                    <editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
+                                        <Style TargetType="{x:Type ui:BaseResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}" d:DataContext="{d:DesignInstance vm1:ResourceGroupViewModel}">
+                                            <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}"/>
+                                        </Style>
+                                    </editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
+                                </editor:ResourceItemContainerStyleSelector>
+                                <editor:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
+                                    <editor:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm1:ResourceItemViewModel}">
                                             <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}"/>
                                         </DataTemplate>
-                                    </ui:ResourceListControl.ItemTemplate>
+                                    </editor:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
+                                    <editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
+                                        <DataTemplate DataType="{x:Type vm1:ResourceGroupViewModel}">
+                                            <TextBlock Text="{Binding Path=DisplayName, Mode=OneWay}"/>
+                                        </DataTemplate>
+                                    </editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
+                                </editor:ResourceItemContainerDataTemplateSelector>
+                            </TabItem.Resources>
+                            <Grid s:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+                                <ui:ResourceListControl FileDropNotifier="{Binding .}"
+                                                        ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
+                                                        helpers:SelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
+                                                        helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
+                                                        ItemContainerStyleSelector="{StaticResource ResourceItemContainerStyleSelector}"
+                                                        ItemTemplateSelector="{StaticResource ResourceItemContainerDataTemplateSelector}">
+                                    <ui:ResourceListControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ui:ResourceListControl.ItemsPanel>
                                 </ui:ResourceListControl>
-                                <!--
-                                <Grid Background="Black" HorizontalAlignment="Stretch">
-                                    <controls1:FreeMoveViewPortV2 x:Name="OK">
-                                        <Button Content="OK LOL" Width="100" Height="100" VerticalAlignment="Center"/>
-                                    </controls1:FreeMoveViewPortV2>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding ElementName=OK, Path=HorizontalOffset, StringFormat='Horz = {0}'}"/>
-                                        <TextBlock Text="{Binding ElementName=OK, Path=VerticalOffset, StringFormat='Vert = {0}'}"/>
-                                    </StackPanel>
-                                </Grid>
-                                -->
                             </Grid>
                         </TabItem>
                         <TabItem Header="Clip Properties">
@@ -399,7 +410,7 @@
                                             <ControlTemplate TargetType="{x:Type c:VideoTimelineLayerControl}">
                                                 <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
                                                     <!-- IsItemHost must be true in order for it's items to sync with the TimelineLayerControl's items -->
-                                                    <Grid IsItemsHost="True" Background="{TemplateBinding Background}"/>
+                                                    <Canvas IsItemsHost="True" Background="{TemplateBinding Background}"/>
                                                 </Border>
                                             </ControlTemplate>
                                         </Setter.Value>
@@ -481,7 +492,7 @@
                                 <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource ABrush.Tone7.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone7.Border.Static}" BorderThickness="0,0,0,1">
                                     <Grid>
                                         <Label Content="{Binding Header, Mode=OneWay}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
-                                        <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24"/>
+                                        <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse"/>
                                     </Grid>
                                 </Border>
                                 <Label Content="{Binding Message, Mode=OneWay}" Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top"/>
@@ -492,8 +503,7 @@
             </Popup.Resources>
             <Border Background="Transparent">
                 <ScrollViewer MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ActualHeight}"
-                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                              CanContentScroll="False">
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" CanContentScroll="False">
                     <nn:NotificationList ItemsSource="{Binding Notifications, Mode=OneTime}" ItemTemplateSelector="{StaticResource NotificationTemplateSelector}" MinWidth="300">
                         <nn:NotificationList.Style>
                             <Style TargetType="{x:Type nn:NotificationList}" BasedOn="{StaticResource {x:Type ItemsControl}}">

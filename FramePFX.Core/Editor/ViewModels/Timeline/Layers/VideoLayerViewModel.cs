@@ -43,33 +43,32 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
             // assert clip.Layer == this
 
             // TODO: this function needs some work done; it's super messy and somewhat broken for the text clone
-            string imageCloneResult = null;
-            ResourceText resourceText = null;
-            if (clip.Model is TextClipModel txt1 && txt1.ResourcePath != null && txt1.ResourcePath.TryGetResource(out resourceText)) {
-                imageCloneResult = await SliceCloneTextResourceDialog.ShowAsync();
-                if (imageCloneResult == null || imageCloneResult == "cancel") {
-                    return;
-                }
-            }
+            // string imageCloneResult = null;
+            // ResourceText resourceText = null;
+            // if (clip.Model is TextClipModel txt1 && txt1.ResourcePath != null && txt1.ResourcePath.TryGetResource(out resourceText)) {
+            //     imageCloneResult = await SliceCloneTextResourceDialog.ShowAsync();
+            //     if (imageCloneResult == null || imageCloneResult == "cancel") {
+            //         return;
+            //     }
+            // }
 
             ClipModel cloned = clip.Model.Clone();
             FrameSpan oldSpan = clip.Model.FrameSpan;
             cloned.FrameSpan = FrameSpan.FromIndex(frame, oldSpan.EndIndex);
             clip.Model.FrameSpan = oldSpan.SetEndIndex(frame);
-            if (imageCloneResult != null && imageCloneResult == "copy") {
-                string path = TextIncrement.GetNextNumber(resourceText.UniqueId);
-                ResourceText textRes = new ResourceText(resourceText.Manager) {
-                    Border = resourceText.Border,
-                    Foreground = resourceText.Foreground,
-                    Text = resourceText.Text,
-                    FontFamily = resourceText.FontFamily,
-                    SkewX = resourceText.SkewX,
-                    FontSize = resourceText.FontSize
-                };
-
-                clip.Project.ResourceManager.AddModel(textRes, path);
-                ((TextClipModel) cloned).SetTargetResourceId(path);
-            }
+            // if (imageCloneResult != null && imageCloneResult == "copy") {
+            //     string path = TextIncrement.GetNextNumber(resourceText.UniqueId);
+            //     ResourceText textRes = new ResourceText() {
+            //         Border = resourceText.Border,
+            //         Foreground = resourceText.Foreground,
+            //         Text = resourceText.Text,
+            //         FontFamily = resourceText.FontFamily,
+            //         SkewX = resourceText.SkewX,
+            //         FontSize = resourceText.FontSize
+            //     };
+            //     clip.Project.ResourceManager.AddModel(textRes, path);
+            //     ((TextClipModel) cloned).SetTargetResourceId(path);
+            // }
 
             this.CreateClip(cloned);
         }

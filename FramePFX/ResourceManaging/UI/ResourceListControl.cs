@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -18,7 +19,7 @@ namespace FramePFX.ResourceManaging.UI {
             set => this.SetValue(FileDropNotifierProperty, value);
         }
 
-        private ResourceItemControl lastSelectedItem;
+        private BaseResourceItemControl lastSelectedItem;
 
         public ResourceListControl() {
             this.AllowDrop = true;
@@ -29,17 +30,17 @@ namespace FramePFX.ResourceManaging.UI {
             };
         }
 
-        public bool GetClipControl(object item, out ResourceItemControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<ResourceItemViewModel, ResourceItemControl>(item, this.ItemContainerGenerator, x => BaseViewModel.GetInternalData(x, typeof(IResourceControl)) as ResourceItemControl)) != null;
+        public bool GetClipControl(object item, out BaseResourceItemControl clip) {
+            return (clip = ICGenUtils.GetContainerForItem<ResourceItemViewModel, BaseResourceItemControl>(item, this.ItemContainerGenerator, x => BaseViewModel.GetInternalData(x, typeof(IResourceControl)) as BaseResourceItemControl)) != null;
         }
 
         public bool GetClipViewModel(object item, out ResourceItemViewModel clip) {
-            return ICGenUtils.GetItemForContainer<ResourceItemControl, ResourceItemViewModel>(item, this.ItemContainerGenerator, x => x.DataContext as ResourceItemViewModel, out clip);
+            return ICGenUtils.GetItemForContainer<BaseResourceItemControl, ResourceItemViewModel>(item, this.ItemContainerGenerator, x => x.DataContext as ResourceItemViewModel, out clip);
         }
 
-        public IEnumerable<ResourceItemControl> GetClipControls() {
+        public IEnumerable<BaseResourceItemControl> GetClipControls() {
             foreach (object item in this.Items) {
-                if (this.GetClipControl(item, out ResourceItemControl clip)) {
+                if (this.GetClipControl(item, out BaseResourceItemControl clip)) {
                     yield return clip;
                 }
             }
@@ -53,9 +54,9 @@ namespace FramePFX.ResourceManaging.UI {
             }
         }
 
-        public IEnumerable<ResourceItemControl> GetSelectedClipControls() {
+        public IEnumerable<BaseResourceItemControl> GetSelectedClipControls() {
             foreach (object item in this.SelectedItems) {
-                if (this.GetClipControl(item, out ResourceItemControl clip)) {
+                if (this.GetClipControl(item, out BaseResourceItemControl clip)) {
                     yield return clip;
                 }
             }
@@ -105,17 +106,33 @@ namespace FramePFX.ResourceManaging.UI {
             }
         }
 
+        private object currentItem;
+
         protected override bool IsItemItsOwnContainerOverride(object item) {
-            return item is ResourceItemControl;
+            if (item is BaseResourceItemControl) {
+                return true;
+            }
+
+            this.currentItem = item;
+            return false;
         }
 
         protected override DependencyObject GetContainerForItemOverride() {
-            return new ResourceItemControl();
+            object item = this.currentItem;
+            this.currentItem = null;
+            if (item is ResourceItemViewModel) {
+                return new ResourceItemControl();
+            }
+            else if (item is ResourceGroupViewModel) {
+                return new ResourceGroupControl();
+            }
+
+            throw new Exception($"Unknown item type: {item}");
         }
 
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
             base.PrepareContainerForItemOverride(element, item);
-            if (element is ResourceItemControl control && item is ResourceItemViewModel viewModel) {
+            if (element is BaseResourceItemControl control && item is ResourceItemViewModel viewModel) {
                 BaseViewModel.SetInternalData(viewModel, typeof(IResourceControl), control);
             }
         }
@@ -127,7 +144,7 @@ namespace FramePFX.ResourceManaging.UI {
             }
         }
 
-        public void OnItemMouseButton(ResourceItemControl item, MouseButtonEventArgs e) {
+        public void OnItemMouseButton(BaseResourceItemControl item, MouseButtonEventArgs e) {
             // if (e.ChangedButton == MouseButton.Left && Mouse.Captured != this) {
             //     Mouse.Capture(this, CaptureMode.SubTree);
             // }
@@ -150,7 +167,7 @@ namespace FramePFX.ResourceManaging.UI {
             }
         }
 
-        public void MakeRangedSelection(ResourceItemControl a, ResourceItemControl b) {
+        public void MakeRangedSelection(BaseResourceItemControl a, BaseResourceItemControl b) {
             if (a == b) {
                 this.MakePrimarySelection(a);
             }
@@ -183,13 +200,13 @@ namespace FramePFX.ResourceManaging.UI {
             }
         }
 
-        public void MakePrimarySelection(ResourceItemControl item) {
+        public void MakePrimarySelection(BaseResourceItemControl item) {
             this.UnselectAll();
             this.SetItemSelectedProperty(item, true);
             this.lastSelectedItem = item;
         }
 
-        public void SetItemSelectedProperty(ResourceItemControl item, bool selected) {
+        public void SetItemSelectedProperty(BaseResourceItemControl item, bool selected) {
             item.IsSelected = selected;
             object x = this.ItemContainerGenerator.ItemFromContainer(item);
             if (x == null || x == DependencyProperty.UnsetValue)
@@ -208,7 +225,7 @@ namespace FramePFX.ResourceManaging.UI {
                 return false;
             }
 
-            if (this.ItemContainerGenerator.ContainerFromIndex(index) is ResourceItemControl resource) {
+            if (this.ItemContainerGenerator.ContainerFromIndex(index) is BaseResourceItemControl resource) {
                 this.SetItemSelectedProperty(resource, selected);
                 return true;
             }

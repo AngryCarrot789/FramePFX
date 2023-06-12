@@ -126,9 +126,14 @@ namespace FramePFX {
 
             {
                 ResourceManager manager = project.ResourceManager;
-                manager.ReplaceResource("colour_red", new ResourceColour(manager) {R = 0.9f, G = 0.1f, B = 0.1f});
-                manager.ReplaceResource("colour_green", new ResourceColour(manager) {R = 0.1f, G = 0.9f, B = 0.1f});
-                manager.ReplaceResource("colour_blue", new ResourceColour(manager) {R = 0.1f, G = 0.1f, B = 0.9f});
+                manager.RegisterEntry("colour_red", manager.RootGroup.Add(new ResourceColour() {R = 0.9f, G = 0.1f, B = 0.1f}));
+                manager.RegisterEntry("colour_green", manager.RootGroup.Add(new ResourceColour() {R = 0.1f, G = 0.9f, B = 0.1f}));
+                manager.RegisterEntry("colour_blue", manager.RootGroup.Add(new ResourceColour() {R = 0.1f, G = 0.1f, B = 0.9f}));
+
+                ResourceGroup group = new ResourceGroup();
+                manager.RootGroup.AddItemToList(group);
+                manager.RegisterEntry("white colour", group.Add(new ResourceColour() {R = 0.9f, G = 0.9f, B = 0.9f}));
+                manager.RegisterEntry("idek", group.Add(new ResourceColour() {R = 0.2f, G = 0.4f, B = 0.9f}));
             }
 
             {
@@ -143,7 +148,7 @@ namespace FramePFX {
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
-                clip1.SetTargetResourceId("colour_red");
+                clip1.SetTargetResourceId("idek");
                 layer1.AddClip(clip1);
 
                 ShapeClipModel clip2 = new ShapeClipModel {

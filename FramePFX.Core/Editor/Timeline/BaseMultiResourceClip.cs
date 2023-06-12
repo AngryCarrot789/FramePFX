@@ -26,7 +26,12 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         protected void AddResourceKey(string key) {
-            this.ResourceMap[key] = new ResourcePathEntry(this, key);
+            // throws for existing keys
+            this.ResourceMap.Add(key, new ResourcePathEntry(this, key));
+        }
+
+        public void SetTargetResourceId(string key, string id) {
+            this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
         }
 
         protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
@@ -34,18 +39,19 @@ namespace FramePFX.Core.Editor.Timeline {
             ResourceManager manager = newLayer?.Timeline.Project.ResourceManager;
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
+                    ResourcePath path = entry.path;
+                    if (path == null || ReferenceEquals(path.Manager, manager)) {
+                        continue;
+                    }
+
                     try {
-                        entry.path?.SetManager(manager);
+                        path.SetManager(manager);
                     }
                     catch (Exception e) {
                         stack.Push(e);
                     }
                 }
             }
-        }
-
-        public void SetTargetResourceId(string key, string id) {
-            this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
         }
 
         protected virtual void OnOnlineStateChanged(ResourceItem item) {
@@ -176,13 +182,8 @@ namespace FramePFX.Core.Editor.Timeline {
 
             public void Dispose(ExceptionStack stack) {
                 if (this.path != null && this.path.CanDispose) {
-                    try {
-                        // this shouldn't throw unless it was already disposed for some reason. Might as well handle that case
-                        this.path?.Dispose();
-                    }
-                    catch (Exception e) {
-                        stack.Push(e);
-                    }
+                    // this shouldn't throw unless it was already disposed for some reason. Might as well handle that case
+                    this.path?.Dispose();
                 }
             }
         }

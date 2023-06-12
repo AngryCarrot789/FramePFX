@@ -32,9 +32,17 @@ namespace FramePFX.Core.Editor.Timeline {
 
         protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
             base.OnLayerChanged(oldLayer, newLayer);
-            if (newLayer == null || this.ResourcePath == null)
+            if (this.ResourcePath == null)
                 return;
-            this.ResourcePath.SetManager(newLayer.Timeline.Project.ResourceManager);
+            if (newLayer == null) {
+                this.ResourcePath.SetManager(null);
+            }
+            else {
+                ResourceManager manager = newLayer.Timeline.Project.ResourceManager;
+                if (manager != this.ResourcePath.Manager) {
+                    this.ResourcePath.SetManager(manager);
+                }
+            }
         }
 
         /// <summary>

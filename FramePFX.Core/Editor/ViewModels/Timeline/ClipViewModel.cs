@@ -98,13 +98,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             set => this.FrameSpan = this.FrameSpan.SetEndIndex(value);
         }
 
-        /// <summary>
-        /// The number of frames that are skipped relative to <see cref="ClipStart"/>. This will be positive if the
-        /// left grip of the clip is dragged to the right, and will be 0 when dragged to the left
-        /// <para>
-        /// Alternative name: MediaBegin
-        /// </para>
-        /// </summary>
         public long MediaFrameOffset {
             get => this.Model.MediaFrameOffset;
             set {
@@ -324,19 +317,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
             }
 
+            this.MediaFrameOffset += (begin - this.FrameBegin);
             this.FrameSpan = new FrameSpan(begin, duration);
             this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
         }
 
         public virtual void OnRightThumbDelta(long offset) {
-            if (!(this.Timeline is TimelineViewModel timeline)) {
-                return;
-            }
-
             FrameSpan span = this.FrameSpan;
             long newEndIndex = Math.Max(span.EndIndex + offset, span.Begin + 1);
-            if (newEndIndex > timeline.MaxDuration) {
-                timeline.MaxDuration = newEndIndex + 300;
+            if (this.Timeline is TimelineViewModel timeline) {
+                if (newEndIndex > timeline.MaxDuration) {
+                    timeline.MaxDuration = newEndIndex + 300;
+                }
             }
 
             this.FrameSpan = span.SetEndIndex(newEndIndex);
@@ -344,10 +336,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public virtual void OnDragDelta(long offset) {
-            if (!(this.Timeline is TimelineViewModel timeline)) {
-                return;
-            }
-
             FrameSpan span = this.FrameSpan;
             long begin = (span.Begin + offset) - this.addedOffset;
             this.addedOffset = 0L;
@@ -357,13 +345,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
 
             long endIndex = begin + span.Duration;
-            if (endIndex > timeline.MaxDuration) {
-                timeline.MaxDuration = endIndex + 300;
+            TimelineViewModel timeline = this.Timeline;
+            if (timeline != null) {
+                if (endIndex > timeline.MaxDuration) {
+                    timeline.MaxDuration = endIndex + 300;
+                }
             }
 
             this.FrameSpan = new FrameSpan(begin, span.Duration);
 
-            if (timeline.IsGloballyDragging) {
+            if (timeline != null && timeline.IsGloballyDragging) {
                 if (timeline.ProcessingDragEventClip == null) {
                     timeline.ProcessingDragEventClip = this;
                     foreach (ClipViewModel clip in timeline.DraggingClips) {

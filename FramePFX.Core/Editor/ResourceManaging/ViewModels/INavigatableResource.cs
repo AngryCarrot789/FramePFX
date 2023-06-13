@@ -1,5 +1,5 @@
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public interface IResourceNavigatable {
-        
+    public interface INavigatableResource {
+        void OnNavigate();
     }
 }

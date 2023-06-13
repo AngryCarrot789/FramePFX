@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
@@ -16,7 +15,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <summary>
         /// The group that this object is currently in, or null, if this is a root object
         /// </summary>
-        public ResourceGroup Group { get; set; }
+        public ResourceGroup Group { get; private set; }
 
         /// <summary>
         /// This resource object's registry ID, used to reflectively create an instance of it while deserializing data
@@ -29,6 +28,14 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         }
 
+        public virtual void SetGroup(ResourceGroup group) {
+            this.Group = group;
+        }
+
+        public virtual void SetManager(ResourceManager manager) {
+            this.Manager = manager;
+        }
+
         public virtual void WriteToRBE(RBEDictionary data) {
             if (!string.IsNullOrEmpty(this.DisplayName))
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
@@ -36,23 +43,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         public virtual void ReadFromRBE(RBEDictionary data) {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
-        }
-
-        protected virtual void OnManagerChanged(ResourceManager oldManager, ResourceManager newManager) {
-
-        }
-
-        public static void SetManager(BaseResourceObject resource, ResourceManager manager, bool fireManagerChanged = true) {
-            ResourceManager old = resource.Manager;
-            if (ReferenceEquals(old, manager)) {
-                Debug.WriteLine($"Attempted to set the manager to the same instance\n{new StackTrace(true)}");
-                return;
-            }
-
-            resource.Manager = manager;
-            if (fireManagerChanged) {
-                resource.OnManagerChanged(old, manager);
-            }
         }
 
         /// <summary>

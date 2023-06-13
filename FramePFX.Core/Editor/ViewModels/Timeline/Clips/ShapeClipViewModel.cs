@@ -2,11 +2,13 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.History.Tasks;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
-    public class ShapeClipViewModel : VideoClipViewModel, IDropClipResource {
+    public class ShapeClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
         private readonly HistoryBuffer<HistoryShapeSize> sizeHistory = new HistoryBuffer<HistoryShapeSize>();
 
         public new ShapeClipModel Model => (ShapeClipModel) base.Model;
@@ -45,12 +47,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
 
         }
 
-        public override bool CanDropResource(ResourceItem resource) {
-            return resource is ResourceColour;
+        public override bool CanDropResource(BaseResourceObjectViewModel resource) {
+            return resource is ResourceColourViewModel;
         }
 
-        public override async Task OnDropResource(ResourceItem resource) {
-            this.Model.SetTargetResourceId(((ResourceColour) resource).UniqueId);
+        public override async Task OnDropResource(BaseResourceObjectViewModel resource) {
+            this.Model.SetTargetResourceId(((ResourceColourViewModel) resource).UniqueId);
             this.Model.InvalidateRender();
         }
     }

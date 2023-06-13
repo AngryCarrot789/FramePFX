@@ -130,7 +130,7 @@ namespace FramePFX {
                 manager.RegisterEntry("colour_green", manager.RootGroup.Add(new ResourceColour() {R = 0.1f, G = 0.9f, B = 0.1f}));
                 manager.RegisterEntry("colour_blue", manager.RootGroup.Add(new ResourceColour() {R = 0.1f, G = 0.1f, B = 0.9f}));
 
-                ResourceGroup group = new ResourceGroup();
+                ResourceGroup group = new ResourceGroup("Extra Colours");
                 manager.RootGroup.AddItemToList(group);
                 manager.RegisterEntry("white colour", group.Add(new ResourceColour() {R = 0.9f, G = 0.9f, B = 0.9f}));
                 manager.RegisterEntry("idek", group.Add(new ResourceColour() {R = 0.2f, G = 0.4f, B = 0.9f}));

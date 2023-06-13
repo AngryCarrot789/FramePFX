@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
@@ -9,7 +10,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public class ResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier {
+    public class ResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier, IResourceManagerNavigation {
         private ResourceGroupViewModel currentGroup;
         public readonly InputValidator ResourceIdValidator;
 
@@ -34,12 +35,20 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public event ProjectModifiedEvent ProjectModified;
 
+        private readonly LinkedList<ResourceGroupViewModel> undoGroup;
+        private readonly LinkedList<ResourceGroupViewModel> redoGroup;
+
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
             this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
-            this.Root = new ResourceGroupViewModel(manager.RootGroup) {manager = this};
+            this.Root = new ResourceGroupViewModel(manager.RootGroup);
+            this.Root.SetManager(this);
             this.currentGroup = this.Root;
             this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);
+
+            this.undoGroup = new LinkedList<ResourceGroupViewModel>();
+            this.redoGroup = new LinkedList<ResourceGroupViewModel>();
+
             this.ResourceIdValidator = new InputValidator((string input, out string message) => {
                 if (string.IsNullOrEmpty(input)) {
                     message = "Input cannot be empty";
@@ -58,6 +67,51 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     return false;
                 }
             });
+        }
+
+        public void NavigateToGroup(ResourceGroupViewModel group, bool pushHistory = true) {
+            if (ReferenceEquals(this.CurrentGroup, group)) {
+                return;
+            }
+
+            if (group != null && !ReferenceEquals(this, group.Manager)) {
+                throw new Exception("Target group's manager does not match the current instance");
+            }
+
+            if (group == null) {
+                group = this.Root;
+            }
+
+            if (pushHistory) {
+                this.redoGroup.Clear();
+                this.undoGroup.AddLast(this.CurrentGroup);
+            }
+
+            this.CurrentGroup = group;
+        }
+
+        public void GoBackward() {
+            while (this.undoGroup.Count > 0) {
+                ResourceGroupViewModel last = this.undoGroup.Last.Value;
+                this.undoGroup.RemoveLast();
+                if (ReferenceEquals(last.manager, this)) {
+                    this.redoGroup.AddLast(this.CurrentGroup);
+                    this.NavigateToGroup(last, false);
+                    return;
+                }
+            }
+        }
+
+        public void GoForward() {
+            while (this.redoGroup.Count > 0) {
+                ResourceGroupViewModel last = this.redoGroup.Last.Value;
+                this.redoGroup.RemoveLast();
+                if (ReferenceEquals(last.manager, this)) {
+                    this.undoGroup.AddLast(this.CurrentGroup);
+                    this.NavigateToGroup(last, false);
+                    return;
+                }
+            }
         }
 
         public string GenerateIdForFile(string filePath) {

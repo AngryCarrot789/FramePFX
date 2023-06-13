@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
@@ -14,7 +15,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IDropClipResource, IClipDragHandler, IDisposable {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IDisposable {
         protected readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
@@ -193,11 +194,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         }
 
-        public virtual bool CanDropResource(ResourceItem resource) {
-            return ReferenceEquals(resource.Manager, this.Layer?.Timeline.Project.ResourceManager.Model);
+        public virtual bool CanDropResource(BaseResourceObjectViewModel resource) {
+            return ReferenceEquals(resource.Manager, this.Layer?.Timeline.Project.ResourceManager);
         }
 
-        public virtual Task OnDropResource(ResourceItem resource) {
+        public virtual Task OnDropResource(BaseResourceObjectViewModel resource) {
             return IoC.MessageDialogs.ShowMessageAsync("Resource dropped", "This clip can't do anything with that resource!");
         }
 
@@ -391,12 +392,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
 
             if (timeline.IsGloballyDragging) {
-                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Layer, layer))) {
+                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Layer, layer) && layer.CanAccept(x))) {
                     timeline.IsAboutToDragAcrossLayers = true;
                     foreach (ClipViewModel clip in timeline.DraggingClips) {
-                        if (targetLayer.CanAccept(this)) {
-                            timeline.MoveClip(clip, layer, targetLayer);
-                        }
+                        timeline.MoveClip(clip, layer, targetLayer);
                     }
 
                     timeline.IsAboutToDragAcrossLayers = false;
@@ -408,10 +407,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             else {
                 timeline.MoveClip(this, layer, targetLayer);
             }
-        }
-
-        public virtual void OnDragToLayerOffset(int offset) {
-
         }
 
         protected void CreateClipDragHistoryAction() {

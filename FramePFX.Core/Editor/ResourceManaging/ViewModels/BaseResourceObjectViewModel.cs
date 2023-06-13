@@ -8,11 +8,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         internal ResourceGroupViewModel group;
 
         /// <summary>
-        /// The manager that this resource object is registered to
+        /// The manager that this resource is currently associated with
         /// </summary>
         public ResourceManagerViewModel Manager {
             get => this.manager;
-            set => this.RaisePropertyChanged(ref this.manager, value);
+            private set => this.RaisePropertyChanged(ref this.manager, value);
         }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public ResourceGroupViewModel Group {
             get => this.group;
-            set => this.RaisePropertyChanged(ref this.group, value);
+            private set => this.RaisePropertyChanged(ref this.group, value);
         }
 
         public string DisplayName {
@@ -41,6 +41,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.Model = model;
             this.RenameCommand = new AsyncRelayCommand(this.RenameSelfAction, this.CanRename);
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, this.CanDelete);
+        }
+
+        public virtual void SetGroup(ResourceGroupViewModel newGroup) {
+            this.Group = newGroup;
+            this.Model.SetGroup(newGroup?.Model);
+        }
+
+        public virtual void SetManager(ResourceManagerViewModel newManager) {
+            this.Manager = newManager;
+            this.Model.SetManager(newManager?.Model);
         }
 
         public abstract Task<bool> RenameSelfAction();

@@ -1,10 +1,12 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
-    public class TextClipViewModel : VideoClipViewModel, IDropClipResource {
+    public class TextClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
         public new TextClipModel Model => (TextClipModel) ((ClipViewModel) this).Model;
 
         public bool UseCustomText {
@@ -123,12 +125,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
         }
 
-        public override bool CanDropResource(ResourceItem resource) {
-            return resource is ResourceText;
+        public override bool CanDropResource(BaseResourceObjectViewModel resource) {
+            return resource is ResourceTextViewModel;
         }
 
-        public override async Task OnDropResource(ResourceItem resource) {
-            this.Model.SetTargetResourceId(((ResourceText) resource).UniqueId);
+        public override async Task OnDropResource(BaseResourceObjectViewModel resource) {
+            this.Model.SetTargetResourceId(((ResourceTextViewModel) resource).UniqueId);
             this.Model.InvalidateRender();
         }
     }

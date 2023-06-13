@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
@@ -512,9 +513,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         #region Drag Dropping
 
         protected override void OnDragOver(DragEventArgs e) {
-            if (e.Data.GetDataPresent(nameof(ResourceItem))) {
-                object obj = e.Data.GetData(nameof(ResourceItem));
-                if (obj is ResourceItem resource && this.DataContext is IDropClipResource drop && drop.CanDropResource(resource)) {
+            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
+                object obj = e.Data.GetData(nameof(BaseResourceObjectViewModel));
+                if (obj is BaseResourceObjectViewModel resource && this.DataContext is IAcceptResourceDrop drop && drop.CanDropResource(resource)) {
                     this.IsDroppableTargetOver = true;
                     e.Effects = DragDropEffects.Move;
                     e.Handled = true;
@@ -544,15 +545,15 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
 
             this.isProcessingAsyncDrop = true;
-            if (this.DataContext is IDropClipResource drop && e.Data.GetData(nameof(ResourceItem)) is ResourceItem resource) {
+            if (this.DataContext is IAcceptResourceDrop drop && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource) {
                 if (drop.CanDropResource(resource)) {
                     this.HandleOnDropResource(drop, resource);
                 }
             }
         }
 
-        private async void HandleOnDropResource(IDropClipResource drop, ResourceItem resource) {
-            await drop.OnDropResource(resource);
+        private async void HandleOnDropResource(IAcceptResourceDrop acceptResourceDrop, BaseResourceObjectViewModel resource) {
+            await acceptResourceDrop.OnDropResource(resource);
             this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }

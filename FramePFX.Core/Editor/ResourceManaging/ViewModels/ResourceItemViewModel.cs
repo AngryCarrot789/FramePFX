@@ -99,7 +99,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
 
             this.Manager?.Model.DeleteEntryByItem(this.Model);
-            this.Group.RemoveItem(this, true);
+            this.Group.RemoveItem(this, true, true);
             this.Manager?.OnResourceDeleted(this);
 
             try {

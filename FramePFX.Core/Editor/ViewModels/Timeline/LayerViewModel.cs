@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.History;
@@ -18,7 +20,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for a timeline layer. This could be a video or audio layer (or others...)
     /// </summary>
-    public abstract class LayerViewModel : BaseViewModel, IModifyProject, IHistoryHolder, IDisplayName, IResourceDropHandler {
+    public abstract class LayerViewModel : BaseViewModel, IModifyProject, IHistoryHolder, IDisplayName, IResourceItemDropHandler {
         protected readonly HistoryBuffer<HistoryLayerDisplayName> displayNameHistory = new HistoryBuffer<HistoryLayerDisplayName>();
 
         private readonly ObservableCollectionEx<ClipViewModel> clips;
@@ -282,15 +284,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.Model.Clips.MoveItem(index, endIndex);
         }
 
-        public async Task OnResourceDropped(ResourceItem resource, long frameBegin) {
+        public async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
             Validate.Exception(!string.IsNullOrEmpty(resource.UniqueId), "Expected valid resource UniqueId");
-            Validate.Exception(resource.IsRegistered, "Expected resource to be registered");
+            Validate.Exception(resource.Model.IsRegistered, "Expected resource to be registered");
 
             double fps = this.Timeline.Project.Settings.FrameRate;
             long defaultDuration = (long) (fps * 5);
 
             ClipModel newClip = null;
-            if (resource is ResourceMedia media) {
+            if (resource.Model is ResourceMedia media) {
                 media.OpenMediaFromFile();
                 TimeSpan span = media.GetDuration();
                 long dur = (long) Math.Floor(span.TotalSeconds * fps);
@@ -319,7 +321,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
             }
             else {
-                if (resource is ResourceColour argb) {
+                if (resource.Model is ResourceColour argb) {
                     ShapeClipModel clip = new ShapeClipModel() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         Width = 200, Height = 200,
@@ -329,7 +331,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     clip.SetTargetResourceId(argb.UniqueId);
                     newClip = clip;
                 }
-                else if (resource is ResourceImage img) {
+                else if (resource.Model is ResourceImage img) {
                     ImageClipModel clip = new ImageClipModel() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = img.UniqueId
@@ -338,7 +340,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     clip.SetTargetResourceId(img.UniqueId);
                     newClip = clip;
                 }
-                else if (resource is ResourceText text) {
+                else if (resource.Model is ResourceText text) {
                     TextClipModel clip = new TextClipModel() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = text.UniqueId

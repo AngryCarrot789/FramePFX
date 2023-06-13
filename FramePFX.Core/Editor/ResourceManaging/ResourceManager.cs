@@ -30,8 +30,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public ResourceManager(ProjectModel project) {
             this.uuidToItem = new Dictionary<string, ResourceItem>();
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
-            this.RootGroup = new ResourceGroup();
-            BaseResourceObject.SetManager(this.RootGroup, this);
+            this.RootGroup = new ResourceGroup() {
+                DisplayName = "<root>"
+            };
+            this.RootGroup.SetManager(this);
         }
 
         public void WriteToRBE(RBEDictionary data) {
@@ -99,7 +101,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new Exception($"Resource already exists with the id '{id}': {oldItem.GetType()}");
             this.uuidToItem[id] = item;
             ResourceItem.SetUniqueId(item, id);
-            BaseResourceObject.SetManager(item, this);
             this.ResourceRegistered?.Invoke(this, item);
         }
 
@@ -118,12 +119,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             this.uuidToItem.TryGetValue(id, out ResourceItem oldItem);
             this.uuidToItem[id] = item;
-            if (oldItem != null) {
-                BaseResourceObject.SetManager(oldItem, null);
-            }
-
             ResourceItem.SetUniqueId(item, id);
-            BaseResourceObject.SetManager(item, this);
             this.ResourceReplaced?.Invoke(this, id, oldItem, item);
             return oldItem;
         }
@@ -135,7 +131,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return null;
             Debug.Assert(item.UniqueId == id, "Existing resource's ID does not equal the given ID; Corrupted application?");
             this.uuidToItem.Remove(id);
-            BaseResourceObject.SetManager(item, null);
             this.ResourceUnregistered?.Invoke(this, item);
             return item;
         }
@@ -151,7 +146,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 return false;
             Debug.Assert(ReferenceEquals(oldItem, item), "Existing resource does not equal the given resource; Corrupted application?");
             this.uuidToItem.Remove(item.UniqueId);
-            BaseResourceObject.SetManager(item, null);
             this.ResourceUnregistered?.Invoke(this, item);
             return true;
         }
@@ -242,7 +236,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public void ClearEntries() {
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (ResourceItem item in this.uuidToItem.Values) {
-                    BaseResourceObject.SetManager(item, null);
                     try {
                         this.ResourceUnregistered?.Invoke(this, item);
                     }

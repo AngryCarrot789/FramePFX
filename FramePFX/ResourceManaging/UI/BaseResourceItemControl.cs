@@ -70,12 +70,13 @@ namespace FramePFX.ResourceManaging.UI {
 
         private void OnIsSelectedChanged(DependencyPropertyChangedEventArgs e) {
             if (e.NewValue != e.OldValue) {
+
             }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             ResourceListControl list = this.ParentList;
-            if (list != null && (!e.Handled && this.IsFocused || this.Focus())) {
+            if (list != null && !e.Handled && (this.IsFocused || this.Focus())) {
                 if (!this.isDragDropping) {
                     this.CaptureMouse();
                     this.originMousePoint = e.GetPosition(this);
@@ -83,23 +84,60 @@ namespace FramePFX.ResourceManaging.UI {
                 }
 
                 e.Handled = true;
-                list.OnItemMouseButton(this, e);
+                if (ResourceListControl.AreModifiersPressed(ModifierKeys.Control)) {
+                }
+                else if (ResourceListControl.AreModifiersPressed(ModifierKeys.Shift) && list.lastSelectedItem != null && list.SelectedItems.Count > 0) {
+                    list.MakeRangedSelection(list.lastSelectedItem, this);
+                }
+                else if (!this.IsSelected) {
+                    list.MakePrimarySelection(this);
+                }
             }
 
             base.OnMouseLeftButtonDown(e);
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
+            // weird... this method isn't called when the `DoDragDrop` method
+            // returns, even if you release the left mouse button. This means,
+            // isDragDropping is always false here
+
             ResourceListControl list = this.ParentList;
-            if (this.isDragActive && this.IsMouseCaptured) {
+            if (this.isDragActive) {
                 this.isDragActive = false;
-                this.ReleaseMouseCapture();
+                if (this.IsMouseCaptured) {
+                    this.ReleaseMouseCapture();
+                }
+
                 e.Handled = true;
             }
 
-            if (list != null && !e.Handled && this.IsFocused) {
-                e.Handled = true;
-                list.OnItemMouseButton(this, e);
+            if (list != null) {
+                if (this.IsSelected) {
+                    if (!ResourceListControl.AreModifiersPressed(ModifierKeys.Shift)) {
+                        if (!ResourceListControl.AreModifiersPressed(ModifierKeys.Control)) {
+                            list.MakePrimarySelection(this);
+                        }
+                        else {
+                            list.SetItemSelectedProperty(this, false);
+                        }
+                    }
+                }
+                else {
+                    if (list.SelectedItems.Count > 1) {
+                        if (ResourceListControl.AreModifiersPressed(ModifierKeys.Control)) {
+                            list.SetItemSelectedProperty(this, true);
+                        }
+                        else {
+                            list.MakePrimarySelection(this);
+                        }
+                    }
+                    else {
+                        if (ResourceListControl.AreModifiersPressed(ModifierKeys.Control)) {
+                            list.SetItemSelectedProperty(this, true);
+                        }
+                    }
+                }
             }
 
             base.OnMouseLeftButtonUp(e);
@@ -116,13 +154,13 @@ namespace FramePFX.ResourceManaging.UI {
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 if (change.X > 5 || change.Y > 5) {
-                    if (!(this.DataContext is ResourceItemViewModel resource)) {
+                    if (!(this.DataContext is BaseResourceObjectViewModel resource)) {
                         return;
                     }
 
                     try {
                         this.isDragDropping = true;
-                        DragDrop.DoDragDrop(this, new DataObject(nameof(ResourceItem), resource.Model), DragDropEffects.Copy | DragDropEffects.Move);
+                        DragDrop.DoDragDrop(this, new DataObject(nameof(BaseResourceObjectViewModel), resource), DragDropEffects.Copy | DragDropEffects.Move);
                     }
                     finally {
                         this.isDragDropping = false;

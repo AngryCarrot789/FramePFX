@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -19,7 +21,9 @@ namespace FramePFX.ResourceManaging.UI {
             set => this.SetValue(FileDropNotifierProperty, value);
         }
 
-        private BaseResourceItemControl lastSelectedItem;
+        public IResourceManagerNavigation Navigation => this.DataContext as IResourceManagerNavigation;
+
+        internal BaseResourceItemControl lastSelectedItem;
 
         public ResourceListControl() {
             this.AllowDrop = true;
@@ -30,49 +34,45 @@ namespace FramePFX.ResourceManaging.UI {
             };
         }
 
-        public bool GetClipControl(object item, out BaseResourceItemControl clip) {
-            return (clip = ICGenUtils.GetContainerForItem<ResourceItemViewModel, BaseResourceItemControl>(item, this.ItemContainerGenerator, x => BaseViewModel.GetInternalData(x, typeof(IResourceControl)) as BaseResourceItemControl)) != null;
+        public IEnumerable<BaseResourceItemControl> GetResourceContainers() {
+            return this.GetResourceContainers<BaseResourceItemControl>(this.Items);
         }
 
-        public bool GetClipViewModel(object item, out ResourceItemViewModel clip) {
-            return ICGenUtils.GetItemForContainer<BaseResourceItemControl, ResourceItemViewModel>(item, this.ItemContainerGenerator, x => x.DataContext as ResourceItemViewModel, out clip);
+        public IEnumerable<T> GetResourceContainers<T>() where T : BaseResourceItemControl {
+            return this.GetResourceContainers<T>(this.Items);
         }
 
-        public IEnumerable<BaseResourceItemControl> GetClipControls() {
-            foreach (object item in this.Items) {
-                if (this.GetClipControl(item, out BaseResourceItemControl clip)) {
-                    yield return clip;
+        public IEnumerable<BaseResourceItemControl> GetSelectedResourceContainers() {
+            return this.GetResourceContainers<BaseResourceItemControl>(this.SelectedItems);
+        }
+
+        public IEnumerable<T> GetSelectedResourceContainers<T>() where T : BaseResourceItemControl {
+            return this.GetResourceContainers<T>(this.SelectedItems);
+        }
+
+        public IEnumerable<T> GetResourceContainers<T>(IEnumerable items, bool canUseIcgIndex = true) where T : BaseResourceItemControl {
+            int i = 0;
+            foreach (object item in items) {
+                if (item is T a) {
+                    yield return a;
                 }
-            }
-        }
-
-        public IEnumerable<ResourceItemViewModel> GetClipViewModels() {
-            foreach (object item in this.Items) {
-                if (this.GetClipViewModel(item, out ResourceItemViewModel clip)) {
-                    yield return clip;
+                else if (canUseIcgIndex && this.ItemContainerGenerator.ContainerFromIndex(i) is T b) {
+                    yield return b;
                 }
-            }
-        }
-
-        public IEnumerable<BaseResourceItemControl> GetSelectedClipControls() {
-            foreach (object item in this.SelectedItems) {
-                if (this.GetClipControl(item, out BaseResourceItemControl clip)) {
-                    yield return clip;
+                else if (this.ItemContainerGenerator.ContainerFromItem(item) is T c) {
+                    yield return c;
                 }
-            }
-        }
-
-        public IEnumerable<ResourceItemViewModel> GetSelectedClipViewModels() {
-            foreach (object item in this.SelectedItems) {
-                if (this.GetClipViewModel(item, out ResourceItemViewModel clip)) {
-                    yield return clip;
+                else {
+                    Debug.WriteLine($"{nameof(ResourceListControl)} failed to find a suitable instance of {typeof(T)} for item {item?.GetType()}");
                 }
+
+                i++;
             }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);
-            if (this.GetClipControls().Any(clip => clip.ParentList == this && clip.IsMouseOver)) {
+            if (this.GetResourceContainers().Any(clip => clip.ParentList == this && clip.IsMouseOver)) {
                 return;
             }
 
@@ -98,7 +98,7 @@ namespace FramePFX.ResourceManaging.UI {
                 e.Handled = true;
                 await this.FileDropNotifier.OnFilesDropped(files);
             }
-            else if (e.Data.GetData(nameof(ResourceItem)) is ResourceItem item) {
+            else if (e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel item) {
                 return;
             }
             else {
@@ -144,11 +144,17 @@ namespace FramePFX.ResourceManaging.UI {
             }
         }
 
-        public void OnItemMouseButton(BaseResourceItemControl item, MouseButtonEventArgs e) {
-            // if (e.ChangedButton == MouseButton.Left && Mouse.Captured != this) {
-            //     Mouse.Capture(this, CaptureMode.SubTree);
-            // }
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+            base.OnPreviewMouseDown(e);
+            if (e.ChangedButton == MouseButton.XButton1) {
+                this.Navigation?.GoBackward();
+            }
+            else if (e.ChangedButton == MouseButton.XButton2) {
+                this.Navigation?.GoForward();
+            }
+        }
 
+        public void OnItemMouseButton(BaseResourceItemControl item, MouseButtonEventArgs e) {
             if (e.ButtonState == MouseButtonState.Pressed) {
                 if (AreModifiersPressed(ModifierKeys.Control)) {
                     this.SetItemSelectedProperty(item, !item.IsSelected);

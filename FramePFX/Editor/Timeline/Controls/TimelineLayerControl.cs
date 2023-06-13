@@ -7,6 +7,7 @@ using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer;
@@ -14,16 +15,16 @@ using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public abstract class TimelineLayerControl : MultiSelector, ILayerHandle {
-        public static readonly DependencyProperty ResourceDropHandlerProperty =
+        public static readonly DependencyProperty ResourceItemDropHandlerProperty =
             DependencyProperty.Register(
-                "ResourceDropHandler",
-                typeof(IResourceDropHandler),
+                "ResourceItemDropHandler",
+                typeof(IResourceItemDropHandler),
                 typeof(TimelineLayerControl),
                 new PropertyMetadata(null));
 
-        public IResourceDropHandler ResourceDropHandler {
-            get => (IResourceDropHandler) this.GetValue(ResourceDropHandlerProperty);
-            set => this.SetValue(ResourceDropHandlerProperty, value);
+        public IResourceItemDropHandler ResourceItemDropHandler {
+            get => (IResourceItemDropHandler) this.GetValue(ResourceItemDropHandlerProperty);
+            set => this.SetValue(ResourceItemDropHandlerProperty, value);
         }
 
         /// <summary>
@@ -115,7 +116,7 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         private void OnDragDropEnter(object sender, DragEventArgs e) {
-            if (this.isProcessingDrop || this.ResourceDropHandler == null) {
+            if (this.isProcessingDrop || this.ResourceItemDropHandler == null) {
                 e.Effects = DragDropEffects.None;
             }
 
@@ -123,25 +124,25 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         private void OnDrop(object sender, DragEventArgs e) {
-            if (this.isProcessingDrop || this.ResourceDropHandler == null) {
+            if (this.isProcessingDrop || this.ResourceItemDropHandler == null) {
                 e.Effects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
 
-            if (e.Data.GetDataPresent(nameof(ResourceItem))) {
-                if (e.Data.GetData(nameof(ResourceItem)) is ResourceItem resource) {
+            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
+                if (e.Data.GetData(nameof(BaseResourceObjectViewModel)) is ResourceItemViewModel resource) {
                     this.isProcessingDrop = true;
                     this.OnDropResource(resource, e.GetPosition(this));
                 }
             }
         }
 
-        protected async void OnDropResource(ResourceItem item, Point mouse) {
-            if (item.IsRegistered) {
+        protected async void OnDropResource(ResourceItemViewModel item, Point mouse) {
+            if (item.Model.IsRegistered) {
                 long frame = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
                 frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
-                await this.ResourceDropHandler.OnResourceDropped(item, frame);
+                await this.ResourceItemDropHandler.OnResourceDropped(item, frame);
             }
 
             this.isProcessingDrop = false;

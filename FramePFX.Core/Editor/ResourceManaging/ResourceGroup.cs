@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.RBC;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
@@ -8,23 +7,36 @@ namespace FramePFX.Core.Editor.ResourceManaging {
     /// A group of resource items
     /// </summary>
     public class ResourceGroup : BaseResourceObject {
-        public List<BaseResourceObject> Items { get; }
+        private readonly List<BaseResourceObject> items;
+
+        public IEnumerable<BaseResourceObject> Items => this.items;
 
         public ResourceGroup() {
-            this.Items = new List<BaseResourceObject>();
+            this.items = new List<BaseResourceObject>();
         }
 
-        protected override void OnManagerChanged(ResourceManager oldManager, ResourceManager newManager) {
-            base.OnManagerChanged(oldManager, newManager);
-            foreach (BaseResourceObject item in this.Items) {
-                SetManager(item, newManager);
+        public ResourceGroup(string displayName) : this() {
+            this.DisplayName = displayName;
+        }
+
+        public override void SetGroup(ResourceGroup group) {
+            base.SetGroup(group);
+            foreach (BaseResourceObject item in this.items) {
+                item.SetGroup(group);
+            }
+        }
+
+        public override void SetManager(ResourceManager manager) {
+            base.SetManager(manager);
+            foreach (BaseResourceObject item in this.items) {
+                item.SetManager(manager);
             }
         }
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            RBEList list = data.CreateList(nameof(this.Items));
-            foreach (BaseResourceObject item in this.Items) {
+            RBEList list = data.CreateList(nameof(this.items));
+            foreach (BaseResourceObject item in this.items) {
                 RBEDictionary dictionary = list.AddDictionary();
                 if (!(item.RegistryId is string registryId))
                     throw new Exception($"Model Type is not registered: {this.GetType()}");
@@ -35,7 +47,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            RBEList list = data.GetList(nameof(this.Items));
+            RBEList list = data.GetList(nameof(this.items));
             foreach (RBEBase item in list.List) {
                 if (!(item is RBEDictionary dictionary))
                     throw new Exception("Expected item list to contain only dictionaries, not " + item);
@@ -45,21 +57,30 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 RBEDictionary dataDictionary = dictionary.GetDictionary("Data");
                 BaseResourceObject resource = ResourceTypeRegistry.Instance.CreateResourceItemModel(registryId);
                 resource.ReadFromRBE(dataDictionary);
-                this.Items.Add(resource);
+                this.items.Add(resource);
             }
         }
 
         public void AddItemToList(BaseResourceObject value) {
-            this.InsertItemIntoList(this.Items.Count, value);
+            this.InsertItemIntoList(this.items.Count, value);
+        }
+
+        public T Add<T>(T item) where T : BaseResourceObject {
+            this.AddItemToList(item);
+            return item;
         }
 
         public void InsertItemIntoList(int index, BaseResourceObject value) {
-            this.Items.Insert(index, value);
-            value.Group = this;
+            this.items.Insert(index, value);
+            value.SetGroup(this);
+        }
+
+        public BaseResourceObject GetItemAt(int index) {
+            return this.items[index];
         }
 
         public bool RemoveItemFromList(BaseResourceObject value) {
-            int index = this.Items.IndexOf(value);
+            int index = this.items.IndexOf(value);
             if (index < 0) {
                 return false;
             }
@@ -69,14 +90,23 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         public void RemoveItemFromListAt(int index) {
-            BaseResourceObject value = this.Items[index];
-            this.Items.RemoveAt(index);
-            value.Group = null;
+            BaseResourceObject value = this.items[index];
+            this.items.RemoveAt(index);
+            value.SetManager(null);
+            value.SetGroup(null);
         }
 
-        public T Add<T>(T item) where T : BaseResourceObject {
-            this.AddItemToList(item);
-            return item;
+        public void CleanupAndClear() {
+            foreach (BaseResourceObject item in this.items) {
+                item.SetManager(null);
+                item.SetGroup(null);
+            }
+
+            this.items.Clear();
+        }
+
+        public void ClearFast() {
+            this.items.Clear();
         }
     }
 }

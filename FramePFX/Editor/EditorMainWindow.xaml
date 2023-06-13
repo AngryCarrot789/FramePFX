@@ -127,12 +127,12 @@
                                 <editor:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
                                     <editor:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
                                         <DataTemplate DataType="{x:Type vm1:ResourceItemViewModel}">
-                                            <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}"/>
                                         </DataTemplate>
                                     </editor:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
                                     <editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
                                         <DataTemplate DataType="{x:Type vm1:ResourceGroupViewModel}">
-                                            <TextBlock Text="{Binding Path=DisplayName, Mode=OneWay}"/>
+                                            <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
                                 </editor:ResourceItemContainerDataTemplateSelector>
@@ -143,7 +143,9 @@
                                                         helpers:SelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
                                                         helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
                                                         ItemContainerStyleSelector="{StaticResource ResourceItemContainerStyleSelector}"
-                                                        ItemTemplateSelector="{StaticResource ResourceItemContainerDataTemplateSelector}">
+                                                        ItemTemplateSelector="{StaticResource ResourceItemContainerDataTemplateSelector}"
+                                                        HorizontalContentAlignment="Stretch"
+                                                        VerticalContentAlignment="Stretch">
                                     <ui:ResourceListControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -396,7 +398,7 @@
                                     <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
                                     <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Setter Property="ResourceDropHandler" Value="{Binding}"/>
+                                    <Setter Property="ResourceItemDropHandler" Value="{Binding}"/>
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Setter Property="ItemsSource" Value="{Binding Clips, Mode=OneTime}"/>
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>

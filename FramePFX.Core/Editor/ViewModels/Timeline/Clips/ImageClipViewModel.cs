@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline.Clip;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
@@ -11,13 +13,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
 
         }
 
-        public override bool CanDropResource(ResourceItem resource) {
-            return resource is ResourceImage;
+        public override bool CanDropResource(BaseResourceObjectViewModel resource) {
+            return resource is ResourceImageViewModel;
         }
 
-        public override async Task OnDropResource(ResourceItem resource) {
-            ResourceImage image = (ResourceImage) resource;
-            this.Model.SetTargetResourceId(image.UniqueId);
+        public override async Task OnDropResource(BaseResourceObjectViewModel resource) {
+            this.Model.SetTargetResourceId(((ResourceImageViewModel) resource).UniqueId);
             this.Model.InvalidateRender();
         }
     }

@@ -67,7 +67,5 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         void OnDragDelta(long offset);
 
         void OnDragToLayer(int index);
-
-        void OnDragToLayerOffset(int offset);
     }
 }

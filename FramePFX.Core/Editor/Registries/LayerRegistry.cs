@@ -4,7 +4,10 @@ using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 
-namespace FramePFX.Core.Editor {
+namespace FramePFX.Core.Editor.Registries {
+    /// <summary>
+    /// The registry for layers; audio, video, etc
+    /// </summary>
     public class LayerRegistry : ModelRegistry<LayerModel, LayerViewModel> {
         public static LayerRegistry Instance { get; } = new LayerRegistry();
 

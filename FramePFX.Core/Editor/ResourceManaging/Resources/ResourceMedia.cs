@@ -246,8 +246,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
                 VideoFrame nearestFrame = null;
                 nearestDist = double.PositiveInfinity;
                 foreach (VideoFrame frame in this.frames) {
-                    if (frame.PresentationTimestamp == null)
-                        continue;
+                    unsafe {
+                        if (frame.Handle == null || frame.PresentationTimestamp == null)
+                            continue;
+                    }
+
                     double dist = (timestamp - this.GetTime(frame)).TotalSeconds;
                     if (Math.Abs(dist) < Math.Abs(nearestDist)) {
                         nearestFrame = frame;

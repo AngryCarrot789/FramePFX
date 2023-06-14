@@ -303,11 +303,6 @@ namespace FramePFX.Editor {
             }
         }
 
-        private void OnTimelineControlContentRequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
-            // Prevent the timeline scrolling when you select a clip
-            e.Handled = true;
-        }
-
         private void OnFitContentToWindowClick(object sender, RoutedEventArgs e) {
             this.VPViewBox.FitContentToCenter();
         }

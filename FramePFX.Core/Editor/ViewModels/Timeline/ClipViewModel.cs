@@ -318,7 +318,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
             }
 
-            this.MediaFrameOffset += (begin - this.FrameBegin);
+            this.MediaFrameOffset -= (begin - this.FrameBegin);
             this.FrameSpan = new FrameSpan(begin, duration);
             this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
         }

@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.Timeline.Layers;
+using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
 using FramePFX.Core.Utils;
@@ -39,38 +41,87 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
 
         }
 
-        public override async Task SliceClipAction(ClipViewModel clip, long frame) {
-            // assert clip.Layer == this
+        public override bool CanDropResource(ResourceItemViewModel resource) {
+            return resource is ResourceMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel || resource is ResourceTextViewModel;
+        }
 
-            // TODO: this function needs some work done; it's super messy and somewhat broken for the text clone
-            // string imageCloneResult = null;
-            // ResourceText resourceText = null;
-            // if (clip.Model is TextClipModel txt1 && txt1.ResourcePath != null && txt1.ResourcePath.TryGetResource(out resourceText)) {
-            //     imageCloneResult = await SliceCloneTextResourceDialog.ShowAsync();
-            //     if (imageCloneResult == null || imageCloneResult == "cancel") {
-            //         return;
-            //     }
-            // }
+        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
+            Validate.Exception(!string.IsNullOrEmpty(resource.UniqueId), "Expected valid resource UniqueId");
+            if (!resource.Model.IsRegistered) {
+                await IoC.MessageDialogs.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
+                return;
+            }
 
-            ClipModel cloned = clip.Model.Clone();
-            FrameSpan oldSpan = clip.Model.FrameSpan;
-            cloned.FrameSpan = FrameSpan.FromIndex(frame, oldSpan.EndIndex);
-            clip.Model.FrameSpan = oldSpan.SetEndIndex(frame);
-            // if (imageCloneResult != null && imageCloneResult == "copy") {
-            //     string path = TextIncrement.GetNextNumber(resourceText.UniqueId);
-            //     ResourceText textRes = new ResourceText() {
-            //         Border = resourceText.Border,
-            //         Foreground = resourceText.Foreground,
-            //         Text = resourceText.Text,
-            //         FontFamily = resourceText.FontFamily,
-            //         SkewX = resourceText.SkewX,
-            //         FontSize = resourceText.FontSize
-            //     };
-            //     clip.Project.ResourceManager.AddModel(textRes, path);
-            //     ((TextClipModel) cloned).SetTargetResourceId(path);
-            // }
+            double fps = this.Timeline.Project.Settings.FrameRate;
+            long defaultDuration = (long) (fps * 5);
 
-            this.CreateClip(cloned);
+            ClipModel newClip = null;
+            if (resource.Model is ResourceMedia media) {
+                media.OpenMediaFromFile();
+                TimeSpan span = media.GetDuration();
+                long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                if (dur < 2) {
+                    // image files are 1
+                    dur = defaultDuration;
+                }
+
+                if (dur > 0) {
+                    long newProjectDuration = frameBegin + dur + 600;
+                    if (newProjectDuration > this.Timeline.MaxDuration) {
+                        this.Timeline.MaxDuration = newProjectDuration;
+                    }
+
+                    MediaClipModel clip = new MediaClipModel() {
+                        FrameSpan = new FrameSpan(frameBegin, dur),
+                        DisplayName = media.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(media.UniqueId);
+                    newClip = clip;
+                }
+                else {
+                    await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                    return;
+                }
+            }
+            else {
+                if (resource.Model is ResourceColour argb) {
+                    ShapeClipModel clip = new ShapeClipModel() {
+                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
+                        Width = 200, Height = 200,
+                        DisplayName = argb.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(argb.UniqueId);
+                    newClip = clip;
+                }
+                else if (resource.Model is ResourceImage img) {
+                    ImageClipModel clip = new ImageClipModel() {
+                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
+                        DisplayName = img.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(img.UniqueId);
+                    newClip = clip;
+                }
+                else if (resource.Model is ResourceText text) {
+                    TextClipModel clip = new TextClipModel() {
+                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
+                        DisplayName = text.UniqueId
+                    };
+
+                    clip.SetTargetResourceId(text.UniqueId);
+                    newClip = clip;
+                }
+                else {
+                    return;
+                }
+            }
+
+            this.CreateClip(newClip);
+            if (newClip is VideoClipModel videoClipModel) {
+                videoClipModel.InvalidateRender();
+            }
         }
 
         public VideoClipRangeRemoval GetRangeRemoval(long spanBegin, long spanDuration) {

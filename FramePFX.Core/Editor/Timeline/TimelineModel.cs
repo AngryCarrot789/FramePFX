@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline.Layers;
+using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;

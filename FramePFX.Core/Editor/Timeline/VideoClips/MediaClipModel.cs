@@ -6,7 +6,7 @@ using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.Clip {
+namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public class MediaClipModel : BaseResourceClip<ResourceMedia> {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         private SwScaler scaler;
@@ -48,8 +48,6 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
             this.renderFrameRgb = null;
             this.downloadedHwFrame?.Dispose();
             this.downloadedHwFrame = null;
-            this.readyFrame?.Dispose();
-            this.readyFrame = null;
             this.scaler?.Dispose();
             this.scaler = null;
         }

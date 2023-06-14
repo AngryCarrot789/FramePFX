@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
 
 namespace FramePFX.Core.Editor.Timeline {

@@ -7,10 +7,8 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
-using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Interactivity;
-using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.ResourceManaging.UI {
     public class ResourceListControl : MultiSelector, IResourceListHandle {

@@ -4,7 +4,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.Clip {
+namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public class ShapeClipModel : BaseResourceClip<ResourceColour> {
         public float Width { get; set; }
 

@@ -48,8 +48,11 @@
                         <Keystroke Key="Delete"/>
                     </Shortcut>
                 </Group>
-                <Shortcut Name="NewVideoLayer" ActionId="actions.editor.NewVideoLayer" Inherit="true" Description="Creates a new video layer">
+                <Shortcut Name="NewVideoLayer" ActionId="actions.editor.NewVideoLayer" Description="Creates a new video layer">
                     <Keystroke Mods="CTRL+SHIFT" Key="Q"/>
+                </Shortcut>
+                <Shortcut Name="NewAudioLayer" ActionId="actions.editor.NewAudioLayer" Description="Creates a new audio layer">
+                    <Keystroke Mods="CTRL" Key="Q"/>
                 </Shortcut>
             </Group>
         </Group>

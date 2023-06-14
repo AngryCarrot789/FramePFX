@@ -1,4 +1,4 @@
-namespace FramePFX.Core.Editor.Timeline.Clip {
+namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public class ShapeClip {
         
     }

@@ -225,7 +225,8 @@ namespace FramePFX.Editor.Timeline.Controls {
             object item = this.lastItem;
             this.lastItem = null;
             switch (item) {
-                case VideoLayerViewModel _: return new VideoTimelineLayerControl();
+                case VideoLayerViewModel _: return new VideoLayerControl();
+                case AudioLayerViewModel _: return new AudioLayerControl();
             }
 
             throw new Exception("Could not create layer container for item: " + item);

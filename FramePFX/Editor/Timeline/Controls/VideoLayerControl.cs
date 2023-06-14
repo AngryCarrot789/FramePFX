@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System;
+using System.Diagnostics;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public class VideoTimelineLayerControl : TimelineLayerControl {
+    public class VideoLayerControl : TimelineLayerControl {
 
         //           Width
         // ---------------------------
@@ -18,12 +20,17 @@ namespace FramePFX.Editor.Timeline.Controls {
         //     set => this.UnitZoom = this.ActualWidth / value;
         // }
 
-        public VideoTimelineLayerControl() {
+        public VideoLayerControl() {
 
         }
 
-        public override bool CanAcceptClip(TimelineClipControl clip) {
-            return clip is TimelineVideoClipControl;
+        protected override TimelineClipControl GetContainerForItem(object item) {
+            if (item == null || item is VideoClipViewModel)
+                return new VideoClipControl();
+            #if DEBUG
+            Debugger.Break();
+            #endif
+            throw new Exception($"Tried to generate {nameof(VideoClipControl)} for {item.GetType()}");
         }
     }
 }

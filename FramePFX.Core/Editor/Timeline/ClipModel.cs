@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;

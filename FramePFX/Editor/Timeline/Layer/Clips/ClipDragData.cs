@@ -10,15 +10,15 @@ using FramePFX.Editor.Timeline.Utils;
 namespace FramePFX.Editor.Timeline.Layer.Clips {
     public class ClipDragData {
         public TimelineControl Timeline { get; }
-        public TimelineVideoClipControl Clip { get; }
-        public TimelineVideoClipControl CopiedClip { get; set; }
+        public VideoClipControl Clip { get; }
+        public VideoClipControl CopiedClip { get; set; }
 
         public bool HasCopy { get; set; }
         public long OriginalFrameBegin { get; set; }
         public long TargetFrameBegin { get; set; }
         public bool IsFinished { get; set; }
 
-        public ClipDragData(TimelineVideoClipControl clip) {
+        public ClipDragData(VideoClipControl clip) {
             this.Clip = clip;
             this.Clip.DragData = this;
             this.Timeline = clip.Timeline;
@@ -71,10 +71,10 @@ namespace FramePFX.Editor.Timeline.Layer.Clips {
             if (this.Clip.DataContext is ClipViewModel clip) {
                 ClipModel clone = clip.Model.Clone();
                 clone.FrameSpan = clone.FrameSpan.SetBegin(this.OriginalFrameBegin);
-                clone.DisplayName = TextIncrement.GetNextNumber(clone.DisplayName);
+                clone.DisplayName = TextIncrement.GetNextText(clone.DisplayName);
                 clip.Layer.CreateClip(clone);
                 this.HasCopy = true;
-                if (ICGenUtils.GetContainerForItem2<ClipViewModel, TimelineVideoClipControl>(x => x.Model == clone, this.Clip.Layer.ItemContainerGenerator, out TimelineVideoClipControl control)) {
+                if (ICGenUtils.GetContainerForItem2<ClipViewModel, VideoClipControl>(x => x.Model == clone, this.Clip.Layer.ItemContainerGenerator, out VideoClipControl control)) {
                     this.CopiedClip = control;
                 }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Events;
-using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 

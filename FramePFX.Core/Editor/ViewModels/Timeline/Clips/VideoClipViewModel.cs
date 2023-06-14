@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Clip;
-using FramePFX.Core.History;
+using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 
@@ -111,6 +106,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
+                this.Model.InvalidateRender();
+            }
+        }
+
+        public double Opacity {
+            get => this.Model.Opacity;
+            set {
+                this.Model.Opacity = Maths.Clamp(value, 0d, 1d);
+                this.RaisePropertyChanged();
                 this.Model.InvalidateRender();
             }
         }

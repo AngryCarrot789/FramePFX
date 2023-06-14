@@ -1,4 +1,4 @@
-using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline.Layers {
@@ -16,7 +16,7 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
                 MinHeight = this.MinHeight,
                 Height = this.Height,
                 LayerColour = this.LayerColour,
-                DisplayName = TextIncrement.GetNextNumber(this.DisplayName)
+                DisplayName = TextIncrement.GetNextText(this.DisplayName)
             };
 
             foreach (ClipModel clip in this.Clips) {

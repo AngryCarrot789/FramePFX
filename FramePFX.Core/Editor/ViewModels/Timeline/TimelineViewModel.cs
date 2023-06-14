@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
+using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
@@ -70,7 +71,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public ProjectViewModel Project { get; }
 
-        public InputValidator LayerNameValidator { get; set; }
+        public InputValidator LayerNameValidator { get; }
 
         /// <summary>
         /// A flag used when handing clip drag events so that other clips know if they are being dragged by a source clip (multi-clip drag)
@@ -111,7 +112,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         }
 
-        public void AddLayer(VideoLayerViewModel layer, bool addToModel = true) {
+        public void AddLayer(LayerViewModel layer, bool addToModel = true) {
             if (addToModel)
                 this.Model.AddLayer(layer.Model);
             this.layers.Add(layer);
@@ -146,12 +147,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             return layer;
         }
 
-        public void DoRender(bool schedule = false) {
-            this.Project.Editor?.DoRender(schedule);
+        public async Task<AudioLayerViewModel> AddAudioLayerAction() {
+            AudioLayerViewModel layer = new AudioLayerViewModel(this, new AudioLayerModel(this.Model));
+            this.AddLayer(layer);
+            return layer;
         }
 
-        public async Task AddAudioLayerAction() {
-
+        public void DoRender(bool schedule = false) {
+            this.Project.Editor?.DoRender(schedule);
         }
 
         public Task RemoveSelectedLayersAction() {

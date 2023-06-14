@@ -10,8 +10,8 @@ using FramePFX.Core.Actions;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
-using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.Editor.Timeline.Layers;
+using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.Shortcuts.Managing;
@@ -29,6 +29,10 @@ namespace FramePFX {
     /// </summary>
     public partial class App : Application {
         private AppSplashScreen splash;
+
+        public App() {
+
+        }
 
         public void RegisterActions() {
             ActionManager.SearchAndRegisterActions(ActionManager.Instance);
@@ -84,8 +88,8 @@ namespace FramePFX {
         private async void Application_Startup(object sender, StartupEventArgs e) {
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
-            this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+            this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.MainWindow = this.splash = new AppSplashScreen();
             this.splash.Show();
 

@@ -1,9 +1,13 @@
 using System;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 
-namespace FramePFX.Core.Editor.ResourceManaging {
+namespace FramePFX.Core.Editor.Registries {
+    /// <summary>
+    /// The registry for resource items (including the resource group)
+    /// </summary>
     public class ResourceTypeRegistry : ModelRegistry<BaseResourceObject, BaseResourceObjectViewModel> {
         public static ResourceTypeRegistry Instance { get; } = new ResourceTypeRegistry();
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,7 +9,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
@@ -413,7 +411,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                     foreach (TimelineLayerControl layer in layers) {
                         // IsMouseOver does not work
                         Point mpos = e.GetPosition(layer);
-                        if (mpos.Y >= 0 && mpos.Y < layer.ActualHeight)
+                        if (mpos.Y >= 0 && mpos.Y < layer.ActualHeight && layer.CanAcceptClip(this))
                             break;
                         index++;
                     }

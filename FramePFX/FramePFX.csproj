@@ -38,6 +38,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSCore, Version=1.2.1.2, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea">
+      <HintPath>..\packages\CSCore.1.2.1.2\lib\net35-client\CSCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FFmpeg.AutoGen, Version=6.0.0.2, Culture=neutral, PublicKeyToken=9b7632533a381715">
       <HintPath>..\packages\FFmpeg.AutoGen.6.0.0.2\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
       <Private>True</Private>
@@ -153,6 +157,7 @@
     <Compile Include="AdvancedContextService\Static\StaticShortcutMenuItem.cs" />
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
+    <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs" />
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
@@ -218,12 +223,14 @@
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewLayerActions.cs" />
     <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
+    <Compile Include="Editor\Timeline\Controls\AudioClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\AudioLayerControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineLayerControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelineVideoClipControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\VideoTimelineLayerControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\VideoClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\VideoLayerControl.cs" />
     <Compile Include="Editor\Timeline\Layer\Clips\ClipDragData.cs" />
     <Compile Include="Editor\Timeline\Layer\Clips\ClipType.cs" />
     <Compile Include="Editor\Timeline\Layer\Clips\IAudioClip.cs" />
@@ -231,6 +238,9 @@
     <Compile Include="Editor\Timeline\Layer\Clips\IClipHandle.cs" />
     <Compile Include="Editor\Timeline\Layer\ILayerHandle.cs" />
     <Compile Include="Editor\Timeline\Layer\IndexMap.cs" />
+    <Compile Include="Editor\Timeline\TimelineClipStyleSelector.cs" />
+    <Compile Include="Editor\Timeline\TimelineLayerListItemTemplateSelector.cs" />
+    <Compile Include="Editor\Timeline\TimelineLayerStyleSelector.cs" />
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\InputUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineClipDragData.cs" />

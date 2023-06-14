@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
 
 namespace FramePFX.Core.Editor.ResourceManaging {

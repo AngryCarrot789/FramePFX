@@ -1,10 +1,9 @@
 using System.Numerics;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
-using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.Clip {
+namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public abstract class VideoClipModel : ClipModel {
         /// <summary>
         /// The x and y coordinates of the video's media
@@ -20,6 +19,11 @@ namespace FramePFX.Core.Editor.Timeline.Clip {
         /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
         /// </summary>
         public Vector2 MediaScaleOrigin { get; set; }
+
+        /// <summary>
+        /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
+        /// </summary>
+        public double Opacity { get; set; }
 
         /// <summary>
         /// An event invoked when this video clip changes in some way that affects its render. 

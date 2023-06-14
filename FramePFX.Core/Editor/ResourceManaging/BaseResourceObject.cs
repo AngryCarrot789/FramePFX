@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 

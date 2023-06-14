@@ -1,19 +1,19 @@
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Editor.Timeline.Controls;
+using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 
 namespace FramePFX.Editor.Timeline {
-    public class TimelineLayerListItemContainerSelector : StyleSelector {
-        public Style VideoLayerStyle { get; set; }
-        public Style AudioLayerStyle { get; set; }
+    public class TimelineLayerListItemTemplateSelector : DataTemplateSelector {
+        public DataTemplate VideoLayerTemplate { get; set; }
+        public DataTemplate AudioLayerTemplate { get; set; }
 
-        public override Style SelectStyle(object item, DependencyObject container) {
+        public override DataTemplate SelectTemplate(object item, DependencyObject container) {
             switch (item) {
-                case VideoLayerControl _: return this.VideoLayerStyle;
-                case AudioLayerControl _: return this.AudioLayerStyle;
+                case VideoLayerViewModel _: return this.VideoLayerTemplate;
+                case AudioLayerViewModel _: return this.AudioLayerTemplate;
             }
 
-            return base.SelectStyle(item, container);
+            return base.SelectTemplate(item, container);
         }
     }
 }

@@ -230,19 +230,23 @@
                                 <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0"/>
                             </Grid>
                         </Border>
-                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers" Grid.Column="0" BorderThickness="0 0 0 0" Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" Grid.Row="1"/>
-                        <ListBox s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
-                                 ItemsSource="{Binding Layers, Mode=OneTime}" 
+                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
+                                Grid.Row="1" Grid.Column="0" BorderThickness="0 0 0 0"
+                                Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
+                        <ListBox x:Name="LayerListBox" s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
+                                 Grid.Row="1" Grid.Column="0"
+                                 SelectionMode="Extended"
+                                 ItemsSource="{Binding Layers, Mode=OneTime}"
                                  SelectedItem="{Binding PrimarySelectedLayer, UpdateSourceTrigger=PropertyChanged}"
                                  helpers:SelectorHelper.SelectedItems="{Binding SelectedLayers}"
                                  helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
-                                 SelectionMode="Extended"
-                                 Grid.Column="0" Background="Transparent" BorderBrush="Transparent" 
-                                 HorizontalContentAlignment="Stretch" Grid.Row="1"
-                                 Padding="0" x:Name="LayerListBox"
+                                 Background="Transparent" BorderBrush="Transparent"
+                                 HorizontalContentAlignment="Stretch"
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                  ScrollViewer.CanContentScroll="False"
-                                 BorderThickness="0 0 0 0">
+                                 BorderThickness="0 0 0 0" Padding="0"
+                                 ItemTemplateSelector="{StaticResource TimelineLayerListItemContainerSelector}">
                             <ListBox.Template>
                                 <ControlTemplate TargetType="{x:Type ListBox}">
                                     <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="0" SnapsToDevicePixels="true">
@@ -265,7 +269,7 @@
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </ListBox.Template>
-                            <ItemsControl.ItemContainerStyle>
+                            <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
                                     <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged, FallbackValue=60}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged, FallbackValue=40}"/>
@@ -323,159 +327,15 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Style>
-                            </ItemsControl.ItemContainerStyle>
-                            <ItemsControl.Resources>
-                                <DataTemplate DataType="{x:Type timeline:LayerViewModel}">
-                                    <Grid>
-                                        <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                        <Slider VerticalAlignment="Center" Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" SmallChange="0.1" TickFrequency="0.1"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.Resources>
+                            </ListBox.ItemContainerStyle>
                         </ListBox>
                         <Border Visibility="Collapsed" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
                         <c:TimelineControl x:Name="TheTimeline"
-                                                  ItemsSource="{Binding Layers, Mode=OneTime}"
-                                                  Grid.Column="2" BorderThickness="0"
-                                                  BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
-                                                  MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
-                                                  Grid.RowSpan="2"
-                                                  s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
-                            <c:TimelineControl.Style>
-                                <Style TargetType="{x:Type c:TimelineControl}">
-                                    <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
-                                    <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
-                                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
-                                    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-                                    <Setter Property="ScrollViewer.PanningMode" Value="Both" />
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type c:TimelineControl}">
-                                                <Grid>
-                                                    <Border Background="{DynamicResource ABrush.Tone1.Background.Static}"/>
-                                                    <!-- A collection of TimelineLayerControls -->
-                                                    <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" 
-                                                                  Padding="{TemplateBinding Padding}" 
-                                                                  HorizontalScrollBarVisibility="Visible"
-                                                                  CanContentScroll="False"
-                                                                  converters:VerticalScrollBinder.BindGroup="TimelineScrollGroup">
-                                                        <!-- Handle RequestBringIntoView in the grid because there is no preview version of the event -->
-                                                        <!-- Handling the event will stop the ScrollViewer scrolling to offscreen values -->
-                                                        <Grid HorizontalAlignment="Left" RequestBringIntoView="OnTimelineControlContentRequestBringIntoView">
-                                                            <Grid.RowDefinitions>
-                                                                <RowDefinition Height="40"/>
-                                                                <RowDefinition Height="*"/>
-                                                            </Grid.RowDefinitions>
-                                                            <Border Margin="0" Background="{TemplateBinding Background}"
-                                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                                    Grid.Row="1">
-                                                                <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                                            </Border>
-                                                            <Border Grid.Row="0" x:Name="PART_TimestampBoard"
-                                                                    Margin="0" VerticalAlignment="Stretch"
-                                                                    Background="{DynamicResource ABrush.Tone3.Background.Static}"
-                                                                    BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
-                                                                    BorderThickness="0 0 0 1" />
-                                                            <c:TimelinePlayHeadControl Background="{DynamicResource ABrush.Tone7.Border.Static}"
-                                                                                       x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2" Width="1"
-                                                                                       VerticalAlignment="Stretch"
-                                                                                       VerticalContentAlignment="Stretch"
-                                                                                       HorizontalAlignment="Left"
-                                                                                       Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                                                                       FrameIndex="{Binding PlayHeadFrame, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                                        </Grid>
-                                                    </ScrollViewer>
-                                                </Grid>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </c:TimelineControl.Style>
-                            <c:TimelineControl.ItemContainerStyle>
-                                <Style TargetType="{x:Type c:VideoTimelineLayerControl}">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
-                                    <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Setter Property="ResourceItemDropHandler" Value="{Binding}"/>
-                                    <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <Setter Property="ItemsSource" Value="{Binding Clips, Mode=OneTime}"/>
-                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="Focusable" Value="True"/>
-                                    <Setter Property="SelectedItem" Value="{Binding PrimarySelectedClip}"/>
-                                    <Setter Property="helpers:SelectorHelper.SelectedItems" Value="{Binding SelectedClips}"/>
-                                    <Setter Property="helpers:SelectorHelper.UpdateSelectedItemsOnChange" Value="True"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type c:VideoTimelineLayerControl}">
-                                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
-                                                    <!-- IsItemHost must be true in order for it's items to sync with the TimelineLayerControl's items -->
-                                                    <Canvas IsItemsHost="True" Background="{TemplateBinding Background}"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="ItemContainerStyle">
-                                        <Setter.Value>
-                                            <Style TargetType="{x:Type c:TimelineVideoClipControl}">
-                                                <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
-                                                <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
-                                                <Setter Property="HeaderBrush" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-                                                <Setter Property="BorderThickness" Value="1"/>
-                                                <Setter Property="HorizontalAlignment" Value="Left"/>
-                                                <Setter Property="VerticalAlignment" Value="Stretch"/>
-                                                <Setter Property="Focusable" Value="True"/>
-                                                <Setter Property="FrameBegin" Value="{Binding FrameBegin, UpdateSourceTrigger=PropertyChanged}"/>
-                                                <Setter Property="FrameDuration" Value="{Binding FrameDuration, UpdateSourceTrigger=PropertyChanged}"/>
-                                                <Setter Property="MinHeight" Value="{Binding Layer.MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                                <Setter Property="MaxHeight" Value="{Binding Layer.MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
-                                                <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate TargetType="{x:Type c:TimelineVideoClipControl}">
-                                                            <Grid d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
-                                                                <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
-                                                                    <Border Background="{Binding Layer.LayerColour}" VerticalAlignment="Top" Height="20">
-                                                                        <Grid>
-                                                                            <TextBlock Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1">
-                                                                                <TextBlock.InputBindings>
-                                                                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
-                                                                                </TextBlock.InputBindings>
-                                                                            </TextBlock>
-                                                                        </Grid>
-                                                                    </Border>
-                                                                    <Grid Margin="1,20,1,0" Background="{TemplateBinding Background}">
-                                                                        <!--
-                                                                        Video clip viewport here
-                                                                        -->
-                                                                    </Grid>
-                                                                </Grid>
-                                                                <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True"/>
-                                                                <cc:CancellableThumb x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
-                                                                <cc:CancellableThumb x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
-                                                            </Grid>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsSelected" Value="True">
-                                                                    <Setter TargetName="OutlineBorder" Property="BorderBrush" Value="GreenYellow"/>
-                                                                </Trigger>
-                                                                <Trigger Property="IsSelected" Value="False">
-                                                                    <Setter TargetName="OutlineBorder" Property="BorderBrush" Value="{Binding BorderBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
-                                                                </Trigger>
-                                                                <Trigger Property="IsDroppableTargetOver" Value="True">
-                                                                    <Setter TargetName="OutlineBorder" Property="BorderBrush" Value="OrangeRed"/>
-                                                                    <Setter TargetName="OutlineBorder" Property="BorderThickness" Value="3"/>
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Style>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </c:TimelineControl.ItemContainerStyle>
+                                           ItemsSource="{Binding Layers, Mode=OneTime}"
+                                           Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
+                                           BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
+                                           MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
+                                           s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                         </c:TimelineControl>
                         <GridSplitter Background="{DynamicResource ABrush.Tone4.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>

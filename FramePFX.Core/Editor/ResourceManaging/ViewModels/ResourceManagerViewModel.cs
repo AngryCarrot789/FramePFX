@@ -121,13 +121,24 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
 
             int i = 0;
-            string id = filePath;
+            string id = fileName;
             do {
                 if (!this.Model.EntryExists(id)) {
                     return id;
                 }
 
-                id = TextIncrement.GetNextNumber(id);
+                id = TextIncrement.GetNextText(id);
+                i++;
+            } while (i < 100);
+
+            i = 0;
+            id = filePath;
+            do {
+                if (!this.Model.EntryExists(id)) {
+                    return id;
+                }
+
+                id = TextIncrement.GetNextText(id);
                 i++;
             } while (i < 1000);
 
@@ -194,7 +205,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     case ".mkv":
                     case ".flv":
                         ResourceMediaViewModel media = new ResourceMediaViewModel(new ResourceMedia() {FilePath = path});
-                        ResourceItem.SetUniqueId(media.Model, this.GenerateIdForFile(path));
+                        this.Model.RegisterEntry(this.GenerateIdForFile(path), media.Model);
                         this.CurrentGroup.AddItem(media, true);
                         break;
                     case ".png":
@@ -210,7 +221,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                             break;
                         }
 
-                        ResourceItem.SetUniqueId(image.Model, this.GenerateIdForFile(path));
+                        this.Model.RegisterEntry(this.GenerateIdForFile(path), image.Model);
                         this.CurrentGroup.AddItem(image, true);
                         break;
                 }

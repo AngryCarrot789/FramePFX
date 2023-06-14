@@ -4,7 +4,10 @@ using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 
-namespace FramePFX.Core.Editor {
+namespace FramePFX.Core.Editor.Registries {
+    /// <summary>
+    /// The registry for clips; audio, video, etc
+    /// </summary>
     public class ClipRegistry : ModelRegistry<ClipModel, ClipViewModel> {
         public static ClipRegistry Instance { get; } = new ClipRegistry();
 

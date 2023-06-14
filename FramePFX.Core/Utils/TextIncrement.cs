@@ -6,7 +6,7 @@ using FFmpeg.AutoGen;
 
 namespace FramePFX.Core.Utils {
     public static class TextIncrement {
-        public static string GetNextNumber(string input) {
+        public static string GetNextText(string input) {
             if (string.IsNullOrEmpty(input)) {
                 return input;
             }
@@ -14,8 +14,9 @@ namespace FramePFX.Core.Utils {
             if (GetNumbered(input, out string left, out long number)) {
                 return $"{left} ({number + 1})";
             }
-
-            return input;
+            else {
+                return $"{input} (1)";
+            }
 
             // if (string.IsNullOrEmpty(inputName)) {
             //     return "(1)";

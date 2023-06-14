@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,27 +7,15 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public abstract class TimelineLayerControl : MultiSelector, ILayerHandle {
-        public static readonly DependencyProperty ResourceItemDropHandlerProperty =
-            DependencyProperty.Register(
-                "ResourceItemDropHandler",
-                typeof(IResourceItemDropHandler),
-                typeof(TimelineLayerControl),
-                new PropertyMetadata(null));
-
-        public IResourceItemDropHandler ResourceItemDropHandler {
-            get => (IResourceItemDropHandler) this.GetValue(ResourceItemDropHandlerProperty);
-            set => this.SetValue(ResourceItemDropHandlerProperty, value);
-        }
-
         /// <summary>
         /// The timeline that contains this layer
         /// </summary>
@@ -38,6 +27,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         public double UnitZoom => this.Timeline?.UnitZoom ?? 1D;
 
         public LayerViewModel ViewModel => this.DataContext as LayerViewModel;
+
+        public IResourceItemDropHandler ResourceItemDropHandler => this.DataContext as IResourceItemDropHandler;
+
 
         protected bool isProcessingDrop;
         public TimelineClipControl lastSelectedItem;
@@ -53,6 +45,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
             this.DragEnter += this.OnDragDropEnter;
+            this.DragOver += this.OnDragOver;
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e) {
@@ -100,7 +93,9 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public abstract IEnumerable<TimelineClipControl> GetClipsThatIntersect(FrameSpan span);
+        public IEnumerable<TimelineClipControl> GetClipsThatIntersect(FrameSpan span) {
+            return this.GetClipContainers<TimelineClipControl>().Where(x => x.Span.Intersects(span));
+        }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);
@@ -123,28 +118,46 @@ namespace FramePFX.Editor.Timeline.Controls {
             e.Handled = true;
         }
 
-        private void OnDrop(object sender, DragEventArgs e) {
-            if (this.isProcessingDrop || this.ResourceItemDropHandler == null) {
-                e.Effects = DragDropEffects.None;
-                e.Handled = true;
-                return;
-            }
-
-            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
-                if (e.Data.GetData(nameof(BaseResourceObjectViewModel)) is ResourceItemViewModel resource) {
-                    this.isProcessingDrop = true;
-                    this.OnDropResource(resource, e.GetPosition(this));
+        private void OnDragOver(object sender, DragEventArgs e) {
+            IResourceItemDropHandler handler;
+            if (!this.isProcessingDrop && (handler = this.ResourceItemDropHandler) != null) {
+                if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
+                    object value = e.Data.GetData(nameof(BaseResourceObjectViewModel));
+                    if (value is ResourceItemViewModel resource) {
+                        if (handler.CanDropResource(resource)) {
+                            return;
+                        }
+                    }
                 }
             }
+
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
         }
 
-        protected async void OnDropResource(ResourceItemViewModel item, Point mouse) {
-            if (item.Model.IsRegistered) {
-                long frame = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
-                frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
-                await this.ResourceItemDropHandler.OnResourceDropped(item, frame);
+        private void OnDrop(object sender, DragEventArgs e) {
+            IResourceItemDropHandler handler;
+            if (!this.isProcessingDrop && (handler = this.ResourceItemDropHandler) != null) {
+                if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
+                    object value = e.Data.GetData(nameof(BaseResourceObjectViewModel));
+                    if (value is ResourceItemViewModel resource) {
+                        this.isProcessingDrop = true;
+                        if (handler.CanDropResource(resource)) {
+                            this.OnDropResource(handler, resource, e.GetPosition(this));
+                            return;
+                        }
+                    }
+                }
             }
 
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        protected async void OnDropResource(IResourceItemDropHandler handler, ResourceItemViewModel item, Point mouse) {
+            long frame = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
+            frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
+            await handler.OnResourceDropped(item, frame);
             this.isProcessingDrop = false;
         }
 
@@ -259,5 +272,35 @@ namespace FramePFX.Editor.Timeline.Controls {
         protected override Size ArrangeOverride(Size arrangeBounds) {
             return base.ArrangeOverride(arrangeBounds);
         }
+
+        public bool CanAcceptClip(TimelineClipControl clip) {
+            if (this is VideoLayerControl) {
+                return clip is VideoClipControl;
+            }
+            else if (this is AudioLayerControl) {
+
+            }
+
+            return false;
+        }
+
+        private object currentItem;
+
+        protected override DependencyObject GetContainerForItemOverride() {
+            object item = this.currentItem;
+            this.currentItem = null;
+            return this.GetContainerForItem(item);
+        }
+
+        protected override bool IsItemItsOwnContainerOverride(object item) {
+            if (this is VideoLayerControl) {
+                return item is VideoClipControl;
+            }
+
+            this.currentItem = item;
+            return false;
+        }
+
+        protected abstract TimelineClipControl GetContainerForItem(object item);
     }
 }

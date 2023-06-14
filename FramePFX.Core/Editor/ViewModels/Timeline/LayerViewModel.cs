@@ -5,12 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
-using FramePFX.Core.Editor.ResourceManaging;
-using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Clip;
 using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.History.ViewModels;
@@ -284,91 +281,31 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.Model.Clips.MoveItem(index, endIndex);
         }
 
-        public async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
-            Validate.Exception(!string.IsNullOrEmpty(resource.UniqueId), "Expected valid resource UniqueId");
-            Validate.Exception(resource.Model.IsRegistered, "Expected resource to be registered");
+        public abstract bool CanDropResource(ResourceItemViewModel resource);
 
-            double fps = this.Timeline.Project.Settings.FrameRate;
-            long defaultDuration = (long) (fps * 5);
-
-            ClipModel newClip = null;
-            if (resource.Model is ResourceMedia media) {
-                media.OpenMediaFromFile();
-                TimeSpan span = media.GetDuration();
-                long dur = (long) Math.Floor(span.TotalSeconds * fps);
-                if (dur < 2) {
-                    // image files are 1
-                    dur = defaultDuration;
-                }
-
-                if (dur > 0) {
-                    long newProjectDuration = frameBegin + dur + 600;
-                    if (newProjectDuration > this.Timeline.MaxDuration) {
-                        this.Timeline.MaxDuration = newProjectDuration;
-                    }
-
-                    MediaClipModel clip = new MediaClipModel() {
-                        FrameSpan = new FrameSpan(frameBegin, dur),
-                        DisplayName = media.UniqueId
-                    };
-
-                    clip.SetTargetResourceId(media.UniqueId);
-                    newClip = clip;
-                }
-                else {
-                    await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
-                    return;
-                }
-            }
-            else {
-                if (resource.Model is ResourceColour argb) {
-                    ShapeClipModel clip = new ShapeClipModel() {
-                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
-                        Width = 200, Height = 200,
-                        DisplayName = argb.UniqueId
-                    };
-
-                    clip.SetTargetResourceId(argb.UniqueId);
-                    newClip = clip;
-                }
-                else if (resource.Model is ResourceImage img) {
-                    ImageClipModel clip = new ImageClipModel() {
-                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
-                        DisplayName = img.UniqueId
-                    };
-
-                    clip.SetTargetResourceId(img.UniqueId);
-                    newClip = clip;
-                }
-                else if (resource.Model is ResourceText text) {
-                    TextClipModel clip = new TextClipModel() {
-                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
-                        DisplayName = text.UniqueId
-                    };
-
-                    clip.SetTargetResourceId(text.UniqueId);
-                    newClip = clip;
-                }
-                else {
-                    return;
-                }
-            }
-
-            this.CreateClip(newClip);
-            if (newClip is VideoClipModel videoClipModel) {
-                videoClipModel.InvalidateRender();
-            }
-        }
+        public abstract Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin);
 
         /// <summary>
-        /// Slices the given clip at the given frame. The given frame will always be above the clip's start frame and less than the clip's end frame; it is guaranteed to intersect
+        /// Slices the given clip at the given frame
         /// </summary>
         /// <param name="clip"></param>
         /// <param name="frame"></param>
         /// <returns></returns>
-        public abstract Task SliceClipAction(ClipViewModel clip, long frame);
+        public Task SliceClipAction(ClipViewModel clip, long frame) {
+            FrameSpan span = clip.Model.FrameSpan;
+            if (frame <= span.Begin || frame >= span.EndIndex) {
+                return Task.CompletedTask;
+            }
 
-        public virtual bool CanAccept(ClipViewModel clip) {
+            ClipModel cloned = clip.Model.Clone();
+            cloned.FrameSpan = FrameSpan.FromIndex(frame, span.EndIndex);
+            cloned.MediaFrameOffset = frame - span.Begin;
+            clip.FrameSpan = span.SetEndIndex(frame);
+            this.CreateClip(cloned);
+            return Task.CompletedTask;
+        }
+
+        public bool CanAccept(ClipViewModel clip) {
             return this.Model.CanAccept(clip.Model);
         }
     }

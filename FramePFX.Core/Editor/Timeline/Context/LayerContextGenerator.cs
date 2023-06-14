@@ -10,10 +10,12 @@ namespace FramePFX.Core.Editor.Timeline.Context {
                 list.Add(new ActionContextEntry(layer, "actions.resources.RenameItem"));
                 list.Add(SeparatorEntry.Instance);
                 list.Add(new ActionContextEntry(layer.Timeline, "actions.editor.NewVideoLayer"));
+                list.Add(new ActionContextEntry(layer.Timeline, "actions.editor.NewAudioLayer"));
                 list.Add(new ActionContextEntry(layer, "actions.resources.RenameItem"));
             }
             else if (context.TryGetContext(out TimelineViewModel timeline)) {
                 list.Add(new ActionContextEntry(timeline, "actions.editor.NewVideoLayer"));
+                list.Add(new ActionContextEntry(timeline, "actions.editor.NewAudioLayer"));
             }
         }
     }

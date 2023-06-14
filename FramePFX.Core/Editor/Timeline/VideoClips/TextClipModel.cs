@@ -3,7 +3,7 @@ using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.Clip {
+namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public class TextClipModel : BaseResourceClip<ResourceText> {
         private SKTextBlob blob;
         private SKPaint paint;

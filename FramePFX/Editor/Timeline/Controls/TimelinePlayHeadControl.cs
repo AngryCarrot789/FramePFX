@@ -131,11 +131,11 @@ namespace FramePFX.Editor.Timeline.Controls {
 
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                 const long range = 80;
-                List<TimelineVideoClipControl> clips = timeline.GetClipsInSpan<TimelineVideoClipControl>(new FrameSpan(newFrame - (range / 2), range)).ToList();
+                List<VideoClipControl> clips = timeline.GetClipsInSpan<VideoClipControl>(new FrameSpan(newFrame - (range / 2), range)).ToList();
                 if (clips.Count >= 1) {
                     long closestFrame = long.MaxValue;
                     long targetFrame = newFrame;
-                    foreach (TimelineVideoClipControl clip in clips) {
+                    foreach (VideoClipControl clip in clips) {
                         FrameSpan span = clip.Span;
                         long distBegin = Math.Abs(span.Begin - newFrame);
                         long distEnd = Math.Abs(span.EndIndex - newFrame);

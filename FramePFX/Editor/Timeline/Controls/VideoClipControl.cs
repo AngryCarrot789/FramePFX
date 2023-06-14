@@ -4,7 +4,7 @@ using FramePFX.Editor.Timeline.Layer.Clips;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineVideoClipControl : TimelineClipControl {
-        public new VideoTimelineLayerControl Layer => (VideoTimelineLayerControl) base.Layer;
+        public new VideoLayerControl Layer => (VideoLayerControl) base.Layer;
 
         public bool IsMovingControl { get; set; }
 

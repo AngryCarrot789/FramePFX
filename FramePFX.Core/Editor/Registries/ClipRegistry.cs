@@ -1,6 +1,6 @@
 using System;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Clip;
+using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 

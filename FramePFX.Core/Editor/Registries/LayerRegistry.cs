@@ -10,6 +10,7 @@ namespace FramePFX.Core.Editor {
 
         private LayerRegistry() {
             this.Register<VideoLayerModel, VideoLayerViewModel>("video_layer");
+            this.Register<AudioLayerModel, AudioLayerViewModel>("audio_layer");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : LayerModel where TViewModel : LayerViewModel {

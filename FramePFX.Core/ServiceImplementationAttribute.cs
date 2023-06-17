@@ -11,7 +11,7 @@ namespace FramePFX.Core {
         /// </summary>
         public Type Type { get; set; }
 
-        public ServiceImplementationAttribute(Type type = null) {
+        public ServiceImplementationAttribute(Type type) {
             this.Type = type;
         }
     }

@@ -38,8 +38,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
             List<ResourceItemViewModel> list = new List<ResourceItemViewModel>();
             using (ExceptionStack stack = new ExceptionStack(false)) {
                 foreach (ResourceItemViewModel item in items) {
-                    if (state == true || (state == null && item.IsOnline)) {
-                        await item.Model.SetOfflineAsync(stack);
+                    if (state == false || (state == null && item.IsOnline)) {
+                        await item.Model.DisableAsync(stack, true);
                     }
                     else {
                         list.Add(item);

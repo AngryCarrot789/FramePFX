@@ -185,7 +185,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
 
             this.Model.RegisterEntry(id, item.Model);
-            this.CurrentGroup.items.Add(item);
+            this.CurrentGroup.AddItem(item, true);
         }
 
         public async Task<string> SelectNewResourceId(string msg, string value = null) {

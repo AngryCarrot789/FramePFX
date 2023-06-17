@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation;
+using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.RBC;
@@ -25,6 +27,8 @@ namespace FramePFX.Core.Editor.ViewModels {
         public TimelineViewModel Timeline { get; }
 
         public ResourceManagerViewModel ResourceManager { get; }
+
+        public AutomationEngineViewModel AutomationEngine { get; }
 
         /// <summary>
         /// The path of the project file, which links all of the saved data the project references
@@ -55,6 +59,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.ResourceManager.ProjectModified += this.OnProjectModified;
             this.Timeline = new TimelineViewModel(this, project.Timeline);
             this.Timeline.ProjectModified += this.OnProjectModified;
+            this.AutomationEngine = new AutomationEngineViewModel(this, project.AutomationEngine);
 
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.Model.IsSaving);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.Model.IsSaving);
@@ -152,14 +157,14 @@ namespace FramePFX.Core.Editor.ViewModels {
                     this.Timeline.Dispose();
                 }
                 catch (Exception e) {
-                    stack1.Push(e);
+                    stack1.Add(e);
                 }
 
                 try {
                     this.ResourceManager.Dispose();
                 }
                 catch (Exception e) {
-                    stack1.Push(e);
+                    stack1.Add(e);
                 }
             }
         }

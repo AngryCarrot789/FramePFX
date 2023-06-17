@@ -48,7 +48,7 @@ namespace FramePFX.Core.Editor.Timeline {
                         path.SetManager(manager);
                     }
                     catch (Exception e) {
-                        stack.Push(e);
+                        stack.Add(e);
                     }
                 }
             }

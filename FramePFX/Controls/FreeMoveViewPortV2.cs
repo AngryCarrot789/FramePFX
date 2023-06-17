@@ -80,12 +80,6 @@ namespace FramePFX.Controls {
 
         #endregion
 
-        [Category("Appearance")]
-        public Brush Background {
-            get => (Brush) this.GetValue(BackgroundProperty);
-            set => this.SetValue(BackgroundProperty, value);
-        }
-
         public double MinimumZoomScale {
             get => (double) this.GetValue(MinimumZoomScaleProperty);
             set => this.SetValue(MinimumZoomScaleProperty, value);

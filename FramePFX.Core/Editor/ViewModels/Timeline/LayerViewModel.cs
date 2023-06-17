@@ -220,7 +220,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                             disposable.Dispose();
                         }
                         catch (Exception e) {
-                            stack.Push(new Exception($"Failed to dispose {clip.GetType()} properly", e));
+                            stack.Add(new Exception($"Failed to dispose {clip.GetType()} properly", e));
                         }
                     }
                 }
@@ -233,7 +233,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     this.DisposeCore(stack);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
+                    stack.Add(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
                 }
             }
         }
@@ -247,21 +247,21 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                         this.RemoveClipFromLayer(i);
                     }
                     catch (Exception e) {
-                        innerStack.Push(new Exception("Failed to remove clip from layer", e));
+                        innerStack.Add(new Exception("Failed to remove clip from layer", e));
                     }
 
                     try {
                         clip.Dispose();
                     }
                     catch (Exception e) {
-                        innerStack.Push(new Exception($"Failed to dispose clip: {clip}", e));
+                        innerStack.Add(new Exception($"Failed to dispose clip: {clip}", e));
                     }
                 }
 
                 this.clips.Clear();
                 this.Model.Clips.Clear();
                 if (innerStack.TryGetException(out Exception ex)) {
-                    stack.Push(ex);
+                    stack.Add(ex);
                 }
             }
         }

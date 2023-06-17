@@ -240,7 +240,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                         this.ResourceUnregistered?.Invoke(this, item);
                     }
                     catch (Exception e) {
-                        stack.Push(e);
+                        stack.Add(e);
                     }
                 }
 

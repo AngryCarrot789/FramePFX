@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
@@ -9,7 +10,7 @@ namespace FramePFX.Core.Editor.Timeline {
     /// <summary>
     /// A model that represents a timeline layer clip, such as a video or audio clip
     /// </summary>
-    public abstract class ClipModel : IRBESerialisable, IDisposable {
+    public abstract class ClipModel : IAutomatable, IRBESerialisable, IDisposable {
         /// <summary>
         /// Returns the layer that this clip is currently in. When this changes, <see cref="OnLayerChanged"/> is always called
         /// </summary>
@@ -93,9 +94,12 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         public long MediaFrameOffset { get; set; }
 
+        public AutomationData AutomationData { get; }
+
         private long clipId = -1;
 
         protected ClipModel() {
+            this.AutomationData = new AutomationData(this);
         }
 
         /// <summary>
@@ -131,6 +135,7 @@ namespace FramePFX.Core.Editor.Timeline {
                 data.SetLong(nameof(this.UniqueClipId), this.clipId);
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
+            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
         }
 
         /// <summary>
@@ -143,6 +148,7 @@ namespace FramePFX.Core.Editor.Timeline {
                 this.clipId = id;
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
+            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
         }
 
         /// <summary>
@@ -206,7 +212,7 @@ namespace FramePFX.Core.Editor.Timeline {
                     this.DisposeCore(stack);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception($"{nameof(this.DisposeCore)} threw an unexpected exception", e));
+                    stack.Add(new Exception($"{nameof(this.DisposeCore)} threw an unexpected exception", e));
                 }
                 this.OnEndDispose();
             }

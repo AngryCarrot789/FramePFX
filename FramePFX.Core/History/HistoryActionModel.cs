@@ -29,14 +29,14 @@ namespace FramePFX.Core.History {
                     await this.Action.UndoAsync();
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to undo action", e));
+                    stack.Add(new Exception("Failed to undo action", e));
                 }
 
                 try {
                     this.Undo?.Invoke(this);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to fire model's undo event", e));
+                    stack.Add(new Exception("Failed to fire model's undo event", e));
                 }
             }
         }
@@ -47,14 +47,14 @@ namespace FramePFX.Core.History {
                     await this.Action.RedoAsync();
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to redo action", e));
+                    stack.Add(new Exception("Failed to redo action", e));
                 }
 
                 try {
                     this.Redo?.Invoke(this);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to fire model's redo event", e));
+                    stack.Add(new Exception("Failed to fire model's redo event", e));
                 }
             }
         }
@@ -66,14 +66,14 @@ namespace FramePFX.Core.History {
                     this.Action.OnRemoved();
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to remove action", e));
+                    stack.Add(new Exception("Failed to remove action", e));
                 }
 
                 try {
                     this.Removed?.Invoke(this);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to fire model's removed event", e));
+                    stack.Add(new Exception("Failed to fire model's removed event", e));
                 }
             }
         }

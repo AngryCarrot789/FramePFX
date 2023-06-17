@@ -2,13 +2,13 @@ using FramePFX.Core.Settings.ViewModels;
 
 namespace FramePFX.Core {
     public class ApplicationViewModel : BaseViewModel {
-        public delegate void UserSettingsChangedEventHandler(AppSettingsViewModel settings);
+        public delegate void UserSettingsChangedEventHandler(ApplicationSettings settings);
 
-        private AppSettingsViewModel appSettings;
-        public AppSettingsViewModel AppSettings {
-            get => this.appSettings;
+        private ApplicationSettings settings;
+        public ApplicationSettings Settings {
+            get => this.settings;
             set {
-                this.RaisePropertyChanged(ref this.appSettings, value ?? (value = new AppSettingsViewModel()));
+                this.RaisePropertyChanged(ref this.settings, value ?? (value = new ApplicationSettings()));
                 this.OnUserSettingsModified?.Invoke(value);
             }
         }
@@ -16,7 +16,7 @@ namespace FramePFX.Core {
         public event UserSettingsChangedEventHandler OnUserSettingsModified;
 
         public ApplicationViewModel() {
-            this.AppSettings = new AppSettingsViewModel();
+            this.Settings = new ApplicationSettings();
         }
     }
 }

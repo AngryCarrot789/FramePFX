@@ -1,10 +1,16 @@
 using System.Numerics;
+using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public abstract class VideoClipModel : ClipModel {
+        public static readonly AutomationKey MediaPositionKey = AutomationKey.RegisterVector2(nameof(VideoClipModel), nameof(MediaPosition));
+        public static readonly AutomationKey MediaScaleKey = AutomationKey.RegisterVector2(nameof(VideoClipModel), nameof(MediaScale));
+        public static readonly AutomationKey MediaScaleOriginKey = AutomationKey.RegisterVector2(nameof(VideoClipModel), nameof(MediaScaleOrigin));
+        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoClipModel), nameof(Opacity));
+
         /// <summary>
         /// The x and y coordinates of the video's media
         /// </summary>
@@ -35,6 +41,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             this.MediaPosition = new Vector2();
             this.MediaScale = new Vector2(1f, 1f);
             this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
+            this.AutomationData.AssignKey(MediaPositionKey);
+            this.AutomationData.AssignKey(MediaScaleKey);
+            this.AutomationData.AssignKey(MediaScaleOriginKey);
+            this.AutomationData.AssignKey(OpacityKey);
         }
 
         public virtual void InvalidateRender(bool schedule = true) {

@@ -79,7 +79,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
                 this.bitmap?.Dispose();
             }
             catch (Exception e) {
-                stack.Push(new Exception("Failed to dispose bitmap", e));
+                stack.Add(new Exception("Failed to dispose bitmap", e));
             }
 
             this.bitmap = null;
@@ -88,7 +88,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
                 this.image?.Dispose();
             }
             catch (Exception e) {
-                stack.Push(new Exception("Failed to dispose image", e));
+                stack.Add(new Exception("Failed to dispose image", e));
             }
 
             this.image = null;

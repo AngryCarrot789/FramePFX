@@ -33,16 +33,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
             this.SetOfflineCommand = new AsyncRelayCommand(async () => {
                 using (ExceptionStack stack = new ExceptionStack(false)) {
-                    await this.Model.SetOfflineAsync(stack);
+                    await this.Model.DisableAsync(stack, true);
                     if (stack.TryGetException(out Exception exception)) {
                         await IoC.MessageDialogs.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting resource to offline", exception.GetToString());
                     }
                 }
-            }, () => this.IsOnline != false);
+            }, () => this.IsOnline);
 
             this.SetOnlineCommand = new AsyncRelayCommand(async () => {
                 await ResourceCheckerViewModel.ProcessResources(new List<ResourceItemViewModel>() {this}, true);
-            }, () => this.IsOnline != true);
+            }, () => !this.IsOnline);
         }
 
         public override async Task<bool> RenameSelfAction() {
@@ -120,7 +120,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             return this.Model.IsRegistered;
         }
 
-        public virtual void Dispose() {
+        public override void Dispose() {
             this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
             this.Model.Dispose();
         }

@@ -55,7 +55,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     this.DisposeCore(stack);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception($"Unexpected exception while invoking {nameof(this.DisposeCore)}", e));
+                    stack.Add(new Exception($"Unexpected exception while invoking {nameof(this.DisposeCore)}", e));
                 }
             }
         }

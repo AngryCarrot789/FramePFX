@@ -32,7 +32,7 @@ namespace FramePFX.Core.Utils {
                         consumer(item);
                     }
                     catch (Exception e) {
-                        stack.Push(new Exception($"Failed to dispose Item[{i}]", e));
+                        stack.Add(new Exception($"Failed to dispose Item[{i}]", e));
                     }
 
                     i++;

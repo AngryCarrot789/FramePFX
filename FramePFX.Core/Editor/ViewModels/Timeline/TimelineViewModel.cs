@@ -192,7 +192,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                             disposable.Dispose();
                         }
                         catch (Exception e) {
-                            stack.Push(new Exception($"Failed to dispose {item.GetType()} properly", e));
+                            stack.Add(new Exception($"Failed to dispose {item.GetType()} properly", e));
                         }
                     }
 
@@ -295,7 +295,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     this.DisposeCore(stack);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
+                    stack.Add(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
                 }
             }
         }
@@ -307,14 +307,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                         clip.Dispose();
                     }
                     catch (Exception e) {
-                        innerStack.Push(e);
+                        innerStack.Add(e);
                     }
                 }
 
                 this.layers.Clear();
                 this.Model.ClearLayers();
                 if (innerStack.TryGetException(out Exception ex)) {
-                    stack.Push(ex);
+                    stack.Add(ex);
                 }
             }
         }

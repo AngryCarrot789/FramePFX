@@ -76,14 +76,15 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                     StrokeWidth = (float) r.BorderThickness,
                     Color = r.Foreground
                 };
+                font.Dispose();
             }
 
             if (this.blob == null || this.paint == null) {
                 return;
             }
 
-            this.Transform(render.Canvas, out Vector2 size);
-            render.Canvas.DrawText(this.blob, size.X, size.Y + (this.blob.Bounds.Height / 2), this.paint);
+            this.Transform(render.Canvas);
+            render.Canvas.DrawText(this.blob, 0, (this.blob.Bounds.Height / 2), this.paint);
         }
 
         public void InvalidateTextCache() {

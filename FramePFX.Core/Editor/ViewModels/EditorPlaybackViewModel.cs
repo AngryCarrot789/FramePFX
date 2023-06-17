@@ -115,7 +115,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             if (this.IsPlaying) {
-                return this.Editor.App.AppSettings.StopOnTogglePlay ? this.StopAction() : this.PauseAction();
+                return IoC.App.Settings.StopOnTogglePlay ? this.StopAction() : this.PauseAction();
             }
             else {
                 return this.PlayAction();

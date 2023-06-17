@@ -47,7 +47,7 @@ namespace FramePFX.Editor {
 
             this.NotificationPanel = new NotificationPanelViewModel(this);
 
-            this.DataContext = new VideoEditorViewModel(this, IoC.App);
+            this.DataContext = new VideoEditorViewModel(this);
             this.renderCallback = () => {
                 this.ViewPortElement.InvalidateVisual();
             };
@@ -241,11 +241,24 @@ namespace FramePFX.Editor {
                 return;
             }
 
-            RenderContext context = new RenderContext(editor.Model, e.Surface, e.Surface.Canvas, e.RawInfo);
+            RenderContext context = new SkiaSharpRenderContext(editor.Model, e.Surface, e.Surface.Canvas, e.RawInfo);
             context.Canvas.Clear(SKColors.Black);
             context.Canvas.Save();
             project.Timeline.Model.Render(context);
             context.Canvas.Restore();
+
+            // context.Canvas.Translate(100,100);
+            // context.Canvas.Scale(100f);
+            // context.Canvas.DrawVertices(SKVertexMode.Triangles, new SKPoint[] {
+            //     new SKPoint(0, 0),
+            //     new SKPoint(1, 1),
+            //     new SKPoint(0, 1)
+            // }, new SKColor[] {
+            //     SKColors.Red,
+            //     SKColors.Green,
+            //     SKColors.Blue,
+            // }, new SKPaint() {Color = SKColors.Aqua});
+
             this.isRenderScheduled = 0;
         }
 

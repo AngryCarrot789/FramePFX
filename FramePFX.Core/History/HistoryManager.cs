@@ -63,7 +63,7 @@ namespace FramePFX.Core.History {
                         RemoveFirst(this.undoList);
                     }
                     catch (Exception e) {
-                        stack.Push(new Exception("Failed to remove excessive undo-able action", e));
+                        stack.Add(new Exception("Failed to remove excessive undo-able action", e));
                     }
                 }
             }
@@ -87,7 +87,7 @@ namespace FramePFX.Core.History {
                         RemoveFirst(this.redoList);
                     }
                     catch (Exception e) {
-                        stack.Push(new Exception("Failed to remove excessive redo-able action", e));
+                        stack.Add(new Exception("Failed to remove excessive redo-able action", e));
                     }
                 }
             }
@@ -153,7 +153,7 @@ namespace FramePFX.Core.History {
                     await action.UndoAsync();
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to undo action", e));
+                    stack.Add(new Exception("Failed to undo action", e));
                 }
 
                 this.IsUndoing = false;
@@ -163,7 +163,7 @@ namespace FramePFX.Core.History {
                         RemoveFirst(this.redoList);
                     }
                     catch (Exception e) {
-                        stack.Push(new Exception("Failed to remove excessive undo-able action", e));
+                        stack.Add(new Exception("Failed to remove excessive undo-able action", e));
                     }
                 }
             }
@@ -194,7 +194,7 @@ namespace FramePFX.Core.History {
                     await action.RedoAsync();
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Failed to redo action", e));
+                    stack.Add(new Exception("Failed to redo action", e));
                 }
 
                 this.IsRedoing = false;
@@ -204,7 +204,7 @@ namespace FramePFX.Core.History {
                         RemoveFirst(this.undoList);
                     }
                     catch (Exception e) {
-                        stack.Push(new Exception("Failed to remove excessive redo-able action", e));
+                        stack.Add(new Exception("Failed to remove excessive redo-able action", e));
                     }
                 }
             }

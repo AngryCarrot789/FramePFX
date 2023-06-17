@@ -53,7 +53,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
                     this.Model.Dispose();
                 }
                 catch (Exception e) {
-                    stack.Push(e);
+                    stack.Add(e);
                 }
 
                 checker.Add(new InvalidVideoViewModel(this));

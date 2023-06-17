@@ -25,9 +25,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         }
 
-        public override async Task SetOfflineAsync(ExceptionStack stack) {
+        protected override Task DisableCoreAsync(ExceptionStack stack, bool user) {
             this.DisposeCore(stack);
-            await base.SetOfflineAsync(stack);
+            return Task.CompletedTask;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -193,14 +193,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
                 this.ReleaseDecoder();
             }
             catch (Exception e) {
-                stack.Push(new Exception("Failed to release decoder and frame queue", e));
+                stack.Add(new Exception("Failed to release decoder and frame queue", e));
             }
 
             try {
                 this.Demuxer?.Dispose();
             }
             catch (Exception e) {
-                stack.Push(new Exception("Failed to dispose demuxer", e));
+                stack.Add(new Exception("Failed to dispose demuxer", e));
             }
             finally {
                 this.Demuxer = null;

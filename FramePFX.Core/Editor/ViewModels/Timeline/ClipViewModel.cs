@@ -170,7 +170,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     this.DisposeCore(stack);
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
+                    stack.Add(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
                 }
             }
         }
@@ -180,7 +180,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 this.Model.Dispose();
             }
             catch (Exception e) {
-                stack.Push(new Exception("Exception disposing model", e));
+                stack.Add(new Exception("Exception disposing model", e));
             }
         }
 

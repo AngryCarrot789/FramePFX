@@ -124,7 +124,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                             groupVm.UnregisterAllAndClearRecursive();
                         }
                         catch (Exception e) {
-                            stack.Push(new Exception("Failed to clear items recursively", e));
+                            stack.Add(new Exception("Failed to clear items recursively", e));
                         }
                     }
                     else if (item is ResourceItemViewModel resource && resource.Model.IsRegistered) {
@@ -132,7 +132,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                             resource.Model.Manager.DeleteEntryById(resource.Model.UniqueId);
                         }
                         catch (Exception e) {
-                            stack.Push(new Exception("Failed to unregister resource", e));
+                            stack.Add(new Exception("Failed to unregister resource", e));
                         }
                     }
 
@@ -140,7 +140,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                         this.RemoveItem(item, true, true);
                     }
                     catch (Exception e) {
-                        stack.Push(e);
+                        stack.Add(e);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
 
@@ -8,7 +9,7 @@ namespace FramePFX.Core.Editor.Timeline {
     /// <summary>
     /// A model that represents a timeline layer, which can contain clips
     /// </summary>
-    public abstract class LayerModel : IRBESerialisable {
+    public abstract class LayerModel : IAutomatable, IRBESerialisable {
         public TimelineModel Timeline { get; }
 
         public List<ClipModel> Clips { get; }
@@ -21,13 +22,19 @@ namespace FramePFX.Core.Editor.Timeline {
         public double Height { get; set; }
         public string LayerColour { get; set; }
 
-        public LayerModel(TimelineModel timeline) {
+        /// <summary>
+        /// This layer's automation data
+        /// </summary>
+        public AutomationData AutomationData { get; }
+
+        protected LayerModel(TimelineModel timeline) {
             this.Timeline = timeline;
             this.Clips = new List<ClipModel>();
             this.MinHeight = 40;
             this.MaxHeight = 200;
             this.Height = 60;
             this.LayerColour = LayerColours.GetRandomColour();
+            this.AutomationData = new AutomationData(this);
         }
 
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {

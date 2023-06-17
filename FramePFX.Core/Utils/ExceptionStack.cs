@@ -97,10 +97,10 @@ namespace FramePFX.Core.Utils {
                 throw ex;
             }
 
-            stack.Push(exception);
+            stack.Add(exception);
         }
 
-        public void Push(Exception exception) {
+        public void Add(Exception exception) {
             if (exception != null) {
                 this.Exceptions.Add(exception);
             }

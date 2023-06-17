@@ -1,7 +1,8 @@
 namespace FramePFX.Core.Automation.Keyframe {
-    public enum KeyDataType {
+    public enum AutomationDataType {
         Double,
         Long,
-        Boolean
+        Boolean,
+        Vector2
     }
 }

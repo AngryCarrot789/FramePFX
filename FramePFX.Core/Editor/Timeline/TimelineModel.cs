@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.Timeline.VideoClips;
@@ -10,7 +11,7 @@ using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline {
-    public class TimelineModel : IRBESerialisable {
+    public class TimelineModel : IAutomatable, IRBESerialisable {
         public ProjectModel Project { get; }
 
         public long PlayHead { get; set; }
@@ -19,9 +20,15 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public List<LayerModel> Layers { get; }
 
+        /// <summary>
+        /// This timeline's automation data
+        /// </summary>
+        public AutomationData AutomationData { get; }
+
         public TimelineModel(ProjectModel project) {
             this.Project = project;
             this.Layers = new List<LayerModel>();
+            this.AutomationData = new AutomationData(this);
         }
 
         public void WriteToRBE(RBEDictionary data) {

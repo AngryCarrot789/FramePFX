@@ -133,7 +133,7 @@ namespace FramePFX.Core.Editor.Timeline {
                     this.ResourcePath?.Dispose();
                 }
                 catch (Exception e) {
-                    stack.Push(e);
+                    stack.Add(e);
                 }
             }
         }

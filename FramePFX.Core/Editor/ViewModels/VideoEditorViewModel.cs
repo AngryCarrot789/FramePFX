@@ -55,8 +55,6 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public EditorPlaybackViewModel Playback { get; }
 
-        public ApplicationViewModel App { get; }
-
         public VideoEditorModel Model { get; }
 
         public IVideoEditor View { get; }
@@ -67,11 +65,10 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public AsyncRelayCommand OpenProjectCommand { get; }
 
-        public VideoEditorViewModel(IVideoEditor view, ApplicationViewModel app) {
+        public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditorModel();
             this.HistoryManager = new HistoryManagerViewModel(this.Model.HistoryManager);
-            this.App = app;
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
             this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameTick();
@@ -179,7 +176,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                         this.ActiveProject.Dispose();
                     }
                     catch (Exception e) {
-                        stack.Push(new Exception("Exception disposing active project", e));
+                        stack.Add(new Exception("Exception disposing active project", e));
                     }
                 }
 
@@ -187,12 +184,12 @@ namespace FramePFX.Core.Editor.ViewModels {
                     this.Playback.Dispose();
                 }
                 catch (Exception e) {
-                    stack.Push(new Exception("Exception disposing playback", e));
+                    stack.Add(new Exception("Exception disposing playback", e));
                 }
             }
         }
 
-        private void OnUserSettingsModified(AppSettingsViewModel settings) {
+        private void OnUserSettingsModified(ApplicationSettings settings) {
 
         }
 

@@ -54,11 +54,16 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// A method that forces this resource offline, releasing any resources in the process. This may call <see cref="Dispose"/> or <see cref="DisposeCore"/>
         /// </summary>
         /// <param name="stack"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        public virtual Task SetOfflineAsync(ExceptionStack stack) {
+        public async Task DisableAsync(ExceptionStack stack, bool user) {
+            await this.DisableCoreAsync(stack, user);
             this.IsOnline = false;
-            this.IsOfflineByUser = true;
+            this.IsOfflineByUser = user;
             this.OnIsOnlineStateChanged();
+        }
+
+        protected virtual Task DisableCoreAsync(ExceptionStack stack, bool user) {
             return Task.CompletedTask;
         }
 

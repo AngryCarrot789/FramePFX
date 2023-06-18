@@ -18,6 +18,12 @@ namespace FramePFX.Core.Automation {
         /// </summary>
         public IAutomatable Owner { get; }
 
+        /// <summary>
+        /// Gets the automation sequence (aka timeline) for the specific automation key
+        /// </summary>
+        /// <param name="key"></param>
+        public AutomationSequence this[AutomationKey key] => this.dataMap[key];
+
         public AutomationData(IAutomatable owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.dataMap = new Dictionary<AutomationKey, AutomationSequence>();
@@ -38,11 +44,36 @@ namespace FramePFX.Core.Automation {
         public AutomationSequence GetData(AutomationKey key) => this.dataMap[key];
 
         public void WriteToRBE(RBEDictionary data) {
-
+            RBEList list = data.CreateList(nameof(this.Sequences));
+            foreach (AutomationSequence sequence in this.dataMap.Values) {
+                RBEDictionary dictionary = list.AddDictionary();
+                dictionary.SetString("Key::Domain", sequence.Key.Domain);
+                dictionary.SetString("Key::Id", sequence.Key.Id);
+                sequence.WriteToRBE(dictionary);
+            }
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            throw new NotImplementedException();
+            RBEList list = data.GetList(nameof(this.Sequences));
+            foreach (RBEBase rbe in list.List) {
+                if (!(rbe is RBEDictionary dictionary))
+                    throw new Exception("Expected a list of dictionaries");
+                string domain = dictionary.GetString("Key::Domain");
+                string id = dictionary.GetString("Key::Id");
+                AutomationKey key = AutomationKey.GetKey(domain, id);
+                if (key == null)
+                    throw new Exception("Unknown automation key: " + key.FullId);
+                if (!this.dataMap.TryGetValue(key, out AutomationSequence sequence))
+                    throw new Exception("Missing/unassigned key: " + key.FullId);
+                sequence.ReadFromRBE(dictionary);
+            }
+        }
+
+        public AutomationData Clone(IAutomatable owner) {
+            AutomationData data = new AutomationData(owner);
+            foreach (AutomationSequence sequence in this.dataMap.Values)
+                data.dataMap[sequence.Key] = sequence.Clone();
+            return data;
         }
     }
 }

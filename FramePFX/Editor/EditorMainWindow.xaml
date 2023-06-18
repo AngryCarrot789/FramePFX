@@ -23,7 +23,7 @@
             xmlns:types="clr-namespace:FramePFX.Core.Notifications.Types;assembly=FramePFX.Core"
             xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
             xmlns:editor="clr-namespace:FramePFX.Editor"
-            xmlns:vm1="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core"
+            xmlns:vm1="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core" xmlns:layers="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Layers;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -109,7 +109,8 @@
                             <TabItem.Resources>
                                 <editor:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector">
                                     <editor:ResourceItemContainerStyleSelector.ResourceItemStyle>
-                                        <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}" d:DataContext="{d:DesignInstance vm1:ResourceItemViewModel}">
+                                        <!-- d:DataContext="{d:DesignInstance vm1:ResourceItemViewModel}" -->
+                                        <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}">
                                             <Setter Property="HeaderText" Value="{Binding UniqueId, Mode=OneWay}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsOnline}" Value="False">
@@ -119,7 +120,8 @@
                                         </Style>
                                     </editor:ResourceItemContainerStyleSelector.ResourceItemStyle>
                                     <editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
-                                        <Style TargetType="{x:Type ui:BaseResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}" d:DataContext="{d:DesignInstance vm1:ResourceGroupViewModel}">
+                                        <!-- d:DataContext="{d:DesignInstance vm1:ResourceGroupViewModel}" -->
+                                        <Style TargetType="{x:Type ui:BaseResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}">
                                             <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}"/>
                                         </Style>
                                     </editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
@@ -195,6 +197,13 @@
                                 </ScrollViewer>
                             </Grid>
                             -->
+                        </TabItem>
+                        <TabItem Header="Debug stuff">
+                            <Grid>
+                                <Canvas>
+                                    <c:VideoClipControl Height="82" Width="132"/>
+                                </Canvas>
+                            </Grid>
                         </TabItem>
                     </TabControl>
                 </Border>
@@ -285,12 +294,7 @@
                                                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
                                                     <Grid d:DataContext="{d:DesignInstance timeline:LayerViewModel}">
                                                         <Rectangle Fill="{Binding LayerColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
-                                                        <Grid Margin="23,4,6,4">
-                                                            <TextBlock Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" ap:AttachedInteractivity.DoubleClickCommand="{Binding RenameLayerCommand, Mode=OneTime}" FontSize="14" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="20"/>
-                                                            <Grid Margin="0,20,0,0">
-                                                                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                                            </Grid>
-                                                        </Grid>
+                                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4" />
                                                         <Thumb DragDelta="OnTopThumbDrag" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                                         <Thumb DragDelta="OnBottomThumbDrag" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                                     </Grid>
@@ -300,24 +304,21 @@
                                                         <MultiTrigger.Conditions>
                                                             <Condition Property="IsMouseOver" Value="True" />
                                                         </MultiTrigger.Conditions>
-                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Background}" />
-                                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}" />
+                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
                                                     </MultiTrigger>
                                                     <MultiTrigger>
                                                         <MultiTrigger.Conditions>
                                                             <Condition Property="Selector.IsSelectionActive" Value="False" />
                                                             <Condition Property="IsSelected" Value="True" />
                                                         </MultiTrigger.Conditions>
-                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Background}" />
-                                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Border}" />
+                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
                                                     </MultiTrigger>
                                                     <MultiTrigger>
                                                         <MultiTrigger.Conditions>
                                                             <Condition Property="Selector.IsSelectionActive" Value="True" />
                                                             <Condition Property="IsSelected" Value="True" />
                                                         </MultiTrigger.Conditions>
-                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Background}" />
-                                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}" />
+                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
                                                     </MultiTrigger>
                                                     <Trigger Property="IsEnabled" Value="False">
                                                         <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />

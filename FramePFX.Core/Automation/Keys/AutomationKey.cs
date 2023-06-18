@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using FramePFX.Core.Automation.Keyframe;
 
 namespace FramePFX.Core.Automation.Keys {
     /// <summary>
-    /// A property that can be automated/animated
+    /// A key for a property that can be automated
     /// </summary>
     public abstract class AutomationKey {
         private static readonly Dictionary<string, Dictionary<string, AutomationKey>> RegistryMap = new Dictionary<string, Dictionary<string, AutomationKey>>();
@@ -13,30 +14,62 @@ namespace FramePFX.Core.Automation.Keys {
 
         public string Id { get; }
 
-        public string FullId => this.Domain + "@" + this.Id;
+        public KeyDescriptor Descriptor { get; }
+
+        public string FullId => this.Domain + "->" + this.Id;
 
         public abstract AutomationDataType DataType { get; }
 
-        public static AutomationKeyDouble RegisterDouble(string domain, string id) {
-            AutomationKeyDouble key = new AutomationKeyDouble(domain, id);
+        protected AutomationKey(string domain, string id, KeyDescriptor descriptor) {
+            this.Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
+            this.Domain = string.IsNullOrWhiteSpace(domain) ? throw new ArgumentException("domain cannot be null, empty or entirely whitespaces", nameof(domain)) : domain;
+            this.Id = string.IsNullOrWhiteSpace(id) ? throw new ArgumentException("id cannot be null, empty or entirely whitespaces", nameof(id)) : id;
+        }
+
+        public static AutomationKeyDouble RegisterDouble(string domain, string id, KeyDescriptorDouble descriptor) {
+            AutomationKeyDouble key = new AutomationKeyDouble(domain, id, descriptor);
             RegisterInternal(key);
             return key;
         }
 
-        public static AutomationKeyLong RegisterLong(string domain, string id) {
-            AutomationKeyLong key = new AutomationKeyLong(domain, id);
+        public static AutomationKeyDouble RegisterDouble(string domain, string id, double defaultValue, double minimum = double.NegativeInfinity, double maximum = double.PositiveInfinity, int precision = -1, double step = double.NaN) {
+            AutomationKeyDouble key = new AutomationKeyDouble(domain, id, new KeyDescriptorDouble(defaultValue, minimum, maximum, precision, step));
             RegisterInternal(key);
             return key;
         }
 
-        public static AutomationKeyBoolean RegisterBoolean(string domain, string id) {
-            AutomationKeyBoolean key = new AutomationKeyBoolean(domain, id);
+        public static AutomationKeyLong RegisterLong(string domain, string id, KeyDescriptorLong descriptor) {
+            AutomationKeyLong key = new AutomationKeyLong(domain, id, descriptor);
             RegisterInternal(key);
             return key;
         }
 
-        public static AutomationKeyVector2 RegisterVector2(string domain, string id) {
-            AutomationKeyVector2 key = new AutomationKeyVector2(domain, id);
+        public static AutomationKeyLong RegisterLong(string domain, string id, long defaultValue, long minimum = long.MinValue, long maximum = long.MaxValue, long step = 1) {
+            AutomationKeyLong key = new AutomationKeyLong(domain, id, new KeyDescriptorLong(defaultValue, minimum, maximum, step));
+            RegisterInternal(key);
+            return key;
+        }
+
+        public static AutomationKeyBoolean RegisterBoolean(string domain, string id, KeyDescriptorBoolean descriptor) {
+            AutomationKeyBoolean key = new AutomationKeyBoolean(domain, id, descriptor);
+            RegisterInternal(key);
+            return key;
+        }
+
+        public static AutomationKeyBoolean RegisterBoolean(string domain, string id, bool defaultValue = false) {
+            AutomationKeyBoolean key = new AutomationKeyBoolean(domain, id, new KeyDescriptorBoolean(defaultValue));
+            RegisterInternal(key);
+            return key;
+        }
+
+        public static AutomationKeyVector2 RegisterVec2(string domain, string id, KeyDescriptorVector2 descriptor) {
+            AutomationKeyVector2 key = new AutomationKeyVector2(domain, id, descriptor);
+            RegisterInternal(key);
+            return key;
+        }
+
+        public static AutomationKeyVector2 RegisterVec2(string domain, string id, Vector2 defaultValue, Vector2 minimum, Vector2 maximum, int precision = -1) {
+            AutomationKeyVector2 key = new AutomationKeyVector2(domain, id, new KeyDescriptorVector2(defaultValue, minimum, maximum, precision));
             RegisterInternal(key);
             return key;
         }
@@ -63,10 +96,11 @@ namespace FramePFX.Core.Automation.Keys {
             return (key = GetKey(domain, id)) != null;
         }
 
-        protected AutomationKey(string domain, string id) {
-            this.Domain = domain;
-            this.Id = id;
-        }
+        /// <summary>
+        /// A helper function for creating a key frame instance that works with this automation key
+        /// </summary>
+        /// <returns></returns>
+        public abstract KeyFrame CreateKeyFrame();
 
         public override string ToString() {
             return $"{this.GetType()}({this.Domain} -> {this.Id})";
@@ -76,32 +110,48 @@ namespace FramePFX.Core.Automation.Keys {
     public class AutomationKeyDouble : AutomationKey {
         public override AutomationDataType DataType => AutomationDataType.Double;
 
-        internal AutomationKeyDouble(string domain, string id) : base(domain, id) {
+        public new KeyDescriptorDouble Descriptor => (KeyDescriptorDouble) base.Descriptor;
 
+        internal AutomationKeyDouble(string domain, string id, KeyDescriptorDouble descriptor) : base(domain, id, descriptor) {
         }
+
+        public override KeyFrame CreateKeyFrame() => this.CreateKeyFrameCore();
+        public KeyFrameDouble CreateKeyFrameCore() => new KeyFrameDouble {Value = this.Descriptor.DefaultValue};
     }
 
     public class AutomationKeyLong : AutomationKey {
         public override AutomationDataType DataType => AutomationDataType.Long;
 
-        internal AutomationKeyLong(string domain, string id) : base(domain, id) {
+        public new KeyDescriptorLong Descriptor => (KeyDescriptorLong) base.Descriptor;
 
+        internal AutomationKeyLong(string domain, string id, KeyDescriptorLong descriptor) : base(domain, id, descriptor) {
         }
+
+        public override KeyFrame CreateKeyFrame() => this.CreateKeyFrameCore();
+        public KeyFrameLong CreateKeyFrameCore() => new KeyFrameLong {Value = this.Descriptor.DefaultValue};
     }
 
     public class AutomationKeyBoolean : AutomationKey {
         public override AutomationDataType DataType => AutomationDataType.Boolean;
 
-        internal AutomationKeyBoolean(string domain, string id) : base(domain, id) {
+        public new KeyDescriptorBoolean Descriptor => (KeyDescriptorBoolean) base.Descriptor;
 
+        internal AutomationKeyBoolean(string domain, string id, KeyDescriptorBoolean descriptor) : base(domain, id, descriptor) {
         }
+
+        public override KeyFrame CreateKeyFrame() => this.CreateKeyFrameCore();
+        public KeyFrameBoolean CreateKeyFrameCore() => new KeyFrameBoolean {Value = this.Descriptor.DefaultValue};
     }
 
     public class AutomationKeyVector2 : AutomationKey {
         public override AutomationDataType DataType => AutomationDataType.Vector2;
 
-        internal AutomationKeyVector2(string domain, string id) : base(domain, id) {
+        public new KeyDescriptorVector2 Descriptor => (KeyDescriptorVector2) base.Descriptor;
 
+        internal AutomationKeyVector2(string domain, string id, KeyDescriptorVector2 descriptor) : base(domain, id, descriptor) {
         }
+
+        public override KeyFrame CreateKeyFrame() => this.CreateKeyFrameCore();
+        public KeyFrameVector2 CreateKeyFrameCore() => new KeyFrameVector2 {Value = this.Descriptor.DefaultValue};
     }
 }

@@ -6,8 +6,11 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
     public class AudioLayerModel : LayerModel {
         public float Volume { get; set; }
 
+        public bool IsMuted { get; set; }
+
         public AudioLayerModel(TimelineModel timeline) : base(timeline) {
             this.Volume = 1f;
+            this.IsMuted = false;
         }
 
         public override LayerModel CloneCore() {

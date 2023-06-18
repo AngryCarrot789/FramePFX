@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace FramePFX.Core.RBC {
     public static class BinaryUtils {
@@ -156,6 +157,38 @@ namespace FramePFX.Core.RBC {
             int b = reader.ReadByte();
             int c = reader.ReadUInt16();
             return (c << 16) | (b << 8) | (a >> 2);
+        }
+
+        public static TEnum ToEnum8<TEnum>(byte value) where TEnum : unmanaged, Enum {
+            unsafe { return *(TEnum*) &value; }
+        }
+
+        public static TEnum ToEnum16<TEnum>(short value) where TEnum : unmanaged, Enum {
+            unsafe { return *(TEnum*) &value; }
+        }
+
+        public static TEnum ToEnum32<TEnum>(int value) where TEnum : unmanaged, Enum {
+            unsafe { return *(TEnum*) &value; }
+        }
+
+        public static TEnum ToEnum64<TEnum>(long value) where TEnum : unmanaged, Enum {
+            unsafe { return *(TEnum*) &value; }
+        }
+
+        public static byte FromEnum8<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
+            unsafe { return *(byte*) &value; }
+        }
+
+        public static short FromEnum16<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
+            unsafe { return *(short*) &value; }
+        }
+
+        public static int FromEnum32<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
+            unsafe { return *(int*) &value; }
+        }
+
+        public static long FromEnum64<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
+            unsafe { return *(long*) &value; }
         }
     }
 }

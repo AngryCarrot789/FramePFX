@@ -27,14 +27,14 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return img == null ? Vector2.Zero : new Vector2(img.Width, img.Height);
         }
 
-        public override void Render(RenderContext render, long frame, SKColorFilter alphaFilter) {
+        public override void Render(RenderContext render, long frame) {
             if (!this.TryGetResource(out ResourceImage resource))
                 return;
             if (resource.image == null)
                 return;
 
             this.Transform(render.Canvas);
-            render.Canvas.DrawImage(resource.image, 0, 0, new SKPaint() {ColorFilter = alphaFilter});
+            render.Canvas.DrawImage(resource.image, 0, 0);
         }
 
         protected override ClipModel NewInstance() {

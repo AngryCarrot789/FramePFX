@@ -146,20 +146,20 @@ namespace FramePFX {
                 project.Timeline.AddLayer(layer1);
 
                 ShapeClipModel clip1 = new ShapeClipModel {
-                    MediaPosition = new Vector2(0, 0),
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
+                clip1.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(0, 0));
                 clip1.SetTargetResourceId("idek");
                 layer1.AddClip(clip1);
 
                 ShapeClipModel clip2 = new ShapeClipModel {
-                    MediaPosition = new Vector2(200, 200),
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(200, 200));
                 clip2.SetTargetResourceId("colour_green");
                 layer1.AddClip(clip2);
             }
@@ -170,21 +170,21 @@ namespace FramePFX {
                 project.Timeline.AddLayer(layer2);
 
                 ShapeClipModel clip1 = new ShapeClipModel {
-                    MediaPosition = new Vector2(200, 400),
                     Width = 400, Height = 400,
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
                 };
 
+                clip1.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(200, 200));
                 clip1.SetTargetResourceId("colour_blue");
                 layer2.AddClip(clip1);
                 ShapeClipModel clip2 = new ShapeClipModel {
-                    MediaPosition = new Vector2(400, 400),
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 25),
                     DisplayName = "Clip colour_green"
                 };
 
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(400, 400));
                 clip2.SetTargetResourceId("colour_green");
                 layer2.AddClip(clip2);
             }

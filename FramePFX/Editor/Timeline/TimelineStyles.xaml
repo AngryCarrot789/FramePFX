@@ -37,7 +37,8 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type controls:TimelineClipControl}" d:DataContext="{d:DesignInstance tm:ClipViewModel}">
+    <!-- d:DataContext="{d:DesignInstance tm:ClipViewModel}" -->
+    <Style TargetType="{x:Type controls:TimelineClipControl}" BasedOn="{StaticResource {x:Type HeaderedContentControl}}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
         <Setter Property="HeaderBrush" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
@@ -55,14 +56,8 @@
                 <ControlTemplate TargetType="{x:Type controls:VideoClipControl}">
                     <Grid d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
                         <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
-                            <Border Background="{Binding Layer.LayerColour}" VerticalAlignment="Top" Height="20">
-                                <Grid>
-                                    <TextBlock Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="4 1">
-                                        <TextBlock.InputBindings>
-                                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
-                                        </TextBlock.InputBindings>
-                                    </TextBlock>
-                                </Grid>
+                            <Border Background="{Binding Layer.LayerColour, FallbackValue=Black}" VerticalAlignment="Top" Height="20">
+                                <ContentPresenter ContentSource="Header"/>
                             </Border>
                             <Grid Margin="1,20,1,0" Background="{TemplateBinding Background}">
                                 <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
@@ -87,6 +82,53 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Setter Property="HeaderTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <DockPanel>
+                        <TextBlock Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
+                            <TextBlock.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
+                            </TextBlock.InputBindings>
+                        </TextBlock>
+                        <DockPanel HorizontalAlignment="Right" Margin="5,0,0,0" d:DataContext="{d:DesignInstance tm:ClipViewModel}">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                <!--
+                                <ToggleButton Content="V" Width="20"/>
+                                -->
+                            </StackPanel>
+                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="0,1,1,0">
+                                <Button DockPanel.Dock="Right" Width="20" Command="{Binding ToggleAllOverridesCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
+                                <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
+                                <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" 
+                                                             SelectedItem="{Binding SelectedSequence}" 
+                                                             BorderThickness="0" Margin="0,0,0,0"
+                                                             HorizontalContentAlignment="Left"
+                                                             HorizontalAlignment="Right"
+                                                             DockPanel.Dock="Right"
+                                                             MinWidth="50" SnapsToDevicePixels="True"
+                                                             ItemStringFormat="none">
+                                    <ComboBox.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="Margin" Value="0"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        </Style>
+                                    </ComboBox.ItemContainerStyle>
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <DockPanel HorizontalAlignment="Stretch">
+                                                <TextBlock Text="{Binding Model.Key.Id}" VerticalAlignment="Center"/>
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </controls:AutomationComboBox>
+                            </DockPanel>
+                        </DockPanel>
+                    </DockPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="{x:Type controls:VideoClipControl}" BasedOn="{StaticResource {x:Type controls:TimelineClipControl}}">
@@ -97,7 +139,8 @@
 
     <timeline:TimelineClipStyleSelector x:Key="TimelineClipStyleSelector" VideoClipStyle="{StaticResource {x:Type controls:VideoClipControl}}" AudioClipStyle="{StaticResource {x:Type controls:AudioClipControl}}"/>
 
-    <Style TargetType="{x:Type controls:TimelineLayerControl}" d:DataContext="{d:DesignInstance tm:LayerViewModel}">
+    <!-- d:DataContext="{d:DesignInstance tm:LayerViewModel}" -->
+    <Style TargetType="{x:Type controls:TimelineLayerControl}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
         <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
@@ -116,7 +159,7 @@
                 <ControlTemplate TargetType="{x:Type controls:TimelineLayerControl}">
                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
                         <!-- IsItemHost must be true in order for it's items to sync with the TimelineLayerControl's items -->
-                        <Canvas IsItemsHost="True" Background="{TemplateBinding Background}"/>
+                        <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -186,19 +229,47 @@
     <timeline:TimelineLayerListItemTemplateSelector x:Key="TimelineLayerListItemContainerSelector">
         <timeline:TimelineLayerListItemTemplateSelector.VideoLayerTemplate>
             <DataTemplate DataType="{x:Type layers:VideoLayerViewModel}">
-                <Grid>
-                    <TextBlock Text="Opacity: " HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Slider VerticalAlignment="Center" Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Opacity, UpdateSourceTrigger=PropertyChanged}" SmallChange="0.1" TickFrequency="0.1"/>
+                <Grid Margin="4,0">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Height="20">
+                            <TextBlock Text="{Binding DisplayName}" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" DockPanel.Dock="Right"/>
+                            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Left" Orientation="Horizontal" Margin="0,0,3,0">
+                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="20" IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </DockPanel>
+                        <Grid Background="Transparent" Margin="0,2,0,0">
+                            <c:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
+                                             TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
+                                             Style="{StaticResource AbletonNumberDraggerStyle}"
+                                             HorizontalAlignment="Right" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"/>
+                        </Grid>
+                    </DockPanel>
                 </Grid>
             </DataTemplate>
         </timeline:TimelineLayerListItemTemplateSelector.VideoLayerTemplate>
         <timeline:TimelineLayerListItemTemplateSelector.AudioLayerTemplate>
             <DataTemplate DataType="{x:Type layers:AudioLayerViewModel}">
-                <Grid>
-                    <TextBlock Text="Volume: " HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <Slider VerticalAlignment="Center" Margin="51,0,0,0" Minimum="0" Maximum="1" Value="{Binding Volume, UpdateSourceTrigger=PropertyChanged}" SmallChange="0.1" TickFrequency="0.1"/>
+                <Grid Margin="4,0">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Height="20">
+                            <TextBlock Text="{Binding DisplayName}" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" DockPanel.Dock="Right"/>
+                            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Left" Orientation="Horizontal" Margin="0,0,3,0">
+                                <ToggleButton Content="M" ToolTip="Toggle muted state" Width="20" IsChecked="{Binding IsMuted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </DockPanel>
+                        <Grid Background="Transparent" Margin="0,2,0,0">
+                            <c:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
+                                             TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
+                                             Style="{StaticResource AbletonNumberDraggerStyle}"
+                                             HorizontalAlignment="Right" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"/>
+                        </Grid>
+                    </DockPanel>
                 </Grid>
             </DataTemplate>
         </timeline:TimelineLayerListItemTemplateSelector.AudioLayerTemplate>
     </timeline:TimelineLayerListItemTemplateSelector>
+
+    <Style TargetType="{x:Type controls:AutomationComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+        
+    </Style>
 </ResourceDictionary>

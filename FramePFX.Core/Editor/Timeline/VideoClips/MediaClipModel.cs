@@ -22,7 +22,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return Vector2.Zero;
         }
 
-        public override void Render(RenderContext render, long frame, SKColorFilter alphaFilter) {
+        public override void Render(RenderContext render, long frame) {
             if (frame != this.currentFrame) {
                 if (!this.TryGetResource(out ResourceMedia resource))
                     return;

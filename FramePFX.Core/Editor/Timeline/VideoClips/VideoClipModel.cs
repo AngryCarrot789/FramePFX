@@ -2,34 +2,35 @@ using System.Numerics;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
+using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public abstract class VideoClipModel : ClipModel {
-        public static readonly AutomationKey MediaPositionKey = AutomationKey.RegisterVector2(nameof(VideoClipModel), nameof(MediaPosition));
-        public static readonly AutomationKey MediaScaleKey = AutomationKey.RegisterVector2(nameof(VideoClipModel), nameof(MediaScale));
-        public static readonly AutomationKey MediaScaleOriginKey = AutomationKey.RegisterVector2(nameof(VideoClipModel), nameof(MediaScaleOrigin));
-        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoClipModel), nameof(Opacity));
+        public static readonly AutomationKey MediaPositionKey =    AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaPosition), Vector2.Zero, Vectors.NegativeInfinity, Vectors.PositiveInfinity);
+        public static readonly AutomationKey MediaScaleKey =       AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaScale), Vector2.One, Vectors.NegativeInfinity, Vectors.PositiveInfinity);
+        public static readonly AutomationKey MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.NegativeInfinity, Vectors.PositiveInfinity);
+        public static readonly AutomationKey OpacityKey =          AutomationKey.RegisterDouble(nameof(VideoClipModel), nameof(Opacity), 1d, 0d, 1d);
 
         /// <summary>
         /// The x and y coordinates of the video's media
         /// </summary>
-        public Vector2 MediaPosition { get; set; }
+        public Vector2 MediaPosition => this.AutomationData[MediaPositionKey].GetVector2Value(this.TimelinePlayhead);
 
         /// <summary>
         /// The x and y scale of the video's media (relative to <see cref="MediaScaleOrigin"/>)
         /// </summary>
-        public Vector2 MediaScale { get; set; }
+        public Vector2 MediaScale => this.AutomationData[MediaScaleKey].GetVector2Value(this.TimelinePlayhead);
 
         /// <summary>
         /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
         /// </summary>
-        public Vector2 MediaScaleOrigin { get; set; }
+        public Vector2 MediaScaleOrigin => this.AutomationData[MediaScaleOriginKey].GetVector2Value(this.TimelinePlayhead);
 
         /// <summary>
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
         /// </summary>
-        public double Opacity { get; set; }
+        public double Opacity => this.AutomationData[OpacityKey].GetDoubleValue(this.TimelinePlayhead);
 
         /// <summary>
         /// An event invoked when this video clip changes in some way that affects its render. 
@@ -38,9 +39,6 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
         protected VideoClipModel() {
-            this.MediaPosition = new Vector2();
-            this.MediaScale = new Vector2(1f, 1f);
-            this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
             this.AutomationData.AssignKey(MediaPositionKey);
             this.AutomationData.AssignKey(MediaScaleKey);
             this.AutomationData.AssignKey(MediaScaleOriginKey);
@@ -53,16 +51,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            data.SetStruct(nameof(this.MediaPosition), this.MediaPosition);
-            data.SetStruct(nameof(this.MediaScale), this.MediaScale);
-            data.SetStruct(nameof(this.MediaScaleOrigin), this.MediaScaleOrigin);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            this.MediaPosition = data.GetStruct<Vector2>(nameof(this.MediaPosition));
-            this.MediaScale = data.GetStruct<Vector2>(nameof(this.MediaScale));
-            this.MediaScaleOrigin = data.GetStruct<Vector2>(nameof(this.MediaScaleOrigin));
         }
 
         /// <summary>
@@ -88,15 +80,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             this.Transform(canvas, out _);
         }
 
-        public abstract void Render(RenderContext render, long frame, SKColorFilter alphaFilter);
+        public abstract void Render(RenderContext render, long frame);
 
         protected override void LoadDataIntoClone(ClipModel clone) {
             base.LoadDataIntoClone(clone);
-            if (clone is VideoClipModel vc) {
-                vc.MediaPosition = this.MediaPosition;
-                vc.MediaScale = this.MediaScale;
-                vc.MediaScaleOrigin = this.MediaScaleOrigin;
-            }
         }
     }
 }

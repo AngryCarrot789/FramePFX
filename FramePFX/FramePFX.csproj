@@ -265,6 +265,7 @@
     <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
     <Compile Include="Editor\Timeline\Controls\AudioClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\AudioLayerControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\AutomationComboBox.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineLayerControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
@@ -566,7 +567,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ResourceManaging\Items\" />
-    <Folder Include="Views\Main\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

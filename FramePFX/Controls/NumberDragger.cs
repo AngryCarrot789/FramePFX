@@ -17,7 +17,7 @@ namespace FramePFX.Controls {
                 "TinyChange",
                 typeof(double),
                 typeof(NumberDragger),
-                new PropertyMetadata(0.01d));
+                new PropertyMetadata(0.001d));
 
         public static readonly DependencyProperty MassiveChangeProperty =
             DependencyProperty.Register(
@@ -72,17 +72,23 @@ namespace FramePFX.Controls {
                 typeof(NumberDragger),
                 new PropertyMetadata(BoolBox.False,
                     (d, e) => ((NumberDragger) d).OnIsEditingTextBoxChanged((bool) e.OldValue, (bool) e.NewValue),
-                    (d, v) => ((NumberDragger) d).OnCoerceIsEditingTextBox((bool) v)));
+                    (d, v) => ((NumberDragger) d).OnCoerceIsEditingTextBox(v)));
 
         public static readonly DependencyProperty IsEditingTextBoxProperty = IsEditingTextBoxPropertyKey.DependencyProperty;
 
         public static readonly DependencyProperty RoundedPlacesProperty =
             DependencyProperty.Register(
                 "RoundedPlaces",
-                typeof(int),
+                typeof(int?),
                 typeof(NumberDragger),
-                new PropertyMetadata(4,
-                    (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int) e.OldValue, (int) e.NewValue)));
+                new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
+
+        public static readonly DependencyProperty PreviewRoundedPlacesProperty =
+            DependencyProperty.Register(
+                "PreviewRoundedPlaces",
+                typeof(int?),
+                typeof(NumberDragger),
+                new PropertyMetadata(2));
 
         public static readonly DependencyProperty LockCursorWhileDraggingProperty =
             DependencyProperty.Register(
@@ -101,6 +107,9 @@ namespace FramePFX.Controls {
         /// <summary>
         /// Gets or sets a value that is displayed while the value preview is active, instead of displaying the
         /// actual value. A text box will still appear if the control is clicked
+        /// <para>
+        /// This is only displayed when the value is non-null and not an empty string
+        /// </para>
         /// </summary>
         public string DisplayTextOverride {
             get => (string) this.GetValue(DisplayTextOverrideProperty);
@@ -114,13 +123,16 @@ namespace FramePFX.Controls {
         private double? previousValue;
         private bool ignoreMouseMove;
 
+        /// <summary>
+        /// Gets or sets the tiny-change value. This is added or subtracted when CTRL + SHIFT is pressed
+        /// </summary>
         public double TinyChange {
             get => (double) this.GetValue(TinyChangeProperty);
             set => this.SetValue(TinyChangeProperty, value);
         }
 
         /// <summary>
-        /// The amount to add per pixel of change while dragging
+        /// Gets or sets the massive change value. This is added or subtracted when CTRL is pressed
         /// </summary>
         public double MassiveChange {
             get => (double) this.GetValue(MassiveChangeProperty);
@@ -157,9 +169,20 @@ namespace FramePFX.Controls {
             protected set => this.SetValue(IsEditingTextBoxPropertyKey, value.Box());
         }
 
-        public int RoundedPlaces {
-            get => (int) this.GetValue(RoundedPlacesProperty);
+        /// <summary>
+        /// The number of digits to round the actual value to. Set to null to disable rounding
+        /// </summary>
+        public int? RoundedPlaces {
+            get => (int?) this.GetValue(RoundedPlacesProperty);
             set => this.SetValue(RoundedPlacesProperty, value);
+        }
+
+        /// <summary>
+        /// The number of digits to round the preview value (not the actual value). Set to null to disable rounding
+        /// </summary>
+        public int? PreviewRoundedPlaces {
+            get => (int?) this.GetValue(PreviewRoundedPlacesProperty);
+            set => this.SetValue(PreviewRoundedPlacesProperty, value);
         }
 
         private bool isUpdatingExternalMouse;
@@ -169,14 +192,12 @@ namespace FramePFX.Controls {
             set => this.SetValue(LockCursorWhileDraggingProperty, value.Box());
         }
 
-        public double RoundedValue => this.GetRoundedValue(this.Value);
-
-        public bool IsReadOnly {
+        public bool IsValueReadOnly {
             get {
                 Binding binding;
                 BindingExpression expression = this.GetBindingExpression(ValueProperty);
-                if (expression == null || (binding = expression.ParentBinding) == null) {
-                    return true;
+                if (expression == null || (binding = expression.ParentBinding) == null || binding.Mode == BindingMode.Default) {
+                    return false;
                 }
 
                 return binding.Mode == BindingMode.OneWay || binding.Mode == BindingMode.OneTime;
@@ -216,8 +237,29 @@ namespace FramePFX.Controls {
             this.CoerceValue(IsEditingTextBoxProperty);
         }
 
-        public double GetRoundedValue(double value) {
-            return Math.Round(value, this.RoundedPlaces);
+        public double GetRoundedValue(double value, bool isPreview, out int? places) {
+            if (this.RoundedPlaces is int rounding) {
+                value = Math.Round(value, rounding);
+                places = rounding;
+            }
+            else {
+                places = null;
+            }
+
+            if (isPreview && this.PreviewRoundedPlaces is int roundingPreview) {
+                value = Math.Round(value, roundingPreview);
+                places = places != null ? Math.Min(places.Value, roundingPreview) : roundingPreview;
+            }
+
+            return value;
+        }
+
+        public double GetRoundedValue(double value, bool isPreview) {
+            if (this.RoundedPlaces is int rounding)
+                value = Math.Round(value, rounding);
+            if (isPreview && this.PreviewRoundedPlaces is int roundingPreview)
+                value = Math.Round(value, roundingPreview);
+            return value;
         }
 
         protected virtual void OnIsDraggingChanged(bool oldValue, bool newValue) {
@@ -250,12 +292,12 @@ namespace FramePFX.Controls {
             this.UpdateText();
         }
 
-        private bool OnCoerceIsEditingTextBox(bool isEditing) {
+        private object OnCoerceIsEditingTextBox(object isEditing) {
             if (this.PART_TextBox == null || this.PART_TextBlock == null) {
                 return isEditing;
             }
 
-            if (isEditing) {
+            if ((bool) isEditing) {
                 this.PART_TextBox.Visibility = Visibility.Visible;
                 this.PART_TextBlock.Visibility = Visibility.Hidden;
             }
@@ -264,12 +306,12 @@ namespace FramePFX.Controls {
                 this.PART_TextBlock.Visibility = Visibility.Visible;
             }
 
-            this.PART_TextBox.IsReadOnly = this.IsReadOnly;
+            this.PART_TextBox.IsReadOnly = this.IsValueReadOnly;
             return isEditing;
         }
 
         public void UpdateCursor() {
-            if (this.IsReadOnly) {
+            if (this.IsValueReadOnly) {
                 if (this.IsEditingTextBox) {
                     if (this.PART_TextBlock != null) {
                         this.PART_TextBlock.ClearValue(CursorProperty);
@@ -349,17 +391,23 @@ namespace FramePFX.Controls {
         }
 
         protected void UpdateText() {
+            if (this.PART_TextBox == null && this.PART_TextBlock == null) {
+                return;
+            }
+
+            double value = this.GetRoundedValue(this.Value, true, out int? places);
+            string valueText = places != null ? value.ToString("F" + places.Value) : value.ToString();
             if (this.IsEditingTextBox) {
                 if (this.PART_TextBox == null)
                     return;
-                this.PART_TextBox.Text = this.RoundedValue.ToString();
+                this.PART_TextBox.Text = valueText;
             }
             else {
                 if (this.PART_TextBlock == null)
                     return;
                 string text = this.DisplayTextOverride;
                 if (string.IsNullOrEmpty(text))
-                    text = this.RoundedValue.ToString();
+                    text = valueText;
                 this.PART_TextBlock.Text = text;
             }
         }
@@ -372,7 +420,6 @@ namespace FramePFX.Controls {
                 this.ignoreMouseMove = true;
                 try {
                     this.CaptureMouse();
-                    Debug.WriteLine("Mouse Captured");
                 }
                 finally {
                     this.ignoreMouseMove = false;
@@ -405,7 +452,7 @@ namespace FramePFX.Controls {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (this.ignoreMouseMove || this.isUpdatingExternalMouse || this.IsReadOnly) {
+            if (this.ignoreMouseMove || this.isUpdatingExternalMouse || this.IsValueReadOnly) {
                 return;
             }
 
@@ -498,8 +545,8 @@ namespace FramePFX.Controls {
                 newValue = this.Value - change;
             }
 
-            double roundedValue = Maths.Clamp(this.GetRoundedValue(newValue), this.Minimum, this.Maximum);
-            if (Maths.Equals(this.RoundedValue, roundedValue)) {
+            double roundedValue = Maths.Clamp(this.GetRoundedValue(newValue, false), this.Minimum, this.Maximum);
+            if (Maths.Equals(this.GetRoundedValue(this.Value, false), roundedValue)) {
                 return;
             }
 
@@ -544,7 +591,7 @@ namespace FramePFX.Controls {
         }
 
         public bool TryCompleteEdit() {
-            if (!this.IsReadOnly && double.TryParse(this.PART_TextBox.Text, out double value)) {
+            if (!this.IsValueReadOnly && double.TryParse(this.PART_TextBox.Text, out double value)) {
                 this.CompleteInputEdit(value);
                 return true;
             }
@@ -567,7 +614,6 @@ namespace FramePFX.Controls {
             this.previousValue = this.Value;
             this.Focus();
             this.CaptureMouse();
-            Debug.WriteLine("[BeginMouseDrag] Mouse Captured");
             this.IsDragging = true;
             this.UpdateCursor();
         }

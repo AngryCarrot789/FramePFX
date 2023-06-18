@@ -63,7 +63,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return new Vector2(rect.Width, rect.Height);
         }
 
-        public override void Render(RenderContext render, long frame, SKColorFilter alphaFilter) {
+        public override void Render(RenderContext render, long frame) {
             if (!this.TryGetResource(out ResourceText r)) {
                 return;
             }

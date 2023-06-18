@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FramePFX.Core.RBC {
     /// <summary>
@@ -17,6 +18,20 @@ namespace FramePFX.Core.RBC {
 
         public RBEList(List<RBEBase> children) {
             this.List = children ?? throw new ArgumentNullException(nameof(children), "List cannot be null");
+        }
+
+        /// <summary>
+        /// Casts all elements to dictionaries
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<RBEDictionary> GetDictionaries() {
+            if (this.List.Any(x => !(x is RBEDictionary))) {
+                throw new Exception($"Expected list to contain only {nameof(RBEDictionary)} instances");
+            }
+
+            foreach (RBEBase rbe in this.List) {
+                yield return (RBEDictionary) rbe;
+            }
         }
 
         private bool GetElementByType<T>(int index, out T value) where T : RBEBase {

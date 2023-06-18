@@ -41,15 +41,14 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return new Vector2(this.Width, this.Height);
         }
 
-        public override void Render(RenderContext render, long frame, SKColorFilter alphaFilter) {
+        public override void Render(RenderContext render, long frame) {
             if (!this.TryGetResource(out ResourceColour r)) {
                 return;
             }
 
             this.Transform(render.Canvas, out Vector2 size);
             render.Canvas.DrawRect(0, 0, size.X, size.Y, new SKPaint() {
-                Color = new SKColor(r.ByteR, r.ByteG, r.ByteB, r.ByteA),
-                ColorFilter = alphaFilter
+                Color = new SKColor(r.ByteR, r.ByteG, r.ByteB, r.ByteA)
             });
         }
 

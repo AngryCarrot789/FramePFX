@@ -43,6 +43,7 @@ namespace FramePFX.Editor {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             IoC.BroadcastShortcutActivity = (x) => {
+                this.NotificationBarTextBlock.Text = x;
             };
 
             this.NotificationPanel = new NotificationPanelViewModel(this);
@@ -60,6 +61,8 @@ namespace FramePFX.Editor {
             this.NotificationPanelPopup.PlacementRectangle = System.Windows.Rect.Empty;
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
             this.RefreshPopupLocation();
+
+            this.Width = 1257;
         }
 
         public void OnNotificationPushed(NotificationViewModel notification) {
@@ -243,9 +246,7 @@ namespace FramePFX.Editor {
 
             RenderContext context = new SkiaSharpRenderContext(editor.Model, e.Surface, e.Surface.Canvas, e.RawInfo);
             context.Canvas.Clear(SKColors.Black);
-            context.Canvas.Save();
             project.Timeline.Model.Render(context);
-            context.Canvas.Restore();
 
             // context.Canvas.Translate(100,100);
             // context.Canvas.Scale(100f);

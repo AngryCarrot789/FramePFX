@@ -37,6 +37,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
             }
         }
 
+        public bool IsVisible {
+            get => this.Model.IsVisible;
+            set {
+                this.Model.IsVisible = value;
+                this.RaisePropertyChanged();
+                this.Timeline.DoRender(true);
+            }
+        }
+
         public VideoLayerViewModel(TimelineViewModel timeline, VideoLayerModel model) : base(timeline, model) {
 
         }

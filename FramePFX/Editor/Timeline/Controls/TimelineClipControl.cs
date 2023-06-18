@@ -16,7 +16,7 @@ using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public abstract class TimelineClipControl : ContentControl, IClipHandle {
+    public abstract class TimelineClipControl : HeaderedContentControl, IClipHandle {
         private static readonly object LongZeroObject = 0L;
 
         public static readonly DependencyProperty IsSelectedProperty =
@@ -264,7 +264,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
-            this.Layer.MakeTopElement(this);
+            this.Layer?.MakeTopElement(this);
             this.lastLeftClickPoint = e.GetPosition(this);
         }
 

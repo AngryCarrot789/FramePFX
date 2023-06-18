@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
@@ -126,6 +127,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public HistoryManagerViewModel HistoryManager => this.Layer?.Timeline.Project.Editor.HistoryManager;
 
+        public AutomationDataViewModel AutomationData { get; }
+
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
         public RelayCommand RemoveClipCommand { get; }
@@ -134,6 +137,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         protected ClipViewModel(ClipModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            this.AutomationData = new AutomationDataViewModel(model.AutomationData);
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
                 string name = await IoC.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
                 if (name != null) {

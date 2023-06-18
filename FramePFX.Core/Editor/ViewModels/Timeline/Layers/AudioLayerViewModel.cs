@@ -15,6 +15,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
             }
         }
 
+        public bool IsMuted {
+            get => this.Model.IsMuted;
+            set {
+                this.Model.IsMuted = value;
+                this.RaisePropertyChanged();
+                this.Timeline.DoRender(true);
+            }
+        }
+
         public AudioLayerViewModel(TimelineViewModel timeline, AudioLayerModel model) : base(timeline, model) {
 
         }

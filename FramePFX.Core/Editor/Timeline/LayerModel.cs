@@ -30,7 +30,7 @@ namespace FramePFX.Core.Editor.Timeline {
         protected LayerModel(TimelineModel timeline) {
             this.Timeline = timeline;
             this.Clips = new List<ClipModel>();
-            this.MinHeight = 40;
+            this.MinHeight = 21;
             this.MaxHeight = 200;
             this.Height = 60;
             this.LayerColour = LayerColours.GetRandomColour();

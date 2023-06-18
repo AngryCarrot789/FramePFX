@@ -10,20 +10,26 @@
     <Color x:Key="AColour.Glyph.MouseDown"                     R="235" G="235" B="235" A="255"/>
     <Color x:Key="AColour.Glyph.Selected"                      R="228" G="228" B="228" A="255"/>
     <Color x:Key="AColour.Glyph.Selected.Inactive"             R="218" G="218" B="218" A="255"/>
-    <Color x:Key="AColour.ColourfulGlyph.Static"               A="#FF" R="#34" G="#94" B="#E1"/>
+    <Color x:Key="AColour.ColourfulGlyph.Static"               R="52"  G="148" B="225" A="255"/>
     <Color x:Key="AColour.ColourfulGlyph.Disabled"             R="85"  G="135" B="175" A="255"/>
     <Color x:Key="AColour.ColourfulGlyph.MouseOver"            R="45"  G="125" B="215" A="255"/>
     <Color x:Key="AColour.ColourfulGlyph.MouseDown"            R="50"  G="135" B="200" A="255"/>
     <Color x:Key="AColour.ColourfulGlyph.Selected"             R="50"  G="115" B="185" A="255"/>
     <Color x:Key="AColour.ColourfulGlyph.Selected.Inactive"    R="55"  G="120" B="200" A="255"/>
-    <Color x:Key="AColour.Tone1.Background.Static"             R="24"  G="24"  B="24" A="255"/>
-    <Color x:Key="AColour.Tone1.Border.Static"                 R="34"  G="34"  B="34" A="255"/>
 
-    <Color x:Key="AColour.Tone2.Background.Static"             R="28"  G="28"  B="28" A="255"/>
-    <Color x:Key="AColour.Tone2.Border.Static"                 R="38"  G="38"  B="38" A="255"/>
+    <Color x:Key="AColour.AccentTone1.Background.Static"       R="85" G="135" B="175" A="255"/>
+    <Color x:Key="AColour.AccentTone1.Border.Static"           R="65" G="130" B="205" A="255"/>
+    <Color x:Key="AColour.AccentTone2.Background.Static"       R="52" G="148" B="225" A="255"/>
+    <Color x:Key="AColour.AccentTone2.Border.Static"           R="47" G="130" B="200" A="255"/>
+    <Color x:Key="AColour.AccentTone3.Background.Static"       R="45" G="125" B="215" A="255"/>
+    <Color x:Key="AColour.AccentTone3.Border.Static"           R="50" G="135" B="200" A="255"/>
 
-    <Color x:Key="AColour.Tone3.Background.Static"             R="33"  G="33"  B="33" A="255"/>
-    <Color x:Key="AColour.Tone3.Border.Static"                 R="53"  G="53"  B="53" A="255"/>
+    <Color x:Key="AColour.Tone1.Background.Static"             R="24"  G="24"  B="24"  A="255"/>
+    <Color x:Key="AColour.Tone1.Border.Static"                 R="34"  G="34"  B="34"  A="255"/>
+    <Color x:Key="AColour.Tone2.Background.Static"             R="28"  G="28"  B="28"  A="255"/>
+    <Color x:Key="AColour.Tone2.Border.Static"                 R="38"  G="38"  B="38"  A="255"/>
+    <Color x:Key="AColour.Tone3.Background.Static"             R="33"  G="33"  B="33"  A="255"/>
+    <Color x:Key="AColour.Tone3.Border.Static"                 R="53"  G="53"  B="53"  A="255"/>
 
     <Color x:Key="AColour.Tone4.Background.Static"             R="36"  G="36"  B="36" A="255"/>
     <Color x:Key="AColour.Tone4.Border.Static"                 R="43"  G="43"  B="43" A="255"/>
@@ -94,6 +100,12 @@
     <!-- Primary.6 is like Primary.5 but it's more obvious, it sticks out a bit more -->
     <!-- Primary.7 is like Primary.6 but it's very obvious, it sticks out more (useful for popups maybe, possibly with shadows as well) -->
 
+    <SolidColorBrush x:Key="ABrush.AccentTone1.Background.Static"          Color="{StaticResource AColour.AccentTone1.Background.Static}"/>
+    <SolidColorBrush x:Key="ABrush.AccentTone1.Border.Static"              Color="{StaticResource AColour.AccentTone1.Border.Static}"/>
+    <SolidColorBrush x:Key="ABrush.AccentTone2.Background.Static"          Color="{StaticResource AColour.AccentTone2.Background.Static}"/>
+    <SolidColorBrush x:Key="ABrush.AccentTone2.Border.Static"              Color="{StaticResource AColour.AccentTone2.Border.Static}"/>
+    <SolidColorBrush x:Key="ABrush.AccentTone3.Background.Static"          Color="{StaticResource AColour.AccentTone3.Background.Static}"/>
+    <SolidColorBrush x:Key="ABrush.AccentTone3.Border.Static"              Color="{StaticResource AColour.AccentTone3.Border.Static}"/>
     <SolidColorBrush x:Key="ABrush.Foreground.Static"                      Color="{StaticResource AColour.Foreground.Static}"/>
     <SolidColorBrush x:Key="ABrush.Foreground.Deeper"                      Color="{StaticResource AColour.Foreground.Deeper}"/>
     <SolidColorBrush x:Key="ABrush.Foreground.Disabled"                    Color="{StaticResource AColour.Foreground.Disabled}"/>

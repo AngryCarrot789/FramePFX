@@ -97,6 +97,22 @@ namespace FramePFX.Core.RBC {
         public bool GetBool(string key, bool def) => this.TryGetElement(key, out RBEByte rbe) ? (rbe.Value != 0) : def;
         public bool TryGetBool(string key, out bool value) => this.TryGetElementValue<RBEByte, bool>(key, e => e.Value != 0, out value);
 
+        public T GetEnum8<T>(string key) where T : unmanaged, Enum => BinaryUtils.ToEnum8<T>(this.GetByte(key));
+        public T GetEnum8<T>(string key, T def) where T : unmanaged, Enum => this.TryGetElement(key, out RBEByte rbe) ? BinaryUtils.ToEnum8<T>(rbe.Value) : def;
+        public bool TryGetEnum8<T>(string key, out T value) where T : unmanaged, Enum => this.TryGetElementValue<RBEByte, T>(key, e => BinaryUtils.ToEnum8<T>(e.Value), out value);
+
+        public T GetEnum16<T>(string key) where T : unmanaged, Enum => BinaryUtils.ToEnum16<T>(this.GetByte(key));
+        public T GetEnum16<T>(string key, T def) where T : unmanaged, Enum => this.TryGetElement(key, out RBEByte rbe) ? BinaryUtils.ToEnum16<T>(rbe.Value) : def;
+        public bool TryGetEnum16<T>(string key, out T value) where T : unmanaged, Enum => this.TryGetElementValue<RBEByte, T>(key, e => BinaryUtils.ToEnum16<T>(e.Value), out value);
+
+        public T GetEnum32<T>(string key) where T : unmanaged, Enum => BinaryUtils.ToEnum32<T>(this.GetByte(key));
+        public T GetEnum32<T>(string key, T def) where T : unmanaged, Enum => this.TryGetElement(key, out RBEByte rbe) ? BinaryUtils.ToEnum32<T>(rbe.Value) : def;
+        public bool TryGetEnum32<T>(string key, out T value) where T : unmanaged, Enum => this.TryGetElementValue<RBEByte, T>(key, e => BinaryUtils.ToEnum32<T>(e.Value), out value);
+
+        public T GetEnum64<T>(string key) where T : unmanaged, Enum => BinaryUtils.ToEnum64<T>(this.GetByte(key));
+        public T GetEnum64<T>(string key, T def) where T : unmanaged, Enum => this.TryGetElement(key, out RBEByte rbe) ? BinaryUtils.ToEnum64<T>(rbe.Value) : def;
+        public bool TryGetEnum64<T>(string key, out T value) where T : unmanaged, Enum => this.TryGetElementValue<RBEByte, T>(key, e => BinaryUtils.ToEnum64<T>(e.Value), out value);
+
         public byte GetByte(string key) => this.GetElement<RBEByte>(key).Value;
         public byte GetByte(string key, byte def) => this.TryGetElement(key, out RBEByte rbe) ? rbe.Value : def;
         public bool TryGetByte(string key, out byte value) => this.TryGetElementValue<RBEByte, byte>(key, e => e.Value, out value);
@@ -177,6 +193,10 @@ namespace FramePFX.Core.RBC {
         public void SetDictionary(string key, Dictionary<string, RBEBase> value) => this[key] = new RBEDictionary(value);
         public void SetList(string key, List<RBEBase> value) => this[key] = new RBEList(value);
         public void SetBool(string key, bool value) => this[key] = new RBEByte((byte) (value ? 1 : 0));
+        public void SetEnum8<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBEByte(BinaryUtils.FromEnum8(value));
+        public void SetEnum16<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBEShort(BinaryUtils.FromEnum16(value));
+        public void SetEnum32<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBEInt(BinaryUtils.FromEnum32(value));
+        public void SetEnum64<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBELong(BinaryUtils.FromEnum64(value));
         public void SetByte(string key, byte value) => this[key] = new RBEByte(value);
         public void SetShort(string key, short value) => this[key] = new RBEShort(value);
         public void SetInt(string key, int value) => this[key] = new RBEInt(value);

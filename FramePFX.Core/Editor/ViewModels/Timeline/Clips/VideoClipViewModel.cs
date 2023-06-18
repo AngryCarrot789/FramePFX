@@ -1,4 +1,6 @@
 using System.Numerics;
+using FramePFX.Core.Automation.Keyframe;
+using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.VideoClips;
@@ -42,7 +44,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                     action.MediaPosition.SetCurrent(value);
                 }
 
-                this.Model.MediaPosition = value;
+                this.AutomationData[VideoClipModel.MediaPositionKey].SetVector2Value(this.Model.TimelinePlayhead, value);
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaPositionX));
                 this.RaisePropertyChanged(nameof(this.MediaPositionY));
@@ -72,7 +74,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                     action.MediaScale.SetCurrent(value);
                 }
 
-                this.Model.MediaScale = value;
+                this.AutomationData[VideoClipModel.MediaScaleKey].SetVector2Value(this.Model.TimelinePlayhead, value);
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleY));
@@ -102,7 +104,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                     action.MediaScaleOrigin.SetCurrent(value);
                 }
 
-                this.Model.MediaScaleOrigin = value;
+                this.AutomationData[VideoClipModel.MediaScaleOriginKey].SetVector2Value(this.Model.TimelinePlayhead, value);
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
@@ -113,7 +115,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public double Opacity {
             get => this.Model.Opacity;
             set {
-                this.Model.Opacity = Maths.Clamp(value, 0d, 1d);
+                this.AutomationData[VideoClipModel.OpacityKey].SetDoubleValue(this.Model.TimelinePlayhead, value);
                 this.RaisePropertyChanged();
                 this.Model.InvalidateRender();
             }

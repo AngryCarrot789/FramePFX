@@ -91,37 +91,25 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public void Render(RenderContext render, long frame) {
             for (int i = this.Layers.Count - 1; i >= 0; i--) {
-                if (!(this.Layers[i] is VideoLayerModel layer)) {
+                if (!(this.Layers[i] is VideoLayerModel layer) || !layer.IsVisible) {
                     continue;
                 }
 
                 List<ClipModel> clips = layer.Clips.Where(x => x.IntersectsFrameAt(frame)).ToList();
-                if (clips.Count > 0) {
-                    SKColorFilter filter = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F)), SKBlendMode.DstIn);
-                    foreach (ClipModel clip in clips) {
-                        render.Canvas.Save();
-                        ((VideoClipModel) clip).Render(render, frame, filter);
-                        render.Canvas.Restore();
-                    }
+                if (clips.Count <= 0) {
+                    continue;
                 }
 
-                // SKRect clipping = render.Canvas.LocalClipBounds;
-                // int save = render.Canvas.SaveLayer(clipping, new SKPaint());
-                // foreach (ClipModel clip in clipsOverFrame) {
-                //     if (clip.IntersectsFrameAt(frame)) {
-                //         render.Canvas.Save();
-                //         ((VideoClipModel) clip).Render(render, frame);
-                //         render.Canvas.Restore();
-                //     }
-                // }
-                // byte alpha = (byte) Maths.Clamp(layer.Opacity * 255f, 0F, 255F);
-                // SKColorFilter blend = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, alpha), SKBlendMode.DstOut);
-                // SKPaint paint = new SKPaint() {
-                //     Style = SKPaintStyle.Fill,
-                //     ColorFilter = blend
-                // };
-                // render.Canvas.DrawRect(clipping, paint);
-                // render.Canvas.RestoreToCount(save);
+                using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F))}) {
+                    // SKColorFilter filter = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F)), SKBlendMode.DstIn);
+                    render.Canvas.SaveLayer(paint);
+                    foreach (ClipModel clip in clips) {
+                        render.Canvas.Save();
+                        ((VideoClipModel) clip).Render(render, frame);
+                        render.Canvas.Restore();
+                    }
+                    render.Canvas.Restore();
+                }
             }
         }
 

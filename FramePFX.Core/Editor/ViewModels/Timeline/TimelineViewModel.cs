@@ -8,7 +8,6 @@ using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
-using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using FramePFX.Core.Automation;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
@@ -30,6 +31,8 @@ namespace FramePFX.Core.Editor.Timeline {
         /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that is null
         /// </summary>
         public ResourceManager ResourceManager => this.Layer?.Timeline.Project.ResourceManager;
+
+        public long TimelinePlayhead => this.Layer?.Timeline.PlayHead ?? 0;
 
         /// <summary>
         /// This clip's display name, which the user can chose to identify it
@@ -191,6 +194,11 @@ namespace FramePFX.Core.Editor.Timeline {
             clone.DisplayName = this.DisplayName;
             clone.FrameSpan = this.FrameSpan;
             clone.MediaFrameOffset = this.MediaFrameOffset;
+            foreach (AutomationSequence sequence in this.AutomationData.Sequences) {
+                RBEDictionary dictionary = new RBEDictionary();
+                sequence.WriteToRBE(dictionary);
+                clone.AutomationData[sequence.Key].ReadFromRBE(dictionary);
+            }
         }
 
         #region Dispose

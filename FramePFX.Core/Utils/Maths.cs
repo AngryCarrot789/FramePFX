@@ -37,5 +37,29 @@ namespace FramePFX.Core.Utils {
         public static bool IsOne(double value) => Math.Abs(value - 1.0) < 2.22044604925031E-15;
 
         public static bool IsZero(double value) => Math.Abs(value) < 2.22044604925031E-15; // 0.00000000000000222044604925031
+
+        public static double Lerp(double a, double b, double blend) {
+            return blend * (b - a) + a;
+        }
+
+        /// <summary>
+        /// 64-bit integer lerp
+        /// </summary>
+        /// <param name="a">A</param>
+        /// <param name="b">B</param>
+        /// <param name="blend">Blend</param>
+        /// <param name="roundingMode">0 = cast to long, 1 = floor, 2 = ceil, 3 = round</param>
+        /// <returns>A lerp-ed long value</returns>
+        public static long Lerp(long a, long b, double blend, int roundingMode) {
+            double nA = a, nB = b;
+            double val = blend * (nB - nA) + nA;
+            switch (roundingMode) {
+                case 0: return (long) val;
+                case 1: return (long) Math.Floor(val);
+                case 2: return (long) Math.Ceiling(val);
+                case 3: return (long) Math.Round(val);
+                default: throw new ArgumentOutOfRangeException(nameof(roundingMode), "Value must be between 0 and 3");
+            }
+        }
     }
 }

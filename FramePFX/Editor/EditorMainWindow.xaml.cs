@@ -320,10 +320,10 @@ namespace FramePFX.Editor {
             this.VPViewBox.FitContentToCenter();
         }
 
+        private int number;
+
         private void MenuItem_OnClick(object sender, RoutedEventArgs e) {
-            this.NotificationPanel.PushNotification(new MessageNotification(TimeSpan.FromSeconds(5)) {
-                Header = "Header!!!", Message = "Some message here"
-            });
+            this.NotificationPanel.PushNotification(new MessageNotification("Header!!!", $"Some message here ({++this.number})", TimeSpan.FromSeconds(5)));
         }
     }
 }

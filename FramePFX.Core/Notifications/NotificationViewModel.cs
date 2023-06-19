@@ -39,17 +39,20 @@ namespace FramePFX.Core.Notifications {
         /// </summary>
         public AsyncRelayCommand HideCommand { get; }
 
-        protected NotificationViewModel(TimeSpan timeout) {
-            this.Timeout = timeout;
+        protected NotificationViewModel() {
             this.HideCommand = new AsyncRelayCommand(this.HideAction, () => !this.IsHidden);
         }
 
         public void StartAutoHideTask() {
+            this.StartAutoHideTask(this.Timeout);
+        }
+
+        public virtual void StartAutoHideTask(TimeSpan span) {
             if (this.autoHideTask != null && !this.autoHideTask.IsCompleted) {
                 return;
             }
 
-            if (this.Timeout.Ticks > 0) {
+            if (span.Ticks > 0) {
                 this.cancellation = new CancellationTokenSource();
                 this.autoHideTask = Task.Run(() => this.HideTaskMain(this.cancellation.Token));
             }
@@ -84,7 +87,7 @@ namespace FramePFX.Core.Notifications {
             }
         }
 
-        public Task HideAction() {
+        public virtual Task HideAction() {
             this.CancelAutoHideTask();
             this.Panel.RemoveNotification(this);
             return Task.CompletedTask;
@@ -94,11 +97,11 @@ namespace FramePFX.Core.Notifications {
             if (!this.IsHidden) {
                 this.cancellation = null;
                 this.autoHideTask = null;
-                this.Panel.Handler.BeginNotificationFadeOutAnimation(this, this.OnNotificationHidden);
+                this.Panel.Handler.BeginNotificationFadeOutAnimation(this, this.OnNotificationNoLongerVisible);
             }
         }
 
-        private void OnNotificationHidden(NotificationViewModel obj) {
+        private void OnNotificationNoLongerVisible(NotificationViewModel obj) {
             Debug.Assert(ReferenceEquals(obj, this), "Callback parameter does not match the current instance");
             this.IsHidden = true;
             this.Panel.RemoveNotification(this);

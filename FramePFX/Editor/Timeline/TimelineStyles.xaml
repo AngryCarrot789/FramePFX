@@ -93,7 +93,7 @@
                         </TextBlock>
                         <DockPanel HorizontalAlignment="Right" Margin="5,0,0,0" d:DataContext="{d:DesignInstance tm:ClipViewModel}">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                <!--
+                                <!-- button bar here; left to right i think?
                                 <ToggleButton Content="V" Width="20"/>
                                 -->
                             </StackPanel>

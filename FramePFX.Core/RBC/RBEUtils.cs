@@ -76,10 +76,10 @@ namespace FramePFX.Core.RBC {
             // would it be more performant to, instead of running an accumulation sweep then writing,
             // perform a single sweep like "WriteDynamicPacked", where keys are added to the dictionary when needed?
 
-            // It would require the data to be written to a temporary buffer, then write the dictionary,
-            // then write the temporary buffer, so that the dictionary is first...
-            // I imagine that's the bane of all computer science right there. It's not even logically
-            // possible to do it unless you have a known fixed dictionary size (e.g. 4kb, 32kb)
+            // It would require the data to be written to a temporary buffer, then write the dictionary to the file,
+            // then write the temporary buffer to the file, so that the dictionary is first...
+            // I imagine that's the bane of all computer science right there. It's not even logically possible
+            // to do it without that temp buffer unless you have a known fixed dictionary size (e.g. 4kb, 32kb)
             Dictionary<string, int> dictionary = new Dictionary<string, int>();
             rbe.AccumulatePackedEntries(dictionary);
             using (BinaryWriter writer = new BinaryWriter(stream, encoding, true)) {

@@ -16,10 +16,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
 
         protected override void OnResourceDataModified(string property) {
             switch (property) {
-                case nameof(ResourceColour.A):
-                case nameof(ResourceColour.R):
-                case nameof(ResourceColour.G):
-                case nameof(ResourceColour.B):
+                case nameof(ResourceColour.ScA):
+                case nameof(ResourceColour.ScR):
+                case nameof(ResourceColour.ScG):
+                case nameof(ResourceColour.ScB):
                     this.InvalidateRender();
                     break;
             }
@@ -37,7 +37,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             this.Height = data.GetFloat(nameof(this.Height));
         }
 
-        public override Vector2 GetSize() {
+        public override Vector2? GetSize() {
             return new Vector2(this.Width, this.Height);
         }
 
@@ -46,10 +46,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 return;
             }
 
-            this.Transform(render.Canvas, out Vector2 size);
-            render.Canvas.DrawRect(0, 0, size.X, size.Y, new SKPaint() {
-                Color = new SKColor(r.ByteR, r.ByteG, r.ByteB, r.ByteA)
-            });
+            this.Transform(render);
+            using (SKPaint paint = new SKPaint() {Color = r.Colour}) {
+                render.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
+            }
         }
 
         protected override ClipModel NewInstance() {

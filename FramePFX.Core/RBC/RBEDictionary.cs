@@ -125,6 +125,10 @@ namespace FramePFX.Core.RBC {
         public int GetInt(string key, int def) => this.TryGetElement(key, out RBEInt rbe) ? rbe.Value : def;
         public bool TryGetInt(string key, out int value) => this.TryGetElementValue<RBEInt, int>(key, e => e.Value, out value);
 
+        public uint GetUInt(string key) => (uint) this.GetElement<RBEInt>(key).Value;
+        public uint GetUInt(string key, uint def) => this.TryGetElement(key, out RBEInt rbe) ? (uint) rbe.Value : def;
+        public bool TryGetUInt(string key, out uint value) => this.TryGetElementValue<RBEInt, uint>(key, e => (uint) e.Value, out value);
+
         public long GetLong(string key) => this.GetElement<RBELong>(key).Value;
         public long GetLong(string key, long def) => this.TryGetElement(key, out RBELong rbe) ? rbe.Value : def;
         public bool TryGetLong(string key, out long value) => this.TryGetElementValue<RBELong, long>(key, e => e.Value, out value);
@@ -193,13 +197,14 @@ namespace FramePFX.Core.RBC {
         public void SetDictionary(string key, Dictionary<string, RBEBase> value) => this[key] = new RBEDictionary(value);
         public void SetList(string key, List<RBEBase> value) => this[key] = new RBEList(value);
         public void SetBool(string key, bool value) => this[key] = new RBEByte((byte) (value ? 1 : 0));
-        public void SetEnum8<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBEByte(BinaryUtils.FromEnum8(value));
-        public void SetEnum16<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBEShort(BinaryUtils.FromEnum16(value));
-        public void SetEnum32<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBEInt(BinaryUtils.FromEnum32(value));
-        public void SetEnum64<T>(string key, T value) where T : unmanaged, Enum => this[key] = new RBELong(BinaryUtils.FromEnum64(value));
+        public void SetEnum8<T>(string key, T value) where T : unmanaged, Enum => this.SetByte(key, BinaryUtils.FromEnum8(value));
+        public void SetEnum16<T>(string key, T value) where T : unmanaged, Enum => this.SetShort(key, BinaryUtils.FromEnum16(value));
+        public void SetEnum32<T>(string key, T value) where T : unmanaged, Enum => this.SetInt(key, BinaryUtils.FromEnum32(value));
+        public void SetEnum64<T>(string key, T value) where T : unmanaged, Enum => this.SetLong(key, BinaryUtils.FromEnum64(value));
         public void SetByte(string key, byte value) => this[key] = new RBEByte(value);
         public void SetShort(string key, short value) => this[key] = new RBEShort(value);
         public void SetInt(string key, int value) => this[key] = new RBEInt(value);
+        public void SetUInt(string key, uint value) => this.SetInt(key, (int) value);
         public void SetLong(string key, long value) => this[key] = new RBELong(value);
         public void SetFloat(string key, float value) => this[key] = new RBEFloat(value);
         public void SetDouble(string key, double value) => this[key] = new RBEDouble(value);

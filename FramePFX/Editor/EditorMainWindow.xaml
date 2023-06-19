@@ -3,17 +3,13 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-            xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
             xmlns:converters="clr-namespace:FramePFX.Converters"
             xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
             xmlns:s="clr-namespace:FramePFX.Shortcuts"
             xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
-            xmlns:ui="clr-namespace:FramePFX.ResourceManaging.UI"
             xmlns:c="clr-namespace:FramePFX.Editor.Timeline.Controls"
-            xmlns:core="clr-namespace:FramePFX.Core;assembly=FramePFX.Core"
             xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
             xmlns:v="clr-namespace:FramePFX.Views"
-            xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
             xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
             xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
             xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
@@ -23,7 +19,11 @@
             xmlns:types="clr-namespace:FramePFX.Core.Notifications.Types;assembly=FramePFX.Core"
             xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
             xmlns:editor="clr-namespace:FramePFX.Editor"
-            xmlns:vm1="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core" xmlns:layers="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Layers;assembly=FramePFX.Core"
+            xmlns:vm1="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core"
+            xmlns:ui="clr-namespace:FramePFX.ResourceManaging"
+            xmlns:rc="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;assembly=FramePFX.Core"
+            xmlns:notifications="clr-namespace:FramePFX.Core.Editor.Notifications;assembly=FramePFX.Core"
+            xmlns:savingProject="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -52,6 +52,7 @@
         <MultiBinding Converter="{StaticResource TitleConverter}">
             <Binding Path="ActiveProject"/>
             <Binding Path="ActiveProject.HasUnsavedChanges"/>
+            <Binding Path="ActiveProject.ProjectFilePath"/>
         </MultiBinding>
     </Window.Title>
     <Grid>
@@ -121,7 +122,7 @@
                                     </editor:ResourceItemContainerStyleSelector.ResourceItemStyle>
                                     <editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
                                         <!-- d:DataContext="{d:DesignInstance vm1:ResourceGroupViewModel}" -->
-                                        <Style TargetType="{x:Type ui:BaseResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}">
+                                        <Style TargetType="{x:Type ui:ResourceGroupControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}">
                                             <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}"/>
                                         </Style>
                                     </editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
@@ -132,6 +133,11 @@
                                             <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}"/>
                                         </DataTemplate>
                                     </editor:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
+                                    <editor:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
+                                        <DataTemplate DataType="{x:Type rc:ResourceColourViewModel}">
+                                            <Border Background="{Binding Colour, Converter={x:Static converters:SKColorToBrushConverter.Instance}}"/>
+                                        </DataTemplate>
+                                    </editor:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
                                     <editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
                                         <DataTemplate DataType="{x:Type vm1:ResourceGroupViewModel}">
                                             <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -362,6 +368,30 @@
                             </Grid>
                         </DataTemplate>
                     </nn:NotificationDataTemplateSelector.MessageNotificationTemplate>
+                    <nn:NotificationDataTemplateSelector.SavingProjectNotificationTemplate>
+                        <DataTemplate DataType="{x:Type notifications:SavingProjectNotification}">
+                            <Grid>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}"/>
+                                </Grid.InputBindings>
+                                <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource ABrush.Tone7.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone7.Border.Static}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Label Content="Save Project" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
+                                        <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse"/>
+                                    </Grid>
+                                </Border>
+                                <Label Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top">
+                                    <Label.Content>
+                                        <MultiBinding Converter="{x:Static savingProject:SavingProjectMessageConverter.Instance}">
+                                            <Binding Path="IsSaving"/>
+                                            <Binding Path="IsSuccess"/>
+                                            <Binding Path="ErrorMessage"/>
+                                        </MultiBinding>
+                                    </Label.Content>
+                                </Label>
+                            </Grid>
+                        </DataTemplate>
+                    </nn:NotificationDataTemplateSelector.SavingProjectNotificationTemplate>
                 </nn:NotificationDataTemplateSelector>
             </Popup.Resources>
             <Border Background="Transparent">

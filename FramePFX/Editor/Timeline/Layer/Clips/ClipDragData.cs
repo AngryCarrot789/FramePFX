@@ -6,6 +6,12 @@ using FramePFX.Editor.Timeline.Controls;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Layer.Clips {
+
+    /*
+     * TODO: reimplement this using a more 'Core' implementation (that doesn't reference UI objects). The current way is very
+     * bug prone, as it's all handled in the clip's drag methods
+     */
+    
     public class ClipDragData {
         public TimelineControl Timeline { get; }
         public VideoClipControl Clip { get; }

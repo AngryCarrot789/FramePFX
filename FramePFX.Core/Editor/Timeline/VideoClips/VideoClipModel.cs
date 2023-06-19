@@ -58,26 +58,33 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         }
 
         /// <summary>
-        /// Gets the size of this video clip's media, which is used in the transformation phase
-        /// using <see cref="MediaPosition"/>, <see cref="MediaScale"/> and <see cref="MediaScaleOrigin"/>
+        /// Gets the size of this video clip's media, which is used in the scale phase of the
+        /// <see cref="Transform(FramePFX.Core.Rendering.RenderContext,out System.Nullable{System.Numerics.Vector2},out SkiaSharp.SKMatrix)"/> call.
+        /// If the value is unavailable, then the render viewport's width and height are used as a fallback
         /// </summary>
         /// <returns></returns>
-        public abstract Vector2 GetSize();
+        public abstract Vector2? GetSize();
 
-        public void Transform(SKCanvas canvas, out Vector2 size, out SKMatrix oldMatrix) {
-            oldMatrix = canvas.TotalMatrix;
-            this.Transform(canvas, out size);
+        public void Transform(RenderContext rc, out Vector2? size, out SKMatrix oldMatrix) {
+            oldMatrix = rc.Canvas.TotalMatrix;
+            this.Transform(rc, out size);
         }
 
-        public void Transform(SKCanvas canvas, out Vector2 size) {
+        public void Transform(RenderContext rc, out Vector2? size) {
             Vector2 pos = this.MediaPosition, scale = this.MediaScale, origin = this.MediaScaleOrigin;
+
             size = this.GetSize();
-            canvas.Translate(pos.X, pos.Y);
-            canvas.Scale(scale.X, scale.Y, size.X * origin.X, size.Y * origin.Y);
+            rc.Canvas.Translate(pos.X, pos.Y);
+            if (size is Vector2 sz) {
+                rc.Canvas.Scale(scale.X, scale.Y, sz.X * origin.X, sz.Y * origin.Y);
+            }
+            else {
+                rc.Canvas.Scale(scale.X, scale.Y, rc.FrameInfo.Width, rc.FrameInfo.Height);
+            }
         }
 
-        public void Transform(SKCanvas canvas) {
-            this.Transform(canvas, out _);
+        public void Transform(RenderContext rc) {
+            this.Transform(rc, out _);
         }
 
         public abstract void Render(RenderContext render, long frame);

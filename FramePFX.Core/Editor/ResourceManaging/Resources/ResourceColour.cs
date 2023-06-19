@@ -4,47 +4,64 @@ using SkiaSharp;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Resources {
     public class ResourceColour : ResourceItem {
-        public float R { get; set; }
-        public float G { get; set; }
-        public float B { get; set; }
-        public float A { get; set; } = 1f;
+        public SKColor Colour { get; set; } = new SKColor(0, 0, 0, 255);
 
-        public byte ByteA {
-            get => (byte) Maths.Clamp((int) (this.A * 255F), 0, 255);
-            set => this.A = Maths.Clamp(value / 255f, 0f, 1f);
+        public float ScR {
+            get => Maths.Clamp(this.Colour.Red / 255F, 0F, 1F);
+            set => this.Colour = this.Colour.WithRed((byte) Maths.Clamp((int) (value * 255F), 0, 255));
+        }
+
+        public float ScG {
+            get => Maths.Clamp(this.Colour.Green / 255F, 0F, 1F);
+            set => this.Colour = this.Colour.WithGreen((byte) Maths.Clamp((int) (value * 255F), 0, 255));
+        }
+
+        public float ScB {
+            get => Maths.Clamp(this.Colour.Blue / 255F, 0F, 1F);
+            set => this.Colour = this.Colour.WithBlue((byte) Maths.Clamp((int) (value * 255F), 0, 255));
+        }
+
+        public float ScA {
+            get => Maths.Clamp(this.Colour.Alpha / 255F, 0F, 1F);
+            set => this.Colour = this.Colour.WithAlpha((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
         public byte ByteR {
-            get => (byte) Maths.Clamp((int) (this.R * 255F), 0, 255);
-            set => this.R = Maths.Clamp(value / 255f, 0f, 1f);
+            get => this.Colour.Red;
+            set => this.Colour = this.Colour.WithRed(value);
         }
 
         public byte ByteG {
-            get => (byte) Maths.Clamp((int) (this.G * 255F), 0, 255);
-            set => this.G = Maths.Clamp(value / 255f, 0f, 1f);
+            get => this.Colour.Green;
+            set => this.Colour = this.Colour.WithGreen(value);
         }
 
         public byte ByteB {
-            get => (byte) Maths.Clamp((int) (this.B * 255F), 0, 255);
-            set => this.B = Maths.Clamp(value / 255f, 0f, 1f);
+            get => this.Colour.Blue;
+            set => this.Colour = this.Colour.WithBlue(value);
+        }
+
+        public byte ByteA {
+            get => this.Colour.Alpha;
+            set => this.Colour = this.Colour.WithAlpha(value);
         }
 
         public ResourceColour() {
 
         }
 
+        public ResourceColour(byte r, byte g, byte b, byte a = 255) {
+            this.Colour = new SKColor(r, g, b, a);
+        }
+
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            data.SetStruct("Colour", new SKColorF(this.R, this.G, this.B, this.A));
+            data.SetInt(nameof(this.Colour), (int) (uint) this.Colour);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            SKColorF colour = data.GetStruct<SKColorF>("Colour");
-            this.R = colour.Red;
-            this.G = colour.Green;
-            this.B = colour.Blue;
-            this.A = colour.Alpha;
+            this.Colour = new SKColor(data.GetUInt(nameof(this.Colour)));
         }
     }
 }

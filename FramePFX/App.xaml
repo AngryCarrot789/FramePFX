@@ -15,7 +15,7 @@
                 <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
                 <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
                 <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml"/>
-                <ResourceDictionary Source="ResourceManaging/UI/ResManagerStyles.xaml"/>
+                <ResourceDictionary Source="ResourceManaging/ResManagerStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

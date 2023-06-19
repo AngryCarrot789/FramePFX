@@ -156,13 +156,13 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                 DataContext context = null;
                 switch (child.Name) {
                     case "Group": {
-                        ShortcutGroup innerGroup = @group.CreateGroupByName(name, GetIsGlobal(child), GetIsInherit(child));
+                        ShortcutGroup innerGroup = group.CreateGroupByName(name, GetIsGlobal(child), GetIsInherit(child));
                         innerGroup.Description = GetDescription(child);
                         innerGroup.DisplayName = GetDisplayName(child);
                         this.DeserialiseGroupData(child, innerGroup);
                         break;
                     }
-                    case "Shortcut": {
+                    case "Shortcut": { // XML should have strict name cases, buuut... why not be nice ;)
                         List<IInputStroke> inputs = new List<IInputStroke>();
                         foreach (XmlElement innerElement in child.ChildNodes.OfType<XmlElement>()) {
                             switch (innerElement.Name) {
@@ -182,7 +182,7 @@ namespace FramePFX.Core.Shortcuts.Serialization {
 
                                     context = new DataContext();
                                     foreach (XmlElement contextNode in innerElement.ChildNodes.OfType<XmlElement>()) {
-                                        if (contextNode.Name.Equals("flags", StringComparison.OrdinalIgnoreCase)) {
+                                        if (contextNode.Name.EqualsIgnoreCase("flags")) {
                                             string flags = contextNode.InnerText;
                                             if (string.IsNullOrWhiteSpace(flags)) {
                                                 throw new Exception($"Missing or invalid flags string");
@@ -195,8 +195,8 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                                             }
                                         }
                                         else {
-                                            bool isBoolFlag = contextNode.Name.Equals("flag", StringComparison.OrdinalIgnoreCase);
-                                            if (isBoolFlag || contextNode.Name.Equals("entry", StringComparison.OrdinalIgnoreCase)) {
+                                            bool isBoolFlag = contextNode.Name.EqualsIgnoreCase("flag");
+                                            if (isBoolFlag || contextNode.Name.EqualsIgnoreCase("entry")) {
                                                 string key = GetAttributeNullable(contextNode, "Key");
                                                 string value = GetAttributeNullable(contextNode, "Value");
                                                 if (string.IsNullOrEmpty(key)) {
@@ -204,10 +204,10 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                                                 }
 
                                                 if (isBoolFlag) {
-                                                    if ("true".Equals(value, StringComparison.OrdinalIgnoreCase)) {
+                                                    if ("true".EqualsIgnoreCase(value)) {
                                                         context.Set(key, BoolBox.True);
                                                     }
-                                                    else if ("false".Equals(value, StringComparison.OrdinalIgnoreCase)) {
+                                                    else if ("false".EqualsIgnoreCase(value)) {
                                                         context.Set(key, BoolBox.False);
                                                     }
                                                     else {
@@ -246,7 +246,7 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                             continue;
                         }
 
-                        GroupedShortcut managed = @group.AddShortcut(name, shortcut, GetIsGlobal(child), GetIsInherit(child));
+                        GroupedShortcut managed = group.AddShortcut(name, shortcut, GetIsGlobal(child), GetIsInherit(child));
                         managed.ActionId = GetAttributeNullable(child, "ActionId");
                         managed.Description = GetDescription(child);
                         managed.DisplayName = GetDisplayName(child);

@@ -16,10 +16,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         public MediaClipModel() {
         }
 
-        public override Vector2 GetSize() {
+        public override Vector2? GetSize() {
             if (this.TryGetResource(out ResourceMedia resource))
                 return resource.GetResolution();
-            return Vector2.Zero;
+            return null;
         }
 
         public override void Render(RenderContext render, long frame) {
@@ -33,7 +33,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             }
 
             if (this.readyFrame != null) {
-                this.Transform(render.Canvas);
+                this.Transform(render);
                 this.UploadFrame(this.readyFrame, render);
             }
         }

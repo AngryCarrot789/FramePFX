@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.Notifications;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.History.ViewModels;
@@ -65,6 +66,8 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public AsyncRelayCommand OpenProjectCommand { get; }
 
+        private SavingProjectNotification notification;
+
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditorModel();
@@ -107,7 +110,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             RBEDictionary dictionary = (RBEDictionary) rbe;
             ProjectModel projectModel = new ProjectModel();
             projectModel.ReadFromRBE(dictionary);
-            ProjectViewModel project = new ProjectViewModel(projectModel);
+            ProjectViewModel project = new ProjectViewModel(projectModel) {ProjectFilePath = result.Value[0]};
             #else
             RBEDictionary dictionary;
             try {
@@ -160,6 +163,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
             await this.SetProject(project);
             this.ActiveProject.SetHasUnsavedChanges(false);
+            project.HasSavedOnce = true;
         }
 
         public async Task SetProject(ProjectViewModel project) {
@@ -169,7 +173,6 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public void Dispose() {
-            IoC.App.OnUserSettingsModified -= this.OnUserSettingsModified;
             using (ExceptionStack stack = new ExceptionStack("Exception occurred while disposing video editor")) {
                 if (this.ActiveProject != null) {
                     try {
@@ -187,10 +190,6 @@ namespace FramePFX.Core.Editor.ViewModels {
                     stack.Add(new Exception("Exception disposing playback", e));
                 }
             }
-        }
-
-        private void OnUserSettingsModified(ApplicationSettings settings) {
-
         }
 
         /// <summary>
@@ -250,11 +249,24 @@ namespace FramePFX.Core.Editor.ViewModels {
         public async Task OnProjectSaving() {
             this.IsProjectSaving = true;
             await this.Playback.OnProjectSaving();
+            this.notification = new SavingProjectNotification();
+            this.View.NotificationPanel.PushNotification(this.notification, false);
+            this.notification.BeginSave();
         }
 
         public async Task OnProjectSaved(bool success = true) {
             this.IsProjectSaving = false;
             await this.Playback.OnProjectSaved(success);
+            if (success) {
+                this.notification.OnSaveComplete();
+            }
+            else {
+                this.notification.OnSaveFailed("TODO implement this lol");
+            }
+
+            this.notification.Timeout = TimeSpan.FromSeconds(5);
+            this.notification.StartAutoHideTask();
+            this.notification = null;
         }
 
         public void DoRender(bool schedule = false) {

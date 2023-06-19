@@ -5,7 +5,7 @@ using FramePFX.Core.Automation.Keyframe;
 
 namespace FramePFX.Core.Automation.Keys {
     /// <summary>
-    /// A key for a property that can be automated
+    /// A key for a property that can be automated. Only one instance should exist for a specific piece of data (e.g. media position, media scale, etc)
     /// </summary>
     public abstract class AutomationKey {
         private static readonly Dictionary<string, Dictionary<string, AutomationKey>> RegistryMap = new Dictionary<string, Dictionary<string, AutomationKey>>();
@@ -16,7 +16,7 @@ namespace FramePFX.Core.Automation.Keys {
 
         public KeyDescriptor Descriptor { get; }
 
-        public string FullId => this.Domain + "->" + this.Id;
+        public string FullId => this.Domain + "::" + this.Id;
 
         public abstract AutomationDataType DataType { get; }
 
@@ -103,7 +103,7 @@ namespace FramePFX.Core.Automation.Keys {
         public abstract KeyFrame CreateKeyFrame();
 
         public override string ToString() {
-            return $"{this.GetType()}({this.Domain} -> {this.Id})";
+            return $"{this.GetType()}({this.FullId})";
         }
     }
 

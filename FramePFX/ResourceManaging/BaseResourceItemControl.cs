@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
-namespace FramePFX.ResourceManaging.UI {
+namespace FramePFX.ResourceManaging {
     public abstract class BaseResourceItemControl : ContentControl {
         public static readonly DependencyProperty HeaderTextProperty =
             DependencyProperty.Register(

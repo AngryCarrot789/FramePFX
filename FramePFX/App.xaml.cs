@@ -129,14 +129,14 @@ namespace FramePFX {
 
             {
                 ResourceManager manager = project.ResourceManager;
-                manager.RegisterEntry("colour_red", manager.RootGroup.Add(new ResourceColour() {R = 0.9f, G = 0.1f, B = 0.1f}));
-                manager.RegisterEntry("colour_green", manager.RootGroup.Add(new ResourceColour() {R = 0.1f, G = 0.9f, B = 0.1f}));
-                manager.RegisterEntry("colour_blue", manager.RootGroup.Add(new ResourceColour() {R = 0.1f, G = 0.1f, B = 0.9f}));
+                manager.RegisterEntry("colour_red", manager.RootGroup.Add(new ResourceColour(220, 25, 25)));
+                manager.RegisterEntry("colour_green", manager.RootGroup.Add(new ResourceColour(25, 220, 25)));
+                manager.RegisterEntry("colour_blue", manager.RootGroup.Add(new ResourceColour(25, 25, 220)));
 
                 ResourceGroup group = new ResourceGroup("Extra Colours");
                 manager.RootGroup.AddItemToList(group);
-                manager.RegisterEntry("white colour", group.Add(new ResourceColour() {R = 0.9f, G = 0.9f, B = 0.9f}));
-                manager.RegisterEntry("idek", group.Add(new ResourceColour() {R = 0.2f, G = 0.4f, B = 0.9f}));
+                manager.RegisterEntry("white colour", group.Add(new ResourceColour(220, 220, 220)));
+                manager.RegisterEntry("idek", group.Add(new ResourceColour(50, 100, 220)));
             }
 
             {
@@ -196,7 +196,6 @@ namespace FramePFX {
             }
 
             ProjectViewModel project1 = new ProjectViewModel(project);
-
             await editor.SetProject(project1);
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.View.RenderViewPort(false);

@@ -14,13 +14,19 @@ namespace FramePFX.Core.Notifications.Types {
             set => this.RaisePropertyChanged(ref this.message, value);
         }
 
-        public MessageNotification(TimeSpan timeout) : base(timeout) {
+        public MessageNotification() {
 
         }
 
-        public MessageNotification(string header, string message, TimeSpan timeout = default) : this(timeout) {
+        public MessageNotification(string header, string message) : this() {
             this.header = header;
             this.message = message;
+        }
+
+        public MessageNotification(string header, string message, TimeSpan timeout) : this() {
+            this.header = header;
+            this.message = message;
+            this.Timeout = timeout;
         }
     }
 }

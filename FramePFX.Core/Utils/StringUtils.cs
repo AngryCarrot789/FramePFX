@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -70,6 +71,10 @@ namespace FramePFX.Core.Utils {
             else {
                 return str;
             }
+        }
+
+        public static bool EqualsIgnoreCase(this string @this, string value) {
+            return @this.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

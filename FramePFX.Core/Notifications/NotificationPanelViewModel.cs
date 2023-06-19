@@ -23,7 +23,7 @@ namespace FramePFX.Core.Notifications {
             this.Notifications = new ReadOnlyObservableCollection<NotificationViewModel>(this.notifications);
         }
 
-        public void PushNotification(NotificationViewModel notification) {
+        public void PushNotification(NotificationViewModel notification, bool autoStartHideTask = true) {
             if (notification == null)
                 throw new ArgumentNullException(nameof(notification));
             if (notification.Panel != null && !ReferenceEquals(notification.Panel, this))
@@ -31,7 +31,10 @@ namespace FramePFX.Core.Notifications {
 
             this.notifications.Add(notification);
             notification.Panel = this;
-            notification.StartAutoHideTask();
+            if (autoStartHideTask) {
+                notification.StartAutoHideTask();
+            }
+
             this.Handler.OnNotificationPushed(notification);
         }
 

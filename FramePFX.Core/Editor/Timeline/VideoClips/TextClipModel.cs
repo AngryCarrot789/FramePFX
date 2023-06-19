@@ -54,9 +54,9 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             this.InvalidateRender();
         }
 
-        public override Vector2 GetSize() {
+        public override Vector2? GetSize() {
             if (this.blob == null) {
-                return Vector2.Zero;
+                return null;
             }
 
             SKRect rect = this.blob.Bounds;
@@ -71,6 +71,8 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             string text = this.UseCustomText ? this.CustomText : r.Text;
             if ((this.blob == null || this.paint == null) && !string.IsNullOrEmpty(text)) {
                 SKFont font = new SKFont(SKTypeface.FromFamilyName(r.FontFamily), (float) r.FontSize, 1F, (float) r.SkewX);
+                this.blob?.Dispose();
+                this.paint?.Dispose();
                 this.blob = SKTextBlob.Create(text, font);
                 this.paint = new SKPaint(font) {
                     StrokeWidth = (float) r.BorderThickness,
@@ -83,7 +85,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 return;
             }
 
-            this.Transform(render.Canvas);
+            this.Transform(render);
             render.Canvas.DrawText(this.blob, 0, (this.blob.Bounds.Height / 2), this.paint);
         }
 

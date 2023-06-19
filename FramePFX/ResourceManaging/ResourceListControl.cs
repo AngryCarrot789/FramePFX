@@ -10,7 +10,7 @@ using FramePFX.Core;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Interactivity;
 
-namespace FramePFX.ResourceManaging.UI {
+namespace FramePFX.ResourceManaging {
     public class ResourceListControl : MultiSelector, IResourceListHandle {
         public static readonly DependencyProperty FileDropNotifierProperty = DependencyProperty.Register("FileDropNotifier", typeof(IFileDropNotifier), typeof(ResourceListControl), new PropertyMetadata(null));
 

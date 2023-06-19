@@ -66,6 +66,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.InsertItemIntoList(this.items.Count, value);
         }
 
+        /// <summary>
+        /// Helper function for calling <see cref="AddItemToList"/> and returning the parameter value
+        /// </summary>
+        /// <param name="item"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T Add<T>(T item) where T : BaseResourceObject {
             this.AddItemToList(item);
             return item;

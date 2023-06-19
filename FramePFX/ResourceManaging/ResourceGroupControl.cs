@@ -5,7 +5,7 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.ResourceManaging.UI {
+namespace FramePFX.ResourceManaging {
     public class ResourceGroupControl : BaseResourceItemControl {
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceGroupControl), new PropertyMetadata(BoolBox.False));
 

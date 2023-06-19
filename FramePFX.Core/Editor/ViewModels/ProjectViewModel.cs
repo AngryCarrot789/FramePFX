@@ -11,7 +11,8 @@ using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Core.Editor.ViewModels {
     public class ProjectViewModel : BaseViewModel, IDisposable {
-        private bool hasSavedOnce;
+        public bool HasSavedOnce { get; set; }
+
         private string projectFilePath;
 
         private bool hasUnsavedChanges;
@@ -80,7 +81,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return false;
             }
 
-            if (File.Exists(this.ProjectFilePath) || (!string.IsNullOrEmpty(this.ProjectFilePath) && this.hasSavedOnce)) {
+            if (File.Exists(this.ProjectFilePath) || (!string.IsNullOrEmpty(this.ProjectFilePath) && this.HasSavedOnce)) {
                 await this.SaveToFileAsync();
                 return true;
             }
@@ -143,7 +144,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.Model.IsSaving = false;
             await this.Editor.OnProjectSaved(e == null);
             if (e == null) {
-                this.hasSavedOnce = true;
+                this.HasSavedOnce = true;
                 this.SetHasUnsavedChanges(false);
             }
             else {

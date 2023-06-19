@@ -18,7 +18,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             }
         }
 
-        public override Vector2 GetSize() {
+        public override Vector2? GetSize() {
             if (this.ResourcePath == null || !this.ResourcePath.TryGetResource(out ResourceImage r)) {
                 return Vector2.Zero;
             }
@@ -33,7 +33,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             if (resource.image == null)
                 return;
 
-            this.Transform(render.Canvas);
+            this.Transform(render);
             render.Canvas.DrawImage(resource.image, 0, 0);
         }
 

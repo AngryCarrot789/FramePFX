@@ -202,6 +202,7 @@
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
+    <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Controls\ViewBoxClone.cs" />
     <Compile Include="Controls\Helpers\ActionControlHelper.cs" />
     <Compile Include="Controls\Helpers\AttachedInteractivity.cs" />
@@ -219,6 +220,15 @@
     <Compile Include="Controls\NumberDragger.cs" />
     <Compile Include="Controls\SelectionAdorder.cs" />
     <Compile Include="Controls\VerticalIncrement.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\base\HorizontalRulerManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\base\RulerPositionManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\base\VerticalRulerManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\LeftRulerManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\TopRulerManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\Ruler.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\RulerBase.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\RulerStepProperties.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\RulerTextOverflow.cs" />
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\BoolConverterAND.cs" />
     <Compile Include="Converters\ChainValueConverter.cs" />
@@ -405,6 +415,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ControlStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\xclemence\RulerWPF\RulerStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

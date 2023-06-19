@@ -4,7 +4,7 @@
     /// </summary>
     public partial class ExceptionViewerWindow : BaseWindow {
         public ExceptionViewerWindow() {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

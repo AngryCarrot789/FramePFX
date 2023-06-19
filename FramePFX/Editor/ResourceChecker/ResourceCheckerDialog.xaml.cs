@@ -19,7 +19,7 @@ namespace FramePFX.Editor.ResourceChecker {
     /// </summary>
     public partial class ResourceCheckerDialog : BaseDialog {
         public ResourceCheckerDialog() {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

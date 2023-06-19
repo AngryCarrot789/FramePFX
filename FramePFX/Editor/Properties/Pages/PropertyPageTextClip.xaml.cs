@@ -19,7 +19,7 @@ namespace FramePFX.Editor.Properties.Pages {
     /// </summary>
     public partial class PropertyPageTextClip : UserControl {
         public PropertyPageTextClip() {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

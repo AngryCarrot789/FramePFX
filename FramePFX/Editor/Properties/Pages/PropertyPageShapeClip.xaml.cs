@@ -6,7 +6,7 @@ namespace FramePFX.Editor.Properties.Pages {
     /// </summary>
     public partial class PropertyPageShapeClip : UserControl {
         public PropertyPageShapeClip() {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

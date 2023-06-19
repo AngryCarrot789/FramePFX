@@ -2,7 +2,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
 

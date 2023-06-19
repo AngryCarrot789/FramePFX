@@ -2,17 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
-using SkiaSharp;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineControl : ItemsControl, ITimelineHandle {

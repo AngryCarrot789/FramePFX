@@ -220,11 +220,13 @@
     <Compile Include="Controls\NumberDragger.cs" />
     <Compile Include="Controls\SelectionAdorder.cs" />
     <Compile Include="Controls\VerticalIncrement.cs" />
-    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\base\HorizontalRulerManager.cs" />
-    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\base\RulerPositionManager.cs" />
-    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\base\VerticalRulerManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\HorizontalRulerManager.cs" />
     <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\LeftRulerManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\RenderData.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\RulerPosition.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\RulerPositionManager.cs" />
     <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\TopRulerManager.cs" />
+    <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\VerticalRulerManager.cs" />
     <Compile Include="Controls\xclemence\RulerWPF\Ruler.cs" />
     <Compile Include="Controls\xclemence\RulerWPF\RulerBase.cs" />
     <Compile Include="Controls\xclemence\RulerWPF\RulerStepProperties.cs" />

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace FramePFX.Editor.Timeline.Utils {
     public static class TimelineUtils {

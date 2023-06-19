@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,6 @@ using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer;
 using FramePFX.Editor.Timeline.Utils;

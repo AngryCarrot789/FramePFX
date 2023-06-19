@@ -61,5 +61,15 @@ namespace FramePFX.Core.Utils {
                 default: throw new ArgumentOutOfRangeException(nameof(roundingMode), "Value must be between 0 and 3");
             }
         }
+
+        public static int Ceil(int value, int multiple) {
+            int mod = value % multiple;
+            return mod == 0 ? value : value + (multiple - mod);
+        }
+
+        public static double Ceil(double value, int multiple) {
+            double mod = value % multiple;
+            return mod == 0 ? value : value + (multiple - mod);
+        }
     }
 }

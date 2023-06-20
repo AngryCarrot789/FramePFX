@@ -199,6 +199,7 @@
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs" />
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
+    <Compile Include="BindingErrorListener.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />

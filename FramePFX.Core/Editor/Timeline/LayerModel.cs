@@ -16,6 +16,8 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public string RegistryId => LayerRegistry.Instance.GetTypeIdForModel(this.GetType());
 
+        public long TimelinePlayhead => this.Timeline?.PlayHead ?? 0L;
+
         public string DisplayName { get; set; }
         public double MinHeight { get; set; }
         public double MaxHeight { get; set; }
@@ -26,6 +28,8 @@ namespace FramePFX.Core.Editor.Timeline {
         /// This layer's automation data
         /// </summary>
         public AutomationData AutomationData { get; }
+
+        public bool IsAutomationChangeInProgress { get; set; }
 
         protected LayerModel(TimelineModel timeline) {
             this.Timeline = timeline;
@@ -109,5 +113,13 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public abstract bool CanAccept(ClipModel clip);
+
+        public virtual void UpdateAutomationValues(long frame) {
+            foreach (ClipModel clip in this.Clips) {
+                clip.IsAutomationChangeInProgress = true;
+                clip.UpdateAutomationValues(frame);
+                clip.IsAutomationChangeInProgress = false;
+            }
+        }
     }
 }

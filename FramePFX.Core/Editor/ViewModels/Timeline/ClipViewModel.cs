@@ -21,7 +21,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
 
+        /// <summary>
+        /// Whether or not this clip's history is being changed, and therefore, no changes should be pushed to the history manager
+        /// </summary>
         public bool IsHistoryChanging { get; set; }
+
+        /// <summary>
+        /// Whether or not this clip's values are being modified by the
+        /// </summary>
+        public bool IsAutomationChangeInProgress {
+            get => this.Model.IsAutomationChangeInProgress;
+            set => this.Model.IsAutomationChangeInProgress = value;
+        }
 
         public bool IsDraggingLeftThumb { get; private set; }
         public bool IsDraggingRightThumb { get; private set; }
@@ -76,6 +87,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     }
 
                     this.Model.FrameSpan = value;
+                    this.RaisePropertyChanged();
                     this.RaisePropertyChanged(nameof(this.FrameBegin));
                     this.RaisePropertyChanged(nameof(this.FrameDuration));
                     this.RaisePropertyChanged(nameof(this.FrameEndIndex));
@@ -431,6 +443,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
 
             this.lastDragHistoryAction = null;
+        }
+
+        public virtual void RefreshAutomationValues(long frame) {
+
         }
     }
 }

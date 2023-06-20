@@ -25,6 +25,14 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.Model = keyFrame ?? throw new ArgumentNullException(nameof(keyFrame));
         }
 
+        public void SetDoubleValue(double value) => this.Model.SetDoubleValue(value);
+
+        public void SetLongValue(long value) => this.Model.SetLongValue(value);
+
+        public void SetBooleanValue(bool value) => this.Model.SetBooleanValue(value);
+
+        public void SetVector2Value(Vector2 value) => this.Model.SetVector2Value(value);
+
         public static KeyFrameViewModel NewInstance(KeyFrame keyFrame) {
             switch (keyFrame) {
                 case KeyFrameDouble frame:  return new KeyFrameDoubleViewModel(frame);

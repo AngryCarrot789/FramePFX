@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
@@ -80,6 +81,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public bool IsHistoryChanging { get; set; }
 
+        public bool IsAutomationChangeInProgress {
+            get => this.Model.IsAutomationChangeInProgress;
+            set => this.Model.IsAutomationChangeInProgress = value;
+        }
+
         public AsyncRelayCommand RenameLayerCommand { get; }
 
         public AsyncRelayCommand RemoveSelectedClipsCommand { get; }
@@ -92,6 +98,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public HistoryManagerViewModel HistoryManager => this.Timeline?.Project.Editor.HistoryManager;
 
+        public AutomationDataViewModel AutomationData { get; }
 
         public LayerModel Model { get; }
 
@@ -102,6 +109,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             if (!ReferenceEquals(timeline.Model, model.Timeline))
                 throw new ArgumentException($"The timeline's model and then given layer model's timeline do not match");
+            this.AutomationData = new AutomationDataViewModel(model.AutomationData);
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
             this.SelectedClips = new ObservableCollectionEx<ClipViewModel>();
@@ -307,6 +315,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public bool CanAccept(ClipViewModel clip) {
             return this.Model.CanAccept(clip.Model);
+        }
+
+        public virtual void RefreshAutomationValues(long frame) {
+            foreach (ClipViewModel clip in this.clips) {
+                clip.RefreshAutomationValues(frame);
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
@@ -145,12 +146,16 @@ namespace FramePFX {
                 };
                 project.Timeline.AddLayer(layer1);
 
+                layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+
                 ShapeClipModel clip1 = new ShapeClipModel {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
-                clip1.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(0, 0));
+                clip1.MediaPosition = new Vector2(0, 0);
                 clip1.SetTargetResourceId("idek");
                 layer1.AddClip(clip1);
 
@@ -159,7 +164,7 @@ namespace FramePFX {
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(200, 200));
+                clip2.MediaPosition = new Vector2(200, 200);
                 clip2.SetTargetResourceId("colour_green");
                 layer1.AddClip(clip2);
             }
@@ -175,7 +180,7 @@ namespace FramePFX {
                     DisplayName = "Clip colour_blue"
                 };
 
-                clip1.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(200, 200));
+                clip1.MediaPosition = new Vector2(200, 200);
                 clip1.SetTargetResourceId("colour_blue");
                 layer2.AddClip(clip1);
                 ShapeClipModel clip2 = new ShapeClipModel {
@@ -184,7 +189,7 @@ namespace FramePFX {
                     DisplayName = "Clip colour_green"
                 };
 
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].OverrideKeyFrame.SetVector2Value(new Vector2(400, 400));
+                clip2.MediaPosition = new Vector2(400, 400);
                 clip2.SetTargetResourceId("colour_green");
                 layer2.AddClip(clip2);
             }

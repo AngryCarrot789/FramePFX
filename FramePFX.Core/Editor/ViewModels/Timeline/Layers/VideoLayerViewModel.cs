@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
@@ -8,11 +9,14 @@ using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
+using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
     public class VideoLayerViewModel : LayerViewModel {
+        private readonly HistoryBuffer<HistoryLayerOpacity> opacityHistory = new HistoryBuffer<HistoryLayerOpacity>();
+
         private static readonly MessageDialog SliceCloneTextResourceDialog;
 
         static VideoLayerViewModel() {
@@ -28,9 +32,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
 
         public new VideoLayerModel Model => (VideoLayerModel) base.Model;
 
-        public float Opacity {
+        public double Opacity {
             get => this.Model.Opacity;
             set {
+                if (!this.IsHistoryChanging) {
+                    if (!this.opacityHistory.TryGetAction(out HistoryLayerOpacity action))
+                        this.opacityHistory.PushAction(this.HistoryManager, action = new HistoryLayerOpacity(this), "Edit opacity");
+                    action.Opacity.SetCurrent(value);
+                }
+
+                if (!this.IsAutomationChangeInProgress) {
+                    this.AutomationData[VideoLayerModel.OpacityKey].GetOverride().SetDoubleValue(value);
+                }
+
                 this.Model.Opacity = value;
                 this.RaisePropertyChanged();
                 this.Timeline.DoRender(true);
@@ -172,6 +186,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 }
             }
             return range;
+        }
+
+        public override void RefreshAutomationValues(long frame) {
+            base.RefreshAutomationValues(frame);
+            this.RaisePropertyChanged(nameof(this.Opacity));
         }
     }
 }

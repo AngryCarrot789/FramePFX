@@ -99,6 +99,8 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public AutomationData AutomationData { get; }
 
+        public bool IsAutomationChangeInProgress { get; set; }
+
         private long clipId = -1;
 
         protected ClipModel() {
@@ -194,11 +196,7 @@ namespace FramePFX.Core.Editor.Timeline {
             clone.DisplayName = this.DisplayName;
             clone.FrameSpan = this.FrameSpan;
             clone.MediaFrameOffset = this.MediaFrameOffset;
-            foreach (AutomationSequence sequence in this.AutomationData.Sequences) {
-                RBEDictionary dictionary = new RBEDictionary();
-                sequence.WriteToRBE(dictionary);
-                clone.AutomationData[sequence.Key].ReadFromRBE(dictionary);
-            }
+            this.AutomationData.LoadDataIntoClone(clone.AutomationData);
         }
 
         #region Dispose
@@ -253,5 +251,9 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         #endregion
+
+        public virtual void UpdateAutomationValues(long frame) {
+
+        }
     }
 }

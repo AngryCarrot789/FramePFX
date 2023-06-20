@@ -96,6 +96,11 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         }
 
+        public KeyFrameDouble(long timestamp, double value) {
+            this.Timestamp = timestamp;
+            this.Value = value;
+        }
+
         public override void SetDoubleValue(double value) {
             this.Value = value;
         }
@@ -148,6 +153,11 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         }
 
+        public KeyFrameLong(long timestamp, long value) {
+            this.Timestamp = timestamp;
+            this.Value = value;
+        }
+
         public override void SetLongValue(long value) {
             this.Value = value;
         }
@@ -191,6 +201,11 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public KeyFrameBoolean() {
 
+        }
+
+        public KeyFrameBoolean(long timestamp, bool value) {
+            this.Timestamp = timestamp;
+            this.Value = value;
         }
 
         public override void SetBooleanValue(bool value) {
@@ -243,6 +258,11 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public KeyFrameVector2() {
 
+        }
+
+        public KeyFrameVector2(long timestamp, Vector2 value) {
+            this.Timestamp = timestamp;
+            this.Value = value;
         }
 
         public override void SetVector2Value(Vector2 value) {

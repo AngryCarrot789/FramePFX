@@ -106,8 +106,7 @@
                                                              HorizontalContentAlignment="Left"
                                                              HorizontalAlignment="Right"
                                                              DockPanel.Dock="Right"
-                                                             MinWidth="50" SnapsToDevicePixels="True"
-                                                             ItemStringFormat="none">
+                                                             MinWidth="50" SnapsToDevicePixels="True">
                                     <ComboBox.ItemContainerStyle>
                                         <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
                                             <Setter Property="Padding" Value="0"/>
@@ -249,7 +248,17 @@
                             <c:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
                                              TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                              Style="{StaticResource AbletonNumberDraggerStyle}"
-                                             HorizontalAlignment="Right" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"/>
+                                             HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"/>
+
+                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="55,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="17">
+                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding ToggleAllOverridesCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
+                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
+                                <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}"
+                                                             SelectedItem="{Binding SelectedSequence}"
+                                                             BorderThickness="0"
+                                                             HorizontalContentAlignment="Left"
+                                                             DockPanel.Dock="Right" SnapsToDevicePixels="True"/>
+                            </DockPanel>
                         </Grid>
                     </DockPanel>
                 </Grid>
@@ -278,6 +287,23 @@
     </timeline:TimelineLayerListItemTemplateSelector>
 
     <Style TargetType="{x:Type controls:AutomationComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
-        
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <DockPanel HorizontalAlignment="Stretch">
+                        <TextBlock Text="{Binding Model.Key.Id}" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

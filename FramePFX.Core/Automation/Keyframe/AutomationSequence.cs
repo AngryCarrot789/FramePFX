@@ -21,7 +21,19 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         public KeyFrame OverrideKeyFrame { get; }
 
+        /// <summary>
+        /// Whether or not the current automation sequence is in override mode or not. When in override mode,
+        /// the automation engine cannot update the value of any parameter, even if it has key frames
+        /// <para>
+        /// Alternative name: IsDisabled
+        /// </para>
+        /// </summary>
         public bool IsOverrideEnabled { get; set; }
+
+        /// <summary>
+        /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present, meaning the automation engine is operating in normal operation
+        /// </summary>
+        public bool IsAutomationInUse => !this.IsOverrideEnabled && this.keyFrames.Count > 0;
 
         /// <summary>
         /// An enumerable of all the key frames, ordered by the timestamp (small to big)
@@ -157,8 +169,19 @@ namespace FramePFX.Core.Automation.Keyframe {
                         temp = temp.Next;
                     }
 
-                    a = temp != null ? temp.Value : tempPrev.Value;
-                    b = null;
+                    if (temp != null && tempPrev != null) {
+                        a = tempPrev.Value;
+                        b = temp.Value;
+                    }
+                    else if (temp != null) {
+                        a = temp.Value;
+                        b = null;
+                    }
+                    else {
+                        a = tempPrev.Value;
+                        b = null;
+                    }
+
                     return true;
                 }
             }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation;
+using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline;
@@ -107,10 +109,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
-        public void BeginClipDrag() {
-
-        }
-
         public void AddLayer(LayerViewModel layer, bool addToModel = true) {
             if (addToModel)
                 this.Model.AddLayer(layer.Model);
@@ -124,6 +122,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
 
             this.Project.Editor.View.RenderViewPort(b);
+            this.Project.AutomationEngine.UpdateOnPlayHeadMoved(false);
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
@@ -326,6 +325,20 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public void MoveClip(ClipViewModel clip, LayerViewModel oldLayer, LayerViewModel newLayer) {
             oldLayer.RemoveClipFromLayer(clip);
             newLayer.AddClipToLayer(clip);
+        }
+
+        public void UpdateAutomationValues(bool isRendering, long frame) {
+            // update data
+            this.Model.IsAutomationChangeInProgress = true;
+            this.Model.UpdateAutomationValues(frame);
+            this.Model.IsAutomationChangeInProgress = false;
+            if (!isRendering) {
+                foreach (LayerViewModel layer in this.layers) {
+                    layer.RefreshAutomationValues(frame);
+                }
+            }
+
+            // refresh properties
         }
     }
 }

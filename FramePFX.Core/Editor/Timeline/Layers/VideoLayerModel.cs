@@ -4,21 +4,20 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline.Layers {
     public class VideoLayerModel : LayerModel {
-        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoLayerModel), nameof(Opacity), new KeyDescriptorDouble(1d));
+        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoLayerModel), nameof(Opacity), new KeyDescriptorDouble(1d, 0d, 1d));
 
-        public float Opacity { get; set; }
+        public double Opacity { get; set; }
 
         public bool IsVisible { get; set; }
 
         public VideoLayerModel(TimelineModel timeline) : base(timeline) {
-            this.Opacity = 1f;
+            this.Opacity = 1d;
             this.IsVisible = true;
             this.AutomationData.AssignKey(OpacityKey);
         }
 
         public override LayerModel CloneCore() {
             VideoLayerModel layer = new VideoLayerModel(this.Timeline) {
-                Opacity = this.Opacity,
                 MaxHeight = this.MaxHeight,
                 MinHeight = this.MinHeight,
                 Height = this.Height,
@@ -26,6 +25,7 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
                 DisplayName = TextIncrement.GetNextText(this.DisplayName)
             };
 
+            this.AutomationData.LoadDataIntoClone(layer.AutomationData);
             foreach (ClipModel clip in this.Clips) {
                 // assert clip is VideoClipModel
                 // assert CanAccept(clip)
@@ -37,6 +37,14 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
 
         public override bool CanAccept(ClipModel clip) {
             return clip is VideoClipModel;
+        }
+
+        public override void UpdateAutomationValues(long frame) {
+            if (this.AutomationData[OpacityKey].IsAutomationInUse) {
+                this.Opacity = this.AutomationData[OpacityKey].GetDoubleValue(frame);
+            }
+
+            base.UpdateAutomationValues(frame);
         }
     }
 }

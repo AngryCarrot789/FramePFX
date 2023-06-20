@@ -24,6 +24,11 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public AutomationSequence Model { get; }
 
+        /// <summary>
+        /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present, meaning the automation engine is operating in normal operation
+        /// </summary>
+        public bool IsAutomationInUse => this.Model.IsAutomationInUse;
+
         public AutomationSequenceViewModel(AutomationSequence model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.OverrideKeyFrame = KeyFrameViewModel.NewInstance(model.OverrideKeyFrame);
@@ -37,55 +42,47 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public void SetDoubleValue(long timestamp, double value) {
             AutomationSequence.ValidateType(AutomationDataType.Double, this.Model.DataType);
             value = ((KeyDescriptorDouble) this.Model.Key.Descriptor).Clamp(value);
-            if (this.IsOverrideEnabled || this.keyFrames.Count < 1) {
-                ((KeyFrameDoubleViewModel) this.OverrideKeyFrame).Value = value;
-            }
-            else if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameDoubleViewModel keyFrame) {
+            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameDoubleViewModel keyFrame) {
                 keyFrame.Value = value;
             }
             else {
-                this.AddKeyFrame(timestamp, new KeyFrameDoubleViewModel(new KeyFrameDouble {Value = value, Timestamp = timestamp}));
+                this.IsOverrideEnabled = true;
+                ((KeyFrameDoubleViewModel) this.OverrideKeyFrame).Value = value;
             }
         }
 
         public void SetLongValue(long timestamp, long value) {
             AutomationSequence.ValidateType(AutomationDataType.Long, this.Model.DataType);
             value = ((KeyDescriptorLong) this.Model.Key.Descriptor).Clamp(value);
-            if (this.IsOverrideEnabled || this.keyFrames.Count < 1) {
-                ((KeyFrameLongViewModel) this.OverrideKeyFrame).Value = value;
-            }
-            else if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameLongViewModel keyFrame) {
+            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameLongViewModel keyFrame) {
                 keyFrame.Value = value;
             }
             else {
-                this.AddKeyFrame(timestamp, new KeyFrameLongViewModel(new KeyFrameLong {Value = value, Timestamp = timestamp}));
+                this.IsOverrideEnabled = true;
+                ((KeyFrameLongViewModel) this.OverrideKeyFrame).Value = value;
             }
         }
 
         public void SetBooleanValue(long timestamp, bool value) {
             AutomationSequence.ValidateType(AutomationDataType.Boolean, this.Model.DataType);
-            if (this.IsOverrideEnabled || this.keyFrames.Count < 1) {
-                ((KeyFrameBooleanViewModel) this.OverrideKeyFrame).Value = value;
-            }
-            else if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameBooleanViewModel keyFrame) {
+            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameBooleanViewModel keyFrame) {
                 keyFrame.Value = value;
             }
             else {
-                this.AddKeyFrame(timestamp, new KeyFrameBooleanViewModel(new KeyFrameBoolean {Value = value, Timestamp = timestamp}));
+                this.IsOverrideEnabled = true;
+                ((KeyFrameBooleanViewModel) this.OverrideKeyFrame).Value = value;
             }
         }
 
         public void SetVector2Value(long timestamp, Vector2 value) {
             AutomationSequence.ValidateType(AutomationDataType.Vector2, this.Model.DataType);
             value = ((KeyDescriptorVector2) this.Model.Key.Descriptor).Clamp(value);
-            if (this.IsOverrideEnabled || this.keyFrames.Count < 1) {
-                ((KeyFrameVector2ViewModel) this.OverrideKeyFrame).Value = value;
-            }
-            else if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameVector2ViewModel keyFrame) {
+            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameVector2ViewModel keyFrame) {
                 keyFrame.Value = value;
             }
             else {
-                this.AddKeyFrame(timestamp, new KeyFrameVector2ViewModel(new KeyFrameVector2 {Value = value, Timestamp = timestamp}));
+                this.IsOverrideEnabled = true;
+                ((KeyFrameVector2ViewModel) this.OverrideKeyFrame).Value = value;
             }
         }
 
@@ -141,31 +138,31 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.AddKeyFrame(keyFrame);
         }
 
-        public void AddKeyFrame(KeyFrameViewModel keyFrame) {
-            long timeStamp = keyFrame.Timestamp;
+        public void AddKeyFrame(KeyFrameViewModel newKeyFrame) {
+            long timeStamp = newKeyFrame.Timestamp;
             if (timeStamp < 0) {
-                throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(keyFrame));
+                throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
             }
 
-            if (keyFrame.Model.DataType != this.Model.DataType) {
-                throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {keyFrame.Model.DataType}", nameof(keyFrame));
+            if (newKeyFrame.Model.DataType != this.Model.DataType) {
+                throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {newKeyFrame.Model.DataType}", nameof(newKeyFrame));
             }
 
-            keyFrame.OwnerSequence = this;
+            newKeyFrame.OwnerSequence = this;
 
             int i = 0;
-            foreach (KeyFrameViewModel frame in this.keyFrames) {
-                if (timeStamp < frame.Timestamp) {
-                    this.keyFrames.Insert(i == 0 ? 0 : (i - 1), frame);
+            foreach (KeyFrameViewModel existingFrame in this.keyFrames) {
+                if (timeStamp < existingFrame.Timestamp) {
+                    this.keyFrames.Insert(i == 0 ? 0 : (i - 1), newKeyFrame);
                 }
-                else if (timeStamp == frame.Timestamp) {
-                    if (frame.Model.Equals(keyFrame.Model)) {
-                        frame.OwnerSequence = null;
+                else if (timeStamp == existingFrame.Timestamp) {
+                    if (existingFrame.Model.Equals(newKeyFrame.Model)) {
+                        existingFrame.OwnerSequence = null;
                         this.keyFrames.RemoveAt(i);
-                        Debug.Assert(this.Model.RemoveKeyFrame(frame.Model), "WOT!");
+                        this.Model.RemoveKeyFrame(existingFrame.Model);
                     }
 
-                    this.keyFrames.Insert(i, frame);
+                    this.keyFrames.Insert(i, newKeyFrame);
                 }
                 else {
                     i++;
@@ -175,8 +172,18 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
                 return;
             }
 
-            this.keyFrames.Add(keyFrame);
-            this.Model.AddKeyFrame(keyFrame.Model);
+            this.keyFrames.Add(newKeyFrame);
+            this.Model.AddKeyFrame(newKeyFrame.Model);
+        }
+
+        /// <summary>
+        /// A helper function for enabling the key frame override mode (setting <see cref="IsOverrideEnabled"/> to true) and returning the override key frame, for convenience
+        /// </summary>
+        /// <returns></returns>
+        public KeyFrameViewModel GetOverride() {
+            if (!this.IsOverrideEnabled)
+                this.IsOverrideEnabled = true;
+            return this.OverrideKeyFrame;
         }
     }
 }

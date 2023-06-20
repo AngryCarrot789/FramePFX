@@ -69,11 +69,9 @@ namespace FramePFX.Core.Automation {
             }
         }
 
-        public AutomationData Clone(IAutomatable owner) {
-            AutomationData data = new AutomationData(owner);
+        public void LoadDataIntoClone(AutomationData clone) {
             foreach (AutomationSequence sequence in this.dataMap.Values)
-                data.dataMap[sequence.Key] = sequence.Clone();
-            return data;
+                clone.dataMap[sequence.Key] = sequence.Clone();
         }
     }
 }

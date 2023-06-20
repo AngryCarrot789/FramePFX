@@ -15,22 +15,22 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         /// <summary>
         /// The x and y coordinates of the video's media
         /// </summary>
-        public Vector2 MediaPosition => this.AutomationData[MediaPositionKey].GetVector2Value(this.TimelinePlayhead);
+        public Vector2 MediaPosition { get; set; }
 
         /// <summary>
         /// The x and y scale of the video's media (relative to <see cref="MediaScaleOrigin"/>)
         /// </summary>
-        public Vector2 MediaScale => this.AutomationData[MediaScaleKey].GetVector2Value(this.TimelinePlayhead);
+        public Vector2 MediaScale { get; set; }
 
         /// <summary>
         /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
         /// </summary>
-        public Vector2 MediaScaleOrigin => this.AutomationData[MediaScaleOriginKey].GetVector2Value(this.TimelinePlayhead);
+        public Vector2 MediaScaleOrigin { get; set; }
 
         /// <summary>
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
         /// </summary>
-        public double Opacity => this.AutomationData[OpacityKey].GetDoubleValue(this.TimelinePlayhead);
+        public double Opacity { get; set; }
 
         /// <summary>
         /// An event invoked when this video clip changes in some way that affects its render. 
@@ -39,10 +39,29 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
         protected VideoClipModel() {
+            this.MediaPosition = Vector2.Zero;
+            this.MediaScale = Vector2.One;
+            this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
+            this.Opacity = 1d;
             this.AutomationData.AssignKey(MediaPositionKey);
             this.AutomationData.AssignKey(MediaScaleKey);
             this.AutomationData.AssignKey(MediaScaleOriginKey);
             this.AutomationData.AssignKey(OpacityKey);
+        }
+
+        public override void UpdateAutomationValues(long frame) {
+            base.UpdateAutomationValues(frame);
+            if (this.AutomationData[MediaPositionKey].IsAutomationInUse)
+                this.MediaPosition = this.AutomationData[MediaPositionKey].GetVector2Value(frame);
+
+            if (this.AutomationData[MediaScaleKey].IsAutomationInUse)
+                this.MediaScale = this.AutomationData[MediaScaleKey].GetVector2Value(frame);
+
+            if (this.AutomationData[MediaScaleOriginKey].IsAutomationInUse)
+                this.MediaScaleOrigin = this.AutomationData[MediaScaleOriginKey].GetVector2Value(frame);
+
+            if (this.AutomationData[OpacityKey].IsAutomationInUse)
+                this.Opacity = this.AutomationData[OpacityKey].GetDoubleValue(frame);
         }
 
         public virtual void InvalidateRender(bool schedule = true) {

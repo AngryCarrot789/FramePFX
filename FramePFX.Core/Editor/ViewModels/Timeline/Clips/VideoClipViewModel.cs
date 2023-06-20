@@ -13,6 +13,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     /// </summary>
     public abstract class VideoClipViewModel : ClipViewModel {
         private readonly HistoryBuffer<HistoryClipMediaTransformation> transformationHistory = new HistoryBuffer<HistoryClipMediaTransformation>();
+        private readonly HistoryBuffer<HistoryVideoClipOpacity> opacityHistory = new HistoryBuffer<HistoryVideoClipOpacity>();
 
         private float bothPos;
         private float bothScale;
@@ -38,13 +39,17 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public Vector2 MediaPosition {
             get => this.Model.MediaPosition;
             set {
-                if (!this.IsHistoryChanging && this.Layer != null) {
+                if (!this.IsAutomationChangeInProgress && !this.IsHistoryChanging && this.Layer != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
                         this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaPosition.SetCurrent(value);
                 }
 
-                this.AutomationData[VideoClipModel.MediaPositionKey].SetVector2Value(this.Model.TimelinePlayhead, value);
+                if (!this.IsAutomationChangeInProgress) {
+                    this.AutomationData[VideoClipModel.MediaPositionKey].GetOverride().SetVector2Value(value);
+                }
+
+                this.Model.MediaPosition = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaPositionX));
                 this.RaisePropertyChanged(nameof(this.MediaPositionY));
@@ -74,7 +79,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                     action.MediaScale.SetCurrent(value);
                 }
 
-                this.AutomationData[VideoClipModel.MediaScaleKey].SetVector2Value(this.Model.TimelinePlayhead, value);
+                if (!this.IsAutomationChangeInProgress) {
+                    this.AutomationData[VideoClipModel.MediaScaleKey].GetOverride().SetVector2Value(value);
+                }
+
+                this.Model.MediaScale = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleY));
@@ -104,7 +113,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                     action.MediaScaleOrigin.SetCurrent(value);
                 }
 
-                this.AutomationData[VideoClipModel.MediaScaleOriginKey].SetVector2Value(this.Model.TimelinePlayhead, value);
+                if (!this.IsAutomationChangeInProgress) {
+                    this.AutomationData[VideoClipModel.MediaScaleOriginKey].GetOverride().SetVector2Value(value);
+                }
+
+                this.Model.MediaScaleOrigin = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
@@ -115,7 +128,17 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public double Opacity {
             get => this.Model.Opacity;
             set {
-                this.AutomationData[VideoClipModel.OpacityKey].SetDoubleValue(this.Model.TimelinePlayhead, value);
+                if (!this.IsHistoryChanging && this.Layer != null) {
+                    if (!this.opacityHistory.TryGetAction(out HistoryVideoClipOpacity action))
+                        this.opacityHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipOpacity(this), "Edit opacity");
+                    action.Opacity.SetCurrent(value);
+                }
+
+                if (!this.IsAutomationChangeInProgress) {
+                    this.AutomationData[VideoClipModel.OpacityKey].GetOverride().SetDoubleValue(value);
+                }
+
+                this.Model.Opacity = value;
                 this.RaisePropertyChanged();
                 this.Model.InvalidateRender();
             }
@@ -177,6 +200,20 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 this.OnInvalidateRender(s);
             };
             this.Model.RenderInvalidated += this.renderCallback;
+        }
+
+        public override void RefreshAutomationValues(long frame) {
+            base.RefreshAutomationValues(frame);
+            this.RaisePropertyChanged(nameof(this.MediaPosition));
+            this.RaisePropertyChanged(nameof(this.MediaPositionX));
+            this.RaisePropertyChanged(nameof(this.MediaPositionY));
+            this.RaisePropertyChanged(nameof(this.MediaScale));
+            this.RaisePropertyChanged(nameof(this.MediaScaleX));
+            this.RaisePropertyChanged(nameof(this.MediaScaleY));
+            this.RaisePropertyChanged(nameof(this.MediaScaleOrigin));
+            this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
+            this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
+            this.RaisePropertyChanged(nameof(this.Opacity));
         }
 
         // this is messy asf but it works :DDD

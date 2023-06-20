@@ -39,6 +39,7 @@ namespace FramePFX.Editor {
         public NotificationPanelViewModel NotificationPanel { get; }
 
         public EditorMainWindow() {
+            BindingErrorListener.Listen();
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             IoC.BroadcastShortcutActivity = (x) => {

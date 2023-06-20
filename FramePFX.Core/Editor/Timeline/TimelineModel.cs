@@ -20,10 +20,9 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public List<LayerModel> Layers { get; }
 
-        /// <summary>
-        /// This timeline's automation data
-        /// </summary>
         public AutomationData AutomationData { get; }
+
+        public bool IsAutomationChangeInProgress { get; set; }
 
         public TimelineModel(ProjectModel project) {
             this.Project = project;
@@ -115,6 +114,14 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {
             return Enumerable.Reverse(this.Layers).SelectMany(layer => layer.GetClipsAtFrame(frame));
+        }
+
+        public void UpdateAutomationValues(long frame) {
+            foreach (LayerModel layer in this.Layers) {
+                layer.IsAutomationChangeInProgress = true;
+                layer.UpdateAutomationValues(frame);
+                layer.IsAutomationChangeInProgress = false;
+            }
         }
     }
 }

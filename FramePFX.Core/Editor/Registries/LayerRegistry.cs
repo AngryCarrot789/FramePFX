@@ -12,8 +12,8 @@ namespace FramePFX.Core.Editor.Registries {
         public static LayerRegistry Instance { get; } = new LayerRegistry();
 
         private LayerRegistry() {
-            this.Register<VideoLayerModel, VideoLayerViewModel>("video_layer");
-            this.Register<AudioLayerModel, AudioLayerViewModel>("audio_layer");
+            this.Register<VideoLayerModel, VideoLayerViewModel>("l_vid");
+            this.Register<AudioLayerModel, AudioLayerViewModel>("l_aud");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : LayerModel where TViewModel : LayerViewModel {

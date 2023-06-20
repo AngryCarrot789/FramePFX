@@ -7,9 +7,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineControl : ItemsControl, ITimelineHandle {
@@ -176,10 +178,23 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
             base.OnPreviewMouseWheel(e);
-            if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Alt)) != 0) {
+            ModifierKeys mods = Keyboard.Modifiers;
+
+            if ((mods & ModifierKeys.Alt) != 0) {
+                if (e.OriginalSource is DependencyObject dependencyObject) {
+                    while (dependencyObject != null && !ReferenceEquals(dependencyObject, this) && !(dependencyObject is TimelineLayerControl)) {
+                        dependencyObject = VisualTreeUtils.GetParent(dependencyObject);
+                    }
+
+                    if (dependencyObject is TimelineLayerControl layer && layer.ViewModel is LayerViewModel vm) {
+                        vm.Height = Maths.Clamp(vm.Height + (e.Delta / 120d) * 20d, vm.MinHeight, vm.MaxHeight);
+                    }
+                }
+            }
+            else if ((mods & ModifierKeys.Control) != 0) {
                 if (this.PART_ScrollViewer is ScrollViewer scroller) {
                     double multiplier;
-                    if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
+                    if ((mods & ModifierKeys.Shift) != 0) {
                         multiplier = e.Delta > 0 ? 1.05 : 0.95;
                     }
                     else {
@@ -376,7 +391,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                     // scroller.ScrollToHorizontalOffset(newFrameScrolled);
                 }
             }
-            else if (this.PART_ScrollViewer != null && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {
+            else if (this.PART_ScrollViewer != null && (mods & ModifierKeys.Shift) == ModifierKeys.Shift) {
                 if (e.Delta < 0) {
                     this.PART_ScrollViewer.LineRight();
                     this.PART_ScrollViewer.LineRight();

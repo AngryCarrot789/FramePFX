@@ -14,9 +14,10 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
+using Rect = System.Windows.Rect;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public abstract class TimelineClipControl : HeaderedContentControl, IClipHandle {
+    public abstract class TimelineClipControl : Control, IClipHandle {
         private static readonly object LongZeroObject = 0L;
 
         public static readonly DependencyProperty IsSelectedProperty =
@@ -202,6 +203,16 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.PART_ThumbRight.DragStarted += this.OnRightThumbDragStart;
             this.PART_ThumbRight.DragDelta += this.OnRightThumbDragDelta;
             this.PART_ThumbRight.DragCompleted += this.OnRightThumbDragComplete;
+        }
+
+        protected override Size MeasureOverride(Size constraint) {
+            Size size = new Size(this.FrameDuration * this.UnitZoom, constraint.Height);
+            if (this.VisualChildrenCount > 0) {
+                UIElement visualChild = (UIElement) this.GetVisualChild(0);
+                visualChild?.Measure(size);
+            }
+
+            return size;
         }
 
         private void OnLeftThumbDragStart(object sender, DragStartedEventArgs e) {
@@ -500,10 +511,12 @@ namespace FramePFX.Editor.Timeline.Controls {
             // Thickness margin = this.Margin;
             // margin.Left = this.PixelStart;
             // this.Margin = margin;
+            // this.InvalidateArrange();
         }
 
         public void UpdateSize() {
-            this.Width = this.PixelWidth;
+            // this.Width = this.PixelWidth;
+            this.InvalidateMeasure();
         }
 
         #endregion

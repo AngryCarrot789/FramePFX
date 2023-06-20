@@ -4,27 +4,14 @@ namespace FramePFX.Core.Utils {
     public static class TextIncrement {
         public static string GetNextText(string input) {
             if (string.IsNullOrEmpty(input)) {
-                return input;
+                return " (1)";
             }
-
-            if (GetNumbered(input, out string left, out long number)) {
+            else if (GetNumbered(input, out string left, out long number)) {
                 return $"{left} ({number + 1})";
             }
             else {
                 return $"{input} (1)";
             }
-
-            // if (string.IsNullOrEmpty(inputName)) {
-            //     return "(1)";
-            // }
-            // Match match = Regex.Match(inputName, "(\\s\\()\\d+\\)$");
-            // if (match.Success) {
-            //     string value = match.Value;
-            //     if (long.TryParse(value.JSubstring(2, value.Length - 1), out long number)) {
-            //         return inputName.Substring(0, inputName.Length - value.Length) + $" ({number + 1})";
-            //     }
-            // }
-            // return inputName + " (1)"; // number too big or no number present
         }
 
         public static string GetNextText(IEnumerable<string> inputs, string text) {

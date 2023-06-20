@@ -3,37 +3,21 @@ using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.History;
 
 namespace FramePFX.Core.Editor.History {
-    public class HistoryLayerOpacity : IHistoryAction {
-        public VideoLayerViewModel Layer { get; }
+    public class HistoryLayerOpacity : BaseHistoryHolderAction<VideoLayerViewModel> {
         public Transaction<double> Opacity { get; }
 
-        public HistoryLayerOpacity(VideoLayerViewModel layer) {
-            this.Layer = layer;
+        public HistoryLayerOpacity(VideoLayerViewModel layer) : base(layer) {
             this.Opacity = Transactions.ImmutableType(layer.Opacity);
         }
 
-        public async Task UndoAsync() {
-            try {
-                this.Layer.IsHistoryChanging = true;
-                this.Layer.Opacity = this.Opacity.Original;
-            }
-            finally {
-                this.Layer.IsHistoryChanging = false;
-            }
+        protected override Task UndoAsyncCore() {
+            this.Holder.Opacity = this.Opacity.Original;
+            return Task.CompletedTask;
         }
 
-        public async Task RedoAsync() {
-            try {
-                this.Layer.IsHistoryChanging = true;
-                this.Layer.Opacity = this.Opacity.Current;
-            }
-            finally {
-                this.Layer.IsHistoryChanging = false;
-            }
-        }
-
-        public void OnRemoved() {
-
+        protected override Task RedoAsyncCore() {
+            this.Holder.Opacity = this.Opacity.Current;
+            return Task.CompletedTask;
         }
     }
 }

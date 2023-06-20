@@ -12,10 +12,10 @@ namespace FramePFX.Core.Editor.Registries {
         public static ClipRegistry Instance { get; } = new ClipRegistry();
 
         private ClipRegistry() {
-            this.Register<ImageClipModel, ImageClipViewModel>("image_clip");
-            this.Register<ShapeClipModel, ShapeClipViewModel>("square_clip");
-            this.Register<TextClipModel, TextClipViewModel>("text_clip");
-            this.Register<MediaClipModel, MediaClipViewModel>("media_clip");
+            this.Register<ImageClipModel, ImageClipViewModel>("cl_img");
+            this.Register<ShapeClipModel, ShapeClipViewModel>("cl_square");
+            this.Register<TextClipModel, TextClipViewModel>("cl_txt");
+            this.Register<MediaClipModel, MediaClipViewModel>("cl_media");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : ClipModel where TViewModel : ClipViewModel {

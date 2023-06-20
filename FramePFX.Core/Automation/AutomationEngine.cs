@@ -33,7 +33,9 @@ namespace FramePFX.Core.Automation {
             }
 
             foreach (LayerModel layer in timeline.Layers) {
-                this.UpdateLayer(layer, frame);
+                if (layer.CanUpdateAutomation()) {
+                    this.UpdateLayer(layer, frame);
+                }
             }
         }
 

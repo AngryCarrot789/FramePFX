@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -79,7 +80,7 @@ namespace FramePFX.Editor {
             this.Dispatcher.InvokeAsync(this.RefreshPopupLocation, DispatcherPriority.Loaded);
         }
 
-        public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel> onCompleteCallback = null) {
+        public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null) {
             NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child);
             if (list == null) {
                 return;
@@ -96,16 +97,17 @@ namespace FramePFX.Editor {
 
             DoubleAnimation animation = new DoubleAnimation(1d, 0d, TimeSpan.FromSeconds(2), FillBehavior.Stop);
             animation.Completed += (sender, args) => {
-                if (onCompleteCallback != null) {
-                    if (!BaseViewModel.GetInternalData<bool>(notification, "IsCancelled"))
-                        onCompleteCallback(notification);
-                }
+                onCompleteCallback?.Invoke(notification, BaseViewModel.GetInternalData<bool>(notification, "IsCancelled"));
             };
 
             control.BeginAnimation(OpacityProperty, animation);
         }
 
         public void CancelNotificationFadeOutAnimation(NotificationViewModel notification) {
+            if (BaseViewModel.GetInternalData<bool>(notification, "IsCancelled")) {
+                return;
+            }
+
             NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child);
             if (list == null) {
                 return;
@@ -129,6 +131,16 @@ namespace FramePFX.Editor {
             this.RefreshPopupLocation();
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+            if (this.WindowState == WindowState.Maximized) {
+                this.Dispatcher.InvokeAsync(this.RefreshPopupLocation, DispatcherPriority.ApplicationIdle);
+            }
+            else {
+                this.RefreshPopupLocation();
+            }
+        }
+
         public void RefreshPopupLocation() {
             Popup popup = this.NotificationPanelPopup;
             if (popup == null || !popup.IsOpen) {
@@ -143,8 +155,28 @@ namespace FramePFX.Editor {
             // popup pos = X 1620
             // popup wid = 300
 
-            popup.VerticalOffset = this.Top + this.ActualHeight - element.ActualHeight;
-            popup.HorizontalOffset = this.Left + this.ActualWidth - element.ActualWidth;
+            switch (this.WindowState) {
+                case WindowState.Normal: {
+                    popup.Visibility = Visibility.Visible;
+                    popup.VerticalOffset = this.Top + this.ActualHeight - element.ActualHeight;
+                    popup.HorizontalOffset = this.Left + this.ActualWidth - element.ActualWidth;
+                    break;
+                }
+                case WindowState.Minimized: {
+                    popup.Visibility = Visibility.Collapsed;
+                    break;
+                }
+                case WindowState.Maximized: {
+                    popup.Visibility = Visibility.Visible;
+                    Thickness thicc = this.BorderThickness;
+                    double top = (double) typeof(Window).GetField("_actualTop", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField).GetValue(this) + thicc.Top;
+                    double left = (double) typeof(Window).GetField("_actualLeft", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField).GetValue(this) + thicc.Left;
+                    popup.VerticalOffset = top - (thicc.Top + thicc.Bottom) + this.ActualHeight - element.ActualHeight;
+                    popup.HorizontalOffset = left - (thicc.Left + thicc.Right) + this.ActualWidth - element.ActualWidth;
+                    break;
+                }
+                default: throw new ArgumentOutOfRangeException();
+            }
         }
 
         protected override void OnActivated(EventArgs e) {

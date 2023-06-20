@@ -18,10 +18,9 @@ using FramePFX.Core.Views.Dialogs.Message;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
     public class VideoLayerViewModel : LayerViewModel {
-        public const string OpacityHistoryKey = "VideoLayerOpacity";
+        public const string OpacityHistoryKey = "video-layer.Opacity";
 
-        private readonly HistoryBuffer<HistoryLayerOpacity> opacityHistory = new HistoryBuffer<HistoryLayerOpacity>();
-        private HistoryLayerOpacity opacityHistory2;
+        private HistoryLayerOpacity opacityHistory;
 
         private static readonly MessageDialog SliceCloneTextResourceDialog;
 
@@ -44,21 +43,21 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 Debug.Assert(this.IsAutomationChangeInProgress == false, "IsAutomationChangeInProgress should be false");
                 if (!this.IsHistoryChanging) {
                     if (FrontEndHistoryHelper.ActiveDragId == OpacityHistoryKey) {
-                        if (this.opacityHistory2 == null)
-                            this.opacityHistory2 = new HistoryLayerOpacity(this);
-                        this.opacityHistory2.Opacity.SetCurrent(value);
-                        FrontEndHistoryHelper.OnDragEnd = FrontEndHistoryHelper.OnDragEnd = (s, cancel) => {
+                        if (this.opacityHistory == null)
+                            this.opacityHistory = new HistoryLayerOpacity(this);
+                        this.opacityHistory.Opacity.SetCurrent(value);
+                        FrontEndHistoryHelper.OnDragEnd = FrontEndHistoryHelper.OnDragEnd ?? ((s, cancel) => {
                             if (cancel) {
                                 this.IsHistoryChanging = true;
-                                this.Opacity = this.opacityHistory2.Opacity.Original;
+                                this.Opacity = this.opacityHistory.Opacity.Original;
                                 this.IsHistoryChanging = false;
                             }
                             else {
-                                this.HistoryManager.AddAction(this.opacityHistory2, "Edit opacity");
+                                this.HistoryManager.AddAction(this.opacityHistory, "Edit opacity");
                             }
 
-                            this.opacityHistory2 = null;
-                        };
+                            this.opacityHistory = null;
+                        });
                     }
                     else {
                         HistoryLayerOpacity action = new HistoryLayerOpacity(this);
@@ -77,6 +76,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
         public bool IsVisible {
             get => this.Model.IsVisible;
             set {
+                if (this.IsVisible == value) {
+                    return;
+                }
+
+                Debug.Assert(this.IsAutomationChangeInProgress == false, "IsAutomationChangeInProgress should be false");
+                if (!this.IsHistoryChanging) {
+                    this.HistoryManager.AddAction(new HistoryLayerIsVisible(this, value), "Edit IsVisible");
+                }
+
+                this.AutomationData[VideoLayerModel.IsVisibleKey].GetOverride().SetBooleanValue(value);
                 this.Model.IsVisible = value;
                 this.RaisePropertyChanged();
                 this.Timeline.DoRender(true);
@@ -85,6 +94,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
 
         public VideoLayerViewModel(TimelineViewModel timeline, VideoLayerModel model) : base(timeline, model) {
             this.AutomationData.AssignRefreshHandler(VideoLayerModel.OpacityKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.Opacity), in f));
+            this.AutomationData.AssignRefreshHandler(VideoLayerModel.IsVisibleKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.IsVisible), in f));
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {

@@ -49,7 +49,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.OverrideKeyFrame = KeyFrameViewModel.NewInstance(model.OverrideKeyFrame);
             this.keyFrames = new ObservableCollection<KeyFrameViewModel>();
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
-            foreach (KeyFrame frame in model.KeyFrames) {
+            foreach (KeyFrame frame in model.KeyFrameLinkedList) {
                 this.keyFrames.Add(KeyFrameViewModel.NewInstance(frame));
             }
         }
@@ -138,13 +138,13 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public bool RemoveKeyFrame(KeyFrameViewModel keyFrame) {
             int index = this.keyFrames.IndexOf(keyFrame);
-            if (index == -1) {
+            if (index == -1)
                 return false;
-            }
+            if (!this.Model.RemoveKeyFrame(keyFrame.Model))
+                throw new Exception("Key frame did not exist in the model, but existed in the view model");
 
             keyFrame.OwnerSequence = null;
             this.keyFrames.RemoveAt(index);
-            Debug.Assert(this.Model.RemoveKeyFrame(keyFrame.Model), "WOT!");
             return true;
         }
 
@@ -168,13 +168,16 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             int i = 0;
             foreach (KeyFrameViewModel existingFrame in this.keyFrames) {
                 if (timeStamp < existingFrame.Timestamp) {
-                    this.keyFrames.Insert(i == 0 ? 0 : (i - 1), newKeyFrame);
+                    this.keyFrames.Insert(i, newKeyFrame);
+                    this.Model.AddKeyFrame(newKeyFrame.Model);
                 }
                 else if (timeStamp == existingFrame.Timestamp) {
+                    // remove existing key frame and then replace it
                     if (existingFrame.Model.Equals(newKeyFrame.Model)) {
+                        if (!this.Model.RemoveKeyFrame(existingFrame.Model))
+                            throw new Exception("Key frame did not exist in the model, but existed in the view model");
                         existingFrame.OwnerSequence = null;
                         this.keyFrames.RemoveAt(i);
-                        this.Model.RemoveKeyFrame(existingFrame.Model);
                     }
 
                     this.keyFrames.Insert(i, newKeyFrame);
@@ -192,12 +195,15 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         }
 
         /// <summary>
-        /// A helper function for enabling the key frame override mode (setting <see cref="IsOverrideEnabled"/> to true) and returning the override key frame, for convenience
+        /// A helper function for enabling the key frame override mode (setting <see cref="IsOverrideEnabled"/> to true) if
+        /// there are key frames present, and returning the override key frame for convenience
         /// </summary>
         /// <returns></returns>
         public KeyFrameViewModel GetOverride() {
-            if (!this.IsOverrideEnabled)
+            if (!this.IsOverrideEnabled && this.keyFrames.Count > 0) {
                 this.IsOverrideEnabled = true;
+            }
+
             return this.OverrideKeyFrame;
         }
 

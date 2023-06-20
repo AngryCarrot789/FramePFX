@@ -39,8 +39,24 @@
         </Setter>
     </Style>
 
+    <converters:BoolToVisibilityConverter x:Key="ClipHeaderContentVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
+
     <!-- d:DataContext="{d:DesignInstance tm:ClipViewModel}" -->
-    <Style TargetType="{x:Type controls:TimelineClipControl}" BasedOn="{StaticResource {x:Type HeaderedContentControl}}">
+
+    <!--
+        TODO: Maybe switch to using completely custom clip rendering instead of using WPF components?
+        If you select no clips and hold s and just drag the playhead over a clip and create say 200 tiny 1-frame long clips,
+        the UI begins lagging quite badly, even in release mode
+
+        - Layers will still use WPF components
+        - Clips can just be a coloured header with a lower background (and maybe at some point draw into that background...?)
+        - Clip automation can be handled in the same location as the layer's automation based on if a clip is selected or not
+
+        Some of the more popular software can handle 10,000s of clips with no problem at all (at least when
+        it comes to zooming/scrolling. other operations may obviously cause massive lag with that many clips)
+    -->
+
+    <Style TargetType="{x:Type controls:TimelineClipControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
         <Setter Property="HeaderBrush" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
@@ -56,18 +72,45 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:VideoClipControl}">
-                    <Grid d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
-                        <Grid x:Name="FullElementContent" SnapsToDevicePixels="True">
-                            <Border Background="{Binding Layer.LayerColour, FallbackValue=Black}" VerticalAlignment="Top" Height="20">
-                                <ContentPresenter ContentSource="Header"/>
-                            </Border>
-                            <Grid Margin="1,20,1,0" Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </Grid>
-                        </Grid>
+                    <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
+                        <Border Background="{Binding Layer.LayerColour, FallbackValue=Black}" VerticalAlignment="Top" Height="20">
+                            <DockPanel>
+                                <TextBlock IsHitTestVisible="False" Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                                <DockPanel Visibility="{TemplateBinding IsSelected, Converter={StaticResource ClipHeaderContentVisibilityConverter}}" DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" Margin="5,1,1,0">
+                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding DisableOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
+                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
+                                    <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}"
+                                                             SelectedItem="{Binding SelectedSequence}"
+                                                             BorderThickness="0" Margin="0,0,0,0"
+                                                             HorizontalContentAlignment="Left"
+                                                             HorizontalAlignment="Right"
+                                                             DockPanel.Dock="Right"
+                                                             MinWidth="50" SnapsToDevicePixels="True">
+                                        <ComboBox.ItemContainerStyle>
+                                            <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                                                <Setter Property="Padding" Value="0"/>
+                                                <Setter Property="Margin" Value="0"/>
+                                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            </Style>
+                                        </ComboBox.ItemContainerStyle>
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <DockPanel HorizontalAlignment="Stretch">
+                                                    <TextBlock Text="{Binding Model.Key.Id}" VerticalAlignment="Center"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </controls:AutomationComboBox>
+                                </DockPanel>
+                            </DockPanel>
+                        </Border>
                         <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True"/>
-                        <c:CancellableThumb x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
-                        <c:CancellableThumb x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                        <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource ClipHeaderContentVisibilityConverter}}" x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                        <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource ClipHeaderContentVisibilityConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -82,52 +125,6 @@
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="HeaderTemplate">
-            <Setter.Value>
-                <DataTemplate>
-                    <DockPanel>
-                        <TextBlock Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
-                            <TextBlock.InputBindings>
-                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
-                            </TextBlock.InputBindings>
-                        </TextBlock>
-                        <DockPanel HorizontalAlignment="Right" Margin="5,0,0,0" d:DataContext="{d:DesignInstance tm:ClipViewModel}">
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                <!-- button bar here; left to right i think?
-                                <ToggleButton Content="V" Width="20"/>
-                                -->
-                            </StackPanel>
-                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="0,1,1,0">
-                                <Button DockPanel.Dock="Right" Width="20" Command="{Binding DisableOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
-                                <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
-                                <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" 
-                                                             SelectedItem="{Binding SelectedSequence}" 
-                                                             BorderThickness="0" Margin="0,0,0,0"
-                                                             HorizontalContentAlignment="Left"
-                                                             HorizontalAlignment="Right"
-                                                             DockPanel.Dock="Right"
-                                                             MinWidth="50" SnapsToDevicePixels="True">
-                                    <ComboBox.ItemContainerStyle>
-                                        <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
-                                            <Setter Property="Padding" Value="0"/>
-                                            <Setter Property="Margin" Value="0"/>
-                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                        </Style>
-                                    </ComboBox.ItemContainerStyle>
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <DockPanel HorizontalAlignment="Stretch">
-                                                <TextBlock Text="{Binding Model.Key.Id}" VerticalAlignment="Center"/>
-                                            </DockPanel>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </controls:AutomationComboBox>
-                            </DockPanel>
-                        </DockPanel>
-                    </DockPanel>
-                </DataTemplate>
             </Setter.Value>
         </Setter>
     </Style>

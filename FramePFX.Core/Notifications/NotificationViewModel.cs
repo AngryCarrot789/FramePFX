@@ -43,6 +43,10 @@ namespace FramePFX.Core.Notifications {
             this.HideCommand = new AsyncRelayCommand(this.HideAction, () => !this.IsHidden);
         }
 
+        public void IncreaseTimeUntilExpiry(TimeSpan span) {
+            this.expiryTime += span.Ticks;
+        }
+
         public void StartAutoHideTask() {
             this.StartAutoHideTask(this.Timeout);
         }
@@ -53,6 +57,7 @@ namespace FramePFX.Core.Notifications {
             }
 
             if (span.Ticks > 0) {
+                this.expiryTime = span.Ticks;
                 this.cancellation = new CancellationTokenSource();
                 this.autoHideTask = Task.Run(() => this.HideTaskMain(this.cancellation.Token));
             }
@@ -101,8 +106,12 @@ namespace FramePFX.Core.Notifications {
             }
         }
 
-        private void OnNotificationNoLongerVisible(NotificationViewModel obj) {
+        private void OnNotificationNoLongerVisible(NotificationViewModel obj, bool cancelled) {
             Debug.Assert(ReferenceEquals(obj, this), "Callback parameter does not match the current instance");
+            if (cancelled) {
+                return;
+            }
+
             this.IsHidden = true;
             this.Panel.RemoveNotification(this);
         }

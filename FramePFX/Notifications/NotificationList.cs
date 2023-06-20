@@ -29,6 +29,10 @@ namespace FramePFX.Notifications {
             throw new NotImplementedException();
         }
 
+        public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null) {
+            throw new NotImplementedException();
+        }
+
         public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel> onCompleteCallback = null) {
             throw new NotImplementedException();
         }

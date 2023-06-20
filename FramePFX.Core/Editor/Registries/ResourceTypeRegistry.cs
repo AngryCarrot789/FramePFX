@@ -12,11 +12,11 @@ namespace FramePFX.Core.Editor.Registries {
         public static ResourceTypeRegistry Instance { get; } = new ResourceTypeRegistry();
 
         private ResourceTypeRegistry() {
-            base.Register<ResourceGroup, ResourceGroupViewModel>("resource_group");
-            base.Register<ResourceColour, ResourceColourViewModel>("resource_argb");
-            base.Register<ResourceImage, ResourceImageViewModel>("resource_image");
-            base.Register<ResourceMedia, ResourceMediaViewModel>("resource_media");
-            base.Register<ResourceText, ResourceTextViewModel>("resource_text");
+            base.Register<ResourceGroup, ResourceGroupViewModel>("r_group");
+            base.Register<ResourceColour, ResourceColourViewModel>("r_argb");
+            base.Register<ResourceImage, ResourceImageViewModel>("r_img");
+            base.Register<ResourceMedia, ResourceMediaViewModel>("r_media");
+            base.Register<ResourceText, ResourceTextViewModel>("r_txt");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : BaseResourceObject where TViewModel : BaseResourceObjectViewModel {

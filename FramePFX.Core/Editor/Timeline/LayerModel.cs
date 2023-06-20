@@ -81,7 +81,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public abstract LayerModel CloneCore();
 
-        public void WriteToRBE(RBEDictionary data) {
+        public virtual void WriteToRBE(RBEDictionary data) {
             data.SetString(nameof(this.DisplayName), this.DisplayName);
             data.SetDouble(nameof(this.MinHeight), this.MinHeight);
             data.SetDouble(nameof(this.MaxHeight), this.MaxHeight);
@@ -97,7 +97,7 @@ namespace FramePFX.Core.Editor.Timeline {
             }
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
+        public virtual void ReadFromRBE(RBEDictionary data) {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             this.MinHeight = data.GetDouble(nameof(this.MinHeight), 40);
             this.MaxHeight = data.GetDouble(nameof(this.MaxHeight), 200);
@@ -114,5 +114,9 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public abstract bool CanAccept(ClipModel clip);
+
+        public virtual bool CanUpdateAutomation() {
+            return true;
+        }
     }
 }

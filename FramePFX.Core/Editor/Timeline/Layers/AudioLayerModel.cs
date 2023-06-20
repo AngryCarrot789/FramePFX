@@ -1,14 +1,18 @@
+using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Editor.Timeline.AudioClips;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline.Layers {
     public class AudioLayerModel : LayerModel {
-        public float Volume { get; set; }
+        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoLayerModel), nameof(Volume), new KeyDescriptorDouble(1d, 0d, 1d));
+        public static readonly AutomationKey IsMutedKey = AutomationKey.RegisterBool(nameof(VideoLayerModel), nameof(IsMuted), new KeyDescriptorBoolean(false));
+
+        public double Volume { get; set; }
 
         public bool IsMuted { get; set; }
 
         public AudioLayerModel(TimelineModel timeline) : base(timeline) {
-            this.Volume = 1f;
+            this.Volume = 1d;
             this.IsMuted = false;
         }
 

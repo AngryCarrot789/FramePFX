@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.Notifications;
 using FramePFX.Core.Editor.ResourceChecker;
@@ -69,7 +70,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditorModel();
-            this.HistoryManager = new HistoryManagerViewModel(this.Model.HistoryManager);
+            this.HistoryManager = new HistoryManagerViewModel(view.NotificationPanel, this.Model.HistoryManager);
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
             this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameTick();
@@ -153,7 +154,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                     project.Dispose();
                 }
                 catch (Exception e) {
-                    Debug.WriteLine(e);
+                    await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "...", e.GetToString());
                 }
                 #endif
                 return;

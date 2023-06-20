@@ -90,8 +90,9 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void Render(RenderContext render, long frame) {
+            SKPaint transparencyPaint = null;
             for (int i = this.Layers.Count - 1; i >= 0; i--) {
-                if (!(this.Layers[i] is VideoLayerModel layer) || !layer.IsVisible) {
+                if (!(this.Layers[i] is VideoLayerModel layer) || !layer.IsActuallyVisible) {
                     continue;
                 }
 
@@ -100,16 +101,26 @@ namespace FramePFX.Core.Editor.Timeline {
                     continue;
                 }
 
-                using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F))}) {
-                    // SKColorFilter filter = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F)), SKBlendMode.DstIn);
-                    render.Canvas.SaveLayer(paint);
-                    foreach (ClipModel clip in clips) {
-                        render.Canvas.Save();
-                        ((VideoClipModel) clip).Render(render, frame);
-                        render.Canvas.Restore();
-                    }
+                if (!Maths.Equals(layer.Opacity, 1d)) {
+                    // SaveLayer requires a temporary drawing bitmap, which can slightly decrease performance
+                    // so only SaveLayer when absolutely nessesary
+                    render.Canvas.SaveLayer(transparencyPaint ?? (transparencyPaint = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F))}));
+                }
+                else {
+                    render.Canvas.Save();
+                }
+
+                foreach (ClipModel clip in clips) {
+                    render.Canvas.Save();
+                    ((VideoClipModel) clip).Render(render, frame);
                     render.Canvas.Restore();
                 }
+
+                render.Canvas.Restore();
+            }
+
+            if (transparencyPaint != null) {
+                transparencyPaint.Dispose();
             }
         }
 

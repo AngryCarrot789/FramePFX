@@ -25,6 +25,7 @@
             xmlns:notifications="clr-namespace:FramePFX.Core.Editor.Notifications;assembly=FramePFX.Core"
             xmlns:savingProject="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
             xmlns:framePfx="clr-namespace:FramePFX"
+            xmlns:history="clr-namespace:FramePFX.Core.History;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -208,9 +209,7 @@
                         </TabItem>
                         <TabItem Header="Debug stuff">
                             <Grid>
-                                <Canvas>
-                                    <c:VideoClipControl Height="82" Width="132"/>
-                                </Canvas>
+                                <Canvas/>
                             </Grid>
                         </TabItem>
                     </TabControl>
@@ -226,7 +225,6 @@
                     </Border>
                 </Border>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}"
-                        d:DataContext="{x:Static framePfx:App.DemoProject}"
                         IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Margin="0,0,0,20"
                         s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
                     <Border.InputBindings>
@@ -371,6 +369,22 @@
                             </Grid>
                         </DataTemplate>
                     </nn:NotificationDataTemplateSelector.MessageNotificationTemplate>
+                    <nn:NotificationDataTemplateSelector.HistoryNotificationTemplate>
+                        <DataTemplate DataType="{x:Type history:HistoryNotification}">
+                            <Grid>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}"/>
+                                </Grid.InputBindings>
+                                <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource ABrush.Tone7.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone7.Border.Static}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Label Content="History" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
+                                        <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse"/>
+                                    </Grid>
+                                </Border>
+                                <Label Content="{Binding Message, Mode=OneWay}" Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top"/>
+                            </Grid>
+                        </DataTemplate>
+                    </nn:NotificationDataTemplateSelector.HistoryNotificationTemplate>
                     <nn:NotificationDataTemplateSelector.SavingProjectNotificationTemplate>
                         <DataTemplate DataType="{x:Type notifications:SavingProjectNotification}">
                             <Grid>

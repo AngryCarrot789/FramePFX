@@ -202,7 +202,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                         item.Dispose();
                     }
                     catch (Exception e) {
-                        stack.Push(e);
+                        stack.Add(e);
                     }
                 }
 

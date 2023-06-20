@@ -5,7 +5,7 @@ using FramePFX.Core.Automation.Keyframe;
 
 namespace FramePFX.Core.Automation.Keys {
     /// <summary>
-    /// A key for a property that can be automated. Only one instance should exist for a specific piece of data (e.g. media position, media scale, etc)
+    /// A key for a property that can be automated. Only one instance should exist for a specific piece of data (e.g. media position, visibility, etc)
     /// </summary>
     public abstract class AutomationKey {
         private static readonly Dictionary<string, Dictionary<string, AutomationKey>> RegistryMap = new Dictionary<string, Dictionary<string, AutomationKey>>();
@@ -52,13 +52,13 @@ namespace FramePFX.Core.Automation.Keys {
             return key;
         }
 
-        public static AutomationKeyBoolean RegisterBoolean(string domain, string id, KeyDescriptorBoolean descriptor) {
+        public static AutomationKeyBoolean RegisterBool(string domain, string id, KeyDescriptorBoolean descriptor) {
             AutomationKeyBoolean key = new AutomationKeyBoolean(domain, id, descriptor);
             RegisterInternal(key);
             return key;
         }
 
-        public static AutomationKeyBoolean RegisterBoolean(string domain, string id, bool defaultValue = false) {
+        public static AutomationKeyBoolean RegisterBool(string domain, string id, bool defaultValue = false) {
             AutomationKeyBoolean key = new AutomationKeyBoolean(domain, id, new KeyDescriptorBoolean(defaultValue));
             RegisterInternal(key);
             return key;

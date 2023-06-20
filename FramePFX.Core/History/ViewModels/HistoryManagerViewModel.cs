@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Core.Notifications;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.History.ViewModels {
@@ -18,8 +19,25 @@ namespace FramePFX.Core.History.ViewModels {
         public bool CanUndo => this.Model.CanUndo;
         public bool CanRedo => this.Model.CanRedo;
 
-        public HistoryManagerViewModel(HistoryManager model) {
+        private HistoryNotification notification;
+        private HistoryNotification Notification {
+            get {
+                if (this.notification != null && !this.notification.IsHidden)
+                    return this.notification;
+                if (this.NotificationPanel == null)
+                    return null;
+                if (this.notification == null)
+                    this.notification = new HistoryNotification();
+                this.NotificationPanel.PushNotification(this.notification, false);
+                return this.notification;
+            }
+        }
+
+        public NotificationPanelViewModel NotificationPanel { get; }
+
+        public HistoryManagerViewModel(NotificationPanelViewModel panel, HistoryManager model) {
             this.Model = model ?? throw new ArgumentNullException();
+            this.NotificationPanel = panel;
             this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.Model.IsActionActive && this.Model.CanUndo);
             this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.Model.IsActionActive && this.Model.CanRedo);
             this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.Model.IsActionActive && (this.Model.CanRedo || this.Model.CanUndo));
@@ -63,6 +81,7 @@ namespace FramePFX.Core.History.ViewModels {
                 await this.Model.OnUndoAsync();
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
+                this.Notification?.OnUndo();
             }
         }
 
@@ -75,6 +94,7 @@ namespace FramePFX.Core.History.ViewModels {
                 await this.Model.OnRedoAsync();
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
+                this.Notification?.OnRedo();
             }
         }
 
@@ -84,6 +104,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             this.Model.Clear();
+            this.Notification?.OnUndo();
         }
 
         private async Task<bool> IsActionActive(string message) {

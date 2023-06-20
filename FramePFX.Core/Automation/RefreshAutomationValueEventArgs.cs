@@ -6,7 +6,8 @@ namespace FramePFX.Core.Automation {
         public readonly long Frame;
 
         /// <summary>
-        /// Whether or not this refresh was caused by the playback
+        /// Whether or not this refresh was caused by the playback. When true (caused by playback), a render
+        /// should not be scheduled as the refresh was likely called just before the render happens
         /// </summary>
         public readonly bool IsPlaybackSource;
 

@@ -58,10 +58,18 @@ namespace FramePFX.Core.Automation.Keyframe {
             return (time - this.Timestamp) / (double) range;
         }
 
-        protected virtual bool Equals(KeyFrame other) {
+        /// <summary>
+        /// Whether or not the given key frame equals this key frame (equal timestamp and value)
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public virtual bool Equals(KeyFrame other) {
             return this.Timestamp == other.Timestamp;
         }
 
+        /// <summary>
+        /// Whether or not the given value equals this key frame
+        /// </summary>
         public override bool Equals(object obj) {
             return ReferenceEquals(this, obj) || obj is KeyFrame && this.Equals((KeyFrame) obj);
         }
@@ -134,8 +142,8 @@ namespace FramePFX.Core.Automation.Keyframe {
             return base.GetHashCode() ^ this.Value.GetHashCode();
         }
 
-        protected override bool Equals(KeyFrame other) {
-            return other is KeyFrameLong keyFrame && base.Equals(keyFrame) && Maths.Equals(keyFrame.Value, this.Value);
+        public override bool Equals(KeyFrame other) {
+            return base.Equals(other) && other is KeyFrameLong keyFrame && Maths.Equals(keyFrame.Value, this.Value);
         }
     }
 
@@ -189,8 +197,8 @@ namespace FramePFX.Core.Automation.Keyframe {
             return base.GetHashCode() ^ this.Value.GetHashCode();
         }
 
-        protected override bool Equals(KeyFrame other) {
-            return other is KeyFrameLong keyFrame && base.Equals(keyFrame) && keyFrame.Value == this.Value;
+        public override bool Equals(KeyFrame other) {
+            return base.Equals(other) && other is KeyFrameLong keyFrame && keyFrame.Value == this.Value;
         }
     }
 
@@ -246,8 +254,8 @@ namespace FramePFX.Core.Automation.Keyframe {
             return base.GetHashCode() ^ this.Value.GetHashCode();
         }
 
-        protected override bool Equals(KeyFrame other) {
-            return other is KeyFrameBoolean keyFrame && base.Equals(keyFrame) && keyFrame.Value == this.Value;
+        public override bool Equals(KeyFrame other) {
+            return base.Equals(other) && other is KeyFrameBoolean keyFrame && keyFrame.Value == this.Value;
         }
     }
 
@@ -293,8 +301,8 @@ namespace FramePFX.Core.Automation.Keyframe {
             return base.GetHashCode() ^ this.Value.GetHashCode();
         }
 
-        protected override bool Equals(KeyFrame other) {
-            return other is KeyFrameVector2 keyFrame && base.Equals(keyFrame) && keyFrame.Value == this.Value;
+        public override bool Equals(KeyFrame other) {
+            return base.Equals(other) && other is KeyFrameVector2 keyFrame && keyFrame.Value == this.Value;
         }
     }
 }

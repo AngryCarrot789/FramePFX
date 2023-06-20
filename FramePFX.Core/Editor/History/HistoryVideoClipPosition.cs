@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 
@@ -12,8 +11,8 @@ namespace FramePFX.Core.Editor.History {
 
         public HistoryVideoClipPosition(ClipViewModel clip) {
             this.Clip = clip;
-            this.Span = Transactions.Immutable(clip.FrameSpan);
-            this.MediaFrameOffset = Transactions.Immutable(clip.MediaFrameOffset);
+            this.Span = Transactions.ImmutableType(clip.FrameSpan);
+            this.MediaFrameOffset = Transactions.ImmutableType(clip.MediaFrameOffset);
         }
 
         public void Undo() {

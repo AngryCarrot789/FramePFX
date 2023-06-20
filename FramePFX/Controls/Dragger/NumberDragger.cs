@@ -8,7 +8,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Controls {
+namespace FramePFX.Controls.Dragger {
     [TemplatePart(Name = "PART_TextBlock", Type = typeof(TextBlock))]
     [TemplatePart(Name = "PART_TextBox", Type = typeof(TextBox))]
     public class NumberDragger : RangeBase {
@@ -113,6 +113,13 @@ namespace FramePFX.Controls {
                 typeof(NumberDragger),
                 new PropertyMetadata(null));
 
+        public static readonly DependencyProperty RestoreValueOnCancelProperty =
+            DependencyProperty.Register(
+                "RestoreValueOnCancel",
+                typeof(bool),
+                typeof(NumberDragger),
+                new PropertyMetadata(true));
+
         #endregion
 
         #region Properties
@@ -201,6 +208,14 @@ namespace FramePFX.Controls {
         public bool? ForcedReadOnlyState {
             get => (bool?) this.GetValue(ForcedReadOnlyStateProperty);
             set => this.SetValue(ForcedReadOnlyStateProperty, value.BoxNullable());
+        }
+
+        /// <summary>
+        /// Whether or not to restore the value property when the drag is cancelled. Default is true
+        /// </summary>
+        public bool RestoreValueOnCancel {
+            get { return (bool) this.GetValue(RestoreValueOnCancelProperty); }
+            set => this.SetValue(RestoreValueOnCancelProperty, value.Box());
         }
 
         public bool IsValueReadOnly {
@@ -684,7 +699,9 @@ namespace FramePFX.Controls {
             this.ProcessDragCompletion(true);
             if (this.previousValue is double oldVal) {
                 this.previousValue = null;
-                this.Value = oldVal;
+                if (this.RestoreValueOnCancel) {
+                    this.Value = oldVal;
+                }
             }
         }
 

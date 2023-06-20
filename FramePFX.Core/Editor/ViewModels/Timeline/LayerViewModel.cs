@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
+using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
@@ -18,7 +20,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for a timeline layer. This could be a video or audio layer (or others...)
     /// </summary>
-    public abstract class LayerViewModel : BaseViewModel, IModifyProject, IHistoryHolder, IDisplayName, IResourceItemDropHandler {
+    public abstract class LayerViewModel : BaseViewModel, IModifyProject, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel {
         protected readonly HistoryBuffer<HistoryLayerDisplayName> displayNameHistory = new HistoryBuffer<HistoryLayerDisplayName>();
 
         private readonly ObservableCollectionEx<ClipViewModel> clips;
@@ -102,6 +104,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public LayerModel Model { get; }
 
+        IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
+
+        public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
+
         public event ProjectModifiedEvent ProjectModified;
 
         protected LayerViewModel(TimelineViewModel timeline, LayerModel model) {
@@ -109,7 +115,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             if (!ReferenceEquals(timeline.Model, model.Timeline))
                 throw new ArgumentException($"The timeline's model and then given layer model's timeline do not match");
-            this.AutomationData = new AutomationDataViewModel(model.AutomationData);
+            this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
             this.SelectedClips = new ObservableCollectionEx<ClipViewModel>();
@@ -317,10 +323,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             return this.Model.CanAccept(clip.Model);
         }
 
-        public virtual void RefreshAutomationValues(long frame) {
-            foreach (ClipViewModel clip in this.clips) {
-                clip.RefreshAutomationValues(frame);
-            }
+        protected virtual void OnAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
+            base.RaisePropertyChanged(propertyName);
         }
     }
 }

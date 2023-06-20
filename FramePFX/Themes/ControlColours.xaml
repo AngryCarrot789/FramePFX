@@ -112,6 +112,8 @@
 
     <SolidColorBrush x:Key="ScrollBar.Static.Background"            Color="{DynamicResource AColour.Tone5.Background.Static}"/>
     <SolidColorBrush x:Key="ScrollBar.Static.Border"                Color="{DynamicResource AColour.Tone5.Border.Static}"/>
+    <SolidColorBrush x:Key="ScrollBarButton.Static.Background"      Color="{DynamicResource AColour.Tone6.Background.Static}"/>
+    <SolidColorBrush x:Key="ScrollBarButton.Static.Border"          Color="{DynamicResource AColour.Tone5.Border.Static}"/>
     <SolidColorBrush x:Key="ScrollBar.Pressed.Glyph"                Color="{DynamicResource AColour.Glyph.MouseDown}"/>
     <SolidColorBrush x:Key="ScrollBar.MouseOver.Glyph"              Color="{DynamicResource AColour.Glyph.MouseOver}"/>
     <SolidColorBrush x:Key="ScrollBar.Disabled.Glyph"               Color="{DynamicResource AColour.Glyph.Disabled}"/>

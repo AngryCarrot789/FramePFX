@@ -11,13 +11,18 @@ using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timeline.AudioClips;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Editor;
+using FramePFX.Editor.Timeline.Controls;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
@@ -29,6 +34,11 @@ namespace FramePFX {
     /// </summary>
     public partial class App : Application {
         private AppSplashScreen splash;
+
+        #if DEBUG
+        public static ProjectViewModel DemoProject { get; } = new ProjectViewModel(CreateDemoProject());
+        public static TimelineViewModel DemoTimeline { get; } = new TimelineViewModel(DemoProject, new TimelineModel(DemoProject.Model));
+        #endif
 
         public App() {
 
@@ -123,8 +133,18 @@ namespace FramePFX {
         }
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
-            // Demo project -- projects can be created as entirely models
+            await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
+            ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
+            editor.ActiveProject.AutomationEngine.TickAndRefreshProject(false);
+            editor.View.RenderViewPort(false);
+        }
 
+        protected override void OnExit(ExitEventArgs e) {
+            base.OnExit(e);
+        }
+
+        public static ProjectModel CreateDemoProject() {
+            // Demo project -- projects can be created as entirely models
             ProjectModel project = new ProjectModel();
             project.Settings.Resolution = new Resolution(1920, 1080);
 
@@ -200,14 +220,7 @@ namespace FramePFX {
                 project.Timeline.AddLayer(layer1);
             }
 
-            ProjectViewModel project1 = new ProjectViewModel(project);
-            await editor.SetProject(project1);
-            ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
-            editor.View.RenderViewPort(false);
-        }
-
-        protected override void OnExit(ExitEventArgs e) {
-            base.OnExit(e);
+            return project;
         }
     }
 }

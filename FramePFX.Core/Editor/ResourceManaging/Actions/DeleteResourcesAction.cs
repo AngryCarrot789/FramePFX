@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;

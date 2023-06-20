@@ -32,7 +32,7 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         public ResourceManager ResourceManager => this.Layer?.Timeline.Project.ResourceManager;
 
-        public long TimelinePlayhead => this.Layer?.Timeline.PlayHead ?? 0;
+        public long TimelinePlayhead => this.Layer?.Timeline.PlayHeadFrame ?? 0;
 
         /// <summary>
         /// This clip's display name, which the user can chose to identify it
@@ -251,9 +251,5 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         #endregion
-
-        public virtual void UpdateAutomationValues(long frame) {
-
-        }
     }
 }

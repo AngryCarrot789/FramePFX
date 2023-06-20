@@ -15,8 +15,13 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public bool IsOverrideEnabled {
             get => this.Model.IsOverrideEnabled;
             set {
+                if (this.IsOverrideEnabled == value) {
+                    return;
+                }
+
                 this.Model.IsOverrideEnabled = value;
                 this.RaisePropertyChanged();
+                this.AutomationData.OnOverrideStateChanged(this);
             }
         }
 
@@ -24,13 +29,23 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public AutomationSequence Model { get; }
 
+        public AutomationKey Key => this.Model.Key;
+
         /// <summary>
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present, meaning the automation engine is operating in normal operation
         /// </summary>
         public bool IsAutomationInUse => this.Model.IsAutomationInUse;
 
-        public AutomationSequenceViewModel(AutomationSequence model) {
+        /// <summary>
+        /// The automation data instance that owns this sequence
+        /// </summary>
+        public AutomationDataViewModel AutomationData { get; }
+
+        public event RefreshAutomationValueEventHandler RefreshValue;
+
+        public AutomationSequenceViewModel(AutomationDataViewModel automationData, AutomationSequence model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            this.AutomationData = automationData ?? throw new ArgumentNullException(nameof(automationData));
             this.OverrideKeyFrame = KeyFrameViewModel.NewInstance(model.OverrideKeyFrame);
             this.keyFrames = new ObservableCollection<KeyFrameViewModel>();
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
@@ -184,6 +199,10 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             if (!this.IsOverrideEnabled)
                 this.IsOverrideEnabled = true;
             return this.OverrideKeyFrame;
+        }
+
+        public void DoRefreshValue(AutomationEngineViewModel engine, long frame, bool isPlaybackSource) {
+            this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(frame, isPlaybackSource));
         }
     }
 }

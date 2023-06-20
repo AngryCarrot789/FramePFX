@@ -14,7 +14,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
-    public class TimelineViewModel : BaseViewModel, IModifyProject, IDisposable {
+    public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IModifyProject, IDisposable {
         private readonly ObservableCollectionEx<LayerViewModel> layers;
         public ReadOnlyObservableCollection<LayerViewModel> Layers { get; }
 
@@ -30,9 +30,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public long PlayHeadFrame {
-            get => this.Model.PlayHead;
+            get => this.Model.PlayHeadFrame;
             set {
-                long oldValue = this.Model.PlayHead;
+                long oldValue = this.Model.PlayHeadFrame;
                 if (oldValue == value) {
                     return;
                 }
@@ -45,7 +45,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     value = 0;
                 }
 
-                this.Model.PlayHead = value;
+                this.Model.PlayHeadFrame = value;
                 if (!this.ignorePlayHeadPropertyChange) {
                     this.RaisePropertyChanged();
                     this.OnPlayHeadMoved(oldValue, value, true);
@@ -70,7 +70,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public TimelineModel Model { get; }
 
+        IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
+
+        public AutomationDataViewModel AutomationData { get; }
+
         public ProjectViewModel Project { get; }
+
+        public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
+
+        public bool IsAutomationChangeInProgress {
+            get => this.Model.IsAutomationChangeInProgress;
+            set => this.Model.IsAutomationChangeInProgress = value;
+        }
 
         public InputValidator LayerNameValidator { get; }
 
@@ -92,6 +103,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public TimelineViewModel(ProjectViewModel project, TimelineModel model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.layers = new ObservableCollectionEx<LayerViewModel>();
             this.Layers = new ReadOnlyObservableCollection<LayerViewModel>(this.layers);
             this.SelectedLayers = new ObservableCollectionEx<LayerViewModel>();
@@ -121,8 +133,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 return;
             }
 
+            this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, newFrame);
             this.Project.Editor.View.RenderViewPort(b);
-            this.Project.AutomationEngine.UpdateOnPlayHeadMoved(false);
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
@@ -325,20 +337,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public void MoveClip(ClipViewModel clip, LayerViewModel oldLayer, LayerViewModel newLayer) {
             oldLayer.RemoveClipFromLayer(clip);
             newLayer.AddClipToLayer(clip);
-        }
-
-        public void UpdateAutomationValues(bool isRendering, long frame) {
-            // update data
-            this.Model.IsAutomationChangeInProgress = true;
-            this.Model.UpdateAutomationValues(frame);
-            this.Model.IsAutomationChangeInProgress = false;
-            if (!isRendering) {
-                foreach (LayerViewModel layer in this.layers) {
-                    layer.RefreshAutomationValues(frame);
-                }
-            }
-
-            // refresh properties
         }
     }
 }

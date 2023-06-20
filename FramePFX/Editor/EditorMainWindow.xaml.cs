@@ -283,37 +283,32 @@ namespace FramePFX.Editor {
             return true;
         }
 
-        private void OnTopThumbDrag(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
-                double layerHeight = layer.Height - e.VerticalChange;
-                if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
-                    if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind1) {
-                        double behindHeight = behind1.Height + e.VerticalChange;
-                        if (behindHeight < behind1.MinHeight || behindHeight > behind1.MaxHeight)
-                            return;
-                        behind1.Height = behindHeight;
-                    }
-                }
-                else if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind2) {
-                    double behindHeight = behind2.Height + e.VerticalChange;
-                    if (behindHeight < behind2.MinHeight || behindHeight > behind2.MaxHeight) {
-                        return;
-                    }
-
-                    layer.Height = layerHeight;
-                    behind2.Height = behindHeight;
-                }
-            }
-        }
+        // Dragging a top thumb to resize between 2 layers is a bit iffy... so nah
+        // private void OnTopThumbDrag(object sender, DragDeltaEventArgs e) {
+        //     if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
+        //         double layerHeight = layer.Height - e.VerticalChange;
+        //         if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
+        //             if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind1) {
+        //                 double behindHeight = behind1.Height + e.VerticalChange;
+        //                 if (behindHeight < behind1.MinHeight || behindHeight > behind1.MaxHeight)
+        //                     return;
+        //                 behind1.Height = behindHeight;
+        //             }
+        //         }
+        //         else if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind2) {
+        //             double behindHeight = behind2.Height + e.VerticalChange;
+        //             if (behindHeight < behind2.MinHeight || behindHeight > behind2.MaxHeight) {
+        //                 return;
+        //             }
+        //             layer.Height = layerHeight;
+        //             behind2.Height = behindHeight;
+        //         }
+        //     }
+        // }
 
         private void OnBottomThumbDrag(object sender, DragDeltaEventArgs e) {
             if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
-                double layerHeight = layer.Height + e.VerticalChange;
-                if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
-                    return;
-                }
-
-                layer.Height = layerHeight;
+                layer.Height = Maths.Clamp(layer.Height + e.VerticalChange, layer.MinHeight, layer.MaxHeight);
             }
         }
 

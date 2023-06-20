@@ -2,10 +2,8 @@ using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.Notifications;
 using FramePFX.Core.Editor.ResourceChecker;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
-using FramePFX.Core.Settings.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 

@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace FramePFX.Controls {
+namespace FramePFX.Controls.Dragger {
     public class EditCompletedEventArgs : RoutedEventArgs {
         public bool IsCancelled { get; }
 

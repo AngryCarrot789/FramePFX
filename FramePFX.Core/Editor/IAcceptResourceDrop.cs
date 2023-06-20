@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
 namespace FramePFX.Core.Editor {

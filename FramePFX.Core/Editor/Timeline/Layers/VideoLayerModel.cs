@@ -1,3 +1,4 @@
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Utils;
@@ -13,7 +14,7 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
         public VideoLayerModel(TimelineModel timeline) : base(timeline) {
             this.Opacity = 1d;
             this.IsVisible = true;
-            this.AutomationData.AssignKey(OpacityKey);
+            this.AutomationData.AssignKey(OpacityKey, (s, f) => this.Opacity = s.GetDoubleValue(f));
         }
 
         public override LayerModel CloneCore() {
@@ -37,14 +38,6 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
 
         public override bool CanAccept(ClipModel clip) {
             return clip is VideoClipModel;
-        }
-
-        public override void UpdateAutomationValues(long frame) {
-            if (this.AutomationData[OpacityKey].IsAutomationInUse) {
-                this.Opacity = this.AutomationData[OpacityKey].GetDoubleValue(frame);
-            }
-
-            base.UpdateAutomationValues(frame);
         }
     }
 }

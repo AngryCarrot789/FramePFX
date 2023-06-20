@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:converters="clr-namespace:FramePFX.Converters"
                     xmlns:controls="clr-namespace:FramePFX.Controls"
-                    xmlns:converters1="clr-namespace:FramePFX.Converters">
+                    xmlns:converters1="clr-namespace:FramePFX.Converters"
+                    xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger">
     <converters1:InvertBoolConverter x:Key="InvertBoolConverter"/>
     <Style TargetType="{x:Type controls:IconTextPair}">
         <Setter Property="Template">
@@ -17,13 +18,13 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type controls:NumberDragger}">
+    <Style TargetType="{x:Type dragger:NumberDragger}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type controls:NumberDragger}">
+                <ControlTemplate TargetType="{x:Type dragger:NumberDragger}">
                     <Border Background="{TemplateBinding Background}" 
                             BorderBrush="{TemplateBinding BorderBrush}" 
                             BorderThickness="{TemplateBinding BorderThickness}">
@@ -41,14 +42,14 @@
         </Setter>
     </Style>
 
-    <Style x:Key="AbletonNumberDraggerStyle" TargetType="{x:Type controls:NumberDragger}" BasedOn="{StaticResource {x:Type controls:NumberDragger}}">
+    <Style x:Key="AbletonNumberDraggerStyle" TargetType="{x:Type dragger:NumberDragger}" BasedOn="{StaticResource {x:Type dragger:NumberDragger}}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone2.Border.Static}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type controls:NumberDragger}">
+                <ControlTemplate TargetType="{x:Type dragger:NumberDragger}">
                     <Grid SnapsToDevicePixels="True">
                         <ProgressBar Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                      Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"

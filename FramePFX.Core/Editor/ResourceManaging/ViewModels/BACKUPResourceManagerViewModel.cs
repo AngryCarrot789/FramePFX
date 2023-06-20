@@ -1,17 +1,3 @@
-using System;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FramePFX.Core.Editor.ResourceManaging.Resources;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Interactivity;
-using FramePFX.Core.Utils;
-using FramePFX.Core.Views.Dialogs.Message;
-using FramePFX.Core.Views.Dialogs.UserInputs;
-
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
     /*
     public class BACKUPResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier {

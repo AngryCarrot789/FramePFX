@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
-using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
-using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.History;
 
 namespace FramePFX.Core.Editor.History {
@@ -11,7 +9,7 @@ namespace FramePFX.Core.Editor.History {
 
         public HistoryVideoClipOpacity(VideoClipViewModel layer) {
             this.Layer = layer;
-            this.Opacity = Transactions.Immutable(layer.Opacity);
+            this.Opacity = Transactions.ImmutableType(layer.Opacity);
         }
 
         public async Task UndoAsync() {

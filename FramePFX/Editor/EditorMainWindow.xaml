@@ -24,15 +24,17 @@
             xmlns:rc="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;assembly=FramePFX.Core"
             xmlns:notifications="clr-namespace:FramePFX.Core.Editor.Notifications;assembly=FramePFX.Core"
             xmlns:savingProject="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
+            xmlns:framePfx="clr-namespace:FramePFX"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Width="1408" Height="792"
             Style="{StaticResource CustomWindowStyle}"
-            Background="{DynamicResource ABrush.Tone2.Background.Static}"
+            Background="{DynamicResource WindowBackground}"
             BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
             s:UIFocusGroup.IsGlobalShortcutFocusTarget="True"
             s:UIFocusGroup.FocusGroupPath="Application/Editor">
     <Window.Resources>
+        <SolidColorBrush x:Key="WindowBackground" Color="{DynamicResource AColour.Tone2.Background.Static}"/>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg Sony Vegas"/>
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True"/>
         <Style TargetType="{x:Type Slider}">
@@ -71,16 +73,16 @@
                 <RowDefinition Height="5"/>
                 <RowDefinition Height="75*"/>
             </Grid.RowDefinitions>
-            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource ABrush.Tone4.Border.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 1 0 1" SnapsToDevicePixels="True"/>
+            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource WindowBackground}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 1 0 1" SnapsToDevicePixels="True"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*"/>
                     <ColumnDefinition Width="5"/>
                     <ColumnDefinition Width="7*"/>
                 </Grid.ColumnDefinitions>
-                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource ABrush.Tone4.Border.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" Grid.Column="1" Margin="0,-1" SnapsToDevicePixels="True"/>
+                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1 0 1 0" Background="{DynamicResource WindowBackground}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" Grid.Column="1" Margin="0,-1" SnapsToDevicePixels="True"/>
                 <Grid Grid.Column="2" DataContext="{Binding Playback}">
-                    <Border VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 1 0 0">
+                    <Border Background="{DynamicResource ABrush.Tone3.Background.Static}" VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
                             <Button Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="OnFitContentToWindowClick"/>
                             <CheckBox IsChecked="{Binding ElementName=VPViewBox, Path=PanToCursorOnUserZoom}" Content="Zoom to cursor" Width="110" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"/>
@@ -99,7 +101,7 @@
                             <Button Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>
-                    <cc:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True">
+                    <cc:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource ABrush.Tone1.Background.Static}">
                         <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}"
                                        x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
                     </cc:FreeMoveViewPortV2>
@@ -146,7 +148,7 @@
                                 </editor:ResourceItemContainerDataTemplateSelector>
                             </TabItem.Resources>
                             <Grid s:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
-                                <ui:ResourceListControl FileDropNotifier="{Binding .}"
+                                <ui:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                                         ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
                                                         helpers:SelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
                                                         helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
@@ -224,6 +226,7 @@
                     </Border>
                 </Border>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}"
+                        d:DataContext="{x:Static framePfx:App.DemoProject}"
                         IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Margin="0,0,0,20"
                         s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
                     <Border.InputBindings>
@@ -240,7 +243,7 @@
                             <ColumnDefinition Width="5"/>
                             <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
-                        <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
+                        <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
                             <Grid>
                                 <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0"/>
                             </Grid>
@@ -301,7 +304,6 @@
                                                     <Grid d:DataContext="{d:DesignInstance timeline:LayerViewModel}">
                                                         <Rectangle Fill="{Binding LayerColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4" />
-                                                        <Thumb DragDelta="OnTopThumbDrag" Margin="0,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                                         <Thumb DragDelta="OnBottomThumbDrag" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                                     </Grid>
                                                 </Border>
@@ -338,13 +340,14 @@
                         </ListBox>
                         <Border Visibility="Collapsed" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
                         <c:TimelineControl x:Name="TheTimeline"
+                                           Background="{DynamicResource ABrush.Tone2.Background.Static}"
                                            ItemsSource="{Binding Layers, Mode=OneTime}"
                                            Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
                                            BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
-                                           MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged}"
+                                           MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged, FallbackValue=1000}"
                                            s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                         </c:TimelineControl>
-                        <GridSplitter Background="{DynamicResource ABrush.Tone4.Border.Static}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
+                        <GridSplitter Background="{DynamicResource WindowBackground}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
             </Grid>

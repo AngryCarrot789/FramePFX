@@ -198,9 +198,15 @@
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs" />
+    <Compile Include="AttachedProperties\HistoryHelper.cs" />
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
     <Compile Include="BindingErrorListener.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
+    <Compile Include="Controls\Dragger\EditCompletedEventArgs.cs" />
+    <Compile Include="Controls\Dragger\EditCompletedEventHandler.cs" />
+    <Compile Include="Controls\Dragger\EditStartEventArgs.cs" />
+    <Compile Include="Controls\Dragger\EditStartEventHandler.cs" />
+    <Compile Include="Controls\Dragger\NumberDragger.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
     <Compile Include="Controls\Ruler.cs" />
@@ -218,7 +224,6 @@
     <Compile Include="Controls\HorizontalIncrement.cs" />
     <Compile Include="Controls\IconTextPair.cs" />
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
-    <Compile Include="Controls\NumberDragger.cs" />
     <Compile Include="Controls\SelectionAdorder.cs" />
     <Compile Include="Controls\VerticalIncrement.cs" />
     <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\HorizontalRulerManager.cs" />

@@ -10,8 +10,8 @@ namespace FramePFX.Core.Editor.History {
 
         public HistoryShapeSize(ShapeClipViewModel clip) {
             this.Clip = clip;
-            this.Width = Transactions.Immutable(clip.Width);
-            this.Height = Transactions.Immutable(clip.Height);
+            this.Width = Transactions.ImmutableType(clip.Width);
+            this.Height = Transactions.ImmutableType(clip.Height);
         }
 
         public async Task UndoAsync() {

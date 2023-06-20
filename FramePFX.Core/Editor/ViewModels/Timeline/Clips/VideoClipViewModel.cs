@@ -1,6 +1,5 @@
 using System.Numerics;
-using FramePFX.Core.Automation.Keyframe;
-using FramePFX.Core.Automation.ViewModels.Keyframe;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.VideoClips;
@@ -199,21 +198,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 // assert ReferenceEquals(this.Model, x)
                 this.OnInvalidateRender(s);
             };
-            this.Model.RenderInvalidated += this.renderCallback;
-        }
 
-        public override void RefreshAutomationValues(long frame) {
-            base.RefreshAutomationValues(frame);
-            this.RaisePropertyChanged(nameof(this.MediaPosition));
-            this.RaisePropertyChanged(nameof(this.MediaPositionX));
-            this.RaisePropertyChanged(nameof(this.MediaPositionY));
-            this.RaisePropertyChanged(nameof(this.MediaScale));
-            this.RaisePropertyChanged(nameof(this.MediaScaleX));
-            this.RaisePropertyChanged(nameof(this.MediaScaleY));
-            this.RaisePropertyChanged(nameof(this.MediaScaleOrigin));
-            this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
-            this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
-            this.RaisePropertyChanged(nameof(this.Opacity));
+            this.Model.RenderInvalidated += this.renderCallback;
+            this.AutomationData.AssignRefreshHandler(VideoClipModel.MediaPositionKey, (s, e) => this.RaiseAutomationPropertyUpdated(nameof(this.MediaPosition), in e));
+            this.AutomationData.AssignRefreshHandler(VideoClipModel.MediaScaleKey, (s, e) => this.RaiseAutomationPropertyUpdated(nameof(this.MediaScale), in e));
+            this.AutomationData.AssignRefreshHandler(VideoClipModel.MediaScaleOriginKey, (s, e) => this.RaiseAutomationPropertyUpdated(nameof(this.MediaScaleOrigin), in e));
+            this.AutomationData.AssignRefreshHandler(VideoClipModel.OpacityKey, (s, e) => this.RaiseAutomationPropertyUpdated(nameof(this.Opacity), in e));
         }
 
         // this is messy asf but it works :DDD
@@ -235,6 +225,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         protected override void DisposeCore(ExceptionStack stack) {
             base.DisposeCore(stack);
             this.Model.RenderInvalidated -= this.renderCallback;
+        }
+
+        protected override void RaiseAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
+            base.RaiseAutomationPropertyUpdated(propertyName, in e);
+            if (!e.IsPlaybackSource) {
+                this.Timeline.DoRender(true);
+            }
         }
     }
 }

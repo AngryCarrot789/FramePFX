@@ -22,7 +22,13 @@ namespace FramePFX.Core.Automation {
         /// Gets the automation sequence (aka timeline) for the specific automation key
         /// </summary>
         /// <param name="key"></param>
-        public AutomationSequence this[AutomationKey key] => this.dataMap[key];
+        public AutomationSequence this[AutomationKey key] {
+            get {
+                if (this.dataMap.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequence sequence))
+                    return sequence;
+                throw new Exception($"Key has not been assigned: {key}");
+            }
+        }
 
         public AutomationData(IAutomatable owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -33,10 +39,16 @@ namespace FramePFX.Core.Automation {
         /// Adds an automation sequence for the given key, allowing it to be automated
         /// </summary>
         /// <param name="key">The key to add</param>
-        public void AssignKey(AutomationKey key) {
+        public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler) {
             if (this.dataMap.ContainsKey(key))
                 throw new Exception("Key is already assigned");
-            this.dataMap[key] = new AutomationSequence(key);
+            AutomationSequence sequence = new AutomationSequence(key);
+            this.dataMap[key] = sequence;
+            if (updateValueHandler != null) {
+                sequence.UpdateValue += updateValueHandler;
+            }
+
+            return sequence;
         }
 
         public bool TryGetData(AutomationKey key, out AutomationSequence value) => this.dataMap.TryGetValue(key, out value);

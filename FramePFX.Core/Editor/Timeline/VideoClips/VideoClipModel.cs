@@ -1,4 +1,5 @@
 using System.Numerics;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
@@ -43,25 +44,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             this.MediaScale = Vector2.One;
             this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
             this.Opacity = 1d;
-            this.AutomationData.AssignKey(MediaPositionKey);
-            this.AutomationData.AssignKey(MediaScaleKey);
-            this.AutomationData.AssignKey(MediaScaleOriginKey);
-            this.AutomationData.AssignKey(OpacityKey);
-        }
-
-        public override void UpdateAutomationValues(long frame) {
-            base.UpdateAutomationValues(frame);
-            if (this.AutomationData[MediaPositionKey].IsAutomationInUse)
-                this.MediaPosition = this.AutomationData[MediaPositionKey].GetVector2Value(frame);
-
-            if (this.AutomationData[MediaScaleKey].IsAutomationInUse)
-                this.MediaScale = this.AutomationData[MediaScaleKey].GetVector2Value(frame);
-
-            if (this.AutomationData[MediaScaleOriginKey].IsAutomationInUse)
-                this.MediaScaleOrigin = this.AutomationData[MediaScaleOriginKey].GetVector2Value(frame);
-
-            if (this.AutomationData[OpacityKey].IsAutomationInUse)
-                this.Opacity = this.AutomationData[OpacityKey].GetDoubleValue(frame);
+            this.AutomationData.AssignKey(MediaPositionKey, (s, f) => this.MediaPosition = s.GetVector2Value(f));
+            this.AutomationData.AssignKey(MediaScaleKey, (s, f) => this.MediaScale = s.GetVector2Value(f));
+            this.AutomationData.AssignKey(MediaScaleOriginKey, (s, f) => this.MediaScaleOrigin = s.GetVector2Value(f));
+            this.AutomationData.AssignKey(OpacityKey, (s, f) => this.Opacity = s.GetDoubleValue(f));
         }
 
         public virtual void InvalidateRender(bool schedule = true) {

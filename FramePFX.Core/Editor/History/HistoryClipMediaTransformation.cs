@@ -12,9 +12,9 @@ namespace FramePFX.Core.Editor.History {
 
         public HistoryClipMediaTransformation(VideoClipViewModel clip) {
             this.Clip = clip;
-            this.MediaPosition = Transactions.Immutable(clip.MediaPosition);
-            this.MediaScale = Transactions.Immutable(clip.MediaScale);
-            this.MediaScaleOrigin = Transactions.Immutable(clip.MediaScaleOrigin);
+            this.MediaPosition = Transactions.ImmutableType(clip.MediaPosition);
+            this.MediaScale = Transactions.ImmutableType(clip.MediaScale);
+            this.MediaScaleOrigin = Transactions.ImmutableType(clip.MediaScaleOrigin);
         }
 
         public async Task UndoAsync() {

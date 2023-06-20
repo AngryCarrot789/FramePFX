@@ -1,8 +1,4 @@
 using System.Collections.Generic;
-using System.IO.MemoryMappedFiles;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text.RegularExpressions;
-using FFmpeg.AutoGen;
 
 namespace FramePFX.Core.Utils {
     public static class TextIncrement {

@@ -1,5 +1,5 @@
 using FramePFX.Core.Automation.Keyframe;
 
 namespace FramePFX.Core.Automation {
-    public delegate void AutomationSequenceEventHandler(AutomationSequence sequence);
+    public delegate void UpdateAutomationValueEventHandler(AutomationSequence sequence, long frame);
 }

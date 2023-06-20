@@ -9,7 +9,7 @@ namespace FramePFX.Core.Editor.History {
 
         public HistoryClipDisplayName(ClipViewModel clip) {
             this.Clip = clip;
-            this.DisplayName = Transactions.Immutable(clip.DisplayName);
+            this.DisplayName = Transactions.ImmutableType(clip.DisplayName);
         }
 
         public async Task UndoAsync() {

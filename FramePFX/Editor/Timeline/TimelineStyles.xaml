@@ -12,6 +12,8 @@
                     xmlns:converters="clr-namespace:FramePFX.Converters"
                     xmlns:shortcuts="clr-namespace:FramePFX.Shortcuts"
                     xmlns:layers="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Layers;assembly=FramePFX.Core" xmlns:rulerwpf="clr-namespace:FramePFX.Controls.xclemence.RulerWPF"
+                    xmlns:editor="clr-namespace:FramePFX.Editor"
+                    xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -98,7 +100,7 @@
                                 -->
                             </StackPanel>
                             <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="0,1,1,0">
-                                <Button DockPanel.Dock="Right" Width="20" Command="{Binding ToggleAllOverridesCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
+                                <Button DockPanel.Dock="Right" Width="20" Command="{Binding DisableOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
                                 <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
                                 <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" 
                                                              SelectedItem="{Binding SelectedSequence}" 
@@ -173,6 +175,188 @@
 
     <timeline:TimelineLayerStyleSelector x:Key="TimelineLayerStyleSelector" VideoLayerStyle="{StaticResource {x:Type controls:VideoLayerControl}}" AudioLayerStyle="{StaticResource {x:Type controls:AudioLayerControl}}"/>
 
+    <Style x:Key="TimelineHorizontalScrollBarStyle" TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource {x:Type ScrollBar}}">
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
+        <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
+        <Setter Property="Background" Value="{DynamicResource ScrollBar.Static.Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ScrollBar.Static.Border}" />
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+        <Setter Property="BorderThickness" Value="1,0" />
+        <Setter Property="Width" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" />
+        <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollBar}">
+                    <Grid x:Name="Bg" SnapsToDevicePixels="true">
+                        <Grid.RowDefinitions>
+                            <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}" />
+                            <RowDefinition Height="0.00001*" />
+                            <RowDefinition MaxHeight="{DynamicResource {x:Static SystemParameters.VerticalScrollBarButtonHeightKey}}" />
+                        </Grid.RowDefinitions>
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Row="1" />
+                        <RepeatButton x:Name="PART_LineUpButton" Command="{x:Static ScrollBar.LineUpCommand}" Style="{StaticResource ScrollBarButton}">
+                            <Path x:Name="ArrowTop" Data="M 0,4 C0,4 0,6 0,6 0,6 3.5,2.5 3.5,2.5 3.5,2.5 7,6 7,6 7,6 7,4 7,4 7,4 3.5,0.5 3.5,0.5 3.5,0.5 0,4 0,4 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3,4,3,3" Stretch="Uniform" />
+                        </RepeatButton>
+                        <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsMouseOver}" Grid.Row="1">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource RepeatButtonTransparent}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Style="{StaticResource RepeatButtonTransparent}" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource ScrollBarThumbVertical}" />
+                            </Track.Thumb>
+                        </Track>
+                        <RepeatButton x:Name="PART_LineDownButton" Command="{x:Static ScrollBar.LineDownCommand}" Grid.Row="2" Style="{StaticResource ScrollBarButton}">
+                            <Path x:Name="ArrowBottom" Data="M 0,2.5 C0,2.5 0,0.5 0,0.5 0,0.5 3.5,4 3.5,4 3.5,4 7,0.5 7,0.5 7,0.5 7,2.5 7,2.5 7,2.5 3.5,6 3.5,6 3.5,6 0,2.5 0,2.5 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3,4,3,3" Stretch="Uniform" />
+                        </RepeatButton>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineDownButton}" Value="true" />
+                                <Condition Binding="{Binding IsPressed, ElementName=PART_LineDownButton}" Value="true" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" TargetName="ArrowBottom" Value="{DynamicResource ScrollBar.Pressed.Glyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineUpButton}" Value="true" />
+                                <Condition Binding="{Binding IsPressed, ElementName=PART_LineUpButton}" Value="true" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" TargetName="ArrowTop" Value="{DynamicResource ScrollBar.Pressed.Glyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineDownButton}" Value="true" />
+                                <Condition Binding="{Binding IsPressed, ElementName=PART_LineDownButton}" Value="false" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" TargetName="ArrowBottom" Value="{DynamicResource ScrollBar.MouseOver.Glyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineUpButton}" Value="true" />
+                                <Condition Binding="{Binding IsPressed, ElementName=PART_LineUpButton}" Value="false" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" TargetName="ArrowTop" Value="{DynamicResource ScrollBar.MouseOver.Glyph}" />
+                        </MultiDataTrigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Fill" TargetName="ArrowTop" Value="{DynamicResource ScrollBar.Disabled.Glyph}" />
+                            <Setter Property="Fill" TargetName="ArrowBottom" Value="{DynamicResource ScrollBar.Disabled.Glyph}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}" />
+                <Setter Property="MinHeight" Value="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarHeightKey}}" />
+                <Setter Property="BorderThickness" Value="0,1" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ScrollBar}">
+                            <DockPanel SnapsToDevicePixels="true">
+                                <Border Background="{TemplateBinding Background}" DockPanel.Dock="Right" Width="50">
+                                    <Grid>
+                                        <dragger:NumberDragger Background="{TemplateBinding Background}" BorderThickness="0" Style="{StaticResource AbletonNumberDraggerStyle}" ToolTip="The timeline zoom level (read only; use CTRL + MouseWheel to zoom)" Minimum="0.001" Maximum="200" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, Mode=OneWay}"/>
+                                    </Grid>
+                                </Border>
+                                <Grid x:Name="Bg" Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}" />
+                                        <ColumnDefinition Width="0.00001*" />
+                                        <ColumnDefinition MaxWidth="{DynamicResource {x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}}" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="1" />
+                                    <RepeatButton x:Name="PART_LineLeftButton" Command="{x:Static ScrollBar.LineLeftCommand}" Style="{StaticResource ScrollBarButton}">
+                                        <Path x:Name="ArrowLeft" Data="M 3.18,7 C3.18,7 5,7 5,7 5,7 1.81,3.5 1.81,3.5 1.81,3.5 5,0 5,0 5,0 3.18,0 3.18,0 3.18,0 0,3.5 0,3.5 0,3.5 3.18,7 3.18,7 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3" Stretch="Uniform" />
+                                    </RepeatButton>
+                                    <Track x:Name="PART_Track" Grid.Column="1" IsEnabled="{TemplateBinding IsMouseOver}">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}" Style="{StaticResource RepeatButtonTransparent}" />
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageRightCommand}" Style="{StaticResource RepeatButtonTransparent}" />
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource ScrollBarThumbHorizontal}" />
+                                        </Track.Thumb>
+                                    </Track>
+                                    <RepeatButton x:Name="PART_LineRightButton" Grid.Column="2" Command="{x:Static ScrollBar.LineRightCommand}" Style="{StaticResource ScrollBarButton}">
+                                        <Path x:Name="ArrowRight" Data="M 1.81,7 C1.81,7 0,7 0,7 0,7 3.18,3.5 3.18,3.5 3.18,3.5 0,0 0,0 0,0 1.81,0 1.81,0 1.81,0 5,3.5 5,3.5 5,3.5 1.81,7 1.81,7 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3" Stretch="Uniform" />
+                                    </RepeatButton>
+                                </Grid>
+                            </DockPanel>
+                            <ControlTemplate.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineRightButton}" Value="true" />
+                                        <Condition Binding="{Binding IsPressed, ElementName=PART_LineRightButton}" Value="true" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Fill" TargetName="ArrowRight" Value="{DynamicResource ScrollBar.Pressed.Glyph}" />
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineLeftButton}" Value="true" />
+                                        <Condition Binding="{Binding IsPressed, ElementName=PART_LineLeftButton}" Value="true" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Fill" TargetName="ArrowLeft" Value="{DynamicResource ScrollBar.Pressed.Glyph}" />
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineRightButton}" Value="true" />
+                                        <Condition Binding="{Binding IsPressed, ElementName=PART_LineRightButton}" Value="false" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Fill" TargetName="ArrowRight" Value="{DynamicResource ScrollBar.MouseOver.Glyph}" />
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsMouseOver, ElementName=PART_LineLeftButton}" Value="true" />
+                                        <Condition Binding="{Binding IsPressed, ElementName=PART_LineLeftButton}" Value="false" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Fill" TargetName="ArrowLeft" Value="{DynamicResource ScrollBar.MouseOver.Glyph}" />
+                                </MultiDataTrigger>
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter Property="Fill" TargetName="ArrowLeft" Value="{DynamicResource ScrollBar.Disabled.Glyph}" />
+                                    <Setter Property="Fill" TargetName="ArrowRight" Value="{DynamicResource ScrollBar.Disabled.Glyph}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="TimelineScrollViewerStyle" TargetType="{x:Type ScrollViewer}" BasedOn="{StaticResource {x:Type ScrollViewer}}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Rectangle x:Name="Corner" Grid.Column="1" Fill="Transparent" Grid.Row="1" />
+                        <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" CanVerticallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Grid.Column="0" Margin="{TemplateBinding Padding}" Grid.Row="0" />
+                        <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Grid.RowSpan="2" />
+                        <ScrollBar x:Name="PART_HorizontalScrollBar" Style="{StaticResource TimelineHorizontalScrollBarStyle}" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}" Grid.ColumnSpan="1" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <Style TargetType="{x:Type controls:TimelineControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
         <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
@@ -191,7 +375,8 @@
                                       Padding="{TemplateBinding Padding}"
                                       HorizontalScrollBarVisibility="Visible"
                                       CanContentScroll="False"
-                                      converters:VerticalScrollBinder.BindGroup="TimelineScrollGroup">
+                                      converters:VerticalScrollBinder.BindGroup="TimelineScrollGroup"
+                                      Style="{StaticResource TimelineScrollViewerStyle}">
                             <!-- Handle RequestBringIntoView in the grid because there is no preview version of the event -->
                             <!-- Handling the event will stop the ScrollViewer scrolling to offscreen values -->
                             <Grid HorizontalAlignment="Left" ap:HandleRequestBringIntoView.IsEnabled="True">
@@ -237,26 +422,28 @@
         <timeline:TimelineLayerListItemTemplateSelector.VideoLayerTemplate>
             <DataTemplate DataType="{x:Type layers:VideoLayerViewModel}">
                 <Grid Margin="4,0">
-                    <DockPanel>
-                        <DockPanel DockPanel.Dock="Top" Height="20">
+                    <DockPanel SnapsToDevicePixels="True">
+                        <DockPanel DockPanel.Dock="Top" Height="17">
                             <TextBlock Text="{Binding DisplayName}" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" DockPanel.Dock="Right"/>
                             <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Left" Orientation="Horizontal" Margin="0,0,3,0">
-                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="20" IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="17" IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0"/>
                             </StackPanel>
                         </DockPanel>
                         <Grid Background="Transparent" Margin="0,2,0,0">
-                            <c:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
+                            <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
                                              TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
-                                             Style="{StaticResource AbletonNumberDraggerStyle}"
-                                             HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"/>
-
-                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="55,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="17">
-                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding ToggleAllOverridesCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
-                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
-                                <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}"
-                                                             SelectedItem="{Binding SelectedSequence}"
-                                                             BorderThickness="0"
-                                                             HorizontalContentAlignment="Left"
+                                             Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
+                                             HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
+                                             ap:HistoryHelper.DragId="{x:Static layers:VideoLayerViewModel.OpacityHistoryKey}"/>
+                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="55,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
+                                <Button Background="{DynamicResource ABrush.AccentTone2.Background.Static}" DockPanel.Dock="Right" Width="18"
+                                        Command="{Binding DisableOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Disables the current override, or all overrides"
+                                        BorderThickness="0"/>
+                                <Border Width="3"/>
+                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-"
+                                        ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
+                                <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
+                                                             SelectedItem="{Binding SelectedSequence}" BorderThickness="0"
                                                              DockPanel.Dock="Right" SnapsToDevicePixels="True"/>
                             </DockPanel>
                         </Grid>
@@ -275,7 +462,7 @@
                             </StackPanel>
                         </DockPanel>
                         <Grid Background="Transparent" Margin="0,2,0,0">
-                            <c:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
+                            <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
                                              TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                              Style="{StaticResource AbletonNumberDraggerStyle}"
                                              HorizontalAlignment="Right" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"/>

@@ -7,7 +7,7 @@ namespace FramePFX.Core.History {
         /// <param name="original"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Transaction<T> Immutable<T>(T original) {
+        public static Transaction<T> ImmutableType<T>(T original) {
             return new Transaction<T>(original, original);
         }
     }

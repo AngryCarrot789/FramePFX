@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Core.Automation;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
 
@@ -16,7 +17,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public string RegistryId => LayerRegistry.Instance.GetTypeIdForModel(this.GetType());
 
-        public long TimelinePlayhead => this.Timeline?.PlayHead ?? 0L;
+        public long TimelinePlayhead => this.Timeline?.PlayHeadFrame ?? 0L;
 
         public string DisplayName { get; set; }
         public double MinHeight { get; set; }
@@ -113,13 +114,5 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public abstract bool CanAccept(ClipModel clip);
-
-        public virtual void UpdateAutomationValues(long frame) {
-            foreach (ClipModel clip in this.Clips) {
-                clip.IsAutomationChangeInProgress = true;
-                clip.UpdateAutomationValues(frame);
-                clip.IsAutomationChangeInProgress = false;
-            }
-        }
     }
 }

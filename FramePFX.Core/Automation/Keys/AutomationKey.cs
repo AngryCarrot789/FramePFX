@@ -10,6 +10,8 @@ namespace FramePFX.Core.Automation.Keys {
     public abstract class AutomationKey {
         private static readonly Dictionary<string, Dictionary<string, AutomationKey>> RegistryMap = new Dictionary<string, Dictionary<string, AutomationKey>>();
 
+        private int? hashCode;
+
         public string Domain { get; }
 
         public string Id { get; }
@@ -104,6 +106,28 @@ namespace FramePFX.Core.Automation.Keys {
 
         public override string ToString() {
             return $"{this.GetType()}({this.FullId})";
+        }
+
+        public bool Equals(AutomationKey other) {
+            return this.GetType() == other.GetType() && this.Domain == other.Domain && this.Id == other.Id;
+        }
+
+        public override bool Equals(object obj) {
+            return ReferenceEquals(this, obj) || obj is AutomationKey key && this.Equals(key);
+        }
+
+        public static bool operator ==(AutomationKey a, AutomationKey b) {
+            return ReferenceEquals(a, b) || !ReferenceEquals(a, null) && !ReferenceEquals(b, null) && a.Equals(b);
+        }
+
+        public static bool operator !=(AutomationKey a, AutomationKey b) {
+            return !ReferenceEquals(a, b) && (ReferenceEquals(a, null) || ReferenceEquals(b, null) || !a.Equals(b));
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                return this.hashCode ?? (this.hashCode = (this.Domain.GetHashCode() * 397) ^ this.Id.GetHashCode()).Value;
+            }
         }
     }
 

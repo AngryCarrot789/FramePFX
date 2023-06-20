@@ -9,7 +9,7 @@ namespace FramePFX.Core.Editor.History {
 
         public HistoryLayerDisplayName(LayerViewModel layer) {
             this.Layer = layer;
-            this.DisplayName = Transactions.Immutable(layer.DisplayName);
+            this.DisplayName = Transactions.ImmutableType(layer.DisplayName);
         }
 
         public async Task UndoAsync() {

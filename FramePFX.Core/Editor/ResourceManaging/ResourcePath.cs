@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using FramePFX.Core.Editor.ResourceManaging.Events;
 using FramePFX.Core.RBC;
-using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
     /// <summary>

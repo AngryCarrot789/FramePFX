@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Core.Automation;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.Timeline.VideoClips;
@@ -14,7 +15,7 @@ namespace FramePFX.Core.Editor.Timeline {
     public class TimelineModel : IAutomatable, IRBESerialisable {
         public ProjectModel Project { get; }
 
-        public long PlayHead { get; set; }
+        public long PlayHeadFrame { get; set; }
 
         public long MaxDuration { get; set; }
 
@@ -31,7 +32,7 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void WriteToRBE(RBEDictionary data) {
-            data.SetLong(nameof(this.PlayHead), this.PlayHead);
+            data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
             RBEList list = data.CreateList(nameof(this.Layers));
             foreach (LayerModel layer in this.Layers) {
@@ -44,7 +45,7 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            this.PlayHead = data.GetLong(nameof(this.PlayHead));
+            this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             foreach (RBEBase entry in data.GetList(nameof(this.Layers)).List) {
                 if (!(entry is RBEDictionary dictionary))
@@ -85,7 +86,7 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void Render(RenderContext render) {
-            this.Render(render, this.PlayHead);
+            this.Render(render, this.PlayHeadFrame);
         }
 
         public void Render(RenderContext render, long frame) {
@@ -114,14 +115,6 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {
             return Enumerable.Reverse(this.Layers).SelectMany(layer => layer.GetClipsAtFrame(frame));
-        }
-
-        public void UpdateAutomationValues(long frame) {
-            foreach (LayerModel layer in this.Layers) {
-                layer.IsAutomationChangeInProgress = true;
-                layer.UpdateAutomationValues(frame);
-                layer.IsAutomationChangeInProgress = false;
-            }
         }
     }
 }

@@ -44,6 +44,11 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public AutomationKey Key { get; }
 
+        /// <summary>
+        /// An event fired, notifying any listeners to query their live value from the automation data
+        /// </summary>
+        public UpdateAutomationValueEventHandler UpdateValue;
+
         public AutomationSequence(AutomationKey key) {
             this.Key = key;
             this.keyFrames = new LinkedList<KeyFrame>();
@@ -302,6 +307,10 @@ namespace FramePFX.Core.Automation.Keyframe {
             AutomationSequence seq = new AutomationSequence(this.Key);
             seq.ReadFromRBE(data);
             return seq;
+        }
+
+        public void DoUpdateValue(AutomationEngine engine, long frame) {
+            this.UpdateValue?.Invoke(this, frame);
         }
     }
 }

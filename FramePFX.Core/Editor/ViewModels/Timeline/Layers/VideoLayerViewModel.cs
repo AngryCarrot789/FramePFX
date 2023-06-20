@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
@@ -9,13 +11,17 @@ using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
+using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
     public class VideoLayerViewModel : LayerViewModel {
+        public const string OpacityHistoryKey = "VideoLayerOpacity";
+
         private readonly HistoryBuffer<HistoryLayerOpacity> opacityHistory = new HistoryBuffer<HistoryLayerOpacity>();
+        private HistoryLayerOpacity opacityHistory2;
 
         private static readonly MessageDialog SliceCloneTextResourceDialog;
 
@@ -35,16 +41,33 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
         public double Opacity {
             get => this.Model.Opacity;
             set {
+                Debug.Assert(this.IsAutomationChangeInProgress == false, "IsAutomationChangeInProgress should be false");
                 if (!this.IsHistoryChanging) {
-                    if (!this.opacityHistory.TryGetAction(out HistoryLayerOpacity action))
-                        this.opacityHistory.PushAction(this.HistoryManager, action = new HistoryLayerOpacity(this), "Edit opacity");
-                    action.Opacity.SetCurrent(value);
+                    if (FrontEndHistoryHelper.ActiveDragId == OpacityHistoryKey) {
+                        if (this.opacityHistory2 == null)
+                            this.opacityHistory2 = new HistoryLayerOpacity(this);
+                        this.opacityHistory2.Opacity.SetCurrent(value);
+                        FrontEndHistoryHelper.OnDragEnd = FrontEndHistoryHelper.OnDragEnd = (s, cancel) => {
+                            if (cancel) {
+                                this.IsHistoryChanging = true;
+                                this.Opacity = this.opacityHistory2.Opacity.Original;
+                                this.IsHistoryChanging = false;
+                            }
+                            else {
+                                this.HistoryManager.AddAction(this.opacityHistory2, "Edit opacity");
+                            }
+
+                            this.opacityHistory2 = null;
+                        };
+                    }
+                    else {
+                        HistoryLayerOpacity action = new HistoryLayerOpacity(this);
+                        action.Opacity.SetCurrent(value);
+                        this.HistoryManager.AddAction(action, "Edit opacity");
+                    }
                 }
 
-                if (!this.IsAutomationChangeInProgress) {
-                    this.AutomationData[VideoLayerModel.OpacityKey].GetOverride().SetDoubleValue(value);
-                }
-
+                this.AutomationData[VideoLayerModel.OpacityKey].GetOverride().SetDoubleValue(value);
                 this.Model.Opacity = value;
                 this.RaisePropertyChanged();
                 this.Timeline.DoRender(true);
@@ -61,7 +84,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
         }
 
         public VideoLayerViewModel(TimelineViewModel timeline, VideoLayerModel model) : base(timeline, model) {
-
+            this.AutomationData.AssignRefreshHandler(VideoLayerModel.OpacityKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.Opacity), in f));
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {
@@ -188,9 +211,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
             return range;
         }
 
-        public override void RefreshAutomationValues(long frame) {
-            base.RefreshAutomationValues(frame);
-            this.RaisePropertyChanged(nameof(this.Opacity));
+        protected override void OnAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
+            base.OnAutomationPropertyUpdated(propertyName, e);
+            if (!e.IsPlaybackSource) {
+                this.Timeline.DoRender(true);
+            }
         }
     }
 }

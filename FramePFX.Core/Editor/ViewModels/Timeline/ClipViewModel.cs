@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
-using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.History;
@@ -16,7 +16,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IDisposable {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IDisposable {
         protected readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
@@ -141,15 +141,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public AutomationDataViewModel AutomationData { get; }
 
+        public AutomationEngineViewModel AutomationEngine => this.Layer?.Timeline.Project.AutomationEngine;
+
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
         public RelayCommand RemoveClipCommand { get; }
 
         public ClipModel Model { get; }
 
+        IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
+
         protected ClipViewModel(ClipModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            this.AutomationData = new AutomationDataViewModel(model.AutomationData);
+            this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
                 string name = await IoC.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
                 if (name != null) {
@@ -319,23 +323,33 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 return;
             }
 
-            long begin = this.FrameBegin + offset;
-            if (begin < 0) {
-                offset += -begin;
-                begin = 0;
+            // limit frame begin such that media frame offset is always greater than or equal to 0
+            // long temp = this.MediaFrameOffset + offset;
+            // if (temp < 0) {
+            //     offset += -temp;
+            // }
+            // if (offset == 0) {
+            //     return;
+            // }
+
+            long newFrameBegin = this.FrameBegin + offset;
+
+            if (newFrameBegin < 0) {
+                offset += -newFrameBegin;
+                newFrameBegin = 0;
             }
 
             long duration = this.FrameDuration - offset;
             if (duration < 1) {
-                begin += (duration - 1);
+                newFrameBegin += (duration - 1);
                 duration = 1;
-                if (begin < 0) {
+                if (newFrameBegin < 0) {
                     return;
                 }
             }
 
-            this.MediaFrameOffset -= (begin - this.FrameBegin);
-            this.FrameSpan = new FrameSpan(begin, duration);
+            this.MediaFrameOffset += (newFrameBegin - this.FrameBegin);
+            this.FrameSpan = new FrameSpan(newFrameBegin, duration);
             this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
         }
 
@@ -445,8 +459,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.lastDragHistoryAction = null;
         }
 
-        public virtual void RefreshAutomationValues(long frame) {
-
+        protected virtual void RaiseAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
+            this.RaisePropertyChanged(propertyName);
         }
     }
 }

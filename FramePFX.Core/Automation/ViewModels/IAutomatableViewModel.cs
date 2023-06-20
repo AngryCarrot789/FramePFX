@@ -1,7 +1,11 @@
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 
 namespace FramePFX.Core.Automation.ViewModels {
-    public interface IAutomatableViewModelUpdateHandler {
-        void OnOverrideStateChanged(AutomationSequenceViewModel sequence);
+    public interface IAutomatableViewModel {
+        IAutomatable AutomationModel { get; }
+
+        AutomationDataViewModel AutomationData { get; }
+
+        AutomationEngineViewModel AutomationEngine { get; }
     }
 }

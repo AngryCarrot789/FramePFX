@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,8 @@ namespace FramePFX.Controls {
     [TemplatePart(Name = "PART_TextBlock", Type = typeof(TextBlock))]
     [TemplatePart(Name = "PART_TextBox", Type = typeof(TextBox))]
     public class NumberDragger : RangeBase {
+        #region Dependency Properties
+
         public static readonly DependencyProperty TinyChangeProperty =
             DependencyProperty.Register(
                 "TinyChange",
@@ -87,7 +90,7 @@ namespace FramePFX.Controls {
                 "PreviewRoundedPlaces",
                 typeof(int?),
                 typeof(NumberDragger),
-                new PropertyMetadata(2));
+                new PropertyMetadata(2, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
 
         public static readonly DependencyProperty LockCursorWhileDraggingProperty =
             DependencyProperty.Register(
@@ -101,26 +104,18 @@ namespace FramePFX.Controls {
                 "DisplayTextOverride",
                 typeof(string),
                 typeof(NumberDragger),
+                new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
+
+        public static readonly DependencyProperty ForcedReadOnlyStateProperty =
+            DependencyProperty.Register(
+                "ForcedReadOnlyState",
+                typeof(bool?),
+                typeof(NumberDragger),
                 new PropertyMetadata(null));
 
-        /// <summary>
-        /// Gets or sets a value that is displayed while the value preview is active, instead of displaying the
-        /// actual value. A text box will still appear if the control is clicked
-        /// <para>
-        /// This is only displayed when the value is non-null and not an empty string
-        /// </para>
-        /// </summary>
-        public string DisplayTextOverride {
-            get => (string) this.GetValue(DisplayTextOverrideProperty);
-            set => this.SetValue(DisplayTextOverrideProperty, value);
-        }
+        #endregion
 
-        private TextBlock PART_TextBlock;
-        private TextBox PART_TextBox;
-        private Point? lastClickPoint;
-        private Point? lastMouseMove;
-        private double? previousValue;
-        private bool ignoreMouseMove;
+        #region Properties
 
         /// <summary>
         /// Gets or sets the tiny-change value. This is added or subtracted when CTRL + SHIFT is pressed
@@ -191,8 +186,29 @@ namespace FramePFX.Controls {
             set => this.SetValue(LockCursorWhileDraggingProperty, value.Box());
         }
 
+        /// <summary>
+        /// Gets or sets a value that is displayed while the value preview is active, instead of displaying the
+        /// actual value. A text box will still appear if the control is clicked
+        /// <para>
+        /// This is only displayed when the value is non-null and not an empty string
+        /// </para>
+        /// </summary>
+        public string DisplayTextOverride {
+            get => (string) this.GetValue(DisplayTextOverrideProperty);
+            set => this.SetValue(DisplayTextOverrideProperty, value);
+        }
+
+        public bool? ForcedReadOnlyState {
+            get => (bool?) this.GetValue(ForcedReadOnlyStateProperty);
+            set => this.SetValue(ForcedReadOnlyStateProperty, value.BoxNullable());
+        }
+
         public bool IsValueReadOnly {
             get {
+                if (this.GetValue(ForcedReadOnlyStateProperty) is bool forced) {
+                    return forced;
+                }
+
                 Binding binding;
                 BindingExpression expression = this.GetBindingExpression(ValueProperty);
                 if (expression == null || (binding = expression.ParentBinding) == null || binding.Mode == BindingMode.Default) {
@@ -202,6 +218,30 @@ namespace FramePFX.Controls {
                 return binding.Mode == BindingMode.OneWay || binding.Mode == BindingMode.OneTime;
             }
         }
+
+        #endregion
+
+        public static readonly RoutedEvent EditStartedEvent = EventManager.RegisterRoutedEvent("EditStarted", RoutingStrategy.Bubble, typeof(EditStartEventHandler), typeof(NumberDragger));
+        public static readonly RoutedEvent EditCompletedEvent = EventManager.RegisterRoutedEvent("EditCompleted", RoutingStrategy.Bubble, typeof(EditCompletedEventHandler), typeof(NumberDragger));
+
+        [Category("Behavior")]
+        public event EditStartEventHandler EditStarted {
+            add => this.AddHandler(EditStartedEvent, value);
+            remove => this.RemoveHandler(EditStartedEvent, value);
+        }
+
+        [Category("Behavior")]
+        public event EditCompletedEventHandler EditCompleted {
+            add => this.AddHandler(EditCompletedEvent, value);
+            remove => this.RemoveHandler(EditCompletedEvent, value);
+        }
+
+        private TextBlock PART_TextBlock;
+        private TextBox PART_TextBox;
+        private Point? lastClickPoint;
+        private Point? lastMouseMove;
+        private double? previousValue;
+        private bool ignoreMouseMove;
 
         public NumberDragger() {
             this.Loaded += (s, e) => {
@@ -285,10 +325,6 @@ namespace FramePFX.Controls {
             }
 
             this.UpdateCursor();
-        }
-
-        protected virtual void OnDisplayTextOverrideChanged(string oldValue, string newValue) {
-            this.UpdateText();
         }
 
         private object OnCoerceIsEditingTextBox(object isEditing) {
@@ -384,6 +420,12 @@ namespace FramePFX.Controls {
             }
         }
 
+        protected virtual void OnPreviewRoundedPlacesChanged(int? oldValue, int? newValue) {
+            if (newValue != null) {
+                this.UpdateText();
+            }
+        }
+
         protected override void OnValueChanged(double oldValue, double newValue) {
             base.OnValueChanged(oldValue, newValue);
             this.UpdateText();
@@ -412,7 +454,7 @@ namespace FramePFX.Controls {
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
-            if (!this.IsDragging) {
+            if (!this.IsDragging && !this.IsValueReadOnly) {
                 e.Handled = true;
                 this.Focus();
 
@@ -436,10 +478,9 @@ namespace FramePFX.Controls {
             if (this.IsDragging) {
                 this.CompleteDrag();
             }
-            else if (this.IsMouseOver) {
+            else if (this.IsMouseOver && !this.IsValueReadOnly) {
                 if (this.IsMouseCaptured) {
                     this.ReleaseMouseCapture();
-                    Debug.WriteLine("Mouse Capture Released");
                 }
 
                 this.IsEditingTextBox = true;
@@ -615,32 +656,48 @@ namespace FramePFX.Controls {
             this.CaptureMouse();
             this.IsDragging = true;
             this.UpdateCursor();
+
+            bool fail = true;
+            try {
+                this.RaiseEvent(new EditStartEventArgs());
+                fail = false;
+            }
+            finally {
+                if (fail) {
+                    this.CancelDrag();
+                }
+            }
         }
 
         public void CompleteDrag() {
-            this.CleanUpDrag();
+            if (!this.IsDragging)
+                return;
+
+            this.ProcessDragCompletion(false);
             this.previousValue = null;
         }
 
         public void CancelDrag() {
-            this.CleanUpDrag();
+            if (!this.IsDragging)
+                return;
+
+            this.ProcessDragCompletion(true);
             if (this.previousValue is double oldVal) {
                 this.previousValue = null;
                 this.Value = oldVal;
             }
         }
 
-        protected void CleanUpDrag() {
-            if (!this.IsDragging)
-                return;
+        protected void ProcessDragCompletion(bool cancelled) {
             if (this.IsMouseCaptured)
                 this.ReleaseMouseCapture();
             this.ClearValue(IsDraggingPropertyKey);
 
             this.lastMouseMove = null;
             this.lastClickPoint = null;
-
             this.UpdateCursor();
+
+            this.RaiseEvent(new EditCompletedEventArgs(cancelled));
         }
     }
 

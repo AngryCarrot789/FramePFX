@@ -21,6 +21,9 @@ Always found automating parameters in the popular editors to be generally finick
 - Layers would have the same, but it stretches the entire timeline. 
 - Automating project settings, or anything else really, could be done on an automation-specific layer (allowing for more than just video/audio layers)
 
+### Here's a demo of video layer opacity automation (very WIP; can only move these 3 points currently)
+![](FramePFX_2023-06-21_03.33.35.png)
+
 The automation/parameter selector it on the top right of the clip (in its header). The O button toggles an override, which disables automation, and the other one towards the left clears the current selection
 
 ## Rendering

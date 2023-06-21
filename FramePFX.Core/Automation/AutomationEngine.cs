@@ -1,3 +1,4 @@
+using System;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Timeline;
@@ -62,6 +63,11 @@ namespace FramePFX.Core.Automation {
         public void UpdateClip(ClipModel clip, long frame) {
             clip.IsAutomationChangeInProgress = true;
             try {
+                long offset = frame - clip.FrameBegin;
+                if (offset < 0 || frame >= clip.FrameEndIndex) {
+                    throw new Exception($"Clip it not within the range of the given frame: {clip.FrameSpan} does not contain {frame}");
+                }
+
                 foreach (AutomationSequence sequence in clip.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
                         sequence.DoUpdateValue(this, frame);

@@ -316,6 +316,17 @@ namespace FramePFX.Core.Automation.Keyframe {
             list.Add(newKeyFrame);
         }
 
+        public void InsertKeyFrame(int index, KeyFrame newKeyFrame) {
+            long timeStamp = newKeyFrame.Timestamp;
+            if (timeStamp < 0)
+                throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
+            if (newKeyFrame.DataType != this.DataType)
+                throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
+
+            newKeyFrame.OwnerSequence = this;
+            this.keyFrameList.Insert(index, newKeyFrame);
+        }
+
         public bool RemoveKeyFrame(KeyFrame frame) {
             for (int i = 0; i < this.keyFrameList.Count; i++) {
                 KeyFrame keyFrame = this.keyFrameList[i];
@@ -327,6 +338,11 @@ namespace FramePFX.Core.Automation.Keyframe {
             }
 
             return false;
+        }
+
+        public void RemoveKeyFrame(int index) {
+            this.keyFrameList[index].OwnerSequence = null;
+            this.keyFrameList.RemoveAt(index);
         }
 
         public void WriteToRBE(RBEDictionary data) {

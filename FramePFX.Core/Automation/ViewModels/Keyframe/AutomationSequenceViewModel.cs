@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
@@ -43,6 +44,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public event RefreshAutomationValueEventHandler RefreshValue;
 
+        private readonly PropertyChangedEventHandler keyFramePropertyChangedHandler;
+
         public AutomationSequenceViewModel(AutomationDataViewModel automationData, AutomationSequence model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = automationData ?? throw new ArgumentNullException(nameof(automationData));
@@ -50,10 +53,31 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.OverrideKeyFrame.OwnerSequence = this;
             this.keyFrames = new ObservableCollection<KeyFrameViewModel>();
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
+            this.keyFramePropertyChangedHandler = this.KeyFrameOnPropertyChanged;
             foreach (KeyFrame frame in model.KeyFrames) {
                 KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(frame);
-                keyFrame.OwnerSequence = this;
-                this.keyFrames.Add(keyFrame);
+                this.AddInternal(this.keyFrames.Count, keyFrame);
+            }
+        }
+
+        private void AddInternal(int index, KeyFrameViewModel keyFrame) {
+            keyFrame.OwnerSequence = this;
+            keyFrame.PropertyChanged += this.keyFramePropertyChangedHandler;
+            this.keyFrames.Insert(index, keyFrame);
+        }
+
+        private void RemoveInternal(int index, KeyFrameViewModel keyFrame) {
+            keyFrame.OwnerSequence = null;
+            keyFrame.PropertyChanged -= this.keyFramePropertyChangedHandler;
+            this.keyFrames.RemoveAt(index);
+        }
+
+        private void KeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+            // Can't use nameof(KVM.Value) because of duplicated switch cases. Must be careful if ever refactoring
+            switch (e.PropertyName) {
+                case "Value":
+                    this.AutomationData.OnValueChanged(this, (KeyFrameViewModel) sender);
+                    break;
             }
         }
 
@@ -126,7 +150,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
                 }
             }
 
-            return null;
+            return last;
         }
 
         public bool TryGetLastFrameExactlyAt(long timestamp, out KeyFrameViewModel keyFrame) {
@@ -146,8 +170,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             if (!this.Model.RemoveKeyFrame(keyFrame.Model))
                 throw new Exception("Key frame did not exist in the model, but existed in the view model");
 
-            keyFrame.OwnerSequence = null;
-            this.keyFrames.RemoveAt(index);
+            this.RemoveInternal(index, keyFrame);
             return true;
         }
 
@@ -171,19 +194,18 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             int i = 0;
             foreach (KeyFrameViewModel existingFrame in this.keyFrames) {
                 if (timeStamp < existingFrame.Timestamp) {
-                    this.keyFrames.Insert(i, newKeyFrame);
-                    this.Model.AddKeyFrame(newKeyFrame.Model);
+                    this.AddInternal(i, newKeyFrame);
+                    this.Model.InsertKeyFrame(i, newKeyFrame.Model);
                 }
                 else if (timeStamp == existingFrame.Timestamp) {
                     // remove existing key frame and then replace it
                     if (existingFrame.Model.Equals(newKeyFrame.Model)) {
-                        if (!this.Model.RemoveKeyFrame(existingFrame.Model))
-                            throw new Exception("Key frame did not exist in the model, but existed in the view model");
-                        existingFrame.OwnerSequence = null;
-                        this.keyFrames.RemoveAt(i);
+                        this.Model.RemoveKeyFrame(i);
+                        this.RemoveInternal(i, existingFrame);
                     }
 
-                    this.keyFrames.Insert(i, newKeyFrame);
+                    this.AddInternal(i, newKeyFrame);
+                    this.Model.InsertKeyFrame(i, newKeyFrame.Model);
                 }
                 else {
                     i++;
@@ -193,8 +215,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
                 return;
             }
 
-            this.keyFrames.Add(newKeyFrame);
-            this.Model.AddKeyFrame(newKeyFrame.Model);
+            this.AddInternal(this.keyFrames.Count, newKeyFrame);
+            this.Model.InsertKeyFrame(this.keyFrames.Count, newKeyFrame.Model);
         }
 
         /// <summary>

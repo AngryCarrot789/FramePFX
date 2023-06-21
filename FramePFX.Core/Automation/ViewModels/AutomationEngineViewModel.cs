@@ -66,9 +66,14 @@ namespace FramePFX.Core.Automation.ViewModels {
         public void RefreshClip(ClipViewModel clip, long frame) {
             clip.IsAutomationChangeInProgress = true;
             try {
+                long offset = frame - clip.FrameBegin;
+                if (offset < 0 || frame >= clip.FrameEndIndex) {
+                    throw new Exception($"Clip it not within the range of the given frame: {clip.FrameSpan} does not contain {frame}");
+                }
+
                 foreach (AutomationSequenceViewModel sequence in clip.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoRefreshValue(this, frame, true);
+                        sequence.DoRefreshValue(this, offset, true);
                     }
                 }
             }
@@ -78,6 +83,12 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void OnOverrideStateChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
+            long frame = this.Project.Timeline.PlayHeadFrame;
+            sequence.Model.DoUpdateValue(this.Model, frame);
+            sequence.DoRefreshValue(this, frame, false);
+        }
+
+        public void OnKeyFrameValueChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
             long frame = this.Project.Timeline.PlayHeadFrame;
             sequence.Model.DoUpdateValue(this.Model, frame);
             sequence.DoRefreshValue(this, frame, false);

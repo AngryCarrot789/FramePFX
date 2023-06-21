@@ -5,8 +5,8 @@ namespace FramePFX.Core.Utils {
     public static class Vectors {
         public static readonly Vector2 Zero = Vector2.Zero;
         public static readonly Vector2 One = Vector2.One;
-        public static readonly Vector2 NegativeInfinity = new Vector2(float.NegativeInfinity);
-        public static readonly Vector2 PositiveInfinity = new Vector2(float.PositiveInfinity);
+        public static readonly Vector2 MinValue = new Vector2(float.MinValue);
+        public static readonly Vector2 MaxValue = new Vector2(float.MaxValue);
 
         public static Vector2 Clamp(in this Vector2 a, in Vector2 min, in Vector2 max) {
             return new Vector2(Maths.Clamp(a.X, min.X, max.X), Maths.Clamp(a.Y, min.Y, max.Y));

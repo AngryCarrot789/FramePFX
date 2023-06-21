@@ -34,7 +34,7 @@ namespace FramePFX.Core.Editor {
             this.ResourceManager = new ResourceManager(this);
             this.AutomationEngine = new AutomationEngine(this);
             this.Timeline = new TimelineModel(this) {
-                MaxDuration = 10000
+                MaxDuration = 5000L
             };
         }
 

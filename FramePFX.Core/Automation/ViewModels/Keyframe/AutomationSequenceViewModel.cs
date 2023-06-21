@@ -55,78 +55,70 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
             this.keyFramePropertyChangedHandler = this.KeyFrameOnPropertyChanged;
             foreach (KeyFrame frame in model.KeyFrames) {
-                KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(frame);
-                this.AddInternal(this.keyFrames.Count, keyFrame);
+                this.AddInternalUnsafe(this.keyFrames.Count, KeyFrameViewModel.NewInstance(frame));
             }
         }
 
-        private void AddInternal(int index, KeyFrameViewModel keyFrame) {
+        public void DoRefreshValue(AutomationEngineViewModel engine, long frame, bool isPlaybackSource) {
+            this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(frame, isPlaybackSource));
+        }
+
+        private void AddInternalUnsafe(int index, KeyFrameViewModel keyFrame) {
             keyFrame.OwnerSequence = this;
             keyFrame.PropertyChanged += this.keyFramePropertyChangedHandler;
             this.keyFrames.Insert(index, keyFrame);
         }
 
-        private void RemoveInternal(int index, KeyFrameViewModel keyFrame) {
+        private void RemoveInternalUnsafe(int index) {
+            KeyFrameViewModel keyFrame = this.keyFrames[index];
             keyFrame.OwnerSequence = null;
             keyFrame.PropertyChanged -= this.keyFramePropertyChangedHandler;
             this.keyFrames.RemoveAt(index);
         }
 
-        private void KeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            // Can't use nameof(KVM.Value) because of duplicated switch cases. Must be careful if ever refactoring
-            switch (e.PropertyName) {
-                case "Value":
-                    this.AutomationData.OnValueChanged(this, (KeyFrameViewModel) sender);
-                    break;
-            }
-        }
+        #region Helper Setter Functions
 
         public void SetDoubleValue(long timestamp, double value) {
             AutomationSequence.ValidateType(AutomationDataType.Double, this.Model.DataType);
-            value = ((KeyDescriptorDouble) this.Model.Key.Descriptor).Clamp(value);
-            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameDoubleViewModel keyFrame) {
-                keyFrame.Value = value;
-            }
-            else {
+            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameDoubleViewModel keyFrame)) {
+                keyFrame = (KeyFrameDoubleViewModel) this.OverrideKeyFrame;
                 this.IsOverrideEnabled = true;
-                ((KeyFrameDoubleViewModel) this.OverrideKeyFrame).Value = value;
             }
+
+            keyFrame.Value = ((KeyDescriptorDouble) this.Model.Key.Descriptor).Clamp(value);
         }
 
         public void SetLongValue(long timestamp, long value) {
             AutomationSequence.ValidateType(AutomationDataType.Long, this.Model.DataType);
-            value = ((KeyDescriptorLong) this.Model.Key.Descriptor).Clamp(value);
-            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameLongViewModel keyFrame) {
-                keyFrame.Value = value;
-            }
-            else {
+            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameLongViewModel keyFrame)) {
+                keyFrame = (KeyFrameLongViewModel) this.OverrideKeyFrame;
                 this.IsOverrideEnabled = true;
-                ((KeyFrameLongViewModel) this.OverrideKeyFrame).Value = value;
             }
+
+            keyFrame.Value = ((KeyDescriptorLong) this.Model.Key.Descriptor).Clamp(value);
         }
 
         public void SetBooleanValue(long timestamp, bool value) {
             AutomationSequence.ValidateType(AutomationDataType.Boolean, this.Model.DataType);
-            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameBooleanViewModel keyFrame) {
-                keyFrame.Value = value;
-            }
-            else {
+            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameBooleanViewModel keyFrame)) {
+                keyFrame = (KeyFrameBooleanViewModel) this.OverrideKeyFrame;
                 this.IsOverrideEnabled = true;
-                ((KeyFrameBooleanViewModel) this.OverrideKeyFrame).Value = value;
             }
+
+            keyFrame.Value = value;
         }
 
         public void SetVector2Value(long timestamp, Vector2 value) {
             AutomationSequence.ValidateType(AutomationDataType.Vector2, this.Model.DataType);
-            value = ((KeyDescriptorVector2) this.Model.Key.Descriptor).Clamp(value);
-            if (this.GetLastFrameExactlyAt(timestamp) is KeyFrameVector2ViewModel keyFrame) {
-                keyFrame.Value = value;
-            }
-            else {
+            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameVector2ViewModel keyFrame)) {
+                keyFrame = (KeyFrameVector2ViewModel) this.OverrideKeyFrame;
                 this.IsOverrideEnabled = true;
-                ((KeyFrameVector2ViewModel) this.OverrideKeyFrame).Value = value;
             }
+
+            keyFrame.Value = ((KeyDescriptorVector2) this.Model.Key.Descriptor).Clamp(value);
         }
+
+        #endregion
 
         public IEnumerable<KeyFrameViewModel> GetFrameExactlyAt(long frame) {
             foreach (KeyFrameViewModel keyFrame in this.keyFrames) {
@@ -146,32 +138,28 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
                     last = keyFrame;
                 }
                 else if (keyFrame.Timestamp > frame) {
-                    return last;
+                    break;
                 }
             }
 
             return last;
         }
 
-        public bool TryGetLastFrameExactlyAt(long timestamp, out KeyFrameViewModel keyFrame) {
-            KeyFrame kf = this.Model.GetLastFrameExactlyAt(timestamp);
-            if (kf == null) {
-                keyFrame = null;
-                return false;
-            }
-
-            return (keyFrame = this.keyFrames.FirstOrDefault(x => ReferenceEquals(x.Model, kf))) != null;
-        }
-
         public bool RemoveKeyFrame(KeyFrameViewModel keyFrame) {
             int index = this.keyFrames.IndexOf(keyFrame);
             if (index == -1)
                 return false;
-            if (!this.Model.RemoveKeyFrame(keyFrame.Model))
-                throw new Exception("Key frame did not exist in the model, but existed in the view model");
-
-            this.RemoveInternal(index, keyFrame);
+            this.RemoveKeyFrameAt(index);
             return true;
+        }
+
+        public void RemoveKeyFrameAt(int index) {
+            if (!ReferenceEquals(this.keyFrames[index].Model, this.Model.GetKeyFrameAtIndex(index))) {
+                throw new Exception("Model-ViewModel de-sync");
+            }
+
+            this.Model.RemoveKeyFrame(index);
+            this.RemoveInternalUnsafe(index);
         }
 
         public void AddKeyFrame(long timestamp, KeyFrameViewModel keyFrame) {
@@ -181,42 +169,14 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public void AddKeyFrame(KeyFrameViewModel newKeyFrame) {
             long timeStamp = newKeyFrame.Timestamp;
-            if (timeStamp < 0) {
+            if (timeStamp < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
-            }
-
-            if (newKeyFrame.Model.DataType != this.Model.DataType) {
+            if (newKeyFrame.Model.DataType != this.Model.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {newKeyFrame.Model.DataType}", nameof(newKeyFrame));
-            }
 
+            int index = this.Model.AddKeyFrame(newKeyFrame.Model);
             newKeyFrame.OwnerSequence = this;
-
-            int i = 0;
-            foreach (KeyFrameViewModel existingFrame in this.keyFrames) {
-                if (timeStamp < existingFrame.Timestamp) {
-                    this.AddInternal(i, newKeyFrame);
-                    this.Model.InsertKeyFrame(i, newKeyFrame.Model);
-                }
-                else if (timeStamp == existingFrame.Timestamp) {
-                    // remove existing key frame and then replace it
-                    if (existingFrame.Model.Equals(newKeyFrame.Model)) {
-                        this.Model.RemoveKeyFrame(i);
-                        this.RemoveInternal(i, existingFrame);
-                    }
-
-                    this.AddInternal(i, newKeyFrame);
-                    this.Model.InsertKeyFrame(i, newKeyFrame.Model);
-                }
-                else {
-                    i++;
-                    continue;
-                }
-
-                return;
-            }
-
-            this.AddInternal(this.keyFrames.Count, newKeyFrame);
-            this.Model.InsertKeyFrame(this.keyFrames.Count, newKeyFrame.Model);
+            this.AddInternalUnsafe(index, newKeyFrame);
         }
 
         /// <summary>
@@ -255,13 +215,17 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
                 return keyFrame;
             }
 
-            keyFrame = KeyFrameViewModel.NewInstance(this.Key.CreateKeyFrame());
-            this.AddKeyFrame(timestamp, keyFrame);
+            this.AddKeyFrame(timestamp, keyFrame = KeyFrameViewModel.NewInstance(this.Key.CreateKeyFrame()));
             return keyFrame;
         }
 
-        public void DoRefreshValue(AutomationEngineViewModel engine, long frame, bool isPlaybackSource) {
-            this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(frame, isPlaybackSource));
+        private void KeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+            // Can't use nameof(KVM.Value) because of duplicated switch cases. Must be careful if ever refactoring
+            switch (e.PropertyName) {
+                case "Value":
+                    this.AutomationData.OnValueChanged(this, (KeyFrameViewModel) sender);
+                    break;
+            }
         }
     }
 }

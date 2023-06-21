@@ -7,6 +7,7 @@
              xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core" 
              xmlns:controls="clr-namespace:FramePFX.Controls"
              xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              Height="32" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance clips:ShapeClipViewModel}">
@@ -25,8 +26,8 @@
             -->
 
             <TextBlock Text="Size" FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" Margin="0,7"/>
-            <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
-            <dragger:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="-1000000" Maximum="1000000" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+            <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+            <dragger:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
         </Grid>
     </Grid>
 </UserControl>

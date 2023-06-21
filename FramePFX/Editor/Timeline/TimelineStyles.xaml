@@ -114,9 +114,10 @@
                         <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                         <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                      Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
-                                                     ItemsSource="{Binding SelectedSequence.KeyFrames}"
+                                                     Sequence="{Binding SelectedSequence}"
                                                      IsEnabled="{Binding SelectedSequence.IsOverrideEnabled, Converter={x:Static converters:InvertBoolConverter.Instance}}"
                                                      UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
+                                                     MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -168,9 +169,10 @@
                             <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
                             <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                          Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
-                                                         ItemsSource="{Binding SelectedSequence.KeyFrames}"
+                                                         Sequence="{Binding SelectedSequence}"
                                                          IsEnabled="{Binding SelectedSequence.IsOverrideEnabled, Converter={x:Static converters:InvertBoolConverter.Instance}}"
                                                          UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
+                                                         MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
                                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>

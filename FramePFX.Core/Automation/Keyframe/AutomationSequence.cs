@@ -60,6 +60,17 @@ namespace FramePFX.Core.Automation.Keyframe {
             this.OverrideKeyFrame.OwnerSequence = this;
         }
 
+        /// <summary>
+        /// Invokes the <see cref="UpdateValue"/> event, allowing any listeners to re-query their actual value at the given frame
+        /// </summary>
+        /// <param name="engine">The engine that caused this update</param>
+        /// <param name="frame">The frame</param>
+        public void DoUpdateValue(AutomationEngine engine, long frame) {
+            this.UpdateValue?.Invoke(this, frame);
+        }
+
+        #region Helper Getter Functions
+
         public bool TryGetDoubleValue(long time, out double value) {
             ValidateType(AutomationDataType.Double, this.DataType);
             return this.TryGetValueInternal(time, x => ((KeyFrameDouble) x).Value, (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b), out value);
@@ -116,8 +127,24 @@ namespace FramePFX.Core.Automation.Keyframe {
             return true;
         }
 
-        // TODO: maybe optimise this; cache the head node and last frame/time and only search starting there?
+        #endregion
 
+        /// <summary>
+        /// Gets the two key frames that the given time should attempt to interpolate between, or a single key frame if that's all that is possible or logical
+        /// <para>
+        /// If the time directly intersects a key frame, then the last keyframe that intersects will be set as a, and b will be null (therefore, use a's value directly)
+        /// </para>
+        /// <para>
+        /// If the time is before the first key frame or after the last key frame, the first/last key frame is set as a, and b will be null (therefore, use a's value directly)
+        /// </para>
+        /// <para>
+        /// If all other cases are false, and the list is not empty, a pair of key frames will be available to interpolate between (based on a's interpolation method)
+        /// </para>
+        /// </summary>
+        /// <param name="frame">The time</param>
+        /// <param name="a">The first (or only available) key frame</param>
+        /// <param name="b">The second key frame, may be null under certain conditions, in which case use a's value directly</param>
+        /// <returns>False if there are no key frames, otherwise true</returns>
         public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b) {
             List<KeyFrame> list = this.keyFrameList;
             int i = 0, count = list.Count;
@@ -165,12 +192,8 @@ namespace FramePFX.Core.Automation.Keyframe {
                         a = tempPrev;
                         b = temp;
                     }
-                    else if (temp != null) {
-                        a = temp;
-                        b = null;
-                    }
                     else {
-                        a = tempPrev;
+                        a = temp ?? tempPrev;
                         b = null;
                     }
 
@@ -179,84 +202,12 @@ namespace FramePFX.Core.Automation.Keyframe {
             }
         }
 
-        // /// <summary>
-        // /// Gets the two key frames that the given time should attempt to interpolate between, or a single key frame if that's all that is possible or logical
-        // /// <para>
-        // /// If the time directly intersects a key frame, then the last keyframe that intersects will be set as a, and b will be null (therefore, use a's value directly)
-        // /// </para>
-        // /// <para>
-        // /// If the time is before the first key frame or after the last key frame, the first/last key frame is set as a, and b will be null (therefore, use a's value directly)
-        // /// </para>
-        // /// <para>
-        // /// If all other cases are false, and the list is not empty, a pair of key frames will be available to interpolate between (based on a's interpolation method)
-        // /// </para>
-        // /// </summary>
-        // /// <param name="time">The time</param>
-        // /// <param name="a">The first (or only available) key frame</param>
-        // /// <param name="b">The second key frame, may be null under certain conditions, in which case use a's value directly</param>
-        // /// <returns>False if there are no key frames, otherwise true</returns>
-        // public bool GetKeyFramesForTime(long time, out KeyFrame a, out KeyFrame b) {
-        //     LinkedListNode<KeyFrame> node = this.keyFrameLinkedList.First;
-        //     if (node == null) {
-        //         a = b = null;
-        //         return false;
-        //     }
-        //
-        //     LinkedListNode<KeyFrame> prev = null;
-        //     while (true) { // node is never null, as it is only reassigned to next (which won't be null at that point)
-        //         long nodeTime = node.Value.Timestamp;
-        //         if (time > nodeTime) {
-        //             LinkedListNode<KeyFrame> next = node.Next;
-        //             if (next == null) { // last key frame
-        //                 a = node.Value;
-        //                 b = null;
-        //                 return true;
-        //             }
-        //             else {
-        //                 prev = node;
-        //                 node = next;
-        //             }
-        //         }
-        //         else if (time < nodeTime) {
-        //             if (prev == null) { // first key frame; time is before the first node
-        //                 a = node.Value;
-        //                 b = null;
-        //                 return true;
-        //             }
-        //             else { // found pair of key frames to interpolate between
-        //                 a = prev.Value;
-        //                 b = node.Value;
-        //                 return true;
-        //             }
-        //         }
-        //         else {
-        //             // get the last node next node whose timestamp equals the input time, otherwise
-        //             // use the last node (the input time is the same as the very last node's timestamp)
-        //             LinkedListNode<KeyFrame> temp = node, tempPrev = prev;
-        //             while (temp != null && temp.Value.Timestamp == time) {
-        //                 tempPrev = temp;
-        //                 temp = temp.Next;
-        //             }
-        //
-        //             if (temp != null && tempPrev != null) {
-        //                 a = tempPrev.Value;
-        //                 b = temp.Value;
-        //             }
-        //             else if (temp != null) {
-        //                 a = temp.Value;
-        //                 b = null;
-        //             }
-        //             else {
-        //                 a = tempPrev.Value;
-        //                 b = null;
-        //             }
-        //
-        //             return true;
-        //         }
-        //     }
-        // }
-
-        public IEnumerable<KeyFrame> GetFrameExactlyAt(long frame) {
+        /// <summary>
+        /// Enumerates all of they keys are are located at the given frame
+        /// </summary>
+        /// <param name="frame">Target frame</param>
+        /// <returns>The key frames at the given frame</returns>
+        public IEnumerable<KeyFrame> GetKeyFramesAt(long frame) {
             foreach (KeyFrame keyFrame in this.keyFrameList) {
                 long time = keyFrame.Timestamp;
                 if (time == frame) {
@@ -268,6 +219,11 @@ namespace FramePFX.Core.Automation.Keyframe {
             }
         }
 
+        /// <summary>
+        /// Gets the last <see cref="KeyFrame"/> at the given frame. Key frames are ordered left to right, but in the vertical axis, it is unordered
+        /// </summary>
+        /// <param name="frame">Target frame</param>
+        /// <returns>The last key frame at the given frame, or null, if there are no key frames at the given frame</returns>
         public KeyFrame GetLastFrameExactlyAt(long frame) {
             KeyFrame last = null;
             foreach (KeyFrame keyFrame in this.keyFrameList) {
@@ -276,46 +232,41 @@ namespace FramePFX.Core.Automation.Keyframe {
                     last = keyFrame;
                 }
                 else if (time > frame) {
-                    return last;
+                    break;
                 }
             }
 
-            return null;
+            return last;
         }
 
-        public static void ValidateType(AutomationDataType expected, AutomationDataType actual) {
-            if (expected != actual) {
-                throw new ArgumentException($"Invalid data time. Expected {expected}, got {actual}");
-            }
-        }
-
-        public void AddKeyFrame(KeyFrame newKeyFrame) {
+        /// <summary>
+        /// Inserts the given key frame based on its timestamp, and returns the index that it was inserted at
+        /// </summary>
+        /// <param name="newKeyFrame">The key frame to add</param>
+        /// <returns>The index of the key frame</returns>
+        /// <exception cref="ArgumentException">Timestamp is negative or the data type is invalid</exception>
+        public int AddKeyFrame(KeyFrame newKeyFrame) {
             long timeStamp = newKeyFrame.Timestamp;
             if (timeStamp < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
             if (newKeyFrame.DataType != this.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
-
             newKeyFrame.OwnerSequence = this;
             List<KeyFrame> list = this.keyFrameList;
-            for (int i = 0, c = list.Count; i < c; i++) {
-                KeyFrame keyFrame = list[i];
-                if (timeStamp < keyFrame.Timestamp) {
-                    list.Insert(i, newKeyFrame);
-                }
-                else if (timeStamp == keyFrame.Timestamp) {
+            for (int i = list.Count - 1; i >= 0; i--) {
+                if (timeStamp >= list[i].Timestamp) {
                     list.Insert(i + 1, newKeyFrame);
+                    return i + 1;
                 }
-                else {
-                    continue;
-                }
-
-                return;
             }
 
-            list.Add(newKeyFrame);
+            list.Insert(0, newKeyFrame);
+            return 0;
         }
 
+        /// <summary>
+        /// Unsafely inserts the key frame at the given index, ignoring order. Do not use!
+        /// </summary>
         public void InsertKeyFrame(int index, KeyFrame newKeyFrame) {
             long timeStamp = newKeyFrame.Timestamp;
             if (timeStamp < 0)
@@ -327,22 +278,19 @@ namespace FramePFX.Core.Automation.Keyframe {
             this.keyFrameList.Insert(index, newKeyFrame);
         }
 
-        public bool RemoveKeyFrame(KeyFrame frame) {
-            for (int i = 0; i < this.keyFrameList.Count; i++) {
-                KeyFrame keyFrame = this.keyFrameList[i];
-                if (ReferenceEquals(keyFrame, frame)) {
-                    keyFrame.OwnerSequence = null;
-                    this.keyFrameList.RemoveAt(i);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
+        /// <summary>
+        /// Removes the key frame at the given index
+        /// </summary>
         public void RemoveKeyFrame(int index) {
             this.keyFrameList[index].OwnerSequence = null;
             this.keyFrameList.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// Gets the key frame at the given index
+        /// </summary>
+        public KeyFrame GetKeyFrameAtIndex(int index) {
+            return this.keyFrameList[index];
         }
 
         public void WriteToRBE(RBEDictionary data) {
@@ -388,8 +336,10 @@ namespace FramePFX.Core.Automation.Keyframe {
             return seq;
         }
 
-        public void DoUpdateValue(AutomationEngine engine, long frame) {
-            this.UpdateValue?.Invoke(this, frame);
+        public static void ValidateType(AutomationDataType expected, AutomationDataType actual) {
+            if (expected != actual) {
+                throw new ArgumentException($"Invalid data time. Expected {expected}, got {actual}");
+            }
         }
     }
 }

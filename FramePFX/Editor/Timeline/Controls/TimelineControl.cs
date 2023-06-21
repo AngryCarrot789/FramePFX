@@ -32,7 +32,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 typeof(long),
                 typeof(TimelineControl),
                 new FrameworkPropertyMetadata(
-                    1000L,
+                    10000L,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelineControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));

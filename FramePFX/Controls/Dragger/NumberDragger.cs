@@ -26,7 +26,7 @@ namespace FramePFX.Controls.Dragger {
                 "MassiveChange",
                 typeof(double),
                 typeof(NumberDragger),
-                new PropertyMetadata(1d));
+                new PropertyMetadata(5d));
 
         protected static readonly DependencyPropertyKey IsDraggingPropertyKey =
             DependencyProperty.RegisterReadOnly(

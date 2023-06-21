@@ -252,6 +252,7 @@
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\CurveJoint.cs" />
     <Compile Include="Editor\Automation\KeyFramePoint.cs" />
+    <Compile Include="Editor\Automation\LineHitType.cs" />
     <Compile Include="Editor\EditorMainWindow.xaml.cs">
       <DependentUpon>EditorMainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

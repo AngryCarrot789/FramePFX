@@ -342,7 +342,7 @@
                                            ItemsSource="{Binding Layers, Mode=OneTime}"
                                            Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
                                            BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
-                                           MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged, FallbackValue=1000}"
+                                           MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"
                                            s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                         </c:TimelineControl>
                         <GridSplitter Background="{DynamicResource WindowBackground}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>

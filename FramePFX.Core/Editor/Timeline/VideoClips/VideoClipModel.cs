@@ -8,9 +8,9 @@ using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public abstract class VideoClipModel : ClipModel {
-        public static readonly AutomationKey MediaPositionKey =    AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaPosition), Vector2.Zero, Vectors.NegativeInfinity, Vectors.PositiveInfinity);
-        public static readonly AutomationKey MediaScaleKey =       AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaScale), Vector2.One, Vectors.NegativeInfinity, Vectors.PositiveInfinity);
-        public static readonly AutomationKey MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.NegativeInfinity, Vectors.PositiveInfinity);
+        public static readonly AutomationKey MediaPositionKey =    AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKey MediaScaleKey =       AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKey MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(VideoClipModel), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKey OpacityKey =          AutomationKey.RegisterDouble(nameof(VideoClipModel), nameof(Opacity), 1d, 0d, 1d);
 
         /// <summary>

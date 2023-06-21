@@ -7,6 +7,8 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
     public class ProjectModel : IRBESerialisable {
+        // not a chance anyone's creating more than 9 quintillion clips
+        private long nextClipId;
         public volatile bool IsSaving;
 
         public ProjectSettingsModel Settings { get; }
@@ -14,9 +16,6 @@ namespace FramePFX.Core.Editor {
         public ResourceManager ResourceManager { get; }
 
         public TimelineModel Timeline { get; }
-
-        // not a chance anyone's creating more than 9 quintillion clips
-        private long nextClipId;
 
         /// <summary>
         /// The video editor that this project is currently in
@@ -28,13 +27,13 @@ namespace FramePFX.Core.Editor {
         public ProjectModel() {
             this.Settings = new ProjectSettingsModel() {
                 Resolution = new Resolution(1920, 1080),
-                FrameRate = 30
+                FrameRate = Rational.Fps60
             };
 
             this.ResourceManager = new ResourceManager(this);
             this.AutomationEngine = new AutomationEngine(this);
             this.Timeline = new TimelineModel(this) {
-                MaxDuration = 5000L
+                MaxDuration = 10000L
             };
         }
 

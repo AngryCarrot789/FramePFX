@@ -136,7 +136,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public async Task OnProjectChanged(ProjectViewModel project) {
             await this.Model.PlaybackTimer.StopAsync();
             if (project != null) {
-                this.SetTimerFrameRate(project.Settings.FrameRate);
+                this.SetTimerFrameRate(project.Settings.FrameRate.FPS);
             }
 
             this.UpdatePlaybackCommands();

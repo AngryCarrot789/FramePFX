@@ -274,9 +274,14 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ScrollBar}">
                             <DockPanel SnapsToDevicePixels="true">
-                                <Border Background="{TemplateBinding Background}" DockPanel.Dock="Right" Width="50">
+                                <Border Background="{TemplateBinding Background}" DockPanel.Dock="Right" Width="50" Panel.ZIndex="1">
                                     <Grid>
-                                        <dragger:NumberDragger Background="{TemplateBinding Background}" BorderThickness="0" Style="{StaticResource AbletonNumberDraggerStyle}" ToolTip="The timeline zoom level (read only; use CTRL + MouseWheel to zoom)" Minimum="0.001" Maximum="200" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, Mode=OneWay}"/>
+                                        <dragger:NumberDragger IsEnabled="True" 
+                                                               Background="{TemplateBinding Background}" BorderThickness="0" 
+                                                               Style="{StaticResource AbletonNumberDraggerStyle}"
+                                                               ToolTip="The timeline zoom level (read only; use CTRL + MouseWheel to zoom)"
+                                                               Minimum="0.001" Maximum="200"
+                                                               Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, Mode=OneWay}"/>
                                     </Grid>
                                 </Border>
                                 <Grid x:Name="Bg" Margin="0,0,0,0">

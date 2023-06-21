@@ -102,10 +102,6 @@
       <HintPath>..\packages\OxyPlot.Core.2.1.2\lib\net45\OxyPlot.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero2" />
-    <Reference Include="SixLabors.ImageSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13">
-      <HintPath>..\packages\SixLabors.ImageSharp.2.1.4\lib\net472\SixLabors.ImageSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.2.88.3\lib\net462\SkiaSharp.dll</HintPath>
     </Reference>
@@ -259,11 +255,11 @@
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
     <Compile Include="Editor\Notifications\SavingProject\SavingProjectMessageConverter.cs" />
+    <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditor.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsViewModel.cs" />
     <Compile Include="Editor\Properties\Pages\PropertyPageBaseClip.xaml.cs">
       <DependentUpon>PropertyPageBaseClip.xaml</DependentUpon>
     </Compile>

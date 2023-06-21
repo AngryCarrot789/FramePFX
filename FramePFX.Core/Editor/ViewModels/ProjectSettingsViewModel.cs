@@ -5,7 +5,7 @@ namespace FramePFX.Core.Editor.ViewModels {
     public class ProjectSettingsViewModel : BaseViewModel, IModifyProject {
         public ProjectSettingsModel Model { get; }
 
-        public double FrameRate {
+        public Rational FrameRate {
             get => this.Model.FrameRate;
             set {
                 this.Model.FrameRate = value;

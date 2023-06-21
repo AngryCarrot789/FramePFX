@@ -264,7 +264,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         protected override Size MeasureOverride(Size constraint) {
-            return base.MeasureOverride(constraint);
+            base.MeasureOverride(constraint);
+            TimelineControl timeline = this.Timeline;
+            return timeline == null ? constraint : new Size(timeline.MaxDuration * this.UnitZoom, constraint.Height);
         }
 
         protected override Size ArrangeOverride(Size arrangeBounds) {

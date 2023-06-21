@@ -183,7 +183,6 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
         protected override void UpdateMarkerControlReference(UIElement oldElement, UIElement newElement) {
             if (oldElement != null)
                 oldElement.MouseMove -= this.OnExternalMouseMouve;
-
             if (newElement != null)
                 newElement.MouseMove += this.OnExternalMouseMouve;
         }

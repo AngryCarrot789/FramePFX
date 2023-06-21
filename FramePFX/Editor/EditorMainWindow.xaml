@@ -242,9 +242,11 @@
                             <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
                         <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
-                            <Grid>
-                                <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0"/>
-                            </Grid>
+                            <DockPanel>
+                                <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0"/>
+                                <TextBlock FontSize="16" Text="{Binding MaxDuration, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0" DockPanel.Dock="Right"/>
+                                <TextBlock FontSize="16" Text="{Binding ElementName=TheTimeline, Path=UnitZoom}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0" DockPanel.Dock="Right"/>
+                            </DockPanel>
                         </Border>
                         <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
                                 Grid.Row="1" Grid.Column="0" BorderThickness="0 0 0 0"
@@ -342,7 +344,7 @@
                                            ItemsSource="{Binding Layers, Mode=OneTime}"
                                            Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
                                            BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
-                                           MaxDuration="{Binding MaxDuration, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"
+                                           MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"
                                            s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                         </c:TimelineControl>
                         <GridSplitter Background="{DynamicResource WindowBackground}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>

@@ -4,10 +4,9 @@
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                  xmlns:attached="clr-namespace:FramePFX.Themes.Attached"
-                  xmlns:validators="clr-namespace:FramePFX.Views.Validators"
                   xmlns:ed="clr-namespace:FramePFX.Editor.Project.EditorDialogs"
                   xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
+                  xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
                   mc:Ignorable="d"
                   Title="Project Settings" Height="243" Width="297"
                   Style="{StaticResource CustomWindowStyleEx}"
@@ -17,42 +16,22 @@
         <KeyBinding Key="Enter" Command="{Binding ConfirmCommand, Mode=OneTime}"/>
         <KeyBinding Key="Esc" Command="{Binding CancelCommand, Mode=OneTime}"/>
     </Window.InputBindings>
-    <Window.Resources>
-        <validators:IntRangeValidationRule x:Key="NonZeroIntValidationRule" MinValue="1" MaxValue="100000"/>
-        <validators:DoubleRangeValidationRule x:Key="FrameRateValidationRule" MinValue="1" MaxValue="240"/>
-    </Window.Resources>
     <Grid>
         <TextBlock Text="Width: " Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
         <TextBlock Text="Height:" Margin="10,41,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
         <TextBlock Text="FPS" Margin="10,72,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
-        <TextBox DataContext="{Binding Settings}" x:Name="TextBox1" helpers:TextBoxHelper.SelectAllOnFocus="True" Margin="60,10,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
-            <TextBox.Text>
-                <Binding Path="Width" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-                    <Binding.ValidationRules>
-                        <StaticResource ResourceKey="NonZeroIntValidationRule"/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <TextBox DataContext="{Binding Settings}" helpers:TextBoxHelper.SelectAllOnFocus="True" Margin="60,41,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
-            <TextBox.Text>
-                <Binding Path="Height" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-                    <Binding.ValidationRules>
-                        <StaticResource ResourceKey="NonZeroIntValidationRule"/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <TextBox DataContext="{Binding Settings}" helpers:TextBoxHelper.SelectAllOnFocus="True" Margin="60,72,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top">
-            <TextBox.Text>
-                <Binding Path="FrameRate" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
-                    <Binding.ValidationRules>
-                        <StaticResource ResourceKey="FrameRateValidationRule"/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Button Command="{Binding ConfirmCommand, Mode=OneTime}" Content="OK" Margin="0,0,87,10" VerticalAlignment="Bottom" Height="24" HorizontalAlignment="Right" Width="72"/>
-        <Button Command="{Binding CancelCommand, Mode=OneTime}" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" Height="24" HorizontalAlignment="Right" Width="72"/>
+        <dragger:NumberDragger Minimum="8" Maximum="16384" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="60,10,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
+        <dragger:NumberDragger Minimum="8" Maximum="16384" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="60,41,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
+        <ComboBox ItemsSource="{x:Static ed:ProjectSettingsEditorViewModel.FrameRates}"
+                  SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}"
+                  Margin="60,72,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
+        <Button Command="{Binding ConfirmCommand, Mode=OneTime}"
+                Content="OK" Margin="0,0,87,10"
+                VerticalAlignment="Bottom" Height="24"
+                HorizontalAlignment="Right" Width="72"/>
+        <Button Command="{Binding CancelCommand, Mode=OneTime}"
+                Content="Cancel" Margin="0,0,10,10"
+                VerticalAlignment="Bottom" Height="24"
+                HorizontalAlignment="Right" Width="72"/>
     </Grid>
 </views:BaseDialog>

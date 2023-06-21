@@ -58,7 +58,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 this.renderFrameRgb = new VideoFrame(resolution.Width, resolution.Height, PixelFormats.RGBA);
             }
 
-            double timeScale = this.Project.Settings.FrameRate;
+            double timeScale = this.Project.Settings.FrameRate.FPS;
             TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
             // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
             this.readyFrame = media.GetFrameAt(timestamp);

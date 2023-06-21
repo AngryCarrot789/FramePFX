@@ -19,7 +19,7 @@
     <PackageReference Include="NAudio" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OpenTK" Version="3.3.3" />
-    <PackageReference Include="SkiaSharp" Version="2.88.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.4-preview.76" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
@@ -27,5 +27,9 @@
     <Reference Include="FFmpegWrapper">
       <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Editor\ProjectSettings\" />
   </ItemGroup>
 </Project>

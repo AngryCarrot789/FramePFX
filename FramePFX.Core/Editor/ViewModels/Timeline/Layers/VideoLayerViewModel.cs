@@ -121,7 +121,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 return;
             }
 
-            double fps = this.Timeline.Project.Settings.FrameRate;
+            double fps = this.Timeline.Project.Settings.FrameRate.FPS;
             long defaultDuration = (long) (fps * 5);
 
             ClipModel newClip = null;

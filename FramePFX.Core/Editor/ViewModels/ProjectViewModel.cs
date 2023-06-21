@@ -51,6 +51,8 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public AsyncRelayCommand SaveAsCommand { get; }
 
+        public AsyncRelayCommand OpenSettingsCommand { get; }
+
         public ProjectViewModel(ProjectModel project) {
             this.Model = project ?? throw new ArgumentNullException(nameof(project));
             this.Settings = new ProjectSettingsViewModel(project.Settings);
@@ -63,6 +65,25 @@ namespace FramePFX.Core.Editor.ViewModels {
 
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.Model.IsSaving);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.Model.IsSaving);
+            this.OpenSettingsCommand = new AsyncRelayCommand(this.OpenSettingsAction);
+        }
+
+        public async Task OpenSettingsAction() {
+            EditorPlaybackViewModel playback = this.Editor?.Playback;
+            if (playback == null) {
+                return;
+            }
+
+            if (playback.IsPlaying) {
+                await playback.StopRenderTimer();
+            }
+
+            ProjectSettingsModel result = await IoC.Provide<IProjectSettingsEditor>().EditSettingsAsync(this.Settings.Model);
+            if (result != null) {
+                this.Settings.Resolution = result.Resolution;
+                this.Settings.FrameRate = result.FrameRate;
+                playback.SetTimerFrameRate(result.FrameRate.FPS);
+            }
         }
 
         public void OnProjectModified(object sender, string property) {

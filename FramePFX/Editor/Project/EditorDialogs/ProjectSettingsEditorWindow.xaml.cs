@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using FramePFX.Core.Editor;
 using FramePFX.Views;
 
 namespace FramePFX.Editor.Project.EditorDialogs {
@@ -13,8 +14,6 @@ namespace FramePFX.Editor.Project.EditorDialogs {
         }
 
         private void ProjectSettingsEditorWindow_Loaded(object sender, RoutedEventArgs e) {
-            this.TextBox1.Focus();
-            this.TextBox1.SelectAll();
         }
     }
 }

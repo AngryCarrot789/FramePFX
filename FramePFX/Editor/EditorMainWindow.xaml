@@ -287,7 +287,7 @@
                             </ListBox.Template>
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-                                    <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged, FallbackValue=60}"/>
+                                    <Setter Property="Height" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=60}"/>
                                     <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged, FallbackValue=40}"/>
                                     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

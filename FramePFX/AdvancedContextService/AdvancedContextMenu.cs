@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.AdvancedContextService;
 using FramePFX.Shortcuts;
+using FramePFX.Utils;
 
 namespace FramePFX.AdvancedContextService {
     public class AdvancedContextMenu : ContextMenu {

@@ -40,7 +40,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <summary>
         /// An enumerable of all the key frames, ordered by the timestamp (small to big)
         /// </summary>
-        public IEnumerable<KeyFrame> KeyFrameLinkedList => this.keyFrameList;
+        public IEnumerable<KeyFrame> KeyFrames => this.keyFrameList;
 
         public AutomationDataType DataType { get; }
 
@@ -297,7 +297,6 @@ namespace FramePFX.Core.Automation.Keyframe {
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
 
             newKeyFrame.OwnerSequence = this;
-
             List<KeyFrame> list = this.keyFrameList;
             for (int i = 0, c = list.Count; i < c; i++) {
                 KeyFrame keyFrame = list[i];
@@ -335,7 +334,7 @@ namespace FramePFX.Core.Automation.Keyframe {
             data.SetBool(nameof(this.IsOverrideEnabled), this.IsOverrideEnabled);
             this.OverrideKeyFrame.WriteToRBE(data.CreateDictionary(nameof(this.OverrideKeyFrame)));
 
-            RBEList list = data.CreateList(nameof(this.KeyFrameLinkedList));
+            RBEList list = data.CreateList(nameof(this.KeyFrames));
             foreach (KeyFrame keyFrame in this.keyFrameList) {
                 keyFrame.WriteToRBE(list.AddDictionary());
             }
@@ -351,7 +350,7 @@ namespace FramePFX.Core.Automation.Keyframe {
             this.OverrideKeyFrame.ReadFromRBE(data.GetDictionary(nameof(this.OverrideKeyFrame)));
 
             List<KeyFrame> frames = new List<KeyFrame>();
-            RBEList list = data.GetList(nameof(this.KeyFrameLinkedList));
+            RBEList list = data.GetList(nameof(this.KeyFrames));
             foreach (RBEDictionary rbe in list.GetDictionaries()) {
                 KeyFrame keyFrame = this.Key.CreateKeyFrame();
                 keyFrame.ReadFromRBE(rbe);

@@ -356,7 +356,6 @@
       <DependentUpon>ShortcutEditorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Shortcuts\Views\ShortcutManagerDialogService.cs" />
-    <Compile Include="Shortcuts\VisualTreeUtils.cs" />
     <Compile Include="Shortcuts\WPFKeyMapSerialiser.cs" />
     <Compile Include="Shortcuts\WPFShortcutManager.cs" />
     <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
@@ -379,6 +378,7 @@
     <Compile Include="Utils\DispatcherUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\KeyUtils.cs" />
+    <Compile Include="Utils\ScrollerUtils.cs" />
     <Compile Include="Utils\TextPointerUtils.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
@@ -391,6 +391,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utils\VisualTreeUtils.cs" />
     <Compile Include="Validators\FontFamilyValidationRule.cs" />
     <Compile Include="Views\AppSplashScreen.xaml.cs">
       <DependentUpon>AppSplashScreen.xaml</DependentUpon>

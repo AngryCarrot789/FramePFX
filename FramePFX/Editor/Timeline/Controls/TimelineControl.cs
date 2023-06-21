@@ -12,6 +12,7 @@ using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Shortcuts;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineControl : ItemsControl, ITimelineHandle {

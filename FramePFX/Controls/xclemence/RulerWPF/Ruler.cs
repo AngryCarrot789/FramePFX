@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using FramePFX.Controls.xclemence.RulerWPF.PositionManagers;
 using FramePFX.Shortcuts;
+using FramePFX.Utils;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Controls.xclemence.RulerWPF {
@@ -57,26 +58,6 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
             this.InvalidateVisual();
         }
 
-        /// <summary>
-        /// Gets the amount of drawing space this ruler should use to draw
-        /// </summary>
-        /// <param name="availableSize">
-        /// An out parameter for the amount of actual space that was available.
-        /// By default, it defaults to the width/height of the return value, however, if
-        /// this ruler is placed somewhere in a scroll viewer, then it returns the total amount of space available by the scrollviewer</param>
-        /// <returns></returns>
-        public Rect GetDrawingBounds(out Size availableSize) {
-            availableSize = this.RenderSize;
-            if (this.scroller != null) {
-                double offsetX = this.scroller.HorizontalOffset, offsetY = this.scroller.VerticalOffset;
-                // availableSize = new Size(this.scroller.ExtentWidth, this.scroller.ExtentHeight);
-                return new Rect(offsetX, offsetY, Math.Min(this.scroller.ViewportWidth, this.ActualWidth), Math.Min(this.scroller.ViewportHeight, this.ActualHeight));
-            }
-            else {
-                return new Rect(new Point(), this.RenderSize);
-            }
-        }
-
         private void OnRulerUnloaded(object sender, RoutedEventArgs e) => this.UnloadControl();
 
         protected override void OnMouseMove(MouseEventArgs e) {
@@ -118,7 +99,7 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
         protected override void OnRender(DrawingContext dc) {
             base.OnRender(dc);
             if (this.CanDrawRuler()) {
-                Rect db = this.GetDrawingBounds(out Size size);
+                Rect db = this.scroller == null ? new Rect(new Point(), this.RenderSize) : new Rect(this.scroller.HorizontalOffset, this.scroller.VerticalOffset, this.scroller.ViewportWidth, this.scroller.ViewportHeight);
                 (double pixel_step, double value_step) = this.GetStepProperties();
                 double major_line_pos = this.DisplayZeroLine ? 0 : pixel_step;
                 double subpixel_size = pixel_step / SubStepNumber;

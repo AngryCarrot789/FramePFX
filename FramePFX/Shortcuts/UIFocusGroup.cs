@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
+using FramePFX.Utils;
 
 namespace FramePFX.Shortcuts {
     public static class UIFocusGroup {

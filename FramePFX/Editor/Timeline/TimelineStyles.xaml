@@ -14,6 +14,7 @@
                     xmlns:layers="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Layers;assembly=FramePFX.Core" xmlns:rulerwpf="clr-namespace:FramePFX.Controls.xclemence.RulerWPF"
                     xmlns:editor="clr-namespace:FramePFX.Editor"
                     xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
+                    xmlns:aa="clr-namespace:FramePFX.Editor.Automation"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -39,7 +40,7 @@
         </Setter>
     </Style>
 
-    <converters:BoolToVisibilityConverter x:Key="ClipHeaderContentVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
 
     <!-- d:DataContext="{d:DesignInstance tm:ClipViewModel}" -->
 
@@ -71,7 +72,7 @@
         <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type controls:VideoClipControl}">
+                <ControlTemplate TargetType="{x:Type controls:TimelineClipControl}">
                     <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
                         <Border Background="{Binding Layer.LayerColour, FallbackValue=Black}" VerticalAlignment="Top" Height="20">
                             <DockPanel>
@@ -80,16 +81,16 @@
                                         <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
                                     </TextBlock.InputBindings>
                                 </TextBlock>
-                                <DockPanel Visibility="{TemplateBinding IsSelected, Converter={StaticResource ClipHeaderContentVisibilityConverter}}" DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" Margin="5,1,1,0">
+                                <DockPanel Visibility="{TemplateBinding IsSelected, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" Margin="5,1,1,0">
                                     <Button DockPanel.Dock="Right" Width="20" Command="{Binding DisableOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
                                     <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
                                     <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}"
-                                                             SelectedItem="{Binding SelectedSequence}"
-                                                             BorderThickness="0" Margin="0,0,0,0"
-                                                             HorizontalContentAlignment="Left"
-                                                             HorizontalAlignment="Right"
-                                                             DockPanel.Dock="Right"
-                                                             MinWidth="50" SnapsToDevicePixels="True">
+                                                                 SelectedItem="{Binding SelectedSequence}"
+                                                                 BorderThickness="0" Margin="0,0,0,0"
+                                                                 HorizontalContentAlignment="Left"
+                                                                 HorizontalAlignment="Right"
+                                                                 DockPanel.Dock="Right"
+                                                                 MinWidth="50" SnapsToDevicePixels="True">
                                         <ComboBox.ItemContainerStyle>
                                             <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
                                                 <Setter Property="Padding" Value="0"/>
@@ -109,8 +110,14 @@
                             </DockPanel>
                         </Border>
                         <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True"/>
-                        <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource ClipHeaderContentVisibilityConverter}}" x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
-                        <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource ClipHeaderContentVisibilityConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                        <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                        <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                        <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
+                                                     Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
+                                                     ItemsSource="{Binding SelectedSequence.KeyFrames}"
+                                                     IsEnabled="{Binding SelectedSequence.IsOverrideEnabled, Converter={x:Static converters:InvertBoolConverter.Instance}}"
+                                                     UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
+                                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -141,9 +148,9 @@
     <Style TargetType="{x:Type controls:TimelineLayerControl}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
-        <Setter Property="MaxHeight" Value="{Binding MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
-        <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
-        <Setter Property="Height" Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="MaxHeight" Value="{Binding MaxHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="MinHeight" Value="{Binding MinHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="Height" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="ItemsSource" Value="{Binding Clips, Mode=OneTime}"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -157,7 +164,15 @@
                 <ControlTemplate TargetType="{x:Type controls:TimelineLayerControl}">
                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
                         <!-- IsItemHost must be true in order for it's items to sync with the TimelineLayerControl's items -->
-                        <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
+                        <Grid d:DataContext="{d:DesignInstance tm:LayerViewModel}">
+                            <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
+                            <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
+                                                         Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
+                                                         ItemsSource="{Binding SelectedSequence.KeyFrames}"
+                                                         IsEnabled="{Binding SelectedSequence.IsOverrideEnabled, Converter={x:Static converters:InvertBoolConverter.Instance}}"
+                                                         UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
+                                                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        </Grid>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

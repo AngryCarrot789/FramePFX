@@ -59,6 +59,8 @@ namespace FramePFX.Converters {
     }
 
     public class InvertBoolConverter : BoolConverter {
+        public static InvertBoolConverter Instance { get; } = new InvertBoolConverter();
+
         public InvertBoolConverter() {
             this.TrueValue = BoolBox.False;
             this.FalseValue = BoolBox.True;

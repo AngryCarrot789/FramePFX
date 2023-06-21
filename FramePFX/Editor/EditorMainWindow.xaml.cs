@@ -20,9 +20,11 @@ using FramePFX.Core.Utils;
 using FramePFX.Editor.Properties.Pages;
 using FramePFX.Notifications;
 using FramePFX.Shortcuts;
+using FramePFX.Utils;
 using FramePFX.Views;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
+using Time = FramePFX.Core.Utils.Time;
 
 namespace FramePFX.Editor {
     /// <summary>

@@ -47,10 +47,13 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = automationData ?? throw new ArgumentNullException(nameof(automationData));
             this.OverrideKeyFrame = KeyFrameViewModel.NewInstance(model.OverrideKeyFrame);
+            this.OverrideKeyFrame.OwnerSequence = this;
             this.keyFrames = new ObservableCollection<KeyFrameViewModel>();
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
-            foreach (KeyFrame frame in model.KeyFrameLinkedList) {
-                this.keyFrames.Add(KeyFrameViewModel.NewInstance(frame));
+            foreach (KeyFrame frame in model.KeyFrames) {
+                KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(frame);
+                keyFrame.OwnerSequence = this;
+                this.keyFrames.Add(keyFrame);
             }
         }
 

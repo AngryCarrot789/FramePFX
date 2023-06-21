@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Utils;
@@ -82,16 +83,18 @@ namespace FramePFX.Editor.Automation {
         private Pen curvePenTransparent;
         private Pen mouseOverPen;
 
-        private Pen KeyFramePen => this.keyFramePen ?? (this.keyFramePen = new Pen(this.KeyFrameBrush ?? Brushes.OrangeRed, 1d));
-        private Pen CurvePenTransparent => this.curvePenTransparent ?? (this.curvePenTransparent = new Pen(Brushes.Transparent, 3d));
-        private Pen CurvePen => this.curvePen ?? (this.curvePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, 1d));
-        private Pen MouseOverPen => this.mouseOverPen ?? (this.mouseOverPen = new Pen(this.MouseOverBrush ?? Brushes.White, 1d));
+        internal Pen KeyFramePen => this.keyFramePen ?? (this.keyFramePen = new Pen(this.KeyFrameBrush ?? Brushes.OrangeRed, 1d));
+        internal Pen CurvePenTransparent => this.curvePenTransparent ?? (this.curvePenTransparent = new Pen(Brushes.Transparent, 3d));
+        internal Pen CurvePen => this.curvePen ?? (this.curvePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, 1d));
+        internal Pen MouseOverPen => this.mouseOverPen ?? (this.mouseOverPen = new Pen(this.MouseOverBrush ?? Brushes.White, 1d));
+
+        public static readonly Pen Vec2Pen = new Pen(Brushes.Green, 1d);
 
         private Canvas PART_Canvas;
 
         // internal key frame storage; recalculated whenever the ItemsSource changes
         private List<KeyFramePoint> keyFrameList;
-        private KeyFramePoint mouseDown;
+        private KeyFramePoint captured;
         private Point mouseDownPoint;
         private bool justCaptured;
 
@@ -115,10 +118,15 @@ namespace FramePFX.Editor.Automation {
                 if (keyFrame.RenderPoint is Point point) {
                     Rect rect = new Rect(point.X - 4d, point.Y - 4d, 8d, 8d);
                     if (RectContains(rect, this.mouseDownPoint)) {
-                        keyFrame.IsCaptured = true;
-                        keyFrame.InvalidateVisual();
+                        if (this.captured != null) {
+                            this.captured.IsSelected = false;
+                        }
+
+                        this.captured = keyFrame;
+                        keyFrame.IsMoving = true;
+                        keyFrame.IsSelected = true;
+                        keyFrame.InvalidateRenderData();
                         this.InvalidateVisual();
-                        this.mouseDown = keyFrame;
                         e.Handled = true;
                         this.justCaptured = true;
                         this.CaptureMouse();
@@ -127,14 +135,71 @@ namespace FramePFX.Editor.Automation {
                 }
             }
 
-            this.mouseDown = null;
+            this.captured = null;
+        }
+
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
+            base.OnMouseDoubleClick(e);
+            Point mPos = e.GetPosition(this);
+            if (this.keyFrameList != null && this.keyFrameList.Count > 0) {
+                for (int i = 0; i < this.keyFrameList.Count; i++) {
+                    KeyFramePoint keyFrame = this.keyFrameList[i];
+                    if (keyFrame.RenderPoint is Point point) {
+                        Rect rect = new Rect(point.X - 4d, point.Y - 4d, 8d, 8d);
+                        if (RectContains(rect, mPos)) {
+                            if (this.captured != null) {
+                                this.captured.IsMoving = false;
+                                this.captured.IsSelected = false;
+                                this.captured = null;
+                            }
+
+                            this.InvalidateVisual();
+                            e.Handled = true;
+                            this.keyFrameList.RemoveAt(i);
+                            keyFrame.KeyFrame.OwnerSequence.RemoveKeyFrame(keyFrame.KeyFrame);
+                            return;
+                        }
+                    }
+                }
+
+                this.captured = null;
+            }
+
+            if (this.DataContext is AutomationSequenceViewModel automation) { // actual data context is AutomationDataViewModel
+                if (this.justCaptured) {
+                    this.mouseDownPoint = mPos;
+                    this.justCaptured = false;
+                    return;
+                }
+
+                long timestamp = (long) Math.Round(mPos.X / this.UnitZoom);
+                KeyFrameViewModel keyFrame;
+                switch (automation.Model.DataType) {
+                    case AutomationDataType.Double:
+                        automation.AddKeyFrame(keyFrame = new KeyFrameDoubleViewModel(new KeyFrameDouble(timestamp, ((KeyDescriptorDouble) automation.Key.Descriptor).DefaultValue)));
+                        break;
+                    case AutomationDataType.Long:
+                        automation.AddKeyFrame(keyFrame = new KeyFrameLongViewModel(new KeyFrameLong(timestamp, ((KeyDescriptorLong) automation.Key.Descriptor).DefaultValue)));
+                        break;
+                    case AutomationDataType.Boolean:
+                        automation.AddKeyFrame(keyFrame = new KeyFrameBooleanViewModel(new KeyFrameBoolean(timestamp, ((KeyDescriptorBoolean) automation.Key.Descriptor).DefaultValue)));
+                        break;
+                    case AutomationDataType.Vector2:
+                        automation.AddKeyFrame(keyFrame = new KeyFrameVector2ViewModel(new KeyFrameVector2(timestamp, ((KeyDescriptorVector2) automation.Key.Descriptor).DefaultValue)));
+                        break;
+                    default: throw new ArgumentOutOfRangeException();
+                }
+
+                this.InvalidateVisual();
+                e.Handled = true;
+            }
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonUp(e);
-            if (this.mouseDown != null) {
-                this.mouseDown.IsCaptured = false;
-                this.mouseDown = null;
+            if (this.captured != null) {
+                this.captured.IsMoving = false;
+                this.captured = null;
             }
 
             if (this.IsMouseCaptured) {
@@ -147,9 +212,9 @@ namespace FramePFX.Editor.Automation {
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
             if (e.LeftButton != MouseButtonState.Pressed) {
-                if (this.mouseDown != null) {
-                    this.mouseDown.IsCaptured = false;
-                    this.mouseDown = null;
+                if (this.captured != null) {
+                    this.captured.IsMoving = false;
+                    this.captured = null;
                 }
 
                 if (this.IsMouseCaptured) {
@@ -159,12 +224,14 @@ namespace FramePFX.Editor.Automation {
                 this.InvalidateVisual();
             }
 
-            if (this.mouseDown == null) {
+            if (this.captured == null) {
                 return;
             }
 
-            long min = this.mouseDown.prev?.KeyFrame.Timestamp ?? 0;
-            long max = this.mouseDown.next?.KeyFrame.Timestamp ?? 10000;
+            // TODO: add minimum and maximum dependency properties
+
+            long min = this.captured.prev?.KeyFrame.Timestamp ?? 0;
+            long max = this.captured.next?.KeyFrame.Timestamp ?? 10000;
 
             Point mPos = e.GetPosition(this);
             if (this.justCaptured) {
@@ -173,23 +240,15 @@ namespace FramePFX.Editor.Automation {
                 return;
             }
 
-            double diffX = mPos.X;
+            long offset = Math.Max(0, (long) Math.Round(mPos.X / this.UnitZoom));
+            long time = this.captured.KeyFrame.Timestamp;
+            if ((time + offset) < 0) {
+                offset = -time;
+            }
 
-            {
-                long negativeFrames = 0L;
-                long offset = (long) (diffX / this.UnitZoom);
-                if (offset != 0) {
-                    long time = this.mouseDown.KeyFrame.Timestamp;
-                    if ((time + offset) < 0) {
-                        negativeFrames = offset;
-                        offset = -time;
-                    }
-
-                    if (offset != 0) {
-                        this.mouseDown.KeyFrame.Timestamp = Maths.Clamp(offset, min, max);
-                        SetValueForScaledMousePoint(this.mouseDown, this.mouseDown.RenderArea, mPos);
-                    }
-                }
+            this.captured.KeyFrame.Timestamp = Maths.Clamp(offset, min, max);
+            if (!(this.captured is KeyFramePointVec2)) {
+                this.SetValueForMousePoint(this.captured, this.ActualHeight, mPos);
             }
 
             this.mouseDownPoint = mPos;
@@ -211,7 +270,7 @@ namespace FramePFX.Editor.Automation {
         private void CompletelyInvalidateRender() {
             if (this.keyFrameList != null) {
                 foreach (KeyFramePoint keyFrame in this.keyFrameList) {
-                    keyFrame.InvalidateVisual();
+                    keyFrame.InvalidateRenderData();
                 }
             }
 
@@ -229,10 +288,8 @@ namespace FramePFX.Editor.Automation {
                 foreach (object item in enumerable) {
                     if (item is KeyFrameViewModel keyFrame) {
                         keyFrame.PropertyChanged += this.propertyChangedEventHandler;
-                        KeyFramePoint keyF = new KeyFramePoint(keyFrame) {
-                            prev = prev
-                        };
-
+                        KeyFramePoint keyF = KeyFramePoint.ForKeyFrame(keyFrame);
+                        keyF.prev = prev;
                         if (prev != null) {
                             prev.next = keyF;
                         }
@@ -254,7 +311,7 @@ namespace FramePFX.Editor.Automation {
             // }
 
             if (this.keyFrameList != null && sender is KeyFrameViewModel keyFrame && this.keyFrameList.Find(x => x.KeyFrame == keyFrame) is KeyFramePoint found) {
-                found.InvalidateVisual();
+                found.InvalidateRenderData();
             }
             else if (this.keyFrameList != null) {
                 this.ClearKeyFrameList();
@@ -356,11 +413,11 @@ namespace FramePFX.Editor.Automation {
             this.DrawLastKeyFrameLine(dc, prev, zoom, rect);
             if (ReferenceEquals(first, prev)) {
                 // there's only 1 key frame
-                this.DrawKeyFramePoint(dc, prev, zoom, rect);
+                prev.RenderEllipse(this, dc, zoom, rect);
             }
         }
 
-        private static Point GetPoint(KeyFramePoint keyFrame, double zoom, Rect rect) {
+        public static Point GetPoint(KeyFramePoint keyFrame, double zoom, Rect rect) {
             if (keyFrame.RenderPoint is Point point) {
                 return point;
             }
@@ -379,9 +436,8 @@ namespace FramePFX.Editor.Automation {
                     double offset = (rect.Height / 100) * 10;
                     offset_y = frame.Value ? (rect.Height - offset) : offset;
                     break;
-                case KeyFrameVector2ViewModel frame when key.Descriptor is KeyDescriptorVector2 fd:
-                    // huh... not sure what to do here
-                    offset_y = Maths.Map(frame.Value.X, fd.Minimum.X, fd.Maximum.X, 0, rect.Height);
+                case KeyFrameVector2ViewModel _:
+                    offset_y = rect.Height / 2d;
                     break;
                 default: return default;
             }
@@ -392,18 +448,30 @@ namespace FramePFX.Editor.Automation {
             return point;
         }
 
-        private static bool SetValueForScaledMousePoint(KeyFramePoint keyFrame, Rect rect, Point point) {
+        public static Point GetVec2SubPoint(KeyFramePointVec2 keyFrame, double zoom, Rect rect) {
+            if (!(keyFrame.KeyFrame is KeyFrameVector2ViewModel keyFrameVec)) {
+                throw new Exception("Not a vec2");
+            }
+
+            KeyDescriptorVector2 desc = (KeyDescriptorVector2) keyFrameVec.OwnerSequence.Key.Descriptor;
+            Vector2 vector = keyFrameVec.Value;
+            double offset_y_a = Maths.Map(vector.X, desc.Minimum.X, desc.Maximum.X, 0, rect.Height) * zoom;
+            double offset_y_b = Maths.Map(vector.Y, desc.Minimum.Y, desc.Maximum.Y, 0, rect.Height);
+            return new Point(offset_y_a, rect.Height - offset_y_b);
+        }
+
+        public bool SetValueForMousePoint(KeyFramePoint keyFrame, double height, Point point) {
             AutomationKey key = keyFrame.KeyFrame.OwnerSequence.Key;
             switch (keyFrame.KeyFrame) {
                 case KeyFrameDoubleViewModel frame when key.Descriptor is KeyDescriptorDouble fd:
-                    frame.Value = Maths.Clamp(Maths.Map(point.Y, rect.Height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
+                    frame.Value = Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
                     break;
                 case KeyFrameLongViewModel frame when key.Descriptor is KeyDescriptorLong fd:
-                    frame.Value = (long) Maths.Clamp(Maths.Map(point.Y, rect.Height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
+                    frame.Value = (long) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
                     break;
                 case KeyFrameBooleanViewModel frame:
-                    double offset = (rect.Height / 100) * 30;
-                    double bound_b = rect.Height - offset;
+                    double offset = (height / 100) * 30;
+                    double bound_b = height - offset;
                     if (point.Y >= bound_b) {
                         frame.Value = false;
                     }
@@ -415,9 +483,10 @@ namespace FramePFX.Editor.Automation {
                     }
 
                     return true;
-                case KeyFrameVector2ViewModel frame when key.Descriptor is KeyDescriptorVector2 fd:
-                    // huh... not sure what to do here
-                    frame.Value = new Vector2((float) Maths.Map(point.Y, 0, rect.Height, fd.Minimum.X, fd.Maximum.X), frame.Value.Y);
+                case KeyFrameVector2ViewModel frame when key.Descriptor is KeyDescriptorVector2 fd && keyFrame is KeyFramePointVec2 v2:
+                    double x = Maths.Clamp(Maths.Map(point.X, height, 0, fd.Minimum.X, fd.Maximum.X), fd.Minimum.X, fd.Maximum.X) / this.UnitZoom;
+                    double y = Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum.Y, fd.Maximum.Y), fd.Minimum.Y, fd.Maximum.Y);
+                    frame.Value = new Vector2((float) x, (float) y);
                     break;
                 default: return false;
             }
@@ -448,16 +517,8 @@ namespace FramePFX.Editor.Automation {
         // draw a line from a and b (using a's line type, e.g. linear, bezier), then draw a and b
         private void DrawKeyFramesAndLine(DrawingContext dc, KeyFramePoint a, KeyFramePoint b, double zoom, Rect rect) {
             this.DrawKeyFrameLine(dc, a, b, zoom, rect);
-            this.DrawKeyFramePoint(dc, a, zoom, rect);
-            this.DrawKeyFramePoint(dc, b, zoom, rect);
-        }
-
-        private void DrawKeyFramePoint(DrawingContext dc, KeyFramePoint keyFrame, double zoom, Rect rect) {
-            Point point = GetPoint(keyFrame, zoom, rect);
-            Rect area = new Rect(point.X - 3d, point.Y - 3d, 6d, 6d);
-            if (true) { // RectContains(rect, area)
-                dc.DrawEllipse(Brushes.Transparent, keyFrame.IsCaptured ? this.MouseOverPen : this.KeyFramePen, point, 3d, 3d);
-            }
+            a.RenderEllipse(this, dc, zoom, rect);
+            b.RenderEllipse(this, dc, zoom, rect);
         }
 
         private void DrawKeyFrameLine(DrawingContext dc, KeyFramePoint a, KeyFramePoint b, double zoom, Rect rect) {

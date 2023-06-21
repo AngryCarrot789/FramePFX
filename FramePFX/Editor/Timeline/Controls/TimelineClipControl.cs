@@ -14,7 +14,6 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Layer.Clips;
 using FramePFX.Editor.Timeline.Utils;
-using Rect = System.Windows.Rect;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public abstract class TimelineClipControl : Control, IClipHandle {

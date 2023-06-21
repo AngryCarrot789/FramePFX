@@ -54,7 +54,7 @@ namespace FramePFX.Core.Editor.Timeline.Layers {
         }
 
         public override bool CanUpdateAutomation() {
-            return base.CanUpdateAutomation() && this.IsActuallyVisible;
+            return base.CanUpdateAutomation();
         }
     }
 }

@@ -26,6 +26,11 @@ namespace FramePFX.Core.Automation {
             get {
                 if (this.dataMap.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequence sequence))
                     return sequence;
+
+                #if DEBUG
+                System.Diagnostics.Debugger.Break();
+                #endif
+
                 throw new Exception($"Key has not been assigned: {key}");
             }
         }

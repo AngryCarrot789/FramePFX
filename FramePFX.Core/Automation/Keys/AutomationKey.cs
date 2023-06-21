@@ -108,7 +108,7 @@ namespace FramePFX.Core.Automation.Keys {
             return $"{this.GetType()}({this.FullId})";
         }
 
-        public bool Equals(AutomationKey other) {
+        protected bool Equals(AutomationKey other) {
             return this.GetType() == other.GetType() && this.Domain == other.Domain && this.Id == other.Id;
         }
 
@@ -117,10 +117,12 @@ namespace FramePFX.Core.Automation.Keys {
         }
 
         public static bool operator ==(AutomationKey a, AutomationKey b) {
+            // a == b || a != null && b != null && !a.equals(b)
             return ReferenceEquals(a, b) || !ReferenceEquals(a, null) && !ReferenceEquals(b, null) && a.Equals(b);
         }
 
         public static bool operator !=(AutomationKey a, AutomationKey b) {
+            // a != b && (a == null || b == null || !a.equals(b))
             return !ReferenceEquals(a, b) && (ReferenceEquals(a, null) || ReferenceEquals(b, null) || !a.Equals(b));
         }
 

@@ -12,7 +12,6 @@ using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
 using FramePFX.Core.History;
-using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
@@ -66,7 +65,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                     }
                 }
 
-                this.AutomationData[VideoLayerModel.OpacityKey].GetOverride().SetDoubleValue(value);
+                TimelineViewModel timeline = this.Timeline;
+                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoLayerModel.OpacityKey) {
+                    this.AutomationData[VideoLayerModel.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
+                }
+                else {
+                    this.AutomationData[VideoLayerModel.OpacityKey].GetOverride().SetDoubleValue(value);
+                }
+
                 this.Model.Opacity = value;
                 this.RaisePropertyChanged();
                 this.Timeline.DoRender(true);
@@ -85,7 +91,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                     this.HistoryManager.AddAction(new HistoryLayerIsVisible(this, value), "Edit IsVisible");
                 }
 
-                this.AutomationData[VideoLayerModel.IsVisibleKey].GetOverride().SetBooleanValue(value);
+                TimelineViewModel timeline = this.Timeline;
+                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoLayerModel.IsVisibleKey) {
+                    this.AutomationData[VideoLayerModel.IsVisibleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
+                }
+                else {
+                    this.AutomationData[VideoLayerModel.IsVisibleKey].GetOverride().SetBooleanValue(value);
+                }
+
                 this.Model.IsVisible = value;
                 this.RaisePropertyChanged();
                 this.Timeline.DoRender(true);

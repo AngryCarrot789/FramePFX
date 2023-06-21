@@ -12,7 +12,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using FramePFX.Controls.xclemence.RulerWPF.PositionManagers;
-using FramePFX.Shortcuts;
 using FramePFX.Utils;
 using Rect = System.Windows.Rect;
 

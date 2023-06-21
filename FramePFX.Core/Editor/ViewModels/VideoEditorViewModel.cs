@@ -14,6 +14,9 @@ namespace FramePFX.Core.Editor.ViewModels {
     /// </summary>
     public class VideoEditorViewModel : BaseViewModel, IDisposable {
         private ProjectViewModel activeProject;
+        private bool isClosingProject;
+        private bool recordKeyFrames = false;
+        private bool canAddKeyFrameForPropertyModification = true;
 
         /// <summary>
         /// The project that is currently being edited in this editor. May be null if no project is loaded
@@ -47,10 +50,26 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
-        private bool isClosingProject;
         public bool IsClosingProject {
             get => this.isClosingProject;
             set => this.RaisePropertyChanged(ref this.isClosingProject, value);
+        }
+
+        /// <summary>
+        /// Whether or not to add new key frames when a parameter is modified during playback. Default is false
+        /// </summary>
+        public bool RecordKeyFrames {
+            get => this.recordKeyFrames;
+            set => this.RaisePropertyChanged(ref this.recordKeyFrames, value);
+        }
+
+
+        /// <summary>
+        /// Whether or not key frames can be added when a view model property is modified
+        /// </summary>
+        public bool CanAddKeyFrameForPropertyModification {
+            get => this.canAddKeyFrameForPropertyModification;
+            set => this.RaisePropertyChanged(ref this.canAddKeyFrameForPropertyModification, value);
         }
 
         public EditorPlaybackViewModel Playback { get; }

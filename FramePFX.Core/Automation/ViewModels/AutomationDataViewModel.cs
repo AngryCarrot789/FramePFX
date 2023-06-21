@@ -18,18 +18,32 @@ namespace FramePFX.Core.Automation.ViewModels {
             get => this.selectedSequence;
             set {
                 this.RaisePropertyChanged(ref this.selectedSequence, value);
+                this.RaisePropertyChanged(nameof(this.SelectedSequenceKey));
                 this.RaisePropertyChanged(nameof(this.IsSequenceEditorVisible));
                 this.DeselectSequenceCommand.RaiseCanExecuteChanged();
                 this.DisableOverrideCommand.RaiseCanExecuteChanged();
             }
         }
 
+        public AutomationKey SelectedSequenceKey => this.selectedSequence?.Key;
+
         /// <summary>
         /// Whether or not the sequence editor should be shown or not
         /// </summary>
         public bool IsSequenceEditorVisible => this.SelectedSequence != null;
 
-        public AutomationSequenceViewModel this[AutomationKey key] => this.dataMap[key];
+        public AutomationSequenceViewModel this[AutomationKey key] {
+            get {
+                if (this.dataMap.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequenceViewModel sequence))
+                    return sequence;
+
+                #if DEBUG
+                System.Diagnostics.Debugger.Break();
+                #endif
+
+                throw new Exception($"Key has not been assigned: {key}");
+            }
+        }
 
         public AutomationData Model { get; }
 

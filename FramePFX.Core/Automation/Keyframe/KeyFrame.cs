@@ -16,19 +16,19 @@ namespace FramePFX.Core.Automation.Keyframe {
         }
 
         public virtual void SetDoubleValue(double value) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameDouble)}");
         }
 
         public virtual void SetLongValue(long value) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameLong)}");
         }
 
         public virtual void SetBooleanValue(bool value) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameBoolean)}");
         }
 
         public virtual void SetVector2Value(Vector2 value) {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameVector2)}");
         }
 
         /// <summary>

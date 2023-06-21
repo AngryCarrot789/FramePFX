@@ -452,18 +452,18 @@ namespace FramePFX.Controls.Dragger {
             }
 
             double value = this.GetRoundedValue(this.Value, true, out int? places);
-            string valueText = places != null ? value.ToString("F" + places.Value) : value.ToString();
+            string valueTextPreview = places.HasValue ? value.ToString("F" + places.Value) : value.ToString();
             if (this.IsEditingTextBox) {
                 if (this.PART_TextBox == null)
                     return;
-                this.PART_TextBox.Text = valueText;
+                this.PART_TextBox.Text = places.HasValue ? value.ToString("F" + places.Value) : value.ToString();
             }
             else {
                 if (this.PART_TextBlock == null)
                     return;
                 string text = this.DisplayTextOverride;
                 if (string.IsNullOrEmpty(text))
-                    text = valueText;
+                    text = valueTextPreview;
                 this.PART_TextBlock.Text = text;
             }
         }
@@ -657,6 +657,7 @@ namespace FramePFX.Controls.Dragger {
 
         public void CompleteInputEdit(double value) {
             this.IsEditingTextBox = false;
+            // TODO: figure out "trimmed" out part (due to rounding) and use that to figure out if the value is actually different
             this.Value = value;
         }
 

@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Windows;
-using FramePFX.Controls;
 using FramePFX.Controls.Dragger;
 using FramePFX.Core.History;
 

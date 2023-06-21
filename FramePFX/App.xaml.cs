@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -13,17 +12,14 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.AudioClips;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Editor;
-using FramePFX.Editor.Timeline.Controls;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
@@ -176,6 +172,11 @@ namespace FramePFX {
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
+                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(200L, new Vector2(800, 300)));
                 clip1.MediaPosition = new Vector2(0, 0);
                 clip1.SetTargetResourceId("idek");
                 layer1.AddClip(clip1);

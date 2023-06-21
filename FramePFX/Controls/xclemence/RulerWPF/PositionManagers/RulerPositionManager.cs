@@ -4,7 +4,6 @@
 // Ruler Wpf Version 3.0
 // 
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;

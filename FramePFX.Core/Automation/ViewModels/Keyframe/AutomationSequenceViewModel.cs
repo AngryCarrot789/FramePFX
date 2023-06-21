@@ -210,6 +210,34 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             return this.OverrideKeyFrame;
         }
 
+        public KeyFrameViewModel GetActiveKeyFrameOrOverride(long timestamp) {
+            KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(timestamp);
+            if (keyFrame != null) {
+                if (this.IsOverrideEnabled) {
+                    this.IsOverrideEnabled = false;
+                }
+
+                return keyFrame;
+            }
+
+            return this.GetOverride();
+        }
+
+        public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long timestamp) {
+            KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(timestamp);
+            if (keyFrame != null) {
+                if (this.IsOverrideEnabled) {
+                    this.IsOverrideEnabled = false;
+                }
+
+                return keyFrame;
+            }
+
+            keyFrame = KeyFrameViewModel.NewInstance(this.Key.CreateKeyFrame());
+            this.AddKeyFrame(timestamp, keyFrame);
+            return keyFrame;
+        }
+
         public void DoRefreshValue(AutomationEngineViewModel engine, long frame, bool isPlaybackSource) {
             this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(frame, isPlaybackSource));
         }

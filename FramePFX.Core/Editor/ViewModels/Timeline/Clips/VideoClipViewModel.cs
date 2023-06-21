@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Numerics;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.History;
@@ -38,13 +40,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public Vector2 MediaPosition {
             get => this.Model.MediaPosition;
             set {
-                if (!this.IsAutomationChangeInProgress && !this.IsHistoryChanging && this.Layer != null) {
+                this.ValidateNotInAutomationChange();
+                if (!this.IsHistoryChanging && this.Layer != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
                         this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaPosition.SetCurrent(value);
                 }
 
-                if (!this.IsAutomationChangeInProgress) {
+                TimelineViewModel timeline = this.Timeline;
+                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.MediaPositionKey) {
+                    this.AutomationData[VideoClipModel.MediaPositionKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetVector2Value(value);
+                }
+                else {
                     this.AutomationData[VideoClipModel.MediaPositionKey].GetOverride().SetVector2Value(value);
                 }
 
@@ -72,13 +79,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public Vector2 MediaScale {
             get => this.Model.MediaScale;
             set {
+                this.ValidateNotInAutomationChange();
                 if (!this.IsHistoryChanging && this.Layer != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
                         this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScale.SetCurrent(value);
                 }
 
-                if (!this.IsAutomationChangeInProgress) {
+                TimelineViewModel timeline = this.Timeline;
+                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.MediaScaleKey) {
+                    this.AutomationData[VideoClipModel.MediaScaleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetVector2Value(value);
+                }
+                else {
                     this.AutomationData[VideoClipModel.MediaScaleKey].GetOverride().SetVector2Value(value);
                 }
 
@@ -106,13 +118,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public Vector2 MediaScaleOrigin {
             get => this.Model.MediaScaleOrigin;
             set {
+                this.ValidateNotInAutomationChange();
                 if (!this.IsHistoryChanging && this.Layer != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
                         this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScaleOrigin.SetCurrent(value);
                 }
 
-                if (!this.IsAutomationChangeInProgress) {
+                TimelineViewModel timeline = this.Timeline;
+                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.MediaScaleOriginKey) {
+                    this.AutomationData[VideoClipModel.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetVector2Value(value);
+                }
+                else {
                     this.AutomationData[VideoClipModel.MediaScaleOriginKey].GetOverride().SetVector2Value(value);
                 }
 
@@ -127,13 +144,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public double Opacity {
             get => this.Model.Opacity;
             set {
+                this.ValidateNotInAutomationChange();
                 if (!this.IsHistoryChanging && this.Layer != null) {
                     if (!this.opacityHistory.TryGetAction(out HistoryVideoClipOpacity action))
                         this.opacityHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipOpacity(this), "Edit opacity");
                     action.Opacity.SetCurrent(value);
                 }
 
-                if (!this.IsAutomationChangeInProgress) {
+                TimelineViewModel timeline = this.Timeline;
+                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.OpacityKey) {
+                    this.AutomationData[VideoClipModel.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
+                }
+                else {
                     this.AutomationData[VideoClipModel.OpacityKey].GetOverride().SetDoubleValue(value);
                 }
 
@@ -231,6 +253,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             base.RaiseAutomationPropertyUpdated(propertyName, in e);
             if (!e.IsPlaybackSource) {
                 this.Timeline.DoRender(true);
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private void ValidateNotInAutomationChange() {
+            if (this.IsAutomationChangeInProgress) {
+                throw new Exception("Cannot modify view-model parameter property while automation change is in progress. " +
+                                    $"Only the model value should be modified, and {nameof(this.RaisePropertyChanged)} should be called in the view-model");
             }
         }
     }

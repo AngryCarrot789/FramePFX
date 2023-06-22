@@ -8,11 +8,12 @@
               xmlns:attached="clr-namespace:FramePFX.Themes.Attached"
               xmlns:exporting="clr-namespace:FramePFX.Core.Editor.Exporting;assembly=FramePFX.Core"
               mc:Ignorable="d"
-              Title="Export Video" Height="200" Width="600"
-              d:DataContext="{d:DesignInstance exporting:ExportVideoViewModel}">
+              Title="Export Video" Height="225" Width="400"
+              d:DataContext="{d:DesignInstance exporting:ExportVideoViewModel}"
+              Style="{DynamicResource CustomWindowStyleEx}">
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Margin="10,10,10,15" Orientation="Vertical">
-            <TextBlock VerticalAlignment="Top" Text="{Binding FilePath, StringFormat='Exporting video to {0}'}" Padding="5"/>
+            <TextBlock VerticalAlignment="Top" Text="{Binding FilePath, StringFormat='Exporting video to {0}'}" Padding="5" TextWrapping="Wrap"/>
             <TextBlock VerticalAlignment="Top" Text="{Binding ProgressPercentage, StringFormat='Progress: {0}'}" Padding="5" Margin="0,5,0,0"/>
             <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentFrame}" Height="24" Margin="0,5,0,0"/>
         </StackPanel>

@@ -3,6 +3,9 @@ using System;
 namespace FramePFX.Core {
     /// <summary>
     /// An attribute applied to the implementation of a service
+    /// <para>
+    /// I only use this when i'm too lazy to add the type to the App.cs class
+    /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class ServiceImplementationAttribute : Attribute {

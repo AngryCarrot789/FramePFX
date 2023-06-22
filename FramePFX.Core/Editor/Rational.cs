@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using FFmpeg.AutoGen;
 
 namespace FramePFX.Core.Editor {
     public readonly struct Rational {
@@ -38,6 +40,10 @@ namespace FramePFX.Core.Editor {
         public static bool operator !=(Rational a, Rational b) {
             return a.num != b.num || a.den != b.den;
         }
+
+        public static implicit operator AVRational(Rational r) => new AVRational() {den = r.den, num = r.num};
+
+        public static explicit operator Rational(AVRational r) => new Rational(r.num, r.den);
 
         public bool Equals(Rational other) {
             return this.num == other.num && this.den == other.den;

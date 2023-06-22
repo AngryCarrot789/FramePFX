@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Editor\Exporting\Exporters\Services" />
     <Folder Include="Editor\ProjectSettings\" />
   </ItemGroup>
 </Project>

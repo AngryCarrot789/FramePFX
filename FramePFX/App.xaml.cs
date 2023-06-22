@@ -24,6 +24,7 @@ using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
 using FramePFX.Views;
+using SkiaSharp;
 
 namespace FramePFX {
     /// <summary>

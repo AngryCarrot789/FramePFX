@@ -99,17 +99,17 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public long FrameBegin {
             get => this.FrameSpan.Begin;
-            set => this.FrameSpan = this.FrameSpan.SetBegin(value);
+            set => this.FrameSpan = this.FrameSpan.WithBegin(value);
         }
 
         public long FrameDuration {
             get => this.FrameSpan.Duration;
-            set => this.FrameSpan = this.FrameSpan.SetDuration(value);
+            set => this.FrameSpan = this.FrameSpan.WithDuration(value);
         }
 
         public long FrameEndIndex {
             get => this.FrameSpan.EndIndex;
-            set => this.FrameSpan = this.FrameSpan.SetEndIndex(value);
+            set => this.FrameSpan = this.FrameSpan.WithEndIndex(value);
         }
 
         public long MediaFrameOffset {
@@ -362,7 +362,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
             }
 
-            this.FrameSpan = span.SetEndIndex(newEndIndex);
+            this.FrameSpan = span.WithEndIndex(newEndIndex);
             this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
         }
 

@@ -1,10 +1,12 @@
+using System.Threading.Tasks;
 using FramePFX.Core;
+using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Exporting;
 using FramePFX.Core.Views.Windows;
 
 namespace FramePFX.Editor.Exporting {
-    [ServiceImplementation(typeof(IExportDialogService))]
-    public class ExportDialogService : IExportDialogService {
+    [ServiceImplementation(typeof(IExportViewService))]
+    public class ExportViewService : IExportViewService {
         public IWindow ShowExportWindow(ExportVideoViewModel export) {
             ExportWindow window = new ExportWindow() {
                 DataContext = export
@@ -12,6 +14,14 @@ namespace FramePFX.Editor.Exporting {
 
             window.Show();
             return window;
+        }
+
+        public Task<bool> ShowExportDialogAsync(ExportSetupViewModel setup) {
+            ExportSetupWindow window = new ExportSetupWindow() {
+                DataContext = setup
+            };
+
+            return Task.FromResult(window.ShowDialog() == true);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.Exporting;
 using FramePFX.Core.Editor.Notifications;
@@ -113,27 +114,11 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return;
             }
 
-            return;
+            ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject.Model) {
+                RenderSpan = new FrameSpan(0, this.ActiveProject.Timeline.Layers.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameEndIndex)))
+            };
 
-            ExportVideoViewModel export = new ExportVideoViewModel();
-            IWindow window = IoC.Provide<IExportDialogService>().ShowExportWindow(export);
-
-            bool isUpdatingProperty = false;
-            this.IsExporting = true;
-            try {
-                await Task.Run(() => {
-
-                });
-            }
-            finally {
-                try {
-                    this.IsExporting = false;
-                    await window.CloseWindowAsync();
-                }
-                catch {
-                    // ignored
-                }
-            }
+            await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
         }
 
         private void OnProjectModified(object sender, string property) {

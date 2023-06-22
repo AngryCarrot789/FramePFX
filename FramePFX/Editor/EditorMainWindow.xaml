@@ -65,6 +65,8 @@
                 <MenuItem Header="Open Project" Command="{Binding OpenProjectCommand, Mode=OneTime}"/>
                 <MenuItem Header="Save Project" Command="{Binding ActiveProject.SaveCommand}" IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}"/>
                 <MenuItem Header="Save Project As..." Command="{Binding ActiveProject.SaveAsCommand}" IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}"/>
+                <Separator/>
+                <MenuItem Header="Export" Command="{Binding ExportCommand, Mode=OneTime}"/>
             </MenuItem>
             <MenuItem Header="test notification" Click="MenuItem_OnClick"/>
         </Menu>

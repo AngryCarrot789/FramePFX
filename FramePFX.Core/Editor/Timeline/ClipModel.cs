@@ -70,7 +70,7 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         public long FrameBegin {
             get => this.FrameSpan.Begin;
-            set => this.FrameSpan = this.FrameSpan.SetBegin(value);
+            set => this.FrameSpan = this.FrameSpan.WithBegin(value);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         public long FrameDuration {
             get => this.FrameSpan.Duration;
-            set => this.FrameSpan = this.FrameSpan.SetDuration(value);
+            set => this.FrameSpan = this.FrameSpan.WithDuration(value);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         public long FrameEndIndex {
             get => this.FrameSpan.EndIndex;
-            set => this.FrameSpan = this.FrameSpan.SetEndIndex(value);
+            set => this.FrameSpan = this.FrameSpan.WithEndIndex(value);
         }
 
         /// <summary>

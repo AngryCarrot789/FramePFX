@@ -314,7 +314,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             ClipModel cloned = clip.Model.Clone();
             cloned.FrameSpan = FrameSpan.FromIndex(frame, span.EndIndex);
             cloned.MediaFrameOffset = frame - span.Begin;
-            clip.FrameSpan = span.SetEndIndex(frame);
+            clip.FrameSpan = span.WithEndIndex(frame);
             this.CreateClip(cloned);
             return Task.CompletedTask;
         }

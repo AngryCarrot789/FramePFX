@@ -273,14 +273,7 @@ namespace FramePFX.Editor {
                 return;
             }
 
-            if (editor.IsProjectSaving) {
-                return;
-            }
-
-            RenderContext context = new SkiaSharpRenderContext(editor.Model, e.Surface, e.Surface.Canvas, e.RawInfo);
-            context.Canvas.Clear(SKColors.Black);
-            project.Timeline.Model.Render(context);
-
+            SKRenderUtils.RenderFrame(project.Model, e);
             // context.Canvas.Translate(100,100);
             // context.Canvas.Scale(100f);
             // context.Canvas.DrawVertices(SKVertexMode.Triangles, new SKPoint[] {

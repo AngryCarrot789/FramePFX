@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Exporting {
-    public class ExportVideoViewModel : BaseViewModel {
+    public class ExportVideoViewModel : BaseViewModel, IExportProgress {
         private string filePath;
         public string FilePath {
             get => this.filePath;
@@ -44,13 +44,17 @@ namespace FramePFX.Core.Editor.Exporting {
         public AsyncRelayCommand CancelCommand { get; }
 
         public ExportVideoViewModel() {
-            this.CancelCommand = new AsyncRelayCommand(this.CancelActionAsync);
+            this.CancelCommand = new AsyncRelayCommand(this.CancelActionAsync, () => this.CancelCallback != null);
         }
 
         public async Task CancelActionAsync() {
             if (this.CancelCallback != null) {
                 await this.CancelCallback();
             }
+        }
+
+        public void OnFrameCompleted(long frame) {
+            this.CurrentFrame = frame;
         }
     }
 }

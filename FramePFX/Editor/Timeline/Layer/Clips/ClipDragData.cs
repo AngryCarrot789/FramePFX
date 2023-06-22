@@ -74,7 +74,7 @@ namespace FramePFX.Editor.Timeline.Layer.Clips {
             // TODO: maybe a better way of creating clips?
             if (this.Clip.DataContext is ClipViewModel clip) {
                 ClipModel clone = clip.Model.Clone();
-                clone.FrameSpan = clone.FrameSpan.SetBegin(this.OriginalFrameBegin);
+                clone.FrameSpan = clone.FrameSpan.WithBegin(this.OriginalFrameBegin);
                 clone.DisplayName = TextIncrement.GetNextText(clone.DisplayName);
                 clip.Layer.CreateClip(clone);
                 this.HasCopy = true;

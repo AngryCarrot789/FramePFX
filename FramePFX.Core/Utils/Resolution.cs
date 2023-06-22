@@ -69,5 +69,13 @@ namespace FramePFX.Core.Utils {
         public static implicit operator Resolution(ulong resolution) => new Resolution((int) (resolution & 0xFFFFFFFF), (int) ((resolution >> 32) & 0xFFFFFFFF));
 
         public static explicit operator ulong(Resolution color) => (ulong) color.Width + ((ulong) color.Height << 32);
+
+        public Resolution WithWidth(int width) {
+            return new Resolution(width, this.Height);
+        }
+
+        public Resolution WithHeight(int height) {
+            return new Resolution(this.Width, height);
+        }
     }
 }

@@ -255,6 +255,9 @@
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
     <Compile Include="Editor\Exporting\ExportService.cs" />
+    <Compile Include="Editor\Exporting\ExportSetupWindow.xaml.cs">
+      <DependentUpon>ExportSetupWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editor\Exporting\ExportWindow.xaml.cs">
       <DependentUpon>ExportWindow.xaml</DependentUpon>
     </Compile>
@@ -360,6 +363,7 @@
     <Compile Include="Shortcuts\WPFKeyMapSerialiser.cs" />
     <Compile Include="Shortcuts\WPFShortcutManager.cs" />
     <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
+    <Compile Include="SKRenderUtils.cs" />
     <Compile Include="SKViewPort.cs" />
     <Compile Include="Themes\Attached\CornerHelper.cs" />
     <Compile Include="Themes\Attached\MenuHelper.cs" />
@@ -443,6 +447,10 @@
     <Page Include="Editor\EditorMainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Exporting\ExportSetupWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Exporting\ExportWindow.xaml" />
     <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">

@@ -62,15 +62,15 @@ namespace FramePFX.Core.Utils {
             return new FrameSpan(this.begin + offsetBegin, this.duration + offsetDuration);
         }
 
-        public FrameSpan SetBegin(long newBegin) {
+        public FrameSpan WithBegin(long newBegin) {
             return new FrameSpan(newBegin, this.duration);
         }
 
-        public FrameSpan SetDuration(long newDuration) {
+        public FrameSpan WithDuration(long newDuration) {
             return new FrameSpan(this.begin, newDuration);
         }
 
-        public FrameSpan SetEndIndex(long newEndIndex) {
+        public FrameSpan WithEndIndex(long newEndIndex) {
             if (newEndIndex < this.begin) {
                 throw new ArgumentOutOfRangeException(nameof(newEndIndex), $"Value cannot be smaller than the begin index ({newEndIndex} < {this.begin})");
             }

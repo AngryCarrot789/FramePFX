@@ -254,6 +254,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
+    <Compile Include="Editor\Exporting\ExportService.cs" />
+    <Compile Include="Editor\Exporting\ExportWindow.xaml.cs">
+      <DependentUpon>ExportWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editor\Notifications\SavingProject\SavingProjectMessageConverter.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditor.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorViewModel.cs" />
@@ -440,6 +444,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Editor\Exporting\ExportWindow.xaml" />
     <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

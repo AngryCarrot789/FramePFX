@@ -1,12 +1,13 @@
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using FramePFX.Core.Editor.Exporting;
 using FramePFX.Core.Editor.Notifications;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
+using FramePFX.Core.Views.Windows;
 
 namespace FramePFX.Core.Editor.ViewModels {
     /// <summary>
@@ -17,6 +18,12 @@ namespace FramePFX.Core.Editor.ViewModels {
         private bool isClosingProject;
         private bool recordKeyFrames = false;
         private bool canAddKeyFrameForPropertyModification = true;
+
+        private bool isExporting;
+        public bool IsExporting {
+            get => this.isExporting;
+            set => this.RaisePropertyChanged(ref this.isExporting, value);
+        }
 
         /// <summary>
         /// The project that is currently being edited in this editor. May be null if no project is loaded
@@ -39,6 +46,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 }
 
                 this.RaisePropertyChanged(ref this.activeProject, value);
+                this.ExportCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -84,6 +92,8 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public AsyncRelayCommand OpenProjectCommand { get; }
 
+        public AsyncRelayCommand ExportCommand { get; }
+
         private SavingProjectNotification notification;
 
         public VideoEditorViewModel(IVideoEditor view) {
@@ -95,6 +105,35 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameTick();
             this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
+            this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
+        }
+
+        private async Task ExportAction() {
+            if (this.ActiveProject == null) {
+                return;
+            }
+
+            return;
+
+            ExportVideoViewModel export = new ExportVideoViewModel();
+            IWindow window = IoC.Provide<IExportDialogService>().ShowExportWindow(export);
+
+            bool isUpdatingProperty = false;
+            this.IsExporting = true;
+            try {
+                await Task.Run(() => {
+
+                });
+            }
+            finally {
+                try {
+                    this.IsExporting = false;
+                    await window.CloseWindowAsync();
+                }
+                catch {
+                    // ignored
+                }
+            }
         }
 
         private void OnProjectModified(object sender, string property) {

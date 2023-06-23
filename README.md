@@ -34,11 +34,13 @@ Rendering the main view port (and soon the clip/text resource previews) is done 
 
 Oh and uh... don't drag drop something like your C:\ drive or a folder which contains 100,000s of files in the hierarchy into the ResourceListControl, otherwise the app will probably freeze as it recursively loads all of those files
 
-# Rendering/Encoding
-I still have yet to implment exporting videos as I'm new to the whole video encoding/decoding world. But the entire project draws the "preview" viewport at full resolution anyway so you can just pass that directly to FFmpeg somehow I guess
+# Rendering/Encoding/Exporting
+Click "Export" in the file menu at the top left, and you can specify some render details. Currently, only .mp4 aka MPEG-4 aka h.264 is supported. Might try to implement more soon. The output cannot be scaled at the moment
+
+![](FramePFX_2023-06-23_03.20.48.png)
 
 ## Downloading/Running
-To run this, you just need to download this repo and also the ffmpeg's shared x64 libraries (https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest, specifically https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip). You place all of the files in the bin folder (apart from the ffmpeg exes) into the bin folder of this project (FramePFX/Bin/Debug or Release depending on how you compiled it) and it should compile fine. It's using .NET Framework 4.7.1 and .NET Standard 2.0
+To run this, you just need to download this repo and also the ffmpeg's shared x64 libraries (https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest, specifically https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip). You build the project (debug, release, or whatever), then place all of the FFmpeg files in the bin folder (apart from the ffmpeg exes) and it should run fine, then you can debug it if you want. It's using .NET Framework 4.7.1 or 4.7.2 (can't quite remember) and .NET Standard 2.0
 
 And to drag videos into the editor, you drag and drop a video file to the top left "resource manager", and then drag one of those items into the timeline. Will soon support directly dropping a clip into the timeline
 
@@ -46,5 +48,5 @@ And to drag videos into the editor, you drag and drop a video file to the top le
 Currently there's only a WPF implementation, but I hope to switch to avalonia at some point or MAUI. Most of the classes are implented in the .NET Standard project, so it's relatively easy to port the app over to different platforms, but then there's also SkiaSharp, FFmpeg, etc, dependencies too...
 
 ## BUGS ono
-If you drag a video clip (with a video from a file) into another layer, it will crash. I think this is because of how i'm handling the transition of clips across layers; it invalidates the clip's resource handle, which could (at some point) be disposing of parts of the resource object by accident? (clips are not supposed to dispose resources... yet)
+- Fixed the bug where dragging a clip across layers crashes the app. However, importing certain video files can still crash (some sort of "found invalid data while decoding" error)
 

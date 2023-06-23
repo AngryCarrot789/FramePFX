@@ -1,6 +1,4 @@
-using System;
 using System.Numerics;
-using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
@@ -34,7 +32,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         /// </summary>
         public double Opacity { get; set; }
 
-        public byte OpacityByte => (byte) Maths.Clamp((int) Math.Round(this.Opacity / 255d), 0, 255);
+        public byte OpacityByte => RenderUtils.DoubleToByte(this.Opacity);
 
         /// <summary>
         /// Whether or not this clip handles it's own opacity calculation to help with render performance. Default
@@ -65,10 +63,18 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
+            data.SetStruct(nameof(this.MediaPosition), this.MediaPosition);
+            data.SetStruct(nameof(this.MediaScale), this.MediaScale);
+            data.SetStruct(nameof(this.MediaScaleOrigin), this.MediaScaleOrigin);
+            data.SetDouble(nameof(this.Opacity), this.Opacity);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
+            this.MediaPosition = data.GetStruct<Vector2>(nameof(this.MediaPosition));
+            this.MediaScale = data.GetStruct<Vector2>(nameof(this.MediaScale));
+            this.MediaScaleOrigin = data.GetStruct<Vector2>(nameof(this.MediaScaleOrigin));
+            this.Opacity = data.GetDouble(nameof(this.Opacity));
         }
 
         /// <summary>

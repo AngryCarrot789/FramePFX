@@ -19,10 +19,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
 
         protected override void OnResourceDataModified(string property) {
             switch (property) {
-                case nameof(ResourceColour.ScA):
-                case nameof(ResourceColour.ScR):
-                case nameof(ResourceColour.ScG):
-                case nameof(ResourceColour.ScB):
+                case nameof(ResourceColour.Colour):
                     this.InvalidateRender();
                     break;
             }
@@ -50,8 +47,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             }
 
             this.Transform(render);
-            SKColor colour = r.Colour;
-            colour = colour.WithAlpha((byte) Maths.Clamp(((colour.Alpha / 255d) * this.Opacity) * 255, 0, 255));
+            SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
             using (SKPaint paint = new SKPaint() {Color = colour}) {
                 render.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
             }

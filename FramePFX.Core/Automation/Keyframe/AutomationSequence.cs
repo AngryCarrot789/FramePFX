@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 using System.Numerics;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
@@ -10,7 +9,6 @@ namespace FramePFX.Core.Automation.Keyframe {
     /// Contains all of the key frames for a specific <see cref="AutomationKey"/>
     /// </summary>
     public class AutomationSequence : IRBESerialisable {
-        // private readonly LinkedList<KeyFrame> keyFrameLinkedList;
         private readonly List<KeyFrame> keyFrameList;
 
         /// <summary>
@@ -44,6 +42,8 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public AutomationDataType DataType { get; }
 
+        public AutomationData AutomationData { get; }
+
         public AutomationKey Key { get; }
 
         /// <summary>
@@ -51,9 +51,9 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         public UpdateAutomationValueEventHandler UpdateValue;
 
-        public AutomationSequence(AutomationKey key) {
+        public AutomationSequence(AutomationData automationData, AutomationKey key) {
+            this.AutomationData = automationData;
             this.Key = key;
-            // this.keyFrameLinkedList = new LinkedList<KeyFrame>();
             this.keyFrameList = new List<KeyFrame>();
             this.DataType = key.DataType;
             this.OverrideKeyFrame = key.CreateKeyFrame();
@@ -328,11 +328,11 @@ namespace FramePFX.Core.Automation.Keyframe {
             }
         }
 
-        public AutomationSequence Clone() {
-            RBEDictionary data = new RBEDictionary();
-            this.WriteToRBE(data);
-            AutomationSequence seq = new AutomationSequence(this.Key);
-            seq.ReadFromRBE(data);
+        public AutomationSequence Clone(AutomationData automationData) {
+            RBEDictionary dictionary = new RBEDictionary();
+            this.WriteToRBE(dictionary);
+            AutomationSequence seq = new AutomationSequence(automationData, this.Key);
+            seq.ReadFromRBE(dictionary);
             return seq;
         }
 

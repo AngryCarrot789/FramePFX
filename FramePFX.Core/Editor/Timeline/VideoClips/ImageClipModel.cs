@@ -19,12 +19,11 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         }
 
         public override Vector2? GetSize() {
-            if (this.ResourcePath == null || !this.ResourcePath.TryGetResource(out ResourceImage r)) {
-                return Vector2.Zero;
+            if (this.ResourcePath == null || !this.ResourcePath.TryGetResource(out ResourceImage r) || r.image == null) {
+                return null;
             }
 
-            SKImage img = r.image;
-            return img == null ? Vector2.Zero : new Vector2(img.Width, img.Height);
+            return new Vector2(r.image.Width, r.image.Height);
         }
 
         public override void Render(RenderContext render, long frame) {

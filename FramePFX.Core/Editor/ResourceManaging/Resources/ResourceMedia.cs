@@ -14,8 +14,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         public bool IsValidMediaFile => this.Demuxer != null;
 
-        public bool HasVideoStream => this.stream != null;
-
         private MediaStream stream;
         private VideoDecoder decoder;
         private FrameQueue frameQueue;
@@ -44,14 +42,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             this.OpenFileAndDemuxer();
         }
 
-        public unsafe Resolution GetResolution() {
-            if (this.HasVideoStream) {
+        public unsafe Resolution? GetResolution() {
+            if (this.stream != null) {
                 //Wrappers don't expose this stuff so :')
                 AVCodecParameters* pars = this.stream.Handle->codecpar;
                 return new Resolution(pars->width, pars->height);
             }
 
-            return Resolution.Empty;
+            return null;
         }
 
         public TimeSpan GetDuration() {
@@ -59,7 +57,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         }
 
         public VideoFrame GetFrameAt(TimeSpan timestamp) {
-            if (!this.HasVideoStream) {
+            if (this.stream == null) {
                 return null;
             }
 
@@ -91,7 +89,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         private bool DecodeFramesUntil(TimeSpan endTime) {
             while (true) {
                 VideoFrame frame = this.frameQueue.Reserve();
-
                 if (this.decoder.ReceiveFrame(frame)) {
                     if (this.frameQueue.Shift() >= endTime) {
                         return true;

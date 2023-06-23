@@ -53,7 +53,7 @@ namespace FramePFX.Core.Automation {
         public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler) {
             if (this.dataMap.ContainsKey(key))
                 throw new Exception("Key is already assigned");
-            AutomationSequence sequence = new AutomationSequence(key);
+            AutomationSequence sequence = new AutomationSequence(this, key);
             this.dataMap[key] = sequence;
             if (updateValueHandler != null) {
                 sequence.UpdateValue += updateValueHandler;
@@ -98,7 +98,7 @@ namespace FramePFX.Core.Automation {
 
         public void LoadDataIntoClone(AutomationData clone) {
             foreach (AutomationSequence sequence in this.dataMap.Values)
-                clone.dataMap[sequence.Key] = sequence.Clone();
+                clone.dataMap[sequence.Key] = sequence.Clone(clone);
         }
     }
 }

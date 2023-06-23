@@ -17,9 +17,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         }
 
         public override Vector2? GetSize() {
-            if (this.TryGetResource(out ResourceMedia resource))
-                return resource.GetResolution();
-            return null;
+            return this.TryGetResource(out ResourceMedia resource) ? resource.GetResolution() : null;
         }
 
         public override void Render(RenderContext render, long frame) {
@@ -29,13 +27,49 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null) {
                 if (resource.Demuxer == null)
                     resource.OpenMediaFromFile();
-                this.ResyncFrame(frame, resource);
+                if (this.renderFrameRgb == null && resource.GetResolution() is Resolution res) {
+                    this.renderFrameRgb = new VideoFrame(res.Width, res.Height, PixelFormats.RGBA);
+                }
+
+                double timeScale = this.Project.Settings.FrameRate.ActualFPS;
+                TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
+                // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
+                this.readyFrame = resource.GetFrameAt(timestamp);
                 this.currentFrame = frame;
             }
 
             if (this.readyFrame != null) {
                 this.Transform(render);
-                this.UploadFrame(this.readyFrame, render);
+                VideoFrame frame1 = this.readyFrame;
+                // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
+                // a project preview resolution so that decoding is lightning fast for low resolution?
+
+                if (this.renderFrameRgb == null) {
+                    return;
+                }
+
+                if (frame1.IsHardwareFrame) {
+                    // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
+                    // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
+                    // hacking into the API specific device context (like D3D11VA).
+                    frame1.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
+                    frame1 = this.downloadedHwFrame;
+                }
+
+                if (this.scaler == null) {
+                    this.scaler = new SwScaler(frame1.Format, this.renderFrameRgb.Format);
+                }
+
+                this.scaler.Convert(frame1, this.renderFrameRgb);
+                unsafe {
+                    Span<byte> pixelData = this.renderFrameRgb.GetPlaneSpan<byte>(0, out int rowBytes);
+                    fixed (byte* ptr = pixelData) {
+                        SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
+                        using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
+                            render.Canvas.DrawImage(img, 0, 0, null);
+                        }
+                    }
+                }
             }
         }
 
@@ -51,46 +85,6 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             this.downloadedHwFrame = null;
             this.scaler?.Dispose();
             this.scaler = null;
-        }
-
-        private void ResyncFrame(long frame, ResourceMedia media) {
-            if (this.renderFrameRgb == null) {
-                Resolution resolution = media.GetResolution();
-                this.renderFrameRgb = new VideoFrame(resolution.Width, resolution.Height, PixelFormats.RGBA);
-            }
-
-            double timeScale = this.Project.Settings.FrameRate.ActualFPS;
-            TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
-            // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
-            this.readyFrame = media.GetFrameAt(timestamp);
-        }
-
-        // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
-        // a project preview resolution so that decoding is lightning fast for low resolution?
-
-        private void UploadFrame(VideoFrame frame, RenderContext render) {
-            if (frame.IsHardwareFrame) {
-                // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
-                // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
-                // hacking into the API specific device context (like D3D11VA).
-                frame.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
-                frame = this.downloadedHwFrame;
-            }
-
-            if (this.scaler == null) {
-                this.scaler = new SwScaler(frame.Format, this.renderFrameRgb.Format);
-            }
-
-            this.scaler.Convert(frame, this.renderFrameRgb);
-            unsafe {
-                Span<byte> pixelData = this.renderFrameRgb.GetPlaneSpan<byte>(0, out int rowBytes);
-                fixed (byte* ptr = pixelData) {
-                    SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
-                    using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                        render.Canvas.DrawImage(img, 0, 0, null);
-                    }
-                }
-            }
         }
     }
 }

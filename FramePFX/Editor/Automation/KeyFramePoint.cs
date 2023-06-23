@@ -79,7 +79,7 @@ namespace FramePFX.Editor.Automation {
                     pen = this.editor.KeyFramePen;
                 }
 
-                dc.DrawEllipse(Brushes.Transparent, pen, point, r, r);
+                dc.DrawEllipse(pen.Brush, pen, point, r, r);
             }
         }
 

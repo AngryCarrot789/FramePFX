@@ -1,16 +1,20 @@
 using System.Numerics;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
+using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline.VideoClips {
     public class TextClipModel : BaseResourceClip<ResourceText> {
         private SKTextBlob blob;
-        private SKPaint paint;
+        private SKFont font;
 
         public bool UseCustomText { get; set; }
 
         public string CustomText { get; set; }
+
+        public override bool UseCustomOpacityCalculation => true;
 
         public TextClipModel() {
 
@@ -27,6 +31,19 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             text.CustomText = this.CustomText;
         }
 
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            data.SetBool(nameof(this.UseCustomText), this.UseCustomText);
+            if (!string.IsNullOrEmpty(this.CustomText))
+                data.SetString(nameof(this.CustomText), this.CustomText);
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            this.UseCustomText = data.GetBool(nameof(this.UseCustomText), false);
+            this.CustomText = data.GetString(nameof(this.CustomText), null);
+        }
+
         protected override void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
             base.OnResourceChanged(oldItem, newItem);
             this.blob?.Dispose();
@@ -35,18 +52,20 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
 
         protected override void OnResourceDataModified(string property) {
             switch (property) {
-                case nameof(ResourceText.Text) when !this.UseCustomText:
+                case nameof(ResourceText.FontFamily):
                 case nameof(ResourceText.FontSize):
                 case nameof(ResourceText.SkewX):
-                case nameof(ResourceText.FontFamily):
-                    this.blob?.Dispose();
-                    this.blob = null;
+                    this.InvalidateTextCache();
+                    this.font?.Dispose();
+                    this.font = null;
+                    break;
+                case nameof(ResourceText.Text):
+                    this.InvalidateTextCache();
                     break;
                 case nameof(ResourceText.Foreground):
                 case nameof(ResourceText.Border):
                 case nameof(ResourceText.BorderThickness):
-                    this.paint?.Dispose();
-                    this.paint = null;
+                case nameof(ResourceText.IsAntiAliased):
                     break;
                 default: return;
             }
@@ -68,32 +87,32 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 return;
             }
 
-            string text = this.UseCustomText ? this.CustomText : r.Text;
-            if ((this.blob == null || this.paint == null) && !string.IsNullOrEmpty(text)) {
-                SKFont font = new SKFont(SKTypeface.FromFamilyName(r.FontFamily), (float) r.FontSize, 1F, (float) r.SkewX);
-                this.blob?.Dispose();
-                this.paint?.Dispose();
-                this.blob = SKTextBlob.Create(text, font);
-                this.paint = new SKPaint(font) {
-                    StrokeWidth = (float) r.BorderThickness,
-                    Color = r.Foreground, ColorFilter = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, this.OpacityByte), SKBlendMode.DstOver)
-                };
-                font.Dispose();
+            if (this.font == null) {
+                this.font = new SKFont(SKTypeface.FromFamilyName(r.FontFamily), (float) r.FontSize, 1F, (float) r.SkewX);
             }
 
-            if (this.blob == null || this.paint == null) {
-                return;
+            if (this.blob == null) {
+                string text = this.UseCustomText ? this.CustomText : r.Text;
+                if (string.IsNullOrEmpty(text)) {
+                    return;
+                }
+
+                this.blob = SKTextBlob.Create(text, this.font);
             }
 
             this.Transform(render);
-            render.Canvas.DrawText(this.blob, 0, (this.blob.Bounds.Height / 2), this.paint);
+            using (SKPaint paint = new SKPaint(this.font)) {
+                paint.StrokeWidth = (float) r.BorderThickness;
+                paint.Color = RenderUtils.BlendAlpha(r.Foreground, this.Opacity);
+                paint.TextAlign = SKTextAlign.Left;
+                paint.IsAntialias = r.IsAntiAliased;
+                render.Canvas.DrawText(this.blob, 0, this.blob.Bounds.Height / 2, paint);
+            }
         }
 
         public void InvalidateTextCache() {
             this.blob?.Dispose();
             this.blob = null;
-            this.paint?.Dispose();
-            this.paint = null;
         }
     }
 }

@@ -194,6 +194,7 @@
     <Compile Include="AdvancedContextService\Static\StaticMenuItemCollection.cs" />
     <Compile Include="AdvancedContextService\Static\StaticMenuSeparator.cs" />
     <Compile Include="AdvancedContextService\Static\StaticShortcutMenuItem.cs" />
+    <Compile Include="AppLogger.cs" />
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs" />
@@ -247,6 +248,7 @@
     <Compile Include="Converters\VerticalScrollBinder.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\CurveJoint.cs" />
+    <Compile Include="Editor\Automation\DragMode.cs" />
     <Compile Include="Editor\Automation\KeyFramePoint.cs" />
     <Compile Include="Editor\Automation\KeyPointUtils.cs" />
     <Compile Include="Editor\Automation\LineHitType.cs" />
@@ -404,6 +406,9 @@
     </Compile>
     <Compile Include="Utils\VisualTreeUtils.cs" />
     <Compile Include="Validators\FontFamilyValidationRule.cs" />
+    <Compile Include="Views\AppLoggerWindow.xaml.cs">
+      <DependentUpon>AppLoggerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AppSplashScreen.xaml.cs">
       <DependentUpon>AppSplashScreen.xaml</DependentUpon>
     </Compile>
@@ -537,6 +542,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\AppLoggerWindow.xaml" />
     <Page Include="Views\AppSplashScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

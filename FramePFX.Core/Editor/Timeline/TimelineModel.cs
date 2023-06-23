@@ -96,8 +96,8 @@ namespace FramePFX.Core.Editor.Timeline {
             this.Render(render, this.PlayHeadFrame);
         }
 
-        private static void SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
-            canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
+        private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
+            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
         }
 
         public void Render(RenderContext render, long frame) {
@@ -114,20 +114,16 @@ namespace FramePFX.Core.Editor.Timeline {
 
                 // SaveLayer requires a temporary drawing bitmap, which can slightly
                 // decrease performance, so only SaveLayer when absolutely necessary
-                if (!Maths.Equals(layer.Opacity, 1d)) {
-                    SaveLayerForOpacity(render.Canvas, layer.Opacity, ref layerTransparencyPaint);
-                }
-                else {
-                    render.Canvas.Save();
-                }
+                int layerSaveCount = !Maths.Equals(layer.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, layer.Opacity, ref layerTransparencyPaint) : render.Canvas.Save();
 
                 foreach (ClipModel clip in clips) {
+                    int clipSaveCount;
                     VideoClipModel videoClip = (VideoClipModel) clip;
                     if (videoClip.UseCustomOpacityCalculation || Maths.Equals(videoClip.Opacity, 1d)) {
-                        render.Canvas.Save();
+                        clipSaveCount = render.Canvas.Save();
                     }
                     else {
-                        SaveLayerForOpacity(render.Canvas, videoClip.Opacity, ref clipPaint);
+                        clipSaveCount = SaveLayerForOpacity(render.Canvas, videoClip.Opacity, ref clipPaint);
                     }
 
                     #if DEBUG
@@ -141,17 +137,19 @@ namespace FramePFX.Core.Editor.Timeline {
                     }
                     #endif
 
-                    render.Canvas.Restore();
+                    render.Canvas.RestoreToCount(clipSaveCount);
                     if (clipPaint != null) {
                         clipPaint.Dispose();
                         clipPaint = null;
                     }
                 }
 
-                render.Canvas.Restore();
+                render.Canvas.RestoreToCount(layerSaveCount);
+                if (layerTransparencyPaint != null) {
+                    layerTransparencyPaint.Dispose();
+                    layerTransparencyPaint = null;
+                }
             }
-
-            layerTransparencyPaint?.Dispose();
         }
 
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {

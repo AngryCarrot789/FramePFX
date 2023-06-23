@@ -15,10 +15,12 @@ using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Utils;
 using FramePFX.Utils;
 using Rect = System.Windows.Rect;
+using Vector = System.Windows.Vector;
 
 namespace FramePFX.Editor.Automation {
     public class AutomationSequenceEditor : Control {
-        public const double EllipseRadius = 3d;
+        public const double EllipseRadius = 2.5d;
+        public const double EllipseThickness = 1d;
         public const double EllipseHitRadius = 12d;
         public const double LineThickness = 2d;
         public const double LineHitThickness = 12d;
@@ -185,17 +187,21 @@ namespace FramePFX.Editor.Automation {
         private Pen overrideValuePen;
 
         internal readonly List<KeyFramePoint> backingList;
-        private KeyFramePoint captured;
-        private Point mouseDownPoint;
-        private bool justCaptured;
         private ScrollViewer scroller;
         private readonly PropertyChangedEventHandler keyFramePropertyChangedEventHandler;
 
+        private KeyFramePoint captured;
+        private Point mouseDownPoint;
+        private bool isCaptureInitialised;
+        private KeyFramePoint lastMouseOver;
+        private LineHitType captureLineHit;
+        private DragMode? dragMode;
+
         private static readonly Brush TransparentBrush = Brushes.Transparent; // Brushes.Yellow
 
-        internal Pen KeyOverridePen => this.keyOverridePen ?? (this.keyOverridePen = new Pen(this.OverrideBrush ?? Brushes.DarkGray, EllipseRadius));
-        internal Pen KeyFramePen => this.keyFramePen ?? (this.keyFramePen = new Pen(this.KeyFrameBrush ?? Brushes.OrangeRed, EllipseRadius));
-        internal Pen KeyFrameMouseOverPen => this.mouseOverPen ?? (this.mouseOverPen = new Pen(this.MouseOverBrush ?? Brushes.White, EllipseRadius));
+        internal Pen KeyOverridePen => this.keyOverridePen ?? (this.keyOverridePen = new Pen(this.OverrideBrush ?? Brushes.DarkGray, EllipseThickness));
+        internal Pen KeyFramePen => this.keyFramePen ?? (this.keyFramePen = new Pen(this.KeyFrameBrush ?? Brushes.OrangeRed, EllipseThickness));
+        internal Pen KeyFrameMouseOverPen => this.mouseOverPen ?? (this.mouseOverPen = new Pen(this.MouseOverBrush ?? Brushes.White, EllipseThickness));
         internal Pen KeyFrameTransparentPen => this.keyFrameTransparentPen ?? (this.keyFrameTransparentPen = new Pen(TransparentBrush, EllipseHitRadius));
         internal Pen LineOverridePen => this.lineOverridePen ?? (this.lineOverridePen = new Pen(this.OverrideBrush ?? Brushes.DarkGray, LineThickness));
         internal Pen LinePen => this.curvePen ?? (this.curvePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, LineThickness));
@@ -403,6 +409,8 @@ namespace FramePFX.Editor.Automation {
 
         #region Key point capture
 
+        private Point mouseCapturePoint;
+
         private void ClearCapture(bool releaseMouseCapture = true) {
             if (this.captured == null) {
                 return;
@@ -411,20 +419,27 @@ namespace FramePFX.Editor.Automation {
             this.captured.IsMovingPoint = false;
             this.captured.IsPointSelected = false;
             this.captured = null;
-            this.justCaptured = false;
+            this.isCaptureInitialised = false;
+            this.dragMode = null;
             if (releaseMouseCapture && this.IsMouseCaptured) {
                 this.ReleaseMouseCapture();
             }
         }
 
-        private void CapturePoint(KeyFramePoint point, bool captureMouse = true) {
+        private bool ignoreMouseMove;
+
+        private void SetPointCaptured(KeyFramePoint point, bool captureMouse, LineHitType lineHit) {
             this.captured = point;
             point.IsMovingPoint = true;
             point.IsPointSelected = true;
             point.InvalidateRenderData();
-            this.justCaptured = true;
+            this.isCaptureInitialised = true;
+            this.captureLineHit = lineHit;
+            this.dragMode = null;
             if (captureMouse && !this.IsMouseCaptured) {
+                this.ignoreMouseMove = true;
                 this.CaptureMouse();
+                this.ignoreMouseMove = false;
             }
         }
 
@@ -458,7 +473,7 @@ namespace FramePFX.Editor.Automation {
             if (this.TryGetPointByKeyFrame(keyFrame, out KeyFramePoint keyFramePoint)) {
                 keyFramePoint.SetValueForMousePoint(point);
                 if (capturePoint) {
-                    this.CapturePoint(keyFramePoint);
+                    this.SetPointCaptured(keyFramePoint, true, LineHitType.None);
                 }
             }
             else {
@@ -555,10 +570,7 @@ namespace FramePFX.Editor.Automation {
                     this.ClearCapture(lineHit != LineHitType.None);
                 }
 
-                if (lineHit == LineHitType.None) {
-                    this.CapturePoint(hitKey);
-                }
-
+                this.SetPointCaptured(hitKey, true, lineHit);
                 this.InvalidateVisual();
                 e.Handled = true;
                 return;
@@ -593,9 +605,9 @@ namespace FramePFX.Editor.Automation {
                     hitKey.KeyFrame.OwnerSequence.RemoveKeyFrame(hitKey.KeyFrame);
                 }
                 else if (this.Sequence is AutomationSequenceViewModel sequence) {
-                    if (this.justCaptured) {
+                    if (this.isCaptureInitialised) {
                         this.mouseDownPoint = mPos;
-                        this.justCaptured = false;
+                        this.isCaptureInitialised = false;
                     }
 
                     this.CreateKeyFrameAt(sequence, mPos, true);
@@ -605,9 +617,9 @@ namespace FramePFX.Editor.Automation {
                 e.Handled = true;
             }
             else if (this.Sequence is AutomationSequenceViewModel sequence) {
-                if (this.justCaptured) {
+                if (this.isCaptureInitialised) {
                     this.mouseDownPoint = mPos;
-                    this.justCaptured = false;
+                    this.isCaptureInitialised = false;
                 }
 
                 this.CreateKeyFrameAt(sequence, mPos, true);
@@ -622,8 +634,6 @@ namespace FramePFX.Editor.Automation {
 
             this.InvalidateVisual();
         }
-
-        private KeyFramePoint lastMouseOver;
 
         private void UpdateMouseOver(Point point, bool invalidateRender = true) {
             if (this.lastMouseOver != null) {
@@ -668,16 +678,16 @@ namespace FramePFX.Editor.Automation {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
+            if (this.ignoreMouseMove) {
+                return;
+            }
+
             Point mPos = e.GetPosition(this);
             this.UpdateMouseOver(mPos, false);
 
             if (e.LeftButton != MouseButtonState.Pressed) {
                 if (this.captured != null) {
                     this.ClearCapture();
-                }
-
-                if (this.IsMouseCaptured) {
-                    this.ReleaseMouseCapture();
                 }
 
                 this.InvalidateVisual();
@@ -688,25 +698,57 @@ namespace FramePFX.Editor.Automation {
             }
 
             // TODO: add minimum and maximum dependency properties
+            KeyFramePoint prev = this.captured.Prev;
+            KeyFramePoint next = this.captured.Next;
 
-            long min = this.captured.Prev?.KeyFrame.Timestamp ?? this.MinFrame;
-            long max = this.captured.Next?.KeyFrame.Timestamp ?? (this.MaxFrame - 1);
+            long min = prev?.KeyFrame.Timestamp ?? this.MinFrame;
+            long max = next?.KeyFrame.Timestamp ?? (this.MaxFrame - 1);
 
-            if (this.justCaptured) {
+            if (this.isCaptureInitialised) {
                 this.mouseDownPoint = mPos;
-                this.justCaptured = false;
+                this.isCaptureInitialised = false;
                 return;
             }
 
-            long offset = Math.Max(0, (long) Math.Round(mPos.X / this.UnitZoom));
-            long time = this.captured.KeyFrame.Timestamp;
-            if ((time + offset) < 0) {
-                offset = -time;
+            Vector diff = mPos - this.mouseDownPoint;
+            bool isShiftPressed = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+            if (!isShiftPressed || !(this.dragMode is DragMode mode)) {
+                if (this.captureLineHit == LineHitType.None) {
+                    if (isShiftPressed) {
+                        if (!Maths.Equals(Math.Abs(diff.Y), 0d)) {
+                            this.dragMode = mode = DragMode.VerticalKeyFrame;
+                        }
+                        else if (!Maths.Equals(Math.Abs(diff.X), 0d)) {
+                            this.dragMode = mode = DragMode.HorizontalKeyFrame;
+                        }
+                        else {  // return; // no mouse movement???
+                            this.dragMode = mode = DragMode.FullKeyFrame;
+                        }
+                    }
+                    else {
+                        this.dragMode = mode = DragMode.FullKeyFrame;
+                    }
+                }
+                else {
+                    mode = DragMode.None;
+                    this.dragMode = null;
+                }
             }
 
-            this.captured.KeyFrame.Timestamp = Maths.Clamp(offset, min, max);
-            if (!(this.captured is KeyFramePointVec2)) {
-                this.captured.SetValueForMousePoint(mPos);
+            if (mode == DragMode.FullKeyFrame || mode == DragMode.HorizontalKeyFrame) {
+                long newTime = Math.Max(0, (long) Math.Round(mPos.X / this.UnitZoom));
+                long oldTime = this.captured.KeyFrame.Timestamp;
+                if ((oldTime + newTime) < 0) {
+                    newTime = -oldTime;
+                }
+
+                this.captured.KeyFrame.Timestamp = Maths.Clamp(newTime, min, max);
+            }
+
+            if (mode == DragMode.FullKeyFrame || mode == DragMode.VerticalKeyFrame) {
+                if (!(this.captured is KeyFramePointVec2)) {
+                    this.captured.SetValueForMousePoint(mPos);
+                }
             }
 
             this.UpdateMouseOver(mPos);

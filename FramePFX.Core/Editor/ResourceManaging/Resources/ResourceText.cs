@@ -17,6 +17,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         public double BorderThickness { get; set; }
 
+        public bool IsAntiAliased { get; set; }
+
         public ResourceText() {
             this.FontSize = 40;
             this.FontFamily = "Consolas";
@@ -25,6 +27,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             this.Foreground = SKColors.White;
             this.Border = SKColors.DarkGray;
             this.BorderThickness = 5d;
+            this.IsAntiAliased = true;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -36,6 +39,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             data.SetStruct(nameof(this.Foreground), this.Foreground);
             data.SetStruct(nameof(this.Border), this.Border);
             data.SetDouble(nameof(this.BorderThickness), this.BorderThickness);
+            data.SetBool(nameof(this.IsAntiAliased), this.IsAntiAliased);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
@@ -47,6 +51,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             this.Foreground = data.GetStruct<SKColor>(nameof(this.Foreground));
             this.Border = data.GetStruct<SKColor>(nameof(this.Border));
             this.BorderThickness = data.GetDouble(nameof(this.BorderThickness));
+            this.IsAntiAliased = data.GetBool(nameof(this.IsAntiAliased));
         }
     }
 }

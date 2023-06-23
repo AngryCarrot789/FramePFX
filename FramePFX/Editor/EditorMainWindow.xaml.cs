@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,7 @@ using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceChecker;
+using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Notifications;
@@ -34,9 +36,11 @@ namespace FramePFX.Editor {
 
         private readonly Action renderCallback;
 
+        private const long RefreshInterval = 5000;
         private long lastRefreshTime;
         private bool isRefreshing;
-        private const long RefreshInterval = 5000;
+        private volatile int isRenderScheduled;
+        private bool isPrintingErrors;
 
         public NotificationPanelViewModel NotificationPanel { get; }
 
@@ -250,8 +254,6 @@ namespace FramePFX.Editor {
             }
         }
 
-        private volatile int isRenderScheduled;
-
         public void RenderViewPort(bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
@@ -269,11 +271,20 @@ namespace FramePFX.Editor {
         private void OnPaintViewPortSurface(object sender, SKPaintSurfaceEventArgs e) {
             VideoEditorViewModel editor = this.Editor;
             ProjectViewModel project = editor.ActiveProject;
-            if (project == null) {
+            if (project == null || project.Model.IsSaving) {
                 return;
             }
 
-            SKRenderUtils.RenderFrame(project.Model, e);
+            RenderContext context = new SkiaSharpRenderContext(e.Surface, e.Surface.Canvas, e.RawInfo);
+            context.Canvas.Clear(SKColors.Black);
+            project.Model.Timeline.Render(context);
+
+            Dictionary<ClipModel, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
+            if (dictionary.Count > 0) {
+                this.PrintRenderErrors(dictionary);
+                dictionary.Clear();
+            }
+
             // context.Canvas.Translate(100,100);
             // context.Canvas.Scale(100f);
             // context.Canvas.DrawVertices(SKVertexMode.Triangles, new SKPoint[] {
@@ -287,6 +298,21 @@ namespace FramePFX.Editor {
             // }, new SKPaint() {Color = SKColors.Aqua});
 
             this.isRenderScheduled = 0;
+        }
+
+        private async void PrintRenderErrors(Dictionary<ClipModel, Exception> dictionary) {
+            if (this.isPrintingErrors) {
+                return;
+            }
+
+            this.isPrintingErrors = true;
+            StringBuilder sb = new StringBuilder(2048);
+            foreach (KeyValuePair<ClipModel,Exception> entry in dictionary) {
+                sb.Append($"{entry.Key.DisplayName ?? entry.Key.ToString()}: {entry.Value.GetToString()}\n");
+            }
+
+            await IoC.MessageDialogs.ShowMessageExAsync("Render error", $"An exception updating {dictionary.Count} clips", sb.ToString());
+            this.isPrintingErrors = false;
         }
 
         protected override async Task<bool> OnClosingAsync() {
@@ -346,6 +372,10 @@ namespace FramePFX.Editor {
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e) {
             this.NotificationPanel.PushNotification(new MessageNotification("Header!!!", $"Some message here ({++this.number})", TimeSpan.FromSeconds(5)));
+        }
+
+        private void ShowLogsClick(object sender, RoutedEventArgs e) {
+            new AppLoggerWindow().Show();
         }
     }
 }

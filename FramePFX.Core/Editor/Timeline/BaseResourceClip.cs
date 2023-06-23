@@ -117,12 +117,12 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public bool TryGetResource(out T resource) {
-            if (this.ResourcePath == null) {
-                resource = null;
-                return false;
+            if (this.ResourcePath != null) {
+                return this.ResourcePath.TryGetResource(out resource);
             }
 
-            return this.ResourcePath.TryGetResource(out resource);
+            resource = null;
+            return false;
         }
 
         protected override void DisposeCore(ExceptionStack stack) {

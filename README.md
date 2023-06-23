@@ -37,7 +37,7 @@ Oh and uh... don't drag drop something like your C:\ drive or a folder which con
 # Rendering/Encoding/Exporting
 Click "Export" in the file menu at the top left, and you can specify some render details. Currently, only .mp4 aka MPEG-4 aka h.264 is supported. Might try to implement more soon. The output cannot be scaled at the moment
 
-![](FramePFX_2023-06-21_03.33.35.png)
+![](FramePFX_2023-06-23_03.20.48.png)
 
 ## Downloading/Running
 To run this, you just need to download this repo and also the ffmpeg's shared x64 libraries (https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest, specifically https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip). You build the project (debug, release, or whatever), then place all of the FFmpeg files in the bin folder (apart from the ffmpeg exes) and it should run fine, then you can debug it if you want. It's using .NET Framework 4.7.1 or 4.7.2 (can't quite remember) and .NET Standard 2.0

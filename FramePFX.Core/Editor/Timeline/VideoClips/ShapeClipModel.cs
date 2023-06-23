@@ -2,6 +2,7 @@ using System.Numerics;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
+using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timeline.VideoClips {
@@ -9,6 +10,8 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         public float Width { get; set; }
 
         public float Height { get; set; }
+
+        public override bool UseCustomOpacityCalculation => true;
 
         public ShapeClipModel() {
 
@@ -47,7 +50,9 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             }
 
             this.Transform(render);
-            using (SKPaint paint = new SKPaint() {Color = r.Colour}) {
+            SKColor colour = r.Colour;
+            colour = colour.WithAlpha((byte) Maths.Clamp(((colour.Alpha / 255d) * this.Opacity) * 255, 0, 255));
+            using (SKPaint paint = new SKPaint() {Color = colour}) {
                 render.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
             }
         }

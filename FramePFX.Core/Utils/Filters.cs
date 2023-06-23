@@ -11,7 +11,7 @@ namespace FramePFX.Core.Utils {
                    ToString();
 
         public static readonly string ProjectTypeAndAllFiles =
-            Filter.Of().AddFilter("FramePFX Project", "fpfx").AddAllFiles().ToString();
+            Filter.Of().AddFilter("FramePFX Project", "fpx").AddAllFiles().ToString();
 
         public static readonly string VideoFormatsAndAll =
             Filter.Of().

@@ -798,12 +798,12 @@ namespace FramePFX.Editor.Automation {
             else {
                 for (int i = 1; i < end; i++) {
                     KeyFramePoint keyFrame = list[i];
-                    this.DrawKeyFramesAndLine(dc, prev, keyFrame, zoom, ref visible);
+                    this.DrawKeyFramesAndLine(dc, prev, keyFrame, ref visible);
                     prev = keyFrame;
                 }
 
                 this.DrawLastKeyFrameLine(dc, list[end], ref visible);
-                this.DrawKeyFramesAndLine(dc, prev, list[end], zoom, ref visible);
+                this.DrawKeyFramesAndLine(dc, prev, list[end], ref visible);
             }
 
             if (this.IsOverrideEnabled) {
@@ -840,7 +840,7 @@ namespace FramePFX.Editor.Automation {
         }
 
         // draw a line from a and b (using a's line type, e.g. linear, bezier), then draw a and b
-        private void DrawKeyFramesAndLine(DrawingContext dc, KeyFramePoint a, KeyFramePoint b, double zoom, ref Rect rect) {
+        private void DrawKeyFramesAndLine(DrawingContext dc, KeyFramePoint a, KeyFramePoint b, ref Rect rect) {
             this.DrawKeyFrameLine(dc, a, b, ref rect);
             a.RenderEllipse(dc, ref rect);
             b.RenderEllipse(dc, ref rect);

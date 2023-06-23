@@ -22,7 +22,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 typeof(TimelineControl),
                 new FrameworkPropertyMetadata(
                     1d,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.AffectsMeasure,
                     (d, e) => ((TimelineControl) d).OnUnitZoomChanged((double) e.OldValue, (double) e.NewValue),
                     (d, v) => TimelineUtils.ClampUnit(v)));
 
@@ -33,7 +33,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 typeof(TimelineControl),
                 new FrameworkPropertyMetadata(
                     10000L,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.AffectsMeasure,
                     (d, e) => ((TimelineControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
@@ -68,6 +68,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         public TimelineControl() {
             this.HorizontalContentAlignment = HorizontalAlignment.Stretch;
             ScrollViewer.SetCanContentScroll(this, false);
+            this.Loaded += (sender, args) => {
+
+            };
         }
 
         public IEnumerable<TimelineLayerControl> GetLayerContainers() {

@@ -2,8 +2,18 @@ using System;
 
 namespace FramePFX.Core.Utils {
     public static class Maths {
-        public static double Map(double input, double inA, double inB, double outA, double outB) {
-            return outA + ((outB - outA) / (inB - inA) * (input - inA));
+        /// <summary>
+        /// Maps a double value from the input range to the output range
+        /// <code>17.5 = Map(75, 0, 100, 10, 20)</code>
+        /// </summary>
+        /// <param name="dIn">Input value</param>
+        /// <param name="inA">Input range lower bound</param>
+        /// <param name="inB">Input range upper bound</param>
+        /// <param name="outA">Output range lower bound</param>
+        /// <param name="outB">Output range upper bound</param>
+        /// <returns>The output value, between outA and outB</returns>
+        public static double Map(double dIn, double inA, double inB, double outA, double outB) {
+            return outA + ((outB - outA) / (inB - inA) * (dIn - inA));
         }
 
         public static float Clamp(float value, float min, float max) {
@@ -58,7 +68,7 @@ namespace FramePFX.Core.Utils {
                 case 1: return (long) Math.Floor(val);
                 case 2: return (long) Math.Ceiling(val);
                 case 3: return (long) Math.Round(val);
-                default: throw new ArgumentOutOfRangeException(nameof(roundingMode), "Value must be between 0 and 3");
+                default: throw new ArgumentOutOfRangeException(nameof(roundingMode), "Rounding Mode must be between 0 and 3");
             }
         }
 

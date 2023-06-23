@@ -117,17 +117,38 @@ namespace FramePFX.Core.Automation.Keyframe {
                 return true;
             }
 
-            if (!this.GetKeyFramesForFrame(time, out KeyFrame a, out KeyFrame b)) {
+            if (!this.GetKeyFramesForFrame(time, out KeyFrame a, out KeyFrame b, out int index)) {
                 value = default;
                 return false;
             }
 
             // pass `time` parameter to the interpolate function to remove closure allocation; performance helper
             value = b == null ? toValue(a) : interpolate(time, a, b);
-            return true;
+            return true; // ok
         }
 
         #endregion
+
+        // not used
+        public int BinarySearch(long frame) {
+            List<KeyFrame> list = this.keyFrameList;
+            int i = 0, j = list.Count - 1;
+            while (i <= j) {
+                int k = i + (j - i >> 1);
+                long time = list[k].Timestamp;
+                if (time == frame) {
+                    return k;
+                }
+                else if (time < frame) {
+                    i = k + 1;
+                }
+                else {
+                    j = k - 1;
+                }
+            }
+
+            return ~i;
+        }
 
         /// <summary>
         /// Gets the two key frames that the given time should attempt to interpolate between, or a single key frame if that's all that is possible or logical
@@ -145,18 +166,19 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <param name="a">The first (or only available) key frame</param>
         /// <param name="b">The second key frame, may be null under certain conditions, in which case use a's value directly</param>
         /// <returns>False if there are no key frames, otherwise true</returns>
-        public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b) {
+        public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b, out int i) {
             List<KeyFrame> list = this.keyFrameList;
-            int i = 0, count = list.Count;
+            int count = list.Count;
             if (count < 1) {
                 a = b = null;
+                i = -1;
                 return false;
             }
 
-            KeyFrame value = list[0], prev = null;
+            KeyFrame value = list[i = 0], prev = null;
             while (true) { // node is never null, as it is only reassigned to next (which won't be null at that point)
-                long nodeTime = value.Timestamp;
-                if (frame > nodeTime) {
+                long valTime = value.Timestamp;
+                if (frame > valTime) {
                     if (++i < count) {
                         prev = value;
                         value = list[i];
@@ -167,7 +189,7 @@ namespace FramePFX.Core.Automation.Keyframe {
                         return true;
                     }
                 }
-                else if (frame < nodeTime) {
+                else if (frame < valTime) {
                     if (prev == null) { // first key frame; time is before the first node
                         a = value;
                         b = null;
@@ -201,6 +223,97 @@ namespace FramePFX.Core.Automation.Keyframe {
                 }
             }
         }
+
+        /*
+            implements caching but it breaks sometimes
+            public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b, out int i) {
+                List<KeyFrame> list = this.keyFrameList;
+                int count = list.Count, j;
+                if (count < 1) {
+                    a = b = null;
+                    i = -1;
+                    return false;
+                }
+
+                if (this.cache_valid) {
+                    if (frame >= this.cache_time) {
+                        i = this.cache_index;
+                        j = count - 1;
+                    }
+                    else {
+                        i = 0;
+                        j = this.cache_index;
+                    }
+                }
+                else {
+                    i = 0;
+                    j = count - 1;
+                }
+
+                KeyFrame value = list[i], prev = null;
+                while (true) { // node is never null, as it is only reassigned to next (which won't be null at that point)
+                    long valTime = value.Timestamp;
+                    if (frame > valTime) {
+                        if (++i <= j) {
+                            prev = value;
+                            value = list[i];
+                        }
+                        else { // last key frame
+                            a = value;
+                            b = null;
+                            this.cache_valid = true;
+                            this.cache_index = i - 1;
+                            this.cache_time = frame;
+                            return true;
+                        }
+                    }
+                    else if (frame < valTime) {
+                        this.cache_valid = true;
+                        this.cache_index = i;
+                        this.cache_time = frame;
+                        if (prev == null) { // first key frame; time is before the first node
+                            if (this.cache_valid && this.cache_index > 0) {
+                                a = list[this.cache_index - 1];
+                                b = value;
+                                return true;
+                            }
+
+                            a = value;
+                            b = null;
+                            return true;
+                        }
+                        else { // found pair of key frames to interpolate between
+                            a = prev;
+                            b = value;
+                            return true;
+                        }
+                    }
+                    else {
+                        // get the last node next node whose timestamp equals the input time, otherwise
+                        // use the last node (the input time is the same as the very last node's timestamp)
+                        KeyFrame temp = value, tempPrev = prev;
+                        while (temp != null && temp.Timestamp == frame) {
+                            tempPrev = temp;
+                            temp = ++i <= j ? list[i] : null;
+                        }
+
+                        if (temp != null && tempPrev != null) {
+                            a = tempPrev;
+                            b = temp;
+                        }
+                        else {
+                            a = temp ?? tempPrev;
+                            b = null;
+                        }
+
+                        this.cache_valid = true;
+                        this.cache_index = i - 1;
+                        this.cache_time = frame;
+                        return true;
+                    }
+                }
+            }
+         */
 
         /// <summary>
         /// Enumerates all of they keys are are located at the given frame
@@ -273,13 +386,12 @@ namespace FramePFX.Core.Automation.Keyframe {
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
             if (newKeyFrame.DataType != this.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
-
             newKeyFrame.OwnerSequence = this;
             this.keyFrameList.Insert(index, newKeyFrame);
         }
 
         /// <summary>
-        /// Removes the key frame at the given index
+        /// Unsafely removes the key frame at the given index
         /// </summary>
         public void RemoveKeyFrame(int index) {
             this.keyFrameList[index].OwnerSequence = null;

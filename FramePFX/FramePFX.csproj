@@ -247,7 +247,6 @@
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
     <Compile Include="Converters\VerticalScrollBinder.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
-    <Compile Include="Editor\Automation\CurveJoint.cs" />
     <Compile Include="Editor\Automation\DragMode.cs" />
     <Compile Include="Editor\Automation\KeyFramePoint.cs" />
     <Compile Include="Editor\Automation\KeyPointUtils.cs" />
@@ -304,6 +303,7 @@
     <Compile Include="Editor\Timeline\Controls\AudioLayerControl.cs" />
     <Compile Include="Editor\Timeline\Controls\AutomationComboBox.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelineContentPanel.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineLayerControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />

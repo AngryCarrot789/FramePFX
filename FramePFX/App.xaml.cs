@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -131,7 +132,11 @@ namespace FramePFX {
         }
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
+            #if DEBUG
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
+            #else
+            await editor.SetProject(new ProjectViewModel(new ProjectModel()));
+            #endif
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.ActiveProject.AutomationEngine.TickAndRefreshProject(false);
             editor.View.RenderViewPort(false);

@@ -123,7 +123,10 @@ namespace FramePFX.Core.Editor.ViewModels {
 
             ProjectViewModel project = new ProjectViewModel(new ProjectModel());
             project.Settings.Resolution = new Resolution(1280, 720);
-            await this.CloseProjectAction();
+            if (this.activeProject != null) {
+                await this.CloseProjectAction();
+            }
+
             await this.SetProject(project);
             this.ActiveProject.SetHasUnsavedChanges(false);
         }

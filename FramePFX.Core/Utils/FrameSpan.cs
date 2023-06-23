@@ -78,6 +78,16 @@ namespace FramePFX.Core.Utils {
             return new FrameSpan(this.begin, newEndIndex - this.begin);
         }
 
+        public FrameSpan WithBeginIndex(long newBeginIndex) {
+            long begin = this.begin, dur = this.duration, end = begin + dur;
+
+            if (newBeginIndex > end) {
+                throw new ArgumentOutOfRangeException(nameof(newBeginIndex), $"Value cannot be greater than the end index ({newBeginIndex} > {end})");
+            }
+
+            return new FrameSpan(newBeginIndex, dur - (newBeginIndex - begin));
+        }
+
         /// <summary>
         /// Returns a frame span whose <see cref="Begin"/> and <see cref="Duration"/> are non-negative.
         /// If none of them are negative, the current instance is returned

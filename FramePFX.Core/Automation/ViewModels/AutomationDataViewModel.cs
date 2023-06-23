@@ -5,32 +5,43 @@ using System.Linq;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.ViewModels {
     public class AutomationDataViewModel : BaseViewModel {
         private readonly Dictionary<AutomationKey, AutomationSequenceViewModel> dataMap;
-
         private readonly ObservableCollection<AutomationSequenceViewModel> sequences;
+        private AutomationSequenceViewModel activeSequence;
+
+        /// <summary>
+        /// A read only collection of sequences registered for this automation data
+        /// </summary>
         public ReadOnlyObservableCollection<AutomationSequenceViewModel> Sequences { get; }
 
-        private AutomationSequenceViewModel selectedSequence;
-        public AutomationSequenceViewModel SelectedSequence {
-            get => this.selectedSequence;
+        /// <summary>
+        /// The primary automation sequence currently being modified/viewed
+        /// </summary>
+        public AutomationSequenceViewModel ActiveSequence {
+            get => this.activeSequence;
             set {
-                this.RaisePropertyChanged(ref this.selectedSequence, value);
-                this.RaisePropertyChanged(nameof(this.SelectedSequenceKey));
+                this.Model.ActiveKeyFullId = value?.Key.FullId;
+                this.RaisePropertyChanged(ref this.activeSequence, value);
+                this.RaisePropertyChanged(nameof(this.ActiveSequenceKey));
                 this.RaisePropertyChanged(nameof(this.IsSequenceEditorVisible));
                 this.DeselectSequenceCommand.RaiseCanExecuteChanged();
-                this.DisableOverrideCommand.RaiseCanExecuteChanged();
+                this.ToggleOverrideCommand.RaiseCanExecuteChanged();
             }
         }
 
-        public AutomationKey SelectedSequenceKey => this.selectedSequence?.Key;
+        /// <summary>
+        /// The active sequence's key, or null, if there is no active sequence
+        /// </summary>
+        public AutomationKey ActiveSequenceKey => this.ActiveSequence?.Key;
 
         /// <summary>
         /// Whether or not the sequence editor should be shown or not
         /// </summary>
-        public bool IsSequenceEditorVisible => this.SelectedSequence != null;
+        public bool IsSequenceEditorVisible => this.ActiveSequence != null;
 
         public AutomationSequenceViewModel this[AutomationKey key] {
             get {
@@ -47,7 +58,7 @@ namespace FramePFX.Core.Automation.ViewModels {
 
         public AutomationData Model { get; }
 
-        public RelayCommand DisableOverrideCommand { get; }
+        public RelayCommand ToggleOverrideCommand { get; }
 
         public RelayCommand DeselectSequenceCommand { get; }
 
@@ -59,12 +70,18 @@ namespace FramePFX.Core.Automation.ViewModels {
             this.dataMap = new Dictionary<AutomationKey, AutomationSequenceViewModel>();
             this.sequences = new ObservableCollection<AutomationSequenceViewModel>();
             this.Sequences = new ReadOnlyObservableCollection<AutomationSequenceViewModel>(this.sequences);
-            this.DisableOverrideCommand = new RelayCommand(this.DisableOverrideAction, this.CanDisableOverrideAction);
+            this.ToggleOverrideCommand = new RelayCommand(this.ToggleOverrideAction, this.CanToggleOverride);
             this.DeselectSequenceCommand = new RelayCommand(this.DeselectSequenceAction, () => this.IsSequenceEditorVisible);
             foreach (AutomationSequence sequence in model.Sequences) {
                 AutomationSequenceViewModel vm = new AutomationSequenceViewModel(this, sequence);
                 this.dataMap[sequence.Key] = vm;
                 this.sequences.Add(vm);
+            }
+
+            string activeId = model.ActiveKeyFullId;
+            AutomationSequenceViewModel foundSequence;
+            if (model.ActiveKeyFullId != null && (foundSequence = this.sequences.FirstOrDefault(x => x.Key.FullId == activeId)) != null) {
+                this.ActiveSequence = foundSequence;
             }
         }
 
@@ -82,7 +99,7 @@ namespace FramePFX.Core.Automation.ViewModels {
                 engine.OnOverrideStateChanged(this, sequence);
             }
 
-            this.DisableOverrideCommand.RaiseCanExecuteChanged();
+            this.ToggleOverrideCommand.RaiseCanExecuteChanged();
             this.DeselectSequenceCommand.RaiseCanExecuteChanged(); // just in case
         }
 
@@ -97,32 +114,26 @@ namespace FramePFX.Core.Automation.ViewModels {
             }
         }
 
-        public bool CanDisableOverrideAction() {
-            if (this.selectedSequence != null) {
-                return this.selectedSequence.IsOverrideEnabled;
-            }
-            else {
-                return this.sequences.Any(x => x.IsOverrideEnabled);
-            }
+        public bool CanToggleOverride() {
+            return this.ActiveSequence != null || this.sequences.Any(x => x.IsOverrideEnabled);
         }
 
-        public void DisableOverrideAction() {
-            if (this.selectedSequence != null) {
-                this.selectedSequence.IsOverrideEnabled = false;
+        public void ToggleOverrideAction() {
+            if (this.ActiveSequence != null) {
+                this.ActiveSequence.IsOverrideEnabled = !this.ActiveSequence.IsOverrideEnabled;
             }
             else {
+                bool anyEnabled = this.sequences.Any(x => x.IsOverrideEnabled);
                 foreach (AutomationSequenceViewModel sequence in this.sequences) {
-                    if (sequence.IsOverrideEnabled) {
-                        sequence.IsOverrideEnabled = false;
-                    }
+                    sequence.IsOverrideEnabled = !anyEnabled;
                 }
             }
 
-            this.DisableOverrideCommand.RaiseCanExecuteChanged();
+            this.ToggleOverrideCommand.RaiseCanExecuteChanged();
         }
 
         public void DeselectSequenceAction() {
-            this.SelectedSequence = null;
+            this.ActiveSequence = null;
         }
     }
 }

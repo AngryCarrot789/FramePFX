@@ -8,28 +8,82 @@
               xmlns:attached="clr-namespace:FramePFX.Themes.Attached" xmlns:cc="clr-namespace:FramePFX.Controls" xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF" xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
               xmlns:exporting="clr-namespace:FramePFX.Core.Editor.Exporting;assembly=FramePFX.Core"
               mc:Ignorable="d"
-              Title="ExportSetupWindow" Height="525" Width="900"
+              Title="ExportSetupWindow" Height="450" Width="400"
               Style="{DynamicResource CustomWindowStyleEx}"
-              TitlebarBrush="{DynamicResource ABrush.Tone5.Background.Static}"
+              TitlebarBrush="{DynamicResource ABrush.Tone4.Background.Static}"
               d:DataContext="{d:DesignInstance exporting:ExportSetupViewModel}">
     <Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="350"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Background="{DynamicResource ABrush.Tone4.Background.Static}">
-                <Grid>
-                    <ScrollViewer Margin="0,0,0,44">
-                        <StackPanel>
-                            <DockPanel>
-                                <TextBlock Padding="5" Text="File Path" DockPanel.Dock="Left"/>
-                                <TextBox Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Padding="5"/>
-                            </DockPanel>
-                        </StackPanel>
-                    </ScrollViewer>
-                    <Border Background="{DynamicResource ABrush.Tone5.Background.Static}" Height="44" VerticalAlignment="Bottom" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
+        <Border Background="{DynamicResource ABrush.Tone3.Background.Static}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75" SharedSizeGroup="SharedLeftColumn"/>
+                    <ColumnDefinition Width="*" SharedSizeGroup="SharedRightColumn"/>
+                </Grid.ColumnDefinitions>
+                <DockPanel Grid.ColumnSpan="2">
+                    <Grid DockPanel.Dock="Top" Margin="0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="75" SharedSizeGroup="SharedLeftColumn"/>
+                            <ColumnDefinition Width="*" SharedSizeGroup="SharedRightColumn"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Padding="5" Text="File Path" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" Padding="4,3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,0,5,0"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Padding="5" Text="Duration" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        <Grid Grid.Column="1" Grid.Row="1" Margin="0,0,5,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="13*"/>
+                                <RowDefinition Height="15*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Beginning Frame" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0"/>
+                            <TextBlock Text="Duration" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1"/>
+                            <TextBlock Text="Ending Frame" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2"/>
+                            <dragger:NumberDragger Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Center" 
+                                                   Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource ABrush.Tone3.Background.Static}" 
+                                                   BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}" 
+                                                   Minimum="0"
+                                                   Maximum="{Binding FrameEndIndex}"
+                                                   Value="{Binding FrameBegin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <dragger:NumberDragger Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Center" 
+                                                   Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource ABrush.Tone3.Background.Static}" 
+                                                   BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}"
+                                                   Minimum="{Binding FrameBegin}"
+                                                   Maximum="{Binding MaxEndIndex}"
+                                                   Value="{Binding FrameEndIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Padding="5" Text="{Binding Duration, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
+                        </Grid>
+                    </Grid>
+                    <Grid Height="35" DockPanel.Dock="Top">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="75" SharedSizeGroup="SharedLeftColumn"/>
+                                <ColumnDefinition Width="*" SharedSizeGroup="SharedRightColumn"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Padding="5" Text="Exporter" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Exporters, Mode=OneTime}" SelectedItem="{Binding SelectedExporter, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" Height="24" Margin="0,0,5,0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ReadableName}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                    </Grid>
+                    <Border DockPanel.Dock="Bottom" Background="{DynamicResource ABrush.Tone4.Background.Static}" Height="44" VerticalAlignment="Bottom" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0" Grid.ColumnSpan="2" Grid.Row="1">
                         <Grid>
                             <Button Command="{Binding RunExportCommand, Mode=OneTime}"
                                     Content="Export" Margin="0,0,87,10"
@@ -50,26 +104,15 @@
                                     SnapsToDevicePixels="True" ToolTip="Cancel export"/>
                         </Grid>
                     </Border>
-                </Grid>
-            </Border>
-            <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Background="Transparent" Margin="-5,0"/>
-            <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Background="{DynamicResource ABrush.Tone5.Background.Static}"/>
-            <Border Grid.Column="2" Background="{DynamicResource ABrush.Tone2.Background.Static}">
-                <Grid>
-                    <Border Margin="0,0,0,50" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="1">
-                        <cc:FreeMoveViewPortV2 x:Name="VPViewBox" DataContext="{Binding Editor.ActiveProject}" ClipToBounds="True" PanToCursorOnUserZoom="True">
-                            <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}"
-                                           x:Name="ViewPortElement" PaintSurface="ViewPortElement_OnPaintSurface"/>
-                        </cc:FreeMoveViewPortV2>
+                    <Border BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
+                        <ScrollViewer Background="{DynamicResource ABrush.Tone2.Background.Static}" Grid.ColumnSpan="2" Grid.Row="1">
+                            <ItemsControl x:Name="ExportPropertyPageCollection" Margin="0,0,5,0">
+                                
+                            </ItemsControl>
+                        </ScrollViewer>
                     </Border>
-                    <Border Background="{DynamicResource ABrush.Tone5.Background.Static}" Height="50" VerticalAlignment="Bottom">
-                        <Grid>
-                            <dragger:NumberDragger Minimum="0" Maximum="{Binding FrameEndIndex}" Value="{Binding FrameBegin}" HorizontalAlignment="Left" Width="50" Height="20" VerticalAlignment="Center" Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}"/>
-                            <dragger:NumberDragger Minimum="{Binding FrameBegin}" Maximum="{Binding MaxEndIndex}" Value="{Binding FrameEndIndex}" HorizontalAlignment="Right" Width="50" Height="20" VerticalAlignment="Center" Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}"/>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Border>
-        </Grid>
+                </DockPanel>
+            </Grid>
+        </Border>
     </Grid>
 </v:BaseDialog>

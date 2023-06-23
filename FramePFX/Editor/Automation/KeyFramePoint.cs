@@ -57,30 +57,7 @@ namespace FramePFX.Editor.Automation {
             AutomationKey key = this.KeyFrame.OwnerSequence.Key;
             double height = this.editor.ActualHeight;
             double px = this.KeyFrame.Timestamp * this.editor.UnitZoom;
-            double offset_y;
-            switch (this.KeyFrame) {
-                case KeyFrameDoubleViewModel frame: {
-                    KeyDescriptorDouble desc = (KeyDescriptorDouble) key.Descriptor;
-                    offset_y = Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);
-                    break;
-                }
-                case KeyFrameLongViewModel frame: {
-                    KeyDescriptorLong desc = (KeyDescriptorLong) key.Descriptor;
-                    offset_y = Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);
-                    break;
-                }
-                case KeyFrameBooleanViewModel frame: {
-                    double offset = (height / 100) * 10;
-                    offset_y = frame.Value ? (height - offset) : offset;
-                    break;
-                }
-                case KeyFrameVector2ViewModel _: {
-                    offset_y = height / 2d;
-                    break;
-                }
-                default: return default;
-            }
-
+            double offset_y = KeyPointUtils.GetY(this.KeyFrame, height);
             this.RenderPoint = point = new Point(px, height - offset_y);
             return point;
         }
@@ -92,7 +69,17 @@ namespace FramePFX.Editor.Automation {
             Rect area = new Rect(point.X - rH, point.Y - rH, rH2, rH2);
             if (AutomationSequenceEditor.RectContains(ref drawing_area, ref area)) {
                 dc.DrawEllipse(Brushes.Transparent, this.editor.KeyFrameTransparentPen, point, rH, rH);
-                Pen pen = (this.IsMovingPoint || this.IsMouseOverPoint) ? this.editor.KeyFrameMouseOverPen : this.editor.KeyFramePen;
+                Pen pen;
+                if (this.editor.IsOverrideEnabled) {
+                    pen = this.editor.KeyOverridePen;
+                }
+                else if (this.IsMovingPoint || this.IsMouseOverPoint) {
+                    pen = this.editor.KeyFrameMouseOverPen;
+                }
+                else {
+                    pen = this.editor.KeyFramePen;
+                }
+
                 dc.DrawEllipse(Brushes.Transparent, pen, point, r, r);
             }
         }

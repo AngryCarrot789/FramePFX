@@ -76,5 +76,36 @@ namespace FramePFX.Core.Utils {
         public static bool EqualsIgnoreCase(this string @this, string value) {
             return @this.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
+
+        public static string RemoveChar(this string @this, char ch) {
+            StringBuilder sb = new StringBuilder(@this.Length);
+            foreach (char character in @this) {
+                if (character != ch) {
+                    sb.Append(character);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Split the input string by the given splitter, and provide the left and right values as out parameters (splitter is not included
+        /// </summary>
+        /// <param name="this">Value to split</param>
+        /// <param name="splitter">Split value</param>
+        /// <param name="a">Everything before the splitter</param>
+        /// <param name="b">Everything after the splitter</param>
+        /// <returns>True if the string contained the splitter, otherwise false</returns>
+        public static bool Split(this string @this, string splitter, out string a, out string b) {
+            int index;
+            if (string.IsNullOrEmpty(@this) || (index = @this.IndexOf(splitter)) < 0) {
+                a = b = null;
+                return false;
+            }
+
+            a = @this.Substring(0, index);
+            b = @this.Substring(index + splitter.Length);
+            return true;
+        }
     }
 }

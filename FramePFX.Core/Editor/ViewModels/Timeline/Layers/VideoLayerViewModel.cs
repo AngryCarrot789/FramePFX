@@ -66,7 +66,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoLayerModel.OpacityKey) {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoLayerModel.OpacityKey)) {
                     this.AutomationData[VideoLayerModel.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
                 }
                 else {
@@ -92,7 +92,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoLayerModel.IsVisibleKey) {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoLayerModel.IsVisibleKey)) {
                     this.AutomationData[VideoLayerModel.IsVisibleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
                 }
                 else {
@@ -121,7 +121,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 return;
             }
 
-            double fps = this.Timeline.Project.Settings.FrameRate.FPS;
+            double fps = this.Timeline.Project.Settings.FrameRate.ActualFPS;
             long defaultDuration = (long) (fps * 5);
 
             ClipModel newClip = null;

@@ -37,11 +37,26 @@ namespace FramePFX.Core.Editor.Exporting.Exporters {
 
         public double FPS {
             get => (double) this.FrameRate.num / this.FrameRate.den;
-            set => this.FrameRate = (Rational) ffmpeg.av_d2q(value, 1000000);
+            // private set => this.FrameRate = (Rational) ffmpeg.av_d2q(value, 1000000);
+        }
+
+        public long BitRate {
+            get => this.Exporter.BitRate;
+            set {
+                this.Exporter.BitRate = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public int GopValue {
+            get => this.Exporter.GopValue;
+            set {
+                this.Exporter.GopValue = Maths.Clamp(value, 0, 100);
+                this.RaisePropertyChanged();
+            }
         }
 
         public FFmpegExportViewModel() : base("FFmpeg", new FFmpegExporter()) {
-
         }
 
         public override void LoadProjectDefaults(ProjectModel project) {

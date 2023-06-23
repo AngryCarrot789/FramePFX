@@ -6,6 +6,7 @@ using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline.Layers;
 using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
@@ -25,6 +26,9 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
+        // view model can access this
+        public Dictionary<ClipModel, Exception> ExceptionsLastRender { get; } = new Dictionary<ClipModel, Exception>();
+
         public TimelineModel(ProjectModel project) {
             this.Project = project;
             this.Layers = new List<LayerModel>();
@@ -34,6 +38,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public void WriteToRBE(RBEDictionary data) {
             data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
+            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Layers));
             foreach (LayerModel layer in this.Layers) {
                 if (!(layer.RegistryId is string registryId))
@@ -47,6 +52,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public void ReadFromRBE(RBEDictionary data) {
             this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
+            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             foreach (RBEBase entry in data.GetList(nameof(this.Layers)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
@@ -56,6 +62,7 @@ namespace FramePFX.Core.Editor.Timeline {
                 this.AddLayer(layer);
             }
 
+            // Recalculate a new max duration, just in case the clips somehow exceed the current value
             this.MaxDuration = Math.Max(this.MaxDuration, this.Layers.Count < 1 ? 0 : this.Layers.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
         }
 
@@ -112,7 +119,16 @@ namespace FramePFX.Core.Editor.Timeline {
 
                 foreach (ClipModel clip in clips) {
                     render.Canvas.Save();
+                    #if DEBUG
                     ((VideoClipModel) clip).Render(render, frame);
+                    #else
+                    try {
+                        ((VideoClipModel) clip).Render(render, frame);
+                    }
+                    catch (Exception e) {
+                        this.ExceptionsLastRender[clip] = e;
+                    }
+                    #endif
                     render.Canvas.Restore();
                 }
 

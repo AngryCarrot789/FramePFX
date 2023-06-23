@@ -1,13 +1,12 @@
 using System;
-using System.Runtime.CompilerServices;
 using FFmpeg.AutoGen;
 
 namespace FramePFX.Core.Editor {
     public readonly struct Rational {
-        public static readonly Rational Fps2997 = new Rational(30000, 1001);
-        public static readonly Rational Fps30 = new Rational(30, 1);
-        public static readonly Rational Fps5994 = new Rational(60000, 1001);
-        public static readonly Rational Fps60 = new Rational(60, 1);
+        public static readonly Rational Fps2997 = new Rational(1001, 30000);
+        public static readonly Rational Fps30 = new Rational(1, 30);
+        public static readonly Rational Fps5994 = new Rational(1001, 60000);
+        public static readonly Rational Fps60 = new Rational(1, 60);
 
         /// <summary>
         /// The numerator, e.g. 60000
@@ -20,17 +19,18 @@ namespace FramePFX.Core.Editor {
         public readonly int den;
 
         /// <summary>
-        /// A value of the number of frames per second, as a <see cref="double"/>
+        /// av_q2d, not a typical readable FPS quantity
         /// </summary>
-        public double FPS => (double) this.num / this.den;
+        public double AVFrameRate => ffmpeg.av_q2d(this);
+
+        /// <summary>
+        /// Readable FPS value
+        /// </summary>
+        public double ActualFPS => (double) this.den / this.num;
 
         public Rational(int numerator, int denominator) {
             this.num = numerator;
             this.den = denominator;
-        }
-
-        public static Rational FromFPS(double fps, int denominator) {
-            return new Rational((int) Math.Floor(fps * denominator), denominator);
         }
 
         public static bool operator ==(Rational a, Rational b) {

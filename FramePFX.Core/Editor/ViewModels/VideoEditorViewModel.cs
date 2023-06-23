@@ -119,6 +119,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             };
 
             await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
+            this.ActiveProject.Timeline.DoRender();
         }
 
         private void OnProjectModified(object sender, string property) {

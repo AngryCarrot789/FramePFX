@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation {
     /// <summary>
@@ -35,6 +36,11 @@ namespace FramePFX.Core.Automation {
             }
         }
 
+        /// <summary>
+        /// The active key's full ID, only really used by the front-end/view models
+        /// </summary>
+        public string ActiveKeyFullId { get; set; }
+
         public AutomationData(IAutomatable owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.dataMap = new Dictionary<AutomationKey, AutomationSequence>();
@@ -61,27 +67,31 @@ namespace FramePFX.Core.Automation {
         public AutomationSequence GetData(AutomationKey key) => this.dataMap[key];
 
         public void WriteToRBE(RBEDictionary data) {
+            if (this.ActiveKeyFullId != null)
+                data.SetString(nameof(this.ActiveKeyFullId), this.ActiveKeyFullId);
             RBEList list = data.CreateList(nameof(this.Sequences));
             foreach (AutomationSequence sequence in this.dataMap.Values) {
                 RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString("Key::Domain", sequence.Key.Domain);
-                dictionary.SetString("Key::Id", sequence.Key.Id);
+                dictionary.SetString("KeyId", sequence.Key.FullId);
                 sequence.WriteToRBE(dictionary);
             }
         }
 
         public void ReadFromRBE(RBEDictionary data) {
+            this.ActiveKeyFullId = data.GetString(nameof(this.ActiveKeyFullId), null);
             RBEList list = data.GetList(nameof(this.Sequences));
             foreach (RBEBase rbe in list.List) {
                 if (!(rbe is RBEDictionary dictionary))
                     throw new Exception("Expected a list of dictionaries");
-                string domain = dictionary.GetString("Key::Domain");
-                string id = dictionary.GetString("Key::Id");
+                string fullId = dictionary.GetString("KeyId");
+                if (!fullId.Split(AutomationKey.FullIdSplitter, out string domain, out string id))
+                    throw new Exception($"Invalid KeyId: {fullId}");
+
                 AutomationKey key = AutomationKey.GetKey(domain, id);
                 if (key == null)
-                    throw new Exception("Unknown automation key: " + key.FullId);
+                    throw new Exception("Unknown automation key: " + fullId);
                 if (!this.dataMap.TryGetValue(key, out AutomationSequence sequence))
-                    throw new Exception("Missing/unassigned key: " + key.FullId);
+                    throw new Exception("Missing/unassigned key: " + fullId);
                 sequence.ReadFromRBE(dictionary);
             }
         }

@@ -7,7 +7,7 @@ using FramePFX.Core.Views.Windows;
 namespace FramePFX.Editor.Exporting {
     [ServiceImplementation(typeof(IExportViewService))]
     public class ExportViewService : IExportViewService {
-        public IWindow ShowExportWindow(ExportVideoViewModel export) {
+        public IWindow ShowExportWindow(ExportProgressViewModel export) {
             ExportWindow window = new ExportWindow() {
                 DataContext = export
             };

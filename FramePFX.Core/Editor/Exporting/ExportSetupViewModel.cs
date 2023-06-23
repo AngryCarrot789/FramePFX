@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.Exporting.Exporters;
 using FramePFX.Core.Utils;
@@ -28,18 +29,25 @@ namespace FramePFX.Core.Editor.Exporting {
         private FrameSpan renderSpan;
         public FrameSpan RenderSpan {
             get => this.renderSpan;
-            set => this.RaisePropertyChanged(ref this.renderSpan, value);
+            set {
+                this.RaisePropertyChanged(ref this.renderSpan, value);
+                this.RaisePropertyChanged(nameof(this.FrameBegin));
+                this.RaisePropertyChanged(nameof(this.FrameEndIndex));
+                this.RaisePropertyChanged(nameof(this.Duration));
+            }
         }
 
         public long FrameBegin {
             get => this.RenderSpan.Begin;
-            set => this.RenderSpan = this.RenderSpan.WithBegin(Math.Max(value, 0));
+            set => this.RenderSpan = this.RenderSpan.WithBeginIndex(Math.Min(value, this.FrameEndIndex));
         }
 
         public long FrameEndIndex {
             get => this.RenderSpan.EndIndex;
-            set => this.RenderSpan = this.RenderSpan.WithEndIndex(Maths.Clamp(value, 0, this.MaxEndIndex));
+            set => this.RenderSpan = this.RenderSpan.WithEndIndex(Maths.Clamp(value, this.FrameBegin, this.MaxEndIndex));
         }
+
+        public long Duration => this.RenderSpan.Duration;
 
         public long MaxEndIndex => this.Project.Timeline.MaxDuration - 1;
 
@@ -63,6 +71,7 @@ namespace FramePFX.Core.Editor.Exporting {
             }
 
             this.SelectedExporter = collection[0];
+            this.FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Video.mp4");
         }
 
         private async Task CancelSetupAction() {
@@ -80,29 +89,31 @@ namespace FramePFX.Core.Editor.Exporting {
                 return;
             }
 
-            ExportVideoViewModel export = new ExportVideoViewModel() {
-                BeginFrame = this.FrameBegin,
-                EndFrame = this.FrameEndIndex,
-                CurrentFrame = 0,
-                FilePath = this.FilePath
-            };
-
+            ExportProperties properties = new ExportProperties(this.RenderSpan, this.FilePath);
+            ExportProgressViewModel export = new ExportProgressViewModel(properties);
             IWindow window = IoC.Provide<IExportViewService>().ShowExportWindow(export);
 
             // await IoC.MessageDialogs.ShowMessageExAsync("Export failed", "Failed to export video", e.GetToString())
+            #if DEBUG
+            await Task.Run(() => {
+                exporter.Exporter.Export(this.Project, export, properties);
+            });
+
+            await window.CloseWindowAsync();
+            await this.Dialog.CloseDialogAsync(true);
+            #else
             try {
                 await Task.Run(() => {
                     exporter.Exporter.Export(this.Project, export, new ExportProperties(this.RenderSpan, this.FilePath));
                 });
-
                 await window.CloseWindowAsync();
             }
             catch (Exception e) {
                 await window.CloseWindowAsync();
                 await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "Failed to export:", e.GetToString());
             }
-
             await this.Dialog.CloseDialogAsync(true);
+            #endif
         }
     }
 }

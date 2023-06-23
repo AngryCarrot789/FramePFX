@@ -10,6 +10,9 @@ namespace FramePFX.Core.Automation.Keys {
     public abstract class AutomationKey {
         private static readonly Dictionary<string, Dictionary<string, AutomationKey>> RegistryMap = new Dictionary<string, Dictionary<string, AutomationKey>>();
 
+        // the "::" splitter must not change, otherwise old projects won't load
+        public const string FullIdSplitter = "::";
+
         private int? hashCode;
 
         public string Domain { get; }
@@ -18,7 +21,7 @@ namespace FramePFX.Core.Automation.Keys {
 
         public KeyDescriptor Descriptor { get; }
 
-        public string FullId => this.Domain + "::" + this.Id;
+        public string FullId => this.Domain + FullIdSplitter + this.Id;
 
         public abstract AutomationDataType DataType { get; }
 

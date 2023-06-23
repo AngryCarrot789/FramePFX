@@ -23,9 +23,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         }
 
         public override void Render(RenderContext render, long frame) {
-            if (frame != this.currentFrame) {
-                if (!this.TryGetResource(out ResourceMedia resource))
-                    return;
+            if (!this.TryGetResource(out ResourceMedia resource))
+                return;
+
+            if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null) {
                 if (resource.Demuxer == null)
                     resource.OpenMediaFromFile();
                 this.ResyncFrame(frame, resource);
@@ -58,7 +59,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 this.renderFrameRgb = new VideoFrame(resolution.Width, resolution.Height, PixelFormats.RGBA);
             }
 
-            double timeScale = this.Project.Settings.FrameRate.FPS;
+            double timeScale = this.Project.Settings.FrameRate.ActualFPS;
             TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
             // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
             this.readyFrame = media.GetFrameAt(timestamp);

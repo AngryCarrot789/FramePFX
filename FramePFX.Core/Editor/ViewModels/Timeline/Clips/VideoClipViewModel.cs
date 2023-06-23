@@ -48,7 +48,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.MediaPositionKey) {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.MediaPositionKey)) {
                     this.AutomationData[VideoClipModel.MediaPositionKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetVector2Value(value);
                 }
                 else {
@@ -87,7 +87,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.MediaScaleKey) {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.MediaScaleKey)) {
                     this.AutomationData[VideoClipModel.MediaScaleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetVector2Value(value);
                 }
                 else {
@@ -126,7 +126,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.MediaScaleOriginKey) {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.MediaScaleOriginKey)) {
                     this.AutomationData[VideoClipModel.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetVector2Value(value);
                 }
                 else {
@@ -152,7 +152,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (timeline != null && TimelineUtilCore.CanAddKeyFrame(timeline) && this.AutomationData.SelectedSequenceKey == VideoClipModel.OpacityKey) {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.OpacityKey)) {
                     this.AutomationData[VideoClipModel.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
                 }
                 else {

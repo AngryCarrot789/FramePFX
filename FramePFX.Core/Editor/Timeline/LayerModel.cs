@@ -87,6 +87,7 @@ namespace FramePFX.Core.Editor.Timeline {
             data.SetDouble(nameof(this.MaxHeight), this.MaxHeight);
             data.SetDouble(nameof(this.Height), this.Height);
             data.SetString(nameof(this.LayerColour), this.LayerColour);
+            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Clips));
             foreach (ClipModel clip in this.Clips) {
                 if (!(clip.FactoryId is string id))
@@ -102,7 +103,8 @@ namespace FramePFX.Core.Editor.Timeline {
             this.MinHeight = data.GetDouble(nameof(this.MinHeight), 40);
             this.MaxHeight = data.GetDouble(nameof(this.MaxHeight), 200);
             this.Height = data.GetDouble(nameof(this.Height), 60);
-            this.LayerColour = data.GetString(nameof(this.LayerColour), LayerColours.GetRandomColour());
+            this.LayerColour = data.TryGetString(nameof(this.LayerColour), out string colour) ? colour : LayerColours.GetRandomColour();
+            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");

@@ -248,18 +248,24 @@
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\CurveJoint.cs" />
     <Compile Include="Editor\Automation\KeyFramePoint.cs" />
+    <Compile Include="Editor\Automation\KeyPointUtils.cs" />
     <Compile Include="Editor\Automation\LineHitType.cs" />
     <Compile Include="Editor\EditorMainWindow.xaml.cs">
       <DependentUpon>EditorMainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
-    <Compile Include="Editor\Exporting\ExportService.cs" />
+    <Compile Include="Editor\Exporting\Converters\BitRateToMbConverter.cs" />
+    <Compile Include="Editor\Exporting\ExportPageRegistry.cs" />
+    <Compile Include="Editor\Exporting\ExportViewService.cs" />
     <Compile Include="Editor\Exporting\ExportSetupWindow.xaml.cs">
       <DependentUpon>ExportSetupWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\Exporting\ExportWindow.xaml.cs">
       <DependentUpon>ExportWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\Exporting\Pages\FFmpegExportPage.xaml.cs">
+      <DependentUpon>FFmpegExportPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\Notifications\SavingProject\SavingProjectMessageConverter.cs" />
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditor.cs" />
@@ -453,6 +459,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Exporting\ExportWindow.xaml" />
+    <Page Include="Editor\Exporting\Pages\FFmpegExportPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

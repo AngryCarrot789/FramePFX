@@ -136,7 +136,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public async Task OnProjectChanged(ProjectViewModel project) {
             await this.Model.PlaybackTimer.StopAsync();
             if (project != null) {
-                this.SetTimerFrameRate(project.Settings.FrameRate.FPS);
+                this.SetTimerFrameRate(project.Settings.FrameRate.ActualFPS);
             }
 
             this.UpdatePlaybackCommands();
@@ -144,8 +144,12 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public void SetTimerFrameRate(double frameRate) {
-            if (frameRate < 1)
-                frameRate = 1;
+            if (frameRate <= 0d)
+                throw new Exception("Frame rate must be non-zero");
+
+            if (frameRate < 0.0001d)
+                frameRate = 0.0001d; // ??????????
+
             this.Model.PlaybackTimer.Interval = (long) Math.Round(1000d / frameRate);
         }
 

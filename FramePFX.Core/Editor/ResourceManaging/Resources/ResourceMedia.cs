@@ -81,8 +81,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
                     this.Demuxer.Seek(timestamp);
                     this.decoder.Flush();
                 }
-                this.DecodeFramesUntil(timestamp);
 
+                this.DecodeFramesUntil(timestamp);
                 frame = this.frameQueue.GetNearest(timestamp, out _);
             }
             return frame;

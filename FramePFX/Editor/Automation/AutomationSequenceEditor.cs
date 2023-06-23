@@ -22,6 +22,16 @@ namespace FramePFX.Editor.Automation {
         public const double LineThickness = 2d;
         public const double LineHitThickness = 12d;
 
+        public static readonly DependencyProperty OverrideBrushProperty =
+            DependencyProperty.Register(
+                "OverrideBrush",
+                typeof(Brush),
+                typeof(AutomationSequenceEditor),
+                new FrameworkPropertyMetadata(
+                    Brushes.DarkGray,
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    (o, e) => ((AutomationSequenceEditor) o).OnOverrideBrushPropertyChanged((Brush) e.OldValue, (Brush) e.NewValue)));
+
         public static readonly DependencyProperty KeyFrameBrushProperty =
             DependencyProperty.Register(
                 "KeyFrameBrush",
@@ -62,6 +72,16 @@ namespace FramePFX.Editor.Automation {
                     FrameworkPropertyMetadataOptions.AffectsRender,
                     (o, e) => ((AutomationSequenceEditor) o).OnSequencePropertyChanged((AutomationSequenceViewModel) e.OldValue, (AutomationSequenceViewModel) e.NewValue)));
 
+        public static readonly DependencyProperty IsOverrideEnabledProperty =
+            DependencyProperty.Register(
+                "IsOverrideEnabled",
+                typeof(bool),
+                typeof(AutomationSequenceEditor),
+                new FrameworkPropertyMetadata(
+                    BoolBox.False,
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    (o, e) => ((AutomationSequenceEditor) o).OnIsOverrideEnabledPropertyChanged((bool) e.OldValue, (bool) e.NewValue)));
+
         public static readonly DependencyProperty UnitZoomProperty =
             DependencyProperty.Register(
                 "UnitZoom",
@@ -84,6 +104,11 @@ namespace FramePFX.Editor.Automation {
                 typeof(AutomationSequenceEditor),
                 new PropertyMetadata(10000L));
 
+        public Brush OverrideBrush {
+            get => (Brush) this.GetValue(OverrideBrushProperty);
+            set => this.SetValue(OverrideBrushProperty, value);
+        }
+
         public Brush KeyFrameBrush {
             get => (Brush) this.GetValue(KeyFrameBrushProperty);
             set => this.SetValue(KeyFrameBrushProperty, value);
@@ -104,6 +129,11 @@ namespace FramePFX.Editor.Automation {
             set => this.SetValue(SequenceProperty, value);
         }
 
+        public bool IsOverrideEnabled {
+            get => (bool) this.GetValue(IsOverrideEnabledProperty);
+            set => this.SetValue(IsOverrideEnabledProperty, value.Box());
+        }
+
         public double UnitZoom {
             get => (double) this.GetValue(UnitZoomProperty);
             set => this.SetValue(UnitZoomProperty, value);
@@ -119,21 +149,36 @@ namespace FramePFX.Editor.Automation {
             set => this.SetValue(MaxFrameProperty, value);
         }
 
+        private Pen keyOverridePen;
         private Pen keyFramePen;
         private Pen curvePen;
         private Pen keyFrameTransparentPen;
         private Pen transparentPenLine;
         private Pen mouseOverPen;
+        private Pen lineOverridePen;
         private Pen lineMouseOverPen;
+        private Pen overrideValuePen;
 
         private static readonly Brush TransparentBrush = Brushes.Transparent; // Brushes.Yellow
 
+        internal Pen KeyOverridePen => this.keyOverridePen ?? (this.keyOverridePen = new Pen(this.OverrideBrush ?? Brushes.DarkGray, EllipseRadius));
         internal Pen KeyFramePen => this.keyFramePen ?? (this.keyFramePen = new Pen(this.KeyFrameBrush ?? Brushes.OrangeRed, EllipseRadius));
         internal Pen KeyFrameMouseOverPen => this.mouseOverPen ?? (this.mouseOverPen = new Pen(this.MouseOverBrush ?? Brushes.White, EllipseRadius));
         internal Pen KeyFrameTransparentPen => this.keyFrameTransparentPen ?? (this.keyFrameTransparentPen = new Pen(TransparentBrush, EllipseHitRadius));
+        internal Pen LineOverridePen => this.lineOverridePen ?? (this.lineOverridePen = new Pen(this.OverrideBrush ?? Brushes.DarkGray, LineThickness));
         internal Pen LinePen => this.curvePen ?? (this.curvePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, LineThickness));
         internal Pen LineMouseOverPen => this.lineMouseOverPen ?? (this.lineMouseOverPen = new Pen(this.MouseOverBrush ?? Brushes.White, LineThickness));
         internal Pen LineTransparentPen => this.transparentPenLine ?? (this.transparentPenLine = new Pen(TransparentBrush, LineHitThickness));
+        internal Pen OverrideValuePen {
+            get {
+                if (this.overrideValuePen == null) {
+                    this.overrideValuePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, LineThickness);
+                    this.overrideValuePen.DashStyle = new DashStyle(new List<double>() {2d, 2d}, 0d);
+                }
+
+                return this.overrideValuePen;
+            }
+        }
 
         // internal key frame storage; recalculated whenever the ItemsSource changes
         internal readonly List<KeyFramePoint> backingList;
@@ -141,12 +186,12 @@ namespace FramePFX.Editor.Automation {
         private Point mouseDownPoint;
         private bool justCaptured;
 
-        private readonly PropertyChangedEventHandler propertyChangedEventHandler;
+        private readonly PropertyChangedEventHandler keyFramePropertyChangedEventHandler;
         private ScrollViewer scroller;
 
         public AutomationSequenceEditor() {
             this.backingList = new List<KeyFramePoint>();
-            this.propertyChangedEventHandler = this.OnKeyFrameViewModelPropertyChanged;
+            this.keyFramePropertyChangedEventHandler = this.OnKeyFrameViewModelPropertyChanged;
             this.Loaded += this.OnLoaded;
             this.IsHitTestVisible = true;
         }
@@ -183,14 +228,20 @@ namespace FramePFX.Editor.Automation {
 
         protected virtual void OnSequencePropertyChanged(AutomationSequenceViewModel oldValue, AutomationSequenceViewModel newValue) {
             if (oldValue != null) {
+                oldValue.OverrideKeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
                 ((INotifyCollectionChanged) oldValue.KeyFrames).CollectionChanged -= this.OnCollectionChanged;
             }
 
             this.ClearKeyFrameList();
             if (newValue != null) {
+                newValue.OverrideKeyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
                 ((INotifyCollectionChanged) newValue.KeyFrames).CollectionChanged += this.OnCollectionChanged;
                 this.GenerateBackingList(newValue);
             }
+        }
+
+        protected virtual void OnIsOverrideEnabledPropertyChanged(bool oldValue, bool newValue) {
+
         }
 
         private KeyFramePoint CreatePoint(int index, KeyFrameViewModel keyFrame, bool attachPropertyChangedEvent = true) {
@@ -204,7 +255,7 @@ namespace FramePFX.Editor.Automation {
 
             this.backingList.Insert(index, point);
             if (attachPropertyChangedEvent) {
-                keyFrame.PropertyChanged += this.propertyChangedEventHandler;
+                keyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
             }
 
             return point;
@@ -222,7 +273,7 @@ namespace FramePFX.Editor.Automation {
                 point.Index = index + i;
                 this.backingList.Insert(point.Index, point);
                 if (attachPropertyChangedEvent) {
-                    keyFrame.PropertyChanged += this.propertyChangedEventHandler;
+                    keyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
                 }
             }
         }
@@ -260,7 +311,7 @@ namespace FramePFX.Editor.Automation {
 
             KeyFramePoint point = list[index];
             if (detatchPropertyChangedEvent) {
-                point.KeyFrame.PropertyChanged -= this.propertyChangedEventHandler;
+                point.KeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
             }
 
             list.RemoveAt(index);
@@ -291,7 +342,7 @@ namespace FramePFX.Editor.Automation {
                         }
 
                         if (detatchPropertyChangedEvent) {
-                            point.KeyFrame.PropertyChanged -= this.propertyChangedEventHandler;
+                            point.KeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
                         }
 
                         if (ReferenceEquals(point, this.captured)) {
@@ -327,7 +378,7 @@ namespace FramePFX.Editor.Automation {
         private void ClearKeyFrameList(bool detatchPropertyChangedEvent = true) {
             if (detatchPropertyChangedEvent) {
                 foreach (KeyFramePoint keyFrame in this.backingList) {
-                    keyFrame.KeyFrame.PropertyChanged -= this.propertyChangedEventHandler;
+                    keyFrame.KeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
                 }
             }
 
@@ -342,7 +393,7 @@ namespace FramePFX.Editor.Automation {
 
             int i = 0;
             foreach (KeyFrameViewModel keyFrame in sequence.KeyFrames) {
-                keyFrame.PropertyChanged += this.propertyChangedEventHandler;
+                keyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
                 KeyFramePoint keyF = KeyFramePoint.ForKeyFrame(this, keyFrame);
                 keyF.Index = i++;
                 this.backingList.Add(keyF);
@@ -395,18 +446,11 @@ namespace FramePFX.Editor.Automation {
         }
 
         private void OnKeyFrameViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            // if (this.keyFrameList != null) {
-            //     foreach (KeyFramePoint keyPoint in this.keyFrameList) {
-            //         keyPoint.InvalidateVisual();
-            //     }
-            // }
-
             KeyFrameViewModel keyFrame = (KeyFrameViewModel) sender;
-            if (this.backingList.Find(x => x.KeyFrame == keyFrame) is KeyFramePoint found) {
-                found.InvalidateRenderData();
-            }
-            else if (this.backingList != null) {
-                this.ClearKeyFrameList();
+            AutomationSequenceViewModel seq = this.Sequence;
+            if (seq != null && !ReferenceEquals(keyFrame, seq.OverrideKeyFrame)) {
+                KeyFramePoint point = this.backingList.First(x => x.KeyFrame == keyFrame);
+                point.InvalidateRenderData();
             }
 
             this.InvalidateVisual();
@@ -603,6 +647,10 @@ namespace FramePFX.Editor.Automation {
                 return;
             }
 
+            if (this.IsOverrideEnabled) {
+                dc.PushOpacity(0.5d);
+            }
+
             double zoom = this.UnitZoom;
             Rect rect;
             if (this.scroller == null) {
@@ -640,6 +688,16 @@ namespace FramePFX.Editor.Automation {
                 this.DrawLastKeyFrameLine(dc, list[end], ref rect);
                 this.DrawKeyFramesAndLine(dc, prev, list[end], zoom, ref rect);
             }
+
+            if (this.IsOverrideEnabled) {
+                AutomationSequenceViewModel seq = this.Sequence;
+                if (seq != null) {
+                    double y = this.ActualHeight - KeyPointUtils.GetY(seq.OverrideKeyFrame, this.ActualHeight);
+                    dc.DrawLine(this.OverrideValuePen, new Point(0, y), new Point(rect.Right, y));
+                }
+
+                dc.Pop();
+            }
         }
 
         public static Point GetVec2SubPoint(KeyFramePointVec2 keyFrame, double zoom, ref Rect rect) {
@@ -667,10 +725,10 @@ namespace FramePFX.Editor.Automation {
             if (RectContains(ref rect, ref p1) || RectContains(ref rect, ref p2)) {
                 dc.DrawLine(this.LineTransparentPen, p1, p2);
                 if (a.LastLineHitType != LineHitType.Head && a.LastLineHitType != LineHitType.Tail) {
-                    dc.DrawLine(a.LastLineHitType != LineHitType.None ? this.LineMouseOverPen : this.LinePen, p1, p2);
+                    dc.DrawLine(this.IsOverrideEnabled ? this.LineOverridePen : (a.LastLineHitType != LineHitType.None ? this.LineMouseOverPen : this.LinePen), p1, p2);
                 }
                 else {
-                    dc.DrawLine(this.LinePen, p1, p2);
+                    dc.DrawLine(this.IsOverrideEnabled ? this.LineOverridePen : this.LinePen, p1, p2);
                 }
             }
         }
@@ -681,7 +739,7 @@ namespace FramePFX.Editor.Automation {
             Point p1 = new Point(0, p2.Y);
             if (RectContains(ref rect, ref p1) || RectContains(ref rect, ref p2)) {
                 dc.DrawLine(this.LineTransparentPen, p1, p2);
-                dc.DrawLine(key.LastLineHitType == LineHitType.Head ? this.LineMouseOverPen : this.LinePen, p1, p2);
+                dc.DrawLine(this.IsOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Head ? this.LineMouseOverPen : this.LinePen), p1, p2);
             }
         }
 
@@ -691,7 +749,7 @@ namespace FramePFX.Editor.Automation {
             Point b = new Point(rect.Right, a.Y);
             if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b)) {
                 dc.DrawLine(this.LineTransparentPen, a, b);
-                dc.DrawLine(key.LastLineHitType == LineHitType.Tail ? this.LineMouseOverPen : this.LinePen, a, b);
+                dc.DrawLine(this.IsOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Tail ? this.LineMouseOverPen : this.LinePen), a, b);
             }
         }
 
@@ -777,6 +835,7 @@ namespace FramePFX.Editor.Automation {
 
         #region standard property change handlers
 
+        protected virtual void OnOverrideBrushPropertyChanged(Brush oldValue, Brush newValue) => this.keyOverridePen = null;
         protected virtual void OnKeyFrameBrushPropertyChanged(Brush oldValue, Brush newValue) => this.keyFramePen = null;
         protected virtual void OnCurveBrushPropertyChanged(Brush oldValue, Brush newValue) => this.curvePen = null;
         protected virtual void OnMouseOverBrushPropertyChanged(Brush oldValue, Brush newValue) => this.mouseOverPen = null;

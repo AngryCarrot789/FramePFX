@@ -2,7 +2,7 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 
 namespace FramePFX.Editor.Properties.Pages {
-    public class PropertyPageRegistry : PageRegistry {
+    public class PropertyPageRegistry : PageRegistry<ClipViewModel> {
         public static PropertyPageRegistry Instance { get; } = new PropertyPageRegistry();
 
         private PropertyPageRegistry() {

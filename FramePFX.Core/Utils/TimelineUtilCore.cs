@@ -1,3 +1,6 @@
+using FramePFX.Core.Automation.Keys;
+using FramePFX.Core.Automation.ViewModels;
+using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 
@@ -8,10 +11,19 @@ namespace FramePFX.Core.Utils {
         /// </summary>
         /// <param name="timeline"></param>
         /// <returns></returns>
-        public static bool CanAddKeyFrame(TimelineViewModel timeline) {
-            VideoEditorViewModel editor;
-            if (timeline == null || (editor = timeline.Project.Editor) == null) {
+        public static bool CanAddKeyFrame(TimelineViewModel timeline, IAutomatableViewModel automatable, AutomationKey key) {
+            if (timeline == null) {
+                return false;
+            }
+
+            VideoEditorViewModel editor = timeline.Project.Editor;
+            if (editor == null) {
                 return true; // CanAddKeyFrameForPropertyModification defaults to true
+            }
+
+            AutomationSequenceViewModel active = automatable.AutomationData.ActiveSequence;
+            if (active == null || active.Key != key || active.IsOverrideEnabled) {
+                return false;
             }
 
             if (editor.CanAddKeyFrameForPropertyModification) {

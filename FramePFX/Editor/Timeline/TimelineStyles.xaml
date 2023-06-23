@@ -82,10 +82,10 @@
                                     </TextBlock.InputBindings>
                                 </TextBlock>
                                 <DockPanel Visibility="{TemplateBinding IsSelected, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" Margin="5,1,1,0">
-                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding DisableOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
+                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding ToggleOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
                                     <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
                                     <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}"
-                                                                 SelectedItem="{Binding SelectedSequence}"
+                                                                 SelectedItem="{Binding ActiveSequence}"
                                                                  BorderThickness="0" Margin="0,0,0,0"
                                                                  HorizontalContentAlignment="Left"
                                                                  HorizontalAlignment="Right"
@@ -114,8 +114,8 @@
                         <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                         <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                      Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
-                                                     Sequence="{Binding SelectedSequence}"
-                                                     IsEnabled="{Binding SelectedSequence.IsOverrideEnabled, Converter={x:Static converters:InvertBoolConverter.Instance}}"
+                                                     Sequence="{Binding ActiveSequence}"
+                                                     IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
                                                      UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
                                                      MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -169,8 +169,8 @@
                             <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
                             <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                          Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
-                                                         Sequence="{Binding SelectedSequence}"
-                                                         IsEnabled="{Binding SelectedSequence.IsOverrideEnabled, Converter={x:Static converters:InvertBoolConverter.Instance}}"
+                                                         Sequence="{Binding ActiveSequence}"
+                                                         IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
                                                          UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
                                                          MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
                                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -456,13 +456,13 @@
                                              ap:HistoryHelper.DragId="{x:Static layers:VideoLayerViewModel.OpacityHistoryKey}"/>
                             <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="55,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
                                 <Button Background="{DynamicResource ABrush.AccentTone2.Background.Static}" DockPanel.Dock="Right" Width="18"
-                                        Command="{Binding DisableOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Disables the current override, or all overrides"
+                                        Command="{Binding ToggleOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Disables the current override, or all overrides"
                                         BorderThickness="0"/>
                                 <Border Width="3"/>
                                 <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-"
                                         ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
                                 <controls:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
-                                                             SelectedItem="{Binding SelectedSequence}" BorderThickness="0"
+                                                             SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
                                                              DockPanel.Dock="Right" SnapsToDevicePixels="True"/>
                             </DockPanel>
                         </Grid>

@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
@@ -32,6 +33,14 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
         /// </summary>
         public double Opacity { get; set; }
+
+        public byte OpacityByte => (byte) Maths.Clamp((int) Math.Round(this.Opacity / 255d), 0, 255);
+
+        /// <summary>
+        /// Whether or not this clip handles it's own opacity calculation to help with render performance. Default
+        /// value is false, meaning an <see cref="Opacity"/> value that isn't 1d requires a temporary bitmap to render the clip
+        /// </summary>
+        public virtual bool UseCustomOpacityCalculation { get => false; }
 
         /// <summary>
         /// An event invoked when this video clip changes in some way that affects its render. 

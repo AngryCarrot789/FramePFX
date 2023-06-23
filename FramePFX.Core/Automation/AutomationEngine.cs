@@ -70,7 +70,7 @@ namespace FramePFX.Core.Automation {
 
                 foreach (AutomationSequence sequence in clip.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoUpdateValue(this, frame);
+                        sequence.DoUpdateValue(this, offset);
                     }
                 }
             }

@@ -16,21 +16,13 @@ namespace FramePFX.Core.Utils {
                 return false;
             }
 
-            VideoEditorViewModel editor = timeline.Project.Editor;
-            if (editor == null) {
-                return true; // CanAddKeyFrameForPropertyModification defaults to true
-            }
-
             AutomationSequenceViewModel active = automatable.AutomationData.ActiveSequence;
-            if (active == null || active.Key != key || active.IsOverrideEnabled) {
-                return false;
+            VideoEditorViewModel editor = timeline.Project.Editor;
+            if (editor != null && editor.IsRecordingKeyFrames) {
+                return true;
             }
 
-            if (editor.CanAddKeyFrameForPropertyModification) {
-                return !timeline.Project.Editor.Playback.IsPlaying || timeline.Project.Editor.RecordKeyFrames;
-            }
-
-            return false;
+            return active != null && active.Key == key && !active.IsOverrideEnabled;
         }
     }
 }

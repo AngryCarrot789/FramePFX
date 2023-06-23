@@ -96,8 +96,12 @@ namespace FramePFX.Core.Editor.Timeline {
             this.Render(render, this.PlayHeadFrame);
         }
 
+        private static void SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
+            canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
+        }
+
         public void Render(RenderContext render, long frame) {
-            SKPaint transparencyPaint = null;
+            SKPaint layerTransparencyPaint = null, clipPaint = null;
             for (int i = this.Layers.Count - 1; i >= 0; i--) {
                 if (!(this.Layers[i] is VideoLayerModel layer) || !layer.IsActuallyVisible) {
                     continue;
@@ -108,36 +112,46 @@ namespace FramePFX.Core.Editor.Timeline {
                     continue;
                 }
 
+                // SaveLayer requires a temporary drawing bitmap, which can slightly
+                // decrease performance, so only SaveLayer when absolutely necessary
                 if (!Maths.Equals(layer.Opacity, 1d)) {
-                    // SaveLayer requires a temporary drawing bitmap, which can slightly decrease performance
-                    // so only SaveLayer when absolutely nessesary
-                    render.Canvas.SaveLayer(transparencyPaint ?? (transparencyPaint = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(layer.Opacity * 255F, 0, 255F))}));
+                    SaveLayerForOpacity(render.Canvas, layer.Opacity, ref layerTransparencyPaint);
                 }
                 else {
                     render.Canvas.Save();
                 }
 
                 foreach (ClipModel clip in clips) {
-                    render.Canvas.Save();
+                    VideoClipModel videoClip = (VideoClipModel) clip;
+                    if (videoClip.UseCustomOpacityCalculation || Maths.Equals(videoClip.Opacity, 1d)) {
+                        render.Canvas.Save();
+                    }
+                    else {
+                        SaveLayerForOpacity(render.Canvas, videoClip.Opacity, ref clipPaint);
+                    }
+
                     #if DEBUG
-                    ((VideoClipModel) clip).Render(render, frame);
+                    videoClip.Render(render, frame);
                     #else
                     try {
-                        ((VideoClipModel) clip).Render(render, frame);
+                        videoClip.Render(render, frame);
                     }
                     catch (Exception e) {
                         this.ExceptionsLastRender[clip] = e;
                     }
                     #endif
+
                     render.Canvas.Restore();
+                    if (clipPaint != null) {
+                        clipPaint.Dispose();
+                        clipPaint = null;
+                    }
                 }
 
                 render.Canvas.Restore();
             }
 
-            if (transparencyPaint != null) {
-                transparencyPaint.Dispose();
-            }
+            layerTransparencyPaint?.Dispose();
         }
 
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {

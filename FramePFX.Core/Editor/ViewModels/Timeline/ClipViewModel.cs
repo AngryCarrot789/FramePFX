@@ -206,6 +206,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public bool IntersectsFrameAt(long frame) => this.Model.IntersectsFrameAt(frame);
 
+        public long GetRelativeFrame(long frame) => frame - this.FrameBegin;
+
         public virtual void OnTimelinePlayBegin() {
 
         }

@@ -9,6 +9,7 @@ using System.Windows.Input;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
+using FramePFX.Utils;
 using Keyboard = System.Windows.Input.Keyboard;
 
 namespace FramePFX.Editor.Timeline.Controls {
@@ -64,8 +65,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         /// The rendered X position of this element
         /// </summary>
         public double RealPixelX {
-            get => this.Margin.Left;
+            get => this.Margin.Left; // Canvas.GetLeft(this)
             set {
+                // Canvas.SetLeft(this, value);
                 Thickness margin = this.Margin;
                 margin.Left = value;
                 this.Margin = margin;
@@ -80,6 +82,14 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public TimelinePlayHeadControl() {
 
+        }
+
+        protected override Size MeasureOverride(Size constraint) {
+            return base.MeasureOverride(constraint);
+        }
+
+        protected override Size ArrangeOverride(Size arrangeBounds) {
+            return base.ArrangeOverride(arrangeBounds);
         }
 
         private T GetTemplateElement<T>(string name) where T : DependencyObject {

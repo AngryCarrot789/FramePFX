@@ -275,7 +275,7 @@ namespace FramePFX.Editor.Timeline.Controls {
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
             this.Layer?.MakeTopElement(this);
-            this.lastLeftClickPoint = e.GetPosition(this);
+            // this.lastLeftClickPoint = e.GetPosition(this);
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {

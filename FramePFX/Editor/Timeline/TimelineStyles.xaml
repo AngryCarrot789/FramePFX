@@ -15,6 +15,8 @@
                     xmlns:editor="clr-namespace:FramePFX.Editor"
                     xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
                     xmlns:aa="clr-namespace:FramePFX.Editor.Automation"
+                    xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
+                    xmlns:context="clr-namespace:FramePFX.Core.Editor.Timeline.Context;assembly=FramePFX.Core"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -70,6 +72,7 @@
         <Setter Property="MinHeight" Value="{Binding Layer.MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="MaxHeight" Value="{Binding Layer.MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="acs:AdvancedContextMenu.ContextGenerator" Value="{x:Static context:ClipContextGenerator.Instance}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:TimelineClipControl}">
@@ -113,11 +116,11 @@
                         <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                         <c:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                         <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
-                                                     Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
                                                      Sequence="{Binding ActiveSequence}"
                                                      IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
-                                                     UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
-                                                     MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
+                                                     UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=0}"
+                                                     MinFrame="0"
+                                                     MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineClipControl}}, Path=FrameDuration}"
                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -168,7 +171,6 @@
                         <Grid d:DataContext="{d:DesignInstance tm:LayerViewModel}">
                             <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
                             <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
-                                                         Visibility="{Binding IsSequenceEditorVisible, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
                                                          Sequence="{Binding ActiveSequence}"
                                                          IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
                                                          UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
@@ -409,11 +411,10 @@
                                         Grid.Row="1">
                                     <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </Border>
-                                <Border Grid.Row="0" x:Name="PART_TimestampBoard"
-                                        Margin="0" VerticalAlignment="Stretch"
+                                <Border x:Name="PART_TimestampBoard"
                                         Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                         BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
-                                        BorderThickness="0 0 0 1">
+                                        BorderThickness="0 0 0 1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                     <rulerwpf:Ruler VerticalAlignment="Stretch"
                                                     HorizontalAlignment="Stretch"
                                                     MarkerControlReference="{Binding ElementName=PART_rootGrid}"
@@ -423,9 +424,9 @@
                                     -->
                                 </Border>
                                 <controls:TimelinePlayHeadControl Background="{DynamicResource ABrush.Tone7.Border.Static}"
-                                                                  x:Name="PART_PlayHead" Grid.Row="0" Grid.RowSpan="2" Width="1"
-                                                                  VerticalAlignment="Stretch"
-                                                                  VerticalContentAlignment="Stretch"
+                                                                  x:Name="PART_PlayHead" Width="1"
+                                                                  Grid.Row="0" Grid.RowSpan="2"
+                                                                  Margin="0" VerticalAlignment="Stretch"                                                                      VerticalContentAlignment="Stretch"
                                                                   HorizontalAlignment="Left"
                                                                   Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                                                                   FrameIndex="{Binding PlayHeadFrame, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

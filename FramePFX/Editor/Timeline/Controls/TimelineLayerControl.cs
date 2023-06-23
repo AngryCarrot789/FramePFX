@@ -106,6 +106,8 @@ namespace FramePFX.Editor.Timeline.Controls {
                     layer.UnselectAll();
                 }
             }
+
+            this.Focus();
         }
 
         private void OnDragDropEnter(object sender, DragEventArgs e) {
@@ -267,10 +269,6 @@ namespace FramePFX.Editor.Timeline.Controls {
             base.MeasureOverride(constraint);
             TimelineControl timeline = this.Timeline;
             return timeline == null ? constraint : new Size(timeline.MaxDuration * this.UnitZoom, constraint.Height);
-        }
-
-        protected override Size ArrangeOverride(Size arrangeBounds) {
-            return base.ArrangeOverride(arrangeBounds);
         }
 
         public bool CanAcceptClip(TimelineClipControl clip) {

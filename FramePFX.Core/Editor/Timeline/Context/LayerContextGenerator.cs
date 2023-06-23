@@ -5,6 +5,8 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.Editor.Timeline.Context {
     public class LayerContextGenerator : IContextGenerator {
+        public static LayerContextGenerator Instance { get; } = new LayerContextGenerator();
+
         public void Generate(List<IContextEntry> list, IDataContext context) {
             if (context.TryGetContext(out LayerViewModel layer)) {
                 list.Add(new ActionContextEntry(layer, "actions.resources.RenameItem"));

@@ -20,6 +20,9 @@
             <Shortcut Name="RedoShortcut2" ActionId="actions.project.history.Redo">
                 <Keystroke Mods="CTRL" Key="Y"/>
             </Shortcut>
+            <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or layer's active sequence">
+                <Keystroke Mods="CTRL" Key="K"/>
+            </Shortcut>
             <Group Name="Resources">
                 <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
                     <Keystroke Key="Delete"/>

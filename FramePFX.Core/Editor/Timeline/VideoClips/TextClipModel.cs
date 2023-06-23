@@ -76,7 +76,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 this.blob = SKTextBlob.Create(text, font);
                 this.paint = new SKPaint(font) {
                     StrokeWidth = (float) r.BorderThickness,
-                    Color = r.Foreground
+                    Color = r.Foreground, ColorFilter = SKColorFilter.CreateBlendMode(new SKColor(0, 0, 0, this.OpacityByte), SKBlendMode.DstOver)
                 };
                 font.Dispose();
             }

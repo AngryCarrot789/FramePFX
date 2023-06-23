@@ -54,7 +54,6 @@ namespace FramePFX.Editor.Automation {
                 return point;
             }
 
-            AutomationKey key = this.KeyFrame.OwnerSequence.Key;
             double height = this.editor.ActualHeight;
             double px = this.KeyFrame.Timestamp * this.editor.UnitZoom;
             double offset_y = KeyPointUtils.GetY(this.KeyFrame, height);

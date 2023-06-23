@@ -70,14 +70,6 @@ namespace FramePFX.Editor.Timeline.Controls {
             ScrollViewer.SetCanContentScroll(this, false);
         }
 
-        protected override Size MeasureOverride(Size constraint) {
-            return base.MeasureOverride(constraint);
-        }
-
-        protected override Size ArrangeOverride(Size arrangeBounds) {
-            return base.ArrangeOverride(arrangeBounds);
-        }
-
         public IEnumerable<TimelineLayerControl> GetLayerContainers() {
             return this.GetLayerContainers<TimelineLayerControl>(this.Items);
         }

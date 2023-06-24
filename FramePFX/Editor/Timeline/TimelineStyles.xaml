@@ -17,6 +17,7 @@
                     xmlns:aa="clr-namespace:FramePFX.Editor.Automation"
                     xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
                     xmlns:context="clr-namespace:FramePFX.Core.Editor.Timeline.Context;assembly=FramePFX.Core"
+                    xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -85,8 +86,10 @@
                                     </TextBlock.InputBindings>
                                 </TextBlock>
                                 <DockPanel Visibility="{TemplateBinding IsSelected, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" Margin="5,1,1,0">
-                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding ToggleOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
-                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
+                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding ToggleOverrideCommand, Mode=OneTime}"
+                                            Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
+                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}"
+                                            Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
                                     <cc:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}"
                                                                  SelectedItem="{Binding ActiveSequence}"
                                                                  BorderThickness="0" Margin="0,0,0,0"
@@ -94,20 +97,6 @@
                                                                  HorizontalAlignment="Right"
                                                                  DockPanel.Dock="Right"
                                                                  MinWidth="50" SnapsToDevicePixels="True">
-                                        <ComboBox.ItemContainerStyle>
-                                            <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
-                                                <Setter Property="Padding" Value="0"/>
-                                                <Setter Property="Margin" Value="0"/>
-                                                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                            </Style>
-                                        </ComboBox.ItemContainerStyle>
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <DockPanel HorizontalAlignment="Stretch">
-                                                    <TextBlock Text="{Binding Model.Key.Id}" VerticalAlignment="Center"/>
-                                                </DockPanel>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
                                     </cc:AutomationComboBox>
                                 </DockPanel>
                             </DockPanel>
@@ -449,24 +438,25 @@
                                 <ToggleButton Content="V" ToolTip="Toggle visibility" Width="17" IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0"/>
                             </StackPanel>
                         </DockPanel>
-                        <Grid Background="Transparent" Margin="0,2,0,0">
+                        <DockPanel Background="Transparent" Margin="0,2,0,0">
                             <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
                                              TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                              Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                              HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
                                              ap:HistoryHelper.DragId="{x:Static layers:VideoLayerViewModel.OpacityHistoryKey}"/>
-                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" Margin="55,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
-                                <Button Background="{DynamicResource ABrush.AccentTone2.Background.Static}" DockPanel.Dock="Right" Width="18"
-                                        Command="{Binding ToggleOverrideCommand, Mode=OneTime}" Content="O" ToolTip="Disables the current override, or all overrides"
-                                        BorderThickness="0"/>
+                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
+                                <Button DockPanel.Dock="Right" Width="18" Content="O" ToolTip="Disables the current override, or all overrides"
+                                        Command="{Binding ToggleOverrideCommand, Mode=OneTime}" BorderThickness="0"
+                                        Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
                                 <Border Width="3"/>
                                 <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-"
-                                        ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
+                                        ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"
+                                        Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
                                 <cc:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
-                                                             SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
-                                                             DockPanel.Dock="Right" SnapsToDevicePixels="True"/>
+                                                       SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
+                                                       DockPanel.Dock="Right" SnapsToDevicePixels="True" MinWidth="40"/>
                             </DockPanel>
-                        </Grid>
+                        </DockPanel>
                     </DockPanel>
                 </Grid>
             </DataTemplate>
@@ -493,6 +483,8 @@
         </timeline:TimelineLayerListItemTemplateSelector.AudioLayerTemplate>
     </timeline:TimelineLayerListItemTemplateSelector>
 
+    <aa:AutomationActivityBrushConverter x:Key="AutomationActivityBrushConverter"/>
+
     <Style TargetType="{x:Type cc:AutomationComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
@@ -506,7 +498,10 @@
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <DockPanel HorizontalAlignment="Stretch">
+                    <DockPanel HorizontalAlignment="Stretch" d:DataContext="{d:DesignInstance keyframe:AutomationSequenceViewModel}">
+                        <Ellipse DockPanel.Dock="Left" Width="5" Height="5"
+                                 Visibility="{Binding HasKeyFrames, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
+                                 Fill="{Binding IsAutomationInUse, Converter={StaticResource AutomationActivityBrushConverter}}" Margin="0,0,3,0"/>
                         <TextBlock Text="{Binding Model.Key.Id}" VerticalAlignment="Center"/>
                     </DockPanel>
                 </DataTemplate>

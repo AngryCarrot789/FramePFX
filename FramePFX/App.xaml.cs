@@ -172,17 +172,14 @@ namespace FramePFX {
                 layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
                 layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
                 layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                layer1.AutomationData.ActiveKeyFullId = VideoLayerModel.OpacityKey.FullId;
 
                 ShapeClipModel clip1 = new ShapeClipModel {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
-                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
-                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
-                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
-                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
-                clip1.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(200L, new Vector2(800, 300)));
+
                 clip1.MediaPosition = new Vector2(0, 0);
                 clip1.SetTargetResourceId("idek");
                 layer1.AddClip(clip1);
@@ -194,6 +191,7 @@ namespace FramePFX {
                 };
                 clip2.MediaPosition = new Vector2(200, 200);
                 clip2.SetTargetResourceId("colour_green");
+
                 layer1.AddClip(clip2);
             }
             {
@@ -213,9 +211,15 @@ namespace FramePFX {
                 layer2.AddClip(clip1);
                 ShapeClipModel clip2 = new ShapeClipModel {
                     Width = 100, Height = 1000,
-                    FrameSpan = new FrameSpan(15, 25),
+                    FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip colour_green"
                 };
+
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip2.AutomationData.ActiveKeyFullId = VideoClipModel.MediaPositionKey.FullId;
 
                 clip2.MediaPosition = new Vector2(400, 400);
                 clip2.SetTargetResourceId("colour_green");

@@ -78,22 +78,24 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public FrameSpan FrameSpan {
             get => this.Model.FrameSpan;
             set {
-                FrameSpan oldSpan = this.Model.FrameSpan;
-                if (oldSpan != value) {
-                    if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Layer != null) {
-                        if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
-                            this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
-                        action.Span.SetCurrent(value);
-                    }
-
-                    this.Model.FrameSpan = value;
-                    this.RaisePropertyChanged();
-                    this.RaisePropertyChanged(nameof(this.FrameBegin));
-                    this.RaisePropertyChanged(nameof(this.FrameDuration));
-                    this.RaisePropertyChanged(nameof(this.FrameEndIndex));
-                    this.OnFrameSpanChanged(oldSpan, value);
-                    this.Layer?.OnProjectModified(this);
+                FrameSpan oldSpan = this.FrameSpan;
+                if (oldSpan == value) {
+                    return;
                 }
+
+                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Layer != null) {
+                    if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
+                        this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                    action.Span.SetCurrent(value);
+                }
+
+                this.Model.FrameSpan = value;
+                this.RaisePropertyChanged();
+                this.RaisePropertyChanged(nameof(this.FrameBegin));
+                this.RaisePropertyChanged(nameof(this.FrameDuration));
+                this.RaisePropertyChanged(nameof(this.FrameEndIndex));
+                this.OnFrameSpanChanged(oldSpan, value);
+                this.Layer?.OnProjectModified(this);
             }
         }
 
@@ -115,19 +117,21 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public long MediaFrameOffset {
             get => this.Model.MediaFrameOffset;
             set {
-                long oldValue = this.Model.MediaFrameOffset;
-                if (oldValue != value) {
-                    if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Layer != null) {
-                        if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
-                            this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
-                        action.MediaFrameOffset.SetCurrent(value);
-                    }
-
-                    this.Model.MediaFrameOffset = value;
-                    this.RaisePropertyChanged();
-                    this.OnMediaFrameOffsetChanged(oldValue, value);
-                    this.Layer?.OnProjectModified(this);
+                long oldValue = this.MediaFrameOffset;
+                if (oldValue == value) {
+                    return;
                 }
+
+                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Layer != null) {
+                    if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
+                        this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                    action.MediaFrameOffset.SetCurrent(value);
+                }
+
+                this.Model.MediaFrameOffset = value;
+                this.RaisePropertyChanged();
+                this.OnMediaFrameOffsetChanged(oldValue, value);
+                this.Layer?.OnProjectModified(this);
             }
         }
 

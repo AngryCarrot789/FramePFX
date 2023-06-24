@@ -30,10 +30,12 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         public bool IsOverrideEnabled { get; set; }
 
+        public bool HasKeyFrames => this.keyFrameList.Count > 0;
+
         /// <summary>
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present, meaning the automation engine is operating in normal operation
         /// </summary>
-        public bool IsAutomationInUse => !this.IsOverrideEnabled && this.keyFrameList.Count > 0;
+        public bool IsAutomationInUse => !this.IsOverrideEnabled && this.HasKeyFrames;
 
         /// <summary>
         /// An enumerable of all the key frames, ordered by the timestamp (small to big)

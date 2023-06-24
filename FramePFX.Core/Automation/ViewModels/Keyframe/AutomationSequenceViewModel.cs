@@ -23,6 +23,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
                 this.Model.IsOverrideEnabled = value;
                 this.RaisePropertyChanged();
                 this.AutomationData.OnOverrideStateChanged(this);
+                this.UpdateKeyFrameCollectionProperties();
             }
         }
 
@@ -36,6 +37,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present, meaning the automation engine is operating in normal operation
         /// </summary>
         public bool IsAutomationInUse => this.Model.IsAutomationInUse;
+
+        public bool HasKeyFrames => this.Model.HasKeyFrames;
 
         /// <summary>
         /// The automation data instance that owns this sequence
@@ -59,6 +62,11 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             }
         }
 
+        public void UpdateKeyFrameCollectionProperties() {
+            this.RaisePropertyChanged(nameof(this.HasKeyFrames));
+            this.RaisePropertyChanged(nameof(this.IsAutomationInUse));
+        }
+
         public void DoRefreshValue(AutomationEngineViewModel engine, long frame, bool isPlaybackSource) {
             this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(frame, isPlaybackSource));
         }
@@ -67,6 +75,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             keyFrame.OwnerSequence = this;
             keyFrame.PropertyChanged += this.keyFramePropertyChangedHandler;
             this.keyFrames.Insert(index, keyFrame);
+            this.UpdateKeyFrameCollectionProperties();
         }
 
         private void RemoveInternalUnsafe(int index) {
@@ -74,6 +83,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             keyFrame.OwnerSequence = null;
             keyFrame.PropertyChanged -= this.keyFramePropertyChangedHandler;
             this.keyFrames.RemoveAt(index);
+            this.UpdateKeyFrameCollectionProperties();
         }
 
         #region Helper Setter Functions
@@ -220,7 +230,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         }
 
         private void KeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            // Can't use nameof(KVM.Value) because of duplicated switch cases. Must be careful if ever refactoring
+            // Can't use nameof(KVM.Value) because of duplicated switch cases.
+            // Must be careful if ever refactoring the value properties
             switch (e.PropertyName) {
                 case "Value":
                     this.AutomationData.OnValueChanged(this, (KeyFrameViewModel) sender);

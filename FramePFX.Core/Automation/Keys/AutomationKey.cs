@@ -13,7 +13,7 @@ namespace FramePFX.Core.Automation.Keys {
         // the "::" splitter must not change, otherwise old projects won't load
         public const string FullIdSplitter = "::";
 
-        private int? hashCode;
+        private readonly int hashCode;
 
         public string Domain { get; }
 
@@ -29,6 +29,9 @@ namespace FramePFX.Core.Automation.Keys {
             this.Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             this.Domain = string.IsNullOrWhiteSpace(domain) ? throw new ArgumentException("domain cannot be null, empty or entirely whitespaces", nameof(domain)) : domain;
             this.Id = string.IsNullOrWhiteSpace(id) ? throw new ArgumentException("id cannot be null, empty or entirely whitespaces", nameof(id)) : id;
+            unchecked {
+                this.hashCode = (domain.GetHashCode() * 397) ^ id.GetHashCode();
+            }
         }
 
         public static AutomationKeyDouble RegisterDouble(string domain, string id, KeyDescriptorDouble descriptor) {
@@ -119,8 +122,14 @@ namespace FramePFX.Core.Automation.Keys {
             return ReferenceEquals(this, obj) || obj is AutomationKey key && this.Equals(key);
         }
 
+        /// <summary>
+        /// Checks if two automation keys are equal
+        /// </summary>
+        /// <param name="a">Left value</param>
+        /// <param name="b">Right value</param>
+        /// <returns>A and B are equal</returns>
         public static bool operator ==(AutomationKey a, AutomationKey b) {
-            // a == b || a != null && b != null && !a.equals(b)
+            // a == b || a != null && b != null && a.equals(b)
             return ReferenceEquals(a, b) || !ReferenceEquals(a, null) && !ReferenceEquals(b, null) && a.Equals(b);
         }
 
@@ -129,11 +138,7 @@ namespace FramePFX.Core.Automation.Keys {
             return !ReferenceEquals(a, b) && (ReferenceEquals(a, null) || ReferenceEquals(b, null) || !a.Equals(b));
         }
 
-        public override int GetHashCode() {
-            unchecked {
-                return this.hashCode ?? (this.hashCode = (this.Domain.GetHashCode() * 397) ^ this.Id.GetHashCode()).Value;
-            }
-        }
+        public sealed override int GetHashCode() => this.hashCode;
     }
 
     public class AutomationKeyDouble : AutomationKey {

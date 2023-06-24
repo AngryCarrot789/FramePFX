@@ -30,6 +30,19 @@ namespace FramePFX.Core.Editor.Timeline {
             this.onlineStateChangedHandler = this.OnOnlineStateChangedInternal;
         }
 
+        private void DisposePath() {
+            ResourcePath<T> path = this.ResourcePath;
+            if (path != null) {
+                try {
+                    path.ResourceChanged -= this.resourceChangedHandler;
+                    path.Dispose();
+                }
+                finally {
+                    this.ResourcePath = null; // just in case the code below throws, don't reference a disposed instance
+                }
+            }
+        }
+
         protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
             base.OnLayerChanged(oldLayer, newLayer);
             if (this.ResourcePath == null)
@@ -51,12 +64,7 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         /// <param name="id">The target resource ID. Cannot be null, empty, or consist of only whitespaces</param>
         public void SetTargetResourceId(string id) {
-            if (this.ResourcePath != null) {
-                this.ResourcePath.ResourceChanged -= this.resourceChangedHandler;
-                this.ResourcePath.Dispose();
-                this.ResourcePath = null; // just in case the code below throws, don't reference a disposed instance
-            }
-
+            this.DisposePath();
             this.ResourcePath = new ResourcePath<T>(this.ResourceManager, id);
             this.ResourcePath.ResourceChanged += this.resourceChangedHandler;
         }
@@ -129,6 +137,7 @@ namespace FramePFX.Core.Editor.Timeline {
             base.DisposeCore(stack);
             if (this.ResourcePath != null && !this.ResourcePath.IsDisposed) {
                 try {
+                    this.DisposePath();
                     // this shouldn't throw unless it was already disposed for some reason. Might as well handle that case
                     this.ResourcePath?.Dispose();
                 }

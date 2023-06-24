@@ -19,10 +19,11 @@ namespace FramePFX.Core.Utils {
             AutomationSequenceViewModel active = automatable.AutomationData.ActiveSequence;
             VideoEditorViewModel editor = timeline.Project.Editor;
             if (editor != null && editor.IsRecordingKeyFrames) {
-                return true;
+                return active == null || !active.IsOverrideEnabled;
             }
-
-            return active != null && active.Key == key && !active.IsOverrideEnabled;
+            else {
+                return active != null && active.Key == key && !active.IsOverrideEnabled;
+            }
         }
     }
 }

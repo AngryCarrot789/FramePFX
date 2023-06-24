@@ -254,23 +254,52 @@ namespace FramePFX.Editor.Automation {
             this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
         }
 
-        protected virtual void OnSequencePropertyChanged(AutomationSequenceViewModel oldValue, AutomationSequenceViewModel newValue) {
-            if (oldValue != null) {
-                oldValue.OverrideKeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
-                ((INotifyCollectionChanged) oldValue.KeyFrames).CollectionChanged -= this.OnCollectionChanged;
-            }
+        #region Key Frame Creation/Deletion
 
-            this.ClearKeyFrameList();
-            if (newValue != null) {
-                newValue.OverrideKeyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
-                ((INotifyCollectionChanged) newValue.KeyFrames).CollectionChanged += this.OnCollectionChanged;
-                this.GenerateBackingList(newValue);
-            }
+        public KeyFrameViewModel CreateKeyFrameAt(AutomationSequenceViewModel sequence, Point point, bool capturePoint) {
+            return this.CreateKeyFrameAt(sequence, point, ref capturePoint);
         }
 
-        protected virtual void OnIsOverrideEnabledPropertyChanged(bool oldValue, bool newValue) {
+        public KeyFrameViewModel CreateKeyFrameAt(AutomationSequenceViewModel sequence, Point point, ref bool capturePoint) {
+            long timestamp = (long) Math.Round(point.X / this.UnitZoom);
+            KeyFrameViewModel keyFrame;
+            switch (sequence.Model.DataType) {
+                case AutomationDataType.Double:
+                    sequence.AddKeyFrame(keyFrame = new KeyFrameDoubleViewModel(new KeyFrameDouble(timestamp, ((KeyDescriptorDouble) sequence.Key.Descriptor).DefaultValue)));
+                    break;
+                case AutomationDataType.Long:
+                    sequence.AddKeyFrame(keyFrame = new KeyFrameLongViewModel(new KeyFrameLong(timestamp, ((KeyDescriptorLong) sequence.Key.Descriptor).DefaultValue)));
+                    break;
+                case AutomationDataType.Boolean:
+                    sequence.AddKeyFrame(keyFrame = new KeyFrameBooleanViewModel(new KeyFrameBoolean(timestamp, ((KeyDescriptorBoolean) sequence.Key.Descriptor).DefaultValue)));
+                    break;
+                case AutomationDataType.Vector2:
+                    sequence.AddKeyFrame(keyFrame = new KeyFrameVector2ViewModel(new KeyFrameVector2(timestamp, ((KeyDescriptorVector2) sequence.Key.Descriptor).DefaultValue)));
+                    break;
+                default: throw new ArgumentOutOfRangeException();
+            }
 
+            if (this.TryGetPointByKeyFrame(keyFrame, out KeyFramePoint keyFramePoint)) {
+                keyFramePoint.SetValueForMousePoint(point);
+                if (capturePoint) {
+                    this.SetPointCaptured(keyFramePoint, true, LineHitType.None);
+                }
+            }
+            else {
+                // this shouldn't really happen, because when a new key frame is created and added to the sequence, the
+                // collection change events should result in a new KeyFramePoint being created at some point
+                Debug.WriteLine($"Failed to get point by key frame: {keyFrame}");
+                capturePoint = false;
+            }
+
+            return keyFrame;
         }
+
+        public void RemoveKeyFrameAt(AutomationSequenceViewModel sequence, int index) {
+            sequence.RemoveKeyFrameAt(index);
+        }
+
+        #endregion
 
         #region Key point creation/deletion
 
@@ -308,6 +337,8 @@ namespace FramePFX.Editor.Automation {
             }
         }
 
+        // Do not call unless the view model has been updated accordingly!
+        // This is only invoked via the collection changed handlers
         private void RemovePointAt(int index, bool detatchPropertyChangedEvent = true) {
             List<KeyFramePoint> list = this.backingList;
             for (int i = index + 1; i < list.Count; i++) {
@@ -370,7 +401,7 @@ namespace FramePFX.Editor.Automation {
 
                 KeyFramePoint removedPoint = pointList[index];
                 if (!ReferenceEquals(removedPoint.KeyFrame, toRemove)) {
-                    throw new Exception("Invalid removal index");
+                    throw new Exception("Invalid removal index: key point reference mis-match");
                 }
 
                 this.RemovePointAt(index);
@@ -409,8 +440,6 @@ namespace FramePFX.Editor.Automation {
 
         #region Key point capture
 
-        private Point mouseCapturePoint;
-
         private void ClearCapture(bool releaseMouseCapture = true) {
             if (this.captured == null) {
                 return;
@@ -445,50 +474,25 @@ namespace FramePFX.Editor.Automation {
 
         #endregion
 
-        #region Key Frame Creation/Deletion
-
-        public KeyFrameViewModel CreateKeyFrameAt(AutomationSequenceViewModel sequence, Point point, bool capturePoint) {
-            return this.CreateKeyFrameAt(sequence, point, ref capturePoint);
-        }
-
-        public KeyFrameViewModel CreateKeyFrameAt(AutomationSequenceViewModel sequence, Point point, ref bool capturePoint) {
-            long timestamp = (long) Math.Round(point.X / this.UnitZoom);
-            KeyFrameViewModel keyFrame;
-            switch (sequence.Model.DataType) {
-                case AutomationDataType.Double:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameDoubleViewModel(new KeyFrameDouble(timestamp, ((KeyDescriptorDouble) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                case AutomationDataType.Long:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameLongViewModel(new KeyFrameLong(timestamp, ((KeyDescriptorLong) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                case AutomationDataType.Boolean:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameBooleanViewModel(new KeyFrameBoolean(timestamp, ((KeyDescriptorBoolean) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                case AutomationDataType.Vector2:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameVector2ViewModel(new KeyFrameVector2(timestamp, ((KeyDescriptorVector2) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                default: throw new ArgumentOutOfRangeException();
-            }
-
-            if (this.TryGetPointByKeyFrame(keyFrame, out KeyFramePoint keyFramePoint)) {
-                keyFramePoint.SetValueForMousePoint(point);
-                if (capturePoint) {
-                    this.SetPointCaptured(keyFramePoint, true, LineHitType.None);
-                }
-            }
-            else {
-                // this shouldn't really happen, because when a new key frame is created and added to the sequence, the
-                // collection change events should result in a new KeyFramePoint being created at some point
-                Debug.WriteLine($"Failed to get point by key frame: {keyFrame}");
-                capturePoint = false;
-            }
-
-            return keyFrame;
-        }
-
-        #endregion
-
         #region Event handlers
+
+        protected virtual void OnSequencePropertyChanged(AutomationSequenceViewModel oldValue, AutomationSequenceViewModel newValue) {
+            if (oldValue != null) {
+                oldValue.OverrideKeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
+                ((INotifyCollectionChanged) oldValue.KeyFrames).CollectionChanged -= this.OnCollectionChanged;
+            }
+
+            this.ClearKeyFrameList();
+            if (newValue != null) {
+                newValue.OverrideKeyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
+                ((INotifyCollectionChanged) newValue.KeyFrames).CollectionChanged += this.OnCollectionChanged;
+                this.GenerateBackingList(newValue);
+            }
+        }
+
+        protected virtual void OnIsOverrideEnabledPropertyChanged(bool oldValue, bool newValue) {
+
+        }
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             AutomationSequenceViewModel sequence = this.Sequence;
@@ -595,14 +599,14 @@ namespace FramePFX.Editor.Automation {
             }
 
             Point mPos = e.GetPosition(this);
-            if (this.GetIntersection(ref mPos, out KeyFramePoint hitKey, out LineHitType lineHit)) {
+            if (this.GetIntersection(ref mPos, out KeyFramePoint hitKey, out LineHitType lineHit, out int index)) {
                 if (this.captured != null) {
                     this.ClearCapture(lineHit != LineHitType.None);
                 }
 
                 if (lineHit == LineHitType.None) {
                     e.Handled = true;
-                    hitKey.KeyFrame.OwnerSequence.RemoveKeyFrame(hitKey.KeyFrame);
+                    hitKey.KeyFrame.OwnerSequence.RemoveKeyFrameAt(index);
                 }
                 else if (this.Sequence is AutomationSequenceViewModel sequence) {
                     if (this.isCaptureInitialised) {
@@ -629,6 +633,20 @@ namespace FramePFX.Editor.Automation {
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonUp(e);
             if (this.captured != null) {
+                if (this.isCaptureInitialised && this.captureLineHit == LineHitType.None && this.Sequence is AutomationSequenceViewModel sequence) {
+                    int index = this.backingList.IndexOf(this.captured);
+                    if (index == -1) {
+                        #if DEBUG
+                        throw new Exception("Captured key frame not found in the backing list?");
+                        #else
+                        AppLogger.WriteLine("Captured key frame not found in the backing list for mouse button up event");
+                        #endif
+                    }
+                    else {
+                        this.RemoveKeyFrameAt(sequence, index);
+                    }
+                }
+
                 this.ClearCapture();
             }
 
@@ -923,6 +941,12 @@ namespace FramePFX.Editor.Automation {
             return p.X >= minX && p.X <= maxX && p.Y >= minY && p.Y <= maxY;
         }
 
+        // TODO: iterate through all key frames to find the one which the mouse is closest to maybe?
+
+        public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
+            return this.GetIntersection(ref p, out keyFrame, out lineHit, out _);
+        }
+
         /// <summary>
         /// Performs a hit test across each key frame and it's line
         /// </summary>
@@ -930,7 +954,7 @@ namespace FramePFX.Editor.Automation {
         /// <param name="keyFrame">The hit key frame, or it's associated line if <param name="lineHit"></param> is true</param>
         /// <param name="lineHit">Whether or not the hit was a line</param>
         /// <returns>True if something was hit, otherwise false, meaning <param name="keyFrame"></param> will be null and <param name="lineHit"></param> will be false</returns>
-        public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
+        public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit, out int index) {
             List<KeyFramePoint> list = this.backingList;
             int c = list.Count;
             if (c > 0) {
@@ -944,11 +968,15 @@ namespace FramePFX.Editor.Automation {
                     Rect point_area = new Rect(point.X - r1, point.Y - r1, r2, r2);
                     if (RectContains(ref point_area, ref p)) {
                         lineHit = LineHitType.None;
+                        index = i;
                         return true;
                     }
                     else if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness)) {
                         if (i > 0) {
-                            keyFrame = this.backingList[i - 1];
+                            keyFrame = this.backingList[index = i - 1];
+                        }
+                        else {
+                            index = i;
                         }
 
                         lineHit = i == 0 ? LineHitType.Head : LineHitType.Normal;
@@ -960,7 +988,7 @@ namespace FramePFX.Editor.Automation {
 
                 Point endPoint = new Point(this.ActualWidth, lastPoint.Y);
                 if (IsMouseOverLine(ref p, ref lastPoint, ref endPoint, LineHitThickness)) {
-                    keyFrame = this.backingList[c - 1];
+                    keyFrame = this.backingList[index = c - 1];
                     lineHit = LineHitType.Tail;
                     return true;
                 }
@@ -968,6 +996,7 @@ namespace FramePFX.Editor.Automation {
 
             keyFrame = null;
             lineHit = LineHitType.None;
+            index = -1;
             return false;
         }
 

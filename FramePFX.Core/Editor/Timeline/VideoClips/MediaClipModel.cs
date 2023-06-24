@@ -78,13 +78,13 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         }
 
         protected override void OnResourceChanged(ResourceMedia oldItem, ResourceMedia newItem) {
-            base.OnResourceChanged(oldItem, newItem);
             this.renderFrameRgb?.Dispose();
             this.renderFrameRgb = null;
             this.downloadedHwFrame?.Dispose();
             this.downloadedHwFrame = null;
             this.scaler?.Dispose();
             this.scaler = null;
+            base.OnResourceChanged(oldItem, newItem);
         }
     }
 }

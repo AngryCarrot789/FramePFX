@@ -45,9 +45,9 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         }
 
         protected override void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
-            base.OnResourceChanged(oldItem, newItem);
             this.blob?.Dispose();
             this.blob = null;
+            base.OnResourceChanged(oldItem, newItem);
         }
 
         protected override void OnResourceDataModified(string property) {
@@ -70,7 +70,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 default: return;
             }
 
-            this.InvalidateRender();
+            base.OnResourceDataModified(property);
         }
 
         public override Vector2? GetSize() {

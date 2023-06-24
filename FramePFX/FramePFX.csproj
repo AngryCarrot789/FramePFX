@@ -246,6 +246,7 @@
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
     <Compile Include="Converters\VerticalScrollBinder.cs" />
+    <Compile Include="Editor\Automation\AutomationActivityBrushConverter.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\DragMode.cs" />
     <Compile Include="Editor\Automation\KeyFramePoint.cs" />
@@ -393,7 +394,6 @@
     <Compile Include="Utils\KeyUtils.cs" />
     <Compile Include="Utils\ScrollerUtils.cs" />
     <Compile Include="Utils\TextPointerUtils.cs" />
-    <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="Utils\Validate.cs" />
     <Compile Include="Utils\NumberAverager.cs" />

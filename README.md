@@ -27,7 +27,7 @@ Click "Export" in the file menu at the top left, and you can specify some render
 
 ![](FramePFX_2023-06-23_03.20.48.png)
 
-# Backend stuff... if you care
+# Backend stuff
 
 ## ViewModels/Models 
 I tried to wrap all models with view models so that the app can still function even if it had no view models or even UI, simiular to how OBS can run without the front-end entirely, not that you'd want to... 

@@ -386,6 +386,7 @@
     <Compile Include="Themes\Converters\TreeViewLineConverter.cs" />
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeTypes.cs" />
+    <Compile Include="Themes\ToneGenerator.cs" />
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherDelegate.cs" />
@@ -515,6 +516,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\ColourDictionaries\DeepDark.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\ColourDictionaries\GreyTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

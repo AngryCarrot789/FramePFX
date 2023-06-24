@@ -6,6 +6,7 @@ namespace FramePFX.Themes {
         SoftDarkAndBlue,
         RedBlackTheme,
         DeepDark,
+        GreyTheme
     }
 
     public static class ThemeTypeExtension {
@@ -15,6 +16,7 @@ namespace FramePFX.Themes {
                 case ThemeType.SoftDarkAndBlue: return "SoftDarkAndBlue";
                 case ThemeType.RedBlackTheme:   return "RedBlackTheme";
                 case ThemeType.DeepDark:        return "DeepDark";
+                case ThemeType.GreyTheme:       return "GreyTheme";
                 default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }

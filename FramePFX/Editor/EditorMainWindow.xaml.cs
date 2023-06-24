@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
@@ -21,6 +22,7 @@ using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Properties.Pages;
 using FramePFX.Notifications;
+using FramePFX.Themes;
 using FramePFX.Utils;
 using FramePFX.Views;
 using SkiaSharp;
@@ -376,6 +378,19 @@ namespace FramePFX.Editor {
 
         private void ShowLogsClick(object sender, RoutedEventArgs e) {
             new AppLoggerWindow().Show();
+        }
+
+        private void SetThemeClick(object sender, RoutedEventArgs e) {
+            ThemeType type;
+            switch (((MenuItem) sender).Uid) {
+                case "0": type = ThemeType.DeepDark; break;
+                case "1": type = ThemeType.SoftDark; break;
+                case "2": type = ThemeType.GreyTheme; break;
+                case "3": type = ThemeType.RedBlackTheme; break;
+                default: return;
+            }
+
+            ThemesController.SetTheme(type);
         }
     }
 }

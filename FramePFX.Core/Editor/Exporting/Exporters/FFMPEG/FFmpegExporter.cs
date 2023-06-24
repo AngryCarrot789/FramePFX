@@ -45,7 +45,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
             AVCodec* codec; // idk codec i guess
             AVCodecContext* c = null; // idk
             AVFrame* frame = null; // raw data
-            AVPacket pkt; // encoded data
+            AVPacket* pkt = null; // encoded data
             int ret;
 
             // initialize the AVFormatContext
@@ -194,11 +194,11 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
                         {
                             int width = RNDTO2(c->width);
                             int height = RNDTO2(c->height);
-                            int ystride = RNDTO32(width);
-                            int uvstride = RNDTO32(width / 2);
-                            int ysize = ystride * height;
-                            int vusize = uvstride * (height / 2);
-                            int size = ysize + (2 * vusize);
+                            // int ystride = RNDTO32(width);
+                            // int uvstride = RNDTO32(width / 2);
+                            // int ysize = ystride * height;
+                            // int vusize = uvstride * (height / 2);
+                            // int size = ysize + (2 * vusize);
                             SwsContext* s = ffmpeg.sws_getContext(
                                 pixmap.Width, pixmap.Height, AVPixelFormat.AV_PIX_FMT_BGRA,
                                 width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
@@ -212,8 +212,9 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
 
                         // Encode frame
                         if ((ret = ffmpeg.avcodec_send_frame(c, frame)) == 0) {
-                            ffmpeg.av_init_packet(&pkt);
-                            ret = ffmpeg.avcodec_receive_packet(c, &pkt);
+                            pkt = ffmpeg.av_packet_alloc();
+                            // ffmpeg.av_init_packet(&pkt);
+                            ret = ffmpeg.avcodec_receive_packet(c, pkt);
                             if (ret != ffmpeg.AVERROR(ffmpeg.EAGAIN) && ret != ffmpeg.AVERROR_EOF) {
                                 if (ret < 0) {
                                     exception = new Exception("Error encoding");
@@ -225,22 +226,24 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
                             // not likely at all... encoding takes a bit longer than a few microseconds lol)
                             if (ret == 0) {
                                 // required, otherwise the .mp4 file is like 20 milliseconds long
-                                ffmpeg.av_packet_rescale_ts(&pkt, c->time_base, st->time_base);
-                                pkt.stream_index = st->index;
+                                ffmpeg.av_packet_rescale_ts(pkt, c->time_base, st->time_base);
+                                pkt->stream_index = st->index;
 
-                                long ts = pkt.dts;
+                                long ts = pkt->dts;
                                 if (ts != ffmpeg.AV_NOPTS_VALUE) {
                                     progress.OnFrameEncoded(ts);
                                 }
 
                                 // write encoded frame
-                                ret = ffmpeg.av_interleaved_write_frame(oc, &pkt);
-                                ffmpeg.av_packet_unref(&pkt);
+                                ret = ffmpeg.av_interleaved_write_frame(oc, pkt);
+                                // ffmpeg.av_packet_unref(&pkt);
                                 if (ret < 0) {
                                     exception = new Exception("Error writing frame to stream: " + ret);
                                     goto fail_or_end;
                                 }
                             }
+
+                            ffmpeg.av_packet_free(&pkt);
                         }
                         else if (ret < 0) {
                             exception = new Exception("Error sending/encoding frame");
@@ -254,24 +257,26 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
                 // begin flush run
                 ffmpeg.avcodec_send_frame(c, null);
                 while (true) {
-                    ffmpeg.av_init_packet(&pkt);
-                    ret = ffmpeg.avcodec_receive_packet(c, &pkt);
+                    pkt = ffmpeg.av_packet_alloc();
+                    // ffmpeg.av_init_packet(&pkt);
+                    ret = ffmpeg.avcodec_receive_packet(c, pkt);
                     if (ret == ffmpeg.AVERROR(ffmpeg.EAGAIN) || ret == ffmpeg.AVERROR_EOF) {
                         // all frames fully encoded
                         break;
                     }
 
-                    ffmpeg.av_packet_rescale_ts(&pkt, c->time_base, st->time_base);
-                    pkt.stream_index = st->index;
+                    ffmpeg.av_packet_rescale_ts(pkt, c->time_base, st->time_base);
+                    pkt->stream_index = st->index;
 
-                    long ts = pkt.dts;
+                    long ts = pkt->dts;
                     if (ts != ffmpeg.AV_NOPTS_VALUE) {
                         progress.OnFrameEncoded(ts);
                     }
 
                     // write encoded frame
-                    ret = ffmpeg.av_interleaved_write_frame(oc, &pkt);
-                    ffmpeg.av_packet_unref(&pkt);
+                    ret = ffmpeg.av_interleaved_write_frame(oc, pkt);
+                    // ffmpeg.av_packet_unref(&pkt);
+                    ffmpeg.av_packet_free(&pkt);
                     if (ret < 0) {
                         exception = new Exception("Error writing frame to stream: " + ret);
                         goto fail_or_end;
@@ -281,6 +286,10 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
 
             ffmpeg.av_write_trailer(oc);
             fail_or_end:
+
+            if (pkt != null) {
+                ffmpeg.av_packet_free(&pkt);
+            }
 
             if (oc != null) {
                 if ((oc->oformat->flags & ffmpeg.AVFMT_NOFILE) == 0) {

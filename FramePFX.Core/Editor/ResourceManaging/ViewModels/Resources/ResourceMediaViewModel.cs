@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using FFmpeg.AutoGen;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceChecker.Resources;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
@@ -43,21 +44,26 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public override async Task<bool> ValidateOnlineState(ResourceCheckerViewModel checker, ExceptionStack stack) {
-            if (string.IsNullOrEmpty(this.FilePath) || File.Exists(this.FilePath)) {
-                return true;
-            }
-            else {
+        public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack) {
+            if (!string.IsNullOrEmpty(this.FilePath) && File.Exists(this.FilePath)) {
                 try {
-                    this.Model.Dispose();
+                    this.Model.OpenMediaFromFile();
+                    return true;
                 }
-                catch (Exception e) {
-                    stack.Add(e);
+                catch {
+                    // ignored
                 }
-
-                checker.Add(new InvalidVideoViewModel(this));
-                return false;
             }
+
+            try {
+                this.Model.Dispose();
+            }
+            catch (Exception e) {
+                stack.Add(e);
+            }
+
+            checker.Add(new InvalidVideoViewModel(this));
+            return false;
         }
     }
 }

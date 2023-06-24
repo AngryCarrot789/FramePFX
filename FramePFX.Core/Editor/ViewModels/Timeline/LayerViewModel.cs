@@ -83,10 +83,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public bool IsHistoryChanging { get; set; }
 
-        public bool IsAutomationChangeInProgress {
-            get => this.Model.IsAutomationChangeInProgress;
-            set => this.Model.IsAutomationChangeInProgress = value;
-        }
+        public bool IsAutomationRefreshInProgress { get; set; }
 
         public AsyncRelayCommand RenameLayerCommand { get; }
 

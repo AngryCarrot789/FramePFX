@@ -52,7 +52,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
             }
 
             if (list.Count > 0) {
-                await ResourceCheckerViewModel.ProcessResources(list, true);
+                await ResourceCheckerViewModel.LoadResources(list, true);
             }
         }
     }

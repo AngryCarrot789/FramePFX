@@ -76,21 +76,26 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public override async Task<bool> ValidateOnlineState(ResourceCheckerViewModel checker, ExceptionStack stack) {
-            if (string.IsNullOrEmpty(this.FilePath) || File.Exists(this.FilePath)) {
-                return true;
-            }
-            else {
+        public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack) {
+            if (!string.IsNullOrEmpty(this.FilePath) && File.Exists(this.FilePath)) {
                 try {
-                    this.Model.Dispose();
+                    await this.Model.LoadImageAsync(this.FilePath);
+                    return true;
                 }
-                catch (Exception e) {
-                    stack.Add(e);
+                catch {
+                    // ignored
                 }
-
-                checker.Add(new InvalidImageViewModel(this));
-                return false;
             }
+
+            try {
+                this.Model.Dispose();
+            }
+            catch (Exception e) {
+                stack.Add(e);
+            }
+
+            checker.Add(new InvalidImageViewModel(this));
+            return false;
         }
     }
 }

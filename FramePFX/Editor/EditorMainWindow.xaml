@@ -114,8 +114,10 @@
                         </Grid>
                     </Border>
                     <cc:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource ABrush.Tone1.Background.Static}">
-                        <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}"
-                                       x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
+                        <!--
+                        <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
+                        -->
+                        <framePfx:SKHelperViewPort Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement"/>
                     </cc:FreeMoveViewPortV2>
                 </Grid>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource ABrush.Tone2.Background.Static}">

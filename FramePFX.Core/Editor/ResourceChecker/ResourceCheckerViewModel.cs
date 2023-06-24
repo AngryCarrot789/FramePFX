@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels;
@@ -38,9 +40,8 @@ namespace FramePFX.Core.Editor.ResourceChecker {
             this.OfflineAllCommand = new AsyncRelayCommand(this.OfflineAllAction);
         }
 
-        public static Task<bool> ProcessProjectForInvalidResources(ProjectViewModel project, bool forceValidate) {
-            return Task.FromResult(true);
-            // return ProcessResources(project.ResourceManager.Resources, forceValidate);
+        public static Task<bool> LoadProjectResources(ProjectViewModel project, bool forceValidate) {
+            return LoadResources(project.ResourceManager.Root.Items, forceValidate);
         }
 
         /// <summary>
@@ -52,17 +53,11 @@ namespace FramePFX.Core.Editor.ResourceChecker {
         /// <param name="resources"></param>
         /// <param name="forceValidate">If the resource was forced offline by the user, setting this to true will force it to be validated anyway</param>
         /// <returns>Whether the UI operation was successful or cancelled</returns>
-        public static async Task<bool> ProcessResources(IEnumerable<ResourceItemViewModel> resources, bool forceValidate = false) {
+        public static async Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool forceValidate = false) {
             ResourceCheckerViewModel checker = new ResourceCheckerViewModel();
             using (ExceptionStack stack = new ExceptionStack(false)) {
-                foreach (ResourceItemViewModel resource in resources) {
-                    if (forceValidate || !resource.Model.IsOfflineByUser) {
-                        bool isOnline = await resource.ValidateOnlineState(checker, stack);
-                        if (isOnline != resource.Model.IsOnline) {
-                            resource.Model.IsOnline = isOnline;
-                            resource.Model.OnIsOnlineStateChanged();
-                        }
-                    }
+                foreach (BaseResourceObjectViewModel resourceObject in resources.ToList()) {
+                    await LoadResourcesRecursive(checker, resourceObject, stack, forceValidate);
                 }
 
                 if (stack.TryGetException(out Exception exception)) {
@@ -75,6 +70,23 @@ namespace FramePFX.Core.Editor.ResourceChecker {
             }
 
             return await IoC.Provide<IResourceCheckerService>().ShowCheckerDialog(checker);
+        }
+
+        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resourceObject, ExceptionStack stack, bool forceValidate = false) {
+            if (resourceObject is ResourceItemViewModel item) {
+                if (forceValidate || !item.Model.IsOfflineByUser) {
+                    bool isOnline = await item.LoadResource(checker, stack);
+                    if (isOnline != item.Model.IsOnline) {
+                        item.Model.IsOnline = isOnline;
+                        item.Model.OnIsOnlineStateChanged();
+                    }
+                }
+            }
+            else if (resourceObject is ResourceGroupViewModel group) {
+                foreach (BaseResourceObjectViewModel obj in group.Items) {
+                    await LoadResourcesRecursive(checker, obj, stack, forceValidate);
+                }
+            }
         }
 
         private async Task CancelAction() {

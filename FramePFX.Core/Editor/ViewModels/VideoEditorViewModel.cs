@@ -183,7 +183,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 this.ActiveProject = null;
             }
 
-            if (!await ResourceCheckerViewModel.ProcessProjectForInvalidResources(project, true)) {
+            if (!await ResourceCheckerViewModel.LoadProjectResources(project, true)) {
                 #if DEBUG
                 project.Dispose();
                 #else

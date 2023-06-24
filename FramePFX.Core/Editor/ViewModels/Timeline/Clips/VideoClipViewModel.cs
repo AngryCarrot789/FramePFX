@@ -265,16 +265,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
 
         protected override void RaiseAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
             base.RaiseAutomationPropertyUpdated(propertyName, in e);
-            if (!e.IsPlaybackSource) {
+            VideoEditorViewModel editor; // slight performance helper
+            if (!e.IsPlaybackSource && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.DoRender(true);
             }
         }
 
         [Conditional("DEBUG")]
         private void ValidateNotInAutomationChange() {
-            if (this.IsAutomationChangeInProgress) {
-                throw new Exception("Cannot modify view-model parameter property while automation change is in progress. " +
-                                    $"Only the model value should be modified, and {nameof(this.RaisePropertyChanged)} should be called in the view-model");
+            if (this.IsAutomationRefreshInProgress) {
+                Debugger.Break();
+                throw new Exception("Cannot modify view-model parameter property while automation refresh is in progress. " +
+                                    $"Only the model value should be modified, and {nameof(this.RaiseAutomationPropertyUpdated)} should be called in the view-model");
             }
         }
     }

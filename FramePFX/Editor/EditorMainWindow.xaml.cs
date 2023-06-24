@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
@@ -57,9 +59,7 @@ namespace FramePFX.Editor {
             this.NotificationPanel = new NotificationPanelViewModel(this);
 
             this.DataContext = new VideoEditorViewModel(this);
-            this.renderCallback = () => {
-                this.ViewPortElement.InvalidateVisual();
-            };
+            this.renderCallback = this.DoRenderCore;
 
             this.lastRefreshTime = Time.GetSystemMillis();
 
@@ -148,6 +148,9 @@ namespace FramePFX.Editor {
             }
         }
 
+        private static readonly FieldInfo actualTopField = typeof(Window).GetField("_actualTop", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
+        private static readonly FieldInfo actualLeftField = typeof(Window).GetField("_actualLeft", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
+
         public void RefreshPopupLocation() {
             Popup popup = this.NotificationPanelPopup;
             if (popup == null || !popup.IsOpen) {
@@ -176,8 +179,8 @@ namespace FramePFX.Editor {
                 case WindowState.Maximized: {
                     popup.Visibility = Visibility.Visible;
                     Thickness thicc = this.BorderThickness;
-                    double top = (double) typeof(Window).GetField("_actualTop", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField).GetValue(this) + thicc.Top;
-                    double left = (double) typeof(Window).GetField("_actualLeft", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField).GetValue(this) + thicc.Left;
+                    double top = (double) actualTopField.GetValue(this) + thicc.Top;
+                    double left = (double) actualLeftField.GetValue(this) + thicc.Left;
                     popup.VerticalOffset = top - (thicc.Top + thicc.Bottom) + this.ActualHeight - element.ActualHeight;
                     popup.HorizontalOffset = left - (thicc.Left + thicc.Right) + this.ActualWidth - element.ActualWidth;
                     break;
@@ -186,27 +189,25 @@ namespace FramePFX.Editor {
             }
         }
 
-        protected override void OnActivated(EventArgs e) {
-            base.OnActivated(e);
-            if (this.isRefreshing || this.Editor.IsClosingProject) {
-                return;
-            }
+        // protected override void OnActivated(EventArgs e) {
+        //     base.OnActivated(e);
+        //     if (this.isRefreshing || this.Editor.IsClosingProject) {
+        //         return;
+        //     }
+        //     long time = Time.GetSystemMillis();
+        //     if ((time - this.lastRefreshTime) >= RefreshInterval) {
+        //         this.isRefreshing = true;
+        //         this.RefreshAction();
+        //     }
+        // }
 
-            long time = Time.GetSystemMillis();
-            if ((time - this.lastRefreshTime) >= RefreshInterval) {
-                this.isRefreshing = true;
-                this.RefreshAction();
-            }
-        }
-
-        private async void RefreshAction() {
-            if (this.Editor.ActiveProject is ProjectViewModel vm) {
-                await ResourceCheckerViewModel.ProcessProjectForInvalidResources(vm, false);
-            }
-
-            this.isRefreshing = false;
-            this.lastRefreshTime = Time.GetSystemMillis();
-        }
+        // private async void RefreshAction() {
+        //     if (this.Editor.ActiveProject is ProjectViewModel vm) {
+        //         await ResourceCheckerViewModel.LoadProjectResources(vm, false);
+        //     }
+        //     this.isRefreshing = false;
+        //     this.lastRefreshTime = Time.GetSystemMillis();
+        // }
 
         public void UpdateSelectionPropertyPages() {
             this.ClipPropertyPanelList.Items.Clear();
@@ -268,6 +269,35 @@ namespace FramePFX.Editor {
                 this.Dispatcher.Invoke(this.renderCallback);
                 this.isRenderScheduled = 0;
             }
+        }
+
+        private void DoRenderCore() {
+            // this.ViewPortElement.InvalidateVisual();
+            VideoEditorViewModel editor = this.Editor;
+            ProjectViewModel project = editor.ActiveProject;
+            if (project == null || project.Model.IsSaving) {
+                this.isRenderScheduled = 0;
+                return;
+            }
+
+            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
+                long frame = project.Timeline.PlayHeadFrame;
+
+                RenderContext context = new SkiaSharpRenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                context.Canvas.Clear(SKColors.Black);
+                // project.Model.AutomationEngine.TickProjectAtFrame(frame);
+                project.Model.Timeline.Render(context, frame);
+
+                Dictionary<ClipModel, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
+                if (dictionary.Count > 0) {
+                    this.PrintRenderErrors(dictionary);
+                    dictionary.Clear();
+                }
+
+                this.ViewPortElement.EndRender();
+            }
+
+            this.isRenderScheduled = 0;
         }
 
         private void OnPaintViewPortSurface(object sender, SKPaintSurfaceEventArgs e) {

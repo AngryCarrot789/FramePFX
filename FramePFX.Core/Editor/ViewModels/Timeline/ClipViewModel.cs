@@ -27,12 +27,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public bool IsHistoryChanging { get; set; }
 
         /// <summary>
-        /// Whether or not this clip's values are being modified by the
+        /// Whether or not this clip's parameter properties are being refreshed
         /// </summary>
-        public bool IsAutomationChangeInProgress {
-            get => this.Model.IsAutomationChangeInProgress;
-            set => this.Model.IsAutomationChangeInProgress = value;
-        }
+        public bool IsAutomationRefreshInProgress { get; set; }
 
         public bool IsDraggingLeftThumb { get; private set; }
         public bool IsDraggingRightThumb { get; private set; }

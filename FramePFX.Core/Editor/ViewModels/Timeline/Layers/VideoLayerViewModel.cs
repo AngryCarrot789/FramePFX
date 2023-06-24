@@ -39,7 +39,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
         public double Opacity {
             get => this.Model.Opacity;
             set {
-                Debug.Assert(this.IsAutomationChangeInProgress == false, "IsAutomationChangeInProgress should be false");
+                if (this.IsAutomationRefreshInProgress) {
+                    Debugger.Break();
+                    return;
+                }
+
                 if (!this.IsHistoryChanging) {
                     if (FrontEndHistoryHelper.ActiveDragId == OpacityHistoryKey) {
                         if (this.opacityHistory == null)
@@ -71,11 +75,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 }
                 else {
                     this.AutomationData[VideoLayerModel.OpacityKey].GetOverride().SetDoubleValue(value);
+                    this.Model.Opacity = value;
+                    this.RaisePropertyChanged();
+                    this.Timeline.DoRender(true);
                 }
-
-                this.Model.Opacity = value;
-                this.RaisePropertyChanged();
-                this.Timeline.DoRender(true);
             }
         }
 
@@ -86,7 +89,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                     return;
                 }
 
-                Debug.Assert(this.IsAutomationChangeInProgress == false, "IsAutomationChangeInProgress should be false");
+                if (this.IsAutomationRefreshInProgress) {
+                    Debugger.Break();
+                    return;
+                }
+
                 if (!this.IsHistoryChanging) {
                     this.HistoryManager.AddAction(new HistoryLayerIsVisible(this, value), "Edit IsVisible");
                 }
@@ -97,11 +104,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                 }
                 else {
                     this.AutomationData[VideoLayerModel.IsVisibleKey].GetOverride().SetBooleanValue(value);
+                    this.Model.IsVisible = value;
+                    this.RaisePropertyChanged();
+                    this.Timeline.DoRender(true);
                 }
-
-                this.Model.IsVisible = value;
-                this.RaisePropertyChanged();
-                this.Timeline.DoRender(true);
             }
         }
 
@@ -236,7 +242,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
 
         protected override void OnAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
             base.OnAutomationPropertyUpdated(propertyName, e);
-            if (!e.IsPlaybackSource) {
+            VideoEditorViewModel editor; // slight performance helper
+            if (!e.IsPlaybackSource && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.DoRender(true);
             }
         }

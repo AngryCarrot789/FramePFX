@@ -372,6 +372,7 @@
     <Compile Include="Shortcuts\WPFKeyMapSerialiser.cs" />
     <Compile Include="Shortcuts\WPFShortcutManager.cs" />
     <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
+    <Compile Include="SKHelperViewPort.cs" />
     <Compile Include="SKRenderUtils.cs" />
     <Compile Include="SKViewPort.cs" />
     <Compile Include="Themes\Attached\CornerHelper.cs" />

@@ -51,7 +51,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
                     return;
                 }
 
-                Debug.Assert(this.IsAutomationChangeInProgress == false, "IsAutomationChangeInProgress should be false");
+                if (this.IsAutomationRefreshInProgress) {
+                    Debugger.Break();
+                    return;
+                }
+
                 if (!this.IsHistoryChanging) {
                     this.HistoryManager.AddAction(new HistoryAudioLayerIsMuted(this, value), "Switch IsMuted");
                 }

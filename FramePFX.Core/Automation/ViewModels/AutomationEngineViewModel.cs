@@ -44,7 +44,7 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void RefreshLayer(LayerViewModel layer, long frame) {
-            layer.IsAutomationChangeInProgress = true;
+            layer.IsAutomationRefreshInProgress = true;
             try {
                 foreach (AutomationSequenceViewModel sequence in layer.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
@@ -53,7 +53,7 @@ namespace FramePFX.Core.Automation.ViewModels {
                 }
             }
             finally {
-                layer.IsAutomationChangeInProgress = false;
+                layer.IsAutomationRefreshInProgress = false;
             }
 
             foreach (ClipViewModel clip in layer.Clips) {
@@ -64,7 +64,7 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void RefreshClip(ClipViewModel clip, long frame) {
-            clip.IsAutomationChangeInProgress = true;
+            clip.IsAutomationRefreshInProgress = true;
             try {
                 long offset = frame - clip.FrameBegin;
                 if (offset < 0 || frame >= clip.FrameEndIndex) {
@@ -78,7 +78,7 @@ namespace FramePFX.Core.Automation.ViewModels {
                 }
             }
             finally {
-                clip.IsAutomationChangeInProgress = false;
+                clip.IsAutomationRefreshInProgress = false;
             }
         }
 

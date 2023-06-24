@@ -25,6 +25,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public AsyncRelayCommand SetOfflineCommand { get; }
+
         public AsyncRelayCommand SetOnlineCommand { get; }
 
         protected ResourceItemViewModel(ResourceItem model) : base(model) {
@@ -41,7 +42,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }, () => this.IsOnline);
 
             this.SetOnlineCommand = new AsyncRelayCommand(async () => {
-                await ResourceCheckerViewModel.ProcessResources(new List<ResourceItemViewModel>() {this}, true);
+                await ResourceCheckerViewModel.LoadResources(new List<ResourceItemViewModel>() {this}, true);
             }, () => !this.IsOnline);
         }
 
@@ -125,20 +126,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.Model.Dispose();
         }
 
-        /// <summary>
-        /// Refreshes the state of this resource which is used to determine if this resource is online or not
-        /// <para>
-        /// When the resource is not in a valid state, an <see cref="InvalidResourceViewModel"/> can be added to the
-        /// given <see cref="ResourceCheckerViewModel"/> in which the user can attempt to fix the resource, or ignore and keep it offline
-        /// </para>
-        /// <para>
-        /// This method may also dispose resources that this resource uses (e.g. dispose image or media resources so the file is no longer in use)
-        /// </para>
-        /// </summary>
-        /// <param name="checker">The checker</param>
-        /// <param name="stack">An exception stack. Add any errors encountered while checking the online state or while disposing of resources</param>
-        /// <returns>The online state of the resource. This method typically should not directly set the property</returns>
-        public virtual Task<bool> ValidateOnlineState(ResourceCheckerViewModel checker, ExceptionStack stack) {
+        public virtual Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack) {
             return Task.FromResult(true);
         }
     }

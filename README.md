@@ -18,7 +18,7 @@ Always found automating parameters in the popular editors to be generally finick
 #### Demo of video layer opacity automation
 The automation/parameter selector for layers is on the right side of the thingy on the left. For clips, select a clip and the selectors show on the right side (in its header). The "O" button toggles an override, which disables automation, and the "-" button clears the current selection. 
 
-The "Rec" button above the timeline on the left starts recoding every parameter (similar to the feature in Cinema4D); modify anything like scale or opacity and it inserts a key frame
+The "Rec" button above the timeline on the left starts recoding every parameter (similar to the feature in Cinema4D. This screen shot is old so it doesn't show the button); modify anything like scale or opacity and it inserts a key frame
 
 ![](FramePFX_2023-06-21_03.33.35.png)
 

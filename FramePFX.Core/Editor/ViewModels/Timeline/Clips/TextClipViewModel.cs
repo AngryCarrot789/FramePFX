@@ -9,11 +9,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         public new TextClipModel Model => (TextClipModel) ((ClipViewModel) this).Model;
 
         public bool UseCustomText {
-            get => this.Model.UseCustomText;
+            get => this.Model.ULText;
             set {
-                this.Model.UseCustomText = value;
+                this.Model.ULText = value;
                 if (value) {
-                    this.Model.CustomText = this.Model.TryGetResource(out ResourceText resource) ? resource.Text : this.text;
+                    this.Model.LocalText.Text = this.Model.TryGetResource(out ResourceText resource) ? resource.Text : this.text;
                     this.text = null;
                 }
                 else if (this.Model.TryGetResource(out ResourceText resource)) {
@@ -29,11 +29,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
 
         private string text; // the resource modified events will update this field
         public string Text {
-            get => this.UseCustomText ? this.Model.CustomText : this.text;
+            get => this.UseCustomText ? this.Model.LocalText.Text : this.text;
             set {
                 if (this.UseCustomText) {
                     this.text = null;
-                    this.Model.CustomText = value;
+                    this.Model.LocalText.Text = value;
+                    this.Model.InvalidateTextCache();
                 }
                 else if (!this.Model.TryGetResource(out ResourceText resource)) {
                     this.text = value;

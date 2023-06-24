@@ -429,7 +429,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
             List<KeyFrame> frames = new List<KeyFrame>();
             RBEList list = data.GetList(nameof(this.KeyFrames));
-            foreach (RBEDictionary rbe in list.GetDictionaries()) {
+            foreach (RBEDictionary rbe in list.OfType<RBEDictionary>()) {
                 KeyFrame keyFrame = this.Key.CreateKeyFrame();
                 keyFrame.ReadFromRBE(rbe);
                 frames.Add(keyFrame);

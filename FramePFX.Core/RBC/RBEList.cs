@@ -20,17 +20,13 @@ namespace FramePFX.Core.RBC {
             this.List = children ?? throw new ArgumentNullException(nameof(children), "List cannot be null");
         }
 
-        /// <summary>
-        /// Casts all elements to dictionaries
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<RBEDictionary> GetDictionaries() {
-            if (this.List.Any(x => !(x is RBEDictionary))) {
-                throw new Exception($"Expected list to contain only {nameof(RBEDictionary)} instances");
+        public IEnumerable<T> OfType<T>() where T : RBEBase {
+            if (this.List.Any(x => !(x is T))) {
+                throw new Exception($"Expected list to contain only {nameof(RBEByte)} instances");
             }
 
             foreach (RBEBase rbe in this.List) {
-                yield return (RBEDictionary) rbe;
+                yield return (T) rbe;
             }
         }
 

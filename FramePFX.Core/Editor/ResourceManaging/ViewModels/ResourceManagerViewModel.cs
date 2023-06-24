@@ -10,9 +10,10 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public class ResourceManagerViewModel : BaseViewModel, IModifyProject, IFileDropNotifier, IResourceManagerNavigation {
+    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation {
         private ResourceGroupViewModel currentGroup;
-        public readonly InputValidator ResourceIdValidator;
+        public readonly InputValidator ResourceItemIdValidator;
+        public readonly InputValidator ResourceGroupIdValidator;
 
         /// <summary>
         /// This manager's root resource group view model
@@ -33,8 +34,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public ProjectViewModel Project { get; }
 
-        public event ProjectModifiedEvent ProjectModified;
-
         private readonly LinkedList<ResourceGroupViewModel> undoGroup;
         private readonly LinkedList<ResourceGroupViewModel> redoGroup;
 
@@ -49,7 +48,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.undoGroup = new LinkedList<ResourceGroupViewModel>();
             this.redoGroup = new LinkedList<ResourceGroupViewModel>();
 
-            this.ResourceIdValidator = new InputValidator((string input, out string message) => {
+            this.ResourceItemIdValidator = new InputValidator((string input, out string message) => {
                 if (string.IsNullOrEmpty(input)) {
                     message = "Input cannot be empty";
                     return true;
@@ -60,6 +59,24 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 }
                 else if (this.Model.EntryExists(input)) {
                     message = "Resource already exists with this ID";
+                    return true;
+                }
+                else {
+                    message = null;
+                    return false;
+                }
+            });
+            this.ResourceGroupIdValidator = new InputValidator((string input, out string message) => {
+                if (string.IsNullOrEmpty(input)) {
+                    message = "Display name cannot be empty";
+                    return true;
+                }
+                else if (string.IsNullOrWhiteSpace(input)) { // might as well handle null/empty and whitespaces separately
+                    message = "Display name cannot be empty or consist of only whitespaces";
+                    return true;
+                }
+                else if (this.Model.EntryExists(input)) {
+                    message = "A group cannot share the same name as a resource";
                     return true;
                 }
                 else {
@@ -179,7 +196,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     return;
             }
 
-            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input resource ID", "Input a resource ID for the new resource:", $"My {type}", this.ResourceIdValidator);
+            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input resource ID", "Input a resource ID for the new resource:", $"My {type}", this.ResourceItemIdValidator);
             if (string.IsNullOrWhiteSpace(id) || this.Model.EntryExists(id)) {
                 return;
             }
@@ -189,7 +206,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public async Task<string> SelectNewResourceId(string msg, string value = null) {
-            return await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "Resource ID Here", this.ResourceIdValidator);
+            return await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "Resource ID Here", this.ResourceItemIdValidator);
         }
 
         public Task<bool> CanDrop(string[] paths, ref FileDropType type) {
@@ -205,6 +222,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     case ".mkv":
                     case ".flv":
                         ResourceMediaViewModel media = new ResourceMediaViewModel(new ResourceMedia() {FilePath = path});
+                        using (ExceptionStack stack = new ExceptionStack(false)) {
+                            await media.LoadResource(null, stack);
+                            if (stack.TryGetException(out Exception exception)) {
+                                await IoC.MessageDialogs.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
+                                return;
+                            }
+                        }
+
                         this.Model.RegisterEntry(this.GenerateIdForFile(path), media.Model);
                         this.CurrentGroup.AddItem(media, true);
                         break;
@@ -213,12 +238,12 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     case ".jpg":
                     case ".jpeg":
                         ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path});
-                        try {
-                            await image.Model.LoadImageAsync(path);
-                        }
-                        catch (Exception e) {
-                            await IoC.MessageDialogs.ShowMessageExAsync("Image error", "Failed to load image file at " + path, e.GetToString());
-                            break;
+                        using (ExceptionStack stack = new ExceptionStack(false)) {
+                            await image.LoadResource(null, stack);
+                            if (stack.TryGetException(out Exception exception)) {
+                                await IoC.MessageDialogs.ShowMessageExAsync("Error opening image", "Failed to open image file", exception.GetToString());
+                                return;
+                            }
                         }
 
                         this.Model.RegisterEntry(this.GenerateIdForFile(path), image.Model);
@@ -226,14 +251,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                         break;
                 }
             }
-        }
-
-        public void OnResourceRenamed(ResourceItemViewModel resource) {
-            this.ProjectModified?.Invoke(this, null);
-        }
-
-        public void OnResourceDeleted(ResourceItemViewModel resource) {
-            this.ProjectModified?.Invoke(this, null);
         }
 
         public void Dispose() {

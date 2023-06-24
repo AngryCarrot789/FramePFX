@@ -194,7 +194,6 @@
     <Compile Include="AdvancedContextService\Static\StaticMenuItemCollection.cs" />
     <Compile Include="AdvancedContextService\Static\StaticMenuSeparator.cs" />
     <Compile Include="AdvancedContextService\Static\StaticShortcutMenuItem.cs" />
-    <Compile Include="AppLogger.cs" />
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs" />

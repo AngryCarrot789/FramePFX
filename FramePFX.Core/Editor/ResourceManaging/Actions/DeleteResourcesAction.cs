@@ -23,7 +23,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
             ResourceGroupViewModel group;
 
             if (resItem is ResourceItemViewModel item) {
-                group = item.Group;
+                group = item.Parent;
             }
             else if (resItem is ResourceGroupViewModel) {
                 group = (ResourceGroupViewModel) resItem;

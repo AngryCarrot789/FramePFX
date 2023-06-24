@@ -16,7 +16,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <summary>
         /// The group that this object is currently in, or null, if this is a root object
         /// </summary>
-        public ResourceGroup Group { get; private set; }
+        public ResourceGroup Parent { get; private set; }
 
         /// <summary>
         /// This resource object's registry ID, used to reflectively create an instance of it while deserializing data
@@ -29,10 +29,18 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         }
 
-        public virtual void SetGroup(ResourceGroup group) {
-            this.Group = group;
+        /// <summary>
+        /// Called when a <see cref="ResourceGroup"/> adds the current instance to its internal list
+        /// </summary>
+        /// <param name="group">The new group</param>
+        public virtual void SetParent(ResourceGroup group) {
+            this.Parent = group;
         }
 
+        /// <summary>
+        /// Called when the current instance is associated with a new manager
+        /// </summary>
+        /// <param name="manager">The new manager</param>
         public virtual void SetManager(ResourceManager manager) {
             this.Manager = manager;
         }
@@ -60,6 +68,14 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
+        /// <summary>
+        /// Disposes this resource object's resources. Resources can be re-used after disposing, so this should
+        /// just clean up anything that the resource originally did not own or have allocated when created
+        /// <para>
+        /// This method should not throw, and instead, exceptions should be added to the given stack
+        /// </para>
+        /// </summary>
+        /// <param name="stack">Stack to add exceptions to</param>
         protected virtual void DisposeCore(ExceptionStack stack) {
 
         }

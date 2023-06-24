@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Core;
 using FramePFX.Utils;
 
 namespace FramePFX.Views {

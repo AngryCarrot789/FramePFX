@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
     public abstract class BaseResourceObjectViewModel : BaseViewModel, IDisposable {
         internal ResourceManagerViewModel manager;
-        internal ResourceGroupViewModel group;
+        internal ResourceGroupViewModel parent;
 
         /// <summary>
         /// The manager that this resource is currently associated with
         /// </summary>
         public ResourceManagerViewModel Manager {
             get => this.manager;
-            private set => this.RaisePropertyChanged(ref this.manager, value);
+            protected set => this.RaisePropertyChanged(ref this.manager, value);
         }
 
         /// <summary>
@@ -19,9 +19,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         /// </summary>
         public BaseResourceObject Model { get; }
 
-        public ResourceGroupViewModel Group {
-            get => this.group;
-            private set => this.RaisePropertyChanged(ref this.group, value);
+        public ResourceGroupViewModel Parent {
+            get => this.parent;
+            private set => this.RaisePropertyChanged(ref this.parent, value);
         }
 
         public string DisplayName {
@@ -42,14 +42,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, this.CanDelete);
         }
 
-        public virtual void SetGroup(ResourceGroupViewModel newGroup) {
-            this.Group = newGroup;
-            this.Model.SetGroup(newGroup?.Model);
+        public virtual void SetParent(ResourceGroupViewModel newParent) {
+            this.Model.SetParent(newParent?.Model);
+            this.Parent = newParent;
         }
 
         public virtual void SetManager(ResourceManagerViewModel newManager) {
-            this.Manager = newManager;
             this.Model.SetManager(newManager?.Model);
+            this.Manager = newManager;
         }
 
         public abstract Task<bool> RenameSelfAction();
@@ -61,7 +61,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         protected virtual bool CanDelete() {
-            return true;
+            return this.Parent != null;
         }
 
         public virtual void Dispose() {

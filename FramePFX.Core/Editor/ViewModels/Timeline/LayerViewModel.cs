@@ -199,7 +199,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 return;
             }
 
-            if (confirm && !await IoC.MessageDialogs.ShowYesNoDialogAsync($"Delete clip{(list.Count == 1 ? "" : "s")}?", $"Are you sure you want to delete {(list.Count == 1 ? "1 clip" : $"{list.Count} clips")}?")) {
+            if (confirm && !await IoC.MessageDialogs.ShowYesNoDialogAsync($"Delete clip{Lang.S(list.Count)}?", $"Are you sure you want to delete {(list.Count == 1 ? "1 clip" : $"{list.Count} clips")}?")) {
                 return;
             }
 

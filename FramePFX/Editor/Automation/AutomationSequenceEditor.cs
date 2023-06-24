@@ -283,6 +283,7 @@ namespace FramePFX.Editor.Automation {
                 keyFramePoint.SetValueForMousePoint(point);
                 if (capturePoint) {
                     this.SetPointCaptured(keyFramePoint, true, LineHitType.None);
+                    this.isCaptureInitialised = false;
                 }
             }
             else {

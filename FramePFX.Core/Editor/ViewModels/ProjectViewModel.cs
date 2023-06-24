@@ -58,7 +58,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.Settings = new ProjectSettingsViewModel(project.Settings);
             this.Settings.ProjectModified += this.OnProjectModified;
             this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
-            this.ResourceManager.ProjectModified += this.OnProjectModified;
             this.Timeline = new TimelineViewModel(this, project.Timeline);
             this.Timeline.ProjectModified += this.OnProjectModified;
             this.AutomationEngine = new AutomationEngineViewModel(this, project.AutomationEngine);

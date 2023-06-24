@@ -20,13 +20,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.DisplayName = displayName;
         }
 
-        public override void SetGroup(ResourceGroup group) {
-            base.SetGroup(group);
-            foreach (BaseResourceObject item in this.items) {
-                item.SetGroup(group);
-            }
-        }
-
         public override void SetManager(ResourceManager manager) {
             base.SetManager(manager);
             foreach (BaseResourceObject item in this.items) {
@@ -62,8 +55,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        public void AddItemToList(BaseResourceObject value) {
-            this.InsertItemIntoList(this.items.Count, value);
+        public void AddItemToList(BaseResourceObject value, bool setManager = true) {
+            this.InsertItemIntoList(this.items.Count, value, setManager);
         }
 
         /// <summary>
@@ -77,9 +70,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             return item;
         }
 
-        public void InsertItemIntoList(int index, BaseResourceObject value) {
+        public void InsertItemIntoList(int index, BaseResourceObject value, bool setManager = true) {
             this.items.Insert(index, value);
-            value.SetGroup(this);
+            value.SetParent(this);
+            if (setManager) {
+                value.SetManager(this.Manager);
+            }
         }
 
         public BaseResourceObject GetItemAt(int index) {
@@ -100,19 +96,25 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             BaseResourceObject value = this.items[index];
             this.items.RemoveAt(index);
             value.SetManager(null);
-            value.SetGroup(null);
+            value.SetParent(null);
         }
 
-        public void CleanupAndClear() {
+        /// <summary>
+        /// Recursively sets this items' manager and group to null, then clears the collection
+        /// </summary>
+        public void Clear() {
             foreach (BaseResourceObject item in this.items) {
                 item.SetManager(null);
-                item.SetGroup(null);
+                item.SetParent(null);
             }
 
             this.items.Clear();
         }
 
-        public void ClearFast() {
+        /// <summary>
+        /// Clears this group's items, without setting the items' parent group or manager to null
+        /// </summary>
+        public void UnsafeClear() {
             this.items.Clear();
         }
     }

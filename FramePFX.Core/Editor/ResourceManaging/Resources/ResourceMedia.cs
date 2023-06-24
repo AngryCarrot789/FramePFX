@@ -154,7 +154,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             }
 
             foreach (CodecHardwareConfig config in this.decoder.GetHardwareConfigs()) {
-                using (var device = HardwareDevice.Create(config.DeviceType)) {
+                using (HardwareDevice device = HardwareDevice.Create(config.DeviceType)) {
                     if (device != null) {
                         this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
                         return true;

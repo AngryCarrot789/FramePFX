@@ -29,14 +29,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 this.items.Add(viewModel);
 
                 // no need to set manager to ours because it will be null
-                viewModel.SetGroup(this);
-            }
-        }
-
-        public override void SetGroup(ResourceGroupViewModel newGroup) {
-            base.SetGroup(newGroup);
-            foreach (BaseResourceObjectViewModel item in this.items) {
-                item.SetGroup(newGroup);
+                viewModel.SetParent(this);
             }
         }
 
@@ -48,13 +41,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public override async Task<bool> RenameSelfAction() {
-            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, this.Manager?.ResourceIdValidator ?? Validators.ForNonWhiteSpaceString());
+            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, this.Manager?.ResourceGroupIdValidator ?? Validators.ForNonWhiteSpaceString());
             if (string.IsNullOrWhiteSpace(result) || (this.Manager != null && this.Manager.Model.EntryExists(result))) {
                 return false;
             }
 
-            if (this.Group != null) {
-                this.DisplayName = TextIncrement.GetNextText(this.Group.Items.OfType<ResourceGroupViewModel>().Select(x => x.DisplayName), result);
+            if (this.Parent != null) {
+                this.DisplayName = TextIncrement.GetNextText(this.Parent.Items.OfType<ResourceGroupViewModel>().Select(x => x.DisplayName), result);
             }
             else {
                 this.DisplayName = result;
@@ -64,17 +57,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public override async Task<bool> DeleteSelfAction() {
-            if (this.Group == null) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Invalid item", "This resource is not located anywhere...?", new Exception().GetToString());
+            if (this.Parent == null) {
                 return false;
             }
 
             int total = CountRecursive(this.items);
-            if (total > 0 && await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource group? It has {total} sub-item{(total == 1 ? "" : "s")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK) {
+            if (total > 0 && await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource group? It has {total} sub-item{Lang.S(total)}?", MsgDialogType.OKCancel) != MsgDialogResult.OK) {
                 return false;
             }
 
-            this.Group.RemoveItem(this, true, true);
+            this.Parent.RemoveItem(this, true, true);
             return true;
         }
 
@@ -90,50 +82,45 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             return count;
         }
 
+        // the clear function is a critical section, so when a resource is registered but the reference is invalid,
+        // the only real options are to crash the app or corrupt the resource structure
+        // `IsRegistered()` uses Debugger.Break() so I have a change to figure out slightly what went wrong, then throws
+
         private void UnregisterAllAndClearRecursive() {
             foreach (BaseResourceObjectViewModel item in this.items) {
                 if (item is ResourceGroupViewModel g) {
                     g.UnregisterAllAndClearRecursive();
                 }
-                else if (item is ResourceItemViewModel resource && resource.Model.IsRegistered) {
+                else if (item is ResourceItemViewModel resource && resource.Model.IsRegistered()) {
                     resource.Model.Manager.DeleteEntryById(resource.Model.UniqueId);
                 }
 
                 item.SetManager(null);
-                item.SetGroup(null);
+                item.SetParent(null);
             }
 
             this.items.Clear();
-            this.Model.ClearFast();
+            this.Model.UnsafeClear();
         }
 
         public async Task<bool> DeleteSelectionAction() {
-            if (this.SelectedItems.Count < 1) {
+            int sc = this.SelectedItems.Count;
+            if (sc < 1) {
                 return true;
             }
 
-            int count = CountRecursive(this.SelectedItems);
-            if (await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete {this.SelectedItems.Count} item{(this.SelectedItems.Count == 1 ? "" : "s")}? This group has {count} sub-item{(count == 1 ? "" : "s")} in total", MsgDialogType.OKCancel) != MsgDialogResult.OK) {
+            int count = CountRecursive(this.SelectedItems) - sc;
+            if (await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete {sc} item{Lang.S(sc)}? This group has {count} sub-item{Lang.S(count)} in total", MsgDialogType.OKCancel) != MsgDialogResult.OK) {
                 return false;
             }
 
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (BaseResourceObjectViewModel item in this.SelectedItems.ToList()) {
                     if (item is ResourceGroupViewModel groupVm) {
-                        try {
-                            groupVm.UnregisterAllAndClearRecursive();
-                        }
-                        catch (Exception e) {
-                            stack.Add(new Exception("Failed to clear items recursively", e));
-                        }
+                        groupVm.UnregisterAllAndClearRecursive();
                     }
-                    else if (item is ResourceItemViewModel resource && resource.Model.IsRegistered) {
-                        try {
-                            resource.Model.Manager.DeleteEntryById(resource.Model.UniqueId);
-                        }
-                        catch (Exception e) {
-                            stack.Add(new Exception("Failed to unregister resource", e));
-                        }
+                    else if (item is ResourceItemViewModel resource && resource.Model.IsRegistered()) {
+                        resource.Model.Manager.DeleteEntryById(resource.Model.UniqueId);
                     }
 
                     try {
@@ -150,9 +137,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public void AddItem(BaseResourceObjectViewModel item, bool addToModel) {
             if (addToModel)
-                this.Model.AddItemToList(item.Model);
+                this.Model.AddItemToList(item.Model, false);
             this.items.Add(item);
-            item.SetGroup(this);
+            item.SetParent(this);
             item.SetManager(this.Manager);
         }
 
@@ -162,7 +149,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 return false;
             }
 
-            if (!ReferenceEquals(this, item.Group)) {
+            if (!ReferenceEquals(this, item.Parent)) {
                 throw new Exception("Item does not belong to this group, but it contained in the list");
             }
 
@@ -176,39 +163,30 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 if (item is ResourceGroupViewModel group) {
                     group.UnregisterAllAndClearRecursive();
                 }
-                else if (item is ResourceItemViewModel resItem && resItem.Model.IsRegistered) {
+                else if (item is ResourceItemViewModel resItem && resItem.Model.IsRegistered(out bool isRefValid)) {
+                    if (!isRefValid) {
+                        #if DEBUG
+                        System.Diagnostics.Debugger.Break();
+                        #endif
+                        throw new Exception("Expected registered resource item to be reference-valid");
+                    }
+
                     resItem.Model.Manager.DeleteEntryById(resItem.Model.UniqueId);
                 }
             }
 
-            item.SetGroup(null);
+            item.SetParent(null);
             item.SetManager(null);
             this.items.RemoveAt(index);
             return true;
         }
 
         public override void Dispose() {
-            #if DEBUG
+            List<BaseResourceObjectViewModel> list = this.items.ToList();
             this.UnregisterAllAndClearRecursive();
-            foreach (BaseResourceObjectViewModel item in this.items) {
+            foreach (BaseResourceObjectViewModel item in list) {
                 item.Dispose();
             }
-
-            this.items.Clear();
-            #else
-            using (ExceptionStack stack = new ExceptionStack()) {
-                foreach (BaseResourceObjectViewModel item in this.items) {
-                    try {
-                        item.Dispose();
-                    }
-                    catch (Exception e) {
-                        stack.Add(e);
-                    }
-                }
-
-                this.items.Clear();
-            }
-            #endif
         }
 
         public void OnNavigate() {
@@ -220,7 +198,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public Task OnDropResource(BaseResourceObjectViewModel resource) {
-            resource.Group?.RemoveItem(resource, true, false);
+            resource.Parent?.RemoveItem(resource, true, false);
             this.AddItem(resource, true);
             return Task.CompletedTask;
         }

@@ -71,15 +71,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
             this.Manager = newManager;
             if (oldManager != null) {
-                oldManager.ResourceRegistered -= this.resourceAddedHandler;
-                oldManager.ResourceUnregistered -= this.resourceRemovedHandler;
+                oldManager.ResourceAdded -= this.resourceAddedHandler;
+                oldManager.ResourceRemoved -= this.resourceRemovedHandler;
                 oldManager.ResourceRenamed -= this.resourceRenamedHandler;
                 oldManager.ResourceReplaced -= this.resourceReplacedHandler;
             }
 
             if (newManager != null) {
-                newManager.ResourceRegistered += this.resourceAddedHandler;
-                newManager.ResourceUnregistered += this.resourceRemovedHandler;
+                newManager.ResourceAdded += this.resourceAddedHandler;
+                newManager.ResourceRemoved += this.resourceRemovedHandler;
                 newManager.ResourceRenamed += this.resourceRenamedHandler;
                 newManager.ResourceReplaced += this.resourceReplacedHandler;
             }
@@ -122,8 +122,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             // could there be no references if the event handlers are still registered??
             ResourceManager manager = this.Manager;
             if (manager != null) {
-                manager.ResourceRegistered -= this.resourceAddedHandler;
-                manager.ResourceUnregistered -= this.resourceRemovedHandler;
+                manager.ResourceAdded -= this.resourceAddedHandler;
+                manager.ResourceRemoved -= this.resourceRemovedHandler;
                 manager.ResourceRenamed -= this.resourceRenamedHandler;
                 manager.ResourceReplaced -= this.resourceReplacedHandler;
             }

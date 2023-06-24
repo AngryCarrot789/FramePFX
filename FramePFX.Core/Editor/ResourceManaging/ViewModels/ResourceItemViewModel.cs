@@ -24,12 +24,25 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
         }
 
+        public bool IsOfflineByUser {
+            get => this.Model.IsOfflineByUser;
+            set {
+                if (this.IsOfflineByUser == value)
+                    return;
+                this.Model.IsOfflineByUser = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         public AsyncRelayCommand SetOfflineCommand { get; }
 
         public AsyncRelayCommand SetOnlineCommand { get; }
 
         protected ResourceItemViewModel(ResourceItem model) : base(model) {
-            this.onlineStateChangedHandler = (a, b) => this.RaisePropertyChanged(nameof(this.IsOnline));
+            this.onlineStateChangedHandler = (a, b) => {
+                this.RaisePropertyChanged(nameof(this.IsOnline));
+                this.RaisePropertyChanged(nameof(this.IsOfflineByUser));
+            };
             model.OnlineStateChanged += this.onlineStateChangedHandler;
 
             this.SetOfflineCommand = new AsyncRelayCommand(async () => {
@@ -63,7 +76,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 return false;
             }
             else if (this.Manager != null && !this.Manager.Model.EntryExists(this.UniqueId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Resource no long exists", "The original resource no longer exists");
+                await IoC.MessageDialogs.ShowMessageAsync("Resource no long exists", "This resource is not registered...");
                 return false;
             }
             else if (this.Manager != null && this.Manager.Model.EntryExists(newId)) {
@@ -73,7 +86,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             else {
                 if (this.Manager != null) {
                     this.Manager.Model.RenameEntry(this.Model, newId);
-                    this.Manager.OnResourceRenamed(this);
                 }
                 else {
                     ResourceItem.SetUniqueId(this.Model, newId);
@@ -85,7 +97,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public override async Task<bool> DeleteSelfAction() {
-            if (this.Group == null) {
+            if (this.Parent == null) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Invalid item", "This resource is not located anywhere...?", new Exception().GetToString());
                 return false;
             }
@@ -100,8 +112,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
 
             this.Manager?.Model.DeleteEntryByItem(this.Model);
-            this.Group.RemoveItem(this, true, true);
-            this.Manager?.OnResourceDeleted(this);
+            this.Parent.RemoveItem(this, true, true);
 
             try {
                 this.Dispose();
@@ -114,18 +125,35 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         protected override bool CanRename() {
-            return this.Model.IsRegistered;
+            return this.Model.IsRegistered(out _);
         }
 
         protected override bool CanDelete() {
-            return this.Model.IsRegistered;
+            return this.Model.IsRegistered(out _);
         }
 
         public override void Dispose() {
             this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
-            this.Model.Dispose();
+            base.Dispose();
         }
 
+        /// <summary>
+        /// Attempt to load this resource's data; make this resource "online". If the resource could not load
+        /// its data (e.g. file does not exist), then this function returns false, and you can optionally add
+        /// an instance of <see cref="InvalidResourceViewModel"/> to the <see cref="checker"/> parameter
+        /// <para>
+        /// The <see cref="checker"/> parameter may be null. When non-null, a dialog may be shown if the checker contains
+        /// any <see cref="InvalidResourceViewModel"/> instances, allowing the user to fix any problems that prevented
+        /// the resource from coming online
+        /// </para>
+        /// <para>
+        /// The exception stack is optional, but can be used to show any errors to the user. These errors are accumulated
+        /// into a single final exception which is presented to the user, so it may be mixed with multiple resource errors
+        /// </para>
+        /// </summary>
+        /// <param name="checker">[nullable] checker instance</param>
+        /// <param name="stack">The stack of exceptions for user-presentable errors</param>
+        /// <returns></returns>
         public virtual Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack) {
             return Task.FromResult(true);
         }

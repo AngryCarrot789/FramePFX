@@ -7,23 +7,12 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
     public abstract class ResourceItem : BaseResourceObject, IRBESerialisable, IDisposable {
+        private bool isOnline;
+
         /// <summary>
         /// This resource item's unique identifier
         /// </summary>
         public string UniqueId { get; private set; }
-
-        /// <summary>
-        /// Whether or not this resource item's ID is valid and is registered with the manager associated with it
-        /// </summary>
-        public bool IsRegistered {
-            get {
-                if (this.Manager == null || string.IsNullOrWhiteSpace(this.UniqueId))
-                    return false;
-                return this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource) && ReferenceEquals(this, resource);
-            }
-        }
-
-        private bool isOnline;
 
         /// <summary>
         /// Whether or not this resource is online or not
@@ -48,6 +37,37 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         protected ResourceItem() {
             this.IsOnline = true;
+        }
+
+        /// <summary>
+        /// Gets whether or not this resource item has a manager associated, a valid unique ID and is registered with that manager
+        /// </summary>
+        /// <param name="isReferenceValid">
+        /// The registered resource is reference-equal to the current instance. This should always be true. If it's false, then something terrible has happened
+        /// </param>
+        /// <returns>True if this instance has a manager, a valid ID and is registered</returns>
+        public bool IsRegistered(out bool isReferenceValid) {
+            if (this.Manager != null && !string.IsNullOrWhiteSpace(this.UniqueId) && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource)) {
+                isReferenceValid = ReferenceEquals(this, resource);
+                return true;
+            }
+
+            return isReferenceValid = false;
+        }
+
+        public bool IsRegistered() {
+            if (this.IsRegistered(out bool isReferenceValid)) {
+                if (!isReferenceValid) {
+                    #if DEBUG
+                    System.Diagnostics.Debugger.Break();
+                    #endif
+                    throw new Exception("Registered resource is not reference-equal to the current instance");
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -101,10 +121,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <summary>
         /// The core method for disposing resources used by a resource. This method really should not throw,
         /// and instead, exceptions should be added to the given <see cref="ExceptionStack"/>
-        /// <para>
-        /// This method may not be called when the item is about to be deleted/removed, and
-        /// may be called when it's about to be set offline
-        /// </para>
         /// </summary>
         /// <param name="stack">The exception stack in which exception should be added into when encountered during disposal</param>
         protected override void DisposeCore(ExceptionStack stack) {

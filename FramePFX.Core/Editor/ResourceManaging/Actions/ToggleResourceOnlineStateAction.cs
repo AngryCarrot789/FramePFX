@@ -12,7 +12,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
     public class ToggleResourceOnlineStateAction : ToggleAction {
         public override async Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
             if (e.DataContext.TryGetContext(out ResourceItemViewModel resItem)) {
-                List<ResourceItemViewModel> items = resItem.Group.SelectedItems.OfType<ResourceItemViewModel>().ToList();
+                List<ResourceItemViewModel> items = resItem.Parent.SelectedItems.OfType<ResourceItemViewModel>().ToList();
                 if (items.Count > 0) {
                     await SetOnlineState(items, isToggled);
                     return true;
@@ -24,7 +24,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
 
         public override async Task<bool> ExecuteNoToggle(AnActionEventArgs e) {
             if (e.DataContext.TryGetContext(out ResourceItemViewModel resItem)) {
-                List<ResourceItemViewModel> items = resItem.Group.SelectedItems.OfType<ResourceItemViewModel>().ToList();
+                List<ResourceItemViewModel> items = resItem.Parent.SelectedItems.OfType<ResourceItemViewModel>().ToList();
                 if (items.Count > 0) {
                     await SetOnlineState(items, null);
                     return true;

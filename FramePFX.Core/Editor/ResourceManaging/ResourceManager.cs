@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using FramePFX.Core.Editor.ResourceManaging.Events;
 using FramePFX.Core.RBC;
@@ -15,14 +14,29 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         public IEnumerable<(string, ResourceItem)> Entries => this.uuidToItem.Select(x => (x.Key, x.Value));
 
-        public event ResourceItemEventHandler ResourceRegistered;
-        public event ResourceItemEventHandler ResourceUnregistered;
+        /// <summary>
+        /// An event called when a resource is added to this manager
+        /// </summary>
+        public event ResourceItemEventHandler ResourceAdded;
+
+        /// <summary>
+        /// An event called when a resource is removed from this manager
+        /// </summary>
+        public event ResourceItemEventHandler ResourceRemoved;
+
+        /// <summary>
+        /// An event called when a resource's <see cref="ResourceItem.UniqueId"/> is changed
+        /// </summary>
         public event ResourceRenamedEventHandler ResourceRenamed;
+
+        /// <summary>
+        /// An event called when a resource is replaced with another resource
+        /// </summary>
         public event ResourceReplacedEventHandler ResourceReplaced;
 
         /// <summary>
-        /// This manager's root resource group, which contains the tree of items. Registered entries
-        /// are stored in this tree and in an internal dictionary (for speed purposes), therefore it is
+        /// This manager's root resource group, which contains the tree of resources. Registered entries are
+        /// stored in this tree, and cached in an internal dictionary (for speed purposes), therefore it is
         /// important that this tree is not modified unless the internal dictionary is also modified accordingly
         /// </summary>
         public ResourceGroup RootGroup { get; }
@@ -60,7 +74,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
 
             this.RootGroup.ReadFromRBE(data.GetDictionary(nameof(this.RootGroup)));
-            GetEntriesRecursive(this.RootGroup, this.uuidToItem);
+            AccumulateEntriesRecursive(this.RootGroup, this.uuidToItem);
 
             // Old way; read the entry dictionary
             // foreach (RBEBase entry in data.GetList("Resources").List) {
@@ -76,7 +90,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             // }
         }
 
-        private static void GetEntriesRecursive(BaseResourceObject obj, Dictionary<string, ResourceItem> resources) {
+        private static void AccumulateEntriesRecursive(BaseResourceObject obj, Dictionary<string, ResourceItem> resources) {
             if (obj is ResourceItem item) {
                 if (resources.TryGetValue(item.UniqueId, out ResourceItem entry))
                     throw new Exception($"A resource already exists with the id '{item.UniqueId}': {entry}");
@@ -84,7 +98,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
             else if (obj is ResourceGroup group) {
                 foreach (BaseResourceObject subItem in group.Items) {
-                    GetEntriesRecursive(subItem, resources);
+                    AccumulateEntriesRecursive(subItem, resources);
                 }
             }
             else {
@@ -101,7 +115,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new Exception($"Resource already exists with the id '{id}': {oldItem.GetType()}");
             this.uuidToItem[id] = item;
             ResourceItem.SetUniqueId(item, id);
-            this.ResourceRegistered?.Invoke(this, item);
+            this.ResourceAdded?.Invoke(this, item);
         }
 
         /// <summary>
@@ -129,9 +143,14 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             if (!this.uuidToItem.TryGetValue(id, out ResourceItem item))
                 return null;
-            Debug.Assert(item.UniqueId == id, "Existing resource's ID does not equal the given ID; Corrupted application?");
+            #if DEBUG
+            if (item.UniqueId != id) {
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("Existing resource's ID does not equal the given ID; Corrupted application?");
+            }
+            #endif
             this.uuidToItem.Remove(id);
-            this.ResourceUnregistered?.Invoke(this, item);
+            this.ResourceRemoved?.Invoke(this, item);
             return item;
         }
 
@@ -144,9 +163,14 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new ArgumentException("Item ID cannot be null, empty or consist of entirely whitespaces", nameof(item));
             if (!this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
                 return false;
-            Debug.Assert(ReferenceEquals(oldItem, item), "Existing resource does not equal the given resource; Corrupted application?");
+            #if DEBUG
+            if (!ReferenceEquals(oldItem, item)) {
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("Existing resource does not reference equal the given resource; Corrupted application?");
+            }
+            #endif
             this.uuidToItem.Remove(item.UniqueId);
-            this.ResourceUnregistered?.Invoke(this, item);
+            this.ResourceRemoved?.Invoke(this, item);
             return true;
         }
 
@@ -160,12 +184,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 throw new ArgumentException("Old Item ID cannot be null, empty or consist of entirely whitespaces. Did you mean to add the resource?", nameof(item));
             if (string.IsNullOrWhiteSpace(newId))
                 throw new ArgumentException("New ID cannot be null, empty or consist of entirely whitespaces", nameof(newId));
+            if (!this.uuidToItem.TryGetValue(oldId, out ResourceItem oldIdItem))
+                throw new InvalidOperationException($"Resource does not exist with the old id '{oldId}'");
             if (this.uuidToItem.TryGetValue(newId, out ResourceItem existing))
                 throw new InvalidOperationException($"Resource already exists with the new id '{newId}': {existing.GetType()}");
-            if (!this.uuidToItem.TryGetValue(oldId, out ResourceItem idItem))
-                throw new InvalidOperationException($"Resource does not exist with the old id '{oldId}'");
-            if (!ReferenceEquals(item, idItem))
-                throw new InvalidOperationException($"Resource has the same Id as an existing resource, but the references do not match. {item} != {idItem}");
+            if (!ReferenceEquals(item, oldIdItem))
+                throw new InvalidOperationException($"Resource has the same Id as an existing resource, but the references do not match. {item} != {oldIdItem}");
             this.uuidToItem.Remove(oldId);
             this.uuidToItem[newId] = item;
             ResourceItem.SetUniqueId(item, newId);
@@ -190,7 +214,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public ResourceItem GetEntryItem(string id) {
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
-            return this.uuidToItem.TryGetValue(id, out ResourceItem item) ? item : null;
+            return this.uuidToItem[id];
         }
 
         public bool TryGetEntryItem(string id, out ResourceItem resource) {
@@ -237,7 +261,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (ResourceItem item in this.uuidToItem.Values) {
                     try {
-                        this.ResourceUnregistered?.Invoke(this, item);
+                        this.ResourceRemoved?.Invoke(this, item);
                     }
                     catch (Exception e) {
                         stack.Add(e);

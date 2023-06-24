@@ -77,7 +77,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack) {
-            if (!string.IsNullOrEmpty(this.FilePath) && File.Exists(this.FilePath)) {
+            if (string.IsNullOrEmpty(this.FilePath)) {
+                return true;
+            }
+
+            if (File.Exists(this.FilePath)) {
                 try {
                     await this.Model.LoadImageAsync(this.FilePath);
                     return true;
@@ -94,7 +98,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
                 stack.Add(e);
             }
 
-            checker.Add(new InvalidImageViewModel(this));
+            checker?.Add(new InvalidImageViewModel(this));
             return false;
         }
     }

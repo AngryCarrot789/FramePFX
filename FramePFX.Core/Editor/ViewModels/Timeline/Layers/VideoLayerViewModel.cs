@@ -122,7 +122,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Layers {
 
         public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
             Validate.Exception(!string.IsNullOrEmpty(resource.UniqueId), "Expected valid resource UniqueId");
-            if (!resource.Model.IsRegistered) {
+            if (!resource.Model.IsRegistered()) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
                 return;
             }

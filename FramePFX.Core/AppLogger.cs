@@ -1,4 +1,4 @@
-namespace FramePFX {
+namespace FramePFX.Core {
     public static class AppLogger {
         public delegate void LogEventHandler(string line);
 

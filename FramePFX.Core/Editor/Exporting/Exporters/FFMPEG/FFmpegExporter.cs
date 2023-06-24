@@ -305,7 +305,8 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
             }
 
             if (frame != null) {
-                ffmpeg.av_frame_unref(frame);
+                ffmpeg.av_frame_free(&frame);
+                // ffmpeg.av_frame_unref(frame);
             }
 
             if (exception != null) {

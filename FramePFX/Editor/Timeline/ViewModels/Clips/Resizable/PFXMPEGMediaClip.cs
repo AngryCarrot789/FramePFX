@@ -96,7 +96,7 @@ namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
                 return;
             }
 
-            double timeScale = this.Layer.Timeline.Project.FrameRate;
+            double timeScale = this.Track.Timeline.Project.FrameRate;
             TimeSpan timestamp = TimeSpan.FromSeconds((frameNo - this.FrameBegin + this.FrameMediaOffset) / timeScale);
             VideoFrame frame = this.Resource.GetFrameAt(timestamp);
 

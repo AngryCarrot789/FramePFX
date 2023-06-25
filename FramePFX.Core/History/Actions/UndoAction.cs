@@ -9,7 +9,7 @@ namespace FramePFX.Core.History.Actions {
     [ActionRegistration("actions.project.history.Undo")]
     public class UndoAction : AnAction {
         public static HistoryManagerViewModel GetHistoryManager(IDataContext context, out VideoEditorViewModel editor) {
-            if (context.TryGetContext(out ClipViewModel clip) && clip.Layer != null && (editor = clip.Layer.Timeline.Project.Editor) != null) {
+            if (context.TryGetContext(out ClipViewModel clip) && clip.Track != null && (editor = clip.Track.Timeline.Project.Editor) != null) {
                 return editor.HistoryManager;
             }
             else if (context.TryGetContext(out TimelineViewModel timeline) && (editor = timeline.Project.Editor) != null) {

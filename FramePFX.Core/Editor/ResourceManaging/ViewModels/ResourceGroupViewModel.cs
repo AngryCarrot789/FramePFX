@@ -66,7 +66,23 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 return false;
             }
 
+            Exception e = null;
+            try {
+                this.Dispose();
+            }
+            catch (Exception ex) {
+                e = ex;
+            }
+
             this.Parent.RemoveItem(this, true, true);
+
+            if (e != null) {
+                #if DEBUG
+                System.Diagnostics.Debugger.Break();
+                #endif
+                await IoC.MessageDialogs.ShowMessageExAsync("Error", "An exception occurred disposing this resource", e.GetToString());
+            }
+
             return true;
         }
 
@@ -116,6 +132,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (BaseResourceObjectViewModel item in this.SelectedItems.ToList()) {
+                    try {
+                        item.Dispose();
+                    }
+                    catch (Exception e) {
+                        stack.Add(new Exception("Failed to dispose resource", e));
+                    }
+
                     if (item is ResourceGroupViewModel groupVm) {
                         groupVm.UnregisterAllAndClearRecursive();
                     }
@@ -182,10 +205,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public override void Dispose() {
-            List<BaseResourceObjectViewModel> list = this.items.ToList();
-            this.UnregisterAllAndClearRecursive();
-            foreach (BaseResourceObjectViewModel item in list) {
-                item.Dispose();
+            foreach (BaseResourceObjectViewModel resource in this.items) {
+                resource.Dispose();
             }
         }
 

@@ -56,7 +56,7 @@ namespace FramePFX.Core.Editor {
                 return true;
             }
 
-            if (this.Layer == null || string.IsNullOrWhiteSpace(this.ResourceId)) {
+            if (this.Track == null || string.IsNullOrWhiteSpace(this.ResourceId)) {
                 resource = null;
                 return false;
             }
@@ -64,7 +64,7 @@ namespace FramePFX.Core.Editor {
             // Realistically, this code shouldn't be run, because when the resource manager and clip are all loaded, there
             // should be a function that runs to detect missing resource ids, and offer to replace them or just offline the clip
             // And eventually a "removed" event should be created
-            ResourceManager manager = this.Layer.Timeline.Project.ResourceManager;
+            ResourceManager manager = this.Track.Timeline.Project.ResourceManager;
             if (!manager.TryGetResource(this.ResourceId, out ResourceItem resItem) || !(resItem is T item)) {
                 this.IsResourceOnline = false;
                 resource = default;

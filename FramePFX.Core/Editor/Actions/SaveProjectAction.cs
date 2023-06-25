@@ -8,7 +8,7 @@ namespace FramePFX.Core.Editor.Actions {
     [ActionRegistration("actions.project.Save")]
     public class SaveProjectAction : AnAction {
         public static bool GetProject(IDataContext context, out ProjectViewModel project) {
-            if (context.TryGetContext(out ClipViewModel clip) && clip.Layer != null && (project = clip.Layer.Timeline.Project) != null) {
+            if (context.TryGetContext(out ClipViewModel clip) && clip.Track != null && (project = clip.Track.Timeline.Project) != null) {
                 return true;
             }
             else if (context.TryGetContext(out TimelineViewModel timeline) && (project = timeline.Project) != null) {

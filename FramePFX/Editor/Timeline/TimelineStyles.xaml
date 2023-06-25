@@ -11,13 +11,14 @@
                     xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
                     xmlns:converters="clr-namespace:FramePFX.Converters"
                     xmlns:shortcuts="clr-namespace:FramePFX.Shortcuts"
-                    xmlns:layers="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Layers;assembly=FramePFX.Core" xmlns:rulerwpf="clr-namespace:FramePFX.Controls.xclemence.RulerWPF"
+                    xmlns:rulerwpf="clr-namespace:FramePFX.Controls.xclemence.RulerWPF"
                     xmlns:editor="clr-namespace:FramePFX.Editor"
                     xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
                     xmlns:aa="clr-namespace:FramePFX.Editor.Automation"
                     xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
                     xmlns:context="clr-namespace:FramePFX.Core.Editor.Timeline.Context;assembly=FramePFX.Core"
                     xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core"
+                    xmlns:tracks="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Tracks;assembly=FramePFX.Core"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -52,9 +53,9 @@
         If you select no clips and hold s and just drag the playhead over a clip and create say 200 tiny 1-frame long clips,
         the UI begins lagging quite badly, even in release mode
 
-        - Layers will still use WPF components
+        - Tracks will still use WPF components
         - Clips can just be a coloured header with a lower background (and maybe at some point draw into that background...?)
-        - Clip automation can be handled in the same location as the layer's automation based on if a clip is selected or not
+        - Clip automation can be handled in the same location as the track's automation based on if a clip is selected or not
 
         Some of the more popular software can handle 10,000s of clips with no problem at all (at least when
         it comes to zooming/scrolling. other operations may obviously cause massive lag with that many clips)
@@ -70,15 +71,15 @@
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="FrameBegin" Value="{Binding FrameBegin, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="FrameDuration" Value="{Binding FrameDuration, UpdateSourceTrigger=PropertyChanged}"/>
-        <Setter Property="MinHeight" Value="{Binding Layer.MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
-        <Setter Property="MaxHeight" Value="{Binding Layer.MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
-        <Setter Property="Height" Value="{Binding Layer.Height, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="MinHeight" Value="{Binding Track.MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="MaxHeight" Value="{Binding Track.MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="Height" Value="{Binding Track.Height, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="acs:AdvancedContextMenu.ContextGenerator" Value="{x:Static context:ClipContextGenerator.Instance}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type cc:TimelineClipControl}">
                     <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
-                        <Border Background="{Binding Layer.LayerColour, FallbackValue=Black}" VerticalAlignment="Top" Height="20">
+                        <Border Background="{Binding Track.TrackColour, FallbackValue=Black}" VerticalAlignment="Top" Height="20">
                             <DockPanel>
                                 <TextBlock IsHitTestVisible="False" Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
                                     <TextBlock.InputBindings>
@@ -137,8 +138,8 @@
 
     <timeline:TimelineClipStyleSelector x:Key="TimelineClipStyleSelector" VideoClipStyle="{StaticResource {x:Type cc:VideoClipControl}}" AudioClipStyle="{StaticResource {x:Type cc:AudioClipControl}}"/>
 
-    <!-- d:DataContext="{d:DesignInstance tm:LayerViewModel}" -->
-    <Style TargetType="{x:Type cc:TimelineLayerControl}">
+    <!-- d:DataContext="{d:DesignInstance tm:TrackViewModel}" -->
+    <Style TargetType="{x:Type cc:TimelineTrackControl}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
         <Setter Property="MaxHeight" Value="{Binding MaxHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -154,10 +155,10 @@
         <Setter Property="ItemContainerStyleSelector" Value="{StaticResource TimelineClipStyleSelector}"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type cc:TimelineLayerControl}">
+                <ControlTemplate TargetType="{x:Type cc:TimelineTrackControl}">
                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
-                        <!-- IsItemHost must be true in order for it's items to sync with the TimelineLayerControl's items -->
-                        <Grid d:DataContext="{d:DesignInstance tm:LayerViewModel}">
+                        <!-- IsItemHost must be true in order for it's items to sync with the TimelineTrackControl's items -->
+                        <Grid d:DataContext="{d:DesignInstance tm:TrackViewModel}">
                             <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
                             <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                          Sequence="{Binding ActiveSequence}"
@@ -172,13 +173,13 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type cc:VideoLayerControl}" BasedOn="{StaticResource {x:Type cc:TimelineLayerControl}}">
+    <Style TargetType="{x:Type cc:VideoTrackControl}" BasedOn="{StaticResource {x:Type cc:TimelineTrackControl}}">
     </Style>
 
-    <Style TargetType="{x:Type cc:AudioLayerControl}" BasedOn="{StaticResource {x:Type cc:TimelineLayerControl}}">
+    <Style TargetType="{x:Type cc:AudioTrackControl}" BasedOn="{StaticResource {x:Type cc:TimelineTrackControl}}">
     </Style>
 
-    <timeline:TimelineLayerStyleSelector x:Key="TimelineLayerStyleSelector" VideoLayerStyle="{StaticResource {x:Type cc:VideoLayerControl}}" AudioLayerStyle="{StaticResource {x:Type cc:AudioLayerControl}}"/>
+    <timeline:TimelineTrackStyleSelector x:Key="TimelineTrackStyleSelector" VideoTrackStyle="{StaticResource {x:Type cc:VideoTrackControl}}" AudioTrackStyle="{StaticResource {x:Type cc:AudioTrackControl}}"/>
 
     <Style x:Key="TimelineHorizontalScrollBarStyle" TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource {x:Type ScrollBar}}">
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
@@ -374,13 +375,13 @@
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.PanningMode" Value="Both" />
         <Setter Property="shortcuts:UIFocusGroup.FocusGroupPath" Value="Application/Editor/Timeline/Surface" />
-        <Setter Property="ItemContainerStyleSelector" Value="{StaticResource TimelineLayerStyleSelector}" />
+        <Setter Property="ItemContainerStyleSelector" Value="{StaticResource TimelineTrackStyleSelector}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type cc:TimelineControl}">
                     <Grid x:Name="PART_rootGrid">
                         <Border Background="{DynamicResource ABrush.Tone1.Background.Static}"/>
-                        <!-- A collection of TimelineLayerControls -->
+                        <!-- A collection of TimelineTrackControls -->
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false"
                                       Padding="{TemplateBinding Padding}"
                                       HorizontalScrollBarVisibility="Visible"
@@ -427,9 +428,9 @@
         </Setter>
     </Style>
 
-    <timeline:TimelineLayerListItemTemplateSelector x:Key="TimelineLayerListItemContainerSelector">
-        <timeline:TimelineLayerListItemTemplateSelector.VideoLayerTemplate>
-            <DataTemplate DataType="{x:Type layers:VideoLayerViewModel}">
+    <timeline:TimelineTrackListItemTemplateSelector x:Key="TimelineTrackListItemContainerSelector">
+        <timeline:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
+            <DataTemplate DataType="{x:Type tracks:VideoTrackViewModel}">
                 <Grid Margin="4,0">
                     <DockPanel SnapsToDevicePixels="True">
                         <DockPanel DockPanel.Dock="Top" Height="17">
@@ -443,7 +444,7 @@
                                              TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                              Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                              HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
-                                             ap:HistoryHelper.DragId="{x:Static layers:VideoLayerViewModel.OpacityHistoryKey}"/>
+                                             ap:HistoryHelper.DragId="{x:Static tracks:VideoTrackViewModel.OpacityHistoryKey}"/>
                             <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
                                 <Button DockPanel.Dock="Right" Width="18" Content="O" ToolTip="Disables the current override, or all overrides"
                                         Command="{Binding ToggleOverrideCommand, Mode=OneTime}" BorderThickness="0"
@@ -460,9 +461,9 @@
                     </DockPanel>
                 </Grid>
             </DataTemplate>
-        </timeline:TimelineLayerListItemTemplateSelector.VideoLayerTemplate>
-        <timeline:TimelineLayerListItemTemplateSelector.AudioLayerTemplate>
-            <DataTemplate DataType="{x:Type layers:AudioLayerViewModel}">
+        </timeline:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
+        <timeline:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
+            <DataTemplate DataType="{x:Type tracks:AudioTrackViewModel}">
                 <Grid Margin="4,0">
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Height="20">
@@ -480,8 +481,8 @@
                     </DockPanel>
                 </Grid>
             </DataTemplate>
-        </timeline:TimelineLayerListItemTemplateSelector.AudioLayerTemplate>
-    </timeline:TimelineLayerListItemTemplateSelector>
+        </timeline:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
+    </timeline:TimelineTrackListItemTemplateSelector>
 
     <aa:AutomationActivityBrushConverter x:Key="AutomationActivityBrushConverter"/>
 

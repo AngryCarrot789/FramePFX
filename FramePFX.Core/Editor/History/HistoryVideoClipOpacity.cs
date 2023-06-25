@@ -4,31 +4,31 @@ using FramePFX.Core.History;
 
 namespace FramePFX.Core.Editor.History {
     public class HistoryVideoClipOpacity : IHistoryAction {
-        public VideoClipViewModel Layer { get; }
+        public VideoClipViewModel Clip { get; }
         public Transaction<double> Opacity { get; }
 
-        public HistoryVideoClipOpacity(VideoClipViewModel layer) {
-            this.Layer = layer;
-            this.Opacity = Transactions.ImmutableType(layer.Opacity);
+        public HistoryVideoClipOpacity(VideoClipViewModel clip) {
+            this.Clip = clip;
+            this.Opacity = Transactions.ImmutableType(clip.Opacity);
         }
 
         public async Task UndoAsync() {
             try {
-                this.Layer.IsHistoryChanging = true;
-                this.Layer.Opacity = this.Opacity.Original;
+                this.Clip.IsHistoryChanging = true;
+                this.Clip.Opacity = this.Opacity.Original;
             }
             finally {
-                this.Layer.IsHistoryChanging = false;
+                this.Clip.IsHistoryChanging = false;
             }
         }
 
         public async Task RedoAsync() {
             try {
-                this.Layer.IsHistoryChanging = true;
-                this.Layer.Opacity = this.Opacity.Current;
+                this.Clip.IsHistoryChanging = true;
+                this.Clip.Opacity = this.Opacity.Current;
             }
             finally {
-                this.Layer.IsHistoryChanging = false;
+                this.Clip.IsHistoryChanging = false;
             }
         }
 

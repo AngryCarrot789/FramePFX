@@ -3,7 +3,7 @@ using FramePFX.Core.RBC;
 namespace FramePFX.Core.Settings {
     public class AppSettings : IRBESerialisable {
         // fields so that the view models can use these easier
-        public bool UseVerticalLayerNumberDraggerBehaviour;
+        public bool UseVerticalTrackNumberDraggerBehaviour;
         public bool StopOnTogglePlay;
 
         /// <summary>
@@ -12,7 +12,7 @@ namespace FramePFX.Core.Settings {
         /// <returns></returns>
         public static AppSettings Defaults() {
             return new AppSettings() {
-                UseVerticalLayerNumberDraggerBehaviour = false,
+                UseVerticalTrackNumberDraggerBehaviour = false,
                 StopOnTogglePlay = true
             };
         }
@@ -30,12 +30,12 @@ namespace FramePFX.Core.Settings {
         }
 
         public void WriteToRBE(RBEDictionary data) {
-            data.SetBool(nameof(this.UseVerticalLayerNumberDraggerBehaviour), this.UseVerticalLayerNumberDraggerBehaviour);
+            data.SetBool(nameof(this.UseVerticalTrackNumberDraggerBehaviour), this.UseVerticalTrackNumberDraggerBehaviour);
             data.SetBool(nameof(this.StopOnTogglePlay), this.StopOnTogglePlay);
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            this.UseVerticalLayerNumberDraggerBehaviour = data.GetBool(nameof(this.UseVerticalLayerNumberDraggerBehaviour));
+            this.UseVerticalTrackNumberDraggerBehaviour = data.GetBool(nameof(this.UseVerticalTrackNumberDraggerBehaviour));
             this.StopOnTogglePlay = data.GetBool(nameof(this.StopOnTogglePlay));
         }
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
     /// <summary>
@@ -116,6 +117,18 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public void UnsafeClear() {
             this.items.Clear();
+        }
+
+        protected override void DisposeCore(ExceptionStack stack) {
+            base.DisposeCore(stack);
+            foreach (BaseResourceObject resource in this.items) {
+                try {
+                    resource.Dispose();
+                }
+                catch (Exception e) {
+                    stack.Add(new Exception("Disposing resource", e));
+                }
+            }
         }
     }
 }

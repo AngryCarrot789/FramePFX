@@ -105,7 +105,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject.Model) {
-                RenderSpan = new FrameSpan(0, this.ActiveProject.Timeline.Layers.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameEndIndex)))
+                RenderSpan = new FrameSpan(0, this.ActiveProject.Timeline.Tracks.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameEndIndex)))
             };
 
             await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);

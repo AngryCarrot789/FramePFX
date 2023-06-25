@@ -38,25 +38,25 @@ namespace FramePFX.Core.Automation.ViewModels {
                 timeline.IsAutomationChangeInProgress = false;
             }
 
-            foreach (LayerViewModel layer in timeline.Layers) {
-                this.RefreshLayer(layer, frame);
+            foreach (TrackViewModel track in timeline.Tracks) {
+                this.RefreshTrack(track, frame);
             }
         }
 
-        public void RefreshLayer(LayerViewModel layer, long frame) {
-            layer.IsAutomationRefreshInProgress = true;
+        public void RefreshTrack(TrackViewModel track, long frame) {
+            track.IsAutomationRefreshInProgress = true;
             try {
-                foreach (AutomationSequenceViewModel sequence in layer.AutomationData.Sequences) {
+                foreach (AutomationSequenceViewModel sequence in track.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
                         sequence.DoRefreshValue(this, frame, true);
                     }
                 }
             }
             finally {
-                layer.IsAutomationRefreshInProgress = false;
+                track.IsAutomationRefreshInProgress = false;
             }
 
-            foreach (ClipViewModel clip in layer.Clips) {
+            foreach (ClipViewModel clip in track.Clips) {
                 if (clip.IntersectsFrameAt(frame)) {
                     this.RefreshClip(clip, frame);
                 }

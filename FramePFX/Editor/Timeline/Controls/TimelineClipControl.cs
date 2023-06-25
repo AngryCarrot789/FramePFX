@@ -12,7 +12,7 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
-using FramePFX.Editor.Timeline.Layer.Clips;
+using FramePFX.Editor.Timeline.Track.Clips;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
@@ -71,12 +71,12 @@ namespace FramePFX.Editor.Timeline.Controls {
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// The zoom level of this timeline layer
+        /// The zoom level of this timeline track
         /// <para>
         /// This is a value used for converting frames into pixels
         /// </para>
         /// </summary>
-        public double UnitZoom => this.Layer?.UnitZoom ?? 1d;
+        public double UnitZoom => this.Track?.UnitZoom ?? 1d;
 
         [Category("Appearance")]
         public bool IsSelected {
@@ -85,7 +85,7 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         /// <summary>
-        /// The zero-based frame index where this element begins (relative to the parent timeline layer)
+        /// The zero-based frame index where this element begins (relative to the parent timeline track)
         /// </summary>
         public long FrameBegin {
             get => (long) this.GetValue(FrameBeginProperty);
@@ -139,9 +139,9 @@ namespace FramePFX.Editor.Timeline.Controls {
             remove => this.RemoveHandler(UnselectedEvent, value);
         }
 
-        public TimelineLayerControl Layer => ItemsControl.ItemsControlFromItemContainer(this) as TimelineLayerControl;
+        public TimelineTrackControl Track => ItemsControl.ItemsControlFromItemContainer(this) as TimelineTrackControl;
 
-        public TimelineControl Timeline => this.Layer?.Timeline;
+        public TimelineControl Timeline => this.Track?.Timeline;
 
         public IClipDragHandler DragHandler => this.DataContext as IClipDragHandler;
 
@@ -274,7 +274,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
-            this.Layer?.MakeTopElement(this);
+            this.Track?.MakeTopElement(this);
             // this.lastLeftClickPoint = e.GetPosition(this);
         }
 
@@ -293,18 +293,18 @@ namespace FramePFX.Editor.Timeline.Controls {
                     this.lastLeftClickPoint = e.GetPosition(this);
 
                     if (InputUtils.AreModifiersPressed(ModifierKeys.Control)) {
-                        this.Layer.SetItemSelectedProperty(this, true);
+                        this.Track.SetItemSelectedProperty(this, true);
                     }
-                    else if (InputUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Layer.lastSelectedItem != null && this.Layer.SelectedItems.Count > 0) {
-                        this.Layer.MakeRangedSelection(this.Layer.lastSelectedItem, this);
+                    else if (InputUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.lastSelectedItem != null && this.Track.SelectedItems.Count > 0) {
+                        this.Track.MakeRangedSelection(this.Track.lastSelectedItem, this);
                     }
-                    else if (this.Layer.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
+                    else if (this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
                         if (!this.IsSelected) {
-                            this.Layer.Timeline.SetPrimarySelection(this);
+                            this.Track.Timeline.SetPrimarySelection(this);
                         }
                     }
                     else {
-                        this.Layer.Timeline.SetPrimarySelection(this);
+                        this.Track.Timeline.SetPrimarySelection(this);
                     }
 
                     e.Handled = true;
@@ -323,8 +323,8 @@ namespace FramePFX.Editor.Timeline.Controls {
                 e.Handled = true;
             }
 
-            if (wasDragging != true && this.IsSelected && !InputUtils.AreModifiersPressed(ModifierKeys.Control) && !InputUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Layer.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
-                this.Layer.Timeline.SetPrimarySelection(this);
+            if (wasDragging != true && this.IsSelected && !InputUtils.AreModifiersPressed(ModifierKeys.Control) && !InputUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
+                this.Track.Timeline.SetPrimarySelection(this);
             }
 
             base.OnMouseLeftButtonUp(e);
@@ -340,12 +340,12 @@ namespace FramePFX.Editor.Timeline.Controls {
                 return;
             }
 
-            bool didJustDragLayer = false;
+            bool didJustDragTrack = false;
             if (this.isLoadedWithActiveDrag) {
                 this.isLoadedWithActiveDrag = false;
-                didJustDragLayer = true;
+                didJustDragTrack = true;
                 if (handler.IsDraggingClip) {
-                    this.lastLeftClickPoint = this.Timeline.ClipMousePosForLayerTransition;
+                    this.lastLeftClickPoint = this.Timeline.ClipMousePosForTrackTransition;
                     this.isClipDragRunning = true;
                 }
             }
@@ -415,20 +415,20 @@ namespace FramePFX.Editor.Timeline.Controls {
                     }
                 }
 
-                if (!didJustDragLayer && Math.Abs(diffY) >= 1.0d) {
+                if (!didJustDragTrack && Math.Abs(diffY) >= 1.0d) {
                     int index = 0;
-                    List<TimelineLayerControl> layers = this.Timeline.GetLayerContainers().ToList();
-                    foreach (TimelineLayerControl layer in layers) {
+                    List<TimelineTrackControl> tracks = this.Timeline.GetTrackContainers().ToList();
+                    foreach (TimelineTrackControl track in tracks) {
                         // IsMouseOver does not work
-                        Point mpos = e.GetPosition(layer);
-                        if (mpos.Y >= 0 && mpos.Y < layer.ActualHeight && layer.CanAcceptClip(this))
+                        Point mpos = e.GetPosition(track);
+                        if (mpos.Y >= 0 && mpos.Y < track.ActualHeight && track.CanAcceptClip(this))
                             break;
                         index++;
                     }
 
-                    if (index < layers.Count) {
-                        this.Timeline.ClipMousePosForLayerTransition = lastClickPoint;
-                        handler.OnDragToLayer(index);
+                    if (index < tracks.Count) {
+                        this.Timeline.ClipMousePosForTrackTransition = lastClickPoint;
+                        handler.OnDragToTrack(index);
                     }
                 }
             }

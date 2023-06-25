@@ -117,7 +117,7 @@
                         <!--
                         <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
                         -->
-                        <framePfx:SKHelperViewPort Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement"/>
+                        <framePfx:SkiaViewPortControl Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement"/>
                     </cc:FreeMoveViewPortV2>
                 </Grid>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource ABrush.Tone2.Background.Static}">
@@ -241,7 +241,7 @@
                         IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Margin="0,0,0,20"
                         s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
                     <Border.InputBindings>
-                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/LayerControllers/DeleteSelectedLayer" Command="{Binding Timeline.RemoveSelectedLayersCommand}"/>
+                        <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/TrackControllers/DeleteSelectedTrack" Command="{Binding Timeline.RemoveSelectedTracksCommand}"/>
                         <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/Surface/PlayPauseAction" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
                     </Border.InputBindings>
                     <Grid DataContext="{Binding Timeline}">
@@ -264,23 +264,23 @@
                                 </StackPanel>
                             </DockPanel>
                         </Border>
-                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
+                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
                                 Grid.Row="1" Grid.Column="0" BorderThickness="0 0 0 0"
                                 Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                 BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
-                        <ListBox x:Name="LayerListBox" s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/LayerControllers"
+                        <ListBox x:Name="TrackListBox" s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
                                  Grid.Row="1" Grid.Column="0"
                                  SelectionMode="Extended"
-                                 ItemsSource="{Binding Layers, Mode=OneTime}"
-                                 SelectedItem="{Binding PrimarySelectedLayer, UpdateSourceTrigger=PropertyChanged}"
-                                 helpers:SelectorHelper.SelectedItems="{Binding SelectedLayers}"
+                                 ItemsSource="{Binding Tracks, Mode=OneTime}"
+                                 SelectedItem="{Binding PrimarySelectedTrack, UpdateSourceTrigger=PropertyChanged}"
+                                 helpers:SelectorHelper.SelectedItems="{Binding SelectedTracks}"
                                  helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
                                  Background="Transparent" BorderBrush="Transparent"
                                  HorizontalContentAlignment="Stretch"
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                  ScrollViewer.CanContentScroll="False"
                                  BorderThickness="0 0 0 0" Padding="0"
-                                 ItemTemplateSelector="{StaticResource TimelineLayerListItemContainerSelector}">
+                                 ItemTemplateSelector="{StaticResource TimelineTrackListItemContainerSelector}">
                             <ListBox.Template>
                                 <ControlTemplate TargetType="{x:Type ListBox}">
                                     <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="0" SnapsToDevicePixels="true">
@@ -317,8 +317,8 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
-                                                    <Grid d:DataContext="{d:DesignInstance timeline:LayerViewModel}">
-                                                        <Rectangle Fill="{Binding LayerColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
+                                                    <Grid d:DataContext="{d:DesignInstance timeline:TrackViewModel}">
+                                                        <Rectangle Fill="{Binding TrackColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4" />
                                                         <Thumb DragDelta="OnBottomThumbDrag" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
                                                     </Grid>
@@ -357,7 +357,7 @@
                         <Border Visibility="Collapsed" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
                         <c:TimelineControl x:Name="TheTimeline"
                                            Background="{DynamicResource ABrush.Tone2.Background.Static}"
-                                           ItemsSource="{Binding Layers, Mode=OneTime}"
+                                           ItemsSource="{Binding Tracks, Mode=OneTime}"
                                            Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
                                            BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
                                            MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"

@@ -43,7 +43,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public string DisplayName {
             get => this.Model.DisplayName;
             set {
-                if (!this.IsHistoryChanging && this.Layer != null) {
+                if (!this.IsHistoryChanging && this.Track != null) {
                     if (!this.displayNameHistory.TryGetAction(out HistoryClipDisplayName action))
                         this.displayNameHistory.PushAction(this.HistoryManager, action = new HistoryClipDisplayName(this), "Edit media duration");
                     action.DisplayName.SetCurrent(value);
@@ -51,19 +51,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
                 this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
-                this.Layer?.OnProjectModified(this);
+                this.Track?.OnProjectModified(this);
             }
         }
 
         /// <summary>
-        /// The layer this clip is located in
+        /// The track this clip is located in
         /// </summary>
-        private LayerViewModel layer;
-        public LayerViewModel Layer {
-            get => this.layer;
+        private TrackViewModel track;
+        public TrackViewModel Track {
+            get => this.track;
             set {
-                if (!ReferenceEquals(this.layer, value)) {
-                    this.RaisePropertyChanged(ref this.layer, value);
+                if (!ReferenceEquals(this.track, value)) {
+                    this.RaisePropertyChanged(ref this.track, value);
                     this.RaisePropertyChanged(nameof(this.Timeline));
                     this.RaisePropertyChanged(nameof(this.Project));
                     this.RaisePropertyChanged(nameof(this.Editor));
@@ -80,7 +80,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     return;
                 }
 
-                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Layer != null) {
+                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
                     if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
                         this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.Span.SetCurrent(value);
@@ -92,7 +92,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 this.RaisePropertyChanged(nameof(this.FrameDuration));
                 this.RaisePropertyChanged(nameof(this.FrameEndIndex));
                 this.OnFrameSpanChanged(oldSpan, value);
-                this.Layer?.OnProjectModified(this);
+                this.Track?.OnProjectModified(this);
             }
         }
 
@@ -119,7 +119,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     return;
                 }
 
-                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Layer != null) {
+                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
                     if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
                         this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.MediaFrameOffset.SetCurrent(value);
@@ -128,21 +128,21 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 this.Model.MediaFrameOffset = value;
                 this.RaisePropertyChanged();
                 this.OnMediaFrameOffsetChanged(oldValue, value);
-                this.Layer?.OnProjectModified(this);
+                this.Track?.OnProjectModified(this);
             }
         }
 
-        public TimelineViewModel Timeline => this.Layer?.Timeline;
+        public TimelineViewModel Timeline => this.Track?.Timeline;
 
-        public ProjectViewModel Project => this.Layer?.Timeline.Project;
+        public ProjectViewModel Project => this.Track?.Timeline.Project;
 
-        public VideoEditorViewModel Editor => this.Layer?.Timeline.Project.Editor;
+        public VideoEditorViewModel Editor => this.Track?.Timeline.Project.Editor;
 
-        public HistoryManagerViewModel HistoryManager => this.Layer?.Timeline.Project.Editor.HistoryManager;
+        public HistoryManagerViewModel HistoryManager => this.Track?.Timeline.Project.Editor.HistoryManager;
 
         public AutomationDataViewModel AutomationData { get; }
 
-        public AutomationEngineViewModel AutomationEngine => this.Layer?.Timeline.Project.AutomationEngine;
+        public AutomationEngineViewModel AutomationEngine => this.Track?.Timeline.Project.AutomationEngine;
 
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
@@ -163,18 +163,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             });
 
             this.RemoveClipCommand = new RelayCommand(() => {
-                this.Layer?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
+                this.Track?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
             });
         }
 
-        public static void SetLayer(ClipViewModel viewModel, LayerViewModel layer, bool fireLayerChangedEvent = true) {
-            LayerModel oldLayer = viewModel.Model.Layer;
-            LayerModel newLayer = layer?.Model;
-            if (!ReferenceEquals(oldLayer, newLayer)) {
-                ClipModel.SetLayer(viewModel.Model, layer?.Model, fireLayerChangedEvent);
+        public static void SetTrack(ClipViewModel viewModel, TrackViewModel track, bool fireTrackChangedEvent = true) {
+            TrackModel oldTrack = viewModel.Model.Track;
+            TrackModel newTrack = track?.Model;
+            if (!ReferenceEquals(oldTrack, newTrack)) {
+                ClipModel.SetTrack(viewModel.Model, track?.Model, fireTrackChangedEvent);
             }
 
-            viewModel.Layer = layer;
+            viewModel.Track = track;
         }
 
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
@@ -218,7 +218,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public virtual bool CanDropResource(BaseResourceObjectViewModel resource) {
-            return ReferenceEquals(resource.Manager, this.Layer?.Timeline.Project.ResourceManager);
+            return ReferenceEquals(resource.Manager, this.Track?.Timeline.Project.ResourceManager);
         }
 
         public virtual Task OnDropResource(BaseResourceObjectViewModel resource) {
@@ -404,41 +404,41 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
         }
 
-        public virtual void OnDragToLayer(int index) {
-            if (!(this.Layer is LayerViewModel layer)) {
+        public virtual void OnDragToTrack(int index) {
+            if (!(this.Track is TrackViewModel track)) {
                 return;
             }
 
-            TimelineViewModel timeline = layer.Timeline;
-            if (timeline.IsGloballyDragging && timeline.IsAboutToDragAcrossLayers) {
+            TimelineViewModel timeline = track.Timeline;
+            if (timeline.IsGloballyDragging && timeline.IsAboutToDragAcrossTracks) {
                 return;
             }
 
-            int target = Maths.Clamp(index, 0, timeline.Layers.Count - 1);
-            LayerViewModel targetLayer = timeline.Layers[target];
-            if (ReferenceEquals(layer, targetLayer)) {
+            int target = Maths.Clamp(index, 0, timeline.Tracks.Count - 1);
+            TrackViewModel targetTrack = timeline.Tracks[target];
+            if (ReferenceEquals(track, targetTrack)) {
                 return;
             }
 
-            if (!targetLayer.CanAccept(this)) {
+            if (!targetTrack.CanAccept(this)) {
                 return;
             }
 
             if (timeline.IsGloballyDragging) {
-                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Layer, layer) && layer.CanAccept(x))) {
-                    timeline.IsAboutToDragAcrossLayers = true;
+                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Track, track) && track.CanAccept(x))) {
+                    timeline.IsAboutToDragAcrossTracks = true;
                     foreach (ClipViewModel clip in timeline.DraggingClips) {
-                        timeline.MoveClip(clip, layer, targetLayer);
+                        timeline.MoveClip(clip, track, targetTrack);
                     }
 
-                    timeline.IsAboutToDragAcrossLayers = false;
+                    timeline.IsAboutToDragAcrossTracks = false;
                 }
                 else {
                     return;
                 }
             }
             else {
-                timeline.MoveClip(this, layer, targetLayer);
+                timeline.MoveClip(this, track, targetTrack);
             }
         }
 

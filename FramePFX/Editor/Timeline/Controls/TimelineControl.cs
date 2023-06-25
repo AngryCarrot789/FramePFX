@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
+using FramePFX.Core.Editor.ViewModels.Timeline.Tracks;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Utils;
@@ -38,7 +38,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
         /// <summary>
-        /// The horizontal zoom multiplier of this timeline, which affects the size of all layers
+        /// The horizontal zoom multiplier of this timeline, which affects the size of all tracks
         /// and therefore clips. This is a value used for converting frames into pixels
         /// </summary>
         public double UnitZoom {
@@ -58,7 +58,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public TimelineClipDragData DragData { get; set; }
 
-        public Point ClipMousePosForLayerTransition { get; set; }
+        public Point ClipMousePosForTrackTransition { get; set; }
 
         private ScrollViewer PART_ScrollViewer;
         private ItemsPresenter PART_ItemsPresenter;
@@ -73,21 +73,21 @@ namespace FramePFX.Editor.Timeline.Controls {
             };
         }
 
-        public IEnumerable<TimelineLayerControl> GetLayerContainers() {
-            return this.GetLayerContainers<TimelineLayerControl>(this.Items);
+        public IEnumerable<TimelineTrackControl> GetTrackContainers() {
+            return this.GetTrackContainers<TimelineTrackControl>(this.Items);
         }
 
-        public IEnumerable<TLayer> GetLayerContainers<TLayer>() where TLayer : TimelineLayerControl {
-            return this.GetLayerContainers<TLayer>(this.Items);
+        public IEnumerable<TTrack> GetTrackContainers<TTrack>() where TTrack : TimelineTrackControl {
+            return this.GetTrackContainers<TTrack>(this.Items);
         }
 
-        public IEnumerable<TLayer> GetLayerContainers<TLayer>(IEnumerable items) where TLayer : TimelineLayerControl {
+        public IEnumerable<TTRack> GetTrackContainers<TTRack>(IEnumerable items) where TTRack : TimelineTrackControl {
             int i = 0;
             foreach (object item in items) {
-                if (item is TLayer a) {
+                if (item is TTRack a) {
                     yield return a;
                 }
-                else if (this.ItemContainerGenerator.ContainerFromIndex(i) is TLayer b) {
+                else if (this.ItemContainerGenerator.ContainerFromIndex(i) is TTRack b) {
                     yield return b;
                 }
 
@@ -96,17 +96,17 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public IEnumerable<TimelineClipControl> GetSelectedClipContainers() {
-            return this.GetLayerContainers().SelectMany(x => x.GetSelectedClipContainers());
+            return this.GetTrackContainers().SelectMany(x => x.GetSelectedClipContainers());
         }
 
         public IEnumerable<TClip> GetSelectedClipContainers<TClip>() where TClip : TimelineClipControl {
-            return this.GetLayerContainers().SelectMany(x => x.GetSelectedClipContainers<TClip>());
+            return this.GetTrackContainers().SelectMany(x => x.GetSelectedClipContainers<TClip>());
         }
 
         public IEnumerable<TClip> GetClipsInSpan<TClip>(FrameSpan span) where TClip : TimelineClipControl {
             List<TClip> list = new List<TClip>();
-            foreach (TimelineLayerControl layer in this.GetLayerContainers()) {
-                foreach (TimelineClipControl clip in layer.GetClipsThatIntersect(span)) {
+            foreach (TimelineTrackControl track in this.GetTrackContainers()) {
+                foreach (TimelineClipControl clip in track.GetClipsThatIntersect(span)) {
                     if (clip is TClip t) {
                         list.Add(t);
                     }
@@ -184,11 +184,11 @@ namespace FramePFX.Editor.Timeline.Controls {
             ModifierKeys mods = Keyboard.Modifiers;
             if ((mods & ModifierKeys.Alt) != 0) {
                 if (e.OriginalSource is DependencyObject dependencyObject) {
-                    while (dependencyObject != null && !ReferenceEquals(dependencyObject, this) && !(dependencyObject is TimelineLayerControl)) {
+                    while (dependencyObject != null && !ReferenceEquals(dependencyObject, this) && !(dependencyObject is TimelineTrackControl)) {
                         dependencyObject = VisualTreeUtils.GetParent(dependencyObject);
                     }
 
-                    if (dependencyObject is TimelineLayerControl layer && layer.ViewModel is LayerViewModel vm) {
+                    if (dependencyObject is TimelineTrackControl track && track.ViewModel is TrackViewModel vm) {
                         vm.Height = Maths.Clamp(vm.Height + (e.Delta / 120d) * 20d, vm.MinHeight, vm.MaxHeight);
                         e.Handled = true;
                     }
@@ -420,15 +420,15 @@ namespace FramePFX.Editor.Timeline.Controls {
             object item = this.lastItem;
             this.lastItem = null;
             switch (item) {
-                case VideoLayerViewModel _: return new VideoLayerControl();
-                case AudioLayerViewModel _: return new AudioLayerControl();
+                case VideoTrackViewModel _: return new VideoTrackControl();
+                case AudioTrackViewModel _: return new AudioTrackControl();
             }
 
-            throw new Exception("Could not create layer container for item: " + item);
+            throw new Exception("Could not create track container for item: " + item);
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item) {
-            if (item is TimelineLayerControl) {
+            if (item is TimelineTrackControl) {
                 return true;
             }
 
@@ -449,7 +449,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 this.PART_ItemsPresenter.Width = TimelineUtils.FrameToPixel(this.MaxDuration, this.UnitZoom);
             }
 
-            foreach (TimelineLayerControl element in this.GetLayerContainers()) {
+            foreach (TimelineTrackControl element in this.GetTrackContainers()) {
                 element.OnUnitZoomChanged();
             }
 
@@ -469,11 +469,11 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public void SetPrimarySelection(TimelineClipControl clip) {
-            foreach (TimelineLayerControl layerControl in this.GetLayerContainers()) {
-                layerControl.UnselectAll();
+            foreach (TimelineTrackControl trackControl in this.GetTrackContainers()) {
+                trackControl.UnselectAll();
             }
 
-            clip.Layer.MakeSingleSelection(clip);
+            clip.Track.MakeSingleSelection(clip);
         }
     }
 }

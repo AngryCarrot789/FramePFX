@@ -43,18 +43,18 @@
                         <Keystroke Key="S"/>
                     </Shortcut>
                 </Group>
-                <Group Name="LayerControllers">
-                    <Shortcut Name="DeleteSelectedLayer" Description="Deletes the selected layer">
+                <Group Name="TrackControllers">
+                    <Shortcut Name="DeleteSelectedTrack" Description="Deletes the selected clip">
                         <Keystroke Key="Delete"/>
                     </Shortcut>
                 </Group>
-                <Shortcut Name="NewVideoLayer" ActionId="actions.editor.NewVideoLayer" Description="Creates a new video layer">
+                <Shortcut Name="NewVideoTrack" ActionId="actions.editor.NewVideoTrack" Description="Creates a new video clip">
                     <Keystroke Mods="CTRL+SHIFT" Key="Q"/>
                 </Shortcut>
-                <Shortcut Name="NewAudioLayer" ActionId="actions.editor.NewAudioLayer" Description="Creates a new audio layer">
+                <Shortcut Name="NewAudioTrack" ActionId="actions.editor.NewAudioTrack" Description="Creates a new audio clip">
                     <Keystroke Mods="CTRL" Key="Q"/>
                 </Shortcut>
-                <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or layer's active sequence">
+                <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
                     <Keystroke Key="K"/>
                 </Shortcut>
             </Group>

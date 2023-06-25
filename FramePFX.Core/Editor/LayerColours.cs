@@ -1,7 +1,7 @@
 using System;
 
 namespace FramePFX.Core.Editor {
-    public static class LayerColours {
+    public static class TrackColours {
         private static readonly Random random = new Random();
 
         private static readonly string[] colours = {

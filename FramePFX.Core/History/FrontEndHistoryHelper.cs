@@ -8,7 +8,7 @@ namespace FramePFX.Core.History {
     public static class FrontEndHistoryHelper {
         /// <summary>
         /// A unique drag ID across the entire application, per slider/dragger (not per control instance,
-        /// but for example, the opacity slider; video layers share the same ID for each slider)
+        /// but for example, the opacity slider; video tracks share the same ID for each slider)
         /// </summary>
         public static string ActiveDragId { get; set; }
 

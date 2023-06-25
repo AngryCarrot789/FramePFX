@@ -34,9 +34,9 @@ namespace FramePFX.Core.Editor.Timeline {
             this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
         }
 
-        protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
-            base.OnLayerChanged(oldLayer, newLayer);
-            ResourceManager manager = newLayer?.Timeline.Project.ResourceManager;
+        protected override void OnTrackChanged(TrackModel oldTrack, TrackModel newTrack) {
+            base.OnTrackChanged(oldTrack, newTrack);
+            ResourceManager manager = newTrack?.Timeline.Project.ResourceManager;
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
                     ResourcePath path = entry.path;

@@ -32,11 +32,11 @@ namespace FramePFX.Core.Editor.Timeline.Context {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             long playhead;
             ClipViewModel clip = null;
-            if (e.DataContext.TryGetContext(out clip) && clip.Layer?.Timeline != null) {
-                playhead = clip.Layer.Timeline.PlayHeadFrame;
+            if (e.DataContext.TryGetContext(out clip) && clip.Track?.Timeline != null) {
+                playhead = clip.Track.Timeline.PlayHeadFrame;
             }
-            else if (e.DataContext.TryGetContext(out LayerViewModel layer) && layer.Timeline != null) {
-                playhead = layer.Timeline.PlayHeadFrame;
+            else if (e.DataContext.TryGetContext(out TrackViewModel track) && track.Timeline != null) {
+                playhead = track.Timeline.PlayHeadFrame;
             }
             else if (e.DataContext.TryGetContext(out VideoEditorViewModel editor) && editor.ActiveProject != null) {
                 playhead = editor.ActiveProject.Timeline.PlayHeadFrame;

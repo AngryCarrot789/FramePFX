@@ -212,7 +212,7 @@ namespace FramePFX.Editor {
         public void UpdateSelectionPropertyPages() {
             this.ClipPropertyPanelList.Items.Clear();
             if (this.Editor.ActiveProject is ProjectViewModel project) {
-                List<ClipViewModel> list = project.Timeline.Layers.SelectMany(x => x.SelectedClips).ToList();
+                List<ClipViewModel> list = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
                 if (list.Count != 1) {
                     return;
                 }
@@ -283,7 +283,7 @@ namespace FramePFX.Editor {
             if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                 long frame = project.Timeline.PlayHeadFrame;
 
-                RenderContext context = new SkiaSharpRenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                 context.Canvas.Clear(SKColors.Black);
                 // project.Model.AutomationEngine.TickProjectAtFrame(frame);
                 project.Model.Timeline.Render(context, frame);
@@ -296,38 +296,6 @@ namespace FramePFX.Editor {
 
                 this.ViewPortElement.EndRender();
             }
-
-            this.isRenderScheduled = 0;
-        }
-
-        private void OnPaintViewPortSurface(object sender, SKPaintSurfaceEventArgs e) {
-            VideoEditorViewModel editor = this.Editor;
-            ProjectViewModel project = editor.ActiveProject;
-            if (project == null || project.Model.IsSaving) {
-                return;
-            }
-
-            RenderContext context = new SkiaSharpRenderContext(e.Surface, e.Surface.Canvas, e.RawInfo);
-            context.Canvas.Clear(SKColors.Black);
-            project.Model.Timeline.Render(context);
-
-            Dictionary<ClipModel, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
-            if (dictionary.Count > 0) {
-                this.PrintRenderErrors(dictionary);
-                dictionary.Clear();
-            }
-
-            // context.Canvas.Translate(100,100);
-            // context.Canvas.Scale(100f);
-            // context.Canvas.DrawVertices(SKVertexMode.Triangles, new SKPoint[] {
-            //     new SKPoint(0, 0),
-            //     new SKPoint(1, 1),
-            //     new SKPoint(0, 1)
-            // }, new SKColor[] {
-            //     SKColors.Red,
-            //     SKColors.Green,
-            //     SKColors.Blue,
-            // }, new SKPaint() {Color = SKColors.Aqua});
 
             this.isRenderScheduled = 0;
         }
@@ -367,32 +335,32 @@ namespace FramePFX.Editor {
             return true;
         }
 
-        // Dragging a top thumb to resize between 2 layers is a bit iffy... so nah
+        // Dragging a top thumb to resize between 2 tracks is a bit iffy... so nah
         // private void OnTopThumbDrag(object sender, DragDeltaEventArgs e) {
-        //     if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
-        //         double layerHeight = layer.Height - e.VerticalChange;
-        //         if (layerHeight < layer.MinHeight || layerHeight > layer.MaxHeight) {
-        //             if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind1) {
+        //     if ((sender as Thumb)?.DataContext is TrackViewModel track) {
+        //         double trackHeight = track.Height - e.VerticalChange;
+        //         if (trackHeight < track.MinHeight || trackHeight > track.MaxHeight) {
+        //             if (track.Timeline.GetPrevious(track) is trackViewModel behind1) {
         //                 double behindHeight = behind1.Height + e.VerticalChange;
         //                 if (behindHeight < behind1.MinHeight || behindHeight > behind1.MaxHeight)
         //                     return;
         //                 behind1.Height = behindHeight;
         //             }
         //         }
-        //         else if (layer.Timeline.GetPrevious(layer) is LayerViewModel behind2) {
+        //         else if (track.Timeline.GetPrevious(track) is trackViewModel behind2) {
         //             double behindHeight = behind2.Height + e.VerticalChange;
         //             if (behindHeight < behind2.MinHeight || behindHeight > behind2.MaxHeight) {
         //                 return;
         //             }
-        //             layer.Height = layerHeight;
+        //             track.Height = trackHeight;
         //             behind2.Height = behindHeight;
         //         }
         //     }
         // }
 
         private void OnBottomThumbDrag(object sender, DragDeltaEventArgs e) {
-            if ((sender as Thumb)?.DataContext is LayerViewModel layer) {
-                layer.Height = Maths.Clamp(layer.Height + e.VerticalChange, layer.MinHeight, layer.MaxHeight);
+            if ((sender as Thumb)?.DataContext is TrackViewModel track) {
+                track.Height = Maths.Clamp(track.Height + e.VerticalChange, track.MinHeight, track.MaxHeight);
             }
         }
 

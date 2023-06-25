@@ -8,25 +8,25 @@ using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Layers;
-using FramePFX.Core.Editor.ViewModels.Timeline.Layers;
+using FramePFX.Core.Editor.Timeline.Tracks;
+using FramePFX.Core.Editor.ViewModels.Timeline.Tracks;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {
     public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IModifyProject, IDisposable {
-        private readonly ObservableCollectionEx<LayerViewModel> layers;
-        public ReadOnlyObservableCollection<LayerViewModel> Layers { get; }
+        private readonly ObservableCollectionEx<TrackViewModel> tracks;
+        public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
 
-        public ObservableCollectionEx<LayerViewModel> SelectedLayers { get; }
+        public ObservableCollectionEx<TrackViewModel> SelectedTracks { get; }
 
-        private LayerViewModel primarySelectedLayer;
+        private TrackViewModel primarySelectedTrack;
         private bool ignorePlayHeadPropertyChange;
         private bool isFramePropertyChangeScheduled;
 
-        public LayerViewModel PrimarySelectedLayer {
-            get => this.primarySelectedLayer;
-            set => this.RaisePropertyChanged(ref this.primarySelectedLayer, value);
+        public TrackViewModel PrimarySelectedTrack {
+            get => this.primarySelectedTrack;
+            set => this.RaisePropertyChanged(ref this.primarySelectedTrack, value);
         }
 
         public long PlayHeadFrame {
@@ -61,12 +61,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
         }
 
-        public AsyncRelayCommand RemoveSelectedLayersCommand { get; }
+        public AsyncRelayCommand RemoveSelectedTracksCommand { get; }
         public RelayCommand MoveSelectedUpCommand { get; }
         public RelayCommand MoveSelectedDownCommand { get; }
 
-        public AsyncRelayCommand AddVideoLayerCommand { get; }
-        public AsyncRelayCommand AddAudioLayerCommand { get; }
+        public AsyncRelayCommand AddVideoTrackCommand { get; }
+        public AsyncRelayCommand AddAudioTrackCommand { get; }
 
         public TimelineModel Model { get; }
 
@@ -83,14 +83,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             set => this.Model.IsAutomationChangeInProgress = value;
         }
 
-        public InputValidator LayerNameValidator { get; }
+        public InputValidator TrackNameValidator { get; }
 
         /// <summary>
         /// A flag used when handing clip drag events so that other clips know if they are being dragged by a source clip (multi-clip drag)
         /// </summary>
         public bool IsGloballyDragging { get; set; }
 
-        public bool IsAboutToDragAcrossLayers { get; set; }
+        public bool IsAboutToDragAcrossTracks { get; set; }
 
         public ClipViewModel ProcessingDragEventClip { get; set; }
 
@@ -104,28 +104,28 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
-            this.layers = new ObservableCollectionEx<LayerViewModel>();
-            this.Layers = new ReadOnlyObservableCollection<LayerViewModel>(this.layers);
-            this.SelectedLayers = new ObservableCollectionEx<LayerViewModel>();
-            this.SelectedLayers.CollectionChanged += (sender, args) => {
-                this.RemoveSelectedLayersCommand.RaiseCanExecuteChanged();
+            this.tracks = new ObservableCollectionEx<TrackViewModel>();
+            this.Tracks = new ReadOnlyObservableCollection<TrackViewModel>(this.tracks);
+            this.SelectedTracks = new ObservableCollectionEx<TrackViewModel>();
+            this.SelectedTracks.CollectionChanged += (sender, args) => {
+                this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
             };
-            this.RemoveSelectedLayersCommand = new AsyncRelayCommand(this.RemoveSelectedLayersAction, () => this.SelectedLayers.Count > 0);
+            this.RemoveSelectedTracksCommand = new AsyncRelayCommand(this.RemoveSelectedTracksAction, () => this.SelectedTracks.Count > 0);
             this.MoveSelectedUpCommand = new RelayCommand(this.MoveSelectedItemUpAction);
             this.MoveSelectedDownCommand = new RelayCommand(this.MoveSelectedItemDownAction);
-            this.AddVideoLayerCommand = new AsyncRelayCommand(this.AddVideoLayerAction);
-            this.AddAudioLayerCommand = new AsyncRelayCommand(this.AddAudioLayerAction, () => false);
-            this.LayerNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Layer name cannot be empty" : null);
-            foreach (LayerModel layer in this.Model.Layers) {
-                this.layers.Add(LayerRegistry.Instance.CreateViewModelFromModel(this, layer));
+            this.AddVideoTrackCommand = new AsyncRelayCommand(this.AddVideoTrackAction);
+            this.AddAudioTrackCommand = new AsyncRelayCommand(this.AddAudioTrackAction, () => false);
+            this.TrackNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Clip name cannot be empty" : null);
+            foreach (TrackModel track in this.Model.Tracks) {
+                this.tracks.Add(TrackRegistry.Instance.CreateViewModelFromModel(this, track));
             }
         }
 
-        public void AddLayer(LayerViewModel layer, bool addToModel = true) {
+        public void AddTrack(TrackViewModel track, bool addToModel = true) {
             if (addToModel)
-                this.Model.AddLayer(layer.Model);
-            this.layers.Add(layer);
-            this.ProjectModified?.Invoke(this, nameof(this.Layers));
+                this.Model.AddTrack(track.Model);
+            this.tracks.Add(track);
+            this.ProjectModified?.Invoke(this, nameof(this.Tracks));
         }
 
         public void OnPlayHeadMoved(long oldFrame, long newFrame, bool? schedule) {
@@ -143,60 +143,60 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public IEnumerable<ClipViewModel> GetClipsAtFrame(long frame) {
-            return this.Layers.SelectMany(layer => layer.GetClipsAtFrame(frame));
+            return this.Tracks.SelectMany(track => track.GetClipsAtFrame(frame));
         }
 
         public IEnumerable<ClipViewModel> GetSelectedClips() {
-            return this.layers.SelectMany(x => x.SelectedClips);
+            return this.tracks.SelectMany(x => x.SelectedClips);
         }
 
-        public async Task<VideoLayerViewModel> AddVideoLayerAction() {
-            VideoLayerViewModel layer = new VideoLayerViewModel(this, new VideoLayerModel(this.Model));
-            this.AddLayer(layer);
+        public async Task<VideoTrackViewModel> AddVideoTrackAction() {
+            VideoTrackViewModel track = new VideoTrackViewModel(this, new VideoTrackModel(this.Model));
+            this.AddTrack(track);
             this.DoRender(true);
-            return layer;
+            return track;
         }
 
-        public async Task<AudioLayerViewModel> AddAudioLayerAction() {
-            AudioLayerViewModel layer = new AudioLayerViewModel(this, new AudioLayerModel(this.Model));
-            this.AddLayer(layer);
-            return layer;
+        public async Task<AudioTrackViewModel> AddAudioTrackAction() {
+            AudioTrackViewModel track = new AudioTrackViewModel(this, new AudioTrackModel(this.Model));
+            this.AddTrack(track);
+            return track;
         }
 
         public void DoRender(bool schedule = false) {
             this.Project.Editor?.DoRender(schedule);
         }
 
-        public Task RemoveSelectedLayersAction() {
-            return this.RemoveSelectedLayersAction(true);
+        public Task RemoveSelectedTracksAction() {
+            return this.RemoveSelectedTracksAction(true);
         }
 
-        public async Task RemoveSelectedLayersAction(bool confirm) {
-            IList<LayerViewModel> list = this.SelectedLayers;
+        public async Task RemoveSelectedTracksAction(bool confirm) {
+            IList<TrackViewModel> list = this.SelectedTracks;
             if (list.Count < 1) {
                 return;
             }
 
-            string msg = list.Count == 1 ? "1 layer" : $"{list.Count} layers";
-            if (confirm && !await IoC.MessageDialogs.ShowYesNoDialogAsync("Delete layers?", $"Are you sure you want to delete {msg}?")) {
+            string msg = list.Count == 1 ? "1 track" : $"{list.Count} tracks";
+            if (confirm && !await IoC.MessageDialogs.ShowYesNoDialogAsync("Delete tracks?", $"Are you sure you want to delete {msg}?")) {
                 return;
             }
 
             await this.DisposeAndRemoveItemsAction(list);
         }
 
-        public async Task DisposeAndRemoveItemsAction(IEnumerable<LayerViewModel> list) {
+        public async Task DisposeAndRemoveItemsAction(IEnumerable<TrackViewModel> list) {
             try {
                 this.DisposeAndRemoveItemsUnsafe(list.ToList());
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error", "An error occurred while removing layers", e.GetToString());
+                await IoC.MessageDialogs.ShowMessageExAsync("Error", "An error occurred while removing tracks", e.GetToString());
             }
         }
 
-        public void DisposeAndRemoveItemsUnsafe(IList<LayerViewModel> list) {
-            using (ExceptionStack stack = new ExceptionStack("Exception disposing layers")) {
-                foreach (LayerViewModel item in list) {
+        public void DisposeAndRemoveItemsUnsafe(IList<TrackViewModel> list) {
+            using (ExceptionStack stack = new ExceptionStack("Exception disposing tracks")) {
+                foreach (TrackViewModel item in list) {
                     if (item is IDisposable disposable) {
                         try {
                             disposable.Dispose();
@@ -206,22 +206,22 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                         }
                     }
 
-                    this.layers.Remove(item);
-                    this.Model.RemoveLayer(item.Model);
+                    this.tracks.Remove(item);
+                    this.Model.RemoveTrack(item.Model);
                 }
 
-                this.ProjectModified?.Invoke(this, nameof(this.Layers));
+                this.ProjectModified?.Invoke(this, nameof(this.Tracks));
             }
         }
 
         public virtual void MoveSelectedItems(int offset) {
-            if (offset == 0 || this.SelectedLayers.Count < 1) {
+            if (offset == 0 || this.SelectedTracks.Count < 1) {
                 return;
             }
 
             List<int> selection = new List<int>();
-            foreach (LayerViewModel item in this.SelectedLayers) {
-                int index = this.layers.IndexOf(item);
+            foreach (TrackViewModel item in this.SelectedTracks) {
+                int index = this.tracks.IndexOf(item);
                 if (index < 0) {
                     continue;
                 }
@@ -238,16 +238,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
             for (int i = 0; i < selection.Count; i++) {
                 int target = selection[i] + offset;
-                if (target < 0 || target >= this.layers.Count || selection.Contains(target)) {
+                if (target < 0 || target >= this.tracks.Count || selection.Contains(target)) {
                     continue;
                 }
 
-                this.layers.Move(selection[i], target);
-                this.Model.Layers.MoveItem(selection[i], target);
+                this.tracks.Move(selection[i], target);
+                this.Model.Tracks.MoveItem(selection[i], target);
                 selection[i] = target;
             }
 
-            this.ProjectModified?.Invoke(this, nameof(this.Layers));
+            this.ProjectModified?.Invoke(this, nameof(this.Tracks));
         }
 
         public virtual void MoveSelectedItemUpAction() {
@@ -259,7 +259,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         protected virtual void OnSelectionChanged() {
-            this.RemoveSelectedLayersCommand.RaiseCanExecuteChanged();
+            this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
         }
 
         public void OnStepFrameTick() {
@@ -284,16 +284,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public void OnPlayBegin() {
-            foreach (LayerViewModel layer in this.layers) {
-                foreach (ClipViewModel clip in layer.Clips) {
+            foreach (TrackViewModel track in this.tracks) {
+                foreach (ClipViewModel clip in track.Clips) {
                     clip.OnTimelinePlayBegin();
                 }
             }
         }
 
         public void OnPlayEnd() {
-            foreach (LayerViewModel layer in this.layers) {
-                foreach (ClipViewModel clip in layer.Clips) {
+            foreach (TrackViewModel track in this.tracks) {
+                foreach (ClipViewModel clip in track.Clips) {
                     clip.OnTimelinePlayEnd();
                 }
             }
@@ -312,7 +312,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         protected virtual void DisposeCore(ExceptionStack stack) {
             using (ExceptionStack innerStack = new ExceptionStack(false)) {
-                foreach (LayerViewModel clip in this.layers) {
+                foreach (TrackViewModel clip in this.tracks) {
                     try {
                         clip.Dispose();
                     }
@@ -321,22 +321,22 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                     }
                 }
 
-                this.layers.Clear();
-                this.Model.ClearLayers();
+                this.tracks.Clear();
+                this.Model.ClearTracks();
                 if (innerStack.TryGetException(out Exception ex)) {
                     stack.Add(ex);
                 }
             }
         }
 
-        public LayerViewModel GetPrevious(LayerViewModel layer) {
-            int index = this.layers.IndexOf(layer);
-            return index > 0 ? this.layers[index - 1] : null;
+        public TrackViewModel GetPrevious(TrackViewModel track) {
+            int index = this.tracks.IndexOf(track);
+            return index > 0 ? this.tracks[index - 1] : null;
         }
 
-        public void MoveClip(ClipViewModel clip, LayerViewModel oldLayer, LayerViewModel newLayer) {
-            oldLayer.RemoveClipFromLayer(clip);
-            newLayer.AddClipToLayer(clip);
+        public void MoveClip(ClipViewModel clip, TrackViewModel oldTrack, TrackViewModel newTrack) {
+            oldTrack.RemoveClipFromTrack(clip);
+            newTrack.AddClipToTrack(clip);
         }
     }
 }

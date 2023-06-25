@@ -1,10 +1,10 @@
 ﻿using FramePFX.Core;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
-using FramePFX.Editor.Timeline.Layer.Clips;
+using FramePFX.Editor.Timeline.Track.Clips;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class VideoClipControl : TimelineClipControl {
-        public new VideoLayerControl Layer => (VideoLayerControl) base.Layer;
+        public new VideoTrackControl Track => (VideoTrackControl) base.Track;
 
         public bool IsMovingControl { get; set; }
 

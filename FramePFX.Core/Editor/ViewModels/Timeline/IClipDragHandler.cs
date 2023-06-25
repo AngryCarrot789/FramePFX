@@ -66,6 +66,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         /// <param name="offset">The amount of frames this clip was dragged. Positive is towards the right, negative is towards the left</param>
         void OnDragDelta(long offset);
 
-        void OnDragToLayer(int index);
+        void OnDragToTrack(int index);
     }
 }

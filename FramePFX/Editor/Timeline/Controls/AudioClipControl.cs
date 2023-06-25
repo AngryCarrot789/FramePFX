@@ -1,6 +1,6 @@
 namespace FramePFX.Editor.Timeline.Controls {
     public class AudioClipControl : TimelineClipControl {
-        public new AudioLayerControl Layer => (AudioLayerControl) base.Layer;
+        public new AudioTrackControl Track => (AudioTrackControl) base.Track;
 
         public AudioClipControl() {
 

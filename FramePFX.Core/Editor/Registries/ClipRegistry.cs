@@ -22,11 +22,11 @@ namespace FramePFX.Core.Editor.Registries {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public ClipModel CreateLayerModel(string id) {
+        public ClipModel CreateModel(string id) {
             return (ClipModel) Activator.CreateInstance(base.GetModelType(id));
         }
 
-        public ClipViewModel CreateLayerViewModel(string id) {
+        public ClipViewModel CreateViewModel(string id) {
             return (ClipViewModel) Activator.CreateInstance(base.GetViewModelType(id));
         }
 

@@ -33,27 +33,27 @@ namespace FramePFX.Core.Automation {
                 timeline.IsAutomationChangeInProgress = false;
             }
 
-            foreach (LayerModel layer in timeline.Layers) {
-                if (layer.CanUpdateAutomation()) {
-                    this.UpdateLayer(layer, frame);
+            foreach (TrackModel track in timeline.Tracks) {
+                if (track.CanUpdateAutomation()) {
+                    this.UpdateTrack(track, frame);
                 }
             }
         }
 
-        public void UpdateLayer(LayerModel layer, long frame) {
-            layer.IsAutomationChangeInProgress = true;
+        public void UpdateTrack(TrackModel track, long frame) {
+            track.IsAutomationChangeInProgress = true;
             try {
-                foreach (AutomationSequence sequence in layer.AutomationData.Sequences) {
+                foreach (AutomationSequence sequence in track.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
                         sequence.DoUpdateValue(this, frame);
                     }
                 }
             }
             finally {
-                layer.IsAutomationChangeInProgress = false;
+                track.IsAutomationChangeInProgress = false;
             }
 
-            foreach (ClipModel clip in layer.Clips) {
+            foreach (ClipModel clip in track.Clips) {
                 if (clip.IntersectsFrameAt(frame)) {
                     this.UpdateClip(clip, frame);
                 }

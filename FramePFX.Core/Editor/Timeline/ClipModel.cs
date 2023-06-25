@@ -9,30 +9,30 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline {
     /// <summary>
-    /// A model that represents a timeline layer clip, such as a video or audio clip
+    /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
     public abstract class ClipModel : IAutomatable, IRBESerialisable, IDisposable {
         /// <summary>
-        /// Returns the layer that this clip is currently in. When this changes, <see cref="OnLayerChanged"/> is always called
+        /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
         /// </summary>
-        public LayerModel Layer { get; private set; }
+        public TrackModel Track { get; private set; }
 
         /// <summary>
-        /// Returns the timeline associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that is null
+        /// Returns the timeline associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
         /// </summary>
-        public TimelineModel Timeline => this.Layer?.Timeline;
+        public TimelineModel Timeline => this.Track?.Timeline;
 
         /// <summary>
-        /// Returns the project associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that is null
+        /// Returns the project associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
         /// </summary>
-        public ProjectModel Project => this.Layer?.Timeline.Project;
+        public ProjectModel Project => this.Track?.Timeline.Project;
 
         /// <summary>
-        /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Layer"/> property, so this returns null if that is null
+        /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
         /// </summary>
-        public ResourceManager ResourceManager => this.Layer?.Timeline.Project.ResourceManager;
+        public ResourceManager ResourceManager => this.Track?.Timeline.Project.ResourceManager;
 
-        public long TimelinePlayhead => this.Layer?.Timeline.PlayHeadFrame ?? 0;
+        public long TimelinePlayhead => this.Track?.Timeline.PlayHeadFrame ?? 0;
 
         /// <summary>
         /// This clip's display name, which the user can chose to identify it
@@ -48,10 +48,10 @@ namespace FramePFX.Core.Editor.Timeline {
 
         /// <summary>
         /// A unique identifier for this clip, relative to the project. Returns -1 if the clip does not have an
-        /// ID assigned and is not associated with a layer yet (otherwise, a new id is assigned through the project model)
+        /// ID assigned and is not associated with a track yet (otherwise, a new id is assigned through the project model)
         /// </summary>
         public long UniqueClipId {
-            get => this.clipId >= 0 ? this.clipId : (this.clipId = this.Layer?.Timeline.Project.GetNextClipId() ?? -1);
+            get => this.clipId >= 0 ? this.clipId : (this.clipId = this.Track?.Timeline.Project.GetNextClipId() ?? -1);
             set => this.clipId = value;
         }
 
@@ -108,24 +108,24 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         /// <summary>
-        /// Sets the given clip's layer
+        /// Sets the given clip's track
         /// </summary>
-        /// <param name="model">Model to set the layer of</param>
-        /// <param name="layer">New layer</param>
-        /// <param name="fireLayerChangedEvent">Whether to invoke the model's <see cref="OnLayerChanged"/> function. If false, it must be called manually</param>
-        public static void SetLayer(ClipModel model, LayerModel layer, bool fireLayerChangedEvent = true) {
-            if (fireLayerChangedEvent) {
-                LayerModel oldLayer = model.Layer;
-                if (ReferenceEquals(oldLayer, layer)) {
-                    Debug.WriteLine("Attempted to set the layer to the same instance.\n" + new Exception().GetToString());
+        /// <param name="model">Model to set the track of</param>
+        /// <param name="track">New track</param>
+        /// <param name="fireTrackChangedEvent">Whether to invoke the model's <see cref="OnTrackChanged"/> function. If false, it must be called manually</param>
+        public static void SetTrack(ClipModel model, TrackModel track, bool fireTrackChangedEvent = true) {
+            if (fireTrackChangedEvent) {
+                TrackModel oldTrack = model.Track;
+                if (ReferenceEquals(oldTrack, track)) {
+                    Debug.WriteLine("Attempted to set the track to the same instance.\n" + new Exception().GetToString());
                 }
                 else {
-                    model.Layer = layer;
-                    model.OnLayerChanged(oldLayer, layer);
+                    model.Track = track;
+                    model.OnTrackChanged(oldTrack, track);
                 }
             }
             else {
-                model.Layer = layer;
+                model.Track = track;
             }
         }
 
@@ -168,20 +168,20 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         /// <summary>
-        /// Called when this clip's layer changes, either by the clip being added to it for the first time (in which case,
-        /// <paramref name="oldLayer"/> will be null and <paramref name="newLayer"/> will not be null), or by a user dragging
-        /// this clip from layer to layer
+        /// Called when this clip's track changes, either by the clip being added to it for the first time (in which case,
+        /// <paramref name="oldTrack"/> will be null and <paramref name="newTrack"/> will not be null), or by a user dragging
+        /// this clip from track to track
         /// </summary>
-        /// <param name="oldLayer"></param>
-        /// <param name="newLayer"></param>
-        protected virtual void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
+        /// <param name="oldTrack"></param>
+        /// <param name="newTrack"></param>
+        protected virtual void OnTrackChanged(TrackModel oldTrack, TrackModel newTrack) {
 
         }
 
         /// <summary>
         /// Creates a clone of this clip, referencing the same resources, same display name, media
         /// transformations, etc (but not the same Clip ID, if one is present). This is typically called when
-        /// splitting or duplicating clips, or even duplicating a layer
+        /// splitting or duplicating clips, or even duplicating a track
         /// </summary>
         /// <returns></returns>
         public ClipModel Clone() {

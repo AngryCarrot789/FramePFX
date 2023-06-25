@@ -24,7 +24,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
                 FrameSpan? cutRight = cut.CutRight;
                 if (cutLeft.HasValue && cutRight.HasValue) { // double split
                     throw new NotImplementedException();
-                    // cut.Clip.Layer.SplitClip(cut.Clip, cutLeft.Value, cutRight.Value);
+                    // cut.Clip.Clip.SplitClip(cut.Clip, cutLeft.Value, cutRight.Value);
                 }
                 else if (cutLeft.HasValue) { // make clip take up the left span
                     cut.Clip.FrameSpan = cutLeft.Value;
@@ -34,7 +34,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
                 }
                 else { // remove clip
                     throw new NotImplementedException();
-                    // cut.Clip.Layer.RemoveClip(cut.Clip);
+                    // cut.Clip.Clip.RemoveClip(cut.Clip);
                 }
             }
         }

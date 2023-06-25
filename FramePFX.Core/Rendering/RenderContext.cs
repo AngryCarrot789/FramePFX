@@ -2,7 +2,7 @@ using FramePFX.Core.Editor;
 using SkiaSharp;
 
 namespace FramePFX.Core.Rendering {
-    public class RenderContext {
+    public sealed class RenderContext {
         /// <summary>
         /// The target render surface
         /// </summary>

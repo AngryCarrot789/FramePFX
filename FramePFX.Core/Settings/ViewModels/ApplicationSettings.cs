@@ -4,9 +4,9 @@ namespace FramePFX.Core.Settings.ViewModels {
     public class ApplicationSettings : BaseViewModel {
         public AppSettings Settings { get; private set; }
 
-        public bool UseVerticalLayerNumberDraggerBehaviour {
-            get => this.Settings.UseVerticalLayerNumberDraggerBehaviour;
-            set => this.RaisePropertyChanged(ref this.Settings.UseVerticalLayerNumberDraggerBehaviour, value);
+        public bool UseVerticalTrackNumberDraggerBehaviour {
+            get => this.Settings.UseVerticalTrackNumberDraggerBehaviour;
+            set => this.RaisePropertyChanged(ref this.Settings.UseVerticalTrackNumberDraggerBehaviour, value);
         }
 
         public bool StopOnTogglePlay {

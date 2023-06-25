@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Editor.Timeline.Controls;
-using FramePFX.Editor.Timeline.Layer.Clips;
+using FramePFX.Editor.Timeline.Track.Clips;
 
 namespace FramePFX.Editor.Timeline.Utils {
     public class TimelineClipDragData {

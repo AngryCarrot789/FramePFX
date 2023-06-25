@@ -11,26 +11,26 @@ I doubt this will ever even come close to those editors, but hopefully it will a
 
 ### Automation/animation
 Always found automating parameters in the popular editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
-- Each clip has it's own keyframe/envolope editor that stretches the entirety of the clip. 
-- Layers would have the same, but it stretches the entire timeline. 
-- Automating project settings, or anything else really, will soon be do-able on a timeline automation specific layer (allowing for more than just video/audio layers)
+- Each clip has it's own keyframe/envelope editor that stretches the entirety of the clip. 
+- Tracks would have the same, but it stretches the entire timeline. 
+- Automating project settings, or anything else really, will soon be do-able on a timeline automation specific track (allowing for more than just video/audio tracks)
 
-#### Demo of video layer opacity automation
-The automation/parameter selector for layers is on the right side of the thingy on the left. For clips, select a clip and the selectors show on the right side (in its header). The "O" button toggles an override, which disables automation, and the "-" button clears the current selection. 
+#### Demo of video track opacity automation
+The automation/parameter selector for tracks is on the right side of the thingy on the left. For clips, select a clip and the selectors show on the right side (in its header). The "O" button toggles an override, which disables automation, and the "-" button clears the current selection. 
 
 The "Rec" button above the timeline on the left starts recoding every parameter (similar to the feature in Cinema4D. This screen shot is old so it doesn't show the button); modify anything like scale or opacity and it inserts a key frame
 
 ![](FramePFX_2023-06-21_03.33.35.png)
 
 ### Encoding/Exporting
-Click "Export" in the file menu at the top left, and you can specify some render details. Currently, only .mp4 aka MPEG-4 aka h.264 is supported. Might try to implement more soon. The output cannot be scaled at the moment. A timeline frame is rendered, then that BGRA frame is converted to YUV, then encoded, then written to file (encoding and writing aren't nessesarily in the same order; encoding takes some time)
+Click "Export" in the file menu at the top left, and you can specify some render details. Currently, only .mp4 aka MPEG-4 aka h.264 is supported. Might try to implement more soon. The output cannot be scaled at the moment. A timeline frame is rendered, then that BGRA frame is converted to YUV, then encoded, then written to file (encoding and writing aren't necessarily in the same order; encoding takes some time)
 
 ![](FramePFX_2023-06-23_03.20.48.png)
 
 # Backend stuff
 
 ## ViewModels/Models 
-I tried to wrap all models with view models so that the app can still function even if it had no view models or even UI, simiular to how OBS can run without the front-end entirely, not that you'd want to... 
+I tried to wrap all models with view models so that the app can still function even if it had no view models or even UI, similar to how OBS can run without the front-end entirely, not that you'd want to... 
 
 View models still take a good few big responsibilities of the models though, such as firing the model events when view model properties change in order to force a re-render. And this idea also opens up the possibility for ViewModel-Model desynchronisation (especially when it comes to synchronising collections) which hopefully won't happen
 
@@ -57,5 +57,5 @@ The front-end uses .NET Framework 4.7.2, and the back-end uses .NET Standard 2.0
 Currently there's only a WPF implementation, but I hope to switch to avalonia at some point or MAUI. Most, if not all, of the important classes are located in the .NET Standard project, so it's relatively easy to port the app over to different platforms. However there's also SkiaSharp, FFmpeg, and soon NAudio (or some other audio processor library) dependencies too...
 
 ## BUGS ono
-- Fixed the bug where dragging a clip across layers crashes the app. However, importing certain video files can still crash (some sort of "found invalid data while decoding" error)
+- Fixed the bug where dragging a clip across tracks crashes the app. However, importing certain video files can still crash (some sort of "found invalid data while decoding" error)
 

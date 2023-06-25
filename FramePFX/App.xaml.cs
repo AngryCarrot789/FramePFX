@@ -13,7 +13,7 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Layers;
+using FramePFX.Core.Editor.Timeline.Tracks;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
@@ -164,15 +164,15 @@ namespace FramePFX {
             }
 
             {
-                VideoLayerModel layer1 = new VideoLayerModel(project.Timeline) {
-                    DisplayName = "Layer 1 with stuff"
+                VideoTrackModel track1 = new VideoTrackModel(project.Timeline) {
+                    DisplayName = "Track 1 with stuff"
                 };
-                project.Timeline.AddLayer(layer1);
+                project.Timeline.AddTrack(track1);
 
-                layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
-                layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
-                layer1.AutomationData[VideoLayerModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
-                layer1.AutomationData.ActiveKeyFullId = VideoLayerModel.OpacityKey.FullId;
+                track1.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                track1.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                track1.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                track1.AutomationData.ActiveKeyFullId = VideoTrackModel.OpacityKey.FullId;
 
                 ShapeClipModel clip1 = new ShapeClipModel {
                     Width = 200, Height = 200,
@@ -182,7 +182,7 @@ namespace FramePFX {
 
                 clip1.MediaPosition = new Vector2(0, 0);
                 clip1.SetTargetResourceId("idek");
-                layer1.AddClip(clip1);
+                track1.AddClip(clip1);
 
                 ShapeClipModel clip2 = new ShapeClipModel {
                     Width = 200, Height = 200,
@@ -192,13 +192,13 @@ namespace FramePFX {
                 clip2.MediaPosition = new Vector2(200, 200);
                 clip2.SetTargetResourceId("colour_green");
 
-                layer1.AddClip(clip2);
+                track1.AddClip(clip2);
             }
             {
-                VideoLayerModel layer2 = new VideoLayerModel(project.Timeline) {
-                    DisplayName = "Layer 2"
+                VideoTrackModel track2 = new VideoTrackModel(project.Timeline) {
+                    DisplayName = "Track 2"
                 };
-                project.Timeline.AddLayer(layer2);
+                project.Timeline.AddTrack(track2);
 
                 ShapeClipModel clip1 = new ShapeClipModel {
                     Width = 400, Height = 400,
@@ -208,7 +208,7 @@ namespace FramePFX {
 
                 clip1.MediaPosition = new Vector2(200, 200);
                 clip1.SetTargetResourceId("colour_blue");
-                layer2.AddClip(clip1);
+                track2.AddClip(clip1);
                 ShapeClipModel clip2 = new ShapeClipModel {
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
@@ -223,13 +223,13 @@ namespace FramePFX {
 
                 clip2.MediaPosition = new Vector2(400, 400);
                 clip2.SetTargetResourceId("colour_green");
-                layer2.AddClip(clip2);
+                track2.AddClip(clip2);
             }
             {
-                VideoLayerModel layer1 = new VideoLayerModel(project.Timeline) {
-                    DisplayName = "Empty layer"
+                VideoTrackModel track1 = new VideoTrackModel(project.Timeline) {
+                    DisplayName = "Empty track"
                 };
-                project.Timeline.AddLayer(layer1);
+                project.Timeline.AddTrack(track1);
             }
 
             return project;

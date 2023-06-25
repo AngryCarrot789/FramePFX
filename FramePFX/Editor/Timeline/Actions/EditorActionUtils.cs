@@ -14,11 +14,11 @@ namespace FramePFX.Editor.Timeline.Actions {
             else if (context.TryGetContext(out VideoEditorViewModel editor)) {
                 return editor.ActiveProject?.Timeline;
             }
-            else if (context.TryGetContext(out LayerViewModel layer)) {
-                return layer.Timeline;
+            else if (context.TryGetContext(out TrackViewModel track)) {
+                return track.Timeline;
             }
             else if (context.TryGetContext(out ClipViewModel clip)) {
-                return clip.Layer?.Timeline;
+                return clip.Track?.Timeline;
             }
             else {
                 return null;

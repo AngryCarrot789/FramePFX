@@ -43,15 +43,15 @@ namespace FramePFX.Core.Editor.Timeline {
             }
         }
 
-        protected override void OnLayerChanged(LayerModel oldLayer, LayerModel newLayer) {
-            base.OnLayerChanged(oldLayer, newLayer);
+        protected override void OnTrackChanged(TrackModel oldTrack, TrackModel newTrack) {
+            base.OnTrackChanged(oldTrack, newTrack);
             if (this.ResourcePath == null)
                 return;
-            if (newLayer == null) {
+            if (newTrack == null) {
                 this.ResourcePath.SetManager(null);
             }
             else {
-                ResourceManager manager = newLayer.Timeline.Project.ResourceManager;
+                ResourceManager manager = newTrack.Timeline.Project.ResourceManager;
                 if (manager != this.ResourcePath.Manager) {
                     this.ResourcePath.SetManager(manager);
                 }
@@ -121,7 +121,7 @@ namespace FramePFX.Core.Editor.Timeline {
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             if (data.TryGetElement(nameof(this.ResourcePath), out RBEDictionary resource))
-                this.ResourcePath = ResourcePath<T>.ReadFromRBE(this.Layer?.Timeline.Project.ResourceManager, resource);
+                this.ResourcePath = ResourcePath<T>.ReadFromRBE(this.Track?.Timeline.Project.ResourceManager, resource);
         }
 
         public bool TryGetResource(out T resource) {

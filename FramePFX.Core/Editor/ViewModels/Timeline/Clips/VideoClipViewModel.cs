@@ -10,7 +10,7 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     /// <summary>
-    /// Base view model class for video clips that are placed on a video layer
+    /// Base view model class for video clips that are placed on a video track
     /// </summary>
     public abstract class VideoClipViewModel : ClipViewModel {
         private readonly HistoryBuffer<HistoryClipMediaTransformation> transformationHistory = new HistoryBuffer<HistoryClipMediaTransformation>();
@@ -41,7 +41,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             get => this.Model.MediaPosition;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Layer != null) {
+                if (!this.IsHistoryChanging && this.Track != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
                         this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaPosition.SetCurrent(value);
@@ -80,7 +80,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             get => this.Model.MediaScale;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Layer != null) {
+                if (!this.IsHistoryChanging && this.Track != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
                         this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScale.SetCurrent(value);
@@ -119,7 +119,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             get => this.Model.MediaScaleOrigin;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Layer != null) {
+                if (!this.IsHistoryChanging && this.Track != null) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
                         this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScaleOrigin.SetCurrent(value);
@@ -145,7 +145,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             get => this.Model.Opacity;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Layer != null) {
+                if (!this.IsHistoryChanging && this.Track != null) {
                     if (!this.opacityHistory.TryGetAction(out HistoryVideoClipOpacity action))
                         this.opacityHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipOpacity(this), "Edit opacity");
                     action.Opacity.SetCurrent(value);
@@ -255,7 +255,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         }
 
         public virtual void OnInvalidateRender(bool schedule = true) {
-            this.Layer?.Timeline.DoRender(schedule);
+            this.Track?.Timeline.DoRender(schedule);
         }
 
         protected override void DisposeCore(ExceptionStack stack) {

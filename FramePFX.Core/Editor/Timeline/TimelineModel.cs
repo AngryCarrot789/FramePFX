@@ -4,7 +4,7 @@ using System.Linq;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor.Registries;
-using FramePFX.Core.Editor.Timeline.Layers;
+using FramePFX.Core.Editor.Timeline.Tracks;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.RBC;
@@ -20,7 +20,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public long MaxDuration { get; set; }
 
-        public List<LayerModel> Layers { get; }
+        public List<TrackModel> Tracks { get; }
 
         public AutomationData AutomationData { get; }
 
@@ -31,7 +31,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public TimelineModel(ProjectModel project) {
             this.Project = project;
-            this.Layers = new List<LayerModel>();
+            this.Tracks = new List<TrackModel>();
             this.AutomationData = new AutomationData(this);
         }
 
@@ -39,13 +39,13 @@ namespace FramePFX.Core.Editor.Timeline {
             data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
-            RBEList list = data.CreateList(nameof(this.Layers));
-            foreach (LayerModel layer in this.Layers) {
-                if (!(layer.RegistryId is string registryId))
-                    throw new Exception("Unknown layer type: " + layer.GetType());
+            RBEList list = data.CreateList(nameof(this.Tracks));
+            foreach (TrackModel track in this.Tracks) {
+                if (!(track.RegistryId is string registryId))
+                    throw new Exception("Unknown track type: " + track.GetType());
                 RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(LayerModel.RegistryId), registryId);
-                layer.WriteToRBE(dictionary.CreateDictionary("Data"));
+                dictionary.SetString(nameof(TrackModel.RegistryId), registryId);
+                track.WriteToRBE(dictionary.CreateDictionary("Data"));
             }
         }
 
@@ -53,43 +53,43 @@ namespace FramePFX.Core.Editor.Timeline {
             this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            foreach (RBEBase entry in data.GetList(nameof(this.Layers)).List) {
+            foreach (RBEBase entry in data.GetList(nameof(this.Tracks)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
-                string registryId = dictionary.GetString(nameof(LayerModel.RegistryId));
-                LayerModel layer = LayerRegistry.Instance.CreateLayerModel(this, registryId);
-                layer.ReadFromRBE(dictionary.GetDictionary("Data"));
-                this.AddLayer(layer);
+                string registryId = dictionary.GetString(nameof(TrackModel.RegistryId));
+                TrackModel track = TrackRegistry.Instance.CreateModel(this, registryId);
+                track.ReadFromRBE(dictionary.GetDictionary("Data"));
+                this.AddTrack(track);
             }
 
             // Recalculate a new max duration, just in case the clips somehow exceed the current value
-            this.MaxDuration = Math.Max(this.MaxDuration, this.Layers.Count < 1 ? 0 : this.Layers.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
+            this.MaxDuration = Math.Max(this.MaxDuration, this.Tracks.Count < 1 ? 0 : this.Tracks.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
         }
 
-        public void AddLayer(LayerModel layer) {
-            Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
-            this.Layers.Add(layer);
+        public void AddTrack(TrackModel track) {
+            Validate.Exception(ReferenceEquals(track.Timeline, this), "Expected track's timeline and the current timeline instance to be equal");
+            this.Tracks.Add(track);
         }
 
-        public bool RemoveLayer(LayerModel layer) {
-            Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
-            int index = this.Layers.IndexOf(layer);
+        public bool RemoveTrack(TrackModel track) {
+            Validate.Exception(ReferenceEquals(track.Timeline, this), "Expected track's timeline and the current timeline instance to be equal");
+            int index = this.Tracks.IndexOf(track);
             if (index < 0) {
                 return false;
             }
 
-            this.Layers.RemoveAt(index);
+            this.Tracks.RemoveAt(index);
             return true;
         }
 
-        public void RemoveLayer(int index) {
-            LayerModel layer = this.Layers[index];
-            Validate.Exception(ReferenceEquals(layer.Timeline, this), "Expected layer's timeline and the current timeline instance to be equal");
-            this.Layers.RemoveAt(index);
+        public void RemoveTrack(int index) {
+            TrackModel track = this.Tracks[index];
+            Validate.Exception(ReferenceEquals(track.Timeline, this), "Expected track's timeline and the current timeline instance to be equal");
+            this.Tracks.RemoveAt(index);
         }
 
-        public void ClearLayers() {
-            this.Layers.Clear();
+        public void ClearTracks() {
+            this.Tracks.Clear();
         }
 
         public void Render(RenderContext render) {
@@ -101,20 +101,20 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void Render(RenderContext render, long frame) {
-            SKPaint layerTransparencyPaint = null, clipPaint = null;
-            for (int i = this.Layers.Count - 1; i >= 0; i--) {
-                if (!(this.Layers[i] is VideoLayerModel layer) || !layer.IsActuallyVisible) {
+            SKPaint trackTransparencyPaint = null, clipPaint = null;
+            for (int i = this.Tracks.Count - 1; i >= 0; i--) {
+                if (!(this.Tracks[i] is VideoTrackModel track) || !track.IsActuallyVisible) {
                     continue;
                 }
 
-                List<ClipModel> clips = layer.Clips.Where(x => x.IntersectsFrameAt(frame)).ToList();
+                List<ClipModel> clips = track.Clips.Where(x => x.IntersectsFrameAt(frame)).ToList();
                 if (clips.Count <= 0) {
                     continue;
                 }
 
                 // SaveLayer requires a temporary drawing bitmap, which can slightly
                 // decrease performance, so only SaveLayer when absolutely necessary
-                int layerSaveCount = !Maths.Equals(layer.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, layer.Opacity, ref layerTransparencyPaint) : render.Canvas.Save();
+                int trackSaveCount = !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref trackTransparencyPaint) : render.Canvas.Save();
 
                 foreach (ClipModel clip in clips) {
                     int clipSaveCount;
@@ -144,16 +144,16 @@ namespace FramePFX.Core.Editor.Timeline {
                     }
                 }
 
-                render.Canvas.RestoreToCount(layerSaveCount);
-                if (layerTransparencyPaint != null) {
-                    layerTransparencyPaint.Dispose();
-                    layerTransparencyPaint = null;
+                render.Canvas.RestoreToCount(trackSaveCount);
+                if (trackTransparencyPaint != null) {
+                    trackTransparencyPaint.Dispose();
+                    trackTransparencyPaint = null;
                 }
             }
         }
 
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {
-            return Enumerable.Reverse(this.Layers).SelectMany(layer => layer.GetClipsAtFrame(frame));
+            return Enumerable.Reverse(this.Tracks).SelectMany(track => track.GetClipsAtFrame(frame));
         }
     }
 }

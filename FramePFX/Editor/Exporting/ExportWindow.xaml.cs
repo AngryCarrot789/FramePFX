@@ -1,4 +1,3 @@
-using System.Windows;
 using FramePFX.Views;
 
 namespace FramePFX.Editor.Exporting {

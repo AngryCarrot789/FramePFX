@@ -39,7 +39,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
         public double Opacity {
             get => this.Model.Opacity;
             set {
-                if (this.IsAutomationRefreshInProgress) {
+                if (this.IsAutomationRefreshInProgress || this.Model.IsAutomationChangeInProgress) {
                     Debugger.Break();
                     return;
                 }
@@ -89,7 +89,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                     return;
                 }
 
-                if (this.IsAutomationRefreshInProgress) {
+                if (this.IsAutomationRefreshInProgress || this.Model.IsAutomationChangeInProgress) {
                     Debugger.Break();
                     return;
                 }

@@ -185,8 +185,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
 
                     // is it even possible to hardware accelerate this?
                     // currently, this is reading pixels from GPU to main memory, then
-                    // sws_scale takes those raw pixels and converts to YUV (incorrectly because
-                    // all the colours are messed up)
+                    // sws_scale takes those raw pixels and converts to YUV
 
                     using (SKPixmap pixmap = surface.PeekPixels()) { // shouldn't really return null... right?
                         byte* data = (byte*) pixmap.GetPixels();

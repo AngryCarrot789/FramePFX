@@ -186,23 +186,36 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         private async Task CreateResourceAction(string type) {
-            ResourceItemViewModel item;
+            BaseResourceObjectViewModel resObj;
             switch (type) {
-                case nameof(ResourceColour): item = new ResourceColourViewModel(new ResourceColour()); break;
-                case nameof(ResourceImage):  item = new ResourceImageViewModel(new ResourceImage()); break;
-                case nameof(ResourceText):   item = new ResourceTextViewModel(new ResourceText()); break;
+                case nameof(ResourceColour): resObj = new ResourceColourViewModel(new ResourceColour()); break;
+                case nameof(ResourceImage):  resObj = new ResourceImageViewModel(new ResourceImage()); break;
+                case nameof(ResourceText):   resObj = new ResourceTextViewModel(new ResourceText()); break;
+                case nameof(ResourceGroup):  resObj = new ResourceGroupViewModel(new ResourceGroup()); break;
                 default:
                     await IoC.MessageDialogs.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
                     return;
             }
 
-            string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input resource ID", "Input a resource ID for the new resource:", $"My {type}", this.ResourceItemIdValidator);
-            if (string.IsNullOrWhiteSpace(id) || this.Model.EntryExists(id)) {
-                return;
-            }
+            if (resObj is ResourceItemViewModel item) {
+                string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input resource ID", "Input a resource ID for the new resource:", $"My {type}", this.ResourceItemIdValidator);
+                if (string.IsNullOrWhiteSpace(id) || this.Model.EntryExists(id)) {
+                    return;
+                }
 
-            this.Model.RegisterEntry(id, item.Model);
-            this.CurrentGroup.AddItem(item, true);
+                this.Model.RegisterEntry(id, item.Model);
+                this.CurrentGroup.AddItem(item, true);
+                using (ExceptionStack stack = new ExceptionStack(false)) {
+                    await item.LoadResource(null, stack);
+                    if (stack.TryGetException(out Exception exception)) {
+                        await IoC.MessageDialogs.ShowMessageExAsync("Exception", "An exception occurred while loading/enabling resource", exception.GetToString());
+                    }
+                }
+            }
+            else if (resObj is ResourceGroupViewModel group) {
+                await group.RenameSelfAction();
+                this.CurrentGroup.AddItem(group, true);
+            }
         }
 
         public async Task<string> SelectNewResourceId(string msg, string value = null) {
@@ -256,6 +269,10 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         public void Dispose() {
             this.Model.ClearEntries();
             this.Root.Dispose();
+        }
+
+        public async Task OfflineAllAsync() {
+            await this.Root.OfflineRecursiveAsync();
         }
     }
 }

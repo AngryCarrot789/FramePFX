@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using FramePFX.Core.Editor;
 using FramePFX.Views;
 
 namespace FramePFX.Editor.Project.EditorDialogs {

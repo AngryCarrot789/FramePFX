@@ -9,11 +9,10 @@ using System.Windows.Input;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
-using FramePFX.Utils;
 using Keyboard = System.Windows.Input.Keyboard;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public class TimelinePlayHeadControl : Control, IPlayHeadHandle {
+    public class TimelinePlayHeadControl : Control, IPlayHead {
         public static readonly DependencyProperty FrameIndexProperty =
             DependencyProperty.Register(
                 "FrameIndex",

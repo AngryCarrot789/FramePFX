@@ -146,7 +146,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             RBEDictionary dictionary = (RBEDictionary) rbe;
             ProjectModel projectModel = new ProjectModel();
             projectModel.ReadFromRBE(dictionary);
-            ProjectViewModel project = new ProjectViewModel(projectModel) {ProjectFilePath = result.Value[0]};
+            ProjectViewModel project = new ProjectViewModel(projectModel) {ProjectDirectory = result.Value[0]};
             #else
             RBEDictionary dictionary;
             try {
@@ -183,29 +183,35 @@ namespace FramePFX.Core.Editor.ViewModels {
                 this.ActiveProject = null;
             }
 
-            if (!await ResourceCheckerViewModel.LoadProjectResources(project, true)) {
-                #if DEBUG
-                project.Dispose();
-                #else
-                try {
-                    project.Dispose();
-                }
-                catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "...", e.GetToString());
-                }
-                #endif
-                return;
-            }
-
-            await this.SetProject(project);
+            await this.SetProject(project, true);
             this.ActiveProject.SetHasUnsavedChanges(false);
             project.HasSavedOnce = true;
         }
 
-        public async Task SetProject(ProjectViewModel project) {
+        public async Task SetProject(ProjectViewModel project, bool loadResources = false) {
             await this.Playback.OnProjectChanging(project);
             this.ActiveProject = project;
             await this.Playback.OnProjectChanged(project);
+
+            if (loadResources) {
+                if (!await ResourceCheckerViewModel.LoadProjectResources(project, true)) {
+                    #if !DEBUG
+                    project.Dispose();
+                    #else
+                    try {
+                        project.Dispose();
+                    }
+                    catch (Exception e) {
+                        await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "...", e.GetToString());
+                    }
+                    #endif
+
+                    await this.Playback.OnProjectChanging(null);
+                    this.ActiveProject = null;
+                    await this.Playback.OnProjectChanged(null);
+                    return;
+                }
+            }
         }
 
         public void Dispose() {
@@ -251,10 +257,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             if (this.ActiveProject == null) {
                 throw new Exception("No active project");
             }
-
-            // if (!this.ActiveProject.HasUnsavedChanges) {
-            //     return true;
-            // }
 
             bool? result = await IoC.MessageDialogs.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
             if (result == true) {

@@ -313,8 +313,6 @@
     <Compile Include="Editor\Timeline\Track\Clips\ClipType.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IAudioClip.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IClip.cs" />
-    <Compile Include="Editor\Timeline\Track\Clips\IClipHandle.cs" />
-    <Compile Include="Editor\Timeline\Track\ITrackHandle.cs" />
     <Compile Include="Editor\Timeline\Track\IndexMap.cs" />
     <Compile Include="Editor\Timeline\TimelineClipStyleSelector.cs" />
     <Compile Include="Editor\Timeline\TimelineTrackListItemTemplateSelector.cs" />

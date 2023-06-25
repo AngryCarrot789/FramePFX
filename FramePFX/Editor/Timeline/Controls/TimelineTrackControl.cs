@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
@@ -13,7 +12,7 @@ using FramePFX.Editor.Timeline.Track;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public abstract class TimelineTrackControl : MultiSelector, ITrackHandle {
+    public abstract class TimelineTrackControl : MultiSelector {
         /// <summary>
         /// The timeline that contains this track
         /// </summary>
@@ -34,12 +33,6 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected TimelineTrackControl() {
             this.CanSelectMultipleItems = true;
-            this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is TrackViewModel vm) {
-                    BaseViewModel.SetInternalData(vm, typeof(ITrackHandle), this);
-                }
-            };
-
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
             this.DragEnter += this.OnDragDropEnter;
@@ -47,8 +40,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e) {
-            if (e.Key == Key.System && e.OriginalSource is TimelineClipControl) {
+            if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt) && e.OriginalSource is TimelineClipControl) {
                 e.Handled = true;
+                return;
             }
 
             base.OnPreviewKeyDown(e);

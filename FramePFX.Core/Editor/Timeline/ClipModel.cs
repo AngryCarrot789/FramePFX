@@ -99,6 +99,8 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public AutomationData AutomationData { get; }
 
+        public AutomationEngine AutomationEngine => this.Track?.AutomationEngine;
+
         public bool IsAutomationChangeInProgress { get; set; }
 
         private long clipId = -1;

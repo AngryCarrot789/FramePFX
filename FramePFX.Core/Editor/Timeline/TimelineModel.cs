@@ -24,6 +24,8 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public AutomationData AutomationData { get; }
 
+        public AutomationEngine AutomationEngine => this.Project.AutomationEngine;
+
         public bool IsAutomationChangeInProgress { get; set; }
 
         // view model can access this

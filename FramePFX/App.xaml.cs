@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -25,7 +24,6 @@ using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
 using FramePFX.Views;
-using SkiaSharp;
 
 namespace FramePFX {
     /// <summary>
@@ -133,7 +131,7 @@ namespace FramePFX {
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
             #if DEBUG
-            await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
+            await editor.SetProject(new ProjectViewModel(CreateDemoProject()), true);
             #else
             await editor.SetProject(new ProjectViewModel(new ProjectModel()));
             #endif

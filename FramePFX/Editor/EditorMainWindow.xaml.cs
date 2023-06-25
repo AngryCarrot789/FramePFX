@@ -8,13 +8,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
@@ -28,7 +25,6 @@ using FramePFX.Themes;
 using FramePFX.Utils;
 using FramePFX.Views;
 using SkiaSharp;
-using SkiaSharp.Views.Desktop;
 using Time = FramePFX.Core.Utils.Time;
 
 namespace FramePFX.Editor {

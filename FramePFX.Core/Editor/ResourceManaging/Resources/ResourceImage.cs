@@ -48,7 +48,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             }
         }
 
-        public async Task LoadImageAsync(string file) {
+        public async Task LoadImageAsync(string file, bool setOnline = true) {
             SKBitmap loadedBitmap = await LoadBitmapAsync(file);
             if (this.bitmap != null || this.image != null) {
                 #if DEBUG
@@ -67,7 +67,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
             this.bitmap = loadedBitmap;
             this.image = await Task.Run(() => SKImage.FromBitmap(this.bitmap));
-            if (!this.IsOnline) {
+            if (setOnline && !this.IsOnline) {
                 this.IsOnline = true;
                 this.OnIsOnlineStateChanged();
             }

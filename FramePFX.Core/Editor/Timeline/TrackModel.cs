@@ -8,27 +8,47 @@ using FramePFX.Core.RBC;
 
 namespace FramePFX.Core.Editor.Timeline {
     /// <summary>
-    /// A model that represents a timeline track, which can contain clips
+    /// Base class for timeline tracks. A track simply contains clips, along with a few extra
+    /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
     /// </summary>
     public abstract class TrackModel : IAutomatable, IRBESerialisable {
+        /// <summary>
+        /// The timeline that created this track. Will never be null
+        /// </summary>
         public TimelineModel Timeline { get; }
 
+        /// <summary>
+        /// This track's clips (unordered)
+        /// </summary>
         public List<ClipModel> Clips { get; }
 
+        /// <summary>
+        /// This track's registry ID, used to create instances dynamically through the <see cref="TrackRegistry"/>
+        /// </summary>
         public string RegistryId => TrackRegistry.Instance.GetTypeIdForModel(this.GetType());
 
-        public long TimelinePlayhead => this.Timeline?.PlayHeadFrame ?? 0L;
+        /// <summary>
+        /// This track's owning timeline's play head position
+        /// </summary>
+        public long TimelinePlayhead => this.Timeline.PlayHeadFrame;
 
+        /// <summary>
+        /// A readable layer name
+        /// </summary>
         public string DisplayName { get; set; }
+
         public double MinHeight { get; set; }
         public double MaxHeight { get; set; }
         public double Height { get; set; }
+
         public string TrackColour { get; set; }
 
         /// <summary>
         /// This track's automation data
         /// </summary>
         public AutomationData AutomationData { get; }
+
+        public AutomationEngine AutomationEngine => this.Timeline.AutomationEngine;
 
         public bool IsAutomationChangeInProgress { get; set; }
 

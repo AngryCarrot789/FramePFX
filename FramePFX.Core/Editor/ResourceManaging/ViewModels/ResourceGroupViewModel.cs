@@ -223,5 +223,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.AddItem(resource, true);
             return Task.CompletedTask;
         }
+
+        public async Task OfflineRecursiveAsync() {
+            foreach (BaseResourceObjectViewModel resource in this.items) {
+                if (resource is ResourceItemViewModel item) {
+                    await item.SetOfflineAsync();
+                }
+                else if (resource is ResourceGroupViewModel group) {
+                    await group.OfflineRecursiveAsync();
+                }
+            }
+        }
     }
 }

@@ -14,40 +14,51 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public static ResourceContextGenerator Instance { get; } = new ResourceContextGenerator();
 
         public void Generate(List<IContextEntry> list, IDataContext context) {
-            if (context.TryGetContext(out ResourceItemViewModel item)) {
-                ObservableCollection<BaseResourceObjectViewModel> selected = item.Parent.SelectedItems;
+            if (context.TryGetContext(out BaseResourceObjectViewModel resItem)) {
+                ObservableCollection<BaseResourceObjectViewModel> selected = resItem.Parent.SelectedItems;
                 if (selected.Count > 0) {
                     if (selected.Count == 1) {
-                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.RenameItem", "Rename"));
+                        list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.RenameItem", "Rename"));
                         list.Add(SeparatorEntry.Instance);
                     }
 
-                    list.Add(new ActionContextEntry(item.Manager, "actions.resources.DeleteItems", "Delete"));
+                    list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.DeleteItems", "Delete"));
                     list.Add(SeparatorEntry.Instance);
 
-                    if (selected.Count == 1) {
-                        if (item.IsOnline == true) {
-                            list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, false));
+                    if (resItem is ResourceItemViewModel item) {
+                        if (selected.Count == 1) {
+                            if (item.IsOnline) {
+                                list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, false));
+                            }
+                            else {
+                                list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, true));
+                            }
                         }
                         else {
                             list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, true));
+                            list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, false));
                         }
                     }
-                    else {
-                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, true));
-                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, false));
-                    }
-
-                    return;
                 }
             }
 
-            if (context.TryGetContext(out ResourceManagerViewModel manager)) {
+            if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.manager) != null)) {
                 List<IContextEntry> newList = new List<IContextEntry>();
                 newList.Add(new CommandContextEntry("Text", manager.CreateResourceCommand, nameof(ResourceText)));
                 newList.Add(new CommandContextEntry("ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));
                 newList.Add(new CommandContextEntry("Image", manager.CreateResourceCommand, nameof(ResourceImage)));
-                list.Add(new GroupContextEntry("New...", newList));
+                newList.Add(SeparatorEntry.Instance);
+                newList.Add(new CommandContextEntry("Group", manager.CreateResourceCommand, nameof(ResourceGroup)));
+
+                if (list.Count > 0) {
+                    list.InsertRange(0, new List<IContextEntry> {
+                        new GroupContextEntry("New...", newList),
+                        SeparatorEntry.Instance
+                    });
+                }
+                else {
+                    list.Add(new GroupContextEntry("New...", newList));
+                }
             }
         }
     }

@@ -83,7 +83,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
 
             if (File.Exists(this.FilePath)) {
                 try {
-                    await this.Model.LoadImageAsync(this.FilePath);
+                    await this.Model.LoadImageAsync(this.FilePath, false);
                     return true;
                 }
                 catch {

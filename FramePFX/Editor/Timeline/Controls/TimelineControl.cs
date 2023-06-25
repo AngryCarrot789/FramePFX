@@ -14,7 +14,7 @@ using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public class TimelineControl : ItemsControl, ITimelineHandle {
+    public class TimelineControl : ItemsControl, IHasZoom {
         public static readonly DependencyProperty UnitZoomProperty =
             DependencyProperty.Register(
                 "UnitZoom",

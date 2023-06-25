@@ -12,11 +12,10 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
-using FramePFX.Editor.Timeline.Track.Clips;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public abstract class TimelineClipControl : Control, IClipHandle {
+    public abstract class TimelineClipControl : Control {
         private static readonly object LongZeroObject = 0L;
 
         public static readonly DependencyProperty IsSelectedProperty =

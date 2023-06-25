@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using FramePFX.Core;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
@@ -641,7 +640,7 @@ namespace FramePFX.Editor.Automation {
                         #if DEBUG
                         throw new Exception("Captured key frame not found in the backing list?");
                         #else
-                        AppLogger.WriteLine("Captured key frame not found in the backing list for mouse button up event");
+                        FramePFX.Core.AppLogger.WriteLine("Captured key frame not found in the backing list for mouse button up event");
                         #endif
                     }
                     else {

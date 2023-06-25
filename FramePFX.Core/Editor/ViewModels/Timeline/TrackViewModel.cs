@@ -288,8 +288,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 return;
             }
 
-            this.clips.Move(index, endIndex);
             this.Model.Clips.MoveItem(index, endIndex);
+            this.clips.Move(index, endIndex);
         }
 
         public abstract bool CanDropResource(ResourceItemViewModel resource);

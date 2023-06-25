@@ -1,5 +1,5 @@
 namespace FramePFX.Core.Editor {
-    public interface IPlayHeadHandle {
+    public interface IPlayHead {
         long PlayHeadFrame { get; set; }
     }
 }

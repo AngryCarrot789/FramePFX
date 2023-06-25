@@ -2,6 +2,9 @@ using FramePFX.Core.Views.Dialogs.FilePicking;
 
 namespace FramePFX.Core.Utils {
     public static class Filters {
+        public const string FrameFPXExtension = "fpx";
+        public const string FrameFPXExtensionDot = "." + FrameFPXExtension;
+
         public static readonly string ImageTypesAndAll =
             Filter.Of().
                    AddFilter("PNG File", "png").
@@ -11,7 +14,7 @@ namespace FramePFX.Core.Utils {
                    ToString();
 
         public static readonly string ProjectTypeAndAllFiles =
-            Filter.Of().AddFilter("FramePFX Project", "fpx").AddAllFiles().ToString();
+            Filter.Of().AddFilter("FramePFX Project", FrameFPXExtension).AddAllFiles().ToString();
 
         public static readonly string VideoFormatsAndAll =
             Filter.Of().

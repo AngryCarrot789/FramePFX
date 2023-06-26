@@ -59,3 +59,5 @@ Currently there's only a WPF implementation, but I hope to switch to avalonia at
 ## BUGS ono
 - Fixed the bug where dragging a clip across tracks crashes the app. However, importing certain video files can still crash (some sort of "found invalid data while decoding" error)
 
+## Licence
+Project is licenced under MIT. I'm not a laywer but, AFAIK, FFmpeg and FFmpeg.AutoGen being licenced primarily under GNU Lesser General Public License allows MIT to be used as long as the FFmpeg source code is not modified (which in this project, it isn't)

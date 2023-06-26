@@ -111,14 +111,14 @@ namespace FramePFX.Core.Automation.ViewModels {
             this.DeselectSequenceCommand.RaiseCanExecuteChanged(); // just in case
         }
 
-        public void OnValueChanged(AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
+        public void OnKeyFrameChanged(AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
             if (!ReferenceEquals(this, sequence.AutomationData)) {
                 throw new Exception("Invalid sequence; not owned by this instance");
             }
 
             AutomationEngineViewModel engine = this.Owner.AutomationEngine;
             if (engine != null) {
-                engine.OnKeyFrameValueChanged(this, sequence, keyFrame);
+                engine.OnKeyFrameChanged(this, sequence, keyFrame);
             }
         }
 

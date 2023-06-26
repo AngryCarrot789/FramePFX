@@ -99,17 +99,16 @@ namespace FramePFX.Editor.Automation {
                 typeof(AutomationSequenceEditor),
                 new PropertyMetadata(1d, (o, e) => ((AutomationSequenceEditor) o).InvalidKeyFrameDataAndRender()));
 
-
-        public static readonly DependencyProperty MinFrameProperty =
+        public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
-                "MinFrame",
+                "FrameBegin",
                 typeof(long),
                 typeof(AutomationSequenceEditor),
                 new PropertyMetadata(0L));
 
-        public static readonly DependencyProperty MaxFrameProperty =
+        public static readonly DependencyProperty FrameDurationProperty =
             DependencyProperty.Register(
-                "MaxFrame",
+                "FrameDuration",
                 typeof(long),
                 typeof(AutomationSequenceEditor),
                 new PropertyMetadata(10000L));
@@ -161,14 +160,14 @@ namespace FramePFX.Editor.Automation {
             set => this.SetValue(UnitZoomProperty, value);
         }
 
-        public long MinFrame {
-            get => (long) this.GetValue(MinFrameProperty);
-            set => this.SetValue(MinFrameProperty, value);
+        public long FrameBegin {
+            get => (long) this.GetValue(FrameBeginProperty);
+            set => this.SetValue(FrameBeginProperty, value);
         }
 
-        public long MaxFrame {
-            get => (long) this.GetValue(MaxFrameProperty);
-            set => this.SetValue(MaxFrameProperty, value);
+        public long FrameDuration {
+            get => (long) this.GetValue(FrameDurationProperty);
+            set => this.SetValue(FrameDurationProperty, value);
         }
 
         public bool IsPlacementPlaneEnabled {
@@ -725,8 +724,8 @@ namespace FramePFX.Editor.Automation {
             KeyFramePoint prev = this.captured.Prev;
             KeyFramePoint next = this.captured.Next;
 
-            long min = prev?.keyFrame.Timestamp ?? this.MinFrame;
-            long max = next?.keyFrame.Timestamp ?? (this.MaxFrame - 1);
+            long min = prev?.keyFrame.Timestamp ?? (this.FrameBegin);
+            long max = next?.keyFrame.Timestamp ?? (this.FrameBegin + this.FrameDuration - 1);
 
             if (this.isCaptureInitialised) {
                 this.lastMousePoint = mPos;
@@ -765,10 +764,10 @@ namespace FramePFX.Editor.Automation {
             }
 
             if (mode == DragMode.LineCurveAmount) {
-                double diff = mPos.Y - this.originMousePoint.Y;
-                double mapped = Maths.Map(60d - diff, -60d, 60d, -1d, 1d);
-                this.captured.keyFrame.CurveBendAmount = Maths.Clamp(mapped, -1d, 1d);
-                this.captured.InvalidateRenderData();
+                // double diff = mPos.Y - this.originMousePoint.Y;
+                // double mapped = Maths.Map(60d - diff, -60d, 60d, -1d, 1d);
+                // this.captured.keyFrame.CurveBendAmount = Maths.Clamp(mapped, -1d, 1d);
+                // this.captured.InvalidateRenderData();
             }
             else {
                 if (mode == DragMode.FullKeyFrame || mode == DragMode.HorizontalKeyFrame) {

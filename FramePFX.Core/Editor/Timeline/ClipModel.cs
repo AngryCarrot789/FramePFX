@@ -109,6 +109,8 @@ namespace FramePFX.Core.Editor.Timeline {
             this.AutomationData = new AutomationData(this);
         }
 
+        public long GetRelativeFrame(long frame) => frame - this.FrameBegin;
+
         /// <summary>
         /// Sets the given clip's track
         /// </summary>

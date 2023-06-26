@@ -37,6 +37,8 @@ namespace FramePFX.Core.Editor.Timeline {
             this.AutomationData = new AutomationData(this);
         }
 
+        long IAutomatable.GetRelativeFrame(long frame) => frame;
+
         public void WriteToRBE(RBEDictionary data) {
             data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);

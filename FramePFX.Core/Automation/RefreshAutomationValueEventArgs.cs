@@ -6,14 +6,19 @@ namespace FramePFX.Core.Automation {
         public readonly long Frame;
 
         /// <summary>
-        /// Whether or not this refresh was caused by the playback. When true (caused by playback), a render
-        /// should not be scheduled as the refresh was likely called just before the render happens
+        /// Whether or not a playback is in progress
         /// </summary>
-        public readonly bool IsPlaybackSource;
+        public readonly bool IsDuringPlayback;
 
-        public RefreshAutomationValueEventArgs(long frame, bool isPlaybackSource) {
+        /// <summary>
+        /// Whether or not this refresh was caused by the playback, and not the user moving a clip or the timeline
+        /// </summary>
+        public readonly bool IsPlaybackTick;
+
+        public RefreshAutomationValueEventArgs(long frame, bool isDuringPlayback, bool isPlaybackTick) {
             this.Frame = frame;
-            this.IsPlaybackSource = isPlaybackSource;
+            this.IsDuringPlayback = isDuringPlayback;
+            this.IsPlaybackTick = isPlaybackTick;
         }
     }
 }

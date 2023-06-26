@@ -255,8 +255,8 @@
                             <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
                         <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
-                            <DockPanel Margin="5,0">
-                                <ToggleButton DockPanel.Dock="Right" Width="30" Content="Rec" IsChecked="{Binding Project.Editor.IsRecordingKeyFrames, Mode=TwoWay}" Margin="0,3" ToolTip="Record key frames. Modifying any automatable property will result in a new key frame being added"/>
+                            <DockPanel Margin="8,0,0,0">
+                                <ToggleButton DockPanel.Dock="Right" Width="30" Content="Rec" IsChecked="{Binding Project.Editor.IsRecordingKeyFrames, Mode=TwoWay}" Margin="0,3,3,3" ToolTip="Record key frames. Modifying any automatable property will result in a new key frame being added"/>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Medium"/>
                                     <TextBlock FontSize="15" Text="/" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,-2,3,0"/>

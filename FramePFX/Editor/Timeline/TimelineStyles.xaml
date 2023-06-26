@@ -111,8 +111,7 @@
                                                      Sequence="{Binding ActiveSequence}"
                                                      IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
                                                      UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineControl}}, Path=UnitZoom, FallbackValue=0}"
-                                                     MinFrame="0"
-                                                     MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineClipControl}}, Path=FrameDuration}"
+                                                     FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineClipControl}}, Path=FrameDuration}"
                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -166,7 +165,7 @@
                                                          Sequence="{Binding ActiveSequence}"
                                                          IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
                                                          UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
-                                                         MaxFrame="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
+                                                         FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
                                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -503,6 +502,7 @@
     <aa:AutomationActivityBrushConverter x:Key="AutomationActivityBrushConverter"/>
 
     <Style TargetType="{x:Type cc:AutomationComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+        <Setter Property="StaysOpenOnEdit" Value="True"/>
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">

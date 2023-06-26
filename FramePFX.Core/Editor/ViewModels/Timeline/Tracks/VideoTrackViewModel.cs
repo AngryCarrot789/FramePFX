@@ -239,7 +239,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
         protected override void OnAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
             base.OnAutomationPropertyUpdated(propertyName, e);
             VideoEditorViewModel editor; // slight performance helper
-            if (!e.IsPlaybackSource && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
+            if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.DoRender(true);
             }
         }

@@ -77,8 +77,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.RaisePropertyChanged(nameof(this.IsAutomationInUse));
         }
 
-        public void DoRefreshValue(AutomationEngineViewModel engine, long frame, bool isPlaybackSource) {
-            this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(frame, isPlaybackSource));
+        public void DoRefreshValue(AutomationEngineViewModel engine, long frame, bool isDuringPlayback, bool isPlaybackTick) {
+            this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(frame, isDuringPlayback, isPlaybackTick));
         }
 
         private void AddInternalUnsafe(int index, KeyFrameViewModel keyFrame) {
@@ -251,28 +251,28 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         private void OnKeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             KeyFrameViewModel keyFrame = (KeyFrameViewModel) sender;
-            if (e.PropertyName == KeyFrameViewModel.GetPropertyName(keyFrame)) {
-                this.RaiseDataChanged(keyFrame);
+            if (e.PropertyName == KeyFrameViewModel.GetPropertyName(keyFrame) || e.PropertyName == nameof(KeyFrameViewModel.Timestamp)) {
+                this.RaiseKeyFrameChanged(keyFrame);
             }
         }
 
         /// <summary>
-        /// Invokes the <see cref="AutomationDataViewModel.OnValueChanged"/> method
+        /// Invokes the <see cref="AutomationDataViewModel.OnKeyFrameChanged"/> method
         /// </summary>
         /// <param name="keyFrame">The key frame whose value has been modified</param>
-        public void RaiseDataChanged(KeyFrameViewModel keyFrame) {
-            this.AutomationData.OnValueChanged(this, keyFrame);
+        public void RaiseKeyFrameChanged(KeyFrameViewModel keyFrame) {
+            this.AutomationData.OnKeyFrameChanged(this, keyFrame);
         }
 
         /// <summary>
-        /// Invokes <see cref="RaiseDataChanged"/>, passing the override key frame.
+        /// Invokes <see cref="RaiseKeyFrameChanged"/>, passing the override key frame.
         /// <para>
         /// By default, the override key frame's value changed events are
         /// not listened to, so a notification must be manually fired
         /// </para>
         /// </summary>
         public void RaiseOverrideValueChanged() {
-            this.AutomationData.OnValueChanged(this, this.OverrideKeyFrame);
+            this.AutomationData.OnKeyFrameChanged(this, this.OverrideKeyFrame);
         }
     }
 }

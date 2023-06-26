@@ -60,17 +60,13 @@ namespace FramePFX.Core.Automation {
             }
         }
 
-        public void UpdateClip(ClipModel clip, long frame) {
+        public void UpdateClip(ClipModel clip, long absoluteFrame) {
             clip.IsAutomationChangeInProgress = true;
             try {
-                long offset = frame - clip.FrameBegin;
-                if (offset < 0 || frame >= clip.FrameEndIndex) {
-                    throw new Exception($"Clip it not within the range of the given frame: {clip.FrameSpan} does not contain {frame}");
-                }
-
+                long relativeFrame = ((IAutomatable) clip).GetRelativeFrame(absoluteFrame);
                 foreach (AutomationSequence sequence in clip.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoUpdateValue(this, offset);
+                        sequence.DoUpdateValue(this, relativeFrame);
                     }
                 }
             }

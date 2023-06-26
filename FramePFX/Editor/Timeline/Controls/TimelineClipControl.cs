@@ -472,8 +472,9 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         private void OnFrameDurationChanged(long oldDuration, long newDuration) {
-            if (this.isUpdatingFrameDuration)
+            if (this.isUpdatingFrameDuration) {
                 return;
+            }
 
             TimelineUtils.ValidateNonNegative(newDuration);
             if (oldDuration != newDuration) {

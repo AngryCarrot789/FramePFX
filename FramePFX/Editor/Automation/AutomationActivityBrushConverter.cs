@@ -13,14 +13,14 @@ namespace FramePFX.Editor.Automation {
         public Brush InactiveBrush { get; set; } = Brushes.DarkGray;
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-            if (values == null || values.Length != 2) {
+            if (values == null || values.Length != 2 || values[0] == DependencyProperty.UnsetValue || values[1] == DependencyProperty.UnsetValue) {
                 return DependencyProperty.UnsetValue;
             }
 
             bool isInUse = (bool) values[0];
             bool selected = (bool) values[1];
             if (isInUse) {
-                return selected ? this.ActiveBrush : this.ForcedActive;
+                return this.ActiveBrush;//selected ? this.ActiveBrush : this.ForcedActive;
             }
             else {
                 return this.InactiveBrush;

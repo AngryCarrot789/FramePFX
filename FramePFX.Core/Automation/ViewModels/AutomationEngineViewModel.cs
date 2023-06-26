@@ -9,6 +9,8 @@ namespace FramePFX.Core.Automation.ViewModels {
 
         public ProjectViewModel Project { get; }
 
+        public bool IsPlayback => this.Project.Editor?.Playback.IsPlaying ?? false;
+
         public AutomationEngineViewModel(ProjectViewModel project, AutomationEngine model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -25,12 +27,12 @@ namespace FramePFX.Core.Automation.ViewModels {
             }
         }
 
-        public void RefreshTimeline(TimelineViewModel timeline, long frame) {
+        private void RefreshTimeline(TimelineViewModel timeline, long frame) {
             timeline.IsAutomationChangeInProgress = true;
             try {
                 foreach (AutomationSequenceViewModel sequence in timeline.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoRefreshValue(this, frame, true);
+                        sequence.DoRefreshValue(this, frame, true, true);
                     }
                 }
             }
@@ -43,12 +45,12 @@ namespace FramePFX.Core.Automation.ViewModels {
             }
         }
 
-        public void RefreshTrack(TrackViewModel track, long frame) {
+        private void RefreshTrack(TrackViewModel track, long frame) {
             track.IsAutomationRefreshInProgress = true;
             try {
                 foreach (AutomationSequenceViewModel sequence in track.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoRefreshValue(this, frame, true);
+                        sequence.DoRefreshValue(this, frame, true, true);
                     }
                 }
             }
@@ -63,17 +65,13 @@ namespace FramePFX.Core.Automation.ViewModels {
             }
         }
 
-        public void RefreshClip(ClipViewModel clip, long frame) {
+        private void RefreshClip(ClipViewModel clip, long absoluteFrame) {
             clip.IsAutomationRefreshInProgress = true;
             try {
-                long offset = frame - clip.FrameBegin;
-                if (offset < 0 || frame >= clip.FrameEndIndex) {
-                    throw new Exception($"Clip it not within the range of the given frame: {clip.FrameSpan} does not contain {frame}");
-                }
-
+                long relativeFrame = ((IAutomatable) clip.Model).GetRelativeFrame(absoluteFrame);
                 foreach (AutomationSequenceViewModel sequence in clip.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoRefreshValue(this, offset, true);
+                        sequence.DoRefreshValue(this, relativeFrame, true, true);
                     }
                 }
             }
@@ -83,15 +81,15 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void OnOverrideStateChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
-            long frame = this.Project.Timeline.PlayHeadFrame;
+            long frame = data.Owner.AutomationModel.GetRelativeFrame(this.Project.Timeline.PlayHeadFrame);
             sequence.Model.DoUpdateValue(this.Model, frame);
-            sequence.DoRefreshValue(this, frame, false);
+            sequence.DoRefreshValue(this, frame, this.IsPlayback, false);
         }
 
-        public void OnKeyFrameValueChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
-            long frame = this.Project.Timeline.PlayHeadFrame;
+        public void OnKeyFrameChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
+            long frame = data.Owner.AutomationModel.GetRelativeFrame(this.Project.Timeline.PlayHeadFrame);
             sequence.Model.DoUpdateValue(this.Model, frame);
-            sequence.DoRefreshValue(this, frame, false);
+            sequence.DoRefreshValue(this, frame, this.IsPlayback, false);
         }
     }
 }

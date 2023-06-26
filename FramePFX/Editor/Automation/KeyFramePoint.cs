@@ -91,27 +91,27 @@ namespace FramePFX.Editor.Automation {
             Point p1 = this.GetLocation();
             Point p2 = AutomationSequenceEditor.ClampRightSide(ref drawing_area, target.GetLocation());
 
-            long timeA = this.keyFrame.Timestamp;
-            long timeB = target.keyFrame.Timestamp;
-            if (this.geometry == null) {
-                const int segments = 40;
-                this.geometry = new StreamGeometry();
-                using (StreamGeometryContext geometryContext = this.geometry.Open()) {
-                    geometryContext.BeginFigure(p1, false, false);
-                    for (int i = 1; i <= segments; i++) {
-                        float t = i / (float) segments;
-                        long currentTime = (long) Math.Round(timeA + (timeB - timeA) * t);
-                        double blend = KeyFrame.GetInterpolationMultiplier(currentTime, timeA, timeB, this.keyFrame.CurveBendAmount);
-                        double val = (blend * (p2.Y - p1.Y)) + p1.Y;
-                        Point point = new Point(p1.X + t * (p2.X - p1.X), val);
-                        geometryContext.LineTo(point, true, true);
-                    }
-                }
-            }
+            // long timeA = this.keyFrame.Timestamp;
+            // long timeB = target.keyFrame.Timestamp;
+            // if (this.geometry == null) {
+            //     const int segments = 40;
+            //     this.geometry = new StreamGeometry();
+            //     using (StreamGeometryContext geometryContext = this.geometry.Open()) {
+            //         geometryContext.BeginFigure(p1, false, false);
+            //         for (int i = 1; i <= segments; i++) {
+            //             float t = i / (float) segments;
+            //             long currentTime = (long) Math.Round(timeA + (timeB - timeA) * t);
+            //             double blend = KeyFrame.GetInterpolationMultiplier(currentTime, timeA, timeB, this.keyFrame.CurveBendAmount);
+            //             double val = (blend * (p2.Y - p1.Y)) + p1.Y;
+            //             Point point = new Point(p1.X + t * (p2.X - p1.X), val);
+            //             geometryContext.LineTo(point, true, true);
+            //         }
+            //     }
+            // }
 
             if (AutomationSequenceEditor.RectContains(ref drawing_area, ref p1) || AutomationSequenceEditor.RectContains(ref drawing_area, ref p2)) {
-                // dc.DrawLine(this.editor.LineTransparentPen, p1, p2);
-                dc.DrawGeometry(null, this.editor.LineTransparentPen, this.geometry);
+                dc.DrawLine(this.editor.LineTransparentPen, p1, p2);
+                // dc.DrawGeometry(null, this.editor.LineTransparentPen, this.geometry);
                 Pen pen;
                 if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail) {
                     pen = this.editor.IsOverrideEnabled ? this.editor.LineOverridePen : (this.LastLineHitType != LineHitType.None ? this.editor.LineMouseOverPen : this.editor.LinePen);
@@ -120,8 +120,8 @@ namespace FramePFX.Editor.Automation {
                     pen = this.editor.IsOverrideEnabled ? this.editor.LineOverridePen : this.editor.LinePen;
                 }
 
-                // dc.DrawLine(pen, p1, p2);
-                dc.DrawGeometry(null, pen, this.geometry);
+                dc.DrawLine(pen, p1, p2);
+                // dc.DrawGeometry(null, pen, this.geometry);
             }
         }
 

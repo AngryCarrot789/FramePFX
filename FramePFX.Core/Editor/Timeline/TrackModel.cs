@@ -62,6 +62,8 @@ namespace FramePFX.Core.Editor.Timeline {
             this.AutomationData = new AutomationData(this);
         }
 
+        long IAutomatable.GetRelativeFrame(long frame) => frame;
+
         public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {
             return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
         }

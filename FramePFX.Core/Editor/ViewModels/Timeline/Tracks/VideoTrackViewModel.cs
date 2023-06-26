@@ -75,9 +75,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                 }
                 else {
                     this.AutomationData[VideoTrackModel.OpacityKey].GetOverride().SetDoubleValue(value);
-                    this.Model.Opacity = value;
-                    this.RaisePropertyChanged();
-                    this.Timeline.DoRender(true);
+                    this.AutomationData[VideoTrackModel.OpacityKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -104,9 +102,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                 }
                 else {
                     this.AutomationData[VideoTrackModel.IsVisibleKey].GetOverride().SetBooleanValue(value);
-                    this.Model.IsVisible = value;
-                    this.RaisePropertyChanged();
-                    this.Timeline.DoRender(true);
+                    this.AutomationData[VideoTrackModel.IsVisibleKey].RaiseOverrideValueChanged();
                 }
             }
         }

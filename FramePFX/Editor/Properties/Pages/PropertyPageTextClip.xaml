@@ -13,7 +13,7 @@
         <CheckBox IsChecked="{Binding UseCustomText}" Content="Override Resource Text" ToolTip="By default, all clips have their own text. However, resources can store text to share across clips. Disabling this option makes this clip reference the resource's text"/>
         <StackPanel Orientation="Horizontal">
             <TextBlock Padding="5" Text="Text:" HorizontalAlignment="Left"/>
-            <dragger:NumberDragger Margin="2,2,0,2" Minimum="0" Maximum="4000" PreviewRoundedPlaces="1" Value="{Binding FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="1"/>
+            <dragger:NumberDragger Margin="2,2,0,2" Minimum="0" Maximum="4000" RoundedPlaces="1" Value="{Binding FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="1"/>
             <TextBox Margin="2,2,0,2" Width="100" VerticalContentAlignment="Center">
                 <TextBox.Text>
                     <Binding Path="FontFamily" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">

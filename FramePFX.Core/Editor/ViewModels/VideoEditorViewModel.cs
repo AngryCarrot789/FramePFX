@@ -123,11 +123,11 @@ namespace FramePFX.Core.Editor.ViewModels {
 
             ProjectViewModel project = new ProjectViewModel(new ProjectModel());
             project.Settings.Resolution = new Resolution(1280, 720);
-            if (this.activeProject != null) {
+            if (this.ActiveProject != null) {
                 await this.CloseProjectAction();
             }
 
-            await this.SetProject(project);
+            await this.SetProject(project, true);
             this.ActiveProject.SetHasUnsavedChanges(false);
         }
 
@@ -194,6 +194,10 @@ namespace FramePFX.Core.Editor.ViewModels {
             await this.Playback.OnProjectChanged(project);
 
             if (loadResources) {
+                if (project == null) {
+                    throw new Exception("Cannot load resources for null project");
+                }
+
                 if (!await ResourceCheckerViewModel.LoadProjectResources(project, true)) {
                     #if !DEBUG
                     project.Dispose();

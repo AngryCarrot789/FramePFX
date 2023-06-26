@@ -9,7 +9,7 @@
                     xmlns:timeline="clr-namespace:FramePFX.Editor.Timeline"
                     xmlns:tm="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
                     xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
-                    xmlns:converters="clr-namespace:FramePFX.Converters"
+                    xmlns:ccc="clr-namespace:FramePFX.Converters"
                     xmlns:shortcuts="clr-namespace:FramePFX.Shortcuts"
                     xmlns:rulerwpf="clr-namespace:FramePFX.Controls.xclemence.RulerWPF"
                     xmlns:editor="clr-namespace:FramePFX.Editor"
@@ -19,6 +19,8 @@
                     xmlns:context="clr-namespace:FramePFX.Core.Editor.Timeline.Context;assembly=FramePFX.Core"
                     xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core"
                     xmlns:tracks="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Tracks;assembly=FramePFX.Core"
+                    xmlns:actions="clr-namespace:FramePFX.Core.Editor.Actions;assembly=FramePFX.Core"
+                    xmlns:contexts="clr-namespace:FramePFX.Core.Editor.Contexts;assembly=FramePFX.Core"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -44,7 +46,7 @@
         </Setter>
     </Style>
 
-    <converters:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
+    <ccc:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
 
     <!-- d:DataContext="{d:DesignInstance tm:ClipViewModel}" -->
 
@@ -74,7 +76,7 @@
         <Setter Property="MinHeight" Value="{Binding Track.MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="MaxHeight" Value="{Binding Track.MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="Height" Value="{Binding Track.Height, UpdateSourceTrigger=PropertyChanged}"/>
-        <Setter Property="acs:AdvancedContextMenu.ContextGenerator" Value="{x:Static context:ClipContextGenerator.Instance}"/>
+        <Setter Property="acs:AdvancedContextMenu.ContextGenerator" Value="{x:Static contexts:ClipContextGenerator.Instance}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type cc:TimelineClipControl}">
@@ -386,7 +388,7 @@
                                       Padding="{TemplateBinding Padding}"
                                       HorizontalScrollBarVisibility="Visible"
                                       CanContentScroll="False"
-                                      converters:VerticalScrollBinder.BindGroup="TimelineScrollGroup"
+                                      ccc:VerticalScrollBinder.BindGroup="TimelineScrollGroup"
                                       Style="{StaticResource TimelineScrollViewerStyle}">
                             <!-- Handle RequestBringIntoView in the grid because there is no preview version of the event -->
                             <!-- Handling the event will stop the ScrollViewer scrolling to offscreen values -->
@@ -464,20 +466,34 @@
         </timeline:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
         <timeline:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
             <DataTemplate DataType="{x:Type tracks:AudioTrackViewModel}">
-                <Grid Margin="4,0">
-                    <DockPanel>
-                        <DockPanel DockPanel.Dock="Top" Height="20">
+                                <Grid Margin="4,0">
+                    <DockPanel SnapsToDevicePixels="True">
+                        <DockPanel DockPanel.Dock="Top" Height="17">
                             <TextBlock Text="{Binding DisplayName}" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" DockPanel.Dock="Right"/>
                             <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Left" Orientation="Horizontal" Margin="0,0,3,0">
-                                <ToggleButton Content="M" ToolTip="Toggle muted state" Width="20" IsChecked="{Binding IsMuted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="17" IsChecked="{Binding IsMuted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0"/>
                             </StackPanel>
                         </DockPanel>
-                        <Grid Background="Transparent" Margin="0,2,0,0">
+                        <DockPanel Background="Transparent" Margin="0,2,0,0">
                             <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
-                                             TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
-                                             Style="{StaticResource AbletonNumberDraggerStyle}"
-                                             HorizontalAlignment="Right" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"/>
-                        </Grid>
+                                                   DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static ccc:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
+                                                   TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
+                                                   Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
+                                                   HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
+                                                   ap:HistoryHelper.DragId="{x:Static tracks:VideoTrackViewModel.OpacityHistoryKey}"/>
+                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
+                                <Button DockPanel.Dock="Right" Width="18" Content="O" ToolTip="Disables the current override, or all overrides"
+                                        Command="{Binding ToggleOverrideCommand, Mode=OneTime}" BorderThickness="0"
+                                        Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
+                                <Border Width="3"/>
+                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-"
+                                        ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"
+                                        Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
+                                <cc:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
+                                                       SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
+                                                       DockPanel.Dock="Right" SnapsToDevicePixels="True" MinWidth="40"/>
+                            </DockPanel>
+                        </DockPanel>
                     </DockPanel>
                 </Grid>
             </DataTemplate>

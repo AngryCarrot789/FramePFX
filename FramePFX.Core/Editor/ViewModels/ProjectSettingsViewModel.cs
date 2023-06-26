@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels {
@@ -25,6 +26,24 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
+        public ObservableCollection<string> ChannelFormats { get; }
+
+        public string ChannelFormat {
+            get => this.Model.ChannelFormat;
+            set {
+                this.Model.ChannelFormat = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public int SampleRate {
+            get => this.Model.SampleRate;
+            set {
+                this.Model.SampleRate = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         public int Width => this.Model.Resolution.Width;
         public int Height => this.Model.Resolution.Height;
 
@@ -32,6 +51,9 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public ProjectSettingsViewModel(ProjectSettingsModel model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            this.ChannelFormats = new ObservableCollection<string>() {
+                "Stereo"
+            };
         }
     }
 }

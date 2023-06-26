@@ -12,6 +12,7 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timeline.AudioClips;
 using FramePFX.Core.Editor.Timeline.Tracks;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
@@ -131,9 +132,9 @@ namespace FramePFX {
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
             #if DEBUG
-            await editor.SetProject(new ProjectViewModel(CreateDemoProject()), true);
+            await editor.SetProject(new ProjectViewModel(CreateDebugProject()), true);
             #else
-            await editor.SetProject(new ProjectViewModel(new ProjectModel()));
+            await editor.SetProject(new ProjectViewModel(CreateDemoProject()), true);
             #endif
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.ActiveProject.AutomationEngine.TickAndRefreshProject(false);
@@ -228,6 +229,107 @@ namespace FramePFX {
                     DisplayName = "Empty track"
                 };
                 project.Timeline.AddTrack(track1);
+            }
+
+            return project;
+        }
+
+         public static ProjectModel CreateDebugProject() {
+            // Debug project - test a lot of features and make sure they work
+            ProjectModel project = new ProjectModel();
+            project.Settings.Resolution = new Resolution(1920, 1080);
+
+            {
+                ResourceManager manager = project.ResourceManager;
+                manager.RegisterEntry("colour_red", manager.RootGroup.Add(new ResourceColour(220, 25, 25)));
+                manager.RegisterEntry("colour_green", manager.RootGroup.Add(new ResourceColour(25, 220, 25)));
+                manager.RegisterEntry("colour_blue", manager.RootGroup.Add(new ResourceColour(25, 25, 220)));
+
+                ResourceGroup group = new ResourceGroup("Extra Colours");
+                manager.RootGroup.AddItemToList(group);
+                manager.RegisterEntry("white colour", group.Add(new ResourceColour(220, 220, 220)));
+                manager.RegisterEntry("idek", group.Add(new ResourceColour(50, 100, 220)));
+            }
+
+            {
+                VideoTrackModel track = new VideoTrackModel(project.Timeline) {
+                    DisplayName = "Track 1 with stuff"
+                };
+                project.Timeline.AddTrack(track);
+
+                track.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                track.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                track.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                track.AutomationData.ActiveKeyFullId = VideoTrackModel.OpacityKey.FullId;
+
+                ShapeClipModel clip1 = new ShapeClipModel {
+                    Width = 200, Height = 200,
+                    FrameSpan = new FrameSpan(0, 120),
+                    DisplayName = "Clip colour_red"
+                };
+
+                clip1.MediaPosition = new Vector2(0, 0);
+                clip1.SetTargetResourceId("idek");
+                track.AddClip(clip1);
+
+                ShapeClipModel clip2 = new ShapeClipModel {
+                    Width = 200, Height = 200,
+                    FrameSpan = new FrameSpan(150, 30),
+                    DisplayName = "Clip colour_green"
+                };
+                clip2.MediaPosition = new Vector2(200, 200);
+                clip2.SetTargetResourceId("colour_green");
+
+                track.AddClip(clip2);
+            }
+            {
+                VideoTrackModel track = new VideoTrackModel(project.Timeline) {
+                    DisplayName = "Track 2"
+                };
+                project.Timeline.AddTrack(track);
+
+                ShapeClipModel clip1 = new ShapeClipModel {
+                    Width = 400, Height = 400,
+                    FrameSpan = new FrameSpan(300, 90),
+                    DisplayName = "Clip colour_blue"
+                };
+
+                clip1.MediaPosition = new Vector2(200, 200);
+                clip1.SetTargetResourceId("colour_blue");
+                track.AddClip(clip1);
+                ShapeClipModel clip2 = new ShapeClipModel {
+                    Width = 100, Height = 1000,
+                    FrameSpan = new FrameSpan(15, 130),
+                    DisplayName = "Clip colour_green"
+                };
+
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip2.AutomationData.ActiveKeyFullId = VideoClipModel.MediaPositionKey.FullId;
+
+                clip2.MediaPosition = new Vector2(400, 400);
+                clip2.SetTargetResourceId("colour_green");
+                track.AddClip(clip2);
+            }
+            {
+                VideoTrackModel track = new VideoTrackModel(project.Timeline) {
+                    DisplayName = "Empty track"
+                };
+                project.Timeline.AddTrack(track);
+            }
+            {
+                AudioTrackModel track = new AudioTrackModel(project.Timeline) {
+                    DisplayName = "Audio Track 1"
+                };
+                project.Timeline.AddTrack(track);
+                SinewaveClipModel clip = new SinewaveClipModel() {
+                    FrameSpan = new FrameSpan(300, 90),
+                    DisplayName = "Clip Sine"
+                };
+
+                track.AddClip(clip);
             }
 
             return project;

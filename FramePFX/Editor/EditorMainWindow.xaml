@@ -32,7 +32,7 @@
             Style="{StaticResource CustomWindowStyle}"
             Background="{DynamicResource WindowBackground}"
             BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
-            s:UIFocusGroup.IsGlobalShortcutFocusTarget="True"
+            s:UIFocusGroup.IsShortcutInputSource="True"
             s:UIFocusGroup.FocusGroupPath="Application/Editor">
     <Window.Resources>
         <SolidColorBrush x:Key="WindowBackground" Color="{DynamicResource AColour.Tone2.Background.Static}"/>

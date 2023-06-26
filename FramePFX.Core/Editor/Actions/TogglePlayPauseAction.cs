@@ -1,18 +1,16 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Actions;
-using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.Editor.Actions {
-    [ActionRegistration("actions.project.Open")]
-    public class OpenProjectAction : EditorAction {
+    [ActionRegistration("actions.editor.timeline.TogglePlayPause")]
+    public class TogglePlayPauseAction : EditorAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             if (!GetVideoEditor(e.DataContext, out VideoEditorViewModel editor)) {
                 return false;
             }
 
-            await editor.OpenProjectAction();
+            await editor.Playback.TogglePlayAction();
             return true;
         }
     }

@@ -14,5 +14,7 @@ namespace FramePFX.Core.Editor.Timeline.AudioClips {
             clip.Volume = this.Volume;
             clip.IsMuted = this.IsMuted;
         }
+
+
     }
 }

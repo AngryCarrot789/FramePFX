@@ -1,9 +1,7 @@
 using System;
 using System.IO;
 using System.Security;
-using System.Text;
 using System.Threading.Tasks;
-using FFMpegCore.Enums;
 using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;

@@ -70,7 +70,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 bool result = false;
                 List<GroupedShortcut> instantActivate = this.GetInstantActivationShortcuts();
                 foreach (GroupedShortcut s in instantActivate) {
-                    result |= await this.OnShortcutActivated(s);
+                    result |= await this.ActivateShortcut(s);
                 }
 
                 if (this.shortcutList.Count < 1) {
@@ -174,7 +174,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 bool result = false;
                 List<GroupedShortcut> instantActivate = this.GetInstantActivationShortcuts();
                 foreach (GroupedShortcut s in instantActivate) {
-                    result |= await this.OnShortcutActivated(s);
+                    result |= await this.ActivateShortcut(s);
                 }
 
                 if (this.shortcutList.Count < 1) {
@@ -337,20 +337,20 @@ namespace FramePFX.Core.Shortcuts.Managing {
         }
 
         /// <summary>
-        /// Called when a shortcut usage was completed. By default, this calls <see cref="OnShortcutActivated"/> to activate the shortcut
+        /// Called when a shortcut usage was completed. By default, this calls <see cref="ActivateShortcut"/> to activate the shortcut
         /// </summary>
         /// <param name="usage">The usage that was completed</param>
         /// <param name="shortcut">The managed shortcut that created the usage</param>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
         public virtual Task<bool> OnSecondShortcutUsageCompleted(IShortcutUsage usage, GroupedShortcut shortcut) {
-            return this.OnShortcutActivated(shortcut);
+            return this.ActivateShortcut(shortcut);
         }
 
         /// <summary>
         /// Called when a shortcut wants to be activated (either the usage chain was complete, or the primary input was pressed and there were no secondary inputs)
         /// </summary>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-        public virtual async Task<bool> OnShortcutActivated(GroupedShortcut shortcut) {
+        public virtual async Task<bool> ActivateShortcut(GroupedShortcut shortcut) {
             IDataContext context = this.CurrentDataContext;
             if (context == null) {
                 return false;

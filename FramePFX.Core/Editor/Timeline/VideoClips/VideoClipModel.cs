@@ -57,6 +57,11 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             this.AutomationData.AssignKey(OpacityKey, (s, f) => this.Opacity = s.GetDoubleValue(f));
         }
 
+        /// <summary>
+        /// Signals the video editor associated with this clip to render the current frame again. Optionally allows the
+        /// re-render to be scheduled, making it happen at some point in the very near future
+        /// </summary>
+        /// <param name="schedule">Schedule for the future and not in the current call</param>
         public virtual void InvalidateRender(bool schedule = true) {
             this.RenderInvalidated?.Invoke(this, schedule);
         }

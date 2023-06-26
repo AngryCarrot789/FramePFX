@@ -22,9 +22,11 @@ namespace FramePFX.Core.Shortcuts.Inputs {
         /// The number of times the mouse was clicked during this stroke. This number is usually calculated
         /// by the operating system per mouse input within a certain interval time between inputs
         /// <para>
-        /// This means that,
-        /// for example, in order for this instance to contain a <see cref="ClickCount"/> of 3, 3 mouse inputs must
-        /// have occurred previously within a certain time frame (typically less than 500ms per input)
+        /// This means that, for example, in order for this instance to contain a <see cref="ClickCount"/> of 3,
+        /// 3 mouse inputs must have occurred previously within a certain time frame (typically less than 500ms per input)
+        /// </para>
+        /// <para>
+        /// Set to -1 to disable
         /// </para>
         /// </summary>
         public int ClickCount { get; }

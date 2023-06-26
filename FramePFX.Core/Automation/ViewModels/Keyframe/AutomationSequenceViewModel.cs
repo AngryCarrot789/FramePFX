@@ -56,7 +56,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.OverrideKeyFrame.OwnerSequence = this;
             this.keyFrames = new ObservableCollection<KeyFrameViewModel>();
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
-            this.keyFramePropertyChangedHandler = this.KeyFrameOnPropertyChanged;
+            this.keyFramePropertyChangedHandler = this.OnKeyFrameOnPropertyChanged;
             foreach (KeyFrame frame in model.KeyFrames) {
                 this.AddInternalUnsafe(this.keyFrames.Count, KeyFrameViewModel.NewInstance(frame));
             }
@@ -229,14 +229,32 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             return keyFrame;
         }
 
-        private void KeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+        private void OnKeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             // Can't use nameof(KVM.Value) because of duplicated switch cases.
-            // Must be careful if ever refactoring the value properties
             switch (e.PropertyName) {
                 case "Value":
-                    this.AutomationData.OnValueChanged(this, (KeyFrameViewModel) sender);
+                    this.RaiseDataChanged((KeyFrameViewModel) sender);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Invokes the <see cref="AutomationDataViewModel.OnValueChanged"/> method
+        /// </summary>
+        /// <param name="keyFrame">The key frame whose value has been modified</param>
+        public void RaiseDataChanged(KeyFrameViewModel keyFrame) {
+            this.AutomationData.OnValueChanged(this, keyFrame);
+        }
+
+        /// <summary>
+        /// Invokes <see cref="RaiseDataChanged"/>, passing the override key frame.
+        /// <para>
+        /// By default, the override key frame's value changed events are
+        /// not listened to, so a notification must be manually fired
+        /// </para>
+        /// </summary>
+        public void RaiseOverrideValueChanged() {
+            this.AutomationData.OnValueChanged(this, this.OverrideKeyFrame);
         }
     }
 }

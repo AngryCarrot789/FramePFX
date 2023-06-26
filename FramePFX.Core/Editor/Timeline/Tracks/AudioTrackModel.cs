@@ -1,11 +1,12 @@
+using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Editor.Timeline.AudioClips;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline.Tracks {
     public class AudioTrackModel : TrackModel {
-        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrackModel), nameof(Volume), new KeyDescriptorDouble(1d, 0d, 1d));
-        public static readonly AutomationKey IsMutedKey = AutomationKey.RegisterBool(nameof(VideoTrackModel), nameof(IsMuted), new KeyDescriptorBoolean(false));
+        public static readonly AutomationKey VolumeKey = AutomationKey.RegisterDouble(nameof(AudioTrackModel), nameof(Volume), new KeyDescriptorDouble(1d, 0d, 1d));
+        public static readonly AutomationKey IsMutedKey = AutomationKey.RegisterBool(nameof(AudioTrackModel), nameof(IsMuted), new KeyDescriptorBoolean(false));
 
         public double Volume { get; set; }
 
@@ -14,6 +15,8 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
         public AudioTrackModel(TimelineModel timeline) : base(timeline) {
             this.Volume = 1d;
             this.IsMuted = false;
+            this.AutomationData.AssignKey(VolumeKey, (s, f) => this.Volume = s.GetDoubleValue(f));
+            this.AutomationData.AssignKey(IsMutedKey, (s, f) => this.IsMuted = s.GetBooleanValue(f));
         }
 
         public override TrackModel CloneCore() {

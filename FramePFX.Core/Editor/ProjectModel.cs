@@ -26,8 +26,7 @@ namespace FramePFX.Core.Editor {
 
         public ProjectModel() {
             this.Settings = new ProjectSettingsModel() {
-                Resolution = new Resolution(1920, 1080),
-                FrameRate = Rational.Fps60
+                Resolution = new Resolution(1920, 1080)
             };
 
             this.ResourceManager = new ResourceManager(this);

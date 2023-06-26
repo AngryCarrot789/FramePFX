@@ -6,39 +6,21 @@ using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.Editor.Actions {
     [ActionRegistration("actions.project.Save")]
-    public class SaveProjectAction : AnAction {
-        public static bool GetProject(IDataContext context, out ProjectViewModel project) {
-            if (context.TryGetContext(out ClipViewModel clip) && clip.Track != null && (project = clip.Track.Timeline.Project) != null) {
-                return true;
-            }
-            else if (context.TryGetContext(out TimelineViewModel timeline) && (project = timeline.Project) != null) {
-                return true;
-            }
-            else if (context.TryGetContext(out VideoEditorViewModel editor) && (project = editor.ActiveProject) != null) {
-                return true;
-            }
-            else if (context.TryGetContext(out project)) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
+    public class SaveProjectAction : EditorAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!GetProject(e.DataContext, out ProjectViewModel project)) {
-                return false;
+            if (GetProject(e.DataContext, out ProjectViewModel project)) {
+                await project.SaveActionAsync();
+                return true;
             }
 
-            await project.SaveActionAsync();
-            return true;
+            return false;
         }
     }
 
     [ActionRegistration("actions.project.SaveAs")]
-    public class SaveProjectAsAction : AnAction {
+    public class SaveProjectAsAction : EditorAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!SaveProjectAction.GetProject(e.DataContext, out ProjectViewModel project)) {
+            if (!GetProject(e.DataContext, out ProjectViewModel project)) {
                 return false;
             }
 

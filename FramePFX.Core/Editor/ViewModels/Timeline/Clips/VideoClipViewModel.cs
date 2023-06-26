@@ -53,13 +53,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
                 else {
                     this.AutomationData[VideoClipModel.MediaPositionKey].GetOverride().SetVector2Value(value);
+                    this.AutomationData[VideoClipModel.MediaPositionKey].RaiseOverrideValueChanged();
                 }
-
-                this.Model.MediaPosition = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.MediaPositionX));
-                this.RaisePropertyChanged(nameof(this.MediaPositionY));
-                this.Model.InvalidateRender();
             }
         }
 
@@ -92,13 +87,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
                 else {
                     this.AutomationData[VideoClipModel.MediaScaleKey].GetOverride().SetVector2Value(value);
+                    this.AutomationData[VideoClipModel.MediaScaleKey].RaiseOverrideValueChanged();
                 }
-
-                this.Model.MediaScale = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.MediaScaleX));
-                this.RaisePropertyChanged(nameof(this.MediaScaleY));
-                this.Model.InvalidateRender();
             }
         }
 
@@ -131,13 +121,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
                 else {
                     this.AutomationData[VideoClipModel.MediaScaleOriginKey].GetOverride().SetVector2Value(value);
+                    this.AutomationData[VideoClipModel.MediaScaleOriginKey].RaiseOverrideValueChanged();
                 }
-
-                this.Model.MediaScaleOrigin = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
-                this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
-                this.Model.InvalidateRender();
             }
         }
 
@@ -157,11 +142,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
                 else {
                     this.AutomationData[VideoClipModel.OpacityKey].GetOverride().SetDoubleValue(value);
+                    this.AutomationData[VideoClipModel.OpacityKey].RaiseOverrideValueChanged();
                 }
-
-                this.Model.Opacity = value;
-                this.RaisePropertyChanged();
-                this.Model.InvalidateRender();
             }
         }
 
@@ -267,7 +249,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             base.RaiseAutomationPropertyUpdated(propertyName, in e);
             VideoEditorViewModel editor; // slight performance helper
             if (!e.IsPlaybackSource && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
-                this.Timeline.DoRender(true);
+                this.Model.InvalidateRender(true);
+                // this.Timeline.DoRender(true);
             }
         }
 

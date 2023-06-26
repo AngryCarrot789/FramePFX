@@ -37,7 +37,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                     }
                 }
 
-                this.AutomationData[AudioTrackModel.OpacityKey].GetOverride().SetDoubleValue(value);
+                this.AutomationData[AudioTrackModel.VolumeKey].GetOverride().SetDoubleValue(value);
                 this.Model.Volume = value;
                 this.RaisePropertyChanged();
                 this.Timeline.DoRender(true);
@@ -68,7 +68,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
         }
 
         public AudioTrackViewModel(TimelineViewModel timeline, AudioTrackModel model) : base(timeline, model) {
-
+            this.AutomationData.AssignRefreshHandler(AudioTrackModel.VolumeKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.Volume), in e));
+            this.AutomationData.AssignRefreshHandler(AudioTrackModel.IsMutedKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.IsMuted), in e));
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using NAudio.Wave;
 
 namespace FramePFX.Core.Editor.ViewModels {
     /// <summary>
@@ -56,7 +57,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public EditorPlaybackViewModel(VideoEditorViewModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
-            this.Model = new EditorPlaybackModel(editor.Model);
+            this.Model = editor.Model.Playback;
 
             this.PlayCommand = new AsyncRelayCommand(this.PlayAction, () => this.Project != null && !this.Editor.IsProjectSaving && !this.IsPlaying);
             this.PauseCommand = new AsyncRelayCommand(this.PauseAction, () => this.Project != null && !this.Editor.IsProjectSaving &&  this.IsPlaying);
@@ -123,6 +124,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task OnProjectChanging(ProjectViewModel project) {
+            this.Model.DisposeAudioPlayback();
             if (this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
@@ -137,6 +139,9 @@ namespace FramePFX.Core.Editor.ViewModels {
             await this.Model.PlaybackTimer.StopAsync();
             if (project != null) {
                 this.SetTimerFrameRate(project.Settings.FrameRate.ActualFPS);
+                ProjectSettingsModel settings = project.Settings.Model;
+                this.Model.SetAudioPlayback(settings.SampleRate, settings.BitRate, settings.Channels);
+                this.Model.WaveOut.Play();
             }
 
             this.UpdatePlaybackCommands();

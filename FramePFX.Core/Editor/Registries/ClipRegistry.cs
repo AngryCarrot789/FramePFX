@@ -1,5 +1,6 @@
 using System;
 using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timeline.AudioClips;
 using FramePFX.Core.Editor.Timeline.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
@@ -12,10 +13,16 @@ namespace FramePFX.Core.Editor.Registries {
         public static ClipRegistry Instance { get; } = new ClipRegistry();
 
         private ClipRegistry() {
-            this.Register<ImageClipModel, ImageClipViewModel>("cl_img");
-            this.Register<ShapeClipModel, ShapeClipViewModel>("cl_square");
-            this.Register<TextClipModel, TextClipViewModel>("cl_txt");
-            this.Register<MediaClipModel, MediaClipViewModel>("cl_media");
+            #region video
+            this.Register<ImageClipModel, ImageClipViewModel>("cv_img");
+            this.Register<ShapeClipModel, ShapeClipViewModel>("cv_square");
+            this.Register<TextClipModel, TextClipViewModel>("cv_txt");
+            this.Register<MediaClipModel, MediaClipViewModel>("cv_media");
+            #endregion
+
+            #region Audio
+            this.Register<SinewaveClipModel, SinewaveClipViewModel>("ca_sine");
+            #endregion
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : ClipModel where TViewModel : ClipViewModel {

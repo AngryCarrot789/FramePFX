@@ -42,17 +42,9 @@
       <HintPath>..\packages\FFmpeg.AutoGen.6.0.0.2\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FFMpegCore, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\FFMpegCore.5.1.0\lib\netstandard2.0\FFMpegCore.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="FFmpegWrapper, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Instances, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Instances.3.0.0\lib\netstandard2.0\Instances.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.7.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -97,9 +89,6 @@
     <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4">
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="OxyPlot, Version=2.1.2.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
-      <HintPath>..\packages\OxyPlot.Core.2.1.2\lib\net45\OxyPlot.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
@@ -239,12 +228,14 @@
     <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Converters\BoolConverterAND.cs" />
     <Compile Include="Converters\ChainValueConverter.cs" />
+    <Compile Include="Converters\DbToVolumeConverter.cs" />
     <Compile Include="Converters\EmptyStringToBoolConverter.cs" />
     <Compile Include="Converters\EnumConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
     <Compile Include="Converters\VerticalScrollBinder.cs" />
+    <Compile Include="Converters\VolumeToDbConverter.cs" />
     <Compile Include="Editor\Automation\AutomationActivityBrushConverter.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\DragMode.cs" />
@@ -608,7 +599,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="README.md" />
     <Content Include="Resources\Shaders\pink.frag" />
     <Content Include="Resources\Shaders\pink.vert" />
     <Content Include="Resources\Shaders\rgb.frag" />

@@ -24,9 +24,6 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <summary>
         /// Whether or not the current automation sequence is in override mode or not. When in override mode,
         /// the automation engine cannot update the value of any parameter, even if it has key frames
-        /// <para>
-        /// Alternative name: IsDisabled
-        /// </para>
         /// </summary>
         public bool IsOverrideEnabled { get; set; }
 
@@ -73,60 +70,59 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         #region Helper Getter Functions
 
-        public bool TryGetDoubleValue(long time, out double value) {
-            ValidateType(AutomationDataType.Double, this.DataType);
-            return this.TryGetValueInternal(time, x => ((KeyFrameDouble) x).Value, (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b), out value);
+        // Caching just as a slight performance helper... hopefully. It seems like a new lambda class is creating
+        // each time one is used, unless it gets inlined by the JIT... dunno. TBD
+        private static readonly Func<KeyFrame, float>   VAL_float =   k => ((KeyFrameFloat) k).Value;
+        private static readonly Func<KeyFrame, double>  VAL_double =  k => ((KeyFrameDouble) k).Value;
+        private static readonly Func<KeyFrame, long>    VAL_long =    k => ((KeyFrameLong) k).Value;
+        private static readonly Func<KeyFrame, bool>    VAL_bool =    k => ((KeyFrameBoolean) k).Value;
+        private static readonly Func<KeyFrame, Vector2> VAL_Vector2 = k => ((KeyFrameVector2) k).Value;
+        private static readonly Func<long, KeyFrame, KeyFrame, float>   IPOL_float =   (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, double>  IPOL_double =  (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, long>    IPOL_long =    (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, bool>    IPOL_bool =    (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, Vector2> IPOL_Vector2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
+
+        public float GetFloatValue(long time) {
+            ValidateType(AutomationDataType.Float, this.DataType);
+            return this.TryGetValueInternal(time, VAL_float, IPOL_float);
         }
 
         public double GetDoubleValue(long time) {
             ValidateType(AutomationDataType.Double, this.DataType);
-            return this.TryGetDoubleValue(time, out double value) ? value : ((KeyDescriptorDouble) this.Key.Descriptor).DefaultValue;
-        }
-
-        public bool TryGetLongValue(long time, out long value) {
-            ValidateType(AutomationDataType.Long, this.DataType);
-            return this.TryGetValueInternal(time, x => ((KeyFrameLong) x).Value, (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b), out value);
+            return this.TryGetValueInternal(time, VAL_double, IPOL_double);
         }
 
         public long GetLongValue(long time) {
             ValidateType(AutomationDataType.Long, this.DataType);
-            return this.TryGetLongValue(time, out long value) ? value : ((KeyDescriptorLong) this.Key.Descriptor).DefaultValue;
-        }
-
-        public bool TryGetBooleanValue(long time, out bool value) {
-            ValidateType(AutomationDataType.Boolean, this.DataType);
-            return this.TryGetValueInternal(time, x => ((KeyFrameBoolean) x).Value, (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b), out value);
+            return this.TryGetValueInternal(time, VAL_long, IPOL_long);
         }
 
         public bool GetBooleanValue(long time) {
             ValidateType(AutomationDataType.Boolean, this.DataType);
-            return this.TryGetBooleanValue(time, out bool value) ? value : ((KeyDescriptorBoolean) this.Key.Descriptor).DefaultValue;
-        }
-
-        public bool TryGetVector2Value(long time, out Vector2 value) {
-            ValidateType(AutomationDataType.Vector2, this.DataType);
-            return this.TryGetValueInternal(time, x => ((KeyFrameVector2) x).Value, (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b), out value);
+            return this.TryGetValueInternal(time, VAL_bool, IPOL_bool);
         }
 
         public Vector2 GetVector2Value(long time) {
             ValidateType(AutomationDataType.Vector2, this.DataType);
-            return this.TryGetVector2Value(time, out Vector2 value) ? value : ((KeyDescriptorVector2) this.Key.Descriptor).DefaultValue;
+            return this.TryGetValueInternal(time, VAL_Vector2, IPOL_Vector2);
         }
 
-        private bool TryGetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, out T value) {
+        private T TryGetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate) {
             if (this.IsOverrideEnabled || this.IsEmpty) {
-                value = toValue(this.OverrideKeyFrame);
-                return true;
+                return toValue(this.OverrideKeyFrame);
             }
-
-            if (!this.GetKeyFramesForFrame(time, out KeyFrame a, out KeyFrame b, out int index)) {
-                value = default;
-                return false;
+            else if (this.GetKeyFramesForFrame(time, out KeyFrame a, out KeyFrame b, out int index)) {
+                // pass `time` parameter to the interpolate function to remove closure allocation; performance helper
+                return b == null ? toValue(a) : interpolate(time, a, b);
             }
-
-            // pass `time` parameter to the interpolate function to remove closure allocation; performance helper
-            value = b == null ? toValue(a) : interpolate(time, a, b);
-            return true; // ok
+            else {
+                // this shouldn't occur because the above code checks if there are no key frames
+                #if DEBUG
+                System.Diagnostics.Debugger.Break();
+                #endif
+                throw new Exception("???");
+            }
         }
 
         #endregion
@@ -452,7 +448,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public static void ValidateType(AutomationDataType expected, AutomationDataType actual) {
             if (expected != actual) {
-                throw new ArgumentException($"Invalid data time. Expected {expected}, got {actual}");
+                throw new ArgumentException($"Invalid data type. Expected {expected}, got {actual}");
             }
         }
     }

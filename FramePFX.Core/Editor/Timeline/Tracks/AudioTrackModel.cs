@@ -5,17 +5,16 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timeline.Tracks {
     public class AudioTrackModel : TrackModel {
-        public static readonly AutomationKey VolumeKey = AutomationKey.RegisterDouble(nameof(AudioTrackModel), nameof(Volume), new KeyDescriptorDouble(1d, 0d, 1d));
-        public static readonly AutomationKey IsMutedKey = AutomationKey.RegisterBool(nameof(AudioTrackModel), nameof(IsMuted), new KeyDescriptorBoolean(false));
+        public static readonly AutomationKeyFloat VolumeKey = AutomationKey.RegisterFloat(nameof(AudioTrackModel), nameof(Volume), new KeyDescriptorFloat(1f, 0f, 1f));
+        public static readonly AutomationKeyBoolean IsMutedKey = AutomationKey.RegisterBool(nameof(AudioTrackModel), nameof(IsMuted), new KeyDescriptorBoolean(false));
 
-        public double Volume { get; set; }
-
-        public bool IsMuted { get; set; }
+        public float Volume;
+        public bool IsMuted;
 
         public AudioTrackModel(TimelineModel timeline) : base(timeline) {
-            this.Volume = 1d;
-            this.IsMuted = false;
-            this.AutomationData.AssignKey(VolumeKey, (s, f) => this.Volume = s.GetDoubleValue(f));
+            this.Volume = VolumeKey.Descriptor.DefaultValue;
+            this.IsMuted = IsMutedKey.Descriptor.DefaultValue;
+            this.AutomationData.AssignKey(VolumeKey, (s, f) => this.Volume = s.GetFloatValue(f));
             this.AutomationData.AssignKey(IsMutedKey, (s, f) => this.IsMuted = s.GetBooleanValue(f));
         }
 

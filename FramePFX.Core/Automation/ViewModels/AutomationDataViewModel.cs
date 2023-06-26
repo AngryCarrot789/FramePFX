@@ -5,7 +5,6 @@ using System.Linq;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
-using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.ViewModels {
     public class AutomationDataViewModel : BaseViewModel {
@@ -24,10 +23,19 @@ namespace FramePFX.Core.Automation.ViewModels {
         public AutomationSequenceViewModel ActiveSequence {
             get => this.activeSequence;
             set {
+                if (this.activeSequence != null) {
+                    this.activeSequence.IsPrimarySelection = false;
+                }
+
                 this.Model.ActiveKeyFullId = value?.Key.FullId;
                 this.RaisePropertyChanged(ref this.activeSequence, value);
+                if (value != null) {
+                    value.IsPrimarySelection = true;
+                }
+
                 this.RaisePropertyChanged(nameof(this.ActiveSequenceKey));
                 this.RaisePropertyChanged(nameof(this.IsSequenceEditorVisible));
+
                 this.DeselectSequenceCommand.RaiseCanExecuteChanged();
                 this.ToggleOverrideCommand.RaiseCanExecuteChanged();
             }

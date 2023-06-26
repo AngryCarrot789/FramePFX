@@ -11,12 +11,12 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
         /// <summary>
         /// The opacity of the track, from 0d to 1d. When the value dips below <see cref="MinimumVisibleOpacity"/>, it is effectively invisible and won't be rendered
         /// </summary>
-        public double Opacity { get; set; }
+        public double Opacity;
 
         /// <summary>
         /// A visibility state, user switchable
         /// </summary>
-        public bool IsVisible { get; set; }
+        public bool IsVisible;
 
         /// <summary>
         /// Returns when <see cref="IsVisible"/> is true and <see cref="Opacity"/> is greater than <see cref="MinimumVisibleOpacity"/>

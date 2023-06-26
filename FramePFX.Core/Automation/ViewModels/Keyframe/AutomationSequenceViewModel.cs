@@ -13,6 +13,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         private readonly ObservableCollection<KeyFrameViewModel> keyFrames;
         public ReadOnlyObservableCollection<KeyFrameViewModel> KeyFrames { get; }
 
+        private bool isPrimarySelection;
+
         public bool IsOverrideEnabled {
             get => this.Model.IsOverrideEnabled;
             set {
@@ -37,6 +39,14 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present, meaning the automation engine is operating in normal operation
         /// </summary>
         public bool IsAutomationInUse => this.Model.IsAutomationInUse;
+
+        /// <summary>
+        /// Whether or not this automation sequence is indirectly active (as in, active but not the selected sequence)
+        /// </summary>
+        public bool IsPrimarySelection {
+            get => this.isPrimarySelection;
+            set => this.RaisePropertyChanged(ref this.isPrimarySelection, value);
+        }
 
         public bool HasKeyFrames => this.Model.HasKeyFrames;
 
@@ -87,6 +97,16 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         }
 
         #region Helper Setter Functions
+
+        public void SetFloatValue(long timestamp, float value) {
+            AutomationSequence.ValidateType(AutomationDataType.Float, this.Model.DataType);
+            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameFloatViewModel keyFrame)) {
+                keyFrame = (KeyFrameFloatViewModel) this.OverrideKeyFrame;
+                this.IsOverrideEnabled = true;
+            }
+
+            keyFrame.Value = ((KeyDescriptorFloat) this.Model.Key.Descriptor).Clamp(value);
+        }
 
         public void SetDoubleValue(long timestamp, double value) {
             AutomationSequence.ValidateType(AutomationDataType.Double, this.Model.DataType);
@@ -230,11 +250,9 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         }
 
         private void OnKeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            // Can't use nameof(KVM.Value) because of duplicated switch cases.
-            switch (e.PropertyName) {
-                case "Value":
-                    this.RaiseDataChanged((KeyFrameViewModel) sender);
-                    break;
+            KeyFrameViewModel keyFrame = (KeyFrameViewModel) sender;
+            if (e.PropertyName == KeyFrameViewModel.GetPropertyName(keyFrame)) {
+                this.RaiseDataChanged(keyFrame);
             }
         }
 

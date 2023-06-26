@@ -34,6 +34,18 @@ namespace FramePFX.Core.Automation.Keys {
             }
         }
 
+        public static AutomationKeyFloat RegisterFloat(string domain, string id, KeyDescriptorFloat descriptor) {
+            AutomationKeyFloat key = new AutomationKeyFloat(domain, id, descriptor);
+            RegisterInternal(key);
+            return key;
+        }
+
+        public static AutomationKeyFloat RegisterFloat(string domain, string id, float defaultValue, float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, int precision = -1, float step = float.NaN) {
+            AutomationKeyFloat key = new AutomationKeyFloat(domain, id, new KeyDescriptorFloat(defaultValue, minimum, maximum, precision, step));
+            RegisterInternal(key);
+            return key;
+        }
+
         public static AutomationKeyDouble RegisterDouble(string domain, string id, KeyDescriptorDouble descriptor) {
             AutomationKeyDouble key = new AutomationKeyDouble(domain, id, descriptor);
             RegisterInternal(key);
@@ -83,10 +95,13 @@ namespace FramePFX.Core.Automation.Keys {
         }
 
         private static void RegisterInternal(AutomationKey key) {
-            if (!RegistryMap.TryGetValue(key.Domain, out Dictionary<string, AutomationKey> map))
+            if (!RegistryMap.TryGetValue(key.Domain, out Dictionary<string, AutomationKey> map)) {
                 RegistryMap[key.Domain] = map = new Dictionary<string, AutomationKey>();
-            if (map.TryGetValue(key.Id, out AutomationKey existingKey))
+            }
+            else if (map.TryGetValue(key.Id, out AutomationKey existingKey)) {
                 throw new Exception($"Key already exists: {existingKey}");
+            }
+
             map[key.Id] = key;
         }
 
@@ -139,6 +154,18 @@ namespace FramePFX.Core.Automation.Keys {
         }
 
         public sealed override int GetHashCode() => this.hashCode;
+    }
+
+    public class AutomationKeyFloat : AutomationKey {
+        public override AutomationDataType DataType => AutomationDataType.Float;
+
+        public new KeyDescriptorFloat Descriptor => (KeyDescriptorFloat) base.Descriptor;
+
+        internal AutomationKeyFloat(string domain, string id, KeyDescriptorFloat descriptor) : base(domain, id, descriptor) {
+        }
+
+        public override KeyFrame CreateKeyFrame() => this.CreateKeyFrameCore();
+        public KeyFrameFloat CreateKeyFrameCore() => new KeyFrameFloat {Value = this.Descriptor.DefaultValue};
     }
 
     public class AutomationKeyDouble : AutomationKey {

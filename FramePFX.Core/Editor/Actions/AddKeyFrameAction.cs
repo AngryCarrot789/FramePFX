@@ -43,6 +43,7 @@ namespace FramePFX.Core.Editor.Actions {
         public static void CreateKeyFrame(long frame, AutomationSequenceViewModel sequence) {
             KeyFrameViewModel keyFrame;
             switch (sequence.Key.DataType) {
+                case AutomationDataType.Float:   keyFrame = new KeyFrameFloatViewModel(new KeyFrameFloat(frame, sequence.Model.GetFloatValue(frame))); break;
                 case AutomationDataType.Double:  keyFrame = new KeyFrameDoubleViewModel(new KeyFrameDouble(frame, sequence.Model.GetDoubleValue(frame))); break;
                 case AutomationDataType.Long:    keyFrame = new KeyFrameLongViewModel(new KeyFrameLong(frame, sequence.Model.GetLongValue(frame))); break;
                 case AutomationDataType.Boolean: keyFrame = new KeyFrameBooleanViewModel(new KeyFrameBoolean(frame, sequence.Model.GetBooleanValue(frame))); break;

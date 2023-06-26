@@ -1,6 +1,8 @@
+using System;
 using System.Numerics;
 using System.Windows;
 using System.Windows.Media;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Utils;
@@ -9,8 +11,9 @@ using Rect = System.Windows.Rect;
 namespace FramePFX.Editor.Automation {
     public class KeyFramePoint {
         private readonly AutomationSequenceEditor editor;
-        public readonly KeyFrameViewModel KeyFrame;
-        private Point? RenderPoint;
+        public readonly KeyFrameViewModel keyFrame;
+        private Point? renderPoint;
+        private StreamGeometry geometry;
 
         /// <summary>
         /// The index of this key frame point in the backing list
@@ -38,7 +41,7 @@ namespace FramePFX.Editor.Automation {
 
         protected KeyFramePoint(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {
             this.editor = editor;
-            this.KeyFrame = keyFrame;
+            this.keyFrame = keyFrame;
         }
 
         public static KeyFramePoint ForKeyFrame(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {
@@ -46,18 +49,19 @@ namespace FramePFX.Editor.Automation {
         }
 
         public void InvalidateRenderData() {
-            this.RenderPoint = null;
+            this.renderPoint = null;
+            this.geometry = null;
         }
 
         public Point GetLocation() {
-            if (this.RenderPoint is Point point) {
+            if (this.renderPoint is Point point) {
                 return point;
             }
 
             double height = this.editor.ActualHeight;
-            double px = this.KeyFrame.Timestamp * this.editor.UnitZoom;
-            double offset_y = KeyPointUtils.GetY(this.KeyFrame, height);
-            this.RenderPoint = point = new Point(px, height - offset_y);
+            double px = this.keyFrame.Timestamp * this.editor.UnitZoom;
+            double offset_y = KeyPointUtils.GetY(this.keyFrame, height);
+            this.renderPoint = point = new Point(px, height - offset_y);
             return point;
         }
 
@@ -83,14 +87,55 @@ namespace FramePFX.Editor.Automation {
             }
         }
 
+        public virtual void RenderLine(DrawingContext dc, KeyFramePoint target, ref Rect drawing_area) {
+            Point p1 = this.GetLocation();
+            Point p2 = AutomationSequenceEditor.ClampRightSide(ref drawing_area, target.GetLocation());
+
+            long timeA = this.keyFrame.Timestamp;
+            long timeB = target.keyFrame.Timestamp;
+            if (this.geometry == null) {
+                const int segments = 40;
+                this.geometry = new StreamGeometry();
+                using (StreamGeometryContext geometryContext = this.geometry.Open()) {
+                    geometryContext.BeginFigure(p1, false, false);
+                    for (int i = 1; i <= segments; i++) {
+                        float t = i / (float) segments;
+                        long currentTime = (long) Math.Round(timeA + (timeB - timeA) * t);
+                        double blend = KeyFrame.GetInterpolationMultiplier(currentTime, timeA, timeB, this.keyFrame.CurveBendAmount);
+                        double val = (blend * (p2.Y - p1.Y)) + p1.Y;
+                        Point point = new Point(p1.X + t * (p2.X - p1.X), val);
+                        geometryContext.LineTo(point, true, true);
+                    }
+                }
+            }
+
+            if (AutomationSequenceEditor.RectContains(ref drawing_area, ref p1) || AutomationSequenceEditor.RectContains(ref drawing_area, ref p2)) {
+                // dc.DrawLine(this.editor.LineTransparentPen, p1, p2);
+                dc.DrawGeometry(null, this.editor.LineTransparentPen, this.geometry);
+                Pen pen;
+                if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail) {
+                    pen = this.editor.IsOverrideEnabled ? this.editor.LineOverridePen : (this.LastLineHitType != LineHitType.None ? this.editor.LineMouseOverPen : this.editor.LinePen);
+                }
+                else {
+                    pen = this.editor.IsOverrideEnabled ? this.editor.LineOverridePen : this.editor.LinePen;
+                }
+
+                // dc.DrawLine(pen, p1, p2);
+                dc.DrawGeometry(null, pen, this.geometry);
+            }
+        }
+
         public bool SetValueForMousePoint(Point point) {
             double height = this.editor.ActualHeight;
             if (double.IsNaN(height) || height <= 0d) {
                 return false;
             }
 
-            AutomationKey key = this.KeyFrame.OwnerSequence.Key;
-            switch (this.KeyFrame) {
+            AutomationKey key = this.keyFrame.OwnerSequence.Key;
+            switch (this.keyFrame) {
+                case KeyFrameFloatViewModel frame when key.Descriptor is KeyDescriptorFloat fd:
+                    frame.Value = (float) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
+                    break;
                 case KeyFrameDoubleViewModel frame when key.Descriptor is KeyDescriptorDouble fd:
                     frame.Value = Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
                     break;
@@ -111,15 +156,25 @@ namespace FramePFX.Editor.Automation {
                     }
 
                     return true;
-                case KeyFrameVector2ViewModel frame when key.Descriptor is KeyDescriptorVector2 fd && this is KeyFramePointVec2 v2:
-                    double x = Maths.Clamp(Maths.Map(point.X, height, 0, fd.Minimum.X, fd.Maximum.X), fd.Minimum.X, fd.Maximum.X) / this.editor.UnitZoom;
-                    double y = Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum.Y, fd.Maximum.Y), fd.Minimum.Y, fd.Maximum.Y);
-                    frame.Value = new Vector2((float) x, (float) y);
-                    break;
+                // case KeyFrameVector2ViewModel frame when key.Descriptor is KeyDescriptorVector2 fd && this is KeyFramePointVec2 v2:
+                //     double x = Maths.Clamp(Maths.Map(point.X, height, 0, fd.Minimum.X, fd.Maximum.X), fd.Minimum.X, fd.Maximum.X) / this.editor.UnitZoom;
+                //     double y = Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum.Y, fd.Maximum.Y), fd.Minimum.Y, fd.Maximum.Y);
+                //     frame.Value = new Vector2((float) x, (float) y);
+                //     break;
                 default: return false;
             }
 
             return true;
+        }
+
+        public bool IsMouseOverLine(ref Point p, ref Point a, ref Point b, double thickness) {
+            double bend = this.keyFrame.CurveBendAmount;
+            double val = (b.Y - a.Y) / (b.X - a.X);
+            double lineY = val * (p.X - a.X) + a.Y;
+            double minX = Math.Min(a.X, b.X);
+            double maxX = Math.Max(a.X, b.X);
+            double rangeY = thickness * bend;
+            return lineY >= p.Y - rangeY && lineY <= p.Y + rangeY && p.X >= minX && p.X <= maxX;
         }
     }
 

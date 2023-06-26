@@ -40,8 +40,8 @@ namespace FramePFX.Core.Utils {
             return float.IsNegativeInfinity(vector.Y);
         }
 
-        public static Vector2 Lerp(in this Vector2 a, in Vector2 b, double blend) {
-            return new Vector2((float) (blend * (b.X - a.X) + a.X), (float) (blend * (b.Y - a.Y) + a.Y));
+        public static Vector2 Lerp(in this Vector2 a, in Vector2 b, float blend) {
+            return new Vector2(blend * (b.X - a.X) + a.X, blend * (b.Y - a.Y) + a.Y);
         }
     }
 }

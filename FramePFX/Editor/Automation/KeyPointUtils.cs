@@ -8,6 +8,10 @@ namespace FramePFX.Editor.Automation {
         public static double GetY(KeyFrameViewModel keyFrame, double height) {
             AutomationKey key = keyFrame.OwnerSequence.Key;
             switch (keyFrame) {
+                case KeyFrameFloatViewModel frame: {
+                    KeyDescriptorFloat desc = (KeyDescriptorFloat) key.Descriptor;
+                    return Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);
+                }
                 case KeyFrameDoubleViewModel frame: {
                     KeyDescriptorDouble desc = (KeyDescriptorDouble) key.Descriptor;
                     return Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);

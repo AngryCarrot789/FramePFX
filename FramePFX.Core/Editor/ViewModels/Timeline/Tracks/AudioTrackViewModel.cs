@@ -4,6 +4,7 @@ using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timeline.Tracks;
 using FramePFX.Core.History;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
     public class AudioTrackViewModel : TrackViewModel {
@@ -12,7 +13,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
 
         public new AudioTrackModel Model => (AudioTrackModel) base.Model;
 
-        public double Volume {
+        public float Volume {
             get => this.Model.Volume;
             set {
                 if (!this.IsHistoryChanging) {
@@ -37,10 +38,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                     }
                 }
 
-                this.AutomationData[AudioTrackModel.VolumeKey].GetOverride().SetDoubleValue(value);
-                this.Model.Volume = value;
-                this.RaisePropertyChanged();
-                this.Timeline.DoRender(true);
+                TimelineViewModel timeline = this.Timeline;
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrackModel.OpacityKey)) {
+                    this.AutomationData[AudioTrackModel.VolumeKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetFloatValue(value);
+                }
+                else {
+                    this.AutomationData[AudioTrackModel.VolumeKey].GetOverride().SetFloatValue(value);
+                    this.AutomationData[AudioTrackModel.VolumeKey].RaiseOverrideValueChanged();
+                }
             }
         }
 
@@ -99,10 +104,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
         }
 
         private class HistoryAudioTrackVolume : BaseHistoryHolderAction<AudioTrackViewModel> {
-            public Transaction<double> Volume { get; }
+            public Transaction<float> Volume { get; }
 
-            public HistoryAudioTrackVolume(AudioTrackViewModel holder, double newValue) : base(holder) {
-                this.Volume = new Transaction<double>(holder.Volume, newValue);
+            public HistoryAudioTrackVolume(AudioTrackViewModel holder, float newValue) : base(holder) {
+                this.Volume = new Transaction<float>(holder.Volume, newValue);
             }
 
             protected override Task UndoAsyncCore() {

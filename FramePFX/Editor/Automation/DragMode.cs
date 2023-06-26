@@ -3,6 +3,7 @@ namespace FramePFX.Editor.Automation {
         None,
         HorizontalKeyFrame,
         VerticalKeyFrame,
-        FullKeyFrame
+        FullKeyFrame,
+        LineCurveAmount
     }
 }

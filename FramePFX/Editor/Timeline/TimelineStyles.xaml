@@ -516,9 +516,14 @@
             <Setter.Value>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch" d:DataContext="{d:DesignInstance keyframe:AutomationSequenceViewModel}">
-                        <Ellipse DockPanel.Dock="Left" Width="5" Height="5"
-                                 Visibility="{Binding HasKeyFrames, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"
-                                 Fill="{Binding IsAutomationInUse, Converter={StaticResource AutomationActivityBrushConverter}}" Margin="0,0,3,0"/>
+                        <Ellipse DockPanel.Dock="Left" Width="5" Height="5" Visibility="{Binding HasKeyFrames, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" Margin="0,0,3,0">
+                            <Ellipse.Fill>
+                                <MultiBinding Converter="{StaticResource AutomationActivityBrushConverter}">
+                                    <Binding Path="IsAutomationInUse"/>
+                                    <Binding Path="IsPrimarySelection"/>
+                                </MultiBinding>
+                            </Ellipse.Fill>
+                        </Ellipse>
                         <TextBlock Text="{Binding Model.Key.Id}" VerticalAlignment="Center"/>
                     </DockPanel>
                 </DataTemplate>

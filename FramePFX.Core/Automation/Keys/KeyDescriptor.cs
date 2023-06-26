@@ -7,6 +7,31 @@ namespace FramePFX.Core.Automation.Keys {
 
     }
 
+    public class KeyDescriptorFloat : KeyDescriptor {
+        public float DefaultValue { get; }
+        public float Minimum { get; }
+        public float Maximum { get; }
+        public int Precision { get; }
+        public float Step { get; }
+
+        public bool HasPrecision => this.Precision >= 0;
+
+        public bool IsStepEnabled => !float.IsNaN(this.Step);
+
+        public KeyDescriptorFloat(float defaultValue, float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, int precision = -1, float step = float.NaN) {
+            this.DefaultValue = defaultValue;
+            this.Minimum = minimum;
+            this.Maximum = maximum;
+            this.Precision = precision;
+            this.Step = step;
+        }
+
+        public float Clamp(float value) {
+            value = Maths.Clamp(value, this.Minimum, this.Maximum);
+            return this.Precision >= 0 ? (float) Math.Round(value, this.Precision) : value;
+        }
+    }
+
     public class KeyDescriptorDouble : KeyDescriptor {
         public double DefaultValue { get; }
         public double Minimum { get; }

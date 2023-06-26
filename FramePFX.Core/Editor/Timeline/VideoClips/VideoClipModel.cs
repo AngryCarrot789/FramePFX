@@ -15,22 +15,28 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         /// <summary>
         /// The x and y coordinates of the video's media
         /// </summary>
-        public Vector2 MediaPosition { get; set; }
+        public Vector2 MediaPosition;
 
         /// <summary>
         /// The x and y scale of the video's media (relative to <see cref="MediaScaleOrigin"/>)
         /// </summary>
-        public Vector2 MediaScale { get; set; }
+        public Vector2 MediaScale;
 
         /// <summary>
         /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
         /// </summary>
-        public Vector2 MediaScaleOrigin { get; set; }
+        public Vector2 MediaScaleOrigin;
+
+        /// <summary>
+        /// When false, the <see cref="MediaScaleOrigin"/> is relative to the media size (see <see cref="GetSize"/>). When
+        /// true, <see cref="GetSize"/> is not called, and the <see cref="MediaScaleOrigin"/> is used directly
+        /// </summary>
+        public bool UseAbsoluteScaleOrigin;
 
         /// <summary>
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
         /// </summary>
-        public double Opacity { get; set; }
+        public double Opacity;
 
         public byte OpacityByte => RenderUtils.DoubleToByte(this.Opacity);
 
@@ -98,13 +104,17 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         public void Transform(RenderContext rc, out Vector2? size) {
             Vector2 pos = this.MediaPosition, scale = this.MediaScale, origin = this.MediaScaleOrigin;
 
-            size = this.GetSize();
             rc.Canvas.Translate(pos.X, pos.Y);
-            if (size is Vector2 sz) {
+            size = this.GetSize();
+            if (this.UseAbsoluteScaleOrigin) {
+                if (!(size is Vector2 sz)) {
+                    sz = new Vector2(rc.FrameInfo.Width, rc.FrameInfo.Height);
+                }
+
                 rc.Canvas.Scale(scale.X, scale.Y, sz.X * origin.X, sz.Y * origin.Y);
             }
             else {
-                rc.Canvas.Scale(scale.X, scale.Y, rc.FrameInfo.Width, rc.FrameInfo.Height);
+                rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
             }
         }
 

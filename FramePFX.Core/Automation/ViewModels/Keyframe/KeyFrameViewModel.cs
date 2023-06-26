@@ -21,28 +21,44 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             }
         }
 
+        public double CurveBendAmount {
+            get => this.Model.CurveBendAmount;
+            set {
+                this.Model.CurveBendAmount = value;
+                this.RaisePropertyChanged();
+                this.RaisePropertyChanged(GetPropertyName(this));
+            }
+        }
+
+        // protected virtual string ValuePropertyName => "Value";
+
         protected KeyFrameViewModel(KeyFrame keyFrame) {
             this.Model = keyFrame ?? throw new ArgumentNullException(nameof(keyFrame));
         }
 
-        public virtual void SetDoubleValue(double value) {
-            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameDoubleViewModel)}");
+        /// <summary>
+        /// Returns the name of the property which stores the underlying value, used to listen to property changed events
+        /// </summary>
+        /// <param name="keyFrame"></param>
+        /// <returns></returns>
+        public static string GetPropertyName(KeyFrameViewModel keyFrame) {
+            // return keyFrame.ValuePropertyName;
+            return "Value";
         }
 
-        public virtual void SetLongValue(long value) {
-            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameLongViewModel)}");
-        }
+        public void SetFloatValue(float value) => ((KeyFrameFloatViewModel) this).Value = value;
 
-        public virtual void SetBooleanValue(bool value) {
-            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameBooleanViewModel)}");
-        }
+        public void SetDoubleValue(double value) => ((KeyFrameDoubleViewModel) this).Value = value;
 
-        public virtual void SetVector2Value(Vector2 value) {
-            throw new InvalidOperationException($"This key frame is not a {nameof(KeyFrameVector2ViewModel)}");
-        }
+        public void SetLongValue(long value) => ((KeyFrameLongViewModel) this).Value = value;
+
+        public void SetBooleanValue(bool value) => ((KeyFrameBooleanViewModel) this).Value = value;
+
+        public void SetVector2Value(Vector2 value) => ((KeyFrameVector2ViewModel) this).Value = value;
 
         public static KeyFrameViewModel NewInstance(KeyFrame keyFrame) {
             switch (keyFrame) {
+                case KeyFrameFloat frame:   return new KeyFrameFloatViewModel(frame);
                 case KeyFrameDouble frame:  return new KeyFrameDoubleViewModel(frame);
                 case KeyFrameLong frame:    return new KeyFrameLongViewModel(frame);
                 case KeyFrameBoolean frame: return new KeyFrameBooleanViewModel(frame);
@@ -50,6 +66,22 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
                 default:
                     throw new Exception("Unknown key frame type: " + keyFrame?.GetType());
             }
+        }
+    }
+
+    public class KeyFrameFloatViewModel : KeyFrameViewModel {
+        public new KeyFrameFloat KeyFrame => (KeyFrameFloat) base.Model;
+
+        public float Value {
+            get => this.KeyFrame.Value;
+            set {
+                this.KeyFrame.Value = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public KeyFrameFloatViewModel(KeyFrameFloat keyFrame) : base(keyFrame) {
+
         }
     }
 
@@ -66,10 +98,6 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public KeyFrameDoubleViewModel(KeyFrameDouble keyFrame) : base(keyFrame) {
 
-        }
-
-        public override void SetDoubleValue(double value) {
-            this.Value = value;
         }
     }
 
@@ -95,10 +123,6 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public KeyFrameLongViewModel(KeyFrameLong keyFrame) : base(keyFrame) {
 
         }
-
-        public override void SetLongValue(long value) {
-            this.Value = value;
-        }
     }
 
     public class KeyFrameBooleanViewModel : KeyFrameViewModel {
@@ -115,10 +139,6 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public KeyFrameBooleanViewModel(KeyFrameBoolean keyFrame) : base(keyFrame) {
 
         }
-
-        public override void SetBooleanValue(bool value) {
-            this.Value = value;
-        }
     }
 
     public class KeyFrameVector2ViewModel : KeyFrameViewModel {
@@ -134,10 +154,6 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public KeyFrameVector2ViewModel(KeyFrameVector2 keyFrame) : base(keyFrame) {
 
-        }
-
-        public override void SetVector2Value(Vector2 value) {
-            this.Value = value;
         }
     }
 }

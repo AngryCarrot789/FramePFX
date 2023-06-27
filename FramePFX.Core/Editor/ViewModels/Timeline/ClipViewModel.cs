@@ -420,12 +420,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 return;
             }
 
-            if (!targetTrack.CanAccept(this)) {
+            if (!targetTrack.IsClipTypeAcceptable(this)) {
                 return;
             }
 
             if (timeline.IsGloballyDragging) {
-                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Track, track) && track.CanAccept(x))) {
+                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Track, track) && track.IsClipTypeAcceptable(x))) {
                     timeline.IsAboutToDragAcrossTracks = true;
                     foreach (ClipViewModel clip in timeline.DraggingClips) {
                         timeline.MoveClip(clip, track, targetTrack);

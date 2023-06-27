@@ -22,6 +22,7 @@ using FramePFX.Core.Notifications.Types;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Properties.Pages;
+using FramePFX.Editor.Timeline.Track.Clips;
 using FramePFX.Notifications;
 using FramePFX.Themes;
 using FramePFX.Utils;
@@ -67,7 +68,6 @@ namespace FramePFX.Editor {
             this.NotificationPanelPopup.PlacementRectangle = System.Windows.Rect.Empty;
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
             this.RefreshPopupLocation();
-
             this.Width = 1257;
         }
 
@@ -215,6 +215,20 @@ namespace FramePFX.Editor {
         }
 
         public void UpdateSelectionPropertyPages() {
+            // { // test dummy items
+            //     List<BaseClipPropertyPageViewModel> list = new List<BaseClipPropertyPageViewModel>();
+            //     list.AddRange(ClipPageFactory.Instance.CreatePages(MediaClipPageViewModel.Dummy.Target));
+            //     list.Add(null);
+            //     list.AddRange(ClipPageFactory.Instance.CreatePages(ImageClipPageViewModel.Dummy.Target));
+            //     list.Add(null);
+            //     list.AddRange(ClipPageFactory.Instance.CreatePages(TextClipPageViewModel.Dummy.Target));
+            //     list.Add(null);
+            //     list.AddRange(ClipPageFactory.Instance.CreatePages(ShapeClipPageViewModel.Dummy.Target));
+            //     list.Reverse();
+            //     this.ClipPropertyPageItemsSource = list;
+            //     return;
+
+
             this.ClipPropertyPageItemsSource = null;
             this.ClipPropertyPanelList.Items.Clear();
             if (this.Editor.ActiveProject is ProjectViewModel project) {
@@ -234,8 +248,8 @@ namespace FramePFX.Editor {
         public void GeneratePropertyPages(ClipViewModel clip) {
             List<BaseClipPropertyPageViewModel> list2 = ClipPageFactory.Instance.CreatePages(clip);
             list2.Reverse();
+            // TODO: maybe move this to a view model, and maybe add multi-select support?
             this.ClipPropertyPageItemsSource = list2;
-            // this.ClipPropertyPanelListV2.ItemsSource = list2;
 
             Type root = typeof(ClipViewModel);
             List<Type> types = new List<Type>();

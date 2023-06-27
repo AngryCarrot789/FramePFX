@@ -14,7 +14,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         public bool IsValidMediaFile => this.Demuxer != null;
 
-        private MediaStream stream;
+        internal MediaStream stream;
         private VideoDecoder decoder;
         private FrameQueue frameQueue;
         private bool hasHardwareDecoder;

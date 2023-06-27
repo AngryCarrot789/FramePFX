@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
@@ -20,15 +21,32 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return this.TryGetResource(out ResourceMedia resource) ? resource.GetResolution() : null;
         }
 
+        public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride) {
+            int height = frame.GetPlaneSize(plane).Height;
+            AVFrame* ptr = frame.Handle;
+            *data = ptr->data[(uint) plane];
+            int rowSize = ptr->linesize[(uint) plane];
+
+            if (rowSize < 0) {
+                *data += rowSize * (height - 1);
+                rowSize = unchecked(rowSize * -1);
+            }
+
+            stride = rowSize / sizeof(byte);
+        }
+
         public override void Render(RenderContext render, long frame) {
             if (!this.TryGetResource(out ResourceMedia resource))
                 return;
 
             if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null) {
-                if (resource.Demuxer == null)
+                if (resource.Demuxer == null || resource.stream == null)
                     resource.OpenMediaFromFile();
-                if (this.renderFrameRgb == null && resource.GetResolution() is Resolution res) {
-                    this.renderFrameRgb = new VideoFrame(res.Width, res.Height, PixelFormats.RGBA);
+                if (this.renderFrameRgb == null) {
+                    unsafe {
+                        AVCodecParameters* pars = resource.stream.Handle->codecpar;
+                        this.renderFrameRgb = new VideoFrame(pars->width, pars->height, PixelFormats.RGBA);
+                    }
                 }
 
                 double timeScale = this.Project.Settings.FrameRate.ActualFPS;
@@ -39,8 +57,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             }
 
             if (this.readyFrame != null) {
-                this.Transform(render);
-                VideoFrame frame1 = this.readyFrame;
+                VideoFrame ready = this.readyFrame;
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                 // a project preview resolution so that decoding is lightning fast for low resolution?
 
@@ -48,26 +65,26 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                     return;
                 }
 
-                if (frame1.IsHardwareFrame) {
+                this.Transform(render);
+                if (ready.IsHardwareFrame) {
                     // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                     // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
                     // hacking into the API specific device context (like D3D11VA).
-                    frame1.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
-                    frame1 = this.downloadedHwFrame;
+                    ready.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
+                    ready = this.downloadedHwFrame;
                 }
 
                 if (this.scaler == null) {
-                    this.scaler = new SwScaler(frame1.Format, this.renderFrameRgb.Format);
+                    this.scaler = new SwScaler(ready.Format, this.renderFrameRgb.Format);
                 }
 
-                this.scaler.Convert(frame1, this.renderFrameRgb);
+                this.scaler.Convert(ready, this.renderFrameRgb);
                 unsafe {
-                    Span<byte> pixelData = this.renderFrameRgb.GetPlaneSpan<byte>(0, out int rowBytes);
-                    fixed (byte* ptr = pixelData) {
-                        SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
-                        using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                            render.Canvas.DrawImage(img, 0, 0, null);
-                        }
+                    byte* ptr;
+                    GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
+                    SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
+                    using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
+                        render.Canvas.DrawImage(img, 0, 0);
                     }
                 }
             }

@@ -31,6 +31,7 @@
             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
             xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
             xmlns:s="clr-namespace:System;assembly=mscorlib"
+            xmlns:pages="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -190,6 +191,7 @@
                                                         ScrollViewer.CanContentScroll="False"
                                                         helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True"
                                                         ItemDirection="Vertical"
+                                                        HorizontalContentAlignment="Left"
                                                         ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ClipPropertyPageItemsSource}">
                             </p:PropertyPageItemsControl>
                         </TabItem>

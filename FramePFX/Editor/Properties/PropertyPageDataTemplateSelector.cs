@@ -11,6 +11,7 @@ namespace FramePFX.Editor.Properties {
     public class PropertyPageDataTemplateSelector : DataTemplateSelector {
         // Here goes every single registered "property pageable" type
 
+        public DataTemplate ClipPageTemplate { get; set; }
         public DataTemplate VideoClipPageTemplate { get; set; }
         public DataTemplate ShapeClipPageTemplate { get; set; }
         public DataTemplate TextClipPageTemplate { get; set; }
@@ -19,11 +20,12 @@ namespace FramePFX.Editor.Properties {
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container) {
             switch (item) {
-                case VideoClipPageViewModel _: return this.VideoClipPageTemplate;
-                case ShapeClipPageViewModel _: return this.ShapeClipPageTemplate;
-                case TextClipPageViewModel _: return this.TextClipPageTemplate;
-                case ImageClipPageViewModel _: return this.ImageClipPageTemplate;
-                case MediaClipPageViewModel _: return this.MediaClipPageTemplate;
+                case ClipPageViewModel _:       return this.ClipPageTemplate;
+                case VideoClipPageViewModel _:  return this.VideoClipPageTemplate;
+                case ShapeClipPageViewModel _:  return this.ShapeClipPageTemplate;
+                case TextClipPageViewModel _:   return this.TextClipPageTemplate;
+                case ImageClipPageViewModel _:  return this.ImageClipPageTemplate;
+                case MediaClipPageViewModel _:  return this.MediaClipPageTemplate;
             }
 
             return base.SelectTemplate(item, container);

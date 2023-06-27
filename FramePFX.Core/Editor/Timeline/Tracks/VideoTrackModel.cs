@@ -49,7 +49,7 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
             return track;
         }
 
-        public override bool CanAccept(ClipModel clip) {
+        public override bool IsClipTypeAcceptable(ClipModel clip) {
             return clip is VideoClipModel;
         }
 

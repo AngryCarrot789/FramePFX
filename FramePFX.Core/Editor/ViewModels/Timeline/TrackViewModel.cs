@@ -175,6 +175,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 throw new IndexOutOfRangeException($"Index < 0 || Index > Count. Index = {index}, Count = {this.clips.Count}");
             if (ReferenceEquals(this, clip.Track))
                 throw new InvalidOperationException("Attempted to add clip to a track it was already in");
+            if (!this.IsClipTypeAcceptable(clip))
+                throw new Exception("Invalid clip for this layer");
 
             if (addToModel) {
                 this.Model.InsertClip(index, clip.Model, false);
@@ -316,8 +318,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             return Task.CompletedTask;
         }
 
-        public bool CanAccept(ClipViewModel clip) {
-            return this.Model.CanAccept(clip.Model);
+        public bool IsClipTypeAcceptable(ClipViewModel clip) {
+            return this.Model.IsClipTypeAcceptable(clip.Model);
         }
 
         protected virtual void OnAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {

@@ -6,6 +6,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
         public static ClipPageFactory Instance { get; } = new ClipPageFactory();
 
         private ClipPageFactory() {
+            this.RegisterPage<ClipViewModel, ClipPageViewModel>();
             this.RegisterPage<VideoClipViewModel, VideoClipPageViewModel>();
             this.RegisterPage<ShapeClipViewModel, ShapeClipPageViewModel>();
             this.RegisterPage<TextClipViewModel, TextClipPageViewModel>();

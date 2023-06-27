@@ -64,8 +64,36 @@ namespace FramePFX.Core.Editor.Timeline {
 
         long IAutomatable.GetRelativeFrame(long frame) => frame;
 
-        public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {
-            return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
+        public List<ClipModel> GetClipsAtFrame(long frame) {
+            List<ClipModel> src = this.Clips;
+            int count = src.Count, i = 0;
+            do {
+                if (i >= count)
+                    return null;
+                ClipModel clip = src[i++];
+                if (clip.IntersectsFrameAt(frame)) {
+                    List<ClipModel> outList = new List<ClipModel> {clip};
+                    while (i < count) {
+                        clip = src[i++];
+                        if (clip.IntersectsFrameAt(frame)) {
+                            outList.Add(clip);
+                        }
+                    }
+
+                    return outList;
+                }
+            } while (true);
+        }
+
+        public ClipModel GetClipAtFrame(long frame) {
+            List<ClipModel> src = this.Clips;
+            int i = 0, c = src.Count;
+            while (i < c) {
+                ClipModel clip = src[i++];
+                if (clip.IntersectsFrameAt(frame))
+                    return clip;
+            }
+            return null;
         }
 
         public void AddClip(ClipModel model, bool setTrack = true) {
@@ -137,7 +165,7 @@ namespace FramePFX.Core.Editor.Timeline {
             }
         }
 
-        public abstract bool CanAccept(ClipModel clip);
+        public abstract bool IsClipTypeAcceptable(ClipModel clip);
 
         public virtual bool CanUpdateAutomation() {
             return true;

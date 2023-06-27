@@ -105,33 +105,26 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void Render(RenderContext render, long frame) {
-            SKPaint trackTransparencyPaint = null, clipPaint = null;
-            for (int i = this.Tracks.Count - 1; i >= 0; i--) {
-                if (!(this.Tracks[i] is VideoTrackModel track) || !track.IsActuallyVisible) {
-                    continue;
-                }
+            List<TrackModel> tracks = this.Tracks;
+            SKPaint trackPaint = null, clipPaint = null;
+            for (int i = tracks.Count - 1; i >= 0; i--) {
+                if (tracks[i] is VideoTrackModel track && track.IsActuallyVisible) {
+                    VideoClipModel clip = (VideoClipModel) track.GetClipAtFrame(frame);
+                    if (clip == null) {
+                        continue;
+                    }
 
-                List<ClipModel> clips = track.Clips.Where(x => x.IntersectsFrameAt(frame)).ToList();
-                if (clips.Count <= 0) {
-                    continue;
-                }
-
-                // SaveLayer requires a temporary drawing bitmap, which can slightly
-                // decrease performance, so only SaveLayer when absolutely necessary
-                int trackSaveCount = !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref trackTransparencyPaint) : render.Canvas.Save();
-
-                foreach (ClipModel clip in clips) {
+                    int trackSaveCount = !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref trackPaint) : render.Canvas.Save();
                     int clipSaveCount;
-                    VideoClipModel videoClip = (VideoClipModel) clip;
-                    if (videoClip.UseCustomOpacityCalculation || Maths.Equals(videoClip.Opacity, 1d)) {
+                    if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d)) {
                         clipSaveCount = render.Canvas.Save();
                     }
                     else {
-                        clipSaveCount = SaveLayerForOpacity(render.Canvas, videoClip.Opacity, ref clipPaint);
+                        clipSaveCount = SaveLayerForOpacity(render.Canvas, clip.Opacity, ref clipPaint);
                     }
 
                     #if DEBUG
-                    videoClip.Render(render, frame);
+                    clip.Render(render, frame);
                     #else
                     try {
                         videoClip.Render(render, frame);
@@ -146,18 +139,17 @@ namespace FramePFX.Core.Editor.Timeline {
                         clipPaint.Dispose();
                         clipPaint = null;
                     }
+
+                    render.Canvas.RestoreToCount(trackSaveCount);
+                    if (trackPaint != null) {
+                        trackPaint.Dispose();
+                        trackPaint = null;
+                    }
                 }
 
-                render.Canvas.RestoreToCount(trackSaveCount);
-                if (trackTransparencyPaint != null) {
-                    trackTransparencyPaint.Dispose();
-                    trackTransparencyPaint = null;
-                }
+                // SaveLayer requires a temporary drawing bitmap, which can slightly
+                // decrease performance, so only SaveLayer when absolutely necessary
             }
-        }
-
-        public IEnumerable<ClipModel> GetClipsAtFrame(long frame) {
-            return Enumerable.Reverse(this.Tracks).SelectMany(track => track.GetClipsAtFrame(frame));
         }
     }
 }

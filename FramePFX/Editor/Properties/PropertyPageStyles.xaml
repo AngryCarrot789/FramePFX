@@ -6,6 +6,14 @@
                     xmlns:s="clr-namespace:System;assembly=mscorlib"
                     xmlns:validators="clr-namespace:FramePFX.Validators">
     <p:PropertyPageDataTemplateSelector x:Key="PropertyPageDataTemplateSelector">
+        <p:PropertyPageDataTemplateSelector.ClipPageTemplate>
+            <DataTemplate DataType="{x:Type pg:ClipPageViewModel}">
+                <DockPanel DataContext="{Binding Target}" HorizontalAlignment="Stretch">
+                    <TextBlock Text="Display Name" Padding="5" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="3,2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                </DockPanel>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.ClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
             <DataTemplate DataType="{x:Type pg:VideoClipPageViewModel}">
                 <Grid DataContext="{Binding Target}" Width="275">
@@ -65,7 +73,7 @@
         </p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.ShapeClipPageTemplate>
             <DataTemplate DataType="{x:Type pg:ShapeClipPageViewModel}">
-                <Grid DataContext="{Binding Target}" Width="275">
+                <Grid DataContext="{Binding Target}" Width="250">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
                         <ColumnDefinition Width="1*"/>
@@ -102,6 +110,20 @@
                 </StackPanel>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.TextClipPageTemplate>
+        <p:PropertyPageDataTemplateSelector.ImageClipPageTemplate>
+            <DataTemplate DataType="{x:Type pg:ImageClipPageViewModel}">
+                <Grid DataContext="{Binding Target}">
+                    <TextBlock Text="Nothing here for now..." Padding="5"/>
+                </Grid>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.ImageClipPageTemplate>
+        <p:PropertyPageDataTemplateSelector.MediaClipPageTemplate>
+            <DataTemplate DataType="{x:Type pg:MediaClipPageViewModel}">
+                <Grid DataContext="{Binding Target}">
+                    <TextBlock Text="Nothing here for now..." Padding="5"/>
+                </Grid>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.MediaClipPageTemplate>
     </p:PropertyPageDataTemplateSelector>
 
     <ItemsPanelTemplate x:Key="WrapPanelItemsPanelTemplate">
@@ -115,27 +137,40 @@
     <Style TargetType="{x:Type p:PropertyPageItem}" BasedOn="{StaticResource {x:Type HeaderedContentControl}}">
         <Setter Property="Margin" Value="3"/>
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone8.Border.Static}"/>
         <Setter Property="ContentTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
         <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type p:PropertyPageItem}">
-                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2">
                         <Border.OpacityMask>
                             <VisualBrush Visual="{Binding ElementName=__BORDER__}"/>
                         </Border.OpacityMask>
                         <Grid>
                             <Border x:Name="__BORDER__" Background="{DynamicResource ABrush.Tone7.Background.Static}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
-                            <StackPanel>
-                                <Border x:Name="PART_HeaderBorder" MinHeight="18">
-                                    <ContentPresenter x:Name="PART_HeaderPresenter" HorizontalAlignment="Left" Margin="5,0" VerticalAlignment="Center"
-                                                  ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            <DockPanel>
+                                <Border x:Name="PART_HeaderBorder" MinHeight="18" DockPanel.Dock="Top">
+                                    <DockPanel>
+                                        <ToggleButton IsChecked="True" x:Name="PART_ToggleButton" DockPanel.Dock="Left" Style="{DynamicResource ExpanderDownHeaderStyle}"/>
+                                        <!-- Left to right
+                                        <Button Content="1" DockPanel.Dock="Left"/>
+                                        <Button Content="2" DockPanel.Dock="Left"/>
+                                        <Button Content="4" DockPanel.Dock="Right"/>
+                                        <Button Content="3" DockPanel.Dock="Right"/>
+                                        -->
+                                        <ContentPresenter x:Name="PART_HeaderPresenter" HorizontalAlignment="Left" Margin="5,0" VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                    </DockPanel>
                                 </Border>
-                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                <Border Visibility="{Binding ElementName=PART_ToggleButton, Path=IsChecked, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" 
+                                        Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                     <ContentPresenter x:Name="PART_ContentPresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                                 </Border>
-                            </StackPanel>
+                            </DockPanel>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -170,16 +205,18 @@
                             BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}">
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
                         </ScrollViewer>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="ItemDirection" Value="Horizontal">
                             <Setter Property="ItemsPanel" Value="{StaticResource WrapPanelItemsPanelTemplate}"/>
+                            <Setter TargetName="PART_ScrollViewer" Property="HorizontalScrollBarVisibility" Value="Disabled"/>
                             <Setter Property="ItemTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
                         </Trigger>
                         <Trigger Property="ItemDirection" Value="Vertical">
                             <Setter Property="ItemsPanel" Value="{StaticResource StackPanelItemsPanelTemplate}"/>
+                            <Setter TargetName="PART_ScrollViewer" Property="HorizontalScrollBarVisibility" Value="Auto"/>
                             <Setter Property="ItemTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">

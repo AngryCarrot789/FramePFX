@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,7 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;
 using FramePFX.Core.Notifications;
 using FramePFX.Core.Notifications.Types;
 using FramePFX.Core.Rendering;
@@ -205,7 +207,15 @@ namespace FramePFX.Editor {
         //     this.lastRefreshTime = Time.GetSystemMillis();
         // }
 
+        public static readonly DependencyProperty ClipPropertyPageItemsSourceProperty = DependencyProperty.Register("ClipPropertyPageItemsSource", typeof(IEnumerable), typeof(EditorMainWindow), new PropertyMetadata(null));
+
+        public IEnumerable ClipPropertyPageItemsSource {
+            get { return (IEnumerable) GetValue(ClipPropertyPageItemsSourceProperty); }
+            set { SetValue(ClipPropertyPageItemsSourceProperty, value); }
+        }
+
         public void UpdateSelectionPropertyPages() {
+            this.ClipPropertyPageItemsSource = null;
             this.ClipPropertyPanelList.Items.Clear();
             if (this.Editor.ActiveProject is ProjectViewModel project) {
                 List<ClipViewModel> list = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
@@ -222,6 +232,11 @@ namespace FramePFX.Editor {
         }
 
         public void GeneratePropertyPages(ClipViewModel clip) {
+            List<BaseClipPropertyPageViewModel> list2 = ClipPageFactory.Instance.CreatePages(clip);
+            list2.Reverse();
+            this.ClipPropertyPageItemsSource = list2;
+            // this.ClipPropertyPanelListV2.ItemsSource = list2;
+
             Type root = typeof(ClipViewModel);
             List<Type> types = new List<Type>();
             for (Type type = clip.GetType(); type != null && root.IsAssignableFrom(type); type = type.BaseType) {

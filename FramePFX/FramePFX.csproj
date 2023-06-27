@@ -278,8 +278,10 @@
     <Compile Include="Editor\Properties\Pages\PropertyPageVideoClip.xaml.cs">
       <DependentUpon>PropertyPageVideoClip.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\PageRegistry.cs" />
-    <Compile Include="Editor\Properties\PropertyGroupExpander.cs" />
+    <Compile Include="Editor\FrameworkElementPageRegistry.cs" />
+    <Compile Include="Editor\Properties\PropertyPageDataTemplateSelector.cs" />
+    <Compile Include="Editor\Properties\PropertyPageItem.cs" />
+    <Compile Include="Editor\Properties\PropertyPageItemsControl.cs" />
     <Compile Include="Editor\ResourceChecker\ResourceCheckerDialog.xaml.cs">
       <DependentUpon>ResourceCheckerDialog.xaml</DependentUpon>
     </Compile>
@@ -474,7 +476,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Editor\Properties\PropertyStyles.xaml">
+    <Page Include="Editor\Properties\PropertyPageStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

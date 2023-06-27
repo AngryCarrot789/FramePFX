@@ -7,9 +7,11 @@ using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;
 using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.History.ViewModels;
+using FramePFX.Core.PropertyPages;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline {

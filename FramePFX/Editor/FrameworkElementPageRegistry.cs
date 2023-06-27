@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Windows;
 
 namespace FramePFX.Editor {
-    public class PageRegistry<TBase> {
+    public class FrameworkElementPageRegistry<TBase> {
         private readonly Dictionary<Type, Func<TBase, FrameworkElement>> Map;
 
-        public PageRegistry() {
+        public FrameworkElementPageRegistry() {
             this.Map = new Dictionary<Type, Func<TBase, FrameworkElement>>();
         }
 

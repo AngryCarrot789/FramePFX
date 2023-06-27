@@ -5,7 +5,7 @@
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:converters="clr-namespace:FramePFX.Converters"
             xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
-            xmlns:s="clr-namespace:FramePFX.Shortcuts"
+            xmlns:sc="clr-namespace:FramePFX.Shortcuts"
             xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
             xmlns:c="clr-namespace:FramePFX.Editor.Timeline.Controls"
             xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
@@ -26,14 +26,19 @@
             xmlns:savingProject="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
             xmlns:framePfx="clr-namespace:FramePFX"
             xmlns:history="clr-namespace:FramePFX.Core.History;assembly=FramePFX.Core"
+            xmlns:propertyPages="clr-namespace:FramePFX.Core.PropertyPages;assembly=FramePFX.Core"
+            xmlns:p="clr-namespace:FramePFX.Editor.Properties"
+            xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
+            xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
+            xmlns:s="clr-namespace:System;assembly=mscorlib"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
             Width="1408" Height="792"
             Style="{StaticResource CustomWindowStyle}"
             Background="{DynamicResource WindowBackground}"
             BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
-            s:UIFocusGroup.IsShortcutInputSource="True"
-            s:UIFocusGroup.FocusGroupPath="Application/Editor">
+            sc:UIFocusGroup.IsShortcutInputSource="True"
+            sc:UIFocusGroup.FocusGroupPath="Application/Editor">
     <Window.Resources>
         <SolidColorBrush x:Key="WindowBackground" Color="{DynamicResource AColour.Tone2.Background.Static}"/>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg Sony Vegas"/>
@@ -161,7 +166,7 @@
                                     </editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
                                 </editor:ResourceItemContainerDataTemplateSelector>
                             </TabItem.Resources>
-                            <Grid s:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+                            <Grid sc:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
                                 <ui:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                                         ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
                                                         helpers:SelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
@@ -178,6 +183,26 @@
                                 </ui:ResourceListControl>
                             </Grid>
                         </TabItem>
+                        <TabItem Header="Property Pages (v2)">
+                            <p:PropertyPageItemsControl x:Name="ClipPropertyPanelListV2" Background="{DynamicResource ABrush.Tone2.Background.Static}"
+                                                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                        ScrollViewer.CanContentScroll="False"
+                                                        helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True"
+                                                        ItemDirection="Vertical">
+                                <!-- 
+                                                        ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ClipPropertyPageItemsSource}" -->
+                                <p:PropertyPageItem>
+                                    <TextBlock Text="no"/>
+                                </p:PropertyPageItem>
+                                <p:PropertyPageItem>
+                                    <TextBlock Text="no"/>
+                                </p:PropertyPageItem>
+                                <p:PropertyPageItem>
+                                    <TextBlock Text="no"/>
+                                </p:PropertyPageItem>
+                            </p:PropertyPageItemsControl>
+                        </TabItem>
                         <TabItem Header="Clip Properties">
                             <!--
                             <Grid Grid.IsSharedSizeScope="True">
@@ -190,15 +215,15 @@
                             </Grid>
                             -->
 
-                            <ScrollViewer HorizontalScrollBarVisibility="Auto" 
-                                          VerticalScrollBarVisibility="Auto" CanContentScroll="False" 
-                                          helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True" 
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto" CanContentScroll="False"
+                                          helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True"
                                           Background="{DynamicResource ABrush.Tone2.Background.Static}">
                                 <ItemsControl x:Name="ClipPropertyPanelList" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
                                 </ItemsControl>
                             </ScrollViewer>
 
-                            <!-- 
+                            <!--
                                 Maybe create some sort of base user control called "PropertyPage" which maps to a specific class/type of clip,
                                 then when a selected item changes, iterate through the type hierarchy and generate the pages accordingly?
                             -->
@@ -239,7 +264,7 @@
                 </Border>
                 <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}"
                         IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Margin="0,0,0,20"
-                        s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
+                        sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
                     <Border.InputBindings>
                         <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/TrackControllers/DeleteSelectedTrack" Command="{Binding Timeline.RemoveSelectedTracksCommand}"/>
                         <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/Surface/PlayPauseAction" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
@@ -264,11 +289,11 @@
                                 </StackPanel>
                             </DockPanel>
                         </Border>
-                        <Border s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
+                        <Border sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
                                 Grid.Row="1" Grid.Column="0" BorderThickness="0 0 0 0"
                                 Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                 BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
-                        <ListBox x:Name="TrackListBox" s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
+                        <ListBox x:Name="TrackListBox" sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
                                  Grid.Row="1" Grid.Column="0"
                                  SelectionMode="Extended"
                                  ItemsSource="{Binding Tracks, Mode=OneTime}"
@@ -361,7 +386,7 @@
                                            Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
                                            BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
                                            MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"
-                                           s:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
+                                           sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                         </c:TimelineControl>
                         <GridSplitter Background="{DynamicResource WindowBackground}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>

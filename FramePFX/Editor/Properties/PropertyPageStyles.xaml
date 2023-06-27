@@ -1,0 +1,201 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:p="clr-namespace:FramePFX.Editor.Properties"
+                    xmlns:pg="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;assembly=FramePFX.Core"
+                    xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib"
+                    xmlns:validators="clr-namespace:FramePFX.Validators">
+    <p:PropertyPageDataTemplateSelector x:Key="PropertyPageDataTemplateSelector">
+        <p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
+            <DataTemplate DataType="{x:Type pg:VideoClipPageViewModel}">
+                <Grid DataContext="{Binding Target}" Width="275">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <dragger:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Position" Height="18" Margin="0,2,0,3"/>
+                    <dragger:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="2" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Scale" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                    <dragger:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="4" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                    <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="6" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,2,0,3"/>
+                    <Grid Grid.Column="1" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                    </Grid>
+                    <Grid Grid.Column="1" Grid.Row="6">
+                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaFrameOffset, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="1" SmallChange="5" LargeChange="60" MassiveChange="300"/>
+                    </Grid>
+                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                    <Button ToolTip="Reset the media position"     Command="{Binding ResetPositionCommand, Mode=OneTime}"    Content="R" Grid.Column="2" Grid.Row="0" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
+                    <Button ToolTip="Reset the media scale"        Command="{Binding ResetScaleCommand, Mode=OneTime}"       Content="R" Grid.Column="2" Grid.Row="2" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
+                    <Button ToolTip="Reset the media scale origin" Command="{Binding ResetScaleOriginCommand, Mode=OneTime}" Content="R" Grid.Column="2" Grid.Row="4" BorderThickness="0" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
+                </Grid>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
+        <p:PropertyPageDataTemplateSelector.ShapeClipPageTemplate>
+            <DataTemplate DataType="{x:Type pg:ShapeClipPageViewModel}">
+                <Grid DataContext="{Binding Target}" Width="275">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Size" FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" Margin="0,7"/>
+                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+                    <dragger:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+                </Grid>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.ShapeClipPageTemplate>
+        <p:PropertyPageDataTemplateSelector.TextClipPageTemplate>
+            <DataTemplate DataType="{x:Type pg:TextClipPageViewModel}">
+                <StackPanel DataContext="{Binding Target}" Width="275">
+                    <CheckBox IsChecked="{Binding UseCustomText}" Content="Override Resource Text" ToolTip="By default, all clips have their own text. However, resources can store text to share across clips. Disabling this option makes this clip reference the resource's text"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Padding="5" Text="Text:" HorizontalAlignment="Left"/>
+                        <dragger:NumberDragger Margin="2,2,0,2" Minimum="0" Maximum="4000" RoundedPlaces="1" Value="{Binding FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="1"/>
+                        <TextBox Margin="2,2,0,2" Width="100" VerticalContentAlignment="Center">
+                            <TextBox.Text>
+                                <Binding Path="FontFamily" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <validators:FontFamilyValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+                        <Button Content="B" Margin="2,2,0,2" HorizontalAlignment="Left" Width="22" FontWeight="Bold" FontFamily="Consolas"/>
+                        <Button Content="I" Margin="2,2,0,2" HorizontalAlignment="Left" Width="22" FontStyle="Italic" FontFamily="Consolas"/>
+                    </StackPanel>
+                    <TextBox MinHeight="40" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" AcceptsReturn="True" AcceptsTab="True">
+
+                    </TextBox>
+                </StackPanel>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.TextClipPageTemplate>
+    </p:PropertyPageDataTemplateSelector>
+
+    <ItemsPanelTemplate x:Key="WrapPanelItemsPanelTemplate">
+        <WrapPanel Orientation="Horizontal"/>
+    </ItemsPanelTemplate>
+
+    <ItemsPanelTemplate x:Key="StackPanelItemsPanelTemplate">
+        <StackPanel Orientation="Vertical"/>
+    </ItemsPanelTemplate>
+
+    <Style TargetType="{x:Type p:PropertyPageItem}" BasedOn="{StaticResource {x:Type HeaderedContentControl}}">
+        <Setter Property="Margin" Value="3"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
+        <Setter Property="ContentTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type p:PropertyPageItem}">
+                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <Border.OpacityMask>
+                            <VisualBrush Visual="{Binding ElementName=__BORDER__}"/>
+                        </Border.OpacityMask>
+                        <Grid>
+                            <Border x:Name="__BORDER__" Background="{DynamicResource ABrush.Tone7.Background.Static}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
+                            <StackPanel>
+                                <Border x:Name="PART_HeaderBorder" MinHeight="18">
+                                    <ContentPresenter x:Name="PART_HeaderPresenter" HorizontalAlignment="Left" Margin="5,0" VerticalAlignment="Center"
+                                                  ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                </Border>
+                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                    <ContentPresenter x:Name="PART_ContentPresenter" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HeaderTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type pg:BaseClipPropertyPageViewModel}">
+                    <TextBlock Text="{Binding PageName, Mode=OneTime}" VerticalAlignment="Center"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type p:PropertyPageItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+        <Setter Property="ScrollViewer.PanningMode" Value="Both" />
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
+        <Setter Property="ItemTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
+        <Setter Property="ItemsPanel" Value="{StaticResource StackPanelItemsPanelTemplate}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type p:PropertyPageItemsControl}">
+                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                        <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}">
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </ScrollViewer>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ItemDirection" Value="Horizontal">
+                            <Setter Property="ItemsPanel" Value="{StaticResource WrapPanelItemsPanelTemplate}"/>
+                            <Setter Property="ItemTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
+                        </Trigger>
+                        <Trigger Property="ItemDirection" Value="Vertical">
+                            <Setter Property="ItemsPanel" Value="{StaticResource StackPanelItemsPanelTemplate}"/>
+                            <Setter Property="ItemTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Background}" />
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Border}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsGrouping" Value="true" />
+                                <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

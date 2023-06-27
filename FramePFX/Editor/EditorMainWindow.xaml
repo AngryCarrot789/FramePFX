@@ -189,18 +189,8 @@
                                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                         ScrollViewer.CanContentScroll="False"
                                                         helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True"
-                                                        ItemDirection="Vertical">
-                                <!-- 
-                                                        ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ClipPropertyPageItemsSource}" -->
-                                <p:PropertyPageItem>
-                                    <TextBlock Text="no"/>
-                                </p:PropertyPageItem>
-                                <p:PropertyPageItem>
-                                    <TextBlock Text="no"/>
-                                </p:PropertyPageItem>
-                                <p:PropertyPageItem>
-                                    <TextBlock Text="no"/>
-                                </p:PropertyPageItem>
+                                                        ItemDirection="Vertical"
+                                                        ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ClipPropertyPageItemsSource}">
                             </p:PropertyPageItemsControl>
                         </TabItem>
                         <TabItem Header="Clip Properties">

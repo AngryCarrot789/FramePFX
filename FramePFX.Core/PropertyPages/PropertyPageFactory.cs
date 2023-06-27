@@ -75,7 +75,27 @@ namespace FramePFX.Core.PropertyPages {
                 pages.Add(page);
             }
 
+            pages.Reverse();
             return pages;
+        }
+
+        public List<TPageBase> CreatePages(List<TBase> instances) {
+            if (instances == null || instances.Count < 1) {
+                return new List<TPageBase>();
+            }
+
+            if (instances.Count == 1) {
+                return this.CreatePages(instances[0]);
+            }
+
+            return new List<TPageBase>();
+
+            // List<TPageBase> pages = new List<TPageBase>();
+            // foreach (Type type in this.GetTypes(instances.GetType())) {
+            //     TPageBase page = this.CreateInstance(enumerable, type);
+            //     pages.Add(page);
+            // }
+            // return pages;
         }
 
         protected virtual TPageBase CreateInstance(TBase instance, Type pageType) {

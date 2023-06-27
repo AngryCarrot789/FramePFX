@@ -21,6 +21,7 @@
                     xmlns:tracks="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Tracks;assembly=FramePFX.Core"
                     xmlns:actions="clr-namespace:FramePFX.Core.Editor.Actions;assembly=FramePFX.Core"
                     xmlns:contexts="clr-namespace:FramePFX.Core.Editor.Contexts;assembly=FramePFX.Core"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -63,6 +64,8 @@
         it comes to zooming/scrolling. other operations may obviously cause massive lag with that many clips)
     -->
 
+    <system:Double x:Key="LayerHeight">20</system:Double>
+
     <Style TargetType="{x:Type cc:TimelineClipControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
@@ -81,7 +84,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type cc:TimelineClipControl}">
                     <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">
-                        <Border Background="{Binding Track.TrackColour, FallbackValue=Black}" VerticalAlignment="Top" Height="20">
+                        <Border Background="{Binding Track.TrackColour, FallbackValue=Black}" VerticalAlignment="Top" Height="{DynamicResource LayerHeight}">
                             <DockPanel>
                                 <TextBlock IsHitTestVisible="False" Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
                                     <TextBlock.InputBindings>
@@ -112,7 +115,9 @@
                                                      IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
                                                      UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineControl}}, Path=UnitZoom, FallbackValue=0}"
                                                      FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type cc:TimelineClipControl}}, Path=FrameDuration}"
-                                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                     Margin="0,20,0,0">
+                        </aa:AutomationSequenceEditor>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -456,6 +461,7 @@
                                         Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
                                 <cc:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
                                                        SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
+                                                       Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                        DockPanel.Dock="Right" SnapsToDevicePixels="True" MinWidth="40"/>
                             </DockPanel>
                         </DockPanel>
@@ -489,6 +495,7 @@
                                         ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"
                                         Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
                                 <cc:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
+                                                       Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                        SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
                                                        DockPanel.Dock="Right" SnapsToDevicePixels="True" MinWidth="40"/>
                             </DockPanel>

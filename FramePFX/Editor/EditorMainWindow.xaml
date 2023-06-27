@@ -7,33 +7,27 @@
             xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
             xmlns:sc="clr-namespace:FramePFX.Shortcuts"
             xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
-            xmlns:c="clr-namespace:FramePFX.Editor.Timeline.Controls"
-            xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
+            xmlns:ctrl2="clr-namespace:FramePFX.Editor.Timeline.Controls"
             xmlns:v="clr-namespace:FramePFX.Views"
             xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
-            xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
+            xmlns:evm="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
             xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
-            xmlns:cc="clr-namespace:FramePFX.Controls"
+            xmlns:ctrl="clr-namespace:FramePFX.Controls"
             xmlns:rm="clr-namespace:FramePFX.Core.Editor.ResourceManaging;assembly=FramePFX.Core"
             xmlns:nn="clr-namespace:FramePFX.Notifications"
             xmlns:types="clr-namespace:FramePFX.Core.Notifications.Types;assembly=FramePFX.Core"
             xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
             xmlns:editor="clr-namespace:FramePFX.Editor"
             xmlns:vm1="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core"
-            xmlns:ui="clr-namespace:FramePFX.ResourceManaging"
             xmlns:rc="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;assembly=FramePFX.Core"
             xmlns:notifications="clr-namespace:FramePFX.Core.Editor.Notifications;assembly=FramePFX.Core"
-            xmlns:savingProject="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
-            xmlns:framePfx="clr-namespace:FramePFX"
+            xmlns:sp="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
+            xmlns:pfx="clr-namespace:FramePFX"
             xmlns:history="clr-namespace:FramePFX.Core.History;assembly=FramePFX.Core"
-            xmlns:propertyPages="clr-namespace:FramePFX.Core.PropertyPages;assembly=FramePFX.Core"
             xmlns:p="clr-namespace:FramePFX.Editor.Properties"
-            xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
-            xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
-            xmlns:s="clr-namespace:System;assembly=mscorlib"
-            xmlns:pages="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;assembly=FramePFX.Core"
+            xmlns:resources="clr-namespace:FramePFX.Editor.Resources"
             mc:Ignorable="d"
-            d:DataContext="{d:DesignInstance viewModels:VideoEditorViewModel}"
+            d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
             Style="{StaticResource CustomWindowStyle}"
             Background="{DynamicResource WindowBackground}"
@@ -119,73 +113,27 @@
                             <Button Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5"/>
                         </Grid>
                     </Border>
-                    <cc:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource ABrush.Tone1.Background.Static}">
+                    <ctrl:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource ABrush.Tone1.Background.Static}">
                         <!--
                         <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
                         -->
-                        <framePfx:SkiaViewPortControl Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement"/>
-                    </cc:FreeMoveViewPortV2>
+                        <pfx:SkiaViewPortControl Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement"/>
+                    </ctrl:FreeMoveViewPortV2>
                 </Grid>
-                <Border DataContext="{Binding ActiveProject, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}" Background="{DynamicResource ABrush.Tone2.Background.Static}">
+                <Border IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}" Background="{DynamicResource ABrush.Tone2.Background.Static}">
                     <TabControl BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}">
-                        <TabItem Header="Files and Resources" DataContext="{Binding ResourceManager}">
-                            <TabItem.Resources>
-                                <editor:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector">
-                                    <editor:ResourceItemContainerStyleSelector.ResourceItemStyle>
-                                        <!-- d:DataContext="{d:DesignInstance vm1:ResourceItemViewModel}" -->
-                                        <Style TargetType="{x:Type ui:ResourceItemControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}">
-                                            <Setter Property="HeaderText" Value="{Binding UniqueId, Mode=OneWay}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                                    <Setter Property="Background" Value="DarkRed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </editor:ResourceItemContainerStyleSelector.ResourceItemStyle>
-                                    <editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
-                                        <!-- d:DataContext="{d:DesignInstance vm1:ResourceGroupViewModel}" -->
-                                        <Style TargetType="{x:Type ui:ResourceGroupControl}" BasedOn="{StaticResource {x:Type ui:BaseResourceItemControl}}">
-                                            <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}"/>
-                                        </Style>
-                                    </editor:ResourceItemContainerStyleSelector.ResourceGroupStyle>
-                                </editor:ResourceItemContainerStyleSelector>
-                                <editor:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
-                                    <editor:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
-                                        <DataTemplate DataType="{x:Type vm1:ResourceItemViewModel}">
-                                            <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}"/>
-                                        </DataTemplate>
-                                    </editor:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
-                                    <editor:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
-                                        <DataTemplate DataType="{x:Type rc:ResourceColourViewModel}">
-                                            <Border Background="{Binding Colour, Converter={x:Static converters:SKColorToBrushConverter.Instance}}"/>
-                                        </DataTemplate>
-                                    </editor:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
-                                    <editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
-                                        <DataTemplate DataType="{x:Type vm1:ResourceGroupViewModel}">
-                                            <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </editor:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
-                                </editor:ResourceItemContainerDataTemplateSelector>
-                            </TabItem.Resources>
+                        <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
                             <Grid sc:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
-                                <ui:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource ABrush.Tone3.Background.Static}"
-                                                        ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
-                                                        helpers:SelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
-                                                        helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
-                                                        ItemContainerStyleSelector="{StaticResource ResourceItemContainerStyleSelector}"
-                                                        ItemTemplateSelector="{StaticResource ResourceItemContainerDataTemplateSelector}"
-                                                        HorizontalContentAlignment="Stretch"
-                                                        VerticalContentAlignment="Stretch">
-                                    <ui:ResourceListControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ui:ResourceListControl.ItemsPanel>
-                                </ui:ResourceListControl>
+                                <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                                               ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
+                                                               helpers:SelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
+                                                               helpers:SelectorHelper.UpdateSelectedItemsOnChange="True"
+                                                               HorizontalContentAlignment="Stretch"
+                                                               VerticalContentAlignment="Stretch"/>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Property Pages (v2)">
-                            <p:PropertyPageItemsControl x:Name="ClipPropertyPanelListV2" Background="{DynamicResource ABrush.Tone2.Background.Static}"
+                            <p:PropertyPageItemsControl Background="{DynamicResource ABrush.Tone2.Background.Static}"
                                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                         ScrollViewer.CanContentScroll="False"
@@ -194,53 +142,6 @@
                                                         HorizontalContentAlignment="Left"
                                                         ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ClipPropertyPageItemsSource}">
                             </p:PropertyPageItemsControl>
-                        </TabItem>
-                        <TabItem Header="Clip Properties">
-                            <!--
-                            <Grid Grid.IsSharedSizeScope="True">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150" SharedSizeGroup="SharedColumn0"/>
-                                    <ColumnDefinition Width="*" SharedSizeGroup="SharedColumn1"/>
-                                </Grid.ColumnDefinitions>
-                                <ItemsControl x:Name="ClipPropertyPanelList" Grid.ColumnSpan="2" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
-                                </ItemsControl>
-                            </Grid>
-                            -->
-
-                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto" CanContentScroll="False"
-                                          helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True"
-                                          Background="{DynamicResource ABrush.Tone2.Background.Static}">
-                                <ItemsControl x:Name="ClipPropertyPanelList" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
-                                </ItemsControl>
-                            </ScrollViewer>
-
-                            <!--
-                                Maybe create some sort of base user control called "PropertyPage" which maps to a specific class/type of clip,
-                                then when a selected item changes, iterate through the type hierarchy and generate the pages accordingly?
-                            -->
-                            <!-- d:DataContext="{d:DesignInstance sources:LoopbackSourceViewModel}" -->
-                            <!--
-                            <Grid x:Name="SettingsPanel" Background="{DynamicResource ABrush.Tone2.Background.Static}">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                    <ContentPresenter Content="{Binding}">
-                                        <ContentPresenter.Resources>
-                                            <DataTemplate DataType="{x:Type clips1:ImageClipViewModel}">
-                                            </DataTemplate>
-                                            <DataTemplate DataType="{x:Type clips1:SquareClipViewModel}">
-                                            </DataTemplate>
-                                            <DataTemplate DataType="{x:Type clips1:VideoClipViewModel}">
-                                            </DataTemplate>
-                                        </ContentPresenter.Resources>
-                                    </ContentPresenter>
-                                </ScrollViewer>
-                            </Grid>
-                            -->
-                        </TabItem>
-                        <TabItem Header="Debug stuff">
-                            <Grid>
-                                <Canvas/>
-                            </Grid>
                         </TabItem>
                     </TabControl>
                 </Border>
@@ -372,14 +273,14 @@
                             </ListBox.ItemContainerStyle>
                         </ListBox>
                         <Border Visibility="Collapsed" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="0 0 0 1" Grid.Column="0" Height="1" VerticalAlignment="Bottom" Grid.Row="1"/>
-                        <c:TimelineControl x:Name="TheTimeline"
+                        <ctrl2:TimelineControl x:Name="TheTimeline"
                                            Background="{DynamicResource ABrush.Tone2.Background.Static}"
                                            ItemsSource="{Binding Tracks, Mode=OneTime}"
                                            Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
                                            BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
                                            MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"
                                            sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
-                        </c:TimelineControl>
+                        </ctrl2:TimelineControl>
                         <GridSplitter Background="{DynamicResource WindowBackground}" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" BorderThickness="1 0 1 0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
@@ -434,7 +335,7 @@
                                 </Border>
                                 <Label Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top">
                                     <Label.Content>
-                                        <MultiBinding Converter="{x:Static savingProject:SavingProjectMessageConverter.Instance}">
+                                        <MultiBinding Converter="{x:Static sp:SavingProjectMessageConverter.Instance}">
                                             <Binding Path="IsSaving"/>
                                             <Binding Path="IsSuccess"/>
                                             <Binding Path="ErrorMessage"/>

@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 
-namespace FramePFX.Editor {
+namespace FramePFX.Editor.Resources {
     public class ResourceItemContainerDataTemplateSelector : DataTemplateSelector {
         public DataTemplate ResourceItemTemplate { get; set; }
         public DataTemplate ResourceItemColourTemplate { get; set; }

@@ -4,19 +4,27 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Core;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Interactivity;
 
-namespace FramePFX.ResourceManaging {
-    public class ResourceListControl : MultiSelector, IResourceListHandle {
+namespace FramePFX.Editor.Resources {
+    public class ResourceListControl : MultiSelector {
         public static readonly DependencyProperty FileDropNotifierProperty = DependencyProperty.Register("FileDropNotifier", typeof(IFileDropNotifier), typeof(ResourceListControl), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty ItemDirectionProperty = DependencyProperty.Register("ItemDirection", typeof(Orientation), typeof(ResourceListControl), new PropertyMetadata(Orientation.Horizontal));
 
         public IFileDropNotifier FileDropNotifier {
             get => (IFileDropNotifier) this.GetValue(FileDropNotifierProperty);
             set => this.SetValue(FileDropNotifierProperty, value);
+        }
+
+        public Orientation ItemDirection {
+            get => (Orientation) this.GetValue(ItemDirectionProperty);
+            set => this.SetValue(ItemDirectionProperty, value);
         }
 
         public IResourceManagerNavigation Navigation => this.DataContext as IResourceManagerNavigation;
@@ -25,11 +33,6 @@ namespace FramePFX.ResourceManaging {
 
         public ResourceListControl() {
             this.AllowDrop = true;
-            this.DataContextChanged += (sender, args) => {
-                if (args.NewValue is ResourceManagerViewModel vm) {
-                    BaseViewModel.SetInternalData(vm, typeof(IResourceListHandle), this);
-                }
-            };
         }
 
         public IEnumerable<BaseResourceItemControl> GetResourceContainers() {
@@ -126,20 +129,6 @@ namespace FramePFX.ResourceManaging {
             }
 
             throw new Exception($"Unknown item type: {item}");
-        }
-
-        protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
-            base.PrepareContainerForItemOverride(element, item);
-            if (element is BaseResourceItemControl control && item is ResourceItemViewModel viewModel) {
-                BaseViewModel.SetInternalData(viewModel, typeof(IResourceControl), control);
-            }
-        }
-
-        protected override void ClearContainerForItemOverride(DependencyObject element, object item) {
-            base.ClearContainerForItemOverride(element, item);
-            if (item is ResourceItemViewModel viewModel) {
-                BaseViewModel.SetInternalData(viewModel, typeof(IResourceControl), null);
-            }
         }
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {

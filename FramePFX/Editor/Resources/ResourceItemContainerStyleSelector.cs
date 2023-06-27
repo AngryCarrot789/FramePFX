@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
-namespace FramePFX.Editor {
+namespace FramePFX.Editor.Resources {
     public class ResourceItemContainerStyleSelector : StyleSelector {
         public Style ResourceItemStyle { get; set; }
         public Style ResourceGroupStyle { get; set; }

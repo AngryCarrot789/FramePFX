@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
-namespace FramePFX.ResourceManaging {
+namespace FramePFX.Editor.Resources {
     public abstract class BaseResourceItemControl : ContentControl {
         public static readonly DependencyProperty HeaderTextProperty =
             DependencyProperty.Register(
@@ -68,9 +68,6 @@ namespace FramePFX.ResourceManaging {
         }
 
         private void OnIsSelectedChanged(DependencyPropertyChangedEventArgs e) {
-            if (e.NewValue != e.OldValue) {
-
-            }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {

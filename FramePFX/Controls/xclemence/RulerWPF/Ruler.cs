@@ -40,13 +40,11 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
 
             // allows high performance rendering, so that we aren't rendering stuff that's offscreen
             this.scroller = VisualTreeUtils.FindVisualParent<ScrollViewer>(this);
-            if (this.scroller == null) {
-                return;
+            if (this.scroller != null) {
+                this.scroller.SizeChanged += this.OnScrollerOnSizeChanged;
+                this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
+                this.InvalidateVisual();
             }
-
-            this.scroller.SizeChanged += this.OnScrollerOnSizeChanged;
-            this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
-            this.InvalidateVisual();
         }
 
         private void OnScrollerOnSizeChanged(object o, SizeChangedEventArgs e) {

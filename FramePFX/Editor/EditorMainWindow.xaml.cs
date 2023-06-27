@@ -13,6 +13,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.Audio;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
@@ -58,6 +59,7 @@ namespace FramePFX.Editor {
             this.NotificationPanel = new NotificationPanelViewModel(this);
 
             this.DataContext = new VideoEditorViewModel(this);
+            IoC.App.Editor = (VideoEditorViewModel) this.DataContext;
             this.renderCallback = this.DoRenderCore;
 
             this.lastRefreshTime = Time.GetSystemMillis();
@@ -227,59 +229,18 @@ namespace FramePFX.Editor {
             //     list.Reverse();
             //     this.ClipPropertyPageItemsSource = list;
             //     return;
-
+            // }
 
             this.ClipPropertyPageItemsSource = null;
-            this.ClipPropertyPanelList.Items.Clear();
             if (this.Editor.ActiveProject is ProjectViewModel project) {
+                // TODO: maybe move this to a view model?
                 List<ClipViewModel> list = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
-                if (list.Count != 1) {
-                    return;
-                }
-
-                this.GeneratePropertyPages(list[0]);
+                this.ClipPropertyPageItemsSource = ClipPageFactory.Instance.CreatePages(list);
             }
         }
 
         public void PushNotificationMessage(string message) {
             this.NotificationBarTextBlock.Text = message;
-        }
-
-        public void GeneratePropertyPages(ClipViewModel clip) {
-            List<BaseClipPropertyPageViewModel> list2 = ClipPageFactory.Instance.CreatePages(clip);
-            list2.Reverse();
-            // TODO: maybe move this to a view model, and maybe add multi-select support?
-            this.ClipPropertyPageItemsSource = list2;
-
-            Type root = typeof(ClipViewModel);
-            List<Type> types = new List<Type>();
-            for (Type type = clip.GetType(); type != null && root.IsAssignableFrom(type); type = type.BaseType) {
-                types.Add(type);
-            }
-
-            if (types.Count > 0) {
-                types.Reverse();
-                this.GeneratePropertyPages(types, clip);
-            }
-        }
-
-        public void GeneratePropertyPages(List<Type> types, ClipViewModel clip) {
-            List<FrameworkElement> controls = new List<FrameworkElement>(types.Count);
-            foreach (Type type in types) {
-                if (PropertyPageRegistry.Instance.GenerateControl(type, clip, out FrameworkElement control)) {
-                    control.DataContext = clip;
-                    controls.Add(control);
-                }
-            }
-
-            if (controls.Count < 1) {
-                return;
-            }
-
-            // this.ClipPropertyPanelList.Items.Add(controls[0]);
-            foreach (FrameworkElement t in controls) {
-                this.ClipPropertyPanelList.Items.Add(t);
-            }
         }
 
         public void RenderViewPort(bool scheduleRender) {
@@ -305,9 +266,8 @@ namespace FramePFX.Editor {
                 return;
             }
 
+            long frame = project.Timeline.PlayHeadFrame;
             if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
-                long frame = project.Timeline.PlayHeadFrame;
-
                 RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                 context.Canvas.Clear(SKColors.Black);
                 // project.Model.AutomationEngine.TickProjectAtFrame(frame);
@@ -321,6 +281,10 @@ namespace FramePFX.Editor {
 
                 this.ViewPortElement.EndRender();
             }
+
+            AudioEngine engine = new AudioEngine();
+            engine.UpdateFPS(project.Settings.FrameRate.ActualFPS);
+            engine.OnTick(project.Timeline.Model, frame);
 
             this.isRenderScheduled = 0;
         }

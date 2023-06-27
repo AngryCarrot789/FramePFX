@@ -268,7 +268,6 @@
     <Compile Include="Editor\Properties\Pages\PropertyPageBaseClip.xaml.cs">
       <DependentUpon>PropertyPageBaseClip.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\Properties\Pages\PropertyPageRegistry.cs" />
     <Compile Include="Editor\Properties\Pages\PropertyPageShapeClip.xaml.cs">
       <DependentUpon>PropertyPageShapeClip.xaml</DependentUpon>
     </Compile>
@@ -286,8 +285,12 @@
       <DependentUpon>ResourceCheckerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\ResourceChecker\ResourceCheckerService.cs" />
-    <Compile Include="Editor\ResourceItemContainerDataTemplateSelector.cs" />
-    <Compile Include="Editor\ResourceItemContainerStyleSelector.cs" />
+    <Compile Include="Editor\Resources\BaseResourceItemControl.cs" />
+    <Compile Include="Editor\Resources\ResourceGroupControl.cs" />
+    <Compile Include="Editor\Resources\ResourceItemContainerDataTemplateSelector.cs" />
+    <Compile Include="Editor\Resources\ResourceItemContainerStyleSelector.cs" />
+    <Compile Include="Editor\Resources\ResourceItemControl.cs" />
+    <Compile Include="Editor\Resources\ResourceListControl.cs" />
     <Compile Include="Editor\Timeline\Actions\DeleteSelectedClips.cs" />
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewTrackActions.cs" />
@@ -321,12 +324,6 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
-    <Compile Include="ResourceManaging\BaseResourceItemControl.cs" />
-    <Compile Include="ResourceManaging\IResourceControl.cs" />
-    <Compile Include="ResourceManaging\IResourceListHandle.cs" />
-    <Compile Include="ResourceManaging\ResourceGroupControl.cs" />
-    <Compile Include="ResourceManaging\ResourceItemControl.cs" />
-    <Compile Include="ResourceManaging\ResourceListControl.cs" />
     <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Services\WinExplorerService.cs" />
@@ -484,11 +481,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Editor\Timeline\TimelineStyles.xaml">
+    <Page Include="Editor\Resources\ResManagerStyles.xaml">
+      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ResourceManaging\ResManagerStyles.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Editor\Timeline\TimelineStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml">

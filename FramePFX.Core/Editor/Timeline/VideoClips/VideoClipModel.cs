@@ -107,14 +107,14 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             rc.Canvas.Translate(pos.X, pos.Y);
             size = this.GetSize();
             if (this.UseAbsoluteScaleOrigin) {
+                rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
+            }
+            else {
                 if (!(size is Vector2 sz)) {
                     sz = new Vector2(rc.FrameInfo.Width, rc.FrameInfo.Height);
                 }
 
                 rc.Canvas.Scale(scale.X, scale.Y, sz.X * origin.X, sz.Y * origin.Y);
-            }
-            else {
-                rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
             }
         }
 

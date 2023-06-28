@@ -127,7 +127,7 @@ namespace FramePFX.Core.Editor.Timeline {
                     clip.Render(render, frame);
                     #else
                     try {
-                        videoClip.Render(render, frame);
+                        clip.Render(render, frame);
                     }
                     catch (Exception e) {
                         this.ExceptionsLastRender[clip] = e;

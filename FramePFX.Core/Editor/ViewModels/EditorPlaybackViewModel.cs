@@ -124,7 +124,10 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task OnProjectChanging(ProjectViewModel project) {
-            this.Model.DisposeAudioPlayback();
+            if (this.Project !=null) {
+                this.Project.Model.AudioEngine.Stop();
+            }
+
             if (this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
@@ -140,8 +143,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             if (project != null) {
                 this.SetTimerFrameRate(project.Settings.FrameRate.ActualFPS);
                 ProjectSettingsModel settings = project.Settings.Model;
-                this.Model.SetAudioPlayback(settings.SampleRate, settings.BitRate, settings.Channels);
-                this.Model.WaveOut.Play();
+                project.Model.AudioEngine.Start(new WaveFormat(settings.SampleRate, settings.BitRate, settings.Channels));
             }
 
             this.UpdatePlaybackCommands();

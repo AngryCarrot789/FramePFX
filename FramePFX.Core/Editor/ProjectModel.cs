@@ -1,5 +1,6 @@
 using System;
 using FramePFX.Core.Automation;
+using FramePFX.Core.Editor.Audio;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.RBC;
@@ -24,6 +25,8 @@ namespace FramePFX.Core.Editor {
 
         public AutomationEngine AutomationEngine { get; }
 
+        public AudioEngine AudioEngine { get; }
+
         public ProjectModel() {
             this.Settings = new ProjectSettingsModel() {
                 Resolution = new Resolution(1920, 1080)
@@ -31,6 +34,7 @@ namespace FramePFX.Core.Editor {
 
             this.ResourceManager = new ResourceManager(this);
             this.AutomationEngine = new AutomationEngine(this);
+            this.AudioEngine = new AudioEngine();
             this.Timeline = new TimelineModel(this) {
                 MaxDuration = 10000L
             };

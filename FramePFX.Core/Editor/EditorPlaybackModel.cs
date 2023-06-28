@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Core.Editor.Audio;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using NAudio.Wave;
@@ -26,36 +27,11 @@ namespace FramePFX.Core.Editor {
             set => this.PlaybackTimer.TickCallback = value;
         }
 
-        public BufferedWaveProvider WaveProvider { get; private set; }
-
-        public WaveOutEvent WaveOut { get; private set; }
-
         public VideoEditorModel Editor { get; }
 
         public EditorPlaybackModel(VideoEditorModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.PlaybackTimer = new PrecisionTimer();
-        }
-
-        public void DisposeAudioPlayback() {
-            if (this.WaveOut != null) {
-                this.WaveOut.Stop();
-                this.WaveOut.Dispose();
-                this.WaveOut = null;
-            }
-
-            if (this.WaveProvider != null) {
-                this.WaveProvider.ClearBuffer();
-                this.WaveProvider = null;
-            }
-        }
-
-        public void SetAudioPlayback(int sampleRate, int bitRate, int channels) {
-            this.DisposeAudioPlayback();
-            WaveFormat format = new WaveFormat(sampleRate, bitRate, channels);
-            this.WaveProvider = new BufferedWaveProvider(format);
-            this.WaveOut = new WaveOutEvent();
-            this.WaveOut.Init(this.WaveProvider);
         }
 
         public void WriteToRBE(RBEDictionary data) {

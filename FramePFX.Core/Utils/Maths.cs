@@ -77,9 +77,14 @@ namespace FramePFX.Core.Utils {
             return mod == 0 ? value : value + (multiple - mod);
         }
 
+        public static long Ceil(long value, int multiple) {
+            long mod = value % multiple;
+            return mod == 0 ? value : value + (multiple - mod);
+        }
+
         public static double Ceil(double value, int multiple) {
             double mod = value % multiple;
-            return mod == 0 ? value : value + (multiple - mod);
+            return mod == 0D ? value : value + (multiple - mod);
         }
     }
 }

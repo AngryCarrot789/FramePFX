@@ -5,6 +5,7 @@ using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Editor.Audio;
 using FramePFX.Core.Editor.Timeline.AudioClips;
 using FramePFX.Core.Utils;
+using NAudio.Mixer;
 
 namespace FramePFX.Core.Editor.Timeline.Tracks {
     public class AudioTrackModel : TrackModel {
@@ -49,7 +50,8 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
                 buffer[i] = (byte) (sample * 255d);
             }
 
-            this.Timeline.Project.Editor.Playback.WaveProvider.AddSamples(buffer, 0, count);
+            engine.WaveStream.AddSamples(buffer, 0, count);
+            // this.Timeline.Project.AudioEngine.AddSamples(buffer, 0, count);
         }
 
         public override TrackModel CloneCore() {

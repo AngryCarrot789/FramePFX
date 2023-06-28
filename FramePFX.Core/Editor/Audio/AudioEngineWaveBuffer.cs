@@ -10,36 +10,42 @@ using NAudio.Wave;
 namespace FramePFX.Core.Editor.Audio {
     public class AudioEngineWaveBuffer : IDisposable {
         private readonly WaveHeader header;
-        private readonly byte[] buffer;
-        private readonly BufferedWaveProvider waveStream;
         private readonly object waveOutLock;
-        private GCHandle hBuffer;
+        private IntPtr hBuffer;
         private IntPtr hWaveOut;
         private GCHandle hHeader;
         private GCHandle hThis;
+        private int currentOffset;
 
         public bool InQueue => (this.header.flags & WaveHeaderFlags.InQueue) == WaveHeaderFlags.InQueue;
 
         public int BufferSize { get; }
 
-        public BufferedWaveProvider Buffer => this.waveStream;
+        public BufferedWaveProvider WaveStream { get; }
 
         public AudioEngineWaveBuffer(IntPtr hWaveOut, int bufferSize, BufferedWaveProvider waveStream, object waveOutLock) {
             this.BufferSize = bufferSize;
-            this.buffer = new byte[bufferSize];
-            this.hBuffer = GCHandle.Alloc(this.buffer, GCHandleType.Pinned);
+            this.hBuffer = Marshal.AllocHGlobal(bufferSize);
             this.hWaveOut = hWaveOut;
-            this.waveStream = waveStream;
+            this.WaveStream = waveStream;
             this.waveOutLock = waveOutLock;
             this.header = new WaveHeader();
             this.hHeader = GCHandle.Alloc(this.header, GCHandleType.Pinned);
-            this.header.dataBuffer = this.hBuffer.AddrOfPinnedObject();
+            this.header.dataBuffer = this.hBuffer;
             this.header.bufferLength = bufferSize;
             this.header.loops = 1;
             this.hThis = GCHandle.Alloc(this);
             this.header.userData = (IntPtr) this.hThis;
             lock (waveOutLock) {
-                MmException.Try(WaveInterop.waveOutPrepareHeader(hWaveOut, this.header, Marshal.SizeOf(this.header)), "waveOutPrepareHeader");
+                MmResult result = WaveInterop.waveOutPrepareHeader(hWaveOut, this.header, Marshal.SizeOf(this.header));
+                if (result != MmResult.NoError) {
+                    if (this.hHeader.IsAllocated)
+                        this.hHeader.Free();
+                    Marshal.FreeHGlobal(this.hBuffer);
+                    if (this.hThis.IsAllocated)
+                        this.hThis.Free();
+                    throw new MmException(result, "waveOutPrepareHeader");
+                }
             }
         }
 
@@ -50,33 +56,31 @@ namespace FramePFX.Core.Editor.Audio {
             this.Dispose(true);
         }
 
-        public void WriteSamplesAndWriteWaveOut(byte[] src, int offset, int count) {
-            byte[] dst = this.buffer;
-            int bufLen = dst.Length;
-            for (int i = 0; i < count; i++) {
-                dst[i] = src[i + offset];
+        public unsafe void WriteSamplesAndWriteWaveOut(byte* srcSamples, int count) {
+            int overshoot = this.currentOffset + count;
+            if (overshoot >= this.BufferSize) {
+                count -= overshoot - this.BufferSize;
             }
 
-            Unsafe.CopyBlock(ref dst[0], ref src[offset], (uint) count);
-            Unsafe.InitBlock(ref dst[count], 0, (uint) (bufLen - count));
-            this.WriteToWaveOut();
+            byte* dst = (byte*) this.hBuffer + this.currentOffset;
+            Unsafe.CopyBlock(dst, srcSamples, (uint) count);
+            uint tail = (uint) (this.BufferSize - this.currentOffset - count);
+            if (tail > 0) {
+                Unsafe.InitBlock(dst + count, 0, tail);
+            }
+
+            this.currentOffset += count;
         }
 
-        public bool ProcessBuffer() {
-            int num, len;
-            lock (this.waveStream) {
-                num = this.waveStream.Read(this.buffer, 0, this.buffer.Length);
-            }
-
-            if (num != 0) {
-                if (num < (len = this.buffer.Length)) {
-                    Unsafe.InitBlock(ref this.buffer[num], 0, (uint) (len - num));
-                }
-
+        public bool WriteBuffer() {
+            if (this.currentOffset > 0) {
                 this.WriteToWaveOut();
+                this.currentOffset = 0;
+                return true;
             }
 
-            return num != 0;
+            this.currentOffset = 0;
+            return false;
         }
 
         private void WriteToWaveOut() {
@@ -93,8 +97,7 @@ namespace FramePFX.Core.Editor.Audio {
         private void Dispose(bool disposing) {
             if (this.hHeader.IsAllocated)
                 this.hHeader.Free();
-            if (this.hBuffer.IsAllocated)
-                this.hBuffer.Free();
+            Marshal.FreeHGlobal(this.hBuffer);
             if (this.hThis.IsAllocated)
                 this.hThis.Free();
             if (this.hWaveOut != IntPtr.Zero) {

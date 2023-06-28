@@ -371,8 +371,9 @@ namespace FramePFX.Editor {
             switch (((MenuItem) sender).Uid) {
                 case "0": type = ThemeType.DeepDark; break;
                 case "1": type = ThemeType.SoftDark; break;
-                case "2": type = ThemeType.GreyTheme; break;
-                case "3": type = ThemeType.RedBlackTheme; break;
+                case "2": type = ThemeType.DarkGreyTheme; break;
+                case "3": type = ThemeType.GreyTheme; break;
+                case "4": type = ThemeType.RedBlackTheme; break;
                 default: return;
             }
 

@@ -72,8 +72,9 @@
             <MenuItem Header="Theme">
                 <MenuItem Header="Deep Dark"     Click="SetThemeClick" Uid="0"/>
                 <MenuItem Header="Soft Dark"     Click="SetThemeClick" Uid="1"/>
-                <MenuItem Header="Grey"          Click="SetThemeClick" Uid="2"/>
-                <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="3"/>
+                <MenuItem Header="Dark Grey"     Click="SetThemeClick" Uid="2"/>
+                <MenuItem Header="Grey"          Click="SetThemeClick" Uid="3"/>
+                <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Show logs" Click="ShowLogsClick"/>

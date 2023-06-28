@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Tracks;
@@ -49,7 +50,7 @@ namespace FramePFX.Core.Editor.Audio {
 
         public AudioEngine() {
             this.sampleRate = 44100;
-            this.DesiredLatency = 300;
+            this.DesiredLatency = 100;
             this.NumberOfBuffers = 2;
             this.waveOutLock = new object();
         }
@@ -71,24 +72,86 @@ namespace FramePFX.Core.Editor.Audio {
         /// </summary>
         /// <param name="timeline"></param>
         /// <param name="frame"></param>
-        public void ProcessNext(TimelineModel timeline, long frame) {
+        public unsafe void ProcessNext(TimelineModel timeline, long frame) {
             if ((frame - 1) != this.lastFrame) { // frame seeked
                 this.currentSample = (long) Math.Ceiling(this.lastFrame * this.rawSamplesPerTick);
             }
 
-            int offset = checked((int) (this.currentSample % this.sampleRate));
-            int length = checked((int) this.samplesPerTick);
-
-            foreach (TrackModel track in timeline.Tracks) {
-                if (!(track is AudioTrackModel audioTrack) || audioTrack.IsMuted || audioTrack.Volume < 0.0001f) {
-                    continue;
-                }
-
-                audioTrack.ProcessAudio(this, frame, offset, length);
+            // long currSample = (long) Math.Ceiling(frame * this.rawSamplesPerTick);
+            // int samples = checked((int) Math.Abs(currSample - this.currentSample));
+            int samples = checked((int) this.samplesPerTick);
+            if (samples == 0) {
+                return;
             }
 
-            this.PlayAudioSamples();
-            this.lastFrame = frame;
+            int offset = checked((int) (this.currentSample % this.sampleRate));
+
+            // TODO: really improve this LOl
+
+            double** ptr_in = stackalloc double*[2];
+            double* ptr_in_l = (double*) Marshal.AllocHGlobal(samples * 8);
+            double* ptr_in_r = (double*) Marshal.AllocHGlobal(samples * 8);
+            ptr_in[0] = ptr_in_l;
+            ptr_in[1] = ptr_in_r;
+
+            double** ptr_out = stackalloc double*[2];
+            double* ptr_out_l = (double*) Marshal.AllocHGlobal(samples * 8);
+            double* ptr_out_r = (double*) Marshal.AllocHGlobal(samples * 8);
+            ptr_out[0] = ptr_out_l;
+            ptr_out[1] = ptr_out_r;
+
+            try {
+                AudioBusBuffers buffer_l = new AudioBusBuffers {
+                    numChannels = 2,
+                    channelBuffers64 = &ptr_out_l
+                }; // in
+
+                AudioBusBuffers buffer_r = new AudioBusBuffers {
+                    numChannels = 2,
+                    channelBuffers64 = &ptr_out_r
+                }; // in
+
+                AudioProcessData data = new AudioProcessData() {
+                    sampleSize = EnumSampleSize.Bit64,
+                    numSamples = samples,
+                    numInputs = 1,
+                    numOutputs = 1,
+                    inputs = &buffer_l,
+                    outputs = &buffer_r
+                };
+
+                foreach (TrackModel track in timeline.Tracks) {
+                    if (!(track is AudioTrackModel audioTrack) || audioTrack.IsMuted || audioTrack.Volume < 0.0001f) {
+                        continue;
+                    }
+
+                    audioTrack.ProcessAudio(this, ref data, frame);
+                }
+
+                // convert samples to bytes
+                {
+                    byte* p_samp_l = stackalloc byte[samples];
+                    for (int i = 0; i < samples; i++)
+                        p_samp_l[i] = (byte) (data.outputs->channelBuffers64[0][i] * 255D);
+                    this.buffers[0].WriteSamplesAndWriteWaveOut(p_samp_l, samples);
+                }
+
+                {
+                    byte* p_samp_r = stackalloc byte[samples];
+                    for (int i = 0; i < samples; i++)
+                        p_samp_r[i] = (byte) (data.outputs->channelBuffers64[1][i] * 255D);
+                    this.buffers[1].WriteSamplesAndWriteWaveOut(p_samp_r, samples);
+                }
+
+                this.PlayAudioSamples();
+                this.lastFrame = frame;
+            }
+            finally {
+                Marshal.FreeHGlobal((IntPtr) ptr_in_l);
+                Marshal.FreeHGlobal((IntPtr) ptr_in_r);
+                Marshal.FreeHGlobal((IntPtr) ptr_out_l);
+                Marshal.FreeHGlobal((IntPtr) ptr_out_r);
+            }
         }
 
         public void Stop(bool disposeBuffers = true) {
@@ -135,7 +198,8 @@ namespace FramePFX.Core.Editor.Audio {
 
         public void PlayAudioSamples() {
             foreach (AudioEngineWaveBuffer buffer in this.buffers) {
-                if (buffer.InQueue || buffer.ProcessBuffer()) {
+                if (!buffer.InQueue) {
+                    buffer.WriteBuffer();
                 }
             }
         }

@@ -500,6 +500,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Themes\ColourDictionaries\DarkGreyTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\ColourDictionaries\DeepDark.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

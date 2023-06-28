@@ -54,6 +54,26 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
             // this.Timeline.Project.AudioEngine.AddSamples(buffer, 0, count);
         }
 
+        public unsafe void ProcessAudio(AudioEngine engine, ref AudioProcessData data, long frame) {
+            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame))) {
+                return;
+            }
+
+            // alloc buffer at end of stack
+            // byte* buf = stackalloc byte[sizeof(AudioProcessData)];
+            double** output = data.outputs[0].channelBuffers64;
+
+            double* out_l = output[0];
+            double* out_r = output[1];
+
+            for (int i = 0; i < data.numSamples; i++) {
+                double sample = (0.5d * this.Volume) * Math.Sin(this.currentPhase);
+                out_l[i] = sample;
+                out_r[i] = sample;
+                this.currentPhase += 2.0d * Math.PI * 441 / this.sampleRate;
+            }
+        }
+
         public override TrackModel CloneCore() {
             AudioTrackModel track = new AudioTrackModel(this.Timeline) {
                 Volume = this.Volume,

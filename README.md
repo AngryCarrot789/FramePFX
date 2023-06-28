@@ -7,7 +7,7 @@ I doubt this will ever even come close to those editors, but hopefully it will a
 
 # Preview
 
-![](FramePFX_2023-06-19_20.06.57.png)
+![](FramePFX_2023-06-27_06.20.54.png)
 
 ### Automation/animation
 Always found automating parameters in the popular editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:

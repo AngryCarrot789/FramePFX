@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using FramePFX.Core.Editor.Timeline;
 using FramePFX.Core.Editor.Timeline.Tracks;
@@ -63,13 +64,16 @@ namespace FramePFX.Core.Editor.Audio {
         //  currentSample = 44144.144144144144144144144144144
         //  sampleOffset = 44.144144144144144144144144144144
 
-        public void OnTick(TimelineModel timeline, long frame) {
-            if ((frame - 1) != this.lastFrame) {
+        /// <summary>
+        /// Generates the sames for a specific frame and then plays them
+        /// </summary>
+        /// <param name="timeline"></param>
+        /// <param name="frame"></param>
+        public void ProcessNext(TimelineModel timeline, long frame) {
+            if ((frame - 1) != this.lastFrame) { // frame seeked
                 this.currentSample = (long) Math.Ceiling(this.lastFrame * this.rawSamplesPerTick);
-                // frame seeked
             }
 
-            long nextSample = (long) Math.Ceiling(frame * this.rawSamplesPerTick);
             int offset = checked((int) (this.currentSample % this.sampleRate));
             int length = checked((int) this.samplesPerTick);
 

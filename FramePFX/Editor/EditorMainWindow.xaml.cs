@@ -283,7 +283,7 @@ namespace FramePFX.Editor {
             }
 
             project.Model.AudioEngine.UpdateFPS(project.Settings.FrameRate.ActualFPS);
-            project.Model.AudioEngine.OnTick(project.Timeline.Model, frame);
+            project.Model.AudioEngine.ProcessNext(project.Timeline.Model, frame);
 
             this.isRenderScheduled = 0;
         }

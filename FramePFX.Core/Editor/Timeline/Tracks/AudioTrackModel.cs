@@ -14,11 +14,11 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
 
         public float Volume;
         public bool IsMuted;
-        private double phasePerSample;
-        private double currentPhase;
-        private double amplitude = 0.5d;
-        private double sampleRate = 44100;
-        private double frequency = 441;
+        public double phasePerSample;
+        public double currentPhase;
+        public double amplitude = 0.5d;
+        public double sampleRate = 44100;
+        public double frequency = 441;
 
         public AudioTrackModel(TimelineModel timeline) : base(timeline) {
             this.Volume = VolumeKey.Descriptor.DefaultValue;

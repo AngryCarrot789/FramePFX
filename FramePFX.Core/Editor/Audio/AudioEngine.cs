@@ -40,6 +40,8 @@ namespace FramePFX.Core.Editor.Audio {
 
         public BufferedWaveProvider WaveStream { get; private set; }
 
+        public AudioEngineWaveBuffer[] Buffers => this.buffers;
+
         public float Volume {
             get => WaveOutUtils.GetWaveOutVolume(this.hWaveOut, this.waveOutLock);
             set => WaveOutUtils.SetWaveOutVolume(value, this.hWaveOut, this.waveOutLock);

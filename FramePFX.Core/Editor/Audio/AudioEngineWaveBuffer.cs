@@ -1,5 +1,9 @@
 using System;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using FramePFX.Core.RBC;
+using FramePFX.Core.Utils;
 using NAudio;
 using NAudio.Wave;
 
@@ -46,18 +50,33 @@ namespace FramePFX.Core.Editor.Audio {
             this.Dispose(true);
         }
 
+        public void WriteSamplesAndWriteWaveOut(byte[] src, int offset, int count) {
+            byte[] dst = this.buffer;
+            int bufLen = dst.Length;
+            for (int i = 0; i < count; i++) {
+                dst[i] = src[i + offset];
+            }
+
+            Unsafe.CopyBlock(ref dst[0], ref src[offset], (uint) count);
+            Unsafe.InitBlock(ref dst[count], 0, (uint) (bufLen - count));
+            this.WriteToWaveOut();
+        }
+
         public bool ProcessBuffer() {
-            int num;
+            int num, len;
             lock (this.waveStream) {
                 num = this.waveStream.Read(this.buffer, 0, this.buffer.Length);
             }
 
-            if (num == 0)
-                return false;
-            for (int index = num; index < this.buffer.Length; ++index)
-                this.buffer[index] = 0;
-            this.WriteToWaveOut();
-            return true;
+            if (num != 0) {
+                if (num < (len = this.buffer.Length)) {
+                    Unsafe.InitBlock(ref this.buffer[num], 0, (uint) (len - num));
+                }
+
+                this.WriteToWaveOut();
+            }
+
+            return num != 0;
         }
 
         private void WriteToWaveOut() {

@@ -79,7 +79,7 @@ namespace FramePFX.Core.Editor.Audio {
 
             // long currSample = (long) Math.Ceiling(frame * this.rawSamplesPerTick);
             // int samples = checked((int) Math.Abs(currSample - this.currentSample));
-            int samples = checked((int) this.samplesPerTick);
+            int samples = checked((int) (this.sampleRate * (1000 / this.DesiredLatency)));
             if (samples == 0) {
                 return;
             }
@@ -99,6 +99,8 @@ namespace FramePFX.Core.Editor.Audio {
             double* ptr_out_r = (double*) Marshal.AllocHGlobal(samples * 8);
             ptr_out[0] = ptr_out_l;
             ptr_out[1] = ptr_out_r;
+
+            MixingWaveProvider32 s;
 
             try {
                 AudioBusBuffers buffer_l = new AudioBusBuffers {
@@ -143,7 +145,6 @@ namespace FramePFX.Core.Editor.Audio {
                     this.buffers[1].WriteSamplesAndWriteWaveOut(p_samp_r, samples);
                 }
 
-                this.PlayAudioSamples();
                 this.lastFrame = frame;
             }
             finally {
@@ -194,13 +195,31 @@ namespace FramePFX.Core.Editor.Audio {
 
             this.playbackState = PlaybackState.Playing;
             this.callbackEvent.Set();
+            ThreadPool.QueueUserWorkItem(state => this.PlaybackThread(), null);
         }
 
-        public void PlayAudioSamples() {
-            foreach (AudioEngineWaveBuffer buffer in this.buffers) {
-                if (!buffer.InQueue) {
-                    buffer.WriteBuffer();
+        private void PlaybackThread() {
+            Exception e = null;
+            try {
+                while (this.playbackState != PlaybackState.Stopped) {
+                    if (!this.callbackEvent.WaitOne(this.DesiredLatency)) {
+                        int playbackState1 = (int) this.playbackState;
+                    }
+
+                    if (this.playbackState == PlaybackState.Playing) {
+                        int num = 0;
+                        foreach (AudioEngineWaveBuffer buffer in this.buffers) {
+                            if (buffer.InQueue || buffer.WriteBuffer())
+                                ++num;
+                        }
+                    }
                 }
+            }
+            catch (Exception ex) {
+                e = ex;
+            }
+            finally {
+                this.playbackState = PlaybackState.Stopped;
             }
         }
 

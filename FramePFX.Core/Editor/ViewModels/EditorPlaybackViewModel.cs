@@ -141,7 +141,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public async Task OnProjectChanged(ProjectViewModel project) {
             await this.Model.PlaybackTimer.StopAsync();
             if (project != null) {
-                this.SetTimerFrameRate(project.Settings.FrameRate.ActualFPS);
+                this.SetTimerFrameRate(project.Settings.FrameRate.AsDouble);
                 ProjectSettingsModel settings = project.Settings.Model;
                 project.Model.AudioEngine.Start(new WaveFormat(settings.SampleRate, settings.BitRate, settings.Channels));
             }

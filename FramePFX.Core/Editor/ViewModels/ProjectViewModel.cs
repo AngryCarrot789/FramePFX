@@ -100,7 +100,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             if (result != null) {
                 this.Settings.Resolution = result.Resolution;
                 this.Settings.FrameRate = result.FrameRate;
-                playback.SetTimerFrameRate(result.FrameRate.ActualFPS);
+                playback.SetTimerFrameRate(result.FrameRate.AsDouble);
             }
         }
 

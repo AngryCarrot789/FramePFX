@@ -123,7 +123,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                 return;
             }
 
-            double fps = this.Timeline.Project.Settings.FrameRate.ActualFPS;
+            double fps = this.Timeline.Project.Settings.FrameRate.AsDouble;
             long defaultDuration = (long) (fps * 5);
 
             ClipModel newClip = null;

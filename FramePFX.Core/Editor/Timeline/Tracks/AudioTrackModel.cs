@@ -74,6 +74,14 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
             }
         }
 
+        public unsafe void ProcessAudio(AudioEngine engine, float[] data, int offset, int count, long frame) {
+            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame))) {
+                return;
+            }
+
+
+        }
+
         public override TrackModel CloneCore() {
             AudioTrackModel track = new AudioTrackModel(this.Timeline) {
                 Volume = this.Volume,

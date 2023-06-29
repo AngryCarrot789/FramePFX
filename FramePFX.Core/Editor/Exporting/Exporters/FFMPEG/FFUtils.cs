@@ -89,7 +89,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
             c->width = 352;
             c->height = 288;
             /* frames per second */
-            c->time_base = new Rational(1, 25);
+            c->time_base = new Rational(25, 1);
             c->gop_size = 10; /* emit one intra frame every ten frames */
             c->max_b_frames = 1;
             c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;

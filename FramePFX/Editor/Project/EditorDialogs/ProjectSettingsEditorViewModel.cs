@@ -8,17 +8,17 @@ namespace FramePFX.Editor.Project.EditorDialogs {
         public static readonly ReadOnlyObservableCollection<string> FrameRates;
 
         private static readonly Rational[] rationals = new Rational[] {
-            new Rational(1,     10),
-            new Rational(1,     12),
-            new Rational(1,     15),
-            new Rational(1001,  24000), // 23.976
-            new Rational(1,     24),
-            new Rational(1,     25),
-            new Rational(1001,  30000), // 29.97
-            new Rational(1,     30),
-            new Rational(1,     50),
-            new Rational(1001,  60000), // 59,94
-            new Rational(1,     60)
+            new Rational(10, 1),
+            new Rational(12, 1),
+            new Rational(15, 1),
+            new Rational(24000, 1001), // 23.976
+            new Rational(24, 1),
+            new Rational(25, 1),
+            new Rational(30000, 1001), // 29.97
+            new Rational(30, 1),
+            new Rational(50, 1),
+            new Rational(60000, 1001), // 59,94
+            new Rational(60, 1)
         };
 
         static ProjectSettingsEditorViewModel() {
@@ -74,7 +74,7 @@ namespace FramePFX.Editor.Project.EditorDialogs {
             this.Width = settings.Resolution.Width;
             this.Height = settings.Resolution.Height;
 
-            double fps = settings.FrameRate.ActualFPS;
+            double fps = settings.FrameRate.AsDouble;
             if (fps <= 10.000)
                 this.SelectedIndex = 0;
             else if (fps <= 12.000)

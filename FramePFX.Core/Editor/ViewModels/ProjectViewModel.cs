@@ -25,7 +25,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public ProjectSettingsViewModel Settings { get; }
 
-        public ProjectModel Model { get; }
+        public Project Model { get; }
 
         public TimelineViewModel Timeline { get; }
 
@@ -56,7 +56,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public AsyncRelayCommand OpenSettingsCommand { get; }
 
-        public ProjectViewModel(ProjectModel project) {
+        public ProjectViewModel(Project project) {
             this.Model = project ?? throw new ArgumentNullException(nameof(project));
             this.Settings = new ProjectSettingsViewModel(project.Settings);
             this.Settings.ProjectModified += this.OnProjectModified;
@@ -96,7 +96,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 await playback.StopRenderTimer();
             }
 
-            ProjectSettingsModel result = await IoC.Provide<IProjectSettingsEditor>().EditSettingsAsync(this.Settings.Model);
+            ProjectSettings result = await IoC.Provide<IProjectSettingsEditor>().EditSettingsAsync(this.Settings.Model);
             if (result != null) {
                 this.Settings.Resolution = result.Resolution;
                 this.Settings.FrameRate = result.FrameRate;

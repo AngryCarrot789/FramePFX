@@ -55,9 +55,9 @@ namespace FramePFX.Core.Editor.Exporting {
 
         public AsyncRelayCommand CancelSetupCommand { get; }
 
-        public ProjectModel Project { get; }
+        public Project Project { get; }
 
-        public ExportSetupViewModel(ProjectModel project) {
+        public ExportSetupViewModel(Project project) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.RunExportCommand = new AsyncRelayCommand(this.ExportActionAsync, () => this.SelectedExporter != null);
             this.CancelSetupCommand = new AsyncRelayCommand(this.CancelSetupAction);

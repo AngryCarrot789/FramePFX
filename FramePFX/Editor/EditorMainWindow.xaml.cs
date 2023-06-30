@@ -14,7 +14,7 @@ using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Audio;
-using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;
@@ -243,7 +243,7 @@ namespace FramePFX.Editor {
             this.NotificationBarTextBlock.Text = message;
         }
 
-        public void RenderViewPort(bool scheduleRender) {
+        public void Render(bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
@@ -255,6 +255,42 @@ namespace FramePFX.Editor {
                 this.Dispatcher.Invoke(this.renderCallback);
                 this.isRenderScheduled = 0;
             }
+        }
+
+        public Task RenderAsync() {
+            if (this.Dispatcher.CheckAccess()) {
+                return this.DoRenderCoreAsync();
+            }
+            else {
+                return this.Dispatcher.Invoke(this.DoRenderCoreAsync);
+            }
+        }
+
+        private async Task DoRenderCoreAsync() {
+            VideoEditorViewModel editor = this.Editor;
+            ProjectViewModel project = editor.ActiveProject;
+            if (project == null || project.Model.IsSaving) {
+                this.isRenderScheduled = 0;
+                return;
+            }
+
+            long frame = project.Timeline.PlayHeadFrame;
+            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
+                RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                context.Canvas.Clear(SKColors.Black);
+                // project.Model.AutomationEngine.TickProjectAtFrame(frame);
+                await project.Model.Timeline.RenderAsync(context, frame);
+
+                Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
+                if (dictionary.Count > 0) {
+                    this.PrintRenderErrors(dictionary);
+                    dictionary.Clear();
+                }
+
+                this.ViewPortElement.EndRender();
+            }
+
+            this.isRenderScheduled = 0;
         }
 
         private void DoRenderCore() {
@@ -273,7 +309,7 @@ namespace FramePFX.Editor {
                 // project.Model.AutomationEngine.TickProjectAtFrame(frame);
                 project.Model.Timeline.Render(context, frame);
 
-                Dictionary<ClipModel, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
+                Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
                 if (dictionary.Count > 0) {
                     this.PrintRenderErrors(dictionary);
                     dictionary.Clear();
@@ -288,14 +324,14 @@ namespace FramePFX.Editor {
             this.isRenderScheduled = 0;
         }
 
-        private async void PrintRenderErrors(Dictionary<ClipModel, Exception> dictionary) {
+        private async void PrintRenderErrors(Dictionary<Clip, Exception> dictionary) {
             if (this.isPrintingErrors) {
                 return;
             }
 
             this.isPrintingErrors = true;
             StringBuilder sb = new StringBuilder(2048);
-            foreach (KeyValuePair<ClipModel,Exception> entry in dictionary) {
+            foreach (KeyValuePair<Clip,Exception> entry in dictionary) {
                 sb.Append($"{entry.Key.DisplayName ?? entry.Key.ToString()}: {entry.Value.GetToString()}\n");
             }
 

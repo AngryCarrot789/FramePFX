@@ -16,7 +16,6 @@
                     xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
                     xmlns:aa="clr-namespace:FramePFX.Editor.Automation"
                     xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
-                    xmlns:context="clr-namespace:FramePFX.Core.Editor.Timeline.Context;assembly=FramePFX.Core"
                     xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core"
                     xmlns:tracks="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Tracks;assembly=FramePFX.Core"
                     xmlns:actions="clr-namespace:FramePFX.Core.Editor.Actions;assembly=FramePFX.Core"

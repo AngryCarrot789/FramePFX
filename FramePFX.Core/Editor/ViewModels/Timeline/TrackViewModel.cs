@@ -10,7 +10,7 @@ using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.History.ViewModels;
@@ -99,7 +99,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public AutomationDataViewModel AutomationData { get; }
 
-        public TrackModel Model { get; }
+        public Track Model { get; }
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
@@ -107,7 +107,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public event ProjectModifiedEvent ProjectModified;
 
-        protected TrackViewModel(TimelineViewModel timeline, TrackModel model) {
+        protected TrackViewModel(TimelineViewModel timeline, Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             if (!ReferenceEquals(timeline.Model, model.Timeline))
@@ -128,7 +128,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 }
             });
 
-            foreach (ClipModel clip in model.Clips) {
+            foreach (Clip clip in model.Clips) {
                 this.CreateClip(clip, false);
             }
         }
@@ -137,7 +137,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.ProjectModified?.Invoke(sender, property);
         }
 
-        public ClipViewModel CreateClip(ClipModel model, bool addToModel = true) {
+        public ClipViewModel CreateClip(Clip model, bool addToModel = true) {
             ClipViewModel vm = ClipRegistry.Instance.CreateViewModelFromModel(model);
             this.AddClipToTrack(vm, addToModel);
             return vm;
@@ -310,7 +310,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
                 return Task.CompletedTask;
             }
 
-            ClipModel cloned = clip.Model.Clone();
+            Clip cloned = clip.Model.Clone();
             cloned.FrameSpan = FrameSpan.FromIndex(frame, span.EndIndex);
             cloned.MediaFrameOffset = frame - span.Begin;
             clip.FrameSpan = span.WithEndIndex(frame);

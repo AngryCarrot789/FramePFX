@@ -1,10 +1,10 @@
-using FramePFX.Core.Editor.Timeline.AudioClips;
+using FramePFX.Core.Editor.Timelines.AudioClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     public class AudioClipViewModel : ClipViewModel {
-        public new AudioClipModel Model => (AudioClipModel) base.Model;
+        public new AudioClip Model => (AudioClip) base.Model;
 
-        public AudioClipViewModel(AudioClipModel model) : base(model) {
+        public AudioClipViewModel(AudioClip model) : base(model) {
 
         }
     }

@@ -2,7 +2,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
-    public class ProjectSettingsModel : IRBESerialisable {
+    public class ProjectSettings : IRBESerialisable {
         #region Video
 
         public Resolution Resolution { get; set; }
@@ -31,7 +31,7 @@ namespace FramePFX.Core.Editor {
 
         #endregion
 
-        public ProjectSettingsModel() {
+        public ProjectSettings() {
             this.FrameRate = Rational.Fps30;
 
             this.ChannelFormat = "Stereo";

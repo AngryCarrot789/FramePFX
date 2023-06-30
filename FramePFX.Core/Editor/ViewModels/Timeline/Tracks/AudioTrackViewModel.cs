@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.Timeline.Tracks;
+using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 
@@ -11,7 +11,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
         public const string VolumeHistoryKey = "audio-track.Volume";
         private HistoryAudioTrackVolume volumeHistory;
 
-        public new AudioTrackModel Model => (AudioTrackModel) base.Model;
+        public new AudioTrack Model => (AudioTrack) base.Model;
 
         public float Volume {
             get => this.Model.Volume;
@@ -39,12 +39,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrackModel.OpacityKey)) {
-                    this.AutomationData[AudioTrackModel.VolumeKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetFloatValue(value);
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey)) {
+                    this.AutomationData[AudioTrack.VolumeKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetFloatValue(value);
                 }
                 else {
-                    this.AutomationData[AudioTrackModel.VolumeKey].GetOverride().SetFloatValue(value);
-                    this.AutomationData[AudioTrackModel.VolumeKey].RaiseOverrideValueChanged();
+                    this.AutomationData[AudioTrack.VolumeKey].GetOverride().SetFloatValue(value);
+                    this.AutomationData[AudioTrack.VolumeKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -65,16 +65,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                     this.HistoryManager.AddAction(new HistoryAudioTrackIsMuted(this, value), "Switch IsMuted");
                 }
 
-                this.AutomationData[AudioTrackModel.IsMutedKey].GetOverride().SetBooleanValue(value);
+                this.AutomationData[AudioTrack.IsMutedKey].GetOverride().SetBooleanValue(value);
                 this.Model.IsMuted = value;
                 this.RaisePropertyChanged();
                 this.Timeline.DoRender(true);
             }
         }
 
-        public AudioTrackViewModel(TimelineViewModel timeline, AudioTrackModel model) : base(timeline, model) {
-            this.AutomationData.AssignRefreshHandler(AudioTrackModel.VolumeKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.Volume), in e));
-            this.AutomationData.AssignRefreshHandler(AudioTrackModel.IsMutedKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.IsMuted), in e));
+        public AudioTrackViewModel(TimelineViewModel timeline, AudioTrack model) : base(timeline, model) {
+            this.AutomationData.AssignRefreshHandler(AudioTrack.VolumeKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.Volume), in e));
+            this.AutomationData.AssignRefreshHandler(AudioTrack.IsMutedKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.IsMuted), in e));
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {

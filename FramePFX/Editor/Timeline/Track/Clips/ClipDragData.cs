@@ -1,5 +1,5 @@
 using System;
-using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Controls;
@@ -73,7 +73,7 @@ namespace FramePFX.Editor.Timeline.Track.Clips {
 
             // TODO: maybe a better way of creating clips?
             if (this.Clip.DataContext is ClipViewModel clip) {
-                ClipModel clone = clip.Model.Clone();
+                Clip clone = clip.Model.Clone();
                 clone.FrameSpan = clone.FrameSpan.WithBegin(this.OriginalFrameBegin);
                 clone.DisplayName = TextIncrement.GetNextText(clone.DisplayName);
                 clip.Track.CreateClip(clone);

@@ -1,31 +1,30 @@
 using System;
 using System.Diagnostics;
 using FramePFX.Core.Automation;
-using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Timeline {
+namespace FramePFX.Core.Editor.Timelines {
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class ClipModel : IAutomatable, IRBESerialisable, IDisposable {
+    public abstract class Clip : IAutomatable, IRBESerialisable, IDisposable {
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
         /// </summary>
-        public TrackModel Track { get; private set; }
+        public Track Track { get; private set; }
 
         /// <summary>
         /// Returns the timeline associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
         /// </summary>
-        public TimelineModel Timeline => this.Track?.Timeline;
+        public Timeline Timeline => this.Track?.Timeline;
 
         /// <summary>
         /// Returns the project associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
         /// </summary>
-        public ProjectModel Project => this.Track?.Timeline.Project;
+        public Project Project => this.Track?.Timeline.Project;
 
         /// <summary>
         /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
@@ -105,7 +104,7 @@ namespace FramePFX.Core.Editor.Timeline {
 
         private long clipId = -1;
 
-        protected ClipModel() {
+        protected Clip() {
             this.AutomationData = new AutomationData(this);
         }
 
@@ -117,9 +116,9 @@ namespace FramePFX.Core.Editor.Timeline {
         /// <param name="model">Model to set the track of</param>
         /// <param name="track">New track</param>
         /// <param name="fireTrackChangedEvent">Whether to invoke the model's <see cref="OnTrackChanged"/> function. If false, it must be called manually</param>
-        public static void SetTrack(ClipModel model, TrackModel track, bool fireTrackChangedEvent = true) {
+        public static void SetTrack(Clip model, Track track, bool fireTrackChangedEvent = true) {
             if (fireTrackChangedEvent) {
-                TrackModel oldTrack = model.Track;
+                Track oldTrack = model.Track;
                 if (ReferenceEquals(oldTrack, track)) {
                     Debug.WriteLine("Attempted to set the track to the same instance.\n" + new Exception().GetToString());
                 }
@@ -178,7 +177,7 @@ namespace FramePFX.Core.Editor.Timeline {
         /// </summary>
         /// <param name="oldTrack"></param>
         /// <param name="newTrack"></param>
-        protected virtual void OnTrackChanged(TrackModel oldTrack, TrackModel newTrack) {
+        protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
 
         }
 
@@ -188,15 +187,15 @@ namespace FramePFX.Core.Editor.Timeline {
         /// splitting or duplicating clips, or even duplicating a track
         /// </summary>
         /// <returns></returns>
-        public ClipModel Clone() {
-            ClipModel clip = this.NewInstance();
+        public Clip Clone() {
+            Clip clip = this.NewInstance();
             this.LoadDataIntoClone(clip);
             return clip;
         }
 
-        protected abstract ClipModel NewInstance();
+        protected abstract Clip NewInstance();
 
-        protected virtual void LoadDataIntoClone(ClipModel clone) {
+        protected virtual void LoadDataIntoClone(Clip clone) {
             clone.DisplayName = this.DisplayName;
             clone.FrameSpan = this.FrameSpan;
             clone.MediaFrameOffset = this.MediaFrameOffset;

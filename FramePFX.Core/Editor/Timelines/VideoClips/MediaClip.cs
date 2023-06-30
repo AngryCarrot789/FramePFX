@@ -4,21 +4,27 @@ using FFmpeg.AutoGen;
 using FFmpeg.Wrapper;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
-using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.VideoClips {
-    public class MediaClipModel : BaseResourceClip<ResourceMedia> {
+namespace FramePFX.Core.Editor.Timelines.VideoClips {
+    public class MediaClip : BaseResourceClip<ResourceMedia> {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         private SwScaler scaler;
         private VideoFrame readyFrame;
         private long currentFrame = -1;
 
-        public MediaClipModel() {
+        // TODO: decoder thread
+        // public override bool UseAsyncRendering => true;
+
+        public MediaClip() {
         }
 
         public override Vector2? GetSize() {
-            return this.TryGetResource(out ResourceMedia resource) ? resource.GetResolution() : null;
+            return (Vector2?) (this.TryGetResource(out ResourceMedia resource) ? resource.GetResolution() : null);
+        }
+
+        public static IntPtr AddressOf(ref int value) {
+            return (IntPtr) value;
         }
 
         public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride) {
@@ -35,7 +41,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             stride = rowSize / sizeof(byte);
         }
 
-        public override void Render(RenderContext render, long frame) {
+        public override void Render(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceMedia resource))
                 return;
 
@@ -65,7 +71,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                     return;
                 }
 
-                this.Transform(render);
+                this.Transform(rc);
                 if (ready.IsHardwareFrame) {
                     // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                     // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
@@ -84,14 +90,14 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                     GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
                     SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
                     using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                        render.Canvas.DrawImage(img, 0, 0);
+                        rc.Canvas.DrawImage(img, 0, 0);
                     }
                 }
             }
         }
 
-        protected override ClipModel NewInstance() {
-            return new MediaClipModel();
+        protected override Clip NewInstance() {
+            return new MediaClip();
         }
 
         protected override void OnResourceChanged(ResourceMedia oldItem, ResourceMedia newItem) {

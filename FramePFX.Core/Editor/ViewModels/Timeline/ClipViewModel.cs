@@ -6,7 +6,7 @@ using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;
 using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
@@ -150,11 +150,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public RelayCommand RemoveClipCommand { get; }
 
-        public ClipModel Model { get; }
+        public Clip Model { get; }
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
-        protected ClipViewModel(ClipModel model) {
+        protected ClipViewModel(Clip model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
@@ -170,10 +170,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public static void SetTrack(ClipViewModel viewModel, TrackViewModel track, bool fireTrackChangedEvent = true) {
-            TrackModel oldTrack = viewModel.Model.Track;
-            TrackModel newTrack = track?.Model;
+            Track oldTrack = viewModel.Model.Track;
+            Track newTrack = track?.Model;
             if (!ReferenceEquals(oldTrack, newTrack)) {
-                ClipModel.SetTrack(viewModel.Model, track?.Model, fireTrackChangedEvent);
+                Clip.SetTrack(viewModel.Model, track?.Model, fireTrackChangedEvent);
             }
 
             viewModel.Track = track;

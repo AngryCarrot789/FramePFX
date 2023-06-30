@@ -1,11 +1,11 @@
 using FramePFX.Core.Automation.Keys;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Timeline.Tracks {
-    public class VideoTrackModel : TrackModel {
-        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrackModel), nameof(Opacity), new KeyDescriptorDouble(1d, 0d, 1d));
-        public static readonly AutomationKey IsVisibleKey = AutomationKey.RegisterBool(nameof(VideoTrackModel), nameof(IsVisible), new KeyDescriptorBoolean(true));
+namespace FramePFX.Core.Editor.Timelines.Tracks {
+    public class VideoTrack : Track {
+        public static readonly AutomationKey OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrack), nameof(Opacity), new KeyDescriptorDouble(1d, 0d, 1d));
+        public static readonly AutomationKey IsVisibleKey = AutomationKey.RegisterBool(nameof(VideoTrack), nameof(IsVisible), new KeyDescriptorBoolean(true));
         public const double MinimumVisibleOpacity = 0.0001d;
 
         /// <summary>
@@ -23,15 +23,15 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
         /// </summary>
         public bool IsActuallyVisible => this.IsVisible && this.Opacity > MinimumVisibleOpacity;
 
-        public VideoTrackModel(TimelineModel timeline) : base(timeline) {
+        public VideoTrack(Timeline timeline) : base(timeline) {
             this.Opacity = 1d;
             this.IsVisible = true;
             this.AutomationData.AssignKey(OpacityKey, (s, f) => this.Opacity = s.GetDoubleValue(f));
             this.AutomationData.AssignKey(IsVisibleKey, (s, f) => this.IsVisible = s.GetBooleanValue(f));
         }
 
-        public override TrackModel CloneCore() {
-            VideoTrackModel track = new VideoTrackModel(this.Timeline) {
+        public override Track CloneCore() {
+            VideoTrack track = new VideoTrack(this.Timeline) {
                 MaxHeight = this.MaxHeight,
                 MinHeight = this.MinHeight,
                 Height = this.Height,
@@ -40,7 +40,7 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
             };
 
             this.AutomationData.LoadDataIntoClone(track.AutomationData);
-            foreach (ClipModel clip in this.Clips) {
+            foreach (Clip clip in this.Clips) {
                 // assert clip is VideoClipModel
                 // assert CanAccept(clip)
                 track.AddClip(clip.Clone());
@@ -49,8 +49,8 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
             return track;
         }
 
-        public override bool IsClipTypeAcceptable(ClipModel clip) {
-            return clip is VideoClipModel;
+        public override bool IsClipTypeAcceptable(Clip clip) {
+            return clip is VideoClip;
         }
 
         public override bool CanUpdateAutomation() {

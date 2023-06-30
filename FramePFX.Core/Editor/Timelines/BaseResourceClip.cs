@@ -1,16 +1,16 @@
 using System;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Events;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Timeline {
+namespace FramePFX.Core.Editor.Timelines {
     /// <summary>
     /// A base video clip that references a single resource
     /// </summary>
     /// <typeparam name="T">The resource item type</typeparam>
-    public abstract class BaseResourceClip<T> : VideoClipModel where T : ResourceItem {
+    public abstract class BaseResourceClip<T> : VideoClip where T : ResourceItem {
         public delegate void ClipResourceModifiedEventHandler(T resource, string property);
         public delegate void ClipResourceChangedEventHandler(T oldItem, T newItem);
 
@@ -43,7 +43,7 @@ namespace FramePFX.Core.Editor.Timeline {
             }
         }
 
-        protected override void OnTrackChanged(TrackModel oldTrack, TrackModel newTrack) {
+        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
             base.OnTrackChanged(oldTrack, newTrack);
             if (this.ResourcePath == null)
                 return;
@@ -147,7 +147,7 @@ namespace FramePFX.Core.Editor.Timeline {
             }
         }
 
-        protected override void LoadDataIntoClone(ClipModel clone) {
+        protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
             if (this.ResourcePath != null) {
                 ((BaseResourceClip<T>) clone).SetTargetResourceId(this.ResourcePath.ResourceId);

@@ -9,6 +9,6 @@ namespace FramePFX.Core.Editor.Exporting {
             this.Exporter = exporter;
         }
 
-        public abstract void LoadProjectDefaults(ProjectModel project);
+        public abstract void LoadProjectDefaults(Project project);
     }
 }

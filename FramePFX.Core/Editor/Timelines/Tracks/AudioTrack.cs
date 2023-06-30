@@ -1,16 +1,14 @@
 using System;
 using System.Linq;
-using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Editor.Audio;
-using FramePFX.Core.Editor.Timeline.AudioClips;
+using FramePFX.Core.Editor.Timelines.AudioClips;
 using FramePFX.Core.Utils;
-using NAudio.Mixer;
 
-namespace FramePFX.Core.Editor.Timeline.Tracks {
-    public class AudioTrackModel : TrackModel {
-        public static readonly AutomationKeyFloat VolumeKey = AutomationKey.RegisterFloat(nameof(AudioTrackModel), nameof(Volume), new KeyDescriptorFloat(1f, 0f, 1f));
-        public static readonly AutomationKeyBoolean IsMutedKey = AutomationKey.RegisterBool(nameof(AudioTrackModel), nameof(IsMuted), new KeyDescriptorBoolean(false));
+namespace FramePFX.Core.Editor.Timelines.Tracks {
+    public class AudioTrack : Track {
+        public static readonly AutomationKeyFloat VolumeKey = AutomationKey.RegisterFloat(nameof(AudioTrack), nameof(Volume), new KeyDescriptorFloat(1f, 0f, 1f));
+        public static readonly AutomationKeyBoolean IsMutedKey = AutomationKey.RegisterBool(nameof(AudioTrack), nameof(IsMuted), new KeyDescriptorBoolean(false));
 
         public float Volume;
         public bool IsMuted;
@@ -20,7 +18,7 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
         public double sampleRate = 44100;
         public double frequency = 441;
 
-        public AudioTrackModel(TimelineModel timeline) : base(timeline) {
+        public AudioTrack(Timeline timeline) : base(timeline) {
             this.Volume = VolumeKey.Descriptor.DefaultValue;
             this.IsMuted = IsMutedKey.Descriptor.DefaultValue;
             this.AutomationData.AssignKey(VolumeKey, (s, f) => this.Volume = s.GetFloatValue(f));
@@ -82,8 +80,8 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
 
         }
 
-        public override TrackModel CloneCore() {
-            AudioTrackModel track = new AudioTrackModel(this.Timeline) {
+        public override Track CloneCore() {
+            AudioTrack track = new AudioTrack(this.Timeline) {
                 Volume = this.Volume,
                 MaxHeight = this.MaxHeight,
                 MinHeight = this.MinHeight,
@@ -92,7 +90,7 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
                 DisplayName = TextIncrement.GetNextText(this.DisplayName)
             };
 
-            foreach (ClipModel clip in this.Clips) {
+            foreach (Clip clip in this.Clips) {
                 // assert clip is AudioClipModel
                 // assert CanAccept(clip)
                 track.AddClip(clip.Clone());
@@ -101,8 +99,8 @@ namespace FramePFX.Core.Editor.Timeline.Tracks {
             return track;
         }
 
-        public override bool IsClipTypeAcceptable(ClipModel clip) {
-            return clip is AudioClipModel;
+        public override bool IsClipTypeAcceptable(Clip clip) {
+            return clip is AudioClip;
         }
     }
 }

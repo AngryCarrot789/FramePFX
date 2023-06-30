@@ -7,8 +7,8 @@ using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
-using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Tracks;
+using FramePFX.Core.Editor.Timelines;
+using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.ViewModels.Timeline.Tracks;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
@@ -21,8 +21,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public ObservableCollectionEx<TrackViewModel> SelectedTracks { get; }
 
         private TrackViewModel primarySelectedTrack;
-        private bool ignorePlayHeadPropertyChange;
-        private bool isFramePropertyChangeScheduled;
+        private volatile bool ignorePlayHeadPropertyChange;
+        private volatile bool isFramePropertyChangeScheduled;
 
         public TrackViewModel PrimarySelectedTrack {
             get => this.primarySelectedTrack;
@@ -68,7 +68,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public AsyncRelayCommand AddVideoTrackCommand { get; }
         public AsyncRelayCommand AddAudioTrackCommand { get; }
 
-        public TimelineModel Model { get; }
+        public Timelines.Timeline Model { get; }
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
@@ -100,7 +100,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public event ProjectModifiedEvent ProjectModified;
 
-        public TimelineViewModel(ProjectViewModel project, TimelineModel model) {
+        public TimelineViewModel(ProjectViewModel project, Timelines.Timeline model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
@@ -116,7 +116,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.AddVideoTrackCommand = new AsyncRelayCommand(this.AddVideoTrackAction);
             this.AddAudioTrackCommand = new AsyncRelayCommand(this.AddAudioTrackAction, () => false);
             this.TrackNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Clip name cannot be empty" : null);
-            foreach (TrackModel track in this.Model.Tracks) {
+            foreach (Track track in this.Model.Tracks) {
                 this.tracks.Add(TrackRegistry.Instance.CreateViewModelFromModel(this, track));
             }
         }
@@ -134,7 +134,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             }
 
             this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, newFrame);
-            this.Project.Editor.View.RenderViewPort(b);
+            this.Project.Editor.View.Render(b);
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
@@ -151,14 +151,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public async Task<VideoTrackViewModel> AddVideoTrackAction() {
-            VideoTrackViewModel track = new VideoTrackViewModel(this, new VideoTrackModel(this.Model));
+            VideoTrackViewModel track = new VideoTrackViewModel(this, new VideoTrack(this.Model));
             this.AddTrack(track);
             this.DoRender(true);
             return track;
         }
 
         public async Task<AudioTrackViewModel> AddAudioTrackAction() {
-            AudioTrackViewModel track = new AudioTrackViewModel(this, new AudioTrackModel(this.Model));
+            AudioTrackViewModel track = new AudioTrackViewModel(this, new AudioTrack(this.Model));
             this.AddTrack(track);
             return track;
         }
@@ -263,17 +263,40 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         }
 
         public void OnStepFrameTick() {
-            this.StepFrame();
+            this.StepFrameAsync().Wait();
         }
 
         public void StepFrame(long change = 1L, bool schedule = false) {
             this.ignorePlayHeadPropertyChange = true;
             long oldFrame = this.PlayHeadFrame;
             this.PlayHeadFrame = Periodic.Add(oldFrame, change, 0L, this.MaxDuration);
-            this.OnPlayHeadMoved(oldFrame, this.PlayHeadFrame, schedule);
+
+            this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, this.PlayHeadFrame);
+            this.Project.Editor.View.Render(schedule);
+
             if (!this.isFramePropertyChangeScheduled) {
                 this.isFramePropertyChangeScheduled = true;
                 IoC.Dispatcher.Invoke(() => {
+                    this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+                    this.isFramePropertyChangeScheduled = false;
+
+                });
+            }
+
+            this.ignorePlayHeadPropertyChange = false;
+        }
+
+        public async Task StepFrameAsync(long change = 1L) {
+            this.ignorePlayHeadPropertyChange = true;
+            long oldFrame = this.PlayHeadFrame;
+            this.PlayHeadFrame = Periodic.Add(oldFrame, change, 0L, this.MaxDuration);
+
+            this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, this.PlayHeadFrame);
+            await this.Project.Editor.View.RenderAsync();
+
+            if (!this.isFramePropertyChangeScheduled) {
+                this.isFramePropertyChangeScheduled = true;
+                IoC.Dispatcher.InvokeAsync(() => {
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isFramePropertyChangeScheduled = false;
 

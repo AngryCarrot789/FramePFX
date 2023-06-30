@@ -2,40 +2,40 @@ using System;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.Audio;
 using FramePFX.Core.Editor.ResourceManaging;
-using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
-    public class ProjectModel : IRBESerialisable {
+    public class Project : IRBESerialisable {
         // not a chance anyone's creating more than 9 quintillion clips
         private long nextClipId;
         public volatile bool IsSaving;
 
-        public ProjectSettingsModel Settings { get; }
+        public ProjectSettings Settings { get; }
 
         public ResourceManager ResourceManager { get; }
 
-        public TimelineModel Timeline { get; }
+        public Timeline Timeline { get; }
 
         /// <summary>
         /// The video editor that this project is currently in
         /// </summary>
-        public VideoEditorModel Editor { get; set; }
+        public VideoEditor Editor { get; set; }
 
         public AutomationEngine AutomationEngine { get; }
 
         public AudioEngine AudioEngine { get; }
 
-        public ProjectModel() {
-            this.Settings = new ProjectSettingsModel() {
+        public Project() {
+            this.Settings = new ProjectSettings() {
                 Resolution = new Resolution(1920, 1080)
             };
 
             this.ResourceManager = new ResourceManager(this);
             this.AutomationEngine = new AutomationEngine(this);
             this.AudioEngine = new AudioEngine();
-            this.Timeline = new TimelineModel(this) {
+            this.Timeline = new Timeline(this) {
                 MaxDuration = 10000L
             };
         }

@@ -1,18 +1,13 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
-using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.VideoClips {
-    public class TextClipModel : BaseResourceClip<ResourceText> {
+namespace FramePFX.Core.Editor.Timelines.VideoClips {
+    public class TextClip : BaseResourceClip<ResourceText> {
         private BitVector32 clipProps;
 
         private readonly ResourceText lt;
@@ -33,7 +28,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
         public bool ULBorderThickness { get => this.IsUsingClipProperty(nameof(ResourceText.BorderThickness)); set => this.SetUseClipProperty(nameof(ResourceText.BorderThickness), value); }
         public bool ULIsAntiAliased   { get => this.IsUsingClipProperty(nameof(ResourceText.IsAntiAliased));   set => this.SetUseClipProperty(nameof(ResourceText.IsAntiAliased), value); }
 
-        public TextClipModel() {
+        public TextClip() {
             this.clipProps = new BitVector32();
             this.lt = new ResourceText();
         }
@@ -62,13 +57,13 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return this.clipProps[index];
         }
 
-        protected override ClipModel NewInstance() {
-            return new TextClipModel();
+        protected override Clip NewInstance() {
+            return new TextClip();
         }
 
-        protected override void LoadDataIntoClone(ClipModel clone) {
+        protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
-            TextClipModel text = (TextClipModel) clone;
+            TextClip text = (TextClip) clone;
 
             RBEDictionary dictionary = new RBEDictionary();
             this.lt.WriteToRBE(dictionary);
@@ -131,7 +126,7 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return new Vector2(w, h);
         }
 
-        public override void Render(RenderContext render, long frame) {
+        public override void Render(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceText r)) {
                 return;
             }
@@ -164,10 +159,10 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
                 }
             }
 
-            this.Transform(render, out Vector2? size);
+            this.Transform(rc, out Vector2? size);
             foreach (SKTextBlob blob in this.cachedBlobs) {
                 if (blob != null) {
-                    render.Canvas.DrawText(blob, 0, (size?.Y ?? 0) * this.MediaScaleOrigin.Y, this.cachedPaint);
+                    rc.Canvas.DrawText(blob, 0, (size?.Y ?? 0) * this.MediaScaleOrigin.Y, this.cachedPaint);
                 }
             }
             // using (SKPaint paint = new SKPaint(this.font)) {

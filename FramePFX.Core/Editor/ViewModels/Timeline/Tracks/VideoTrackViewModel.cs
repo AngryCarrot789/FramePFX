@@ -6,9 +6,9 @@ using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.Tracks;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines;
+using FramePFX.Core.Editor.Timelines.Tracks;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
 using FramePFX.Core.History;
@@ -34,7 +34,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
             SliceCloneTextResourceDialog.AddButton("Cancel", "cancel", true);
         }
 
-        public new VideoTrackModel Model => (VideoTrackModel) base.Model;
+        public new VideoTrack Model => (VideoTrack) base.Model;
 
         public double Opacity {
             get => this.Model.Opacity;
@@ -70,12 +70,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrackModel.OpacityKey)) {
-                    this.AutomationData[VideoTrackModel.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey)) {
+                    this.AutomationData[VideoTrack.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
                 }
                 else {
-                    this.AutomationData[VideoTrackModel.OpacityKey].GetOverride().SetDoubleValue(value);
-                    this.AutomationData[VideoTrackModel.OpacityKey].RaiseOverrideValueChanged();
+                    this.AutomationData[VideoTrack.OpacityKey].GetOverride().SetDoubleValue(value);
+                    this.AutomationData[VideoTrack.OpacityKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -97,19 +97,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrackModel.IsVisibleKey)) {
-                    this.AutomationData[VideoTrackModel.IsVisibleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.IsVisibleKey)) {
+                    this.AutomationData[VideoTrack.IsVisibleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
                 }
                 else {
-                    this.AutomationData[VideoTrackModel.IsVisibleKey].GetOverride().SetBooleanValue(value);
-                    this.AutomationData[VideoTrackModel.IsVisibleKey].RaiseOverrideValueChanged();
+                    this.AutomationData[VideoTrack.IsVisibleKey].GetOverride().SetBooleanValue(value);
+                    this.AutomationData[VideoTrack.IsVisibleKey].RaiseOverrideValueChanged();
                 }
             }
         }
 
-        public VideoTrackViewModel(TimelineViewModel timeline, VideoTrackModel model) : base(timeline, model) {
-            this.AutomationData.AssignRefreshHandler(VideoTrackModel.OpacityKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.Opacity), in f));
-            this.AutomationData.AssignRefreshHandler(VideoTrackModel.IsVisibleKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.IsVisible), in f));
+        public VideoTrackViewModel(TimelineViewModel timeline, VideoTrack model) : base(timeline, model) {
+            this.AutomationData.AssignRefreshHandler(VideoTrack.OpacityKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.Opacity), in f));
+            this.AutomationData.AssignRefreshHandler(VideoTrack.IsVisibleKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.IsVisible), in f));
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {
@@ -126,7 +126,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
             double fps = this.Timeline.Project.Settings.FrameRate.AsDouble;
             long defaultDuration = (long) (fps * 5);
 
-            ClipModel newClip = null;
+            Clip newClip = null;
             if (resource.Model is ResourceMedia media) {
                 media.OpenMediaFromFile();
                 TimeSpan span = media.GetDuration();
@@ -142,7 +142,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                         this.Timeline.MaxDuration = newProjectDuration;
                     }
 
-                    MediaClipModel clip = new MediaClipModel() {
+                    MediaClip clip = new MediaClip() {
                         FrameSpan = new FrameSpan(frameBegin, dur),
                         DisplayName = media.UniqueId
                     };
@@ -157,7 +157,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
             }
             else {
                 if (resource.Model is ResourceColour argb) {
-                    ShapeClipModel clip = new ShapeClipModel() {
+                    ShapeClip clip = new ShapeClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         Width = 200, Height = 200,
                         DisplayName = argb.UniqueId
@@ -167,7 +167,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                     newClip = clip;
                 }
                 else if (resource.Model is ResourceImage img) {
-                    ImageClipModel clip = new ImageClipModel() {
+                    ImageClip clip = new ImageClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = img.UniqueId
                     };
@@ -176,7 +176,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
                     newClip = clip;
                 }
                 else if (resource.Model is ResourceText text) {
-                    TextClipModel clip = new TextClipModel() {
+                    TextClip clip = new TextClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = text.UniqueId
                     };
@@ -190,7 +190,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
             }
 
             this.CreateClip(newClip);
-            if (newClip is VideoClipModel videoClipModel) {
+            if (newClip is VideoClip videoClipModel) {
                 videoClipModel.InvalidateRender();
             }
         }

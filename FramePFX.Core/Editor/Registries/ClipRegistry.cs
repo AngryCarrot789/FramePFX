@@ -1,7 +1,7 @@
 using System;
-using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.AudioClips;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines;
+using FramePFX.Core.Editor.Timelines.AudioClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
 
@@ -9,35 +9,35 @@ namespace FramePFX.Core.Editor.Registries {
     /// <summary>
     /// The registry for clips; audio, video, etc
     /// </summary>
-    public class ClipRegistry : ModelRegistry<ClipModel, ClipViewModel> {
+    public class ClipRegistry : ModelRegistry<Clip, ClipViewModel> {
         public static ClipRegistry Instance { get; } = new ClipRegistry();
 
         private ClipRegistry() {
             #region video
-            this.Register<ImageClipModel, ImageClipViewModel>("cv_img");
-            this.Register<ShapeClipModel, ShapeClipViewModel>("cv_square");
-            this.Register<TextClipModel, TextClipViewModel>("cv_txt");
-            this.Register<MediaClipModel, MediaClipViewModel>("cv_media");
+            this.Register<ImageClip, ImageClipViewModel>("cv_img");
+            this.Register<ShapeClip, ShapeClipViewModel>("cv_square");
+            this.Register<TextClip, TextClipViewModel>("cv_txt");
+            this.Register<MediaClip, MediaClipViewModel>("cv_media");
             #endregion
 
             #region Audio
-            this.Register<SinewaveClipModel, SinewaveClipViewModel>("ca_sine");
+            this.Register<SinewaveClip, SinewaveClipViewModel>("ca_sine");
             #endregion
         }
 
-        public new void Register<TModel, TViewModel>(string id) where TModel : ClipModel where TViewModel : ClipViewModel {
+        public new void Register<TModel, TViewModel>(string id) where TModel : Clip where TViewModel : ClipViewModel {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public ClipModel CreateModel(string id) {
-            return (ClipModel) Activator.CreateInstance(base.GetModelType(id));
+        public Clip CreateModel(string id) {
+            return (Clip) Activator.CreateInstance(base.GetModelType(id));
         }
 
         public ClipViewModel CreateViewModel(string id) {
             return (ClipViewModel) Activator.CreateInstance(base.GetViewModelType(id));
         }
 
-        public ClipViewModel CreateViewModelFromModel(ClipModel model) {
+        public ClipViewModel CreateViewModelFromModel(Clip model) {
             return (ClipViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(model), model);
         }
     }

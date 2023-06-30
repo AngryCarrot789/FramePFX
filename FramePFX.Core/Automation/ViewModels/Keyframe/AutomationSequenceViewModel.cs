@@ -225,10 +225,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public KeyFrameViewModel GetActiveKeyFrameOrOverride(long timestamp) {
             KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(timestamp);
             if (keyFrame != null) {
-                if (this.IsOverrideEnabled) {
+                if (this.IsOverrideEnabled)
                     this.IsOverrideEnabled = false;
-                }
-
                 return keyFrame;
             }
 
@@ -238,10 +236,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long timestamp) {
             KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(timestamp);
             if (keyFrame != null) {
-                if (this.IsOverrideEnabled) {
+                if (this.IsOverrideEnabled)
                     this.IsOverrideEnabled = false;
-                }
-
                 return keyFrame;
             }
 

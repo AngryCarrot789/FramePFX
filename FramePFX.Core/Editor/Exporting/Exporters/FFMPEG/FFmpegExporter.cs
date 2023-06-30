@@ -33,7 +33,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
         public static int RNDTO2(int X) => (int) ((X) & 0xFFFFFFFE);
         public static int RNDTO32(int X) => (int) ((X % 32) != 0 ? ((X + 32) & 0xFFFFFFE0) : X);
 
-        public override unsafe void Export(ProjectModel project, IExportProgress progress, ExportProperties properties) {
+        public override unsafe void Export(Project project, IExportProgress progress, ExportProperties properties) {
             FrameSpan duration = properties.Span;
             Resolution resolution = this.Resolution;
             Rational frameRate = this.FrameRate;

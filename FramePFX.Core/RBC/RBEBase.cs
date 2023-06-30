@@ -177,5 +177,9 @@ namespace FramePFX.Core.RBC {
             // }
             // return true;
         }
+
+        protected static string GetReadableTypeName(Type type) {
+            return TryGetIdByType(type, out RBEType rbeType) ? rbeType.ToString() : type.Name;
+        }
     }
 }

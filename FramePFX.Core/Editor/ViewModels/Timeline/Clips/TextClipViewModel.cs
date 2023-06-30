@@ -2,11 +2,11 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     public class TextClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
-        public new TextClipModel Model => (TextClipModel) ((ClipViewModel) this).Model;
+        public new TextClip Model => (TextClip) ((ClipViewModel) this).Model;
 
         public bool UseCustomText {
             get => this.Model.ULText;
@@ -85,7 +85,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
         }
 
-        public TextClipViewModel(TextClipModel model) : base(model) {
+        public TextClipViewModel(TextClip model) : base(model) {
             model.ClipResourceDataModified += this.OnResourceModified;
             model.ClipResourceChanged += this.OnResourceChanged;
         }

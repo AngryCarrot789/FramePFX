@@ -1,13 +1,13 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     public class ImageClipViewModel : VideoClipViewModel {
-        public new ImageClipModel Model => (ImageClipModel) ((ClipViewModel) this).Model;
+        public new ImageClip Model => (ImageClip) ((ClipViewModel) this).Model;
 
-        public ImageClipViewModel(ImageClipModel model) : base(model) {
+        public ImageClipViewModel(ImageClip model) : base(model) {
 
         }
 

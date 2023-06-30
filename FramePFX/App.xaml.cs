@@ -11,10 +11,10 @@ using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
-using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.AudioClips;
-using FramePFX.Core.Editor.Timeline.Tracks;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines;
+using FramePFX.Core.Editor.Timelines.AudioClips;
+using FramePFX.Core.Editor.Timelines.Tracks;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 using FramePFX.Core.Shortcuts.Managing;
@@ -35,7 +35,7 @@ namespace FramePFX {
 
         #if DEBUG
         public static ProjectViewModel DemoProject { get; } = new ProjectViewModel(CreateDemoProject());
-        public static TimelineViewModel DemoTimeline { get; } = new TimelineViewModel(DemoProject, new TimelineModel(DemoProject.Model));
+        public static TimelineViewModel DemoTimeline { get; } = new TimelineViewModel(DemoProject, new Timeline(DemoProject.Model));
         #endif
 
         public App() {
@@ -138,16 +138,16 @@ namespace FramePFX {
             #endif
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.ActiveProject.AutomationEngine.TickAndRefreshProject(false);
-            editor.View.RenderViewPort(false);
+            await editor.View.RenderAsync();
         }
 
         protected override void OnExit(ExitEventArgs e) {
             base.OnExit(e);
         }
 
-        public static ProjectModel CreateDemoProject() {
+        public static Project CreateDemoProject() {
             // Demo project -- projects can be created as entirely models
-            ProjectModel project = new ProjectModel();
+            Project project = new Project();
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             {
@@ -163,17 +163,17 @@ namespace FramePFX {
             }
 
             {
-                VideoTrackModel track1 = new VideoTrackModel(project.Timeline) {
+                VideoTrack track1 = new VideoTrack(project.Timeline) {
                     DisplayName = "Track 1 with stuff"
                 };
                 project.Timeline.AddTrack(track1);
 
-                track1.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
-                track1.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
-                track1.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
-                track1.AutomationData.ActiveKeyFullId = VideoTrackModel.OpacityKey.FullId;
+                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                track1.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
 
-                ShapeClipModel clip1 = new ShapeClipModel {
+                ShapeClip clip1 = new ShapeClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
@@ -183,7 +183,7 @@ namespace FramePFX {
                 clip1.SetTargetResourceId("idek");
                 track1.AddClip(clip1);
 
-                ShapeClipModel clip2 = new ShapeClipModel {
+                ShapeClip clip2 = new ShapeClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
@@ -194,12 +194,12 @@ namespace FramePFX {
                 track1.AddClip(clip2);
             }
             {
-                VideoTrackModel track2 = new VideoTrackModel(project.Timeline) {
+                VideoTrack track2 = new VideoTrack(project.Timeline) {
                     DisplayName = "Track 2"
                 };
                 project.Timeline.AddTrack(track2);
 
-                ShapeClipModel clip1 = new ShapeClipModel {
+                ShapeClip clip1 = new ShapeClip {
                     Width = 400, Height = 400,
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
@@ -208,24 +208,24 @@ namespace FramePFX {
                 clip1.MediaPosition = new Vector2(200, 200);
                 clip1.SetTargetResourceId("colour_blue");
                 track2.AddClip(clip1);
-                ShapeClipModel clip2 = new ShapeClipModel {
+                ShapeClip clip2 = new ShapeClip {
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip colour_green"
                 };
 
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
-                clip2.AutomationData.ActiveKeyFullId = VideoClipModel.MediaPositionKey.FullId;
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip2.AutomationData.ActiveKeyFullId = VideoClip.MediaPositionKey.FullId;
 
                 clip2.MediaPosition = new Vector2(400, 400);
                 clip2.SetTargetResourceId("colour_green");
                 track2.AddClip(clip2);
             }
             {
-                VideoTrackModel track1 = new VideoTrackModel(project.Timeline) {
+                VideoTrack track1 = new VideoTrack(project.Timeline) {
                     DisplayName = "Empty track"
                 };
                 project.Timeline.AddTrack(track1);
@@ -234,9 +234,9 @@ namespace FramePFX {
             return project;
         }
 
-         public static ProjectModel CreateDebugProject() {
+         public static Project CreateDebugProject() {
             // Debug project - test a lot of features and make sure they work
-            ProjectModel project = new ProjectModel();
+            Project project = new Project();
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             {
@@ -252,17 +252,17 @@ namespace FramePFX {
             }
 
             {
-                VideoTrackModel track = new VideoTrackModel(project.Timeline) {
+                VideoTrack track = new VideoTrack(project.Timeline) {
                     DisplayName = "Track 1 with stuff"
                 };
                 project.Timeline.AddTrack(track);
 
-                track.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
-                track.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
-                track.AutomationData[VideoTrackModel.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
-                track.AutomationData.ActiveKeyFullId = VideoTrackModel.OpacityKey.FullId;
+                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                track.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
 
-                ShapeClipModel clip1 = new ShapeClipModel {
+                ShapeClip clip1 = new ShapeClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
@@ -272,7 +272,7 @@ namespace FramePFX {
                 clip1.SetTargetResourceId("idek");
                 track.AddClip(clip1);
 
-                ShapeClipModel clip2 = new ShapeClipModel {
+                ShapeClip clip2 = new ShapeClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
@@ -283,12 +283,12 @@ namespace FramePFX {
                 track.AddClip(clip2);
             }
             {
-                VideoTrackModel track = new VideoTrackModel(project.Timeline) {
+                VideoTrack track = new VideoTrack(project.Timeline) {
                     DisplayName = "Track 2"
                 };
                 project.Timeline.AddTrack(track);
 
-                ShapeClipModel clip1 = new ShapeClipModel {
+                ShapeClip clip1 = new ShapeClip {
                     Width = 400, Height = 400,
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
@@ -297,34 +297,34 @@ namespace FramePFX {
                 clip1.MediaPosition = new Vector2(200, 200);
                 clip1.SetTargetResourceId("colour_blue");
                 track.AddClip(clip1);
-                ShapeClipModel clip2 = new ShapeClipModel {
+                ShapeClip clip2 = new ShapeClip {
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip colour_green"
                 };
 
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
-                clip2.AutomationData[VideoClipModel.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
-                clip2.AutomationData.ActiveKeyFullId = VideoClipModel.MediaPositionKey.FullId;
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip2.AutomationData.ActiveKeyFullId = VideoClip.MediaPositionKey.FullId;
 
                 clip2.MediaPosition = new Vector2(400, 400);
                 clip2.SetTargetResourceId("colour_green");
                 track.AddClip(clip2);
             }
             {
-                VideoTrackModel track = new VideoTrackModel(project.Timeline) {
+                VideoTrack track = new VideoTrack(project.Timeline) {
                     DisplayName = "Empty track"
                 };
                 project.Timeline.AddTrack(track);
             }
             {
-                AudioTrackModel track = new AudioTrackModel(project.Timeline) {
+                AudioTrack track = new AudioTrack(project.Timeline) {
                     DisplayName = "Audio Track 1"
                 };
                 project.Timeline.AddTrack(track);
-                SinewaveClipModel clip = new SinewaveClipModel() {
+                SinewaveClip clip = new SinewaveClip() {
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip Sine"
                 };

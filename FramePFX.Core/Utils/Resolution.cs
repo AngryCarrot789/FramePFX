@@ -58,17 +58,17 @@ namespace FramePFX.Core.Utils {
             return obj.GetHashCode();
         }
 
-        public static implicit operator Vector2(in Resolution res) {
+        public static explicit operator Vector2(Resolution res) {
             return new Vector2(res.Width, res.Height);
         }
 
-        public static explicit operator Resolution(in Vector2 res) {
+        public static explicit operator Resolution(Vector2 res) {
             return new Resolution((int) Math.Floor(res.X), (int) Math.Floor(res.Y));
         }
 
-        public static implicit operator Resolution(ulong resolution) => new Resolution((int) (resolution & 0xFFFFFFFF), (int) ((resolution >> 32) & 0xFFFFFFFF));
+        public static implicit operator Resolution(ulong res) => new Resolution((int) (res & uint.MaxValue), (int) (res >> 32));
 
-        public static explicit operator ulong(Resolution color) => (ulong) color.Width + ((ulong) color.Height << 32);
+        public static explicit operator ulong(Resolution res) => ((ulong) res.Width << 32) | (uint) res.Height;
 
         public Resolution WithWidth(int width) {
             return new Resolution(width, this.Height);

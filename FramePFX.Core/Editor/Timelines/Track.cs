@@ -1,26 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FramePFX.Core.Automation;
-using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
 
-namespace FramePFX.Core.Editor.Timeline {
+namespace FramePFX.Core.Editor.Timelines {
     /// <summary>
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
     /// </summary>
-    public abstract class TrackModel : IAutomatable, IRBESerialisable {
+    public abstract class Track : IAutomatable, IRBESerialisable {
         /// <summary>
         /// The timeline that created this track. Will never be null
         /// </summary>
-        public TimelineModel Timeline { get; }
+        public Timeline Timeline { get; }
 
         /// <summary>
         /// This track's clips (unordered)
         /// </summary>
-        public List<ClipModel> Clips { get; }
+        public List<Clip> Clips { get; }
 
         /// <summary>
         /// This track's registry ID, used to create instances dynamically through the <see cref="TrackRegistry"/>
@@ -52,9 +50,9 @@ namespace FramePFX.Core.Editor.Timeline {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
-        protected TrackModel(TimelineModel timeline) {
+        protected Track(Timeline timeline) {
             this.Timeline = timeline;
-            this.Clips = new List<ClipModel>();
+            this.Clips = new List<Clip>();
             this.MinHeight = 21;
             this.MaxHeight = 200;
             this.Height = 60;
@@ -64,15 +62,15 @@ namespace FramePFX.Core.Editor.Timeline {
 
         long IAutomatable.GetRelativeFrame(long frame) => frame;
 
-        public List<ClipModel> GetClipsAtFrame(long frame) {
-            List<ClipModel> src = this.Clips;
+        public List<Clip> GetClipsAtFrame(long frame) {
+            List<Clip> src = this.Clips;
             int count = src.Count, i = 0;
             do {
                 if (i >= count)
                     return null;
-                ClipModel clip = src[i++];
+                Clip clip = src[i++];
                 if (clip.IntersectsFrameAt(frame)) {
-                    List<ClipModel> outList = new List<ClipModel> {clip};
+                    List<Clip> outList = new List<Clip> {clip};
                     while (i < count) {
                         clip = src[i++];
                         if (clip.IntersectsFrameAt(frame)) {
@@ -85,29 +83,29 @@ namespace FramePFX.Core.Editor.Timeline {
             } while (true);
         }
 
-        public ClipModel GetClipAtFrame(long frame) {
-            List<ClipModel> src = this.Clips;
+        public Clip GetClipAtFrame(long frame) {
+            List<Clip> src = this.Clips;
             int i = 0, c = src.Count;
             while (i < c) {
-                ClipModel clip = src[i++];
+                Clip clip = src[i++];
                 if (clip.IntersectsFrameAt(frame))
                     return clip;
             }
             return null;
         }
 
-        public void AddClip(ClipModel model, bool setTrack = true) {
+        public void AddClip(Clip model, bool setTrack = true) {
             this.InsertClip(this.Clips.Count, model, setTrack);
         }
 
-        public void InsertClip(int index, ClipModel model, bool setTrack = true) {
+        public void InsertClip(int index, Clip model, bool setTrack = true) {
             this.Clips.Insert(index, model);
             if (setTrack) {
-                ClipModel.SetTrack(model, this);
+                Clip.SetTrack(model, this);
             }
         }
 
-        public bool RemoveClip(ClipModel model, bool clearTrack = true) {
+        public bool RemoveClip(Clip model, bool clearTrack = true) {
             int index = this.Clips.IndexOf(model);
             if (index >= 0) {
                 this.RemoveClipAt(index, clearTrack);
@@ -118,18 +116,18 @@ namespace FramePFX.Core.Editor.Timeline {
         }
 
         public void RemoveClipAt(int index, bool clearTrack = true) {
-            ClipModel clip = this.Clips[index];
+            Clip clip = this.Clips[index];
             if (!ReferenceEquals(this, clip.Track)) {
                 throw new Exception("Expected model (to remove)'s track to equal this instance");
             }
 
             this.Clips.RemoveAt(index);
             if (clearTrack) {
-                ClipModel.SetTrack(clip, null);
+                Clip.SetTrack(clip, null);
             }
         }
 
-        public abstract TrackModel CloneCore();
+        public abstract Track CloneCore();
 
         public virtual void WriteToRBE(RBEDictionary data) {
             data.SetString(nameof(this.DisplayName), this.DisplayName);
@@ -139,11 +137,11 @@ namespace FramePFX.Core.Editor.Timeline {
             data.SetString(nameof(this.TrackColour), this.TrackColour);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Clips));
-            foreach (ClipModel clip in this.Clips) {
+            foreach (Clip clip in this.Clips) {
                 if (!(clip.FactoryId is string id))
                     throw new Exception("Unknown clip type: " + clip.GetType());
                 RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(ClipModel.FactoryId), id);
+                dictionary.SetString(nameof(Clip.FactoryId), id);
                 clip.WriteToRBE(dictionary.CreateDictionary("Data"));
             }
         }
@@ -158,14 +156,14 @@ namespace FramePFX.Core.Editor.Timeline {
             foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
-                string id = dictionary.GetString(nameof(ClipModel.FactoryId));
-                ClipModel clip = ClipRegistry.Instance.CreateModel(id);
+                string id = dictionary.GetString(nameof(Clip.FactoryId));
+                Clip clip = ClipRegistry.Instance.CreateModel(id);
                 clip.ReadFromRBE(dictionary.GetDictionary("Data"));
                 this.AddClip(clip);
             }
         }
 
-        public abstract bool IsClipTypeAcceptable(ClipModel clip);
+        public abstract bool IsClipTypeAcceptable(Clip clip);
 
         public virtual bool CanUpdateAutomation() {
             return true;

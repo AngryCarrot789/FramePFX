@@ -10,7 +10,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         private const string EmptyIdErrorMessage = "ID cannot be null, empty or consist of entirely whitespaces";
         private readonly Dictionary<string, ResourceItem> uuidToItem;
 
-        public ProjectModel Project { get; }
+        public Project Project { get; }
 
         public IEnumerable<(string, ResourceItem)> Entries => this.uuidToItem.Select(x => (x.Key, x.Value));
 
@@ -41,7 +41,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public ResourceGroup RootGroup { get; }
 
-        public ResourceManager(ProjectModel project) {
+        public ResourceManager(Project project) {
             this.uuidToItem = new Dictionary<string, ResourceItem>();
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.RootGroup = new ResourceGroup() {

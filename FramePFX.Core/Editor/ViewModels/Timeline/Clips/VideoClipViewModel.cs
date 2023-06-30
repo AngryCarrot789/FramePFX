@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Numerics;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.History;
-using FramePFX.Core.Editor.Timeline;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 
@@ -20,7 +20,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
         private float bothScale;
         private float bothScaleOrigin;
 
-        public new VideoClipModel Model => (VideoClipModel) base.Model;
+        public new VideoClip Model => (VideoClip) base.Model;
 
         #region Media/Visual properties
 
@@ -48,12 +48,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.MediaPositionKey)) {
-                    this.AutomationData[VideoClipModel.MediaPositionKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaPositionKey)) {
+                    this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
                 }
                 else {
-                    this.AutomationData[VideoClipModel.MediaPositionKey].GetOverride().SetVector2Value(value);
-                    this.AutomationData[VideoClipModel.MediaPositionKey].RaiseOverrideValueChanged();
+                    this.AutomationData[VideoClip.MediaPositionKey].GetOverride().SetVector2Value(value);
+                    this.AutomationData[VideoClip.MediaPositionKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -82,12 +82,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.MediaScaleKey)) {
-                    this.AutomationData[VideoClipModel.MediaScaleKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaScaleKey)) {
+                    this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
                 }
                 else {
-                    this.AutomationData[VideoClipModel.MediaScaleKey].GetOverride().SetVector2Value(value);
-                    this.AutomationData[VideoClipModel.MediaScaleKey].RaiseOverrideValueChanged();
+                    this.AutomationData[VideoClip.MediaScaleKey].GetOverride().SetVector2Value(value);
+                    this.AutomationData[VideoClip.MediaScaleKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -116,12 +116,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.MediaScaleOriginKey)) {
-                    this.AutomationData[VideoClipModel.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaScaleOriginKey)) {
+                    this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
                 }
                 else {
-                    this.AutomationData[VideoClipModel.MediaScaleOriginKey].GetOverride().SetVector2Value(value);
-                    this.AutomationData[VideoClipModel.MediaScaleOriginKey].RaiseOverrideValueChanged();
+                    this.AutomationData[VideoClip.MediaScaleOriginKey].GetOverride().SetVector2Value(value);
+                    this.AutomationData[VideoClip.MediaScaleOriginKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -137,12 +137,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClipModel.OpacityKey)) {
-                    this.AutomationData[VideoClipModel.OpacityKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetDoubleValue(value);
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.OpacityKey)) {
+                    this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetDoubleValue(value);
                 }
                 else {
-                    this.AutomationData[VideoClipModel.OpacityKey].GetOverride().SetDoubleValue(value);
-                    this.AutomationData[VideoClipModel.OpacityKey].RaiseOverrideValueChanged();
+                    this.AutomationData[VideoClip.OpacityKey].GetOverride().SetDoubleValue(value);
+                    this.AutomationData[VideoClip.OpacityKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -187,7 +187,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
 
         private readonly ClipRenderInvalidatedEventHandler renderCallback;
 
-        protected VideoClipViewModel(VideoClipModel model) : base(model) {
+        protected VideoClipViewModel(VideoClip model) : base(model) {
             this.ResetTransformationCommand = new RelayCommand(() => {
                 this.MediaPosition = new Vector2(0f, 0f);
                 this.MediaScale = new Vector2(1f, 1f);
@@ -204,22 +204,22 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             };
 
             this.Model.RenderInvalidated += this.renderCallback;
-            this.AutomationData.AssignRefreshHandler(VideoClipModel.MediaPositionKey, (s, e) => {
+            this.AutomationData.AssignRefreshHandler(VideoClip.MediaPositionKey, (s, e) => {
                 this.RaiseAutomationPropertyUpdated(nameof(this.MediaPosition), in e);
                 this.RaisePropertyChanged(nameof(this.MediaPositionX));
                 this.RaisePropertyChanged(nameof(this.MediaPositionY));
             });
-            this.AutomationData.AssignRefreshHandler(VideoClipModel.MediaScaleKey, (s, e) => {
+            this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleKey, (s, e) => {
                 this.RaiseAutomationPropertyUpdated(nameof(this.MediaScale), in e);
                 this.RaisePropertyChanged(nameof(this.MediaScaleX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleY));
             });
-            this.AutomationData.AssignRefreshHandler(VideoClipModel.MediaScaleOriginKey, (s, e) => {
+            this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleOriginKey, (s, e) => {
                 this.RaiseAutomationPropertyUpdated(nameof(this.MediaScaleOrigin), in e);
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
             });
-            this.AutomationData.AssignRefreshHandler(VideoClipModel.OpacityKey, (s, e) => {
+            this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, (s, e) => {
                 this.RaiseAutomationPropertyUpdated(nameof(this.Opacity), in e);
             });
         }

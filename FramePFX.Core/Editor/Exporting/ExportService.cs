@@ -18,6 +18,6 @@ namespace FramePFX.Core.Editor.Exporting {
         /// <param name="progress">A helper class for updating the UI of export progress (optionally used, but should be non-null)</param>
         /// <param name="properties">Specific export properties that aren't necessarily related to the project itself</param>
         /// <returns></returns>
-        public abstract void Export(ProjectModel project, IExportProgress progress, ExportProperties properties);
+        public abstract void Export(Project project, IExportProgress progress, ExportProperties properties);
     }
 }

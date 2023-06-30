@@ -3,7 +3,7 @@ using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.AdvancedContextService;
 using FramePFX.Core.Editor.ViewModels.Timeline;
 
-namespace FramePFX.Core.Editor.Timeline.Context {
+namespace FramePFX.Core.Editor.Timelines.Context {
     public class TrackContextGenerator : IContextGenerator {
         public static TrackContextGenerator Instance { get; } = new TrackContextGenerator();
 

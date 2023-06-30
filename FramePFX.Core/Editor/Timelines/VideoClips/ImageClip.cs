@@ -1,11 +1,10 @@
 using System.Numerics;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
-using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.VideoClips {
-    public class ImageClipModel : BaseResourceClip<ResourceImage> {
-        public ImageClipModel() {
+namespace FramePFX.Core.Editor.Timelines.VideoClips {
+    public class ImageClip : BaseResourceClip<ResourceImage> {
+        public ImageClip() {
 
         }
 
@@ -26,18 +25,18 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return new Vector2(r.image.Width, r.image.Height);
         }
 
-        public override void Render(RenderContext render, long frame) {
+        public override void Render(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceImage resource))
                 return;
             if (resource.image == null)
                 return;
 
-            this.Transform(render);
-            render.Canvas.DrawImage(resource.image, 0, 0);
+            this.Transform(rc);
+            rc.Canvas.DrawImage(resource.image, 0, 0);
         }
 
-        protected override ClipModel NewInstance() {
-            return new ImageClipModel();
+        protected override Clip NewInstance() {
+            return new ImageClip();
         }
     }
 }

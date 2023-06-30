@@ -22,7 +22,7 @@ namespace FramePFX.Core.RBC {
 
         public IEnumerable<T> OfType<T>() where T : RBEBase {
             if (this.List.Any(x => !(x is T))) {
-                throw new Exception($"Expected list to contain only {nameof(RBEByte)} instances");
+                throw new Exception($"Expected list to contain only {GetReadableTypeName(typeof(T))} instances");
             }
 
             foreach (RBEBase rbe in this.List) {

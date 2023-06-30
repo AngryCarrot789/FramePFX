@@ -27,9 +27,9 @@ namespace FramePFX.Core.Editor {
             set => this.PlaybackTimer.TickCallback = value;
         }
 
-        public VideoEditorModel Editor { get; }
+        public VideoEditor Editor { get; }
 
-        public EditorPlaybackModel(VideoEditorModel editor) {
+        public EditorPlaybackModel(VideoEditor editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.PlaybackTimer = new PrecisionTimer();
         }

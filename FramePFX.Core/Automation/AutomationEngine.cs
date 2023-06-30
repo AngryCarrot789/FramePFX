@@ -1,13 +1,13 @@
 using System;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.Timeline;
+using FramePFX.Core.Editor.Timelines;
 
 namespace FramePFX.Core.Automation {
     public class AutomationEngine {
-        public ProjectModel Project { get; }
+        public Project Project { get; }
 
-        public AutomationEngine(ProjectModel project) {
+        public AutomationEngine(Project project) {
             this.Project = project;
         }
 
@@ -16,11 +16,11 @@ namespace FramePFX.Core.Automation {
         }
 
         public void TickProjectAtFrame(long frame) {
-            TimelineModel timeline = this.Project.Timeline;
+            Timeline timeline = this.Project.Timeline;
             this.UpdateTimeline(timeline, frame);
         }
 
-        public void UpdateTimeline(TimelineModel timeline, long frame) {
+        public void UpdateTimeline(Timeline timeline, long frame) {
             timeline.IsAutomationChangeInProgress = true;
             try {
                 foreach (AutomationSequence sequence in timeline.AutomationData.Sequences) {
@@ -33,14 +33,14 @@ namespace FramePFX.Core.Automation {
                 timeline.IsAutomationChangeInProgress = false;
             }
 
-            foreach (TrackModel track in timeline.Tracks) {
+            foreach (Track track in timeline.Tracks) {
                 if (track.CanUpdateAutomation()) {
                     this.UpdateTrack(track, frame);
                 }
             }
         }
 
-        public void UpdateTrack(TrackModel track, long frame) {
+        public void UpdateTrack(Track track, long frame) {
             track.IsAutomationChangeInProgress = true;
             try {
                 foreach (AutomationSequence sequence in track.AutomationData.Sequences) {
@@ -53,14 +53,14 @@ namespace FramePFX.Core.Automation {
                 track.IsAutomationChangeInProgress = false;
             }
 
-            foreach (ClipModel clip in track.Clips) {
+            foreach (Clip clip in track.Clips) {
                 if (clip.IntersectsFrameAt(frame)) {
                     this.UpdateClip(clip, frame);
                 }
             }
         }
 
-        public void UpdateClip(ClipModel clip, long absoluteFrame) {
+        public void UpdateClip(Clip clip, long absoluteFrame) {
             clip.IsAutomationChangeInProgress = true;
             try {
                 long relativeFrame = ((IAutomatable) clip).GetRelativeFrame(absoluteFrame);

@@ -63,14 +63,14 @@ namespace FramePFX.Editor.Project.EditorDialogs {
         public ProjectSettingsEditorViewModel(IDialog dialog) : base(dialog) {
         }
 
-        public ProjectSettingsModel ToSettings() {
-            return new ProjectSettingsModel() {
+        public ProjectSettings ToSettings() {
+            return new ProjectSettings() {
                 Resolution = new Resolution(this.width, this.height),
                 FrameRate = this.SelectedRational
             };
         }
 
-        public void SetSettings(ProjectSettingsModel settings) {
+        public void SetSettings(ProjectSettings settings) {
             this.Width = settings.Resolution.Width;
             this.Height = settings.Resolution.Height;
 

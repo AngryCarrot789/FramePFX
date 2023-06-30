@@ -73,7 +73,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public EditorPlaybackViewModel Playback { get; }
 
-        public VideoEditorModel Model { get; }
+        public VideoEditor Model { get; }
 
         public IVideoEditor View { get; }
 
@@ -89,7 +89,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
-            this.Model = new VideoEditorModel();
+            this.Model = new VideoEditor();
             this.HistoryManager = new HistoryManagerViewModel(view.NotificationPanel, this.Model.HistoryManager);
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
@@ -121,7 +121,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return;
             }
 
-            ProjectViewModel project = new ProjectViewModel(new ProjectModel());
+            ProjectViewModel project = new ProjectViewModel(new Project());
             project.Settings.Resolution = new Resolution(1280, 720);
             if (this.ActiveProject != null) {
                 await this.CloseProjectAction();
@@ -144,9 +144,9 @@ namespace FramePFX.Core.Editor.ViewModels {
             #if DEBUG
             RBEBase rbe = RBEUtils.ReadFromFilePacked(result.Value[0]);
             RBEDictionary dictionary = (RBEDictionary) rbe;
-            ProjectModel projectModel = new ProjectModel();
-            projectModel.ReadFromRBE(dictionary);
-            ProjectViewModel project = new ProjectViewModel(projectModel) {ProjectDirectory = result.Value[0]};
+            Project project = new Project();
+            project.ReadFromRBE(dictionary);
+            ProjectViewModel pvm = new ProjectViewModel(project) {ProjectDirectory = result.Value[0]};
             #else
             RBEDictionary dictionary;
             try {
@@ -183,9 +183,9 @@ namespace FramePFX.Core.Editor.ViewModels {
                 this.ActiveProject = null;
             }
 
-            await this.SetProject(project, true);
+            await this.SetProject(pvm, true);
             this.ActiveProject.SetHasUnsavedChanges(false);
-            project.HasSavedOnce = true;
+            pvm.HasSavedOnce = true;
         }
 
         public async Task SetProject(ProjectViewModel project, bool loadResources = false) {
@@ -312,7 +312,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public void DoRender(bool schedule = false) {
-            this.View.RenderViewPort(schedule);
+            this.View.Render(schedule);
         }
     }
 }

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Events;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Timeline {
+namespace FramePFX.Core.Editor.Timelines {
     /// <summary>
     /// A base video clip that can reference
     /// </summary>
-    public abstract class BaseMultiResourceClip : VideoClipModel {
+    public abstract class BaseMultiResourceClip : VideoClip {
         public delegate void ClipResourceModifiedEventHandler(string key, ResourceItem resource, string property);
         public delegate void ClipResourceChangedEventHandler(string key, ResourceItem oldItem, ResourceItem newItem);
 
@@ -34,7 +34,7 @@ namespace FramePFX.Core.Editor.Timeline {
             this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
         }
 
-        protected override void OnTrackChanged(TrackModel oldTrack, TrackModel newTrack) {
+        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
             base.OnTrackChanged(oldTrack, newTrack);
             ResourceManager manager = newTrack?.Timeline.Project.ResourceManager;
             using (ExceptionStack stack = new ExceptionStack()) {

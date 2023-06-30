@@ -59,7 +59,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters {
         public FFmpegExportViewModel() : base("FFmpeg", new FFmpegExporter()) {
         }
 
-        public override void LoadProjectDefaults(ProjectModel project) {
+        public override void LoadProjectDefaults(Project project) {
             this.Resolution = project.Settings.Resolution;
             this.FrameRate = project.Settings.FrameRate;
         }

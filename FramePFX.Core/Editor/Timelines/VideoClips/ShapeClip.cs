@@ -5,15 +5,15 @@ using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timeline.VideoClips {
-    public class ShapeClipModel : BaseResourceClip<ResourceColour> {
+namespace FramePFX.Core.Editor.Timelines.VideoClips {
+    public class ShapeClip : BaseResourceClip<ResourceColour> {
         public float Width { get; set; }
 
         public float Height { get; set; }
 
         public override bool UseCustomOpacityCalculation => true;
 
-        public ShapeClipModel() {
+        public ShapeClip() {
 
         }
 
@@ -41,25 +41,25 @@ namespace FramePFX.Core.Editor.Timeline.VideoClips {
             return new Vector2(this.Width, this.Height);
         }
 
-        public override void Render(RenderContext render, long frame) {
+        public override void Render(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceColour r)) {
                 return;
             }
 
-            this.Transform(render);
+            this.Transform(rc);
             SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
             using (SKPaint paint = new SKPaint() {Color = colour}) {
-                render.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
+                rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
             }
         }
 
-        protected override ClipModel NewInstance() {
-            return new ShapeClipModel();
+        protected override Clip NewInstance() {
+            return new ShapeClip();
         }
 
-        protected override void LoadDataIntoClone(ClipModel clone) {
+        protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
-            ShapeClipModel clip = (ShapeClipModel) clone;
+            ShapeClip clip = (ShapeClip) clone;
             clip.Width = this.Width;
             clip.Height = this.Height;
         }

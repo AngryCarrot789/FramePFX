@@ -1,10 +1,10 @@
-using FramePFX.Core.Editor.Timeline.AudioClips;
+using FramePFX.Core.Editor.Timelines.AudioClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     public class SinewaveClipViewModel : AudioClipViewModel {
-        public new SinewaveClipModel Model => (SinewaveClipModel) ((ClipViewModel) this).Model;
+        public new SinewaveClip Model => (SinewaveClip) ((ClipViewModel) this).Model;
 
-        public SinewaveClipViewModel(SinewaveClipModel model) : base(model) {
+        public SinewaveClipViewModel(SinewaveClip model) : base(model) {
 
         }
     }

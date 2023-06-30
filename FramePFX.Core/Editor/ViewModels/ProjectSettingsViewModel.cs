@@ -4,7 +4,7 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels {
     public class ProjectSettingsViewModel : BaseViewModel, IModifyProject {
-        public ProjectSettingsModel Model { get; }
+        public ProjectSettings Model { get; }
 
         public Rational FrameRate {
             get => this.Model.FrameRate;
@@ -49,7 +49,7 @@ namespace FramePFX.Core.Editor.ViewModels {
 
         public event ProjectModifiedEvent ProjectModified;
 
-        public ProjectSettingsViewModel(ProjectSettingsModel model) {
+        public ProjectSettingsViewModel(ProjectSettings model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.ChannelFormats = new ObservableCollection<string>() {
                 "Stereo"

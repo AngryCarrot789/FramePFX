@@ -2,14 +2,14 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.History.Tasks;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
     public class ShapeClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
         private readonly HistoryBuffer<HistoryShapeSize> sizeHistory = new HistoryBuffer<HistoryShapeSize>();
 
-        public new ShapeClipModel Model => (ShapeClipModel) base.Model;
+        public new ShapeClip Model => (ShapeClip) base.Model;
 
         public float Width {
             get => this.Model.Width;
@@ -41,7 +41,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
             }
         }
 
-        public ShapeClipViewModel(ShapeClipModel model) : base(model) {
+        public ShapeClipViewModel(ShapeClip model) : base(model) {
 
         }
 

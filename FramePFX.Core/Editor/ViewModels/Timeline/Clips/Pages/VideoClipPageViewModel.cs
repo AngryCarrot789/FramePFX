@@ -1,4 +1,4 @@
-using FramePFX.Core.Editor.Timeline.VideoClips;
+using FramePFX.Core.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
     public class ClipPageViewModel : BaseClipPropertyPageViewModel {
@@ -14,7 +14,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
     }
 
     public class ShapeClipPageViewModel : BaseClipPropertyPageViewModel {
-        public static readonly ShapeClipPageViewModel Dummy = new ShapeClipPageViewModel(new ShapeClipViewModel(new ShapeClipModel()));
+        public static readonly ShapeClipPageViewModel Dummy = new ShapeClipPageViewModel(new ShapeClipViewModel(new ShapeClip()));
 
         public new ShapeClipViewModel Target => (ShapeClipViewModel) base.Target;
         public ShapeClipPageViewModel(ShapeClipViewModel target) : base(target, "Shape Info") {
@@ -23,7 +23,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
     }
 
     public class TextClipPageViewModel : BaseClipPropertyPageViewModel {
-        public static readonly TextClipPageViewModel Dummy = new TextClipPageViewModel(new TextClipViewModel(new TextClipModel()));
+        public static readonly TextClipPageViewModel Dummy = new TextClipPageViewModel(new TextClipViewModel(new TextClip()));
 
         public new TextClipViewModel Target => (TextClipViewModel) base.Target;
         public TextClipPageViewModel(TextClipViewModel target) : base(target, "Text Info") {
@@ -32,7 +32,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
     }
 
     public class ImageClipPageViewModel : BaseClipPropertyPageViewModel {
-        public static readonly ImageClipPageViewModel Dummy = new ImageClipPageViewModel(new ImageClipViewModel(new ImageClipModel()));
+        public static readonly ImageClipPageViewModel Dummy = new ImageClipPageViewModel(new ImageClipViewModel(new ImageClip()));
 
         public new ImageClipViewModel Target => (ImageClipViewModel) base.Target;
         public ImageClipPageViewModel(ImageClipViewModel target) : base(target, "Image Info") {
@@ -41,7 +41,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
     }
 
     public class MediaClipPageViewModel : BaseClipPropertyPageViewModel {
-        public static readonly MediaClipPageViewModel Dummy = new MediaClipPageViewModel(new MediaClipViewModel(new MediaClipModel()));
+        public static readonly MediaClipPageViewModel Dummy = new MediaClipPageViewModel(new MediaClipViewModel(new MediaClip()));
 
         public new MediaClipViewModel Target => (MediaClipViewModel) base.Target;
         public MediaClipPageViewModel(MediaClipViewModel target) : base(target, "Media Info") {

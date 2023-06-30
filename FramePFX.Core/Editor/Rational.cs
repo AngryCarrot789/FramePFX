@@ -14,6 +14,7 @@ namespace FramePFX.Core.Editor {
     /// </para>
     /// </summary>
     public readonly struct Rational : IComparable<Rational> {
+        public static readonly Rational Fps23976 = new Rational(24000, 1001);
         public static readonly Rational Fps2997 = new Rational(30000, 1001);
         public static readonly Rational Fps30 = new Rational(30, 1);
         public static readonly Rational Fps5994 = new Rational(60000, 1001);

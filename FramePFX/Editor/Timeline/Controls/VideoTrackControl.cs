@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class VideoTrackControl : TimelineTrackControl {

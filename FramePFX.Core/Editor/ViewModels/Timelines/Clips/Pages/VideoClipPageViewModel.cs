@@ -1,6 +1,6 @@
 using FramePFX.Core.Editor.Timelines.VideoClips;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages {
     public class ClipPageViewModel : BaseClipPropertyPageViewModel {
         public ClipPageViewModel(ClipViewModel target) : base(target, "Clip Data") {
         }

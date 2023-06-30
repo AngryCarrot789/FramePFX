@@ -1,6 +1,6 @@
 using System.Numerics;
 using System.Threading.Tasks;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Core.History;
 
 namespace FramePFX.Core.Editor.History {

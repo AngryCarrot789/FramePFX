@@ -9,13 +9,13 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.Timelines.VideoClips;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
-using FramePFX.Core.Editor.ViewModels.Timeline.Removals;
+using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
+using FramePFX.Core.Editor.ViewModels.Timelines.Removals;
 using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
     public class VideoTrackViewModel : TrackViewModel {
         public const string OpacityHistoryKey = "video-track.Opacity";
 

@@ -1,6 +1,6 @@
 using System;
 using FramePFX.Core.Editor.Timelines;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Controls;
 using FramePFX.Editor.Timeline.Utils;

@@ -133,6 +133,10 @@ namespace FramePFX.Core.RBC {
         public long GetLong(string key, long def) => this.TryGetElement(key, out RBELong rbe) ? rbe.Value : def;
         public bool TryGetLong(string key, out long value) => this.TryGetElementValue<RBELong, long>(key, e => e.Value, out value);
 
+        public ulong GetULong(string key) => (ulong) this.GetElement<RBELong>(key).Value;
+        public ulong GetULong(string key, ulong def) => this.TryGetElement(key, out RBELong rbe) ? (ulong) rbe.Value : def;
+        public bool TryGetULong(string key, out ulong value) => this.TryGetElementValue<RBELong, ulong>(key, e => (ulong) e.Value, out value);
+
         public float GetFloat(string key) => this.GetElement<RBEFloat>(key).Value;
         public float GetFloat(string key, float def) => this.TryGetElement(key, out RBEFloat rbe) ? rbe.Value : def;
         public bool TryGetFloat(string key, out float value) => this.TryGetElementValue<RBEFloat, float>(key, e => e.Value, out value);
@@ -206,6 +210,7 @@ namespace FramePFX.Core.RBC {
         public void SetInt(string key, int value) => this[key] = new RBEInt(value);
         public void SetUInt(string key, uint value) => this.SetInt(key, (int) value);
         public void SetLong(string key, long value) => this[key] = new RBELong(value);
+        public void SetULong(string key, ulong value) => this.SetLong(key, (long) value);
         public void SetFloat(string key, float value) => this[key] = new RBEFloat(value);
         public void SetDouble(string key, double value) => this[key] = new RBEDouble(value);
         public void SetString(string key, string value) => this[key] = new RBEString(value);

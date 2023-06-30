@@ -5,9 +5,7 @@
                     xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
                     xmlns:cc="clr-namespace:FramePFX.Editor.Timeline.Controls"
                     xmlns:c="clr-namespace:FramePFX.Controls"
-                    xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
                     xmlns:timeline="clr-namespace:FramePFX.Editor.Timeline"
-                    xmlns:tm="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
                     xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
                     xmlns:ccc="clr-namespace:FramePFX.Converters"
                     xmlns:shortcuts="clr-namespace:FramePFX.Shortcuts"
@@ -17,10 +15,12 @@
                     xmlns:aa="clr-namespace:FramePFX.Editor.Automation"
                     xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
                     xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core"
-                    xmlns:tracks="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Tracks;assembly=FramePFX.Core"
                     xmlns:actions="clr-namespace:FramePFX.Core.Editor.Actions;assembly=FramePFX.Core"
                     xmlns:contexts="clr-namespace:FramePFX.Core.Editor.Contexts;assembly=FramePFX.Core"
                     xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines.Clips;assembly=FramePFX.Core"
+                    xmlns:timelines="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines;assembly=FramePFX.Core"
+                    xmlns:tracks="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines.Tracks;assembly=FramePFX.Core"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
@@ -163,7 +163,7 @@
                 <ControlTemplate TargetType="{x:Type cc:TimelineTrackControl}">
                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 0 0 1" SnapsToDevicePixels="True">
                         <!-- IsItemHost must be true in order for it's items to sync with the TimelineTrackControl's items -->
-                        <Grid d:DataContext="{d:DesignInstance tm:TrackViewModel}">
+                        <Grid d:DataContext="{d:DesignInstance timelines:TrackViewModel}">
                             <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
                             <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                          Sequence="{Binding ActiveSequence}"

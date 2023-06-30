@@ -4,10 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FramePFX.Editor.Properties.Pages"
-             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core" 
              xmlns:controls="clr-namespace:FramePFX.Controls"
              xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
              xmlns:s="clr-namespace:System;assembly=mscorlib"
+             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines.Clips;assembly=FramePFX.Core"
              mc:Ignorable="d" 
              Height="32" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance clips:ShapeClipViewModel}">

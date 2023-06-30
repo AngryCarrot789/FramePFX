@@ -10,7 +10,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 

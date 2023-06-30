@@ -1,8 +1,8 @@
 using System;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.Tracks;
-using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Tracks;
+using FramePFX.Core.Editor.ViewModels.Timelines;
+using FramePFX.Core.Editor.ViewModels.Timelines.Tracks;
 
 namespace FramePFX.Core.Editor.Registries {
     /// <summary>

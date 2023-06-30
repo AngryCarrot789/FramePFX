@@ -22,6 +22,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             this.Items = new ReadOnlyObservableCollection<BaseResourceObjectViewModel>(this.items);
             this.SelectedItems = new ObservableCollectionEx<BaseResourceObjectViewModel>();
             this.SelectedItems.CollectionChanged += (sender, args) => {
+                this.manager?.Project.Editor?.View.UpdateResourceSelection();
             };
 
             foreach (BaseResourceObject item in model.Items) {

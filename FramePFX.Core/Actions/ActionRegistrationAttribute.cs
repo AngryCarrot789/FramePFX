@@ -6,7 +6,7 @@ namespace FramePFX.Core.Actions {
     /// search all types for this attribute and use it to register a new instance of the action
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class ActionRegistrationAttribute : System.Attribute {
+    public class ActionRegistrationAttribute : Attribute {
         public string ActionId { get; }
 
         public int RegistrationOrder { get; }

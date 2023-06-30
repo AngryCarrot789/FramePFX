@@ -4,10 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FramePFX.Editor.Properties.Pages"
-             xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
+             xmlns:timelines="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines;assembly=FramePFX.Core"
              mc:Ignorable="d" 
              Height="32" d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance timeline:ClipViewModel}">
+             d:DataContext="{d:DesignInstance timelines:ClipViewModel}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>

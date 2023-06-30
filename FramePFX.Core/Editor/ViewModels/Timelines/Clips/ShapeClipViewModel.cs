@@ -5,7 +5,7 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.History.Tasks;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     public class ShapeClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
         private readonly HistoryBuffer<HistoryShapeSize> sizeHistory = new HistoryBuffer<HistoryShapeSize>();
 

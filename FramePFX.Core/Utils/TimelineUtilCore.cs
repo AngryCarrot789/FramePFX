@@ -2,7 +2,7 @@ using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Core.Utils {
     public static class TimelineUtilCore {

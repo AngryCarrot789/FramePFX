@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
-using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
@@ -16,7 +15,7 @@ using FramePFX.Core.History.Tasks;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline {
+namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for a timeline track. This could be a video or audio track (or others...)
     /// </summary>
@@ -118,7 +117,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
             this.SelectedClips = new ObservableCollectionEx<ClipViewModel>();
             this.SelectedClips.CollectionChanged += (sender, args) => {
                 this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
-                this.Timeline.Project.Editor?.View.UpdateSelectionPropertyPages();
+                this.Timeline.Project.Editor?.View.UpdateClipSelection();
             };
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
             this.RenameTrackCommand = new AsyncRelayCommand(async () => {

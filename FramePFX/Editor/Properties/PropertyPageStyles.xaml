@@ -1,13 +1,14 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:p="clr-namespace:FramePFX.Editor.Properties"
-                    xmlns:pg="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;assembly=FramePFX.Core"
-                    xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
+                    xmlns:d="clr-namespace:FramePFX.Controls.Dragger"
                     xmlns:s="clr-namespace:System;assembly=mscorlib"
-                    xmlns:validators="clr-namespace:FramePFX.Validators">
+                    xmlns:validators="clr-namespace:FramePFX.Validators"
+                    xmlns:pgc="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages;assembly=FramePFX.Core"
+                    xmlns:pgr="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels.Pages;assembly=FramePFX.Core">
     <p:PropertyPageDataTemplateSelector x:Key="PropertyPageDataTemplateSelector">
         <p:PropertyPageDataTemplateSelector.ClipPageTemplate>
-            <DataTemplate DataType="{x:Type pg:ClipPageViewModel}">
+            <DataTemplate DataType="{x:Type pgc:ClipPageViewModel}">
                 <DockPanel DataContext="{Binding Target}" HorizontalAlignment="Stretch">
                     <TextBlock Text="Display Name" Padding="5" DockPanel.Dock="Left" VerticalAlignment="Center"/>
                     <TextBox Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="3,2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
@@ -15,7 +16,7 @@
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.ClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
-            <DataTemplate DataType="{x:Type pg:VideoClipPageViewModel}">
+            <DataTemplate DataType="{x:Type pgc:VideoClipPageViewModel}">
                 <Grid DataContext="{Binding Target}" Width="275">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
@@ -31,36 +32,36 @@
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <dragger:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Position" Height="18" Margin="0,2,0,3"/>
-                    <dragger:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="2" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Scale" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                    <dragger:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="4" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                    <d:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Position" Height="18" Margin="0,2,0,3"/>
+                    <d:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="2" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Scale" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                    <d:NumberDragger FontWeight="Normal" Padding="3,1" Grid.Row="4" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
                     <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="6" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,2,0,3"/>
                     <Grid Grid.Column="1" Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                     <Grid Grid.Column="1" Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                        <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
                     </Grid>
                     <Grid Grid.Column="1" Grid.Row="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                        <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
                     </Grid>
                     <Grid Grid.Column="1" Grid.Row="6">
-                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaFrameOffset, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="1" SmallChange="5" LargeChange="60" MassiveChange="300"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding MediaFrameOffset, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="1" SmallChange="5" LargeChange="60" MassiveChange="300"/>
                     </Grid>
                     <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                     <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
@@ -72,7 +73,7 @@
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.ShapeClipPageTemplate>
-            <DataTemplate DataType="{x:Type pg:ShapeClipPageViewModel}">
+            <DataTemplate DataType="{x:Type pgc:ShapeClipPageViewModel}">
                 <Grid DataContext="{Binding Target}" Width="250">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
@@ -80,18 +81,18 @@
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Size" FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" Margin="0,7"/>
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
-                    <dragger:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+                    <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
+                    <d:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{x:Static s:Double.MinValue}" Maximum="{x:Static s:Double.MaxValue}" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,6"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.ShapeClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.TextClipPageTemplate>
-            <DataTemplate DataType="{x:Type pg:TextClipPageViewModel}">
+            <DataTemplate DataType="{x:Type pgc:TextClipPageViewModel}">
                 <StackPanel DataContext="{Binding Target}" Width="275">
                     <CheckBox IsChecked="{Binding UseCustomText}" Content="Override Resource Text" ToolTip="By default, all clips have their own text. However, resources can store text to share across clips. Disabling this option makes this clip reference the resource's text"/>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Padding="5" Text="Text:" HorizontalAlignment="Left"/>
-                        <dragger:NumberDragger Margin="2,2,0,2" Minimum="0" Maximum="4000" RoundedPlaces="1" Value="{Binding FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="1"/>
+                        <d:NumberDragger Margin="2,2,0,2" Minimum="0" Maximum="4000" RoundedPlaces="1" Value="{Binding FontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="1"/>
                         <TextBox Margin="2,2,0,2" Width="100" VerticalContentAlignment="Center">
                             <TextBox.Text>
                                 <Binding Path="FontFamily" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
@@ -111,19 +112,55 @@
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.TextClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.ImageClipPageTemplate>
-            <DataTemplate DataType="{x:Type pg:ImageClipPageViewModel}">
+            <DataTemplate DataType="{x:Type pgc:ImageClipPageViewModel}">
                 <Grid DataContext="{Binding Target}">
                     <TextBlock Text="Nothing here for now..." Padding="5"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.ImageClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.MediaClipPageTemplate>
-            <DataTemplate DataType="{x:Type pg:MediaClipPageViewModel}">
+            <DataTemplate DataType="{x:Type pgc:MediaClipPageViewModel}">
                 <Grid DataContext="{Binding Target}">
                     <TextBlock Text="Nothing here for now..." Padding="5"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.MediaClipPageTemplate>
+        <p:PropertyPageDataTemplateSelector.BaseResourcePageTemplate>
+            <DataTemplate DataType="{x:Type pgr:BaseResourcePageViewModel}">
+                <DockPanel DataContext="{Binding Target}" HorizontalAlignment="Stretch">
+                    <TextBlock Text="Display Name" Padding="5" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="3,2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                </DockPanel>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.BaseResourcePageTemplate>
+        <p:PropertyPageDataTemplateSelector.ResourceItemPageTemplate>
+            <DataTemplate DataType="{x:Type pgr:ResourceItemPageViewModel}">
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.ResourceItemPageTemplate>
+        <p:PropertyPageDataTemplateSelector.ResourceColourPageTemplate>
+            <DataTemplate DataType="{x:Type pgr:ColourResourcePageViewModel}">
+                <Grid DataContext="{Binding Target}" HorizontalAlignment="Stretch" Width="150">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="R" Padding="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                    <TextBlock Text="G" Padding="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Text="B" Padding="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="A" Padding="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteR}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="0"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteG}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="1"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteB}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="2"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteA}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="3"/>
+                </Grid>
+            </DataTemplate>
+        </p:PropertyPageDataTemplateSelector.ResourceColourPageTemplate>
     </p:PropertyPageDataTemplateSelector>
 
     <ItemsPanelTemplate x:Key="WrapPanelItemsPanelTemplate">
@@ -183,7 +220,7 @@
         </Setter>
         <Setter Property="HeaderTemplate">
             <Setter.Value>
-                <DataTemplate DataType="{x:Type pg:BaseClipPropertyPageViewModel}">
+                <DataTemplate DataType="{x:Type pgc:BaseClipPropertyPageViewModel}">
                     <TextBlock Text="{Binding PageName, Mode=OneTime}" VerticalAlignment="Center"/>
                 </DataTemplate>
             </Setter.Value>

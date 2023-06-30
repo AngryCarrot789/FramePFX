@@ -9,11 +9,11 @@ using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.Tracks;
-using FramePFX.Core.Editor.ViewModels.Timeline.Tracks;
+using FramePFX.Core.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline {
+namespace FramePFX.Core.Editor.ViewModels.Timelines {
     public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IModifyProject, IDisposable {
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
@@ -68,7 +68,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
         public AsyncRelayCommand AddVideoTrackCommand { get; }
         public AsyncRelayCommand AddAudioTrackCommand { get; }
 
-        public Timelines.Timeline Model { get; }
+        public Timeline Model { get; }
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
@@ -100,7 +100,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timeline {
 
         public event ProjectModifiedEvent ProjectModified;
 
-        public TimelineViewModel(ProjectViewModel project, Timelines.Timeline model) {
+        public TimelineViewModel(ProjectViewModel project, Timeline model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.PropertyPages {
     /// <summary>

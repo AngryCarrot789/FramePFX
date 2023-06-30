@@ -1,6 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Core.Editor.ViewModels.Timeline.Tracks;
+using FramePFX.Core.Editor.ViewModels.Timelines.Tracks;
 
 namespace FramePFX.Editor.Timeline {
     public class TimelineTrackListItemTemplateSelector : DataTemplateSelector {

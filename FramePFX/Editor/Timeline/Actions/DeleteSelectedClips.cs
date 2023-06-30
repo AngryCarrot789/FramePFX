@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.History;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 

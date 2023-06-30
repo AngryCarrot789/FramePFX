@@ -6,7 +6,7 @@ using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Tracks {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
     public class AudioTrackViewModel : TrackViewModel {
         public const string VolumeHistoryKey = "audio-track.Volume";
         private HistoryAudioTrackVolume volumeHistory;

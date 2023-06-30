@@ -1,7 +1,7 @@
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Removals {
     public readonly struct VideoClipCut {
         /// <summary>
         /// The clip's old span

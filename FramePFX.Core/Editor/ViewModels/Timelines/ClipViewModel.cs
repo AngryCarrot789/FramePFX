@@ -7,14 +7,12 @@ using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timelines;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;
 using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.History.ViewModels;
-using FramePFX.Core.PropertyPages;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline {
+namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>

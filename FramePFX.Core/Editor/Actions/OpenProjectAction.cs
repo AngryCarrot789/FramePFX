@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
 
 namespace FramePFX.Core.Editor.Actions {
     [ActionRegistration("actions.project.Open")]

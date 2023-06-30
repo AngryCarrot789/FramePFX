@@ -8,7 +8,7 @@ using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     /// <summary>
     /// Base view model class for video clips that are placed on a video track
     /// </summary>

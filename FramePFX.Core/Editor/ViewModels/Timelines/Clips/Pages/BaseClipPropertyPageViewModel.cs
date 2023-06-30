@@ -1,6 +1,6 @@
 using FramePFX.Core.PropertyPages;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages {
     public class BaseClipPropertyPageViewModel : PropertyPageViewModel<ClipViewModel> {
         public string PageName { get; }
 

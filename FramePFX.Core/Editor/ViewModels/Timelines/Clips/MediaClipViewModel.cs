@@ -3,7 +3,7 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     public class MediaClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
         public new MediaClip Model => (MediaClip) ((ClipViewModel) this).Model;
 

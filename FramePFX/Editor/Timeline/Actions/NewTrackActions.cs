@@ -2,8 +2,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
-using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Tracks;
+using FramePFX.Core.Editor.ViewModels.Timelines;
+using FramePFX.Core.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Editor.Timeline.Actions {

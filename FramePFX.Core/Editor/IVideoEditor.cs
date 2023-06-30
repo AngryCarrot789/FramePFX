@@ -8,9 +8,12 @@ namespace FramePFX.Core.Editor {
     /// </summary>
     public interface IVideoEditor : IViewBase {
         void Render(bool scheduleRender = false);
+
         Task RenderAsync();
 
-        void UpdateSelectionPropertyPages();
+        void UpdateClipSelection();
+
+        void UpdateResourceSelection();
 
         void PushNotificationMessage(string message);
 

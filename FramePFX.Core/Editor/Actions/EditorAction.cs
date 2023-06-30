@@ -1,7 +1,7 @@
 using FramePFX.Core.Actions;
 using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Core.Editor.Actions {
     public abstract class EditorAction : AnAction {

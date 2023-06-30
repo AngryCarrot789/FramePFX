@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core;
 using FramePFX.Core.Actions;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Timeline.Actions {
     [ActionRegistration("actions.editor.timeline.SliceClips")]

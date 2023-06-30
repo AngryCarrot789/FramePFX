@@ -66,7 +66,7 @@ namespace FramePFX.Core.Utils {
             return new Resolution((int) Math.Floor(res.X), (int) Math.Floor(res.Y));
         }
 
-        public static implicit operator Resolution(ulong res) => new Resolution((int) (res & uint.MaxValue), (int) (res >> 32));
+        public static explicit operator Resolution(ulong res) => new Resolution((int) (res >> 32), (int) (res & uint.MaxValue));
 
         public static explicit operator ulong(Resolution res) => ((ulong) res.Width << 32) | (uint) res.Height;
 
@@ -76,6 +76,10 @@ namespace FramePFX.Core.Utils {
 
         public Resolution WithHeight(int height) {
             return new Resolution(this.Width, height);
+        }
+
+        public override string ToString() {
+            return $"{this.Width}x{this.Height}";
         }
     }
 }

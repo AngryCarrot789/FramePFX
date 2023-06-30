@@ -4,12 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FramePFX.Editor.Properties.Pages"
-             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline.Clips;assembly=FramePFX.Core"
              xmlns:controls="clr-namespace:FramePFX.Controls"
              xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
-             xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
              xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
              xmlns:s="clr-namespace:System;assembly=mscorlib"
+             xmlns:clips="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines.Clips;assembly=FramePFX.Core"
              mc:Ignorable="d" 
              Height="96" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance clips:VideoClipViewModel}">

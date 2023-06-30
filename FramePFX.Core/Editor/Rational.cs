@@ -3,17 +3,8 @@ using System.Runtime.CompilerServices;
 using FFmpeg.AutoGen;
 
 namespace FramePFX.Core.Editor {
-    /// <summary>
-    /// Rational number calculation.
-    /// <para>
-    /// While rational numbers can be expressed as floating-point numbers, the
-    /// conversion process is a lossy one, so are floating-point operations.
-    /// This set of rational number utilities serves as a generic
-    /// interface for manipulating rational numbers as pairs of numerators and
-    /// denominators.
-    /// </para>
-    /// </summary>
     public readonly struct Rational : IComparable<Rational> {
+        public static readonly Rational NaN = new Rational(0, 0);
         public static readonly Rational Fps23976 = new Rational(24000, 1001);
         public static readonly Rational Fps2997 = new Rational(30000, 1001);
         public static readonly Rational Fps30 = new Rational(30, 1);
@@ -35,9 +26,25 @@ namespace FramePFX.Core.Editor {
         /// </summary>
         public double AsDouble => this.num / (double) this.den;
 
+        public Rational(int numerator){
+            this.num = numerator;
+            this.den = 1;
+        }
+
         public Rational(int numerator, int denominator) {
             this.num = numerator;
             this.den = denominator;
+        }
+
+        /// <summary>
+        /// Converts a timestamp or a time
+        /// </summary>
+        /// <param name="timestamp"></param>
+        /// <param name="tb">Timebase</param>
+        /// <returns></returns>
+        public static unsafe Rational TimestampToTime(long timestamp, Rational tb) {
+            ffmpeg.av_reduce(&tb.num, &tb.den, tb.num * timestamp, tb.den, int.MaxValue);
+            return tb;
         }
 
         public static Rational FromDouble(double d, int max) {
@@ -58,10 +65,17 @@ namespace FramePFX.Core.Editor {
 
         public static bool operator ==(Rational a, Rational b) => Compare(a, b) == 0;
         public static bool operator !=(Rational a, Rational b) => Compare(a, b) != 0;
-        public static bool operator >(Rational a, Rational b) => Compare(a, b) > 0;
-        public static bool operator >=(Rational a, Rational b) => Compare(a, b) >= 0;
-        public static bool operator <(Rational a, Rational b) => Compare(a, b) < 0;
-        public static bool operator <=(Rational a, Rational b) => Compare(a, b) <= 0;
+        public static bool operator >(Rational a, Rational b) => Compare(a, b) == 1;
+        public static bool operator >=(Rational a, Rational b) {
+            int cmp = Compare(a, b);
+            return cmp == 1 || cmp == 0;
+        }
+
+        public static bool operator <(Rational a, Rational b) => Compare(a, b) == -1;
+        public static bool operator <=(Rational a, Rational b) {
+            int cmp = Compare(a, b);
+            return cmp == -1 || cmp == 0;
+        }
 
         public static Rational operator *(Rational a, Rational b) => Mul(a, b);
         public static Rational operator /(Rational a, Rational b) => Div(a, b);
@@ -71,6 +85,10 @@ namespace FramePFX.Core.Editor {
         public static implicit operator AVRational(Rational r) => new AVRational() {den = r.den, num = r.num};
 
         public static implicit operator Rational(AVRational r) => new Rational(r.den, r.num);
+
+        public static explicit operator Rational(ulong res) => new Rational((int) (res >> 32), (int) (res & uint.MaxValue));
+
+        public static explicit operator ulong(Rational res) => ((ulong) res.num << 32) | (uint) res.den;
 
         public void Deconstruct(out int num, out int den) {
             num = this.num;

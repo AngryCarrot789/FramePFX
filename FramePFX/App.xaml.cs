@@ -16,7 +16,7 @@ using FramePFX.Core.Editor.Timelines.AudioClips;
 using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;

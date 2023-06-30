@@ -2,8 +2,8 @@ using System;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.AudioClips;
 using FramePFX.Core.Editor.Timelines.VideoClips;
-using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.Editor.ViewModels.Timelines;
+using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 
 namespace FramePFX.Core.Editor.Registries {
     /// <summary>

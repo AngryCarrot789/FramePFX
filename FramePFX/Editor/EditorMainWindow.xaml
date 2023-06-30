@@ -9,7 +9,6 @@
             xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
             xmlns:ctrl2="clr-namespace:FramePFX.Editor.Timeline.Controls"
             xmlns:v="clr-namespace:FramePFX.Views"
-            xmlns:timeline="clr-namespace:FramePFX.Core.Editor.ViewModels.Timeline;assembly=FramePFX.Core"
             xmlns:evm="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
             xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
             xmlns:ctrl="clr-namespace:FramePFX.Controls"
@@ -26,6 +25,7 @@
             xmlns:history="clr-namespace:FramePFX.Core.History;assembly=FramePFX.Core"
             xmlns:p="clr-namespace:FramePFX.Editor.Properties"
             xmlns:resources="clr-namespace:FramePFX.Editor.Resources"
+            xmlns:timelines="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -141,7 +141,7 @@
                                                         helpers:ScrollViewerHelper.UseHorizontalScrollWheel="True"
                                                         ItemDirection="Vertical"
                                                         HorizontalContentAlignment="Left"
-                                                        ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ClipPropertyPageItemsSource}">
+                                                        ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=PropertyPageItemsSource}">
                             </p:PropertyPageItemsControl>
                         </TabItem>
                     </TabControl>
@@ -236,7 +236,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
-                                                    <Grid d:DataContext="{d:DesignInstance timeline:TrackViewModel}">
+                                                    <Grid d:DataContext="{d:DesignInstance timelines:TrackViewModel}">
                                                         <Rectangle Fill="{Binding TrackColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4" />
                                                         <Thumb DragDelta="OnBottomThumbDrag" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>

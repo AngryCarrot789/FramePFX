@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,15 +10,18 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Audio;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels;
+using FramePFX.Core.Editor.ResourceManaging.ViewModels.Pages;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages;
+using FramePFX.Core.Editor.ViewModels.Timelines;
+using FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages;
 using FramePFX.Core.Notifications;
 using FramePFX.Core.Notifications.Types;
 using FramePFX.Core.Rendering;
@@ -209,14 +213,14 @@ namespace FramePFX.Editor {
         //     this.lastRefreshTime = Time.GetSystemMillis();
         // }
 
-        public static readonly DependencyProperty ClipPropertyPageItemsSourceProperty = DependencyProperty.Register("ClipPropertyPageItemsSource", typeof(IEnumerable), typeof(EditorMainWindow), new PropertyMetadata(null));
+        public static readonly DependencyProperty PropertyPageItemsSourceProperty = DependencyProperty.Register("PropertyPageItemsSource", typeof(IEnumerable), typeof(EditorMainWindow), new PropertyMetadata(null));
 
-        public IEnumerable ClipPropertyPageItemsSource {
-            get { return (IEnumerable) GetValue(ClipPropertyPageItemsSourceProperty); }
-            set { SetValue(ClipPropertyPageItemsSourceProperty, value); }
+        public IEnumerable PropertyPageItemsSource {
+            get => (IEnumerable) this.GetValue(PropertyPageItemsSourceProperty);
+            set => this.SetValue(PropertyPageItemsSourceProperty, value);
         }
 
-        public void UpdateSelectionPropertyPages() {
+        public void UpdateClipSelection() {
             // { // test dummy items
             //     List<BaseClipPropertyPageViewModel> list = new List<BaseClipPropertyPageViewModel>();
             //     list.AddRange(ClipPageFactory.Instance.CreatePages(MediaClipPageViewModel.Dummy.Target));
@@ -231,11 +235,20 @@ namespace FramePFX.Editor {
             //     return;
             // }
 
-            this.ClipPropertyPageItemsSource = null;
+            this.PropertyPageItemsSource = null;
             if (this.Editor.ActiveProject is ProjectViewModel project) {
                 // TODO: maybe move this to a view model?
                 List<ClipViewModel> list = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
-                this.ClipPropertyPageItemsSource = ClipPageFactory.Instance.CreatePages(list);
+                this.PropertyPageItemsSource = ClipPageFactory.Instance.CreatePages(list);
+            }
+        }
+
+        public void UpdateResourceSelection() {
+            // TODO: maybe move this to a view model?
+            this.PropertyPageItemsSource = null;
+            ResourceGroupViewModel group;
+            if (this.Editor.ActiveProject is ProjectViewModel project && (group = project.ResourceManager.CurrentGroup) != null) {
+                this.PropertyPageItemsSource = ResourcePageFactory.Instance.CreatePages(group.SelectedItems.Count < 1 ? new List<BaseResourceObjectViewModel>() {@group} : @group.SelectedItems.ToList());
             }
         }
 

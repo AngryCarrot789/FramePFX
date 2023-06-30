@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using FramePFX.Core.Automation.ViewModels;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;

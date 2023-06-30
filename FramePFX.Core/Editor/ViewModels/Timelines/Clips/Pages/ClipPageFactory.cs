@@ -1,7 +1,6 @@
-using System;
 using FramePFX.Core.PropertyPages;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Clips.Pages {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages {
     public class ClipPageFactory : PropertyPageFactory<ClipViewModel, BaseClipPropertyPageViewModel> {
         public static ClipPageFactory Instance { get; } = new ClipPageFactory();
 

@@ -42,7 +42,7 @@ namespace FramePFX.Core.Editor {
 
         public void ReadFromRBE(RBEDictionary data) {
             this.Resolution = data.GetStruct<Resolution>(nameof(this.Resolution));
-            this.FrameRate = data.GetStruct<Rational>(nameof(this.FrameRate));
+            this.FrameRate = (Rational) data.GetULong(nameof(this.FrameRate));
             this.ChannelFormat = data.GetString(nameof(this.ChannelFormat));
             this.SampleRate = data.GetInt(nameof(this.SampleRate));
             this.BitRate = data.GetInt(nameof(this.BitRate));
@@ -50,7 +50,7 @@ namespace FramePFX.Core.Editor {
 
         public void WriteToRBE(RBEDictionary data) {
             data.SetStruct(nameof(this.Resolution), this.Resolution);
-            data.SetStruct(nameof(this.FrameRate), this.FrameRate);
+            data.SetULong(nameof(this.FrameRate), (ulong) this.FrameRate);
             data.SetString(nameof(this.ChannelFormat), this.ChannelFormat);
             data.SetInt(nameof(this.SampleRate), this.SampleRate);
             data.SetInt(nameof(this.BitRate), this.BitRate);

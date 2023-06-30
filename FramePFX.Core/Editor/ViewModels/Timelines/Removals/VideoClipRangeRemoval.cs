@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Core.Editor.ViewModels.Timeline.Clips;
+using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timeline.Removals {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Removals {
     public class VideoClipRangeRemoval {
         public List<VideoClipCut> ModifiedClips { get; }
 

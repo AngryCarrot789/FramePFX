@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
-using FramePFX.Core.Editor.ViewModels.Timeline;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Core.Editor.Actions {
     [ActionRegistration("actions.automation.AddKeyFrame")]

@@ -7,7 +7,10 @@ namespace FramePFX.Core.Editor {
 
         public Resolution Resolution { get; set; }
 
-        public Rational FrameRate { get; set; }
+        /// <summary>
+        /// This project's time base, which is the rate at which everything is synchronised to. This could be 30 fps, 60 fps, etc
+        /// </summary>
+        public Rational TimeBase { get; set; }
 
         #endregion
 
@@ -32,8 +35,7 @@ namespace FramePFX.Core.Editor {
         #endregion
 
         public ProjectSettings() {
-            this.FrameRate = Rational.Fps30;
-
+            this.TimeBase = Timecode.Fps30;
             this.ChannelFormat = "Stereo";
             this.SampleRate = 44100;
             this.BitRate = 16;
@@ -42,7 +44,7 @@ namespace FramePFX.Core.Editor {
 
         public void ReadFromRBE(RBEDictionary data) {
             this.Resolution = data.GetStruct<Resolution>(nameof(this.Resolution));
-            this.FrameRate = (Rational) data.GetULong(nameof(this.FrameRate));
+            this.TimeBase = (Rational) data.GetULong(nameof(this.TimeBase));
             this.ChannelFormat = data.GetString(nameof(this.ChannelFormat));
             this.SampleRate = data.GetInt(nameof(this.SampleRate));
             this.BitRate = data.GetInt(nameof(this.BitRate));
@@ -50,7 +52,7 @@ namespace FramePFX.Core.Editor {
 
         public void WriteToRBE(RBEDictionary data) {
             data.SetStruct(nameof(this.Resolution), this.Resolution);
-            data.SetULong(nameof(this.FrameRate), (ulong) this.FrameRate);
+            data.SetULong(nameof(this.TimeBase), (ulong) this.TimeBase);
             data.SetString(nameof(this.ChannelFormat), this.ChannelFormat);
             data.SetInt(nameof(this.SampleRate), this.SampleRate);
             data.SetInt(nameof(this.BitRate), this.BitRate);

@@ -88,7 +88,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
             c->bit_rate = this.BitRate;
             c->width = frameInfo.Width;
             c->height = frameInfo.Height;
-            c->time_base = frameRate;
+            c->time_base = frameRate.Inverse;
             st->time_base = c->time_base;
             c->gop_size = this.GopValue; /* emit one intra frame every ten frames */
             c->max_b_frames = 1;

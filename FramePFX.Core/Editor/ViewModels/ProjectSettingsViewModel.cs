@@ -7,9 +7,9 @@ namespace FramePFX.Core.Editor.ViewModels {
         public ProjectSettings Model { get; }
 
         public Rational FrameRate {
-            get => this.Model.FrameRate;
+            get => this.Model.TimeBase;
             set {
-                this.Model.FrameRate = value;
+                this.Model.TimeBase = value;
                 this.RaisePropertyChanged();
                 this.ProjectModified?.Invoke(this, nameof(this.FrameRate));
             }

@@ -66,7 +66,7 @@ namespace FramePFX.Editor.Project.EditorDialogs {
         public ProjectSettings ToSettings() {
             return new ProjectSettings() {
                 Resolution = new Resolution(this.width, this.height),
-                FrameRate = this.SelectedRational
+                TimeBase = this.SelectedRational
             };
         }
 
@@ -74,31 +74,15 @@ namespace FramePFX.Editor.Project.EditorDialogs {
             this.Width = settings.Resolution.Width;
             this.Height = settings.Resolution.Height;
 
-            double fps = settings.FrameRate.AsDouble;
-            if (fps <= 10.000)
-                this.SelectedIndex = 0;
-            else if (fps <= 12.000)
-                this.SelectedIndex = 1;
-            else if (fps <= 15.000)
-                this.SelectedIndex = 2;
-            else if (fps <= 23.976)
-                this.SelectedIndex = 3;
-            else if (fps <= 24.000)
-                this.SelectedIndex = 4;
-            else if (fps <= 25.000)
-                this.SelectedIndex = 5;
-            else if (fps <= 29.970)
-                this.SelectedIndex = 6;
-            else if (fps <= 30.000)
-                this.SelectedIndex = 7;
-            else if (fps <= 50.000)
-                this.SelectedIndex = 8;
-            else if (fps <= 59.940)
-                this.SelectedIndex = 9;
-            else if (fps <= 60.000)
-                this.SelectedIndex = 10;
-            else
-                this.SelectedIndex = 7;
+            Rational fps = settings.TimeBase;
+            for (int i = 0; i < rationals.Length; i++) {
+                if (fps <= rationals[i]) {
+                    this.SelectedIndex = i;
+                    return;
+                }
+            }
+
+            this.SelectedIndex = 7;
         }
     }
 }

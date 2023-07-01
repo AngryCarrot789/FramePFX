@@ -35,10 +35,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters {
             }
         }
 
-        public double FPS {
-            get => (double) this.FrameRate.num / this.FrameRate.den;
-            // private set => this.FrameRate = (Rational) ffmpeg.av_d2q(value, 1000000);
-        }
+        public double FPS => this.FrameRate.AsFraction;
 
         public long BitRate {
             get => this.Exporter.BitRate;
@@ -61,7 +58,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters {
 
         public override void LoadProjectDefaults(Project project) {
             this.Resolution = project.Settings.Resolution;
-            this.FrameRate = project.Settings.FrameRate;
+            this.FrameRate = project.Settings.TimeBase;
         }
     }
 }

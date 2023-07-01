@@ -99,8 +99,8 @@ namespace FramePFX.Core.Editor.ViewModels {
             ProjectSettings result = await IoC.Provide<IProjectSettingsEditor>().EditSettingsAsync(this.Settings.Model);
             if (result != null) {
                 this.Settings.Resolution = result.Resolution;
-                this.Settings.FrameRate = result.FrameRate;
-                playback.SetTimerFrameRate(result.FrameRate.AsDouble);
+                this.Settings.FrameRate = result.TimeBase;
+                playback.SetTimerFrameRate(result.TimeBase);
             }
         }
 

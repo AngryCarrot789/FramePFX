@@ -141,7 +141,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public async Task OnProjectChanged(ProjectViewModel project) {
             await this.Model.PlaybackTimer.StopAsync();
             if (project != null) {
-                this.SetTimerFrameRate(project.Settings.FrameRate.AsDouble);
+                this.SetTimerFrameRate(project.Settings.FrameRate);
                 ProjectSettings settings = project.Settings.Model;
                 project.Model.AudioEngine.Start(new WaveFormat(settings.SampleRate, settings.BitRate, settings.Channels));
             }
@@ -150,14 +150,10 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.RaisePropertyChanged(nameof(this.Project));
         }
 
-        public void SetTimerFrameRate(double frameRate) {
-            if (frameRate <= 0d)
-                throw new Exception("Frame rate must be non-zero");
-
-            if (frameRate < 0.0001d)
-                frameRate = 0.0001d; // ??????????
-
-            this.Model.PlaybackTimer.Interval = (long) Math.Round(1000d / frameRate);
+        public void SetTimerFrameRate(Rational frameRate) {
+            if (frameRate.den <= 0 || frameRate.num <= 0)
+                throw new Exception("Frame rate must be greater than zero");
+            this.Model.PlaybackTimer.Interval = (long) Math.Round(1000d / frameRate.AsFraction);
         }
 
         private async Task SwitchPrecisionMode() {

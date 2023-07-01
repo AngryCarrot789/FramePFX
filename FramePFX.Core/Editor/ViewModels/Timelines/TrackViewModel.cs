@@ -127,8 +127,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 }
             });
 
-            foreach (Clip clip in model.Clips) {
-                this.CreateClip(clip, false);
+            for (int i = 0; i < model.Clips.Count; i++) {
+                this.AddClipToTrack(i, ClipRegistry.Instance.CreateViewModelFromModel(model.Clips[i]), false);
             }
         }
 

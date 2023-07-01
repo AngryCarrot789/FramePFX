@@ -14,17 +14,17 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         }
 
         public long Timestamp {
-            get => this.Model.Timestamp;
+            get => this.Model.time;
             set {
-                this.Model.Timestamp = value;
+                this.Model.time = value;
                 this.RaisePropertyChanged();
             }
         }
 
         public double CurveBendAmount {
-            get => this.Model.CurveBendAmount;
+            get => this.Model.curveBend;
             set {
-                this.Model.CurveBendAmount = value;
+                this.Model.curveBend = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(GetPropertyName(this));
             }

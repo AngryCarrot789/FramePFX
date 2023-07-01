@@ -1,19 +1,38 @@
 using System;
+using System.Diagnostics;
 using System.Numerics;
+using FFmpeg.AutoGen;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
+using FramePFX.Core.Editor;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.Keyframe {
     public abstract class KeyFrame : IRBESerialisable {
-        public AutomationSequence OwnerSequence;
-        public long Timestamp;
-        public double CurveBendAmount = 0D; // -1d to +1d
+        // TODO: move from frame time to frame-independent time, using this as a timebase
+        // targetTime *
 
+        public static Rational DELTA = new Rational(1, 1000);
+
+        public AutomationSequence sequence;
+        public long time;
+        public double curveBend = 0D; // -1d to +1d
+
+        /// <summary>
+        /// This key frame's data type
+        /// </summary>
         public abstract AutomationDataType DataType { get; }
 
         protected KeyFrame() {
 
+        }
+
+        [Conditional("DEBUG")]
+        protected void ValidateTime(long t, KeyFrame frame) {
+            // realistically, this should never be thrown if the function is used correctly... duh
+            if (t < this.time || t > frame.time) {
+                throw new Exception($"Time out of range: {t} < {this.time} || {t} > {frame.time}");
+            }
         }
 
         public void SetFloatValue(float value) => ((KeyFrameFloat) this).Value = value;
@@ -46,7 +65,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         }
 
         public double GetInterpolationMultiplier(long time, long targetTime) {
-            return GetInterpolationMultiplier(time, this.Timestamp, targetTime, this.CurveBendAmount);
+            return GetInterpolationMultiplier(time, this.time, targetTime, this.curveBend);
         }
 
         /// <summary>
@@ -59,7 +78,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <param name="nextFrame">Target frame. Its timestamp must be greater than or equal to the current instance's timestamp!</param>
         /// <returns>A blend multiplier</returns>
         public double GetInterpolationMultiplier(long time, KeyFrame nextFrame) {
-            return this.GetInterpolationMultiplier(time, nextFrame.Timestamp);
+            return this.GetInterpolationMultiplier(time, nextFrame.time);
         }
 
         // demo interpolation
@@ -80,7 +99,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <param name="other"></param>
         /// <returns></returns>
         public virtual bool Equals(KeyFrame other) {
-            return this.Timestamp == other.Timestamp;
+            return this.time == other.time;
         }
 
         /// <summary>
@@ -91,7 +110,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         }
 
         public override int GetHashCode() {
-            return this.Timestamp.GetHashCode();
+            return this.time.GetHashCode();
         }
 
         /// <summary>
@@ -99,7 +118,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         /// <param name="data"></param>
         public virtual void WriteToRBE(RBEDictionary data) {
-            data.SetLong(nameof(this.Timestamp), this.Timestamp);
+            data.SetULong(nameof(this.time), (ulong) this.time);
         }
 
         /// <summary>
@@ -107,7 +126,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         /// <param name="data"></param>
         public virtual void ReadFromRBE(RBEDictionary data) {
-            this.Timestamp = data.GetLong(nameof(this.Timestamp));
+            this.time = (long) data.GetULong(nameof(this.time));
         }
     }
 
@@ -120,23 +139,15 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         }
 
-        public KeyFrameFloat(long timestamp, float value) {
-            this.Timestamp = timestamp;
+        public KeyFrameFloat(long time, float value) {
+            this.time = time;
             this.Value = value;
         }
 
         public float Interpolate(long time, KeyFrameFloat frame) {
-            // realistically, this should never be thrown if the function is used correctly... duh
-            if (time < this.Timestamp || time > frame.Timestamp) {
-                throw new Exception($"Frame out of range: {time} < {this.Timestamp} || {time} > {frame.Timestamp}");
-            }
-
-            double blend = this.GetInterpolationMultiplier(time, frame);
-
-            // this.Value = 2d, frame.Value = 7d
-            // ret = (blend * (7d - 2d)) + 2d = 4
+            this.ValidateTime(time, frame);
+            double blend = this.GetInterpolationMultiplier(time, frame.time);
             return (float) (blend * (frame.Value - this.Value)) + this.Value;
-            // also see Maths.Interpolate(a, b, blend)
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -167,24 +178,15 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         }
 
-        public KeyFrameDouble(long timestamp, double value) {
-            this.Timestamp = timestamp;
+        public KeyFrameDouble(long time, double value) {
+            this.time = time;
             this.Value = value;
         }
 
-        public double Interpolate(long time, KeyFrameDouble frame) {
-            // realistically, this should never be thrown if the function is used correctly... duh
-            if (time < this.Timestamp || time > frame.Timestamp) {
-                throw new Exception($"Frame out of range: {time} < {this.Timestamp} || {time} > {frame.Timestamp}");
-            }
-
-            double blend = this.GetInterpolationMultiplier(time, frame);
-
-            // this.Value = 2d, frame.Value = 7d
-            // ret = (blend * (7d - 2d)) + 2d = 4
-            return blend * (frame.Value - this.Value) + this.Value;
-
-            // also see Maths.Interpolate(a, b, blend)
+        public double Interpolate(long time, KeyFrameDouble nextFrame) {
+            this.ValidateTime(time, nextFrame);
+            double blend = this.GetInterpolationMultiplier(time, nextFrame.time);
+            return blend * (nextFrame.Value - this.Value) + this.Value;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -220,21 +222,14 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         }
 
-        public KeyFrameLong(long timestamp, long value) {
-            this.Timestamp = timestamp;
+        public KeyFrameLong(long time, long value) {
+            this.time = time;
             this.Value = value;
         }
 
         public long Interpolate(long time, KeyFrameLong frame) {
-            // realistically, this should never be thrown if the function is used correctly... duh
-            if (time < this.Timestamp || time > frame.Timestamp) {
-                throw new Exception($"Frame out of range: {time} < {this.Timestamp} || {time} > {frame.Timestamp}");
-            }
-
+            this.ValidateTime(time, frame);
             double blend = this.GetInterpolationMultiplier(time, frame);
-
-            // this.Value = 2d, frame.Value = 7d
-            // ret = (blend * (7d - 2d)) + 2d = 4
             return Maths.Lerp(this.Value, frame.Value, blend, this.RoundingMode);
         }
 
@@ -266,17 +261,13 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         }
 
-        public KeyFrameBoolean(long timestamp, bool value) {
-            this.Timestamp = timestamp;
+        public KeyFrameBoolean(long time, bool value) {
+            this.time = time;
             this.Value = value;
         }
 
         public bool Interpolate(long time, KeyFrameBoolean frame) {
-            // realistically, this should never be thrown if the function is used correctly... duh
-            if (time < this.Timestamp || time > frame.Timestamp) {
-                throw new Exception($"Frame out of range: {time} < {this.Timestamp} || {time} > {frame.Timestamp}");
-            }
-
+            this.ValidateTime(time, frame);
             bool thisVal = this.Value;
             if (thisVal == frame.Value) {
                 return this.Value;
@@ -319,17 +310,13 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         }
 
-        public KeyFrameVector2(long timestamp, Vector2 value) {
-            this.Timestamp = timestamp;
+        public KeyFrameVector2(long time, Vector2 value) {
+            this.time = time;
             this.Value = value;
         }
 
         public Vector2 Interpolate(long time, KeyFrameVector2 frame) {
-            // realistically, this should never be thrown if the function is used correctly... duh
-            if (time < this.Timestamp || time > frame.Timestamp) {
-                throw new Exception($"Frame out of range: {time} < {this.Timestamp} || {time} > {frame.Timestamp}");
-            }
-
+            this.ValidateTime(time, frame);
             double blend = this.GetInterpolationMultiplier(time, frame);
             return this.Value.Lerp(frame.Value, (float) blend);
         }

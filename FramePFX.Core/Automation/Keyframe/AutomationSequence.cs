@@ -56,7 +56,7 @@ namespace FramePFX.Core.Automation.Keyframe {
             this.keyFrameList = new List<KeyFrame>();
             this.DataType = key.DataType;
             this.OverrideKeyFrame = key.CreateKeyFrame();
-            this.OverrideKeyFrame.OwnerSequence = this;
+            this.OverrideKeyFrame.sequence = this;
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace FramePFX.Core.Automation.Keyframe {
             int i = 0, j = list.Count - 1;
             while (i <= j) {
                 int k = i + (j - i >> 1);
-                long time = list[k].Timestamp;
+                long time = list[k].time;
                 if (time == frame) {
                     return k;
                 }
@@ -175,7 +175,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
             KeyFrame value = list[i = 0], prev = null;
             while (true) { // node is never null, as it is only reassigned to next (which won't be null at that point)
-                long valTime = value.Timestamp;
+                long valTime = value.time;
                 if (frame > valTime) {
                     if (++i < count) {
                         prev = value;
@@ -203,7 +203,7 @@ namespace FramePFX.Core.Automation.Keyframe {
                     // get the last node next node whose timestamp equals the input time, otherwise
                     // use the last node (the input time is the same as the very last node's timestamp)
                     KeyFrame temp = value, tempPrev = prev;
-                    while (temp != null && temp.Timestamp == frame) {
+                    while (temp != null && temp.time == frame) {
                         tempPrev = temp;
                         temp = ++i < count ? list[i] : null;
                     }
@@ -320,7 +320,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <returns>The key frames at the given frame</returns>
         public IEnumerable<KeyFrame> GetKeyFramesAt(long frame) {
             foreach (KeyFrame keyFrame in this.keyFrameList) {
-                long time = keyFrame.Timestamp;
+                long time = keyFrame.time;
                 if (time == frame) {
                     yield return keyFrame;
                 }
@@ -338,7 +338,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         public KeyFrame GetLastFrameExactlyAt(long frame) {
             KeyFrame last = null;
             foreach (KeyFrame keyFrame in this.keyFrameList) {
-                long time = keyFrame.Timestamp;
+                long time = keyFrame.time;
                 if (time == frame) {
                     last = keyFrame;
                 }
@@ -357,15 +357,15 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <returns>The index of the key frame</returns>
         /// <exception cref="ArgumentException">Timestamp is negative or the data type is invalid</exception>
         public int AddKeyFrame(KeyFrame newKeyFrame) {
-            long timeStamp = newKeyFrame.Timestamp;
+            long timeStamp = newKeyFrame.time;
             if (timeStamp < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
             if (newKeyFrame.DataType != this.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
-            newKeyFrame.OwnerSequence = this;
+            newKeyFrame.sequence = this;
             List<KeyFrame> list = this.keyFrameList;
             for (int i = list.Count - 1; i >= 0; i--) {
-                if (timeStamp >= list[i].Timestamp) {
+                if (timeStamp >= list[i].time) {
                     list.Insert(i + 1, newKeyFrame);
                     return i + 1;
                 }
@@ -379,12 +379,12 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// Unsafely inserts the key frame at the given index, ignoring order. Do not use!
         /// </summary>
         public void InsertKeyFrame(int index, KeyFrame newKeyFrame) {
-            long timeStamp = newKeyFrame.Timestamp;
+            long timeStamp = newKeyFrame.time;
             if (timeStamp < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
             if (newKeyFrame.DataType != this.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
-            newKeyFrame.OwnerSequence = this;
+            newKeyFrame.sequence = this;
             this.keyFrameList.Insert(index, newKeyFrame);
         }
 
@@ -392,7 +392,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// Unsafely removes the key frame at the given index
         /// </summary>
         public void RemoveKeyFrame(int index) {
-            this.keyFrameList[index].OwnerSequence = null;
+            this.keyFrameList[index].sequence = null;
             this.keyFrameList.RemoveAt(index);
         }
 
@@ -431,9 +431,9 @@ namespace FramePFX.Core.Automation.Keyframe {
                 frames.Add(keyFrame);
             }
 
-            frames.Sort((a, b) => a.Timestamp.CompareTo(b.Timestamp));
+            frames.Sort((a, b) => a.time.CompareTo(b.time));
             foreach (KeyFrame frame in frames) {
-                frame.OwnerSequence = this;
+                frame.sequence = this;
                 this.keyFrameList.Add(frame);
             }
         }

@@ -160,11 +160,11 @@ namespace FramePFX.Core.Editor.ViewModels {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
                 return;
             }
-            ProjectModel projectModel = new ProjectModel();
-            ProjectViewModel project;
+            Project projectModel = new Project();
+            ProjectViewModel pvm;
             try {
                 projectModel.ReadFromRBE(dictionary);
-                project = new ProjectViewModel(projectModel);
+                pvm = new ProjectViewModel(projectModel);
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());

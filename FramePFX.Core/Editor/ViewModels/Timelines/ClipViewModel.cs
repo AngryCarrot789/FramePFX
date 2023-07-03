@@ -176,11 +176,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.track?.OnProjectModified();
         }
 
-        public static void SetTrack(ClipViewModel viewModel, TrackViewModel track, bool fireTrackChangedEvent = true) {
+        public static void SetTrack(ClipViewModel viewModel, TrackViewModel track) {
             Track oldTrack = viewModel.Model.Track;
             Track newTrack = track?.Model;
             if (!ReferenceEquals(oldTrack, newTrack)) {
-                Clip.SetTrack(viewModel.Model, track?.Model, fireTrackChangedEvent);
+                Clip.SetTrack(viewModel.Model, track?.Model);
             }
 
             viewModel.Track = track;
@@ -215,14 +215,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         }
 
         public bool IntersectsFrameAt(long frame) => this.Model.IntersectsFrameAt(frame);
-
-        public virtual void OnTimelinePlayBegin() {
-
-        }
-
-        public virtual void OnTimelinePlayEnd() {
-
-        }
 
         public virtual bool CanDropResource(BaseResourceObjectViewModel resource) {
             return ReferenceEquals(resource.Manager, this.Track?.Timeline.Project.ResourceManager);

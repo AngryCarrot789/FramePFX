@@ -164,9 +164,5 @@ namespace FramePFX.Core.Editor.Timelines {
         }
 
         public abstract bool IsClipTypeAcceptable(Clip clip);
-
-        public virtual bool CanUpdateAutomation() {
-            return true;
-        }
     }
 }

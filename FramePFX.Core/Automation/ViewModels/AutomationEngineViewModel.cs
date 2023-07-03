@@ -81,12 +81,14 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void OnOverrideStateChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
-            long frame = data.Owner.AutomationModel.GetRelativeFrame(this.Project.Timeline.PlayHeadFrame);
-            sequence.Model.DoUpdateValue(this.Model, frame);
-            sequence.DoRefreshValue(this, frame, this.IsPlayback, false);
+            this.UpdateAndRefresh(data, sequence);
         }
 
         public void OnKeyFrameChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
+            this.UpdateAndRefresh(data, sequence);
+        }
+
+        public void UpdateAndRefresh(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
             long frame = data.Owner.AutomationModel.GetRelativeFrame(this.Project.Timeline.PlayHeadFrame);
             sequence.Model.DoUpdateValue(this.Model, frame);
             sequence.DoRefreshValue(this, frame, this.IsPlayback, false);

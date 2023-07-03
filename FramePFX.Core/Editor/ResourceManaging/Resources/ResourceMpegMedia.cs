@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using System;
 using FramePFX.Core.FFmpeg;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
@@ -38,9 +38,35 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         }
 
         public void CloseReader() {
-            if (this.reader != null && this.reader.IsOpen)
-                this.reader.Close();
+            FFmpegReader r = this.reader;
             this.reader = null;
+            if (r != null && r.IsOpen) {
+                r.Close();
+            }
+        }
+
+        public void LoadMedia(string filePath) {
+            if (this.reader != null) {
+                this.CloseReader();
+            }
+
+            this.reader = new FFmpegReader();
+            try {
+                this.reader.Open(filePath, false);
+            }
+            catch (Exception e) {
+                try {
+                    this.reader.Close();
+                }
+                catch (Exception ex) {
+                    e.AddSuppressed(ex);
+                }
+                finally {
+                    this.reader = null;
+                }
+
+                throw;
+            }
         }
     }
 }

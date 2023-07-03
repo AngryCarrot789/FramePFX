@@ -32,13 +32,13 @@ namespace FramePFX.Core.Editor.Timelines {
 
         private void DisposePath() {
             ResourcePath<T> path = this.ResourcePath;
+            this.ResourcePath = null; // just in case the code below throws, don't reference a disposed instance
             if (path != null) {
                 try {
-                    path.ResourceChanged -= this.resourceChangedHandler;
                     path.Dispose();
                 }
                 finally {
-                    this.ResourcePath = null; // just in case the code below throws, don't reference a disposed instance
+                    path.ResourceChanged -= this.resourceChangedHandler;
                 }
             }
         }
@@ -138,8 +138,6 @@ namespace FramePFX.Core.Editor.Timelines {
             if (this.ResourcePath != null && !this.ResourcePath.IsDisposed) {
                 try {
                     this.DisposePath();
-                    // this shouldn't throw unless it was already disposed for some reason. Might as well handle that case
-                    this.ResourcePath?.Dispose();
                 }
                 catch (Exception e) {
                     stack.Add(e);

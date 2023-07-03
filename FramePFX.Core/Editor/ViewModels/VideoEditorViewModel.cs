@@ -149,7 +149,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             #else
             RBEDictionary dictionary;
             try {
-                dictionary = RBEUtils.ReadFromFilePacked(result.Value[0]) as RBEDictionary;
+                dictionary = RBEUtils.ReadFromFilePacked(result[0]) as RBEDictionary;
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());

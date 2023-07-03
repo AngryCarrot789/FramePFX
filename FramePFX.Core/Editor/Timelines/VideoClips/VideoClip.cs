@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
@@ -8,10 +9,16 @@ using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timelines.VideoClips {
     public abstract class VideoClip : Clip {
-        public static readonly AutomationKey MediaPositionKey =    AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKey MediaScaleKey =       AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKey MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKey OpacityKey =          AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
+        public static readonly AutomationKeyVector2 MediaPositionKey =    AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleKey =       AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyDouble OpacityKey =           AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
+
+        // saves using closure allocation for each clip
+        private static readonly UpdateAutomationValueEventHandler UpdateMediaPosition = (s, f) => ((VideoClip) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f);
+        private static readonly UpdateAutomationValueEventHandler UpdateMediaScale = (s, f) => ((VideoClip) s.AutomationData.Owner).MediaScale = s.GetVector2Value(f);
+        private static readonly UpdateAutomationValueEventHandler UpdateMediaScaleOrigin = (s, f) => ((VideoClip) s.AutomationData.Owner).MediaScaleOrigin = s.GetVector2Value(f);
+        private static readonly UpdateAutomationValueEventHandler UpdateOpacity = (s, f) => ((VideoClip) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f);
 
         /// <summary>
         /// The x and y coordinates of the video's media
@@ -64,14 +71,14 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
         protected VideoClip() {
-            this.MediaPosition = Vector2.Zero;
-            this.MediaScale = Vector2.One;
-            this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
-            this.Opacity = 1d;
-            this.AutomationData.AssignKey(MediaPositionKey, (s, f) => this.MediaPosition = s.GetVector2Value(f));
-            this.AutomationData.AssignKey(MediaScaleKey, (s, f) => this.MediaScale = s.GetVector2Value(f));
-            this.AutomationData.AssignKey(MediaScaleOriginKey, (s, f) => this.MediaScaleOrigin = s.GetVector2Value(f));
-            this.AutomationData.AssignKey(OpacityKey, (s, f) => this.Opacity = s.GetDoubleValue(f));
+            this.MediaPosition = MediaPositionKey.Descriptor.DefaultValue;
+            this.MediaScale = MediaScaleKey.Descriptor.DefaultValue;
+            this.MediaScaleOrigin = MediaScaleOriginKey.Descriptor.DefaultValue;
+            this.Opacity = OpacityKey.Descriptor.DefaultValue;
+            this.AutomationData.AssignKey(MediaPositionKey, UpdateMediaPosition);
+            this.AutomationData.AssignKey(MediaScaleKey, UpdateMediaScale);
+            this.AutomationData.AssignKey(MediaScaleOriginKey, UpdateMediaScaleOrigin);
+            this.AutomationData.AssignKey(OpacityKey, UpdateOpacity);
         }
 
         /// <summary>

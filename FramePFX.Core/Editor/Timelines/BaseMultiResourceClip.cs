@@ -101,7 +101,7 @@ namespace FramePFX.Core.Editor.Timelines {
         protected override void DisposeCore(ExceptionStack stack) {
             base.DisposeCore(stack);
             foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
-                entry.Dispose();
+                entry.DisposePath();
             }
         }
 
@@ -123,10 +123,11 @@ namespace FramePFX.Core.Editor.Timelines {
             }
 
             public void SetTargetResourceId(ulong id, ResourceManager manager) {
-                if (this.path != null) {
-                    this.path.ResourceChanged -= this.resourceChangedHandler;
-                    this.path.Dispose();
+                ResourcePath oldPath = this.path;
+                if (oldPath != null) {
                     this.path = null; // just in case the code below throws, don't reference a disposed instance
+                    oldPath.Dispose();
+                    oldPath.ResourceChanged -= this.resourceChangedHandler;
                 }
 
                 this.path = new ResourcePath(manager, id);
@@ -175,16 +176,22 @@ namespace FramePFX.Core.Editor.Timelines {
 
             public static void ReadFromRBE(ResourcePathEntry entry, RBEDictionary dictionary, ResourceManager manager) {
                 if (entry.path != null && entry.path.CanDispose) { // handle this, just in case...
-                    entry.path.Dispose();
+                    entry.DisposePath();
                 }
 
                 entry.path = ResourcePath.ReadFromRBE(manager, dictionary);
             }
 
-            public void Dispose() {
-                if (this.path != null && this.path.CanDispose) {
-                    // this shouldn't throw unless it was already disposed for some reason. Might as well handle that case
-                    this.path?.Dispose();
+            public void DisposePath() {
+                ResourcePath oldPath = this.path;
+                this.path = null;
+                if (oldPath != null && !oldPath.IsDisposed) {
+                    try {
+                        oldPath.Dispose();
+                    }
+                    finally {
+                        oldPath.ResourceChanged -= this.resourceChangedHandler;
+                    }
                 }
             }
         }

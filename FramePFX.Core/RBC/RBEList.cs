@@ -25,9 +25,7 @@ namespace FramePFX.Core.RBC {
                 throw new Exception($"Expected list to contain only {GetReadableTypeName(typeof(T))} instances");
             }
 
-            foreach (RBEBase rbe in this.List) {
-                yield return (T) rbe;
-            }
+            return this.List.Cast<T>();
         }
 
         private bool GetElementByType<T>(int index, out T value) where T : RBEBase {

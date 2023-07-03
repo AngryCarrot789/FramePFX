@@ -10,9 +10,10 @@ namespace FramePFX.Core.Automation {
     /// Contains automation data, which is a collection of <see cref="AutomationSequence"/>s mapped by an <see cref="AutomationKey"/>
     /// </summary>
     public class AutomationData : IRBESerialisable {
-        private readonly Dictionary<AutomationKey, AutomationSequence> dataMap;
+        private readonly Dictionary<AutomationKey, AutomationSequence> map;
+        private readonly List<AutomationSequence> sequences;
 
-        public IEnumerable<AutomationSequence> Sequences => this.dataMap.Values;
+        public IEnumerable<AutomationSequence> Sequences => this.sequences;
 
         /// <summary>
         /// The automatable instance that owns this instance
@@ -25,7 +26,7 @@ namespace FramePFX.Core.Automation {
         /// <param name="key"></param>
         public AutomationSequence this[AutomationKey key] {
             get {
-                if (this.dataMap.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequence sequence))
+                if (this.map.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequence sequence))
                     return sequence;
 
                 #if DEBUG
@@ -43,7 +44,8 @@ namespace FramePFX.Core.Automation {
 
         public AutomationData(IAutomatable owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            this.dataMap = new Dictionary<AutomationKey, AutomationSequence>();
+            this.map = new Dictionary<AutomationKey, AutomationSequence>();
+            this.sequences = new List<AutomationSequence>();
         }
 
         /// <summary>
@@ -51,10 +53,11 @@ namespace FramePFX.Core.Automation {
         /// </summary>
         /// <param name="key">The key to add</param>
         public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler) {
-            if (this.dataMap.ContainsKey(key))
+            if (this.map.ContainsKey(key))
                 throw new Exception("Key is already assigned");
             AutomationSequence sequence = new AutomationSequence(this, key);
-            this.dataMap[key] = sequence;
+            this.map[key] = sequence;
+            this.sequences.Add(sequence);
             if (updateValueHandler != null) {
                 sequence.UpdateValue += updateValueHandler;
             }
@@ -62,15 +65,15 @@ namespace FramePFX.Core.Automation {
             return sequence;
         }
 
-        public bool TryGetData(AutomationKey key, out AutomationSequence value) => this.dataMap.TryGetValue(key, out value);
+        public bool TryGetData(AutomationKey key, out AutomationSequence value) => this.map.TryGetValue(key, out value);
 
-        public AutomationSequence GetData(AutomationKey key) => this.dataMap[key];
+        public AutomationSequence GetData(AutomationKey key) => this.map[key];
 
         public void WriteToRBE(RBEDictionary data) {
             if (this.ActiveKeyFullId != null)
                 data.SetString(nameof(this.ActiveKeyFullId), this.ActiveKeyFullId);
             RBEList list = data.CreateList(nameof(this.Sequences));
-            foreach (AutomationSequence sequence in this.dataMap.Values) {
+            foreach (AutomationSequence sequence in this.sequences) {
                 RBEDictionary dictionary = list.AddDictionary();
                 dictionary.SetString("KeyId", sequence.Key.FullId);
                 sequence.WriteToRBE(dictionary);
@@ -90,15 +93,17 @@ namespace FramePFX.Core.Automation {
                 AutomationKey key = AutomationKey.GetKey(domain, id);
                 if (key == null)
                     throw new Exception("Unknown automation key: " + fullId);
-                if (!this.dataMap.TryGetValue(key, out AutomationSequence sequence))
+                if (!this.map.TryGetValue(key, out AutomationSequence sequence))
                     throw new Exception("Missing/unassigned key: " + fullId);
                 sequence.ReadFromRBE(dictionary);
             }
         }
 
         public void LoadDataIntoClone(AutomationData clone) {
-            foreach (AutomationSequence sequence in this.dataMap.Values)
-                clone.dataMap[sequence.Key] = sequence.Clone(clone);
+            clone.ActiveKeyFullId = this.ActiveKeyFullId;
+            for (int i = 0, c = this.sequences.Count; i < c; i++) {
+                AutomationSequence.LoadDataIntoClone(this.sequences[i], clone.sequences[i]);
+            }
         }
     }
 }

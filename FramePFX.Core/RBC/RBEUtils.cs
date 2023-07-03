@@ -12,7 +12,7 @@ namespace FramePFX.Core.RBC {
         }
 
         public static RBEBase ReadFromFile(string filePath) {
-            using (FileStream stream = File.OpenRead(filePath)) {
+            using (Stream stream = new BufferedStream(File.OpenRead(filePath))) {
                 return ReadFromStream(stream);
             }
         }
@@ -28,7 +28,7 @@ namespace FramePFX.Core.RBC {
         }
 
         public static RBEBase ReadFromFilePacked(string filePath) {
-            using (FileStream stream = File.OpenRead(filePath)) {
+            using (Stream stream = new BufferedStream(File.OpenRead(filePath))) {
                 return ReadFromStreamPacked(stream);
             }
         }
@@ -40,13 +40,13 @@ namespace FramePFX.Core.RBC {
         public static RBEBase ReadFromStreamPacked(Stream stream, Encoding encoding) {
             Dictionary<int, string> dictionary = new Dictionary<int, string>();
             using (BinaryReader reader = new BinaryReader(stream, encoding, true)) {
-                ReadDictionary(reader, dictionary);
+                ReadPackedKeys(reader, dictionary);
                 return RBEBase.ReadIdAndElementPacked(reader, dictionary);
             }
         }
 
         public static void WriteToFile(RBEBase rbe, string filePath) {
-            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+            using (Stream stream = new BufferedStream(new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))) {
                 WriteToStream(rbe, stream);
             }
         }
@@ -62,7 +62,7 @@ namespace FramePFX.Core.RBC {
         }
 
         public static void WriteToFilePacked(RBEBase rbe, string filePath) {
-            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+            using (Stream stream = new BufferedStream(new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))) {
                 WriteToStreamPacked(rbe, stream);
             }
         }
@@ -82,12 +82,12 @@ namespace FramePFX.Core.RBC {
             Dictionary<string, int> dictionary = new Dictionary<string, int>();
             rbe.AccumulatePackedEntries(dictionary);
             using (BinaryWriter writer = new BinaryWriter(stream, encoding, true)) {
-                WriteDictionary(writer, dictionary);
+                WritePacketKeys(writer, dictionary);
                 RBEBase.WriteIdAndElementPacked(writer, rbe, dictionary);
             }
         }
 
-        private static void WriteDictionary(BinaryWriter writer, Dictionary<string, int> dictionary) {
+        private static void WritePacketKeys(BinaryWriter writer, Dictionary<string, int> dictionary) {
             writer.Write(dictionary.Count);
             foreach (KeyValuePair<string, int> entry in dictionary) {
                 int length = entry.Key.Length;
@@ -100,7 +100,7 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        private static void ReadDictionary(BinaryReader reader, Dictionary<int, string> dictionary) {
+        private static void ReadPackedKeys(BinaryReader reader, Dictionary<int, string> dictionary) {
             int count = reader.ReadInt32();
             for (int i = 0; i < count; i++) {
                 int length = reader.ReadByte();

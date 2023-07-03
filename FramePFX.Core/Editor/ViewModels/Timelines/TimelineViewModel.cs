@@ -180,7 +180,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 return;
             }
 
-            this.RemoveTracks(list);
+            this.RemoveTracks(list.ToList());
         }
 
         public void RemoveTracks(IEnumerable<TrackViewModel> list) {
@@ -281,22 +281,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             }
 
             this.ignorePlayHeadPropertyChange = false;
-        }
-
-        public void OnPlayBegin() {
-            foreach (TrackViewModel track in this.tracks) {
-                foreach (ClipViewModel clip in track.Clips) {
-                    clip.OnTimelinePlayBegin();
-                }
-            }
-        }
-
-        public void OnPlayEnd() {
-            foreach (TrackViewModel track in this.tracks) {
-                foreach (ClipViewModel clip in track.Clips) {
-                    clip.OnTimelinePlayEnd();
-                }
-            }
         }
 
         public void Dispose() {

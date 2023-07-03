@@ -180,7 +180,7 @@ namespace FramePFX {
                 };
 
                 clip1.MediaPosition = new Vector2(0, 0);
-                clip1.SetTargetResourceId(id_d);
+                clip1.SetTargetResourceId(id_r);
                 track1.AddClip(clip1);
 
                 ShapeVideoClip clip2 = new ShapeVideoClip {
@@ -210,7 +210,7 @@ namespace FramePFX {
                 ShapeVideoClip clip2 = new ShapeVideoClip {
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
-                    DisplayName = "Clip colour_green"
+                    DisplayName = "Clip blueish"
                 };
 
                 clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));

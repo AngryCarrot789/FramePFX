@@ -42,31 +42,5 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
                 #endif
             }
         }
-
-        public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack) {
-            if (string.IsNullOrEmpty(this.FilePath)) {
-                return true;
-            }
-
-            if (File.Exists(this.FilePath)) {
-                try {
-                    this.Model.OpenMediaFromFile();
-                    return true;
-                }
-                catch {
-                    // ignored
-                }
-            }
-
-            try {
-                this.Model.Dispose();
-            }
-            catch (Exception e) {
-                stack.Add(e);
-            }
-
-            checker?.Add(new InvalidVideoViewModel(this));
-            return false;
-        }
     }
 }

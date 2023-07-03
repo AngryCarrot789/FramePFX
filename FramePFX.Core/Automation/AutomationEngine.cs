@@ -33,9 +33,7 @@ namespace FramePFX.Core.Automation {
             }
 
             foreach (Track track in timeline.Tracks) {
-                if (track.CanUpdateAutomation()) {
-                    this.UpdateTrack(track, frame);
-                }
+                this.UpdateTrack(track, frame);
             }
         }
 

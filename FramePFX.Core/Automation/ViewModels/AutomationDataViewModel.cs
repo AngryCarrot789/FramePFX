@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
@@ -120,6 +121,12 @@ namespace FramePFX.Core.Automation.ViewModels {
             if (engine != null) {
                 engine.OnKeyFrameChanged(this, sequence, keyFrame);
             }
+            #if DEBUG
+            else {
+                Debugger.Break();
+                Debug.WriteLine("No automation engine available");
+            }
+            #endif
         }
 
         public bool CanToggleOverride() {

@@ -41,10 +41,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages {
     }
 
     public class MediaClipPageViewModel : BaseClipPropertyPageViewModel {
-        public static readonly MediaClipPageViewModel Dummy = new MediaClipPageViewModel(new MediaClipViewModel(new OldMediaVideoClip()));
+        public static readonly MediaClipPageViewModel Dummy = new MediaClipPageViewModel(new OldMediaClipViewModel(new OldMediaVideoClip()));
 
-        public new MediaClipViewModel Target => (MediaClipViewModel) base.Target;
-        public MediaClipPageViewModel(MediaClipViewModel target) : base(target, "Media Info") {
+        public new OldMediaClipViewModel Target => (OldMediaClipViewModel) base.Target;
+        public MediaClipPageViewModel(OldMediaClipViewModel target) : base(target, "Media Info") {
 
         }
     }

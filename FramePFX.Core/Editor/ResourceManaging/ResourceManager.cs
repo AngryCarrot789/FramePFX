@@ -38,11 +38,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public event ResourceItemEventHandler ResourceRemoved;
 
         /// <summary>
-        /// An event called when a resource's <see cref="ResourceItem.UniqueId"/> is changed
-        /// </summary>
-        public event ResourceRenamedEventHandler ResourceRenamed;
-
-        /// <summary>
         /// An event called when a resource is replaced with another resource
         /// </summary>
         public event ResourceReplacedEventHandler ResourceReplaced;
@@ -203,43 +198,6 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.uuidToItem.Remove(item.UniqueId);
             this.ResourceRemoved?.Invoke(this, item);
             return true;
-        }
-
-        public void RenameEntry(ResourceItem item, ulong newId) {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (newId == EmptyId)
-                throw new ArgumentException("New ID cannot be zero (null)", nameof(newId));
-            if (!ReferenceEquals(this, item.Manager))
-                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
-            ulong oldId = item.UniqueId;
-            if (oldId == EmptyId)
-                throw new ArgumentException("Old Item ID cannot be zero (null). Did you mean to add the resource?", nameof(item));
-            if (!this.uuidToItem.TryGetValue(oldId, out ResourceItem oldIdItem))
-                throw new InvalidOperationException($"Resource does not exist with the old id '{oldId}'");
-            if (this.uuidToItem.TryGetValue(newId, out ResourceItem newIdItem))
-                throw new InvalidOperationException($"Resource already exists with the new id '{newId}': {newIdItem.GetType()}");
-            if (!ReferenceEquals(item, oldIdItem))
-                throw new InvalidOperationException($"Resource has the same Id as an existing resource, but the references do not match. {item} != {oldIdItem}");
-            this.uuidToItem.Remove(oldId);
-            this.uuidToItem[newId] = item;
-            ResourceItem.SetUniqueId(item, newId);
-            this.ResourceRenamed?.Invoke(this, item, oldId, newId);
-        }
-
-        public void RenameEntry(ulong oldId, ulong newId) {
-            if (oldId == EmptyId)
-                throw new ArgumentException("Old ID cannot be zero (null)", nameof(newId));
-            if (newId == EmptyId)
-                throw new ArgumentException("New ID cannot be zero (null)", nameof(newId));
-            if (!this.uuidToItem.TryGetValue(oldId, out ResourceItem item))
-                throw new InvalidOperationException($"Resource does not exist with the old id '{oldId}'");
-            if (this.uuidToItem.TryGetValue(newId, out ResourceItem existing))
-                throw new InvalidOperationException($"Resource already exists with the new id '{newId}': {existing.GetType()}");
-            this.uuidToItem.Remove(oldId);
-            this.uuidToItem[newId] = item;
-            ResourceItem.SetUniqueId(item, newId);
-            this.ResourceRenamed?.Invoke(this, item, oldId, newId);
         }
 
         public ResourceItem GetEntryItem(ulong id) {

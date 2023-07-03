@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace FramePFX.Core.RBC {
     public class RBEGuid : RBEBase {
@@ -16,7 +17,7 @@ namespace FramePFX.Core.RBC {
         }
 
         protected override void Read(BinaryReader reader) {
-            reader.ReadStruct<Guid>();
+            this.Value = reader.ReadStruct<Guid>();
         }
 
         protected override void Write(BinaryWriter writer) {

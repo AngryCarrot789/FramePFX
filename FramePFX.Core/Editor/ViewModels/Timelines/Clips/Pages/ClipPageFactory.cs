@@ -10,7 +10,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages {
             this.RegisterPage<ShapeClipViewModel, ShapeClipPageViewModel>();
             this.RegisterPage<TextClipViewModel, TextClipPageViewModel>();
             this.RegisterPage<ImageClipViewModel, ImageClipPageViewModel>();
-            this.RegisterPage<MediaClipViewModel, MediaClipPageViewModel>();
+            this.RegisterPage<OldMediaClipViewModel, MediaClipPageViewModel>();
         }
     }
 }

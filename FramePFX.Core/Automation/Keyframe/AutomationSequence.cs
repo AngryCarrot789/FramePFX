@@ -8,7 +8,7 @@ namespace FramePFX.Core.Automation.Keyframe {
     /// <summary>
     /// Contains all of the key frames for a specific <see cref="AutomationKey"/>
     /// </summary>
-    public class AutomationSequence : IRBESerialisable {
+    public sealed class AutomationSequence : IRBESerialisable {
         private readonly List<KeyFrame> keyFrameList;
 
         /// <summary>
@@ -57,6 +57,14 @@ namespace FramePFX.Core.Automation.Keyframe {
             this.DataType = key.DataType;
             this.OverrideKeyFrame = key.CreateKeyFrame();
             this.OverrideKeyFrame.sequence = this;
+        }
+
+        public void Clear() {
+            foreach (KeyFrame keyFrame in this.keyFrameList) {
+                keyFrame.sequence = null;
+            }
+
+            this.keyFrameList.Clear();
         }
 
         /// <summary>
@@ -364,10 +372,10 @@ namespace FramePFX.Core.Automation.Keyframe {
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
             newKeyFrame.sequence = this;
             List<KeyFrame> list = this.keyFrameList;
-            for (int i = list.Count - 1; i >= 0; i--) {
-                if (timeStamp >= list[i].time) {
-                    list.Insert(i + 1, newKeyFrame);
-                    return i + 1;
+            for (int i = list.Count; i >= 0; i--) {
+                if (timeStamp >= list[i - 1].time) {
+                    list.Insert(i, newKeyFrame);
+                    return i;
                 }
             }
 
@@ -403,6 +411,8 @@ namespace FramePFX.Core.Automation.Keyframe {
             return this.keyFrameList[index];
         }
 
+        // read/write operations are used for cloning as well as reading from disk
+
         public void WriteToRBE(RBEDictionary data) {
             data.SetByte(nameof(this.DataType), (byte) this.DataType);
             data.SetBool(nameof(this.IsOverrideEnabled), this.IsOverrideEnabled);
@@ -434,24 +444,32 @@ namespace FramePFX.Core.Automation.Keyframe {
 
             // just in case they somehow end up unordered
             frames.Sort((a, b) => a.time.CompareTo(b.time));
+            this.Clear();
             foreach (KeyFrame frame in frames) {
                 frame.sequence = this;
                 this.keyFrameList.Add(frame);
             }
         }
 
-        public AutomationSequence Clone(AutomationData automationData) {
+        public static void LoadDataIntoClone(AutomationSequence src, AutomationSequence dst) {
+            if (src.Key != dst.Key) {
+                throw new Exception($"Key mis-match: {src.Key} != {dst.Key}");
+            }
+
+            // slower than manual copy, but safer in terms of updates just in case
             RBEDictionary dictionary = new RBEDictionary();
-            this.WriteToRBE(dictionary);
-            AutomationSequence seq = new AutomationSequence(automationData, this.Key);
-            seq.ReadFromRBE(dictionary);
-            return seq;
+            src.WriteToRBE(dictionary);
+            dst.ReadFromRBE(dictionary);
         }
 
         public static void ValidateType(AutomationDataType expected, AutomationDataType actual) {
             if (expected != actual) {
                 throw new ArgumentException($"Invalid data type. Expected {expected}, got {actual}");
             }
+        }
+
+        public override string ToString() {
+            return $"{nameof(AutomationSequence)}({this.DataType} -> {this.Key.FullId} [{this.keyFrameList.Count} keyframes])";
         }
     }
 }

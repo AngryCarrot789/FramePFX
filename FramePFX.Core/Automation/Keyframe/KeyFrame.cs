@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using FramePFX.Core.Editor;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
@@ -33,11 +34,11 @@ namespace FramePFX.Core.Automation.Keyframe {
             }
         }
 
-        public void SetFloatValue(float value) => ((KeyFrameFloat) this).Value = value;
-        public void SetDoubleValue(double value) => ((KeyFrameDouble) this).Value = value;
-        public void SetLongValue(long value) => ((KeyFrameLong) this).Value = value;
-        public void SetBooleanValue(bool value) => ((KeyFrameBoolean) this).Value = value;
-        public void SetVector2Value(Vector2 value) => ((KeyFrameVector2) this).Value = value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void SetFloatValue(float value) => ((KeyFrameFloat) this).Value = value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void SetDoubleValue(double value) => ((KeyFrameDouble) this).Value = value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void SetLongValue(long value) => ((KeyFrameLong) this).Value = value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void SetBooleanValue(bool value) => ((KeyFrameBoolean) this).Value = value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public void SetVector2Value(Vector2 value) => ((KeyFrameVector2) this).Value = value;
 
         public static double GetInterpolationMultiplier(long time, long timeA, long timeB, double curve) {
             long range = timeB - timeA;

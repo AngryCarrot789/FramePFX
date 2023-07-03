@@ -4,10 +4,10 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
-    public class MediaClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
+    public class OldMediaClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
         public new OldMediaVideoClip Model => (OldMediaVideoClip) ((ClipViewModel) this).Model;
 
-        public MediaClipViewModel(OldMediaVideoClip model) : base(model) {
+        public OldMediaClipViewModel(OldMediaVideoClip model) : base(model) {
             
         }
 

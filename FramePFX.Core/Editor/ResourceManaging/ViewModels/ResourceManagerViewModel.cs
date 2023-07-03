@@ -153,6 +153,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                         }
                         else {
                             ((BaseResourceObjectViewModel) media).Model.Dispose();
+                            await IoC.MessageDialogs.ShowMessageAsync("Empty media", "Media contains no video or audio streams");
                         }
 
                         break;

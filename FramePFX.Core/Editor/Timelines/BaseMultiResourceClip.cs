@@ -30,7 +30,7 @@ namespace FramePFX.Core.Editor.Timelines {
             this.ResourceMap.Add(key, new ResourcePathEntry(this, key));
         }
 
-        public void SetTargetResourceId(string key, string id) {
+        public void SetTargetResourceId(string key, ulong id) {
             this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
         }
 
@@ -71,7 +71,7 @@ namespace FramePFX.Core.Editor.Timelines {
             if (this.ResourceMap.Count > 0) {
                 RBEDictionary resourceMapDictionary = data.CreateDictionary(nameof(this.ResourceMap));
                 foreach (KeyValuePair<string, ResourcePathEntry> entry in this.ResourceMap) {
-                    Debug.Assert(entry.Key == entry.Value.key, "Map pair key and entry key do not match");
+                    Debug.Assert(entry.Key == entry.Value.entryKey, "Map pair key and entry key do not match");
                     ResourcePathEntry.WriteToRBE(entry.Value, resourceMapDictionary);
                 }
             }
@@ -101,27 +101,28 @@ namespace FramePFX.Core.Editor.Timelines {
         protected override void DisposeCore(ExceptionStack stack) {
             base.DisposeCore(stack);
             foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
-                entry.Dispose(stack);
+                entry.Dispose();
             }
         }
 
         private class ResourcePathEntry {
-            public readonly string key;
+            // unique keys that inheritors of BaseMultiResourceClip specify to identify a resource
+            public readonly string entryKey;
             private readonly BaseMultiResourceClip clip;
             private readonly ResourcePath.ResourceChangedEventHandler resourceChangedHandler;
             private readonly ResourceModifiedEventHandler dataModifiedHandler;
             private readonly ResourceItemEventHandler onlineStateChangedHandler;
             public ResourcePath path;
 
-            public ResourcePathEntry(BaseMultiResourceClip clip, string key) {
-                this.clip = clip ?? throw new ArgumentNullException();
-                this.key = key ?? throw new ArgumentNullException();
+            public ResourcePathEntry(BaseMultiResourceClip clip, string entryKey) {
+                this.clip = clip ?? throw new ArgumentNullException(nameof(clip));
+                this.entryKey = string.IsNullOrEmpty(entryKey) ? throw new ArgumentException("Entry id cannot be null or empty", nameof(entryKey)) : entryKey;
                 this.resourceChangedHandler = this.OnEntryResourceChangedInternal;
                 this.dataModifiedHandler = this.OnEntryResourceDataModifiedInternal;
                 this.onlineStateChangedHandler = this.OnEntryOnlineStateChangedInternal;
             }
 
-            public void SetTargetResourceId(string id, ResourceManager manager) {
+            public void SetTargetResourceId(ulong id, ResourceManager manager) {
                 if (this.path != null) {
                     this.path.ResourceChanged -= this.resourceChangedHandler;
                     this.path.Dispose();
@@ -143,8 +144,8 @@ namespace FramePFX.Core.Editor.Timelines {
                     newItem.DataModified += this.dataModifiedHandler;
                 }
 
-                this.clip.OnResourceChanged(this.key, oldItem, newItem);
-                this.clip.ClipResourceChanged?.Invoke(this.key, oldItem, newItem);
+                this.clip.OnResourceChanged(this.entryKey, oldItem, newItem);
+                this.clip.ClipResourceChanged?.Invoke(this.entryKey, oldItem, newItem);
             }
 
             private void OnEntryResourceDataModifiedInternal(ResourceItem sender, string property) {
@@ -152,8 +153,8 @@ namespace FramePFX.Core.Editor.Timelines {
                     throw new InvalidOperationException("Expected resource path to be non-null");
                 if (!this.path.IsCachedItemEqualTo(sender))
                     throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-                this.clip.OnResourceDataModified(this.key, property);
-                this.clip.ClipResourceDataModified?.Invoke(this.key, sender, property);
+                this.clip.OnResourceDataModified(this.entryKey, property);
+                this.clip.ClipResourceDataModified?.Invoke(this.entryKey, sender, property);
             }
 
             private void OnEntryOnlineStateChangedInternal(ResourceManager manager, ResourceItem item) {
@@ -168,7 +169,7 @@ namespace FramePFX.Core.Editor.Timelines {
                     return;
                 }
 
-                RBEDictionary dictionary = resourceMapDictionary.CreateDictionary(entry.key);
+                RBEDictionary dictionary = resourceMapDictionary.CreateDictionary(entry.entryKey);
                 ResourcePath.WriteToRBE(entry.path, dictionary);
             }
 
@@ -180,7 +181,7 @@ namespace FramePFX.Core.Editor.Timelines {
                 entry.path = ResourcePath.ReadFromRBE(manager, dictionary);
             }
 
-            public void Dispose(ExceptionStack stack) {
+            public void Dispose() {
                 if (this.path != null && this.path.CanDispose) {
                     // this shouldn't throw unless it was already disposed for some reason. Might as well handle that case
                     this.path?.Dispose();

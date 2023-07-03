@@ -1,6 +1,9 @@
 using FFmpeg.AutoGen;
 
 namespace FramePFX.Core.Editor {
+    /// <summary>
+    /// A helper class for dealing with time
+    /// </summary>
     public static class Timecode {
         public static readonly Rational Fps23976 = new Rational(24000, 1001);
         public static readonly Rational Fps2997 = new Rational(30000, 1001);
@@ -23,6 +26,11 @@ namespace FramePFX.Core.Editor {
         public static unsafe Rational TimeStampToDuration(this Rational tbase, long timestamp) {
             ffmpeg.av_reduce(&tbase.num, &tbase.den, tbase.num * timestamp, tbase.den, int.MaxValue);
             return tbase;
+        }
+
+        public static unsafe Rational FromFrame(Rational tb, long frame) {
+            ffmpeg.av_reduce(&tb.num, &tb.den, tb.num * frame, tb.den * 1L, int.MaxValue);
+            return tb;
         }
 
         public static Rational PixelToTime(double pixel, double scale) {

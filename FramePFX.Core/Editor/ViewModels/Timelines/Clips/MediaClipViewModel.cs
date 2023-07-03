@@ -5,18 +5,18 @@ using FramePFX.Core.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     public class MediaClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
-        public new MediaClip Model => (MediaClip) ((ClipViewModel) this).Model;
+        public new OldMediaVideoClip Model => (OldMediaVideoClip) ((ClipViewModel) this).Model;
 
-        public MediaClipViewModel(MediaClip model) : base(model) {
+        public MediaClipViewModel(OldMediaVideoClip model) : base(model) {
             
         }
 
         public override bool CanDropResource(BaseResourceObjectViewModel resource) {
-            return resource is ResourceMediaViewModel;
+            return resource is ResourceOldMediaViewModel;
         }
 
         public override async Task OnDropResource(BaseResourceObjectViewModel resource) {
-            this.Model.SetTargetResourceId(((ResourceMediaViewModel) resource).UniqueId);
+            this.Model.SetTargetResourceId(((ResourceOldMediaViewModel) resource).UniqueId);
             this.Model.InvalidateRender();
         }
     }

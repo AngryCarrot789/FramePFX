@@ -86,5 +86,37 @@ namespace FramePFX.Core.Utils {
             double mod = value % multiple;
             return mod == 0D ? value : value + (multiple - mod);
         }
+
+        public static int CeilShr(int v, int s) => (v + (1 << s) - 1) >> s;
+
+        public static bool WillOverflow(uint a, uint b) => b != 0 && a > uint.MaxValue - b;
+        public static bool WillOverflow(ulong a, ulong b) => b != 0 && a > ulong.MaxValue - b;
+        public static bool WillOverflow(int a, int b) => b > 0 && a > int.MaxValue - b;
+        public static bool WillOverflow(long a, long b) => b > 0 && a > long.MaxValue - b;
+        public static bool WillUnderflow(int a, int b) => b < 0 && a < int.MinValue - b;
+        public static bool WillUnderflow(long a, long b) => b < 0 && a < long.MinValue - b;
+
+        // https://stackoverflow.com/a/51099524/11034928
+        public static int GetDigitCount(ulong v) {
+            if (v < 10L) return 1;
+            if (v < 100L) return 2;
+            if (v < 1000L) return 3;
+            if (v < 10000L) return 4;
+            if (v < 100000L) return 5;
+            if (v < 1000000L) return 6;
+            if (v < 10000000L) return 7;
+            if (v < 100000000L) return 8;
+            if (v < 1000000000L) return 9;
+            if (v < 10000000000L) return 10;
+            if (v < 100000000000L) return 11;
+            if (v < 1000000000000L) return 12;
+            if (v < 10000000000000L) return 13;
+            if (v < 100000000000000L) return 14;
+            if (v < 1000000000000000L) return 15;
+            if (v < 10000000000000000L) return 16;
+            if (v < 100000000000000000L) return 17;
+            if (v < 1000000000000000000L) return 18;
+            return v < 10000000000000000000L ? 19 : 20;
+        }
     }
 }

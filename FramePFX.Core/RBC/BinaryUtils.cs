@@ -1,101 +1,17 @@
 using System;
+using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace FramePFX.Core.RBC {
     public static class BinaryUtils {
-        public static bool ReadStruct<T>(Stream stream, out T value) where T : unmanaged {
-            unsafe {
-                T val = value = new T();
-                byte[] buffer = new byte[sizeof(T)];
-                if (stream.Read(buffer, 0, buffer.Length) == buffer.Length) {
-                    CopyArray(buffer, 0, (byte*) &val, buffer.Length);
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
-        // This function is probably slow asf due to the fixed statement and excessive variable incrementation
-        // public static unsafe void CopyArray(byte[] src, int srcBegin, byte* dest, int destBegin, int length) {
-        //     fixed (byte* buf = src) {
-        //         while (length > 7) {
-        //             *(ulong*) (dest + destBegin) = *(ulong*) (buf + srcBegin);
-        //             length -= 8;
-        //             srcBegin += 8;
-        //             destBegin += 8;
-        //         }
-        //         if (length > 3) {
-        //             *(uint*) (dest + destBegin) = *(uint*) buf;
-        //             length -= 4;
-        //             srcBegin += 4;
-        //             destBegin += 4;
-        //         }
-        //         switch (length) {
-        //             case 3:
-        //                 dest[destBegin + 0] = buf[srcBegin + 0];
-        //                 dest[destBegin + 1] = buf[srcBegin + 1];
-        //                 dest[destBegin + 2] = buf[srcBegin + 2];
-        //                 break;
-        //             case 2:
-        //                 dest[destBegin + 0] = buf[srcBegin + 0];
-        //                 dest[destBegin + 1] = buf[srcBegin + 1];
-        //                 break;
-        //             case 1:
-        //                 dest[destBegin + 0] = buf[srcBegin + 0];
-        //                 break;
-        //         }
-        //     }
-        // }
-
-        // public static unsafe void WriteArray(byte* src, int srcBegin, byte[] dest, int destBegin, int length) {
-        //     fixed (byte* buf = dest) {
-        //         while (length > 7) {
-        //             *(ulong*) (buf + destBegin) = *(ulong*) (src + srcBegin);
-        //             length -= 8;
-        //             srcBegin += 8;
-        //             destBegin += 8;
-        //         }
-        //         if (length > 3) {
-        //             *(uint*) (buf + destBegin) = *(uint*) src;
-        //             length -= 4;
-        //             srcBegin += 4;
-        //             destBegin += 4;
-        //         }
-        //         switch (length) {
-        //             case 3:
-        //                 buf[destBegin + 0] = src[srcBegin + 0];
-        //                 buf[destBegin + 1] = src[srcBegin + 1];
-        //                 buf[destBegin + 2] = src[srcBegin + 2];
-        //                 break;
-        //             case 2:
-        //                 buf[destBegin + 0] = src[srcBegin + 0];
-        //                 buf[destBegin + 1] = src[srcBegin + 1];
-        //                 break;
-        //             case 1:
-        //                 buf[destBegin + 0] = src[srcBegin + 0];
-        //                 break;
-        //         }
-        //     }
-        // }
-
         // Buffer.MemoryCopy implementation (on windows at least, .NET Framework) uses an internal function which accepts ulong length
         // Passing int to MemoryCopy will cast to long (twice due to 'len, len') and those get cast to ulong (in a checked context)
         // Just an optimisation to use ulong in these functions
-        public static unsafe void CopyArray(byte[] srcArray, int srcBegin, byte* destPtr, int length) {
-            ulong len = (ulong) length;
-            fixed (byte* srcPtr = srcArray) {
-                Buffer.MemoryCopy(srcPtr + srcBegin, destPtr, len, len);
-            }
-        }
+        public static unsafe void CopyArray(byte[] src, int srcBegin, byte* dst, int count) => Unsafe.CopyBlock(ref *dst, ref src[srcBegin], (uint) count);
 
-        public static unsafe void WriteArray(byte* src, byte[] destArray, int destBegin, int length) {
-            ulong len = (ulong) length;
-            fixed (byte* destPtr = destArray) {
-                Buffer.MemoryCopy(src, destPtr + destBegin, len, len);
-            }
-        }
+        public static unsafe void WriteArray(byte* src, byte[] dst, int dstBegin, int count) => Unsafe.CopyBlock(ref dst[dstBegin], ref *src, (uint) count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ReadExact(Stream stream, byte[] buffer, int count) {
@@ -103,6 +19,24 @@ namespace FramePFX.Core.RBC {
                 throw new EndOfStreamException($"Failed to read {count} bytes");
             }
         }
+
+        // public class ByteAlignment {
+        //     public static readonly IntPtr ArrayAdjustment = MeasureArrayAdjustment();
+        //     private readonly byte data;
+        //     public ByteAlignment(byte data) {
+        //         this.data = data;
+        //     }
+        //
+        //     private static IntPtr MeasureArrayAdjustment() {
+        //         byte[] objArray = new byte[1];
+        //         byte b = Unsafe.As<ByteAlignment>(objArray).data;
+        //         return new IntPtr(objArray[0] - b);
+        //     }
+        // }
+        //
+        // public static void Fill(byte[] span, byte value) {
+        //     Unsafe.InitBlockUnaligned(ref Unsafe.AddByteOffset(ref span[0], ByteAlignment.ArrayAdjustment), value, (uint) span.Length);
+        // }
 
         private const int LEN_U1 = 0b00; // unsigned byte
         private const int LEN_U2 = 0b01; // unsigned short
@@ -158,36 +92,88 @@ namespace FramePFX.Core.RBC {
             return (c << 16) | (b << 8) | (a >> 2);
         }
 
-        public static TEnum ToEnum8<TEnum>(byte value) where TEnum : unmanaged, Enum {
-            unsafe { return *(TEnum*) &value; }
+        public static TEnum ToEnum8<TEnum>(byte value) where TEnum : unmanaged, Enum => Unsafe.As<byte, TEnum>(ref value);
+        public static TEnum ToEnum16<TEnum>(short value) where TEnum : unmanaged, Enum => Unsafe.As<short, TEnum>(ref value);
+        public static TEnum ToEnum32<TEnum>(int value) where TEnum : unmanaged, Enum => Unsafe.As<int, TEnum>(ref value);
+        public static TEnum ToEnum64<TEnum>(long value) where TEnum : unmanaged, Enum => Unsafe.As<long, TEnum>(ref value);
+        public static byte FromEnum8<TEnum>(TEnum value) where TEnum : unmanaged, Enum => Unsafe.As<TEnum, byte>(ref value);
+        public static short FromEnum16<TEnum>(TEnum value) where TEnum : unmanaged, Enum => Unsafe.As<TEnum, short>(ref value);
+        public static int FromEnum32<TEnum>(TEnum value) where TEnum : unmanaged, Enum => Unsafe.As<TEnum, int>(ref value);
+        public static long FromEnum64<TEnum>(TEnum value) where TEnum : unmanaged, Enum => Unsafe.As<TEnum, long>(ref value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe T ReadStruct<T>(byte[] array, int offset, int size) where T : unmanaged {
+            T value = default;
+            Unsafe.CopyBlock(ref *(byte*) &value, ref array[offset], (uint) size);
+            return value;
         }
 
-        public static TEnum ToEnum16<TEnum>(short value) where TEnum : unmanaged, Enum {
-            unsafe { return *(TEnum*) &value; }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void WriteStruct<T>(T value, byte[] array, int offset, int size) where T : unmanaged {
+            byte* src = (byte*) &value;
+            Unsafe.CopyBlock(ref array[offset], ref *src, (uint) size);
         }
 
-        public static TEnum ToEnum32<TEnum>(int value) where TEnum : unmanaged, Enum {
-            unsafe { return *(TEnum*) &value; }
+        public static unsafe void WriteStruct<T>(this BinaryWriter writer, T value) where T : unmanaged {
+            switch (sizeof(T)) {
+                case 1: writer.Write(Unsafe.As<T, byte>(ref value)); return;
+                case 2: writer.Write(Unsafe.As<T, ushort>(ref value)); return;
+                case 4: writer.Write(Unsafe.As<T, uint>(ref value)); return;
+                case 8: writer.Write(Unsafe.As<T, ulong>(ref value)); return;
+                case 12: {
+                    writer.Write(Unsafe.As<T, ulong>(ref value));
+                    writer.Write(Unsafe.As<T, uint>(ref Unsafe.AddByteOffset(ref value, (IntPtr) 8)));
+                    return;
+                }
+                case 16: {
+                    writer.Write(Unsafe.As<T, ulong>(ref value));
+                    writer.Write(Unsafe.As<T, ulong>(ref Unsafe.AddByteOffset(ref value, (IntPtr) 8)));
+                    return;
+                }
+                default: throw new ArgumentException($"sizeof({typeof(T)}) must be >= 0 && <= 16");
+            }
         }
 
-        public static TEnum ToEnum64<TEnum>(long value) where TEnum : unmanaged, Enum {
-            unsafe { return *(TEnum*) &value; }
+        public static unsafe T ReadStruct<T>(this BinaryReader reader) where T : unmanaged {
+            switch (sizeof(T)) {
+                case 1: { byte v = reader.ReadByte();     return Unsafe.As<byte, T>(ref v); }
+                case 2: { ushort v = reader.ReadUInt16(); return Unsafe.As<ushort, T>(ref v); }
+                case 4: { uint v = reader.ReadUInt32();   return Unsafe.As<uint, T>(ref v); }
+                case 8: { ulong v = reader.ReadUInt64();  return Unsafe.As<ulong, T>(ref v); }
+                case 12: {
+                    ulong a = reader.ReadUInt64();
+                    uint b = reader.ReadUInt32();
+                    Block12 blk = new Block12(a, b);
+                    return Unsafe.As<Block12, T>(ref blk);
+                }
+                case 16: {
+                    ulong a = reader.ReadUInt64();
+                    ulong b = reader.ReadUInt64();
+                    Block16 blk = new Block16(a, b);
+                    return Unsafe.As<Block16, T>(ref blk);
+                }
+                default: throw new ArgumentException($"sizeof({typeof(T)}) must be >= 0 && <= 16");
+            }
         }
 
-        public static byte FromEnum8<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
-            unsafe { return *(byte*) &value; }
+        [StructLayout(LayoutKind.Sequential)]
+        private readonly struct Block12 {
+            public readonly ulong a;
+            public readonly uint b;
+            public Block12(ulong a, uint b) {
+                this.a = a;
+                this.b = b;
+            }
         }
 
-        public static short FromEnum16<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
-            unsafe { return *(short*) &value; }
-        }
-
-        public static int FromEnum32<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
-            unsafe { return *(int*) &value; }
-        }
-
-        public static long FromEnum64<TEnum>(TEnum value) where TEnum : unmanaged, Enum {
-            unsafe { return *(long*) &value; }
+        [StructLayout(LayoutKind.Sequential)]
+        private readonly struct Block16 {
+            public readonly ulong a;
+            public readonly ulong b;
+            public Block16(ulong a, ulong b) {
+                this.a = a;
+                this.b = b;
+            }
         }
     }
 }

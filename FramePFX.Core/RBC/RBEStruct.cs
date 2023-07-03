@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace FramePFX.Core.RBC {
     /// <summary>
@@ -50,59 +49,42 @@ namespace FramePFX.Core.RBC {
                 throw new Exception("Binary data has not been read yet");
             }
 
-            unsafe {
-                if (array.Length != sizeof(T)) {
-                    throw new Exception($"Binary data size does not match struct size (binary({array.Length}) != struct({sizeof(T)}) for struct {typeof(T)})");
-                }
-
-                return ReadStruct<T>(array, 0, sizeof(T));
+            int size = Unsafe.SizeOf<T>();
+            if (array.Length != size) {
+                throw new Exception($"Binary data size does not match struct size (binary({array.Length}) != struct({size}) for struct {typeof(T)})");
             }
+
+            return BinaryUtils.ReadStruct<T>(array, 0, size);
         }
 
         public bool TryGetValue<T>(out T value) where T : unmanaged {
-            unsafe {
-                if (this.data == null || this.data.Length != sizeof(T)) {
-                    value = default;
-                    return false;
-                }
-
-                value = ReadStruct<T>(this.data, 0, sizeof(T));
-                return true;
+            int size;
+            if (this.data == null || this.data.Length != (size = Unsafe.SizeOf<T>())) {
+                value = default;
+                return false;
             }
+
+            value = BinaryUtils.ReadStruct<T>(this.data, 0, size);
+            return true;
         }
 
         public void SetValue<T>(in T value) where T : unmanaged {
-            int size = Marshal.SizeOf<T>();
+            int size = Unsafe.SizeOf<T>();
             if (size > ushort.MaxValue) {
                 throw new Exception("Value's size is too large: " + size);
             }
 
             this.data = new byte[size];
-            WriteStruct(value, this.data, 0, size);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe T ReadStruct<T>(byte[] array, int offset, int size) where T : unmanaged {
-            T value = default;
-            BinaryUtils.CopyArray(array, offset, (byte*) &value, size);
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void WriteStruct<T>(T value, byte[] array, int offset, int size) where T : unmanaged {
-            BinaryUtils.WriteArray((byte*) &value, array, offset, size);
+            BinaryUtils.WriteStruct(value, this.data, 0, size);
         }
 
         public override RBEBase Clone() => this.CloneCore();
 
         public RBEStruct CloneCore() {
-            byte[] src = this.data;
-            byte[] dest = null;
+            byte[] src = this.data, dest = null;
             if (src != null) {
-                int length = src.Length;
-                dest = new byte[length];
-                for (int i = 0; i < length; i++)
-                    dest[i] = src[i]; // typically faster than Buffer.BlockCopy with <100 bytes due to CPU caching hopefully
+                dest = new byte[src.Length];
+                Unsafe.CopyBlock(ref dest[0], ref src[0], (uint) dest.Length);
             }
 
             return new RBEStruct {data = dest};

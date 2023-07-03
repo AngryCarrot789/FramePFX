@@ -25,9 +25,9 @@ namespace FramePFX.Core.Editor.ResourceChecker.Resources {
         }
 
         public async Task SelectFileAction() {
-            DialogResult<string[]> result = IoC.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
-            if (result.IsSuccess && result.Value.Length == 1 && !string.IsNullOrEmpty(result.Value[0])) {
-                this.FilePath = result.Value[0];
+            string[] result = await IoC.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
+            if (result != null && !string.IsNullOrEmpty(result[0])) {
+                this.FilePath = result[0];
                 this.Resource.FilePath = this.FilePath;
                 await this.LoadImageAction();
             }

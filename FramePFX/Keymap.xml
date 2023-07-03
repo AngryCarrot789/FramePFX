@@ -30,6 +30,9 @@
                 <Shortcut Name="RenameItem2" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
                     <Keystroke Mods="CTRL" Key="R"/>
                 </Shortcut>
+                <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupSelection" Description="Puts the selected items into their own group">
+                    <Keystroke Mods="CTRL" Key="G"/>
+                </Shortcut>
             </Group>
             <Group Name="Timeline">
                 <Group Name="Surface">

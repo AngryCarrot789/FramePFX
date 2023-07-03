@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceManaging.Events;
@@ -7,12 +8,12 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public abstract class ResourceItemViewModel : BaseResourceObjectViewModel, IDisposable {
+    public abstract class ResourceItemViewModel : BaseResourceObjectViewModel {
         private readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         public new ResourceItem Model => (ResourceItem) base.Model;
 
-        public string UniqueId => this.Model.UniqueId;
+        public ulong UniqueId => this.Model.UniqueId;
 
         public bool IsOnline {
             get => this.Model.IsOnline;
@@ -43,100 +44,57 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 this.RaisePropertyChanged(nameof(this.IsOnline));
                 this.RaisePropertyChanged(nameof(this.IsOfflineByUser));
             };
+
             model.OnlineStateChanged += this.onlineStateChangedHandler;
-
-            this.SetOfflineCommand = new AsyncRelayCommand(this.SetOfflineAsync, () => this.IsOnline);
-
+            this.SetOfflineCommand = new AsyncRelayCommand(() => this.SetOfflineAsync(true), () => this.IsOnline);
             this.SetOnlineCommand = new AsyncRelayCommand(async () => {
                 await ResourceCheckerViewModel.LoadResources(new List<ResourceItemViewModel>() {this}, true);
             }, () => !this.IsOnline);
         }
 
-        public virtual async Task SetOfflineAsync() {
+        public virtual async Task SetOfflineAsync(bool user) {
             using (ExceptionStack stack = new ExceptionStack(false)) {
-                await this.Model.DisableAsync(stack, true);
+                this.Model.Disable(stack, user);
                 if (stack.TryGetException(out Exception exception)) {
                     await IoC.MessageDialogs.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting resource to offline", exception.GetToString());
                 }
             }
         }
 
-        public override async Task<bool> RenameSelfAction() {
-            string newId;
-            if (this.Manager == null) {
-                newId = await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", "Input a new UUID for the resource", this.UniqueId ?? "Resource ID Here");
-            }
-            else {
-                newId = await this.Manager.SelectNewResourceId("Input a new UUID for the resource", this.UniqueId);
-            }
-
-            if (newId == null) {
-                return false;
-            }
-            else if (string.IsNullOrWhiteSpace(newId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid UUID", "UUID cannot be an empty string or consist of only whitespaces");
-                return false;
-            }
-            else if (this.Manager != null && !this.Manager.Model.EntryExists(this.UniqueId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Resource no long exists", "This resource is not registered...");
-                return false;
-            }
-            else if (this.Manager != null && this.Manager.Model.EntryExists(newId)) {
-                await IoC.MessageDialogs.ShowMessageAsync("Resource already exists", "Resource already exists with the UUID: " + newId);
-                return false;
-            }
-            else {
-                if (this.Manager != null) {
-                    this.Manager.Model.RenameEntry(this.Model, newId);
-                }
-                else {
-                    ResourceItem.SetUniqueId(this.Model, newId);
-                }
-
-                this.RaisePropertyChanged(nameof(this.UniqueId));
-                return true;
-            }
-        }
-
         public override async Task<bool> DeleteSelfAction() {
             if (this.Parent == null) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Invalid item", "This resource is not located anywhere...?", new Exception().GetToString());
+                await IoC.MessageDialogs.ShowMessageAsync("Invalid item", "This resource is not located anywhere...?");
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(this.UniqueId)) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Invalid item", "This resource has not been registered yet", new Exception().GetToString());
+            if (await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource{(this.DisplayName != null ? $"'{this.DisplayName}'" : "")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK) {
                 return false;
             }
 
-            if (await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource '{this.UniqueId}'?", MsgDialogType.OKCancel) != MsgDialogResult.OK) {
-                return false;
+            if (this.UniqueId != ResourceManager.EmptyId && this.Manager != null) {
+                if (this.Manager.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem item)) {
+                    if (!ReferenceEquals(this.Model, item)) {
+                        #if DEBUG
+                        System.Diagnostics.Debugger.Break();
+                        #endif
+                        await IoC.MessageDialogs.ShowMessageAsync("Application Corrupted", "This resource is registered but the ID is associated with another resource");
+                        return false;
+                    }
+                }
+
+                this.Manager.Manager.DeleteEntryByItem(this.Model);
             }
 
-            this.Manager?.Model.DeleteEntryByItem(this.Model);
             this.Parent.RemoveItem(this, true, true);
 
             try {
-                this.Dispose();
+                base.Model.Dispose();
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error disposing item", "Failed to dispose resource", e.GetToString());
             }
 
             return true;
-        }
-
-        protected override bool CanRename() {
-            return this.Model.IsRegistered(out _);
-        }
-
-        protected override bool CanDelete() {
-            return this.Model.IsRegistered(out _);
-        }
-
-        public override void Dispose() {
-            this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
-            base.Dispose();
         }
 
         /// <summary>
@@ -158,6 +116,10 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         /// <returns></returns>
         public virtual Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack) {
             return Task.FromResult(true);
+        }
+
+        protected override void OnDisposing() {
+            this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
         }
     }
 }

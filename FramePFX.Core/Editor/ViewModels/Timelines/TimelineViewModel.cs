@@ -14,7 +14,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines {
-    public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IModifyProject, IDisposable {
+    public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IDisposable {
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
 
@@ -98,8 +98,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public List<HistoryVideoClipPosition> DragStopHistoryList { get; set; }
 
-        public event ProjectModifiedEvent ProjectModified;
-
         public TimelineViewModel(ProjectViewModel project, Timeline model) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -125,7 +123,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             if (addToModel)
                 this.Model.AddTrack(track.Model);
             this.tracks.Add(track);
-            this.ProjectModified?.Invoke(this, nameof(this.Tracks));
+            this.OnProjectModified();
         }
 
         public void OnPlayHeadMoved(long oldFrame, long newFrame, bool? schedule) {
@@ -182,36 +180,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 return;
             }
 
-            await this.DisposeAndRemoveItemsAction(list);
+            this.RemoveTracks(list);
         }
 
-        public async Task DisposeAndRemoveItemsAction(IEnumerable<TrackViewModel> list) {
-            try {
-                this.DisposeAndRemoveItemsUnsafe(list.ToList());
+        public void RemoveTracks(IEnumerable<TrackViewModel> list) {
+            foreach (TrackViewModel item in list) {
+                this.Model.RemoveTrack(item.Model);
+                this.tracks.Remove(item);
             }
-            catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error", "An error occurred while removing tracks", e.GetToString());
-            }
-        }
 
-        public void DisposeAndRemoveItemsUnsafe(IList<TrackViewModel> list) {
-            using (ExceptionStack stack = new ExceptionStack("Exception disposing tracks")) {
-                foreach (TrackViewModel item in list) {
-                    if (item is IDisposable disposable) {
-                        try {
-                            disposable.Dispose();
-                        }
-                        catch (Exception e) {
-                            stack.Add(new Exception($"Failed to dispose {item.GetType()} properly", e));
-                        }
-                    }
-
-                    this.tracks.Remove(item);
-                    this.Model.RemoveTrack(item.Model);
-                }
-
-                this.ProjectModified?.Invoke(this, nameof(this.Tracks));
-            }
+            this.OnProjectModified();
         }
 
         public virtual void MoveSelectedItems(int offset) {
@@ -247,7 +225,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 selection[i] = target;
             }
 
-            this.ProjectModified?.Invoke(this, nameof(this.Tracks));
+            this.OnProjectModified();
         }
 
         public virtual void MoveSelectedItemUpAction() {
@@ -262,7 +240,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
         }
 
-        public void OnStepFrameTick() {
+        public void OnStepFrameCallback() {
             this.StepFrameAsync().Wait();
         }
 
@@ -299,7 +277,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 IoC.Dispatcher.InvokeAsync(() => {
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isFramePropertyChangeScheduled = false;
-
                 });
             }
 
@@ -360,6 +337,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public void MoveClip(ClipViewModel clip, TrackViewModel oldTrack, TrackViewModel newTrack) {
             oldTrack.RemoveClipFromTrack(clip);
             newTrack.AddClipToTrack(clip);
+        }
+
+        public void OnProjectModified() {
         }
     }
 }

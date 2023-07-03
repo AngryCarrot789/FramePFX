@@ -9,7 +9,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     public class ShapeClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
         private readonly HistoryBuffer<HistoryShapeSize> sizeHistory = new HistoryBuffer<HistoryShapeSize>();
 
-        public new ShapeClip Model => (ShapeClip) base.Model;
+        public new ShapeVideoClip Model => (ShapeVideoClip) base.Model;
 
         public float Width {
             get => this.Model.Width;
@@ -41,7 +41,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             }
         }
 
-        public ShapeClipViewModel(ShapeClip model) : base(model) {
+        public ShapeClipViewModel(ShapeVideoClip model) : base(model) {
 
         }
 

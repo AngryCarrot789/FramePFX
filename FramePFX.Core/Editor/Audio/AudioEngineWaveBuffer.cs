@@ -1,9 +1,6 @@
 using System;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using FramePFX.Core.RBC;
-using FramePFX.Core.Utils;
 using NAudio;
 using NAudio.Wave;
 

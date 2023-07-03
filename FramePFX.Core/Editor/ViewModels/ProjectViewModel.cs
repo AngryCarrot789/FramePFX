@@ -12,7 +12,7 @@ using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Core.Editor.ViewModels {
     public class ProjectViewModel : BaseViewModel, IDisposable {
-        private string tempDir;
+        private string tempProjDir;
         private string projectDir;
         private bool hasUnsavedChanges;
 
@@ -62,7 +62,6 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.Settings.ProjectModified += this.OnProjectModified;
             this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
             this.Timeline = new TimelineViewModel(this, project.Timeline);
-            this.Timeline.ProjectModified += this.OnProjectModified;
             this.AutomationEngine = new AutomationEngineViewModel(this, project.AutomationEngine);
 
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.Model.IsSaving);
@@ -74,12 +73,12 @@ namespace FramePFX.Core.Editor.ViewModels {
         public DirectoryInfo GetDirectory() {
             string path = this.ProjectDirectory;
             if (string.IsNullOrEmpty(path)) {
-                if (string.IsNullOrEmpty(this.tempDir)) {
-                    this.tempDir = path = RandomUtils.RandomStringWhere(Path.GetTempPath(), 32, x => !Directory.Exists(x));
+                if (string.IsNullOrEmpty(this.tempProjDir)) {
+                    this.tempProjDir = path = RandomUtils.RandomStringWhere(Path.GetTempPath(), 32, x => !Directory.Exists(x));
                     return Directory.CreateDirectory(path);
                 }
                 else {
-                    path = this.tempDir;
+                    path = this.tempProjDir;
                 }
             }
 
@@ -133,9 +132,9 @@ namespace FramePFX.Core.Editor.ViewModels {
                 return false;
             }
 
-            DialogResult<string> result = IoC.FilePicker.OpenFolder(Path.GetDirectoryName(this.ProjectDirectory), "Select a folder, in which the project data will be saved into");
-            if (result.IsSuccess) {
-                this.ProjectDirectory = result.Value;
+            string result = await IoC.FilePicker.OpenFolder(Path.GetDirectoryName(this.ProjectDirectory), "Select a folder, in which the project data will be saved into");
+            if (result != null) {
+                this.ProjectDirectory = result;
                 await this.SaveToFileAsync();
                 return true;
             }
@@ -144,46 +143,50 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
         }
 
-        public async Task SaveToFileAsync() {
+        private async Task SaveToFileAsync() {
             if (this.Editor == null)
                 return;
             if (!ReferenceEquals(this, this.Editor.ActiveProject))
                 throw new Exception("The editor's project does not match the current instance");
-
-            if (string.IsNullOrEmpty(this.ProjectDirectory)) {
+            if (string.IsNullOrEmpty(this.ProjectDirectory))
                 throw new Exception("Project dir cannot be null or empty");
-            }
 
             this.Model.IsSaving = true;
-
-            bool reloadProject = false;
+            bool reloadResources = false;
 
             try {
+                // copy temp project files into actual project dir
                 DirectoryInfo dir = this.GetDirectory();
-                if (this.tempDir != null && Directory.Exists(this.tempDir)) {
-                    await this.ResourceManager.OfflineAllAsync();
-                    foreach (string path in Directory.EnumerateFileSystemEntries(this.tempDir)) {
+                if (this.tempProjDir != null && Directory.Exists(this.tempProjDir)) {
+                    await this.ResourceManager.OfflineAllAsync(false);
+                    foreach (string path in Directory.EnumerateFileSystemEntries(this.tempProjDir)) {
                         string fileName = Path.GetFileName(path);
                         Directory.Move(path, Path.Combine(dir.FullName, fileName));
                     }
 
-                    reloadProject = true;
+                    reloadResources = true;
                 }
+
+                this.tempProjDir = null;
             }
             catch (PathTooLongException ex) {
                 await IoC.MessageDialogs.ShowMessageExAsync("PathTooLongException", "Could not create project directory", ex.GetToString());
+                return;
             }
             catch (SecurityException ex) {
                 await IoC.MessageDialogs.ShowMessageExAsync("SecurityException", "Could not create project directory", ex.GetToString());
+                return;
             }
             catch (UnauthorizedAccessException ex) {
                 await IoC.MessageDialogs.ShowMessageExAsync("UnauthorizedAccessException", "Could not create project directory", ex.GetToString());
+                return;
             }
             catch (Exception ex) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Unexpected error", "Could not create project directory", ex.GetToString());
+                return;
             }
 
-            this.tempDir = null;
+            this.tempProjDir = null;
             await this.Editor.OnProjectSaving();
 
             Exception e = null;
@@ -223,7 +226,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error saving", "An exception occurred while saving project", e.GetToString());
             }
 
-            if (reloadProject) {
+            if (reloadResources) {
                 await ResourceCheckerViewModel.LoadProjectResources(this, false);
             }
         }

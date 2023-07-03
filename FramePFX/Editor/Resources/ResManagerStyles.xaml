@@ -84,7 +84,7 @@
             <!--  -->
             <Style TargetType="{x:Type resources:ResourceItemControl}" BasedOn="{StaticResource {x:Type resources:BaseResourceItemControl}}"
                    d:DataContext="{d:DesignInstance vm1:ResourceItemViewModel}">
-                <Setter Property="HeaderText" Value="{Binding UniqueId, Mode=OneWay}"/>
+                <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}"/>
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsOnline}" Value="False">
                         <Setter Property="Background" Value="DarkRed"/>

@@ -13,7 +13,6 @@ namespace FramePFX.Views {
             }
 
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
             this.DataContextChanged += (sender, args) => {
                 if (args.NewValue is BaseDialogViewModel vm) {
                     vm.Dialog = this;

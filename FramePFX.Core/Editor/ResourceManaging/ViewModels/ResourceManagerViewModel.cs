@@ -5,15 +5,13 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.FFmpeg;
 using FramePFX.Core.Interactivity;
 using FramePFX.Core.Utils;
-using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
     public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation {
         private ResourceGroupViewModel currentGroup;
-        public readonly InputValidator ResourceItemIdValidator;
-        public readonly InputValidator ResourceGroupIdValidator;
 
         /// <summary>
         /// This manager's root resource group view model
@@ -25,12 +23,12 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         /// </summary>
         public ResourceGroupViewModel CurrentGroup {
             get => this.currentGroup;
-            set => this.RaisePropertyChanged(ref this.currentGroup, value);
+            set => this.RaisePropertyChanged(ref this.currentGroup, value ?? this.Root);
         }
 
         public AsyncRelayCommand<string> CreateResourceCommand { get; }
 
-        public ResourceManager Model { get; }
+        public ResourceManager Manager { get; }
 
         public ProjectViewModel Project { get; }
 
@@ -38,7 +36,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         private readonly LinkedList<ResourceGroupViewModel> redoGroup;
 
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
-            this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
+            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Root = new ResourceGroupViewModel(manager.RootGroup);
             this.Root.SetManager(this);
@@ -47,43 +45,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
             this.undoGroup = new LinkedList<ResourceGroupViewModel>();
             this.redoGroup = new LinkedList<ResourceGroupViewModel>();
-
-            this.ResourceItemIdValidator = new InputValidator((string input, out string message) => {
-                if (string.IsNullOrEmpty(input)) {
-                    message = "Input cannot be empty";
-                    return true;
-                }
-                else if (string.IsNullOrWhiteSpace(input)) { // might as well handle null/empty and whitespaces separately
-                    message = "Input cannot be empty or consist of only whitespaces";
-                    return true;
-                }
-                else if (this.Model.EntryExists(input)) {
-                    message = "Resource already exists with this ID";
-                    return true;
-                }
-                else {
-                    message = null;
-                    return false;
-                }
-            });
-            this.ResourceGroupIdValidator = new InputValidator((string input, out string message) => {
-                if (string.IsNullOrEmpty(input)) {
-                    message = "Display name cannot be empty";
-                    return true;
-                }
-                else if (string.IsNullOrWhiteSpace(input)) { // might as well handle null/empty and whitespaces separately
-                    message = "Display name cannot be empty or consist of only whitespaces";
-                    return true;
-                }
-                else if (this.Model.EntryExists(input)) {
-                    message = "A group cannot share the same name as a resource";
-                    return true;
-                }
-                else {
-                    message = null;
-                    return false;
-                }
-            });
         }
 
         public void NavigateToGroup(ResourceGroupViewModel group, bool pushHistory = true) {
@@ -104,6 +65,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 this.undoGroup.AddLast(this.CurrentGroup);
             }
 
+            this.CurrentGroup.SelectedItems.Clear();
+            group.SelectedItems.Clear();
             this.CurrentGroup = group;
         }
 
@@ -131,60 +94,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public string GenerateIdForFile(string filePath) {
-            string fileName = Path.GetFileName(filePath);
-            if (!this.Model.EntryExists(fileName)) {
-                return fileName;
-            }
-
-            int i = 0;
-            string id = fileName;
-            do {
-                if (!this.Model.EntryExists(id)) {
-                    return id;
-                }
-
-                id = TextIncrement.GetNextText(id);
-                i++;
-            } while (i < 100);
-
-            i = 0;
-            id = filePath;
-            do {
-                if (!this.Model.EntryExists(id)) {
-                    return id;
-                }
-
-                id = TextIncrement.GetNextText(id);
-                i++;
-            } while (i < 1000);
-
-            int j = 16, k = 0;
-            // what the ass. last resort
-            Random random = new Random();
-            char[] chars = new char[j];
-            while (true) {
-                if (k > 15) {
-                    k = 0;
-                    j++;
-                    if (j >= 32) { // how
-                        throw new Exception("Total failure generating random unique ID");
-                    }
-                }
-
-                for (i = 0; i < j; i++) {
-                    chars[i] = (char) random.Next('a', 'z');
-                }
-
-                id = new string(chars);
-                if (!this.Model.EntryExists(id)) {
-                    return id;
-                }
-
-                k++;
-            }
-        }
-
         private async Task CreateResourceAction(string type) {
             BaseResourceObjectViewModel resObj;
             switch (type) {
@@ -198,12 +107,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
 
             if (resObj is ResourceItemViewModel item) {
-                string id = await IoC.UserInput.ShowSingleInputDialogAsync("Input resource ID", "Input a resource ID for the new resource:", $"My {type}", this.ResourceItemIdValidator);
-                if (string.IsNullOrWhiteSpace(id) || this.Model.EntryExists(id)) {
-                    return;
-                }
-
-                this.Model.RegisterEntry(id, item.Model);
+                this.Manager.RegisterEntry(item.Model);
                 this.CurrentGroup.AddItem(item, true);
                 using (ExceptionStack stack = new ExceptionStack(false)) {
                     await item.LoadResource(null, stack);
@@ -218,10 +122,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public async Task<string> SelectNewResourceId(string msg, string value = null) {
-            return await IoC.UserInput.ShowSingleInputDialogAsync("Input a resource ID", msg, value ?? "Resource ID Here", this.ResourceItemIdValidator);
-        }
-
         public Task<bool> CanDrop(string[] paths, ref FileDropType type) {
             type = FileDropType.Copy;
             return Task.FromResult(true);
@@ -230,11 +130,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         public async Task OnFilesDropped(string[] paths) {
             foreach (string path in paths) {
                 switch (Path.GetExtension(path).ToLower()) {
+                    case ".mp3":
+                    case ".wav":
+                    case ".ogg":
                     case ".mp4":
                     case ".mov":
                     case ".mkv":
                     case ".flv":
-                        ResourceMediaViewModel media = new ResourceMediaViewModel(new ResourceMedia() {FilePath = path});
+                        ResourceMpegMediaViewModel media = new ResourceMpegMediaViewModel(new ResourceMpegMedia() {FilePath = path});
                         using (ExceptionStack stack = new ExceptionStack(false)) {
                             await media.LoadResource(null, stack);
                             if (stack.TryGetException(out Exception exception)) {
@@ -243,8 +146,15 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                             }
                         }
 
-                        this.Model.RegisterEntry(this.GenerateIdForFile(path), media.Model);
-                        this.CurrentGroup.AddItem(media, true);
+                        FFmpegReader reader = media.Model.reader;
+                        if (reader != null && (reader.VideoStreamCount > 0 || reader.AudioStreamCount > 0)) {
+                            this.Manager.RegisterEntry(media.Model);
+                            this.CurrentGroup.AddItem(media, true);
+                        }
+                        else {
+                            ((BaseResourceObjectViewModel) media).Model.Dispose();
+                        }
+
                         break;
                     case ".png":
                     case ".bmp":
@@ -254,12 +164,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                         using (ExceptionStack stack = new ExceptionStack(false)) {
                             await image.LoadResource(null, stack);
                             if (stack.TryGetException(out Exception exception)) {
+                                ((BaseResourceObjectViewModel) image).Model.Dispose();
                                 await IoC.MessageDialogs.ShowMessageExAsync("Error opening image", "Failed to open image file", exception.GetToString());
                                 return;
                             }
                         }
 
-                        this.Model.RegisterEntry(this.GenerateIdForFile(path), image.Model);
+                        this.Manager.RegisterEntry(image.Model);
                         this.CurrentGroup.AddItem(image, true);
                         break;
                 }
@@ -267,12 +178,12 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public void Dispose() {
-            this.Model.ClearEntries();
-            this.Root.Dispose();
+            this.Manager.ClearEntries();
+            ((BaseResourceObjectViewModel) this.Root).Model.Dispose();
         }
 
-        public async Task OfflineAllAsync() {
-            await this.Root.OfflineRecursiveAsync();
+        public async Task OfflineAllAsync(bool user) {
+            await this.Root.OfflineRecursiveAsync(user);
         }
     }
 }

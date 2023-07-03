@@ -3,8 +3,8 @@ using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
 
 namespace FramePFX.Core.Editor.Timelines.VideoClips {
-    public class ImageClip : BaseResourceClip<ResourceImage> {
-        public ImageClip() {
+    public class ImageVideoClip : BaseResourceVideoClip<ResourceImage> {
+        public ImageVideoClip() {
 
         }
 
@@ -36,7 +36,7 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         }
 
         protected override Clip NewInstance() {
-            return new ImageClip();
+            return new ImageVideoClip();
         }
     }
 }

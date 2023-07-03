@@ -137,6 +137,10 @@ namespace FramePFX.Core.Editor.Timelines {
             }
         }
 
+        public void RenderAudio(long frame) {
+
+        }
+
         public void Render(RenderContext render, long frame) {
             List<Track> tracks = this.Tracks;
             SKPaint trackPaint = null, clipPaint = null;

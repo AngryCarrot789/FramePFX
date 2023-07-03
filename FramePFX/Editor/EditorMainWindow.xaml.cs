@@ -331,7 +331,7 @@ namespace FramePFX.Editor {
                 this.ViewPortElement.EndRender();
             }
 
-            project.Model.AudioEngine.UpdateFPS(project.Settings.FrameRate.AsFraction);
+            project.Model.AudioEngine.UpdateFPS(project.Settings.FrameRate.ToDouble);
             project.Model.AudioEngine.ProcessNext(project.Timeline.Model, frame);
 
             this.isRenderScheduled = 0;
@@ -423,6 +423,7 @@ namespace FramePFX.Editor {
                 case "2": type = ThemeType.DarkGreyTheme; break;
                 case "3": type = ThemeType.GreyTheme; break;
                 case "4": type = ThemeType.RedBlackTheme; break;
+                case "5": type = ThemeType.LightTheme; break;
                 default: return;
             }
 

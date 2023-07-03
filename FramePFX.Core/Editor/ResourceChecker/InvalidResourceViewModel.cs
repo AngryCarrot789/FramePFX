@@ -26,7 +26,7 @@ namespace FramePFX.Core.Editor.ResourceChecker {
         /// </summary>
         public virtual async Task SetResourceOfflineAsync() {
             using (ExceptionStack stack = new ExceptionStack(false)) {
-                await this.Resource.Model.DisableAsync(stack, true);
+                this.Resource.Model.Disable(stack, true);
                 if (stack.TryGetException(out Exception exception)) {
                     await IoC.MessageDialogs.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting resource to offline", exception.GetToString());
                 }

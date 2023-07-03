@@ -7,7 +7,7 @@ using FramePFX.Core.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timelines.VideoClips {
-    public class TextClip : BaseResourceClip<ResourceText> {
+    public class TextVideoClip : BaseResourceVideoClip<ResourceText> {
         private BitVector32 clipProps;
 
         private readonly ResourceText lt;
@@ -28,7 +28,7 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         public bool ULBorderThickness { get => this.IsUsingClipProperty(nameof(ResourceText.BorderThickness)); set => this.SetUseClipProperty(nameof(ResourceText.BorderThickness), value); }
         public bool ULIsAntiAliased   { get => this.IsUsingClipProperty(nameof(ResourceText.IsAntiAliased));   set => this.SetUseClipProperty(nameof(ResourceText.IsAntiAliased), value); }
 
-        public TextClip() {
+        public TextVideoClip() {
             this.clipProps = new BitVector32();
             this.lt = new ResourceText();
         }
@@ -58,19 +58,19 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         }
 
         protected override Clip NewInstance() {
-            return new TextClip();
+            return new TextVideoClip();
         }
 
         protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
-            TextClip text = (TextClip) clone;
+            TextVideoClip textClip = (TextVideoClip) clone;
 
             RBEDictionary dictionary = new RBEDictionary();
             this.lt.WriteToRBE(dictionary);
-            text.lt.ReadFromRBE(dictionary);
+            textClip.lt.ReadFromRBE(dictionary);
 
             BitVector32 props = this.clipProps;
-            text.clipProps = props;
+            textClip.clipProps = props;
         }
 
         public override void WriteToRBE(RBEDictionary data) {

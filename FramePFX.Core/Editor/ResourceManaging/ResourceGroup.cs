@@ -32,9 +32,9 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             base.WriteToRBE(data);
             RBEList list = data.CreateList(nameof(this.items));
             foreach (BaseResourceObject item in this.items) {
-                RBEDictionary dictionary = list.AddDictionary();
                 if (!(item.RegistryId is string registryId))
-                    throw new Exception($"Model Type is not registered: {this.GetType()}");
+                    throw new Exception($"Resource type is not registered: {this.GetType()}");
+                RBEDictionary dictionary = list.AddDictionary();
                 dictionary.SetString(nameof(this.RegistryId), registryId);
                 item.WriteToRBE(dictionary.CreateDictionary("Data"));
             }

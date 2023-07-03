@@ -153,7 +153,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public void SetTimerFrameRate(Rational frameRate) {
             if (frameRate.den <= 0 || frameRate.num <= 0)
                 throw new Exception("Frame rate must be greater than zero");
-            this.Model.PlaybackTimer.Interval = (long) Math.Round(1000d / frameRate.AsFraction);
+            this.Model.PlaybackTimer.Interval = (long) Math.Round(1000d / frameRate.ToDouble);
         }
 
         private async Task SwitchPrecisionMode() {

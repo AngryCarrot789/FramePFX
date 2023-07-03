@@ -118,7 +118,21 @@ namespace FramePFX.Controls.Dragger {
                 "RestoreValueOnCancel",
                 typeof(bool),
                 typeof(NumberDragger),
-                new PropertyMetadata(true));
+                new PropertyMetadata(BoolBox.True));
+
+        public static readonly DependencyProperty ChangeMapperProperty =
+            DependencyProperty.Register(
+                "ChangeMapper",
+                typeof(IChangeMapper),
+                typeof(NumberDragger),
+                new PropertyMetadata(null));
+
+        public static readonly DependencyProperty ValuePreProcessorProperty =
+            DependencyProperty.Register(
+                "ValuePreProcessor",
+                typeof(IValuePreProcessor),
+                typeof(NumberDragger),
+                new PropertyMetadata(null));
 
         #endregion
 
@@ -186,8 +200,6 @@ namespace FramePFX.Controls.Dragger {
             set => this.SetValue(PreviewRoundedPlacesProperty, value);
         }
 
-        private bool isUpdatingExternalMouse;
-
         public bool LockCursorWhileDragging {
             get => (bool) this.GetValue(LockCursorWhileDraggingProperty);
             set => this.SetValue(LockCursorWhileDraggingProperty, value.Box());
@@ -214,8 +226,18 @@ namespace FramePFX.Controls.Dragger {
         /// Whether or not to restore the value property when the drag is cancelled. Default is true
         /// </summary>
         public bool RestoreValueOnCancel {
-            get { return (bool) this.GetValue(RestoreValueOnCancelProperty); }
+            get => (bool) this.GetValue(RestoreValueOnCancelProperty);
             set => this.SetValue(RestoreValueOnCancelProperty, value.Box());
+        }
+
+        public IChangeMapper ChangeMapper {
+            get => (IChangeMapper) this.GetValue(ChangeMapperProperty);
+            set => this.SetValue(ChangeMapperProperty, value);
+        }
+
+        public IValuePreProcessor ValuePreProcessor {
+            get => (IValuePreProcessor) this.GetValue(ValuePreProcessorProperty);
+            set => this.SetValue(ValuePreProcessorProperty, value);
         }
 
         public bool IsValueReadOnly {
@@ -236,8 +258,8 @@ namespace FramePFX.Controls.Dragger {
 
         #endregion
 
-        public static readonly RoutedEvent EditStartedEvent = EventManager.RegisterRoutedEvent("EditStarted", RoutingStrategy.Bubble, typeof(EditStartEventHandler), typeof(NumberDragger));
-        public static readonly RoutedEvent EditCompletedEvent = EventManager.RegisterRoutedEvent("EditCompleted", RoutingStrategy.Bubble, typeof(EditCompletedEventHandler), typeof(NumberDragger));
+        public static readonly RoutedEvent EditStartedEvent = EventManager.RegisterRoutedEvent(nameof(EditStarted), RoutingStrategy.Bubble, typeof(EditStartEventHandler), typeof(NumberDragger));
+        public static readonly RoutedEvent EditCompletedEvent = EventManager.RegisterRoutedEvent(nameof(EditCompleted), RoutingStrategy.Bubble, typeof(EditCompletedEventHandler), typeof(NumberDragger));
 
         [Category("Behavior")]
         public event EditStartEventHandler EditStarted {
@@ -257,13 +279,31 @@ namespace FramePFX.Controls.Dragger {
         private Point? lastMouseMove;
         private double? previousValue;
         private bool ignoreMouseMove;
+        private bool isUpdatingExternalMouse;
 
         public NumberDragger() {
             this.Loaded += (s, e) => {
                 this.CoerceValue(IsEditingTextBoxProperty);
                 this.UpdateText();
                 this.UpdateCursor();
+                this.RequeryChangeMapper(this.Value);
             };
+        }
+
+        static NumberDragger() {
+            ValueProperty.OverrideMetadata(typeof(NumberDragger), new FrameworkPropertyMetadata(null, (o, value) => ((NumberDragger) o).OnCoerceValue(value)));
+        }
+
+        private object OnCoerceValue(object value) {
+            if (this.ValuePreProcessor is IValuePreProcessor processor) {
+                double val = (double) value;
+                double proc = processor.Process(val);
+                if (!Maths.Equals(val, proc, 0.00000000001d)) {
+                    return proc;
+                }
+            }
+
+            return value;
         }
 
         public override void OnApplyTemplate() {
@@ -444,6 +484,21 @@ namespace FramePFX.Controls.Dragger {
         protected override void OnValueChanged(double oldValue, double newValue) {
             base.OnValueChanged(oldValue, newValue);
             this.UpdateText();
+            this.RequeryChangeMapper(newValue);
+        }
+
+        private void RequeryChangeMapper(double value) {
+            if (this.ChangeMapper is IChangeMapper mapper) {
+                mapper.OnValueChanged(value, out double t, out double s, out double l, out double m);
+                if (!this.TinyChange.Equals(t))
+                    this.TinyChange = t;
+                if (!this.SmallChange.Equals(s))
+                    this.SmallChange = s;
+                if (!this.LargeChange.Equals(l))
+                    this.LargeChange = l;
+                if (!this.MassiveChange.Equals(m))
+                    this.MassiveChange = m;
+            }
         }
 
         protected void UpdateText() {

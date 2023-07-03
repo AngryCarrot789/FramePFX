@@ -56,9 +56,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public async Task SelectFileActionAsync() {
-            DialogResult<string[]> result = IoC.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
-            if (result.IsSuccess && result.Value.Length == 1) {
-                string path = result.Value[0];
+            string[] result = await IoC.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
+            if (result != null) {
+                string path = result[0];
                 if (string.IsNullOrEmpty(path)) {
                     return;
                 }

@@ -5,9 +5,9 @@ using FramePFX.Core.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     public class ImageClipViewModel : VideoClipViewModel {
-        public new ImageClip Model => (ImageClip) ((ClipViewModel) this).Model;
+        public new ImageVideoClip Model => (ImageVideoClip) ((ClipViewModel) this).Model;
 
-        public ImageClipViewModel(ImageClip model) : base(model) {
+        public ImageClipViewModel(ImageVideoClip model) : base(model) {
 
         }
 

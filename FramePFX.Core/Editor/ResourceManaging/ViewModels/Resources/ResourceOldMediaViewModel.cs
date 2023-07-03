@@ -8,8 +8,8 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
-    public class ResourceMediaViewModel : ResourceItemViewModel {
-        public new ResourceMedia Model => (ResourceMedia) base.Model;
+    public class ResourceOldMediaViewModel : ResourceItemViewModel {
+        public new ResourceOldMedia Model => (ResourceOldMedia) base.Model;
 
         public string FilePath {
             get => this.Model.FilePath;
@@ -22,14 +22,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
 
         public AsyncRelayCommand OpenFileCommand { get; }
 
-        public ResourceMediaViewModel(ResourceMedia media) : base(media) {
+        public ResourceOldMediaViewModel(ResourceOldMedia oldMedia) : base(oldMedia) {
             this.OpenFileCommand = new AsyncRelayCommand(this.OpenFileAction);
         }
 
         public async Task OpenFileAction() {
-            DialogResult<string[]> file = IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
-            if (file.IsSuccess && file.Value.Length == 1) {
-                this.FilePath = file.Value[0];
+            string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
+            if (file != null) {
+                this.FilePath = file[0];
                 #if DEBUG
                 this.Model.CloseFile();
                 #else

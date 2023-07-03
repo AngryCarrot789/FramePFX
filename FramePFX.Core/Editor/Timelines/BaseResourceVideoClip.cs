@@ -10,7 +10,7 @@ namespace FramePFX.Core.Editor.Timelines {
     /// A base video clip that references a single resource
     /// </summary>
     /// <typeparam name="T">The resource item type</typeparam>
-    public abstract class BaseResourceClip<T> : VideoClip where T : ResourceItem {
+    public abstract class BaseResourceVideoClip<T> : VideoClip where T : ResourceItem {
         public delegate void ClipResourceModifiedEventHandler(T resource, string property);
         public delegate void ClipResourceChangedEventHandler(T oldItem, T newItem);
 
@@ -24,7 +24,7 @@ namespace FramePFX.Core.Editor.Timelines {
         public event ClipResourceModifiedEventHandler ClipResourceDataModified;
         public event ResourceItemEventHandler OnlineStateChanged;
 
-        protected BaseResourceClip() {
+        protected BaseResourceVideoClip() {
             this.resourceChangedHandler = this.OnResourceChangedInternal;
             this.dataModifiedHandler = this.OnResourceDataModifiedInternal;
             this.onlineStateChangedHandler = this.OnOnlineStateChangedInternal;
@@ -59,11 +59,11 @@ namespace FramePFX.Core.Editor.Timelines {
         }
 
         /// <summary>
-        /// Sets this <see cref="BaseResourceClip{T}"/>'s target resource ID. The previous <see cref="ResourcePath{T}"/> is
+        /// Sets this <see cref="BaseResourceVideoClip{T}"/>'s target resource ID. The previous <see cref="ResourcePath{T}"/> is
         /// disposed and replace with a new instance using the same <see cref="ResourceManager"/>
         /// </summary>
         /// <param name="id">The target resource ID. Cannot be null, empty, or consist of only whitespaces</param>
-        public void SetTargetResourceId(string id) {
+        public void SetTargetResourceId(ulong id) {
             this.DisposePath();
             this.ResourcePath = new ResourcePath<T>(this.ResourceManager, id);
             this.ResourcePath.ResourceChanged += this.resourceChangedHandler;
@@ -150,7 +150,7 @@ namespace FramePFX.Core.Editor.Timelines {
         protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
             if (this.ResourcePath != null) {
-                ((BaseResourceClip<T>) clone).SetTargetResourceId(this.ResourcePath.ResourceId);
+                ((BaseResourceVideoClip<T>) clone).SetTargetResourceId(this.ResourcePath.ResourceId);
             }
         }
     }

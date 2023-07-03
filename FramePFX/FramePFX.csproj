@@ -190,10 +190,12 @@
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
     <Compile Include="BindingErrorListener.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
+    <Compile Include="Controls\Dragger\IChangeMapper.cs" />
     <Compile Include="Controls\Dragger\EditCompletedEventArgs.cs" />
     <Compile Include="Controls\Dragger\EditCompletedEventHandler.cs" />
     <Compile Include="Controls\Dragger\EditStartEventArgs.cs" />
     <Compile Include="Controls\Dragger\EditStartEventHandler.cs" />
+    <Compile Include="Controls\Dragger\IValuePreProcessor.cs" />
     <Compile Include="Controls\Dragger\NumberDragger.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
@@ -247,6 +249,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
+    <Compile Include="Editor\Exporting\Converters\BitRateConverters.cs" />
     <Compile Include="Editor\Exporting\Converters\BitRateToMbConverter.cs" />
     <Compile Include="Editor\Exporting\ExportPageRegistry.cs" />
     <Compile Include="Editor\Exporting\ExportViewService.cs" />
@@ -509,6 +512,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\ColourDictionaries\GreyTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\ColourDictionaries\LightTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

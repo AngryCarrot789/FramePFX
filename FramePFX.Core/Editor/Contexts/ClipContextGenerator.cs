@@ -1,13 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using FramePFX.Core.Actions;
 using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.AdvancedContextService;
-using FramePFX.Core.Automation.Keyframe;
-using FramePFX.Core.Automation.ViewModels;
-using FramePFX.Core.Automation.ViewModels.Keyframe;
-using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Core.Editor.Contexts {

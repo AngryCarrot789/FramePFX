@@ -39,7 +39,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
             using (ExceptionStack stack = new ExceptionStack(false)) {
                 foreach (ResourceItemViewModel item in items) {
                     if (state == false || (state == null && item.IsOnline)) {
-                        await item.Model.DisableAsync(stack, true);
+                        item.Model.Disable(stack, true);
                     }
                     else {
                         list.Add(item);

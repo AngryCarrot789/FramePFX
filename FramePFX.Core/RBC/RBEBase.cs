@@ -9,14 +9,17 @@ namespace FramePFX.Core.RBC {
     /// This is used for list/dictionary based binary structures, which is handy for
     /// </para>
     /// <para>
-    /// This is based on minecraft's NBT structure, because it's pretty good... for the most part
+    /// This is based on minecraft's NBT structure, because it's pretty good... for the most part. The primary binary difference
+    /// is that <see cref="RBEList"/> does not store it's child type, whereas minecraft does (for some reason? lists maintain
+    /// their order so the dev should know the right types)
     /// </para>
     /// </summary>
     public abstract class RBEBase {
         private static readonly Dictionary<Type, RBEType> TypeToIdTable;
 
-        public static LengthReadStrategy LengthReadStrategy { get; set; } = LengthReadStrategy.LazyLength;
-
+        /// <summary>
+        /// This element's type
+        /// </summary>
         public abstract RBEType Type { get; }
 
         static RBEBase() {
@@ -38,7 +41,8 @@ namespace FramePFX.Core.RBC {
                 {typeof(RBEFloatArray), RBEType.FloatArray},
                 {typeof(RBEDoubleArray), RBEType.DoubleArray},
                 {typeof(RBEStringArray), RBEType.StringArray},
-                {typeof(RBEStructArray), RBEType.StructArray}
+                {typeof(RBEStructArray), RBEType.StructArray},
+                {typeof(RBEGuid), RBEType.Guid}
             };
         }
 
@@ -147,35 +151,36 @@ namespace FramePFX.Core.RBC {
                 case RBEType.DoubleArray: return new RBEDoubleArray();
                 case RBEType.StringArray: return new RBEStringArray();
                 case RBEType.StructArray: return new RBEStructArray();
-                default: throw new ArgumentOutOfRangeException(nameof(id), id, "Unknown RBE for id: " + (int) id);
+                case RBEType.Guid:        return new RBEGuid();
+                default: throw new ArgumentOutOfRangeException(nameof(id), id, "Unknown RBEType: " + id);
             }
         }
 
-        public static bool TryGetIdByType(Type type, out RBEType rbeType) {
-            return TypeToIdTable.TryGetValue(type, out rbeType);
-            // if (type == typeof(RBEDictionary))       rbeType = RBEType.Dictionary;
-            // else if (type == typeof(RBEList))        rbeType = RBEType.List;
-            // else if (type == typeof(RBEByte))        rbeType = RBEType.Byte;
-            // else if (type == typeof(RBEShort))       rbeType = RBEType.Short;
-            // else if (type == typeof(RBEInt))         rbeType = RBEType.Int;
-            // else if (type == typeof(RBELong))        rbeType = RBEType.Long;
-            // else if (type == typeof(RBEFloat))       rbeType = RBEType.Float;
-            // else if (type == typeof(RBEDouble))      rbeType = RBEType.Double;
-            // else if (type == typeof(RBEString))      rbeType = RBEType.String;
-            // else if (type == typeof(RBEStruct))      rbeType = RBEType.Struct;
-            // else if (type == typeof(RBEByteArray))   rbeType = RBEType.ByteArray;
-            // else if (type == typeof(RBEShortArray))  rbeType = RBEType.ShortArray;
-            // else if (type == typeof(RBEIntArray))    rbeType = RBEType.IntArray;
-            // else if (type == typeof(RBELongArray))   rbeType = RBEType.LongArray;
-            // else if (type == typeof(RBEFloatArray))  rbeType = RBEType.FloatArray;
-            // else if (type == typeof(RBEDoubleArray)) rbeType = RBEType.DoubleArray;
-            // else if (type == typeof(RBEStringArray)) rbeType = RBEType.StringArray;
-            // else if (type == typeof(RBEStructArray)) rbeType = RBEType.StructArray;
-            // else {
-            //     rbeType = RBEType.Unknown;
-            //     return false;
-            // }
-            // return true;
+        public static bool TryGetIdByType(Type type, out RBEType rbeType) => TypeToIdTable.TryGetValue(type, out rbeType);
+
+        public static Type GetTypeById(RBEType rbeType) {
+            switch (rbeType) {
+                case RBEType.Dictionary:  return typeof(RBEDictionary);
+                case RBEType.List:        return typeof(RBEList);
+                case RBEType.Byte:        return typeof(RBEByte);
+                case RBEType.Short:       return typeof(RBEShort);
+                case RBEType.Int:         return typeof(RBEInt);
+                case RBEType.Long:        return typeof(RBELong);
+                case RBEType.Float:       return typeof(RBEFloat);
+                case RBEType.Double:      return typeof(RBEDouble);
+                case RBEType.String:      return typeof(RBEString);
+                case RBEType.Struct:      return typeof(RBEStruct);
+                case RBEType.ByteArray:   return typeof(RBEByteArray);
+                case RBEType.ShortArray:  return typeof(RBEShortArray);
+                case RBEType.IntArray:    return typeof(RBEIntArray);
+                case RBEType.LongArray:   return typeof(RBELongArray);
+                case RBEType.FloatArray:  return typeof(RBEFloatArray);
+                case RBEType.DoubleArray: return typeof(RBEDoubleArray);
+                case RBEType.StringArray: return typeof(RBEStringArray);
+                case RBEType.StructArray: return typeof(RBEStructArray);
+                case RBEType.Guid:        return typeof(RBEGuid);
+                default: throw new ArgumentOutOfRangeException(nameof(rbeType), rbeType, "Unknown RBEType: " + rbeType);
+            }
         }
 
         protected static string GetReadableTypeName(Type type) {

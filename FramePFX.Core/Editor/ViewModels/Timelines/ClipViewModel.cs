@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Automation;
@@ -51,7 +52,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
                 this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
-                this.Track?.OnProjectModified(this);
+                this.Track?.OnProjectModified();
             }
         }
 
@@ -92,7 +93,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 this.RaisePropertyChanged(nameof(this.FrameDuration));
                 this.RaisePropertyChanged(nameof(this.FrameEndIndex));
                 this.OnFrameSpanChanged(oldSpan, value);
-                this.Track?.OnProjectModified(this);
+                this.Track?.OnProjectModified();
             }
         }
 
@@ -128,7 +129,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 this.Model.MediaFrameOffset = value;
                 this.RaisePropertyChanged();
                 this.OnMediaFrameOffsetChanged(oldValue, value);
-                this.Track?.OnProjectModified(this);
+                this.Track?.OnProjectModified();
             }
         }
 
@@ -152,6 +153,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
+        public ObservableCollection<ClipGroupViewModel> ConnectedGroups { get; }
+
         protected ClipViewModel(Clip model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
@@ -165,6 +168,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.RemoveClipCommand = new RelayCommand(() => {
                 this.Track?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
             });
+
+            this.ConnectedGroups = new ObservableCollection<ClipGroupViewModel>();
+        }
+
+        public void OnProjectModified() {
+            this.track?.OnProjectModified();
         }
 
         public static void SetTrack(ClipViewModel viewModel, TrackViewModel track, bool fireTrackChangedEvent = true) {

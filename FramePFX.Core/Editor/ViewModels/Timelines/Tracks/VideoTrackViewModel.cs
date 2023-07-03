@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.History;
+using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
@@ -113,21 +114,20 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {
-            return resource is ResourceMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel || resource is ResourceTextViewModel;
+            return resource is ResourceOldMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel || resource is ResourceTextViewModel;
         }
 
         public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
-            Validate.Exception(!string.IsNullOrEmpty(resource.UniqueId), "Expected valid resource UniqueId");
-            if (!resource.Model.IsRegistered()) {
+            if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
                 return;
             }
 
-            double fps = this.Timeline.Project.Settings.FrameRate.AsFraction;
+            double fps = this.Timeline.Project.Settings.FrameRate.ToDouble;
             long defaultDuration = (long) (fps * 5);
 
             Clip newClip = null;
-            if (resource.Model is ResourceMedia media) {
+            if (resource.Model is ResourceOldMedia media) {
                 media.OpenMediaFromFile();
                 TimeSpan span = media.GetDuration();
                 long dur = (long) Math.Floor(span.TotalSeconds * fps);
@@ -142,9 +142,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
                         this.Timeline.MaxDuration = newProjectDuration;
                     }
 
-                    MediaClip clip = new MediaClip() {
+                    OldMediaVideoClip clip = new OldMediaVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, dur),
-                        DisplayName = media.UniqueId
+                        DisplayName = "Media Clip"
                     };
 
                     clip.SetTargetResourceId(media.UniqueId);
@@ -157,28 +157,28 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             }
             else {
                 if (resource.Model is ResourceColour argb) {
-                    ShapeClip clip = new ShapeClip() {
+                    ShapeVideoClip clip = new ShapeVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         Width = 200, Height = 200,
-                        DisplayName = argb.UniqueId
+                        DisplayName = "Shape Clip"
                     };
 
                     clip.SetTargetResourceId(argb.UniqueId);
                     newClip = clip;
                 }
                 else if (resource.Model is ResourceImage img) {
-                    ImageClip clip = new ImageClip() {
+                    ImageVideoClip clip = new ImageVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
-                        DisplayName = img.UniqueId
+                        DisplayName = "Image Clip"
                     };
 
                     clip.SetTargetResourceId(img.UniqueId);
                     newClip = clip;
                 }
                 else if (resource.Model is ResourceText text) {
-                    TextClip clip = new TextClip() {
+                    TextVideoClip clip = new TextVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
-                        DisplayName = text.UniqueId
+                        DisplayName = "Text Clip"
                     };
 
                     clip.SetTargetResourceId(text.UniqueId);

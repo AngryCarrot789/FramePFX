@@ -6,14 +6,14 @@ using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timelines.VideoClips {
-    public class ShapeClip : BaseResourceClip<ResourceColour> {
+    public class ShapeVideoClip : BaseResourceVideoClip<ResourceColour> {
         public float Width { get; set; }
 
         public float Height { get; set; }
 
         public override bool UseCustomOpacityCalculation => true;
 
-        public ShapeClip() {
+        public ShapeVideoClip() {
 
         }
 
@@ -54,12 +54,12 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         }
 
         protected override Clip NewInstance() {
-            return new ShapeClip();
+            return new ShapeVideoClip();
         }
 
         protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
-            ShapeClip clip = (ShapeClip) clone;
+            ShapeVideoClip clip = (ShapeVideoClip) clone;
             clip.Width = this.Width;
             clip.Height = this.Height;
         }

@@ -8,7 +8,6 @@ using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
-using FramePFX.Core.Views.Windows;
 
 namespace FramePFX.Core.Editor.ViewModels {
     /// <summary>
@@ -93,7 +92,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.HistoryManager = new HistoryManagerViewModel(view.NotificationPanel, this.Model.HistoryManager);
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
-            this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameTick();
+            this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameCallback();
             this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
@@ -132,8 +131,8 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task OpenProjectAction() {
-            DialogResult<string[]> result = IoC.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
-            if (!result.IsSuccess || result.Value.Length < 1) {
+            string[] result = await IoC.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
+            if (result == null) {
                 return;
             }
 
@@ -142,11 +141,11 @@ namespace FramePFX.Core.Editor.ViewModels {
             }
 
             #if DEBUG
-            RBEBase rbe = RBEUtils.ReadFromFilePacked(result.Value[0]);
+            RBEBase rbe = RBEUtils.ReadFromFilePacked(result[0]);
             RBEDictionary dictionary = (RBEDictionary) rbe;
             Project project = new Project();
             project.ReadFromRBE(dictionary);
-            ProjectViewModel pvm = new ProjectViewModel(project) {ProjectDirectory = result.Value[0]};
+            ProjectViewModel pvm = new ProjectViewModel(project) {ProjectDirectory = result[0]};
             #else
             RBEDictionary dictionary;
             try {

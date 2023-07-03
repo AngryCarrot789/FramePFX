@@ -1,8 +1,6 @@
 using System;
-using FramePFX.Core.Editor.Audio;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
-using NAudio.Wave;
 
 namespace FramePFX.Core.Editor {
     public class EditorPlaybackModel : IRBESerialisable {

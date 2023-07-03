@@ -18,9 +18,9 @@
                 <ColumnDefinition Width="*" SharedSizeGroup="SharedRightColumn"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Padding="5" Text="Bitrate" VerticalAlignment="Center"/>
-            <dd:NumberDragger Minimum="1000" Maximum="10000000000" Value="{Binding BitRate, Mode=TwoWay}"
-                              DisplayTextOverride="{Binding BitRate, StringFormat={}{0} MBits, Converter={x:Static converters:BitRateToMbConverter.Instance}}"
-                              TinyChange="50" SmallChange="1000" LargeChange="100000" MassiveChange="1000000"
+            <dd:NumberDragger Minimum="10" Maximum="10000000000" Value="{Binding BitRate, Mode=TwoWay}"
+                              DisplayTextOverride="{Binding BitRate, Converter={x:Static converters:BitRateToAltSizeConverter.Instance}}"
+                              ChangeMapper="{x:Static converters:BitRateChangeMapper.Instance}"
                               Grid.Row="0" Grid.Column="1" Padding="4,3" Margin="0,0,0,0" Height="25"
                               HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
         </Grid>

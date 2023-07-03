@@ -24,7 +24,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         public ResourceManager Manager { get; protected set; }
 
-        public string ResourceId { get; protected set; }
+        public ulong ResourceId { get; protected set; }
 
         /// <summary>
         /// The online state of this resource. True means the state is valid and accessible. False
@@ -40,8 +40,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public event EventHandler Disposed;
         public event ResourceItemEventHandler OnlineStateChanged;
 
-        protected ResourcePathBase(ResourceManager manager, string resourceId) {
-            this.ResourceId = string.IsNullOrWhiteSpace(resourceId) ? throw new ArgumentException("Unique id cannot be null, empty or whitespaces") : resourceId;
+        protected ResourcePathBase(ResourceManager manager, ulong resourceId) {
+            this.ResourceId = resourceId == ResourceManager.EmptyId ? throw new ArgumentException("Unique id cannot be 0 (null)") : resourceId;
             this.resourceAddedHandler = this.OnManagerResourceAdded;
             this.resourceRemovedHandler = this.OnManagerResourceRemoved;
             this.resourceRenamedHandler = this.OnManagerResourceRenamed;
@@ -89,9 +89,9 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         protected abstract void OnManagerResourceRemoved(ResourceManager manager, ResourceItem item);
 
-        protected abstract void OnManagerResourceRenamed(ResourceManager manager, ResourceItem item, string oldId, string newId);
+        protected abstract void OnManagerResourceRenamed(ResourceManager manager, ResourceItem item, ulong oldId, ulong newId);
 
-        protected abstract void OnManagerResourceReplaced(ResourceManager manager, string id, ResourceItem oldItem, ResourceItem newItem);
+        protected abstract void OnManagerResourceReplaced(ResourceManager manager, ulong id, ResourceItem oldItem, ResourceItem newItem);
 
         protected virtual void OnOnlineStateChanged(ResourceManager manager, ResourceItem item) {
             this.OnlineStateChanged?.Invoke(manager, item);
@@ -146,7 +146,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public event ResourceChangedEventHandler ResourceChanged;
 
-        public ResourcePath(ResourceManager manager, string resourceId) : base(manager, resourceId) {
+        public ResourcePath(ResourceManager manager, ulong resourceId) : base(manager, resourceId) {
         }
 
         private void SetInternalResource(ResourceItem item, bool fireEvent = true) {
@@ -186,10 +186,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             return null;
         }
 
-        public void SetResourceId(string uniqueId, bool fireResourceChanged = true) {
+        public void SetResourceId(ulong uniqueId, bool fireResourceChanged = true) {
             this.EnsureNotDispose();
-            if (string.IsNullOrWhiteSpace(uniqueId)) {
-                throw new ArgumentException("Unique id cannot be null, empty or whitespaces");
+            if (uniqueId == ResourceManager.EmptyId) {
+                throw new ArgumentException("Unique id cannot be 0 (null)");
             }
 
             if (this.ResourceId == uniqueId) {
@@ -278,7 +278,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.SetInternalResource(null);
         }
 
-        protected override void OnManagerResourceRenamed(ResourceManager manager, ResourceItem item, string oldId, string newId) {
+        protected override void OnManagerResourceRenamed(ResourceManager manager, ResourceItem item, ulong oldId, ulong newId) {
             if (this.isDisposed) {
                 Debug.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE RENAME EVENT!!!!!!!!!!!!!!!!!!!!!!!");
                 return;
@@ -322,7 +322,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        protected override void OnManagerResourceReplaced(ResourceManager manager, string id, ResourceItem oldItem, ResourceItem newItem) {
+        protected override void OnManagerResourceReplaced(ResourceManager manager, ulong id, ResourceItem oldItem, ResourceItem newItem) {
             if (this.isDisposed) {
                 Debug.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE REPLACED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
                 return;
@@ -363,13 +363,13 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         public static void WriteToRBE(ResourcePath resource, RBEDictionary data) {
-            data.SetString(nameof(resource.ResourceId), resource.ResourceId);
+            data.SetULong(nameof(resource.ResourceId), resource.ResourceId);
         }
 
         public static ResourcePath ReadFromRBE(ResourceManager manager, RBEDictionary data) {
-            string id = data.GetString(nameof(ResourceId));
-            if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("Resource ID from the data was null, empty or whitespaces");
+            ulong id = data.GetULong(nameof(ResourceId));
+            if (id == ResourceManager.EmptyId)
+                throw new ArgumentException("Resource ID from the data was 0 (null)");
             return new ResourcePath(manager, id);
         }
     }
@@ -387,7 +387,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public event ResourceChangedEventHandler ResourceChanged;
 
-        public ResourcePath(ResourceManager manager, string resourceId) : base(manager, resourceId) {
+        public ResourcePath(ResourceManager manager, ulong resourceId) : base(manager, resourceId) {
 
         }
 
@@ -428,10 +428,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             return null;
         }
 
-        public void SetResourceId(string uniqueId, bool fireResourceChanged = true) {
+        public void SetResourceId(ulong uniqueId, bool fireResourceChanged = true) {
             this.EnsureNotDispose();
-            if (string.IsNullOrWhiteSpace(uniqueId)) {
-                throw new ArgumentException("Unique id cannot be null, empty or whitespaces");
+            if (uniqueId == ResourceManager.EmptyId) {
+                throw new ArgumentException("Unique id cannot be 0 (null)");
             }
 
             if (this.ResourceId == uniqueId) {
@@ -525,7 +525,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.SetInternalResource(null);
         }
 
-        protected override void OnManagerResourceRenamed(ResourceManager manager, ResourceItem item, string oldId, string newId) {
+        protected override void OnManagerResourceRenamed(ResourceManager manager, ResourceItem item, ulong oldId, ulong newId) {
             if (this.isDisposed) {
                 Debug.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE RENAME EVENT!!!!!!!!!!!!!!!!!!!!!!!");
                 return;
@@ -569,7 +569,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        protected override void OnManagerResourceReplaced(ResourceManager manager, string id, ResourceItem oldItem, ResourceItem newItem) {
+        protected override void OnManagerResourceReplaced(ResourceManager manager, ulong id, ResourceItem oldItem, ResourceItem newItem) {
             if (this.isDisposed) {
                 Debug.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE REPLACED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
                 return;
@@ -615,13 +615,13 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         }
 
         public static void WriteToRBE(ResourcePath<T> resource, RBEDictionary data) {
-            data.SetString(nameof(resource.ResourceId), resource.ResourceId);
+            data.SetULong(nameof(resource.ResourceId), resource.ResourceId);
         }
 
         public static ResourcePath<T> ReadFromRBE(ResourceManager manager, RBEDictionary data) {
-            string id = data.GetString(nameof(ResourceId));
-            if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("Resource ID from the data was null, empty or whitespaces");
+            ulong id = data.GetULong(nameof(ResourceId));
+            if (id == ResourceManager.EmptyId)
+                throw new ArgumentException("Resource ID from the data was 0 (null)");
             return new ResourcePath<T>(manager, id);
         }
     }

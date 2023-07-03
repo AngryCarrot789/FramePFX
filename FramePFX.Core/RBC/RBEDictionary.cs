@@ -38,7 +38,7 @@ namespace FramePFX.Core.RBC {
             }
             else {
                 string readableTypeName = TryGetIdByType(typeof(T), out RBEType type) ? type.ToString() : typeof(T).ToString();
-                throw new Exception($"No such {readableTypeName} named '{key}'");
+                throw new Exception($"No such entry '{key}' of type {readableTypeName}");
             }
         }
 
@@ -198,6 +198,10 @@ namespace FramePFX.Core.RBC {
             return false;
         }
 
+        public Guid GetGuid(string key) => this.GetElement<RBEGuid>(key).Value;
+        public Guid GetGuid(string key, Guid def) => this.TryGetElement(key, out RBEGuid rbe) ? rbe.Value : def;
+        public bool TryGetGuid(string key, out Guid value) => this.TryGetElementValue<RBEGuid, Guid>(key, e => e.Value, out value);
+
         public void SetDictionary(string key, Dictionary<string, RBEBase> value) => this[key] = new RBEDictionary(value);
         public void SetList(string key, List<RBEBase> value) => this[key] = new RBEList(value);
         public void SetBool(string key, bool value) => this[key] = new RBEByte((byte) (value ? 1 : 0));
@@ -215,7 +219,7 @@ namespace FramePFX.Core.RBC {
         public void SetDouble(string key, double value) => this[key] = new RBEDouble(value);
         public void SetString(string key, string value) => this[key] = new RBEString(value);
         public void SetStruct<T>(string key, in T value) where T : unmanaged => this[key] = RBEStruct.ForValue(in value);
-        public void Set(string key, byte[] array) => this[key] = new RBEByteArray(array);
+        public void SetByteArray(string key, byte[] array) => this[key] = new RBEByteArray(array);
         public void SetShortArray(string key, short[] array) => this[key] = new RBEShortArray(array);
         public void SetIntArray(string key, int[] array) => this[key] = new RBEIntArray(array);
         public void SetLongArray(string key, long[] array) => this[key] = new RBELongArray(array);
@@ -223,6 +227,7 @@ namespace FramePFX.Core.RBC {
         public void SetDoubleArray(string key, double[] array) => this[key] = new RBEDoubleArray(array);
         public void SetStringArray(string key, string[] array) => this[key] = new RBEStringArray(array);
         public void SetStructArray<T>(string key, T[] array) where T : unmanaged => this[key] = RBEStructArray.ForValues(array);
+        public void SetGuid(string key, Guid value) => this[key] = new RBEGuid(value);
 
         protected override void Read(BinaryReader reader) {
             int length = reader.ReadUInt16();

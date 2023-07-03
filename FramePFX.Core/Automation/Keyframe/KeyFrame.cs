@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using FFmpeg.AutoGen;
-using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;

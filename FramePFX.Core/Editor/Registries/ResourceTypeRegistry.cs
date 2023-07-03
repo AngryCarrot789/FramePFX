@@ -15,7 +15,8 @@ namespace FramePFX.Core.Editor.Registries {
             base.Register<ResourceGroup, ResourceGroupViewModel>("r_group");
             base.Register<ResourceColour, ResourceColourViewModel>("r_argb");
             base.Register<ResourceImage, ResourceImageViewModel>("r_img");
-            base.Register<ResourceMedia, ResourceMediaViewModel>("r_media");
+            base.Register<ResourceOldMedia, ResourceOldMediaViewModel>("r_media_old");
+            base.Register<ResourceMpegMedia, ResourceMpegMediaViewModel>("r_media");
             base.Register<ResourceText, ResourceTextViewModel>("r_txt");
         }
 

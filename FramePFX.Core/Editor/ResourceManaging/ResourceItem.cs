@@ -7,12 +7,8 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
     public abstract class ResourceItem : BaseResourceObject, IRBESerialisable, IDisposable {
+        public const ulong EmptyId = ResourceManager.EmptyId;
         private bool isOnline;
-
-        /// <summary>
-        /// This resource item's unique identifier
-        /// </summary>
-        public string UniqueId { get; private set; }
 
         /// <summary>
         /// Whether or not this resource is online or not
@@ -32,6 +28,11 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         public bool IsOfflineByUser { get; set; }
 
+        /// <summary>
+        /// This resource item's unique identifier
+        /// </summary>
+        public ulong UniqueId { get; private set; }
+
         public event ResourceModifiedEventHandler DataModified;
         public event ResourceItemEventHandler OnlineStateChanged;
 
@@ -47,7 +48,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </param>
         /// <returns>True if this instance has a manager, a valid ID and is registered</returns>
         public bool IsRegistered(out bool isReferenceValid) {
-            if (this.Manager != null && !string.IsNullOrWhiteSpace(this.UniqueId) && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource)) {
+            if (this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource)) {
                 isReferenceValid = ReferenceEquals(this, resource);
                 return true;
             }
@@ -76,30 +77,32 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <param name="stack"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task DisableAsync(ExceptionStack stack, bool user) {
-            await this.DisableCoreAsync(stack, user);
+        public void Disable(ExceptionStack stack, bool user) {
+            this.OnDisableCore(stack, user);
             this.IsOnline = false;
             this.IsOfflineByUser = user;
             this.OnIsOnlineStateChanged();
         }
 
-        protected virtual Task DisableCoreAsync(ExceptionStack stack, bool user) {
-            return Task.CompletedTask;
+        protected virtual void OnDisableCore(ExceptionStack stack, bool user) {
+
         }
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            if (string.IsNullOrWhiteSpace(this.UniqueId))
-                throw new Exception("Item does not have a valid unique ID");
-            data.SetString(nameof(this.UniqueId), this.UniqueId);
+            if (this.UniqueId != 0)
+                data.SetULong(nameof(this.UniqueId), this.UniqueId);
+            if (!this.IsOnline)
+                data.SetBool(nameof(this.IsOnline), false);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            string uniqueId = data.GetString(nameof(this.UniqueId));
-            if (string.IsNullOrWhiteSpace(uniqueId))
-                throw new Exception("Data does not contain a valid unique ID");
-            this.UniqueId = uniqueId;
+            this.UniqueId = data.GetULong(nameof(this.UniqueId), EmptyId);
+            if (data.TryGetBool(nameof(this.IsOnline), out bool b) && !b) {
+                this.isOnline = false;
+                this.IsOfflineByUser = true;
+            }
         }
 
         /// <summary>
@@ -127,7 +130,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             base.DisposeCore(stack);
         }
 
-        public static void SetUniqueId(ResourceItem item, string id) {
+        public static void SetUniqueId(ResourceItem item, ulong id) {
             item.UniqueId = id;
         }
     }

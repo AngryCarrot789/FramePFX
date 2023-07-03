@@ -1,26 +1,70 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using FramePFX.Core;
-using FramePFX.Core.Views.Dialogs;
 using FramePFX.Core.Views.Dialogs.FilePicking;
 using Microsoft.Win32;
 
 namespace FramePFX.Views.FilePicking {
     [ServiceImplementation(typeof(IFilePickDialogService))]
     public class FilePickDialogService : IFilePickDialogService {
-        public DialogResult<string[]> OpenFiles(string filter, string defaultPath = null, string titleBar = null, bool multiSelect = false) {
+        public Task<string[]> OpenFiles(string filter, string defaultDirectory = null, string titleBar = null, bool multiSelect = false) {
+            Dispatcher dispatcher;
+            if ((dispatcher = Application.Current?.Dispatcher) == null)
+                throw new Exception("Application main thread is unavailable");
+            if (dispatcher.CheckAccess())
+                return Task.FromResult(this.OpenFilesInternal(filter, defaultDirectory, titleBar, multiSelect));
+            return dispatcher.InvokeAsync(() => this.OpenFilesInternal(filter, defaultDirectory, titleBar, multiSelect)).Task;
+        }
+
+        public Task<string> OpenFolder(string initialPath = null, string titleBar = null) {
+            Dispatcher dispatcher;
+            if ((dispatcher = Application.Current?.Dispatcher) == null)
+                throw new Exception("Application main thread is unavailable");
+            if (dispatcher.CheckAccess())
+                return Task.FromResult(this.OpenFolderInternal(initialPath, titleBar));
+            return dispatcher.InvokeAsync(() => this.OpenFolderInternal(initialPath, titleBar)).Task;
+        }
+
+        public Task<string> SaveFile(string filter, string initialPath = null, string titleBar = null) {
+            Dispatcher dispatcher;
+            if ((dispatcher = Application.Current?.Dispatcher) == null)
+                throw new Exception("Application main thread is unavailable");
+            if (dispatcher.CheckAccess())
+                return Task.FromResult(this.SaveFileInternal(filter, initialPath, titleBar));
+            return dispatcher.InvokeAsync(() => this.SaveFileInternal(filter, initialPath, titleBar)).Task;
+        }
+
+        public string[] OpenFilesInternal(string filter, string defaultDirectory = null, string titleBar = null, bool multiSelect = false) {
             OpenFileDialog dialog = new OpenFileDialog {
-                Filter = filter,
+                Filter = filter ?? "",
                 Multiselect = multiSelect,
                 Title = titleBar ?? "Select a file"
             };
 
-            if (defaultPath != null) {
-                dialog.InitialDirectory = defaultPath;
+            if (defaultDirectory != null) {
+                dialog.InitialDirectory = defaultDirectory;
             }
 
-            return dialog.ShowDialog() == true ? new DialogResult<string[]>(dialog.FileNames) : new DialogResult<string[]>(false);
+            string[] array;
+            if (dialog.ShowDialog() != true || (array = dialog.FileNames).Length < 1) {
+                return null;
+            }
+
+            if (multiSelect) {
+                return (array = array.Where(x => !string.IsNullOrEmpty(x)).ToArray()).Length > 0 ? array : null;
+            }
+            else if (array.Length == 1 && !string.IsNullOrEmpty(array[0])) {
+                return array;
+            }
+            else {
+                return null;
+            }
         }
 
-        public DialogResult<string> OpenFolder(string defaultPath = null, string titleBar = null) {
+        public string OpenFolderInternal(string defaultPath = null, string titleBar = null) {
             FolderPicker picker = new FolderPicker {
                 Title = titleBar ?? "Select a folder"
             };
@@ -29,10 +73,10 @@ namespace FramePFX.Views.FilePicking {
                 picker.InputPath = defaultPath;
             }
 
-            return picker.ShowDialog() == true ? new DialogResult<string>(picker.ResultPath) : new DialogResult<string>(false);
+            return picker.ShowDialog() == true && !string.IsNullOrEmpty(picker.ResultPath) ? picker.ResultPath : null;
         }
 
-        public DialogResult<string> SaveFile(string filter, string defaultPath = null, string titleBar = null) {
+        public string SaveFileInternal(string filter, string defaultPath = null, string titleBar = null) {
             SaveFileDialog dialog = new SaveFileDialog {
                 Title = titleBar ?? "Save a file",
                 Filter = filter ?? "All files|*.*"
@@ -42,7 +86,7 @@ namespace FramePFX.Views.FilePicking {
                 dialog.FileName = defaultPath;
             }
 
-            return dialog.ShowDialog() == true ? new DialogResult<string>(dialog.FileName) : new DialogResult<string>(false);
+            return dialog.ShowDialog() == true && !string.IsNullOrEmpty(dialog.FileName) ? dialog.FileName : null;
         }
     }
 }

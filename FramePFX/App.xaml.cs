@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -17,6 +19,7 @@ using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
+using FramePFX.Core.RBC;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
@@ -39,7 +42,6 @@ namespace FramePFX {
         #endif
 
         public App() {
-
         }
 
         public void RegisterActions() {
@@ -150,17 +152,15 @@ namespace FramePFX {
             Project project = new Project();
             project.Settings.Resolution = new Resolution(1920, 1080);
 
-            {
-                ResourceManager manager = project.ResourceManager;
-                manager.RegisterEntry("colour_red", manager.RootGroup.Add(new ResourceColour(220, 25, 25)));
-                manager.RegisterEntry("colour_green", manager.RootGroup.Add(new ResourceColour(25, 220, 25)));
-                manager.RegisterEntry("colour_blue", manager.RootGroup.Add(new ResourceColour(25, 25, 220)));
+            ResourceManager manager = project.ResourceManager;
+            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) { DisplayName = "colour_red" }));
+            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) { DisplayName = "colour_green" }));
+            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) { DisplayName = "colour_blue" }));
 
-                ResourceGroup group = new ResourceGroup("Extra Colours");
-                manager.RootGroup.AddItemToList(group);
-                manager.RegisterEntry("white colour", group.Add(new ResourceColour(220, 220, 220)));
-                manager.RegisterEntry("idek", group.Add(new ResourceColour(50, 100, 220)));
-            }
+            ResourceGroup group = new ResourceGroup("Extra Colours");
+            manager.RootGroup.AddItemToList(group);
+            ulong id_w = manager.RegisterEntry(group.Add(new ResourceColour(220, 220, 220) { DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(group.Add(new ResourceColour(50, 100, 220) { DisplayName = "idek"}));
 
             {
                 VideoTrack track1 = new VideoTrack(project.Timeline) {
@@ -173,24 +173,23 @@ namespace FramePFX {
                 track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
                 track1.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
 
-                ShapeClip clip1 = new ShapeClip {
+                ShapeVideoClip clip1 = new ShapeVideoClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
 
                 clip1.MediaPosition = new Vector2(0, 0);
-                clip1.SetTargetResourceId("idek");
+                clip1.SetTargetResourceId(id_d);
                 track1.AddClip(clip1);
 
-                ShapeClip clip2 = new ShapeClip {
+                ShapeVideoClip clip2 = new ShapeVideoClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
                 clip2.MediaPosition = new Vector2(200, 200);
-                clip2.SetTargetResourceId("colour_green");
-
+                clip2.SetTargetResourceId(id_g);
                 track1.AddClip(clip2);
             }
             {
@@ -199,16 +198,16 @@ namespace FramePFX {
                 };
                 project.Timeline.AddTrack(track2);
 
-                ShapeClip clip1 = new ShapeClip {
+                ShapeVideoClip clip1 = new ShapeVideoClip {
                     Width = 400, Height = 400,
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
                 };
 
                 clip1.MediaPosition = new Vector2(200, 200);
-                clip1.SetTargetResourceId("colour_blue");
+                clip1.SetTargetResourceId(id_b);
                 track2.AddClip(clip1);
-                ShapeClip clip2 = new ShapeClip {
+                ShapeVideoClip clip2 = new ShapeVideoClip {
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip colour_green"
@@ -221,7 +220,7 @@ namespace FramePFX {
                 clip2.AutomationData.ActiveKeyFullId = VideoClip.MediaPositionKey.FullId;
 
                 clip2.MediaPosition = new Vector2(400, 400);
-                clip2.SetTargetResourceId("colour_green");
+                clip2.SetTargetResourceId(id_d);
                 track2.AddClip(clip2);
             }
             {
@@ -236,89 +235,7 @@ namespace FramePFX {
 
          public static Project CreateDebugProject() {
             // Debug project - test a lot of features and make sure they work
-            Project project = new Project();
-            project.Settings.Resolution = new Resolution(1920, 1080);
-
-            {
-                ResourceManager manager = project.ResourceManager;
-                manager.RegisterEntry("colour_red", manager.RootGroup.Add(new ResourceColour(220, 25, 25)));
-                manager.RegisterEntry("colour_green", manager.RootGroup.Add(new ResourceColour(25, 220, 25)));
-                manager.RegisterEntry("colour_blue", manager.RootGroup.Add(new ResourceColour(25, 25, 220)));
-
-                ResourceGroup group = new ResourceGroup("Extra Colours");
-                manager.RootGroup.AddItemToList(group);
-                manager.RegisterEntry("white colour", group.Add(new ResourceColour(220, 220, 220)));
-                manager.RegisterEntry("idek", group.Add(new ResourceColour(50, 100, 220)));
-            }
-
-            {
-                VideoTrack track = new VideoTrack(project.Timeline) {
-                    DisplayName = "Track 1 with stuff"
-                };
-                project.Timeline.AddTrack(track);
-
-                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
-                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
-                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
-                track.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
-
-                ShapeClip clip1 = new ShapeClip {
-                    Width = 200, Height = 200,
-                    FrameSpan = new FrameSpan(0, 120),
-                    DisplayName = "Clip colour_red"
-                };
-
-                clip1.MediaPosition = new Vector2(0, 0);
-                clip1.SetTargetResourceId("idek");
-                track.AddClip(clip1);
-
-                ShapeClip clip2 = new ShapeClip {
-                    Width = 200, Height = 200,
-                    FrameSpan = new FrameSpan(150, 30),
-                    DisplayName = "Clip colour_green"
-                };
-                clip2.MediaPosition = new Vector2(200, 200);
-                clip2.SetTargetResourceId("colour_green");
-
-                track.AddClip(clip2);
-            }
-            {
-                VideoTrack track = new VideoTrack(project.Timeline) {
-                    DisplayName = "Track 2"
-                };
-                project.Timeline.AddTrack(track);
-
-                ShapeClip clip1 = new ShapeClip {
-                    Width = 400, Height = 400,
-                    FrameSpan = new FrameSpan(300, 90),
-                    DisplayName = "Clip colour_blue"
-                };
-
-                clip1.MediaPosition = new Vector2(200, 200);
-                clip1.SetTargetResourceId("colour_blue");
-                track.AddClip(clip1);
-                ShapeClip clip2 = new ShapeClip {
-                    Width = 100, Height = 1000,
-                    FrameSpan = new FrameSpan(15, 130),
-                    DisplayName = "Clip colour_green"
-                };
-
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
-                clip2.AutomationData.ActiveKeyFullId = VideoClip.MediaPositionKey.FullId;
-
-                clip2.MediaPosition = new Vector2(400, 400);
-                clip2.SetTargetResourceId("colour_green");
-                track.AddClip(clip2);
-            }
-            {
-                VideoTrack track = new VideoTrack(project.Timeline) {
-                    DisplayName = "Empty track"
-                };
-                project.Timeline.AddTrack(track);
-            }
+            Project project = CreateDemoProject();
             {
                 AudioTrack track = new AudioTrack(project.Timeline) {
                     DisplayName = "Audio Track 1"
@@ -328,7 +245,6 @@ namespace FramePFX {
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip Sine"
                 };
-
                 track.AddClip(clip);
             }
 

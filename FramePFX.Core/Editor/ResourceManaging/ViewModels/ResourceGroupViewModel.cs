@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
-using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
     public class ResourceGroupViewModel : BaseResourceObjectViewModel, IDisplayName, INavigatableResource, IAcceptResourceDrop {
@@ -41,22 +40,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public override async Task<bool> RenameSelfAction() {
-            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, this.Manager?.ResourceGroupIdValidator ?? Validators.ForNonWhiteSpaceString());
-            if (string.IsNullOrWhiteSpace(result) || (this.Manager != null && this.Manager.Model.EntryExists(result))) {
-                return false;
-            }
-
-            if (this.Parent != null) {
-                this.DisplayName = TextIncrement.GetNextText(this.Parent.Items.OfType<ResourceGroupViewModel>().Select(x => x.DisplayName), result);
-            }
-            else {
-                this.DisplayName = result;
-            }
-
-            return true;
-        }
-
         public override async Task<bool> DeleteSelfAction() {
             if (this.Parent == null) {
                 return false;
@@ -69,7 +52,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
             Exception e = null;
             try {
-                this.Dispose();
+                base.Model.Dispose();
             }
             catch (Exception ex) {
                 e = ex;
@@ -134,7 +117,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             using (ExceptionStack stack = new ExceptionStack()) {
                 foreach (BaseResourceObjectViewModel item in this.SelectedItems.ToList()) {
                     try {
-                        item.Dispose();
+                        item.Model.Dispose();
                     }
                     catch (Exception e) {
                         stack.Add(new Exception("Failed to dispose resource", e));
@@ -167,7 +150,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             item.SetManager(this.Manager);
         }
 
-        public bool RemoveItem(BaseResourceObjectViewModel item, bool removeFromModel, bool unregisterItem) {
+        public bool RemoveItem(BaseResourceObjectViewModel item, bool removeFromModel, bool unregisterHierarchy) {
             int index = this.items.IndexOf(item);
             if (index == -1) {
                 return false;
@@ -183,7 +166,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                 this.Model.RemoveItemFromListAt(index);
             }
 
-            if (unregisterItem) {
+            if (unregisterHierarchy) {
                 if (item is ResourceGroupViewModel group) {
                     group.UnregisterAllAndClearRecursive();
                 }
@@ -205,9 +188,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             return true;
         }
 
-        public override void Dispose() {
+        private void DisposeRecursive() {
             foreach (BaseResourceObjectViewModel resource in this.items) {
-                resource.Dispose();
+                if (resource is ResourceGroupViewModel group) {
+                    group.DisposeRecursive();
+                }
+
+                resource.Model.Dispose();
             }
         }
 
@@ -225,15 +212,39 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
             return Task.CompletedTask;
         }
 
-        public async Task OfflineRecursiveAsync() {
+        public async Task OfflineRecursiveAsync(bool user) {
             foreach (BaseResourceObjectViewModel resource in this.items) {
                 if (resource is ResourceItemViewModel item) {
-                    await item.SetOfflineAsync();
+                    await item.SetOfflineAsync(user);
                 }
                 else if (resource is ResourceGroupViewModel group) {
-                    await group.OfflineRecursiveAsync();
+                    await group.OfflineRecursiveAsync(user);
                 }
             }
+        }
+
+        public async Task<ResourceGroupViewModel> GroupSelectionAction() {
+            if (this.SelectedItems.Count < 1) {
+                return null;
+            }
+
+            ResourceGroupViewModel group = new ResourceGroupViewModel(new ResourceGroup("New Group"));
+            if (!await group.RenameSelfAction()) {
+                return null;
+            }
+
+            List<BaseResourceObjectViewModel> list = this.SelectedItems.ToList();
+            this.SelectedItems.Clear();
+            foreach (BaseResourceObjectViewModel item in list) {
+                this.RemoveItem(item, true, false);
+            }
+
+            this.AddItem(group, true);
+            foreach (BaseResourceObjectViewModel item in list) {
+                group.AddItem(item, true);
+            }
+
+            return group;
         }
     }
 }

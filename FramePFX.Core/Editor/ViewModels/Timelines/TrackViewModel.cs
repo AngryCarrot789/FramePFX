@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
@@ -19,7 +18,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for a timeline track. This could be a video or audio track (or others...)
     /// </summary>
-    public abstract class TrackViewModel : BaseViewModel, IModifyProject, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel {
+    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel {
         protected readonly HistoryBuffer<HistoryTrackDisplayName> displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
 
         private readonly ObservableCollectionEx<ClipViewModel> clips;
@@ -104,13 +103,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
 
-        public event ProjectModifiedEvent ProjectModified;
-
         protected TrackViewModel(TimelineViewModel timeline, Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             if (!ReferenceEquals(timeline.Model, model.Timeline))
-                throw new ArgumentException($"The timeline's model and then given track model's timeline do not match");
+                throw new ArgumentException("The timeline's model and then given track model's timeline do not match");
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
@@ -132,8 +129,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             }
         }
 
-        public virtual void OnProjectModified(object sender, [CallerMemberName] string property = null) {
-            this.ProjectModified?.Invoke(sender, property);
+        public virtual void OnProjectModified() {
+            if (this.Timeline != null) {
+                this.Timeline.OnProjectModified();
+            }
         }
 
         public ClipViewModel CreateClip(Clip model, bool addToModel = true) {

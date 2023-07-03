@@ -6,7 +6,7 @@ using FramePFX.Core.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     public class TextClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
-        public new TextClip Model => (TextClip) ((ClipViewModel) this).Model;
+        public new TextVideoClip Model => (TextVideoClip) ((ClipViewModel) this).Model;
 
         public bool UseCustomText {
             get => this.Model.ULText;
@@ -85,7 +85,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             }
         }
 
-        public TextClipViewModel(TextClip model) : base(model) {
+        public TextClipViewModel(TextVideoClip model) : base(model) {
             model.ClipResourceDataModified += this.OnResourceModified;
             model.ClipResourceChanged += this.OnResourceChanged;
         }

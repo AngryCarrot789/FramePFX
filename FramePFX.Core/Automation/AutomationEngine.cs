@@ -1,4 +1,3 @@
-using System;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Timelines;

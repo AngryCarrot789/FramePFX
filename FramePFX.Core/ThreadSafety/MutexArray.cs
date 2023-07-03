@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace FramePFX.Core.ThreadSafety {
     public class MutexArray {
         private readonly object[] locks;

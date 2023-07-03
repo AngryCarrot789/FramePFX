@@ -369,7 +369,7 @@ namespace FramePFX.Core.RBC {
                 int len = array.Length / size;
                 T[] values = new T[len];
                 for (int i = 0, offset = 0; i < len; i++, offset += size) {
-                    values[i] = RBEStruct.ReadStruct<T>(array, offset, size);
+                    values[i] = BinaryUtils.ReadStruct<T>(array, offset, size);
                 }
 
                 return values;
@@ -388,7 +388,7 @@ namespace FramePFX.Core.RBC {
                 int len = array.Length / size;
                 values = new T[len];
                 for (int i = 0, offset = 0; i < len; i++, offset += size) {
-                    values[i] = RBEStruct.ReadStruct<T>(array, offset, size);
+                    values[i] = BinaryUtils.ReadStruct<T>(array, offset, size);
                 }
 
                 return true;
@@ -401,7 +401,7 @@ namespace FramePFX.Core.RBC {
                 int length = values.Length;
                 byte[] array = this.data = new byte[size * length];
                 for (int i = 0, offset = 0; i < length; i++, offset += size) {
-                    RBEStruct.WriteStruct(values[i], array, offset, size);
+                    BinaryUtils.WriteStruct(values[i], array, offset, size);
                 }
             }
         }

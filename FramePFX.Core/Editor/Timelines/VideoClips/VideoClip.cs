@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Numerics;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;

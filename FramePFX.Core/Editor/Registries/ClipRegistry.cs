@@ -14,10 +14,10 @@ namespace FramePFX.Core.Editor.Registries {
 
         private ClipRegistry() {
             #region video
-            this.Register<ImageClip, ImageClipViewModel>("cv_img");
-            this.Register<ShapeClip, ShapeClipViewModel>("cv_square");
-            this.Register<TextClip, TextClipViewModel>("cv_txt");
-            this.Register<MediaClip, MediaClipViewModel>("cv_media");
+            this.Register<ImageVideoClip, ImageClipViewModel>("cv_img");
+            this.Register<ShapeVideoClip, ShapeClipViewModel>("cv_square");
+            this.Register<TextVideoClip, TextClipViewModel>("cv_txt");
+            this.Register<OldMediaVideoClip, MediaClipViewModel>("cv_media");
             #endregion
 
             #region Audio

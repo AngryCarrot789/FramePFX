@@ -2,12 +2,15 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using FFmpeg.AutoGen;
-using FFmpeg.Wrapper;
+using FramePFX.Core.FFmpeg;
+using FramePFX.Core.FFmpegWrapper;
+using FramePFX.Core.FFmpegWrapper.Codecs;
+using FramePFX.Core.FFmpegWrapper.Containers;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Resources {
-    public class ResourceMedia : ResourceItem {
+    public class ResourceOldMedia : ResourceItem {
         public string FilePath { get; set; }
 
         public MediaDemuxer Demuxer { get; private set; }
@@ -19,13 +22,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         private FrameQueue frameQueue;
         private bool hasHardwareDecoder;
 
-        public ResourceMedia() {
+        public ResourceOldMedia() {
 
         }
 
-        protected override Task DisableCoreAsync(ExceptionStack stack, bool user) {
+        protected override void OnDisableCore(ExceptionStack stack, bool user) {
+            base.OnDisableCore(stack, user);
             this.DisposeCore(stack);
-            return Task.CompletedTask;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -88,15 +91,15 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
 
         private bool DecodeFramesUntil(TimeSpan endTime) {
             while (true) {
-                VideoFrame frame = this.frameQueue.Reserve();
+                VideoFrame frame = this.frameQueue.Current();
                 if (this.decoder.ReceiveFrame(frame)) {
-                    if (this.frameQueue.Shift() >= endTime) {
+                    if (this.frameQueue.Shift() is TimeSpan ts && ts >= endTime) {
                         return true;
                     }
                 }
 
                 // Fill-up the decoder with more data and try again
-                using (var packet = new MediaPacket()) {
+                using (MediaPacket packet = new MediaPacket()) {
                     bool gotPacket = false;
                     while (this.Demuxer.Read(packet)) {
                         if (packet.StreamIndex == this.stream.Index) {
@@ -207,60 +210,6 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         protected void EnsureHasVideoStream() {
             if (this.stream == null) {
                 throw new InvalidOperationException("No video stream is available");
-            }
-        }
-
-        //Rolling circular-buffer of `VideoFrame`s
-        private class FrameQueue : IDisposable {
-            private readonly MediaStream stream;
-            private readonly VideoFrame[] frames;
-            private int index = 0;
-
-            public FrameQueue(MediaStream stream, int size) {
-                this.stream = stream;
-                this.frames = new VideoFrame[size];
-
-                for (int i = 0; i < size; i++) {
-                    this.frames[i] = new VideoFrame();
-                }
-            }
-
-            public VideoFrame Reserve() {
-                return this.frames[this.index % this.frames.Length];
-            }
-
-            public TimeSpan Shift() {
-                VideoFrame lastFrame = this.Reserve();
-                this.index++;
-                return this.GetTime(lastFrame);
-            }
-
-            public TimeSpan GetTime(VideoFrame frame) {
-                return this.stream.GetTimestamp(frame.PresentationTimestamp.Value);
-            }
-
-            public VideoFrame GetNearest(TimeSpan timestamp, out double nearestDist) {
-                VideoFrame nearestFrame = null;
-                nearestDist = double.PositiveInfinity;
-                foreach (VideoFrame frame in this.frames) {
-                    unsafe {
-                        if (frame.Handle == null || frame.PresentationTimestamp == null)
-                            continue;
-                    }
-
-                    double dist = (timestamp - this.GetTime(frame)).TotalSeconds;
-                    if (Math.Abs(dist) < Math.Abs(nearestDist)) {
-                        nearestFrame = frame;
-                        nearestDist = dist;
-                    }
-                }
-                return nearestFrame;
-            }
-
-            public void Dispose() {
-                for (int i = 0; i < this.frames.Length; i++) {
-                    this.frames[i].Dispose();
-                }
             }
         }
     }

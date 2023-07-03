@@ -410,6 +410,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
             RBEList list = data.CreateList(nameof(this.KeyFrames));
             foreach (KeyFrame keyFrame in this.keyFrameList) {
+                // when reading, use key's DataType to create new key frames and hope the types are correct
                 keyFrame.WriteToRBE(list.AddDictionary());
             }
         }
@@ -431,6 +432,7 @@ namespace FramePFX.Core.Automation.Keyframe {
                 frames.Add(keyFrame);
             }
 
+            // just in case they somehow end up unordered
             frames.Sort((a, b) => a.time.CompareTo(b.time));
             foreach (KeyFrame frame in frames) {
                 frame.sequence = this;

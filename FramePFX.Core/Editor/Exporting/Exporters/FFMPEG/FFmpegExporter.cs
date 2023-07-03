@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
-using FFmpeg.Wrapper;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using SkiaSharp;
+using LavResult = FramePFX.Core.FFmpegWrapper.LavResult;
 
 namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
 

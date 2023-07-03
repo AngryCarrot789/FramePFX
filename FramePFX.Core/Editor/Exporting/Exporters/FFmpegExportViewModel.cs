@@ -1,4 +1,3 @@
-using FFmpeg.AutoGen;
 using FramePFX.Core.Editor.Exporting.Exporters.FFMPEG;
 using FramePFX.Core.Utils;
 
@@ -35,7 +34,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters {
             }
         }
 
-        public double FPS => this.FrameRate.AsFraction;
+        public double FPS => this.FrameRate.ToDouble;
 
         public long BitRate {
             get => this.Exporter.BitRate;

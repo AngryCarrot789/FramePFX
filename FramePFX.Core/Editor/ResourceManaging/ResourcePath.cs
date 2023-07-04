@@ -46,6 +46,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             this.resourceReplacedHandler = this.OnManagerResourceReplaced;
             this.onlineStateChangedHandler = this.OnOnlineStateChanged;
             if (manager != null) {
+                this.Manager = manager;
                 manager.ResourceAdded += this.resourceAddedHandler;
                 manager.ResourceRemoved += this.resourceRemovedHandler;
                 manager.ResourceReplaced += this.resourceReplacedHandler;

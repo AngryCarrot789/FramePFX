@@ -73,8 +73,28 @@ namespace FramePFX.Controls.xclemence.RulerWPF.PositionManagers {
         }
 
         public override void DrawText(DrawingContext dc, double value, double offset) {
+            double height = this.Control.ActualHeight;
+            double major_size = this.GetMajorSize();
+
             FormattedText format = base.GetFormattedText(value);
-            dc.DrawText(format, new Point(offset, 0));
+
+            double gap = (height - major_size);
+            if (gap >= (format.Height / 2d)) {
+                dc.DrawText(format, new Point((offset + this.Control.MajorLineThickness) - (format.Width / 2d), gap - format.Height));
+            }
+            else {
+                // draw above major if possible
+                dc.DrawText(format, new Point(offset + this.Control.MajorLineThickness + 2d, (height / 2d) - (format.Height / 2d)));
+            }
+
+            // draw to right side of major but in center of height
+            // dc.DrawText(format, new Point(offset + this.Control.MajorLineThickness + 2d, (this.Control.ActualHeight / 2d) - (format.Height / 2d)));
+
+            /* Draw to right side of major
+                double minor_size = this.GetMajorSize() * (1 - this.Control.MinorStepRatio);
+                dc.DrawText(format, new Point(offset + this.Control.MajorLineThickness + 2d, this.Control.ActualHeight - minor_size - format.Height));
+             */
+
         }
     }
 }

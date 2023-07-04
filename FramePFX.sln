@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FrameP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FramePFX.Core", "FramePFX.Core\FramePFX.Core.csproj", "{0FA0334E-B33D-4BA5-9699-455A52B6E175}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dragablz", "Dragablz\Dragablz.csproj", "{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,14 @@ Global
 		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.ActiveCfg = Release|Any CPU
 		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.Build.0 = Release|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Debug|x64.Build.0 = Debug|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Release|x64.ActiveCfg = Release|Any CPU
+		{C2CC4EAC-53C3-4876-B47E-1CB47EFF6B41}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

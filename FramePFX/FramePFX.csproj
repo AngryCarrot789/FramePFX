@@ -199,7 +199,6 @@
     <Compile Include="Controls\Dragger\NumberDragger.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
-    <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Controls\ViewBoxClone.cs" />
     <Compile Include="Controls\Helpers\ActionControlHelper.cs" />
     <Compile Include="Controls\Helpers\AttachedInteractivity.cs" />
@@ -236,7 +235,7 @@
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
-    <Compile Include="Converters\VerticalScrollBinder.cs" />
+    <Compile Include="Converters\ScrollBinder.cs" />
     <Compile Include="Converters\VolumeToDbConverter.cs" />
     <Compile Include="Editor\Automation\AutomationActivityBrushConverter.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
@@ -294,6 +293,8 @@
     <Compile Include="Editor\Resources\ResourceItemContainerStyleSelector.cs" />
     <Compile Include="Editor\Resources\ResourceItemControl.cs" />
     <Compile Include="Editor\Resources\ResourceListControl.cs" />
+    <Compile Include="Editor\ThingInterLayoutClient.cs" />
+    <Compile Include="Editor\ThingInterTabClient.cs" />
     <Compile Include="Editor\Timeline\Actions\DeleteSelectedClips.cs" />
     <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
     <Compile Include="Editor\Timeline\Actions\NewTrackActions.cs" />
@@ -543,6 +544,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Themes\GenericDragablzStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+    </Page>
     <Page Include="Views\AppLoggerWindow.xaml" />
     <Page Include="Views\AppSplashScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -598,6 +603,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Dragablz\Dragablz.csproj">
+      <Project>{c2cc4eac-53c3-4876-b47e-1cb47eff6b41}</Project>
+      <Name>Dragablz</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FramePFX.Core\FramePFX.Core.csproj">
       <Project>{0FA0334E-B33D-4BA5-9699-455A52B6E175}</Project>
       <Name>FramePFX.Core</Name>

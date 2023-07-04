@@ -1603,7 +1603,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TabItem}">
                     <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
-                        <Border x:Name="PART_Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0"/>
+                        <Border x:Name="mainBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0"/>
                         <Border x:Name="PART_SelectionBorder" Background="{DynamicResource ABrush.AccentTone2.Background.Static}" VerticalAlignment="Bottom" Height="2" Visibility="Collapsed"/>
                         <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" 
                                           HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
@@ -1612,18 +1612,18 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True">
-                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource TabItem.MouseOver.Background}" />
-                            <Setter Property="BorderBrush" TargetName="PART_Border" Value="{DynamicResource TabItem.MouseOver.Border}" />
+                            <Setter Property="Background" TargetName="mainBorder" Value="{DynamicResource TabItem.MouseOver.Background}" />
+                            <Setter Property="BorderBrush" TargetName="mainBorder" Value="{DynamicResource TabItem.MouseOver.Border}" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
-                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource ABrush.Tone4.Background.Disabled}" />
-                            <Setter Property="BorderBrush" TargetName="PART_Border" Value="{DynamicResource ABrush.Tone4.Border.Disabled}" />
+                            <Setter Property="Background" TargetName="mainBorder" Value="{DynamicResource ABrush.Tone4.Background.Disabled}" />
+                            <Setter Property="BorderBrush" TargetName="mainBorder" Value="{DynamicResource ABrush.Tone4.Border.Disabled}" />
                             <Setter Property="Visibility" TargetName="PART_SelectionBorder" Value="Visible"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="False">
                             <Setter Property="Opacity" TargetName="contentPresenter" Value="0.56" />
-                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource TabItem.Disabled.Background}" />
-                            <Setter Property="BorderBrush" TargetName="PART_Border" Value="{DynamicResource TabItem.Disabled.Border}" />
+                            <Setter Property="Background" TargetName="mainBorder" Value="{DynamicResource TabItem.Disabled.Background}" />
+                            <Setter Property="BorderBrush" TargetName="mainBorder" Value="{DynamicResource TabItem.Disabled.Border}" />
                         </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

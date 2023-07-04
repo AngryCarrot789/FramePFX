@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -60,16 +61,8 @@ namespace FramePFX.Utils {
             return null;
         }
 
-        public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf) where T : DependencyObject {
+        public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf = true) where T : DependencyObject {
             if (obj == null || (includeSelf && obj is T)) {
-                return (T) obj;
-            }
-
-            return FindVisualChild<T>(obj);
-        }
-
-        public static T FindVisualChild<T>(DependencyObject obj) where T : DependencyObject {
-            if (obj == null || obj is T) {
                 return (T) obj;
             }
 
@@ -92,7 +85,7 @@ namespace FramePFX.Utils {
                 }
             }
 
-            return null;
+            return obj is ContentControl element && element.Content is T t ? t : null;
         }
 
         public static object GetDataContext(DependencyObject value) {

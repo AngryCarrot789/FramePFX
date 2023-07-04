@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using FramePFX.Controls.xclemence.RulerWPF.PositionManagers;
 using FramePFX.Utils;
 using Rect = System.Windows.Rect;
@@ -43,8 +44,9 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
             if (this.scroller != null) {
                 this.scroller.SizeChanged += this.OnScrollerOnSizeChanged;
                 this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
-                this.InvalidateVisual();
             }
+
+            this.Dispatcher.InvokeAsync(this.InvalidateVisual, DispatcherPriority.Background);
         }
 
         private void OnScrollerOnSizeChanged(object o, SizeChangedEventArgs e) {
@@ -124,6 +126,9 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
                         break;
                     }
                 }
+            }
+            else {
+                return;
             }
         }
 

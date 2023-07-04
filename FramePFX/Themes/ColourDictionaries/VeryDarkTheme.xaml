@@ -1,34 +1,34 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Color x:Key="AColour.Foreground.Static"                  R="240" G="240" B="240" A="255"/>
-    <Color x:Key="AColour.Foreground.Deeper"                  R="220" G="220" B="220" A="255"/>
-    <Color x:Key="AColour.Foreground.Disabled"                R="190" G="190" B="190" A="255"/>
-    <Color x:Key="AColour.Glyph.Static"                       R="220" G="220" B="220" A="255"/>
-    <Color x:Key="AColour.Glyph.Disabled"                     R="180" G="180" B="180" A="255"/>
-    <Color x:Key="AColour.Glyph.MouseOver"                    R="250" G="250" B="250" A="255"/>
-    <Color x:Key="AColour.Glyph.MouseDown"                    R="235" G="235" B="235" A="255"/>
-    <Color x:Key="AColour.Glyph.Selected"                     R="228" G="228" B="228" A="255"/>
-    <Color x:Key="AColour.Glyph.Selected.Inactive"            R="218" G="218" B="218" A="255"/>
-    <Color x:Key="AColour.ColourfulGlyph.Static"              R="50" G="40" B="200" A="255"/>
-    <Color x:Key="AColour.ColourfulGlyph.Disabled"            R="50" G="30" B="180" A="255"/>
-    <Color x:Key="AColour.ColourfulGlyph.MouseOver"           R="40" G="20" B="220" A="255"/>
-    <Color x:Key="AColour.ColourfulGlyph.MouseDown"           R="50" G="30" B="210" A="255"/>
-    <Color x:Key="AColour.ColourfulGlyph.Selected"            R="30" G="40" B="215" A="255"/>
-    <Color x:Key="AColour.ColourfulGlyph.Selected.Inactive"   R="30" G="30" B="210" A="255"/>
+    <Color x:Key="AColour.Foreground.Static"                 R="240" G="240" B="240" A="255"/>
+    <Color x:Key="AColour.Foreground.Deeper"                 R="220" G="220" B="220" A="255"/>
+    <Color x:Key="AColour.Foreground.Disabled"               R="190" G="190" B="190" A="255"/>
+    <Color x:Key="AColour.Glyph.Static"                      R="220" G="220" B="220" A="255"/>
+    <Color x:Key="AColour.Glyph.Disabled"                    R="180" G="180" B="180" A="255"/>
+    <Color x:Key="AColour.Glyph.MouseOver"                   R="250" G="250" B="250" A="255"/>
+    <Color x:Key="AColour.Glyph.MouseDown"                   R="235" G="235" B="235" A="255"/>
+    <Color x:Key="AColour.Glyph.Selected"                    R="228" G="228" B="228" A="255"/>
+    <Color x:Key="AColour.Glyph.Selected.Inactive"           R="218" G="218" B="218" A="255"/>
+    <Color x:Key="AColour.ColourfulGlyph.Static"             R="50" G="40" B="200" A="255"/>
+    <Color x:Key="AColour.ColourfulGlyph.Disabled"           R="50" G="30" B="180" A="255"/>
+    <Color x:Key="AColour.ColourfulGlyph.MouseOver"          R="40" G="20" B="220" A="255"/>
+    <Color x:Key="AColour.ColourfulGlyph.MouseDown"          R="50" G="30" B="210" A="255"/>
+    <Color x:Key="AColour.ColourfulGlyph.Selected"           R="30" G="40" B="215" A="255"/>
+    <Color x:Key="AColour.ColourfulGlyph.Selected.Inactive"  R="30" G="30" B="210" A="255"/>
 
-    <Color x:Key="AColour.AccentTone1.Background.Static"       R="85" G="135" B="175" A="255"/>
-    <Color x:Key="AColour.AccentTone1.Border.Static"           R="65" G="130" B="205" A="255"/>
-    <Color x:Key="AColour.AccentTone2.Background.Static"       R="52" G="148" B="225" A="255"/>
-    <Color x:Key="AColour.AccentTone2.Border.Static"           R="47" G="130" B="200" A="255"/>
-    <Color x:Key="AColour.AccentTone3.Background.Static"       R="45" G="125" B="215" A="255"/>
-    <Color x:Key="AColour.AccentTone3.Border.Static"           R="50" G="135" B="200" A="255"/>
+    <Color x:Key="AColour.AccentTone1.Background.Static"     R="85" G="135" B="175" A="255"/>
+    <Color x:Key="AColour.AccentTone1.Border.Static"         R="65" G="130" B="205" A="255"/>
+    <Color x:Key="AColour.AccentTone2.Background.Static"     R="52" G="148" B="225" A="255"/>
+    <Color x:Key="AColour.AccentTone2.Border.Static"         R="47" G="130" B="200" A="255"/>
+    <Color x:Key="AColour.AccentTone3.Background.Static"     R="45" G="125" B="215" A="255"/>
+    <Color x:Key="AColour.AccentTone3.Border.Static"         R="50" G="135" B="200" A="255"/>
 
-    <Color x:Key="AColour.Tone1.Background.Static"           R="20" G="20" B="20" A="255"/>
-    <Color x:Key="AColour.Tone2.Background.Static"           R="24" G="24" B="24" A="255"/>
-    <Color x:Key="AColour.Tone3.Background.Static"           R="29" G="29" B="29" A="255"/>
-    <Color x:Key="AColour.Tone1.Border.Static"               R="32" G="32" B="32" A="255"/>
-    <Color x:Key="AColour.Tone2.Border.Static"               R="37" G="37" B="37" A="255"/>
-    <Color x:Key="AColour.Tone3.Border.Static"               R="42" G="42" B="42" A="255"/>
+    <Color x:Key="AColour.Tone1.Background.Static"        R="20" G="20" B="20" A="255"/>
+    <Color x:Key="AColour.Tone2.Background.Static"        R="24" G="24" B="24" A="255"/>
+    <Color x:Key="AColour.Tone3.Background.Static"        R="29" G="29" B="29" A="255"/>
+    <Color x:Key="AColour.Tone1.Border.Static"            R="17" G="17" B="17" A="255"/>
+    <Color x:Key="AColour.Tone2.Border.Static"            R="37" G="37" B="37" A="255"/>
+    <Color x:Key="AColour.Tone3.Border.Static"            R="42" G="42" B="42" A="255"/>
     <Color x:Key="AColour.Tone4.Background.Static"        R="29" G="29" B="29" A="255"/>
     <Color x:Key="AColour.Tone5.Background.Static"        R="37" G="37" B="37" A="255"/>
     <Color x:Key="AColour.Tone6.Background.Static"        R="45" G="45" B="45" A="255"/>

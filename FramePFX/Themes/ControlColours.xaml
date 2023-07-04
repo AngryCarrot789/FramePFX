@@ -5,6 +5,8 @@
 
     <!-- The letter A is in front of the colours themselves, because it's annoying having to scroll down in visual studio's designer to "Colour" or "Brush" -->
 
+    <SolidColorBrush x:Key="PanelGapBrush" Color="{DynamicResource AColour.Tone1.Border.Static}"/>
+
     <SolidColorBrush x:Key="Button.Static.Background"                       Color="{DynamicResource AColour.Tone5.Background.Static}"/>
     <SolidColorBrush x:Key="Button.Static.Border"                           Color="{DynamicResource AColour.Tone5.Border.Static}"/>
     <SolidColorBrush x:Key="Button.MouseOver.Background"                    Color="{DynamicResource AColour.Tone5.Background.MouseOver}"/>

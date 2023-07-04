@@ -1342,7 +1342,7 @@
     </Style>
 
     <Style TargetType="{x:Type TabControl}">
-        <Setter Property="Padding" Value="2" />
+        <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Background" Value="{DynamicResource TabItem.Selected.Background}" />

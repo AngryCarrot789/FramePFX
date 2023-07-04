@@ -86,8 +86,6 @@ namespace FramePFX.Controls {
             const int steps = 10;
             double offset = Ceil(rect.X, steps) - rect.X;
 
-            Pen pen = new Pen(Brushes.Orange, 1d);
-
             double ratio = size.Width / rect.Width;
             double normalizeMinSize = 1 / this.ActualWidth;
             double minStepValue = normalizeMinSize * 10000d;

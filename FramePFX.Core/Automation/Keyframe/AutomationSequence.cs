@@ -372,10 +372,10 @@ namespace FramePFX.Core.Automation.Keyframe {
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
             newKeyFrame.sequence = this;
             List<KeyFrame> list = this.keyFrameList;
-            for (int i = list.Count; i >= 0; i--) {
-                if (timeStamp >= list[i - 1].time) {
-                    list.Insert(i, newKeyFrame);
-                    return i;
+            for (int i = list.Count - 1; i >= 0; i--) {
+                if (timeStamp >= list[i].time) {
+                    list.Insert(i + 1, newKeyFrame);
+                    return i + 1;
                 }
             }
 

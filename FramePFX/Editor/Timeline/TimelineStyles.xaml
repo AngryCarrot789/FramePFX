@@ -393,6 +393,35 @@
                                       CanContentScroll="False"
                                       ccc:VerticalScrollBinder.BindGroup="TimelineScrollGroup"
                                       Style="{StaticResource TimelineScrollViewerStyle}">
+                            <ScrollViewer.Resources>
+                                <SolidColorBrush x:Key="BrushA" Color="Gray"/>
+                                <SolidColorBrush x:Key="BrushB" Color="DarkGray"/>
+                            </ScrollViewer.Resources>
+                            <ScrollViewer.Background>
+                                <DrawingBrush Stretch="None" TileMode="Tile" Viewport="0,0,2,2" ViewportUnits="Absolute">
+                                    <!-- a drawing of 4 checkerboard tiles -->
+                                    <DrawingBrush.Drawing>
+                                        <DrawingGroup>
+                                            <!-- checkerboard background -->
+                                            <GeometryDrawing Brush="{StaticResource BrushA}">
+                                                <GeometryDrawing.Geometry>
+                                                    <RectangleGeometry Rect="0,0,2,2" />
+                                                </GeometryDrawing.Geometry>
+                                            </GeometryDrawing>
+
+                                            <!-- two checkerboard foreground tiles -->
+                                            <GeometryDrawing Brush="{StaticResource BrushB}">
+                                                <GeometryDrawing.Geometry>
+                                                    <GeometryGroup>
+                                                        <RectangleGeometry Rect="0,0,1,1" />
+                                                        <RectangleGeometry Rect="1,1,1,1" />
+                                                    </GeometryGroup>
+                                                </GeometryDrawing.Geometry>
+                                            </GeometryDrawing>
+                                        </DrawingGroup>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </ScrollViewer.Background>
                             <!-- Handle RequestBringIntoView in the grid because there is no preview version of the event -->
                             <!-- Handling the event will stop the ScrollViewer scrolling to offscreen values -->
                             <cc:TimelineContentPanel HorizontalAlignment="Left" ap:HandleRequestBringIntoView.IsEnabled="True">
@@ -413,7 +442,12 @@
                                     <rulerwpf:Ruler VerticalAlignment="Stretch"
                                                     HorizontalAlignment="Stretch"
                                                     MarkerControlReference="{Binding ElementName=PART_rootGrid}"
-                                                    MaxValue="{Binding MaxDuration}"/>
+                                                    MaxValue="{Binding MaxDuration}"
+                                                    MinorStepRatio="0.5"
+                                                    MajorLineThickness="1"
+                                                    MinorLineThickness="0.5"
+                                                    SnapsToDevicePixels="True"
+                                                    UseLayoutRounding="True"/>
                                     <!--
                                     <c:Ruler VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                                     -->

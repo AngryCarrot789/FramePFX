@@ -1,7 +1,7 @@
 ﻿//  
 // Copyright (c) Xavier CLEMENCE (xavier.clemence@gmail.com) and REghZy/AngryCarrot789. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for full license information. 
-// Ruler Wpf Version 3.0
+// Ruler Wpf Version 3.1
 // 
 
 using System;
@@ -29,8 +29,13 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
         public static readonly DependencyProperty TextCultureProperty = DependencyProperty.Register(nameof(TextCulture), typeof(CultureInfo), typeof(RulerBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty TextOverflowProperty = DependencyProperty.Register(nameof(TextOverflow), typeof(RulerTextOverflow), typeof(RulerBase), new FrameworkPropertyMetadata(RulerTextOverflow.Visible, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty MajorLineSizeProperty = DependencyProperty.Register(nameof(MajorLineSize), typeof(double?), typeof(RulerBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty TopRulerLineAlignmentProperty = DependencyProperty.Register(nameof(TopRulerLineAlignment), typeof(VerticalAlignment), typeof(RulerBase), new FrameworkPropertyMetadata(VerticalAlignment.Bottom, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty LeftRulerLineAlignmentProperty = DependencyProperty.Register(nameof(LeftRulerLineAlignment), typeof(HorizontalAlignment), typeof(RulerBase), new FrameworkPropertyMetadata(HorizontalAlignment.Right, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MajorLineThicknessProperty = DependencyProperty.Register("MajorLineThickness", typeof(double), typeof(RulerBase), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MinorLineThicknessProperty = DependencyProperty.Register("MinorLineThickness", typeof(double), typeof(RulerBase), new FrameworkPropertyMetadata(0.5d, FrameworkPropertyMetadataOptions.AffectsRender));
 
-        private Pen stepColorPen;
+        private Pen majorLineStepColourPen;
+        private Pen minorLineStepColourPen;
 
         public double MaxValue {
             get => (double) this.GetValue(MaxValueProperty);
@@ -67,7 +72,8 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
             set => this.SetValue(StepColorProperty, value);
         }
 
-        public Pen StepColorPen => this.stepColorPen ?? (this.StepColor is Brush brush ? (this.stepColorPen = new Pen(brush, 1d)) : null);
+        public Pen MajorStepColourPen => this.majorLineStepColourPen ?? (this.StepColor is Brush brush ? this.majorLineStepColourPen = new Pen(brush, this.MajorLineThickness) : null);
+        public Pen MinorStepColourPen => this.minorLineStepColourPen ?? (this.StepColor is Brush brush ? this.minorLineStepColourPen = new Pen(brush, this.MinorLineThickness) : null);
 
         public double MinorStepRatio {
             get => (double) this.GetValue(MinorStepRatioProperty);
@@ -109,6 +115,26 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
             set => this.SetValue(MajorLineSizeProperty, value);
         }
 
+        public VerticalAlignment TopRulerLineAlignment {
+            get => (VerticalAlignment) this.GetValue(TopRulerLineAlignmentProperty);
+            set => this.SetValue(TopRulerLineAlignmentProperty, value);
+        }
+
+        public HorizontalAlignment LeftRulerLineAlignment {
+            get => (HorizontalAlignment) this.GetValue(LeftRulerLineAlignmentProperty);
+            set => this.SetValue(LeftRulerLineAlignmentProperty, value);
+        }
+
+        public double MinorLineThickness {
+            get => (double) this.GetValue(MinorLineThicknessProperty);
+            set => this.SetValue(MinorLineThicknessProperty, value);
+        }
+
+        public double MajorLineThickness {
+            get => (double) this.GetValue(MajorLineThicknessProperty);
+            set => this.SetValue(MajorLineThicknessProperty, value);
+        }
+
         private static void OnRulerPositionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             if (!(d is RulerBase control) || !(e.NewValue is RulerPosition position))
                 return;
@@ -123,7 +149,7 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
 
         private static void InvalidatePens(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             RulerBase control = (RulerBase) d;
-            control.stepColorPen = null;
+            control.majorLineStepColourPen = null;
         }
 
         protected abstract void UpdateMarkerControlReference(UIElement oldElement, UIElement newElement);

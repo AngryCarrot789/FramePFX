@@ -26,7 +26,7 @@
     <Color x:Key="AColour.Tone1.Background.Static"             R="20" G="20" B="20" A="255"/>
     <Color x:Key="AColour.Tone2.Background.Static"             R="24" G="24" B="24" A="255"/>
     <Color x:Key="AColour.Tone3.Background.Static"             R="29" G="29" B="29" A="255"/>
-    <Color x:Key="AColour.Tone1.Border.Static"                 R="30" G="30" B="30" A="255"/>
+    <Color x:Key="AColour.Tone1.Border.Static"                 R="16" G="16" B="16" A="255"/>
     <Color x:Key="AColour.Tone2.Border.Static"                 R="34" G="34" B="34" A="255"/>
     <Color x:Key="AColour.Tone3.Border.Static"                 R="49" G="49" B="49" A="255"/>
     <Color x:Key="AColour.Tone4.Background.Static"             R="32" G="32" B="32" A="255"/>

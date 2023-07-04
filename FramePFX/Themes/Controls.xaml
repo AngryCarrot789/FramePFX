@@ -1590,6 +1590,47 @@
         </Setter>
     </Style>
 
+    <Style x:Key="NoOffsetTabItem" TargetType="{x:Type TabItem}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+        <Setter Property="Background" Value="{DynamicResource TabItem.Static.Background}" />
+        <Setter Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TabControl}, Path=BorderBrush}" />
+        <Setter Property="Margin" Value="-1,-1,-1,0" />
+        <Setter Property="Padding" Value="10,4,10,4" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabItem}">
+                    <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
+                        <Border x:Name="PART_Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0"/>
+                        <Border x:Name="PART_SelectionBorder" Background="{DynamicResource ABrush.AccentTone2.Background.Static}" VerticalAlignment="Bottom" Height="2" Visibility="Collapsed"/>
+                        <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" 
+                                          HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
+                                          Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                          VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True">
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource TabItem.MouseOver.Background}" />
+                            <Setter Property="BorderBrush" TargetName="PART_Border" Value="{DynamicResource TabItem.MouseOver.Border}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource ABrush.Tone4.Background.Disabled}" />
+                            <Setter Property="BorderBrush" TargetName="PART_Border" Value="{DynamicResource ABrush.Tone4.Border.Disabled}" />
+                            <Setter Property="Visibility" TargetName="PART_SelectionBorder" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="False">
+                            <Setter Property="Opacity" TargetName="contentPresenter" Value="0.56" />
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource TabItem.Disabled.Background}" />
+                            <Setter Property="BorderBrush" TargetName="PART_Border" Value="{DynamicResource TabItem.Disabled.Border}" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="ExpanderRightHeaderStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Template">
             <Setter.Value>

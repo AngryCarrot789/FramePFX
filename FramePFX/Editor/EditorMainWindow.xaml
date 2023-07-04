@@ -88,16 +88,12 @@
                 <RowDefinition Height="1"/>
                 <RowDefinition Height="75*"/>
             </Grid.RowDefinitions>
-            <GridSplitter Margin="0,-2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="Transparent" BorderThickness="0" SnapsToDevicePixels="True"/>
-            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="{DynamicResource PanelGapBrush}" BorderThickness="0" SnapsToDevicePixels="True"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*"/>
                     <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="7*"/>
                 </Grid.ColumnDefinitions>
-                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" Grid.Column="1" Margin="-3,-1,-3,0" SnapsToDevicePixels="True"/>
-                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelGapBrush}" Grid.Column="1" Margin="0,-1" SnapsToDevicePixels="True"/>
                 <Grid Grid.Column="2" DataContext="{Binding Playback}">
                     <Border Background="{DynamicResource ABrush.Tone3.Background.Static}" VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource ABrush.Tone1.Border.Static}" BorderThickness="0 1 0 0">
                         <Grid>
@@ -126,7 +122,10 @@
                     </ctrl:FreeMoveViewPortV2>
                 </Grid>
                 <Border IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}" Background="{DynamicResource ABrush.Tone2.Background.Static}">
-                    <TabControl Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderThickness="1 1 0 0" Margin="-1,-1,0,0" BorderBrush="{DynamicResource PanelGapBrush}">
+                    <TabControl Background="{DynamicResource ABrush.Tone5.Background.Static}" 
+                                BorderBrush="{DynamicResource PanelGapBrush}"
+                                BorderThickness="1 1 0 0" Margin="-1,-1,0,0" 
+                                ItemContainerStyle="{StaticResource NoOffsetTabItem}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
                             <Grid sc:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
                                 <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource ABrush.Tone3.Background.Static}"
@@ -150,6 +149,7 @@
                         </TabItem>
                     </TabControl>
                 </Border>
+                <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" Grid.Column="1" Margin="-3,-1,-3,0" SnapsToDevicePixels="True"/>
             </Grid>
             <Grid Grid.Row="2">
                 <Border VerticalAlignment="Bottom" Height="20" BorderThickness="0 1 0 0">
@@ -179,7 +179,7 @@
                         </Grid.ColumnDefinitions>
                         <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource ABrush.Tone1.Border.Static}">
                             <DockPanel Margin="8,0,0,0">
-                                <ToggleButton DockPanel.Dock="Right" Width="30" Content="Rec" IsChecked="{Binding Project.Editor.IsRecordingKeyFrames, Mode=TwoWay}" Margin="0,3,3,3" ToolTip="Record key frames. Modifying any automatable property will result in a new key frame being added"/>
+                                <ToggleButton Background="Transparent" BorderBrush="Transparent" DockPanel.Dock="Right" Width="39" Content="Rec" IsChecked="{Binding Project.Editor.IsRecordingKeyFrames, Mode=TwoWay}" Margin="0,0,0,0" ToolTip="Record key frames. Modifying any automatable property will result in a new key frame being added"/>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Medium"/>
                                     <TextBlock FontSize="15" Text="/" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,-2,3,0"/>
@@ -286,11 +286,11 @@
                                                MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"
                                                sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
                         </ctrl2:TimelineControl>
-                        <Border Background="{DynamicResource PanelGapBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderThickness="0" Grid.RowSpan="2" Margin="0,-1,0,0" SnapsToDevicePixels="True"/>
                         <GridSplitter Background="Transparent" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderThickness="0" Grid.RowSpan="2" Margin="-4,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
             </Grid>
+            <GridSplitter Margin="0,-2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="Transparent" BorderThickness="0" SnapsToDevicePixels="True"/>
         </Grid>
         <Popup x:Name="NotificationPanelPopup" AllowsTransparency="True" d:DataContext="{d:DesignInstance n:NotificationPanelViewModel}">
             <Popup.Resources>

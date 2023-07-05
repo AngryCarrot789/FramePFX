@@ -9,6 +9,9 @@ I doubt this will ever even come close to those editors, but hopefully it will a
 
 ![](FramePFX_2023-06-27_06.20.54.png)
 
+## 3 primary themes! Dark, Red/Black and Grey
+![](themes1.png)
+
 ### Automation/animation
 Always found automating parameters in the popular editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
 - Each clip has it's own keyframe/envelope editor that stretches the entirety of the clip. 

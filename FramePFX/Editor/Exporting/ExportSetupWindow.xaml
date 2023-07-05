@@ -13,7 +13,7 @@
               TitlebarBrush="{DynamicResource ABrush.Tone4.Background.Static}"
               d:DataContext="{d:DesignInstance exporting:ExportSetupViewModel}">
     <Grid>
-        <Border Background="{DynamicResource ABrush.Tone3.Background.Static}">
+        <Border Background="{DynamicResource PanelBackground3}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="75" SharedSizeGroup="SharedLeftColumn"/>
@@ -48,13 +48,13 @@
                             <TextBlock Text="Duration" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1"/>
                             <TextBlock Text="Ending Frame" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2"/>
                             <dragger:NumberDragger Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Center" 
-                                                   Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource ABrush.Tone3.Background.Static}" 
+                                                   Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource PanelBackground3}"
                                                    BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}" 
                                                    Minimum="0"
                                                    Maximum="{Binding FrameEndIndex}"
                                                    Value="{Binding FrameBegin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <dragger:NumberDragger Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Center" 
-                                                   Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource ABrush.Tone3.Background.Static}" 
+                                                   Style="{StaticResource AbletonNumberDraggerStyle}" Background="{DynamicResource PanelBackground3}"
                                                    BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}"
                                                    Minimum="{Binding FrameBegin}"
                                                    Maximum="{Binding MaxEndIndex}"
@@ -105,7 +105,7 @@
                         </Grid>
                     </Border>
                     <Border BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
-                        <ScrollViewer Background="{DynamicResource ABrush.Tone2.Background.Static}" Grid.ColumnSpan="2" Grid.Row="1">
+                        <ScrollViewer Background="{DynamicResource PanelBackground2}" Grid.ColumnSpan="2" Grid.Row="1">
                             <ItemsControl x:Name="ExportPropertyPageCollection" Margin="0,0,5,0">
                                 
                             </ItemsControl>

@@ -236,17 +236,17 @@ namespace FramePFX {
          public static Project CreateDebugProject() {
             // Debug project - test a lot of features and make sure they work
             Project project = CreateDemoProject();
-            {
-                AudioTrack track = new AudioTrack(project.Timeline) {
-                    DisplayName = "Audio Track 1"
-                };
-                project.Timeline.AddTrack(track);
-                SinewaveClip clip = new SinewaveClip() {
-                    FrameSpan = new FrameSpan(300, 90),
-                    DisplayName = "Clip Sine"
-                };
-                track.AddClip(clip);
-            }
+            // {
+            //     AudioTrack track = new AudioTrack(project.Timeline) {
+            //         DisplayName = "Audio Track 1"
+            //     };
+            //     project.Timeline.AddTrack(track);
+            //     SinewaveClip clip = new SinewaveClip() {
+            //         FrameSpan = new FrameSpan(300, 90),
+            //         DisplayName = "Clip Sine"
+            //     };
+            //     track.AddClip(clip);
+            // }
 
             return project;
         }

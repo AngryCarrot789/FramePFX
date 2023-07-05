@@ -342,6 +342,8 @@ namespace FramePFX.Editor {
                 return;
             }
 
+            await this.Editor.Playback.StopAction();
+
             this.isPrintingErrors = true;
             StringBuilder sb = new StringBuilder(2048);
             foreach (KeyValuePair<Clip,Exception> entry in dictionary) {

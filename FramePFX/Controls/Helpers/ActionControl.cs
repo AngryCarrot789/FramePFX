@@ -6,18 +6,13 @@ using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Controls.Helpers {
-    public static class ActionControlHelper {
-        public static readonly DependencyProperty TargetActionIdProperty = DependencyProperty.RegisterAttached("TargetActionId", typeof(string), typeof(ActionControlHelper), new PropertyMetadata(null, PropertyChangedCallback));
-        public static readonly DependencyProperty CanControlBecomeCollapsedProperty = DependencyProperty.RegisterAttached("CanControlBecomeCollapsed", typeof(bool), typeof(ActionControlHelper), new PropertyMetadata(true));
-        private static readonly DependencyPropertyKey PresentationUpdateHandlerPropertyKey = DependencyProperty.RegisterAttachedReadOnly("PresentationUpdateHandler", typeof(UpdateHandler), typeof(ActionControlHelper), new PropertyMetadata(default(GlobalPresentationUpdateHandler)));
+    public static class ActionControl {
+        public static readonly DependencyProperty TargetActionIdProperty = DependencyProperty.RegisterAttached("TargetActionId", typeof(string), typeof(ActionControl), new PropertyMetadata(null, PropertyChangedCallback));
+        public static readonly DependencyProperty CanControlBecomeCollapsedProperty = DependencyProperty.RegisterAttached("CanControlBecomeCollapsed", typeof(bool), typeof(ActionControl), new PropertyMetadata(true));
+        private static readonly DependencyPropertyKey PresentationUpdateHandlerPropertyKey = DependencyProperty.RegisterAttachedReadOnly("PresentationUpdateHandler", typeof(UpdateHandler), typeof(ActionControl), new PropertyMetadata(default(GlobalPresentationUpdateHandler)));
 
-        public static void SetTargetActionId(DependencyObject element, string value) {
-            element.SetValue(TargetActionIdProperty, value);
-        }
-
-        public static string GetTargetActionId(DependencyObject element) {
-            return (string) element.GetValue(TargetActionIdProperty);
-        }
+        public static void SetTargetActionId(DependencyObject element, string value) => element.SetValue(TargetActionIdProperty, value);
+        public static string GetTargetActionId(DependencyObject element) => (string) element.GetValue(TargetActionIdProperty);
 
         /// <summary>
         /// Sets whether this control can be collapsed or not when the action's presentation says it must become

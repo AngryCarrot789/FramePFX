@@ -18,7 +18,7 @@
     </Window.InputBindings>
     <Grid>
         <TextBlock Margin="10,10,10,0" VerticalAlignment="Top" Padding="2" Text="Click any mouse button in here:"/>
-        <Border MouseDown="InputBox_MouseDown" MouseWheel="InputBox_MouseWheel" Margin="10,35,10,54" BorderThickness="1" Background="{DynamicResource ABrush.Tone2.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}">
+        <Border MouseDown="InputBox_MouseDown" MouseWheel="InputBox_MouseWheel" Margin="10,35,10,54" BorderThickness="1" Background="{DynamicResource PanelBackground2}" BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}">
             <TextBlock x:Name="InputBox" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
         <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" x:Name="ButtonBarBorder" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">

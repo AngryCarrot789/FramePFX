@@ -5,7 +5,7 @@ using System.Windows.Media.Imaging;
 using SkiaSharp;
 
 namespace FramePFX {
-    public sealed class SkiaViewPortControl : FrameworkElement {
+    public sealed class SKAsyncViewPort : FrameworkElement {
         private readonly bool designMode;
         private WriteableBitmap bitmap;
         private bool ignorePixelScaling;
@@ -31,7 +31,7 @@ namespace FramePFX {
 
         public SKImageInfo FrameInfo => this.skImageInfo;
 
-        public SkiaViewPortControl() => this.designMode = DesignerProperties.GetIsInDesignMode(this);
+        public SKAsyncViewPort() => this.designMode = DesignerProperties.GetIsInDesignMode(this);
 
         public bool BeginRender(out SKSurface surface) {
             PresentationSource source;

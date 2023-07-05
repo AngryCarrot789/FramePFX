@@ -1,36 +1,22 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Controls.Helpers {
 public static class AttachedInteractivity {
         public static readonly DependencyProperty DoubleClickCommandProperty = DependencyProperty.RegisterAttached("DoubleClickCommand", typeof(ICommand), typeof(AttachedInteractivity), new PropertyMetadata(null, OnDoubleClickCommandChanged));
-        public static readonly DependencyProperty UseICGForParameterProperty = DependencyProperty.RegisterAttached("UseICGForParameter", typeof(bool), typeof(AttachedInteractivity), new PropertyMetadata(false));
-        public static readonly DependencyProperty UseDataContextAsParameterProperty = DependencyProperty.RegisterAttached("UseDataContextAsParameter", typeof(bool), typeof(AttachedInteractivity), new PropertyMetadata(true));
+        public static readonly DependencyProperty UseICGForParameterProperty = DependencyProperty.RegisterAttached("UseICGForParameter", typeof(bool), typeof(AttachedInteractivity), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty UseDataContextAsParameterProperty = DependencyProperty.RegisterAttached("UseDataContextAsParameter", typeof(bool), typeof(AttachedInteractivity), new PropertyMetadata(BoolBox.True));
 
-        public static void SetDoubleClickCommand(DependencyObject element, ICommand value) {
-            element.SetValue(DoubleClickCommandProperty, value);
-        }
+        public static void SetDoubleClickCommand(DependencyObject element, ICommand value) => element.SetValue(DoubleClickCommandProperty, value);
+        public static ICommand GetDoubleClickCommand(DependencyObject element) => (ICommand) element.GetValue(DoubleClickCommandProperty);
 
-        public static ICommand GetDoubleClickCommand(DependencyObject element) {
-            return (ICommand) element.GetValue(DoubleClickCommandProperty);
-        }
+        public static void SetUseICGForParameter(DependencyObject element, bool value) => element.SetValue(UseICGForParameterProperty, value.Box());
+        public static bool GetUseICGForParameter(DependencyObject element) => (bool) element.GetValue(UseICGForParameterProperty);
 
-        public static void SetUseICGForParameter(DependencyObject element, bool value) {
-            element.SetValue(UseICGForParameterProperty, value);
-        }
-
-        public static bool GetUseICGForParameter(DependencyObject element) {
-            return (bool) element.GetValue(UseICGForParameterProperty);
-        }
-
-        public static void SetUseDataContextAsParameter(DependencyObject element, bool value) {
-            element.SetValue(UseDataContextAsParameterProperty, value);
-        }
-
-        public static bool GetUseDataContextAsParameter(DependencyObject element) {
-            return (bool) element.GetValue(UseDataContextAsParameterProperty);
-        }
+        public static void SetUseDataContextAsParameter(DependencyObject element, bool value) => element.SetValue(UseDataContextAsParameterProperty, value.Box());
+        public static bool GetUseDataContextAsParameter(DependencyObject element) => (bool) element.GetValue(UseDataContextAsParameterProperty);
 
         private static readonly MouseButtonEventHandler Handler = ControlOnMouseDown;
 

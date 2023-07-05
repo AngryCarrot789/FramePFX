@@ -200,7 +200,7 @@
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
     <Compile Include="Controls\ViewBoxClone.cs" />
-    <Compile Include="Controls\Helpers\ActionControlHelper.cs" />
+    <Compile Include="Controls\Helpers\ActionControl.cs" />
     <Compile Include="Controls\Helpers\AttachedInteractivity.cs" />
     <Compile Include="Controls\Helpers\GridLatchSplitter.cs" />
     <Compile Include="Controls\Helpers\SelectorHelper.cs" />
@@ -361,7 +361,7 @@
     <Compile Include="Shortcuts\WPFKeyMapSerialiser.cs" />
     <Compile Include="Shortcuts\WPFShortcutManager.cs" />
     <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
-    <Compile Include="SkiaViewPortControl.cs" />
+    <Compile Include="SKAsyncViewPort.cs" />
     <Compile Include="SKViewPort.cs" />
     <Compile Include="Themes\Attached\CornerHelper.cs" />
     <Compile Include="Themes\Attached\MenuHelper.cs" />
@@ -492,6 +492,7 @@
     <Page Include="Editor\Timeline\TimelineStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Notifications\NotificationStyles.xaml" />
     <Page Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

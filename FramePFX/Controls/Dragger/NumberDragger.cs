@@ -242,15 +242,13 @@ namespace FramePFX.Controls.Dragger {
 
         public bool IsValueReadOnly {
             get {
-                if (this.GetValue(ForcedReadOnlyStateProperty) is bool forced) {
+                if (this.GetValue(ForcedReadOnlyStateProperty) is bool forced)
                     return forced;
-                }
 
                 Binding binding;
                 BindingExpression expression = this.GetBindingExpression(ValueProperty);
-                if (expression == null || (binding = expression.ParentBinding) == null || binding.Mode == BindingMode.Default) {
+                if (expression == null || (binding = expression.ParentBinding) == null || binding.Mode == BindingMode.Default)
                     return false;
-                }
 
                 return binding.Mode == BindingMode.OneWay || binding.Mode == BindingMode.OneTime;
             }
@@ -297,7 +295,7 @@ namespace FramePFX.Controls.Dragger {
         private object OnCoerceValue(object value) {
             if (this.ValuePreProcessor is IValuePreProcessor processor) {
                 double val = (double) value;
-                double proc = processor.Process(val);
+                double proc = processor.Process(val, this.Minimum, this.Maximum);
                 if (!Maths.Equals(val, proc, 0.00000000001d)) {
                     return proc;
                 }

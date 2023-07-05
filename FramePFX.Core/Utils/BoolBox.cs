@@ -8,13 +8,9 @@ namespace FramePFX.Core.Utils {
         public static readonly object NullableFalse = (bool?) false;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(this bool value) {
-            return value ? True : False;
-        }
+        public static object Box(this bool value) => value ? True : False;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object BoxNullable(this bool? value) {
-            return value == null ? null : (value == true ? NullableTrue : NullableFalse);
-        }
+        public static object BoxNullable(this bool? value) => value.HasValue ? value.Value ? NullableTrue : NullableFalse : null;
     }
 }

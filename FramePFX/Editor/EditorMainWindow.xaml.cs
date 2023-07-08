@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,12 +9,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.Audio;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Pages;
 using FramePFX.Core.Editor.Timelines;
@@ -26,8 +23,6 @@ using FramePFX.Core.Notifications;
 using FramePFX.Core.Notifications.Types;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
-using FramePFX.Editor.Properties.Pages;
-using FramePFX.Editor.Timeline.Track.Clips;
 using FramePFX.Notifications;
 using FramePFX.Themes;
 using FramePFX.Utils;
@@ -43,6 +38,7 @@ namespace FramePFX.Editor {
         public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
 
         private readonly Action renderCallback;
+        private readonly Action renderAsyncCallback;
 
         private const long RefreshInterval = 5000;
         private long lastRefreshTime;
@@ -65,6 +61,9 @@ namespace FramePFX.Editor {
             this.DataContext = new VideoEditorViewModel(this);
             IoC.App.Editor = (VideoEditorViewModel) this.DataContext;
             this.renderCallback = this.DoRenderCore;
+            this.renderAsyncCallback = async () => {
+                await this.DoRenderCoreAsync();
+            };
 
             this.lastRefreshTime = Time.GetSystemMillis();
 
@@ -92,7 +91,7 @@ namespace FramePFX.Editor {
         }
 
         public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null) {
-            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child);
+            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child, true);
             if (list == null) {
                 return;
             }
@@ -119,7 +118,7 @@ namespace FramePFX.Editor {
                 return;
             }
 
-            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child);
+            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child, true);
             if (list == null) {
                 return;
             }
@@ -256,51 +255,20 @@ namespace FramePFX.Editor {
             this.NotificationBarTextBlock.Text = message;
         }
 
-        public void Render(bool scheduleRender) {
+        public async Task Render(bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
-
-            if (scheduleRender) {
-                this.Dispatcher.InvokeAsync(this.renderCallback);
+            else if (scheduleRender) {
+                // await this.Dispatcher.InvokeAsync(this.renderCallback);
+                await this.Dispatcher.InvokeAsync(this.renderAsyncCallback);
+            }
+            else if (this.Dispatcher.CheckAccess()) {
+                await this.DoRenderCoreAsync();
             }
             else {
-                this.Dispatcher.Invoke(this.renderCallback);
-                this.isRenderScheduled = 0;
-            }
-        }
-
-        public Task RenderAsync() {
-            if (this.Dispatcher.CheckAccess()) {
-                return this.DoRenderCoreAsync();
-            }
-            else {
-                return this.Dispatcher.Invoke(this.DoRenderCoreAsync);
-            }
-        }
-
-        private async Task DoRenderCoreAsync() {
-            VideoEditorViewModel editor = this.Editor;
-            ProjectViewModel project = editor.ActiveProject;
-            if (project == null || project.Model.IsSaving) {
-                this.isRenderScheduled = 0;
-                return;
-            }
-
-            long frame = project.Timeline.PlayHeadFrame;
-            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
-                RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
-                context.Canvas.Clear(SKColors.Black);
-                // project.Model.AutomationEngine.TickProjectAtFrame(frame);
-                await project.Model.Timeline.RenderAsync(context, frame);
-
-                Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
-                if (dictionary.Count > 0) {
-                    this.PrintRenderErrors(dictionary);
-                    dictionary.Clear();
-                }
-
-                this.ViewPortElement.EndRender();
+                // this.Dispatcher.Invoke(this.renderCallback);
+                await await this.Dispatcher.InvokeAsync(this.DoRenderCoreAsync);
             }
 
             this.isRenderScheduled = 0;
@@ -331,8 +299,31 @@ namespace FramePFX.Editor {
                 this.ViewPortElement.EndRender();
             }
 
-            project.Model.AudioEngine.UpdateFPS(project.Settings.FrameRate.ToDouble);
-            project.Model.AudioEngine.ProcessNext(project.Timeline.Model, frame);
+            this.isRenderScheduled = 0;
+        }
+
+        private async Task DoRenderCoreAsync() {
+            VideoEditorViewModel editor = this.Editor;
+            ProjectViewModel project = editor.ActiveProject;
+            if (project == null || project.Model.IsSaving) {
+                this.isRenderScheduled = 0;
+                return;
+            }
+
+            long frame = project.Timeline.PlayHeadFrame;
+            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
+                RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                context.Canvas.Clear(SKColors.Black);
+                await project.Model.Timeline.RenderAsync(context, frame);
+
+                Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
+                if (dictionary.Count > 0) {
+                    this.PrintRenderErrors(dictionary);
+                    dictionary.Clear();
+                }
+
+                this.ViewPortElement.EndRender();
+            }
 
             this.isRenderScheduled = 0;
         }

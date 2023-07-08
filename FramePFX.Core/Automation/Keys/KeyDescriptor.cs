@@ -109,4 +109,25 @@ namespace FramePFX.Core.Automation.Keys {
             return this.Precision >= 0 ? value.Round(this.Precision) : value;
         }
     }
+
+    public class KeyDescriptorVector3 : KeyDescriptor {
+        public Vector3 DefaultValue { get; }
+        public Vector3 Minimum { get; }
+        public Vector3 Maximum { get; }
+        public int Precision { get; }
+
+        public bool HasPrecision => this.Precision >= 0;
+
+        public KeyDescriptorVector3(Vector3 defaultValue, Vector3 minimum, Vector3 maximum, int precision = -1) {
+            this.DefaultValue = defaultValue;
+            this.Minimum = minimum;
+            this.Maximum = maximum;
+            this.Precision = precision;
+        }
+
+        public Vector3 Clamp(Vector3 value) {
+            value = value.Clamp(this.Minimum, this.Maximum);
+            return this.Precision >= 0 ? value.Round(this.Precision) : value;
+        }
+    }
 }

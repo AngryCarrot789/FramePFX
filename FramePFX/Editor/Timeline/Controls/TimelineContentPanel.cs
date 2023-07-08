@@ -9,13 +9,12 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public TimelineContentPanel() {
             this.Loaded += (sender, args) => {
-                this.Timeline = VisualTreeUtils.FindVisualParent<TimelineControl>(this);
+                this.Timeline = VisualTreeUtils.FindParent<TimelineControl>(this);
             };
-        }
 
-        protected override void OnVisualParentChanged(DependencyObject oldParent) {
-            base.OnVisualParentChanged(oldParent);
-            this.Timeline = VisualTreeUtils.FindVisualParent<TimelineControl>(this);
+            this.Unloaded += (s, e) => {
+                this.Timeline = null;
+            };
         }
 
         protected override Size MeasureOverride(Size constraint) {
@@ -25,7 +24,6 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
 
             double width = this.Timeline.MaxDuration * this.Timeline.UnitZoom;
-            // return new Size(width, size.Height);
             if (double.IsNaN(size.Width) || double.IsPositiveInfinity(size.Width)) {
                 return new Size(width, size.Height);
             }

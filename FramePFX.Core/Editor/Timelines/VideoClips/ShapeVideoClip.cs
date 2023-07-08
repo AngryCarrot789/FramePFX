@@ -1,4 +1,6 @@
 using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
@@ -12,6 +14,8 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         public float Height { get; set; }
 
         public override bool UseCustomOpacityCalculation => true;
+
+        // public override bool UseAsyncRendering => true;
 
         public ShapeVideoClip() {
 
@@ -51,6 +55,21 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
             using (SKPaint paint = new SKPaint() {Color = colour}) {
                 rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
             }
+        }
+
+        private long ff;
+        public override void BeginRender(long frame) {
+            Task.Run(async () => {
+                await Task.Delay(2000);
+                this.IsAsyncRenderReady = true;
+            });
+
+            this.ff = frame;
+        }
+
+        public override void EndRender(RenderContext rc) {
+            base.EndRender(rc);
+            this.Render(rc, this.ff);
         }
 
         protected override Clip NewInstance() {

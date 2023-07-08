@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using FramePFX.Core.Automation;
+using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.VideoClips;
@@ -181,22 +182,50 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         #endregion
 
         public RelayCommand ResetTransformationCommand { get; }
-        public RelayCommand ResetPositionCommand { get; }
-        public RelayCommand ResetScaleCommand { get; }
-        public RelayCommand ResetScaleOriginCommand { get; }
+        public RelayCommand ResetMediaPositionCommand { get; }
+        public RelayCommand ResetMediaScaleCommand { get; }
+        public RelayCommand ResetMediaScaleOriginCommand { get; }
+        public RelayCommand ResetOpacityCommand { get; }
+
+        public RelayCommand InsertMediaPositionKeyFrameCommand { get; }
+        public RelayCommand InsertMediaScaleKeyFrameCommand { get; }
+        public RelayCommand InsertMediaScaleOriginKeyFrameCommand { get; }
+        public RelayCommand InsertOpacityKeyFrameCommand { get; }
+
+        public RelayCommand ToggleMediaPositionActiveCommand { get; }
+        public RelayCommand ToggleMediaScaleActiveCommand { get; }
+        public RelayCommand ToggleMediaScaleOriginActiveCommand { get; }
+        public RelayCommand ToggleOpacityActiveCommand { get; }
+
+        // binding helpers
+        public AutomationSequenceViewModel MediaPositionAutomationSequence => this.AutomationData[VideoClip.MediaPositionKey];
+        public AutomationSequenceViewModel MediaScaleAutomationSequence => this.AutomationData[VideoClip.MediaScaleKey];
+        public AutomationSequenceViewModel MediaScaleOriginAutomationSequence => this.AutomationData[VideoClip.MediaScaleOriginKey];
+        public AutomationSequenceViewModel OpacityAutomationSequence => this.AutomationData[VideoClip.OpacityKey];
 
         private readonly ClipRenderInvalidatedEventHandler renderCallback;
 
         protected VideoClipViewModel(VideoClip model) : base(model) {
             this.ResetTransformationCommand = new RelayCommand(() => {
-                this.MediaPosition = new Vector2(0f, 0f);
-                this.MediaScale = new Vector2(1f, 1f);
-                this.MediaScaleOrigin = new Vector2(0.5f, 0.5f);
+                this.MediaPosition = VideoClip.MediaPositionKey.Descriptor.DefaultValue;
+                this.MediaScale = VideoClip.MediaScaleKey.Descriptor.DefaultValue;
+                this.MediaScaleOrigin = VideoClip.MediaScaleOriginKey.Descriptor.DefaultValue;
             });
 
-            this.ResetPositionCommand = new RelayCommand(() => this.MediaPosition = new Vector2(0f, 0f));
-            this.ResetScaleCommand = new RelayCommand(() => this.MediaScale = new Vector2(1f, 1f));
-            this.ResetScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = new Vector2(0.5f, 0.5f));
+            this.ResetMediaPositionCommand =    new RelayCommand(() => this.MediaPosition = VideoClip.MediaPositionKey.Descriptor.DefaultValue);
+            this.ResetMediaScaleCommand =       new RelayCommand(() => this.MediaScale = VideoClip.MediaScaleKey.Descriptor.DefaultValue);
+            this.ResetMediaScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = VideoClip.MediaScaleOriginKey.Descriptor.DefaultValue);
+            this.ResetOpacityCommand =          new RelayCommand(() => this.Opacity = VideoClip.OpacityKey.Descriptor.DefaultValue);
+
+            this.InsertMediaPositionKeyFrameCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetVector2Value(this.MediaPosition));
+            this.InsertMediaScaleKeyFrameCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetVector2Value(this.MediaScale));
+            this.InsertMediaScaleOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetVector2Value(this.MediaScaleOrigin));
+            this.InsertOpacityKeyFrameCommand =          new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetDoubleValue(this.Opacity));
+
+            this.ToggleMediaPositionActiveCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].ToggleOverrideAction());
+            this.ToggleMediaScaleActiveCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].ToggleOverrideAction());
+            this.ToggleMediaScaleOriginActiveCommand = new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleOriginKey].ToggleOverrideAction());
+            this.ToggleOpacityActiveCommand =          new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].ToggleOverrideAction());
 
             this.renderCallback = (x, s) => {
                 // assert ReferenceEquals(this.Model, x)
@@ -205,22 +234,26 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
             this.Model.RenderInvalidated += this.renderCallback;
             this.AutomationData.AssignRefreshHandler(VideoClip.MediaPositionKey, (s, e) => {
-                this.RaiseAutomationPropertyUpdated(nameof(this.MediaPosition), in e);
+                this.RaisePropertyChanged(nameof(this.MediaPosition));
                 this.RaisePropertyChanged(nameof(this.MediaPositionX));
                 this.RaisePropertyChanged(nameof(this.MediaPositionY));
+                this.InvalidateRenderForAutomationRefresh(in e);
             });
             this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleKey, (s, e) => {
-                this.RaiseAutomationPropertyUpdated(nameof(this.MediaScale), in e);
+                this.RaisePropertyChanged(nameof(this.MediaScale));
                 this.RaisePropertyChanged(nameof(this.MediaScaleX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleY));
+                this.InvalidateRenderForAutomationRefresh(in e);
             });
             this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleOriginKey, (s, e) => {
-                this.RaiseAutomationPropertyUpdated(nameof(this.MediaScaleOrigin), in e);
+                this.RaisePropertyChanged(nameof(this.MediaScaleOrigin));
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
                 this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
+                this.InvalidateRenderForAutomationRefresh(in e);
             });
             this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, (s, e) => {
-                this.RaiseAutomationPropertyUpdated(nameof(this.Opacity), in e);
+                this.RaisePropertyChanged(nameof(this.Opacity));
+                this.InvalidateRenderForAutomationRefresh(in e);
             });
         }
 
@@ -245,11 +278,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             this.Model.RenderInvalidated -= this.renderCallback;
         }
 
-        protected override void RaiseAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
-            base.RaiseAutomationPropertyUpdated(propertyName, in e);
+        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             if (!e.IsDuringPlayback && !e.IsPlaybackTick) {
                 this.Model.InvalidateRender(true);
-                // this.Timeline.DoRender(true);
             }
         }
 
@@ -258,7 +289,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             if (this.IsAutomationRefreshInProgress) {
                 Debugger.Break();
                 throw new Exception("Cannot modify view-model parameter property while automation refresh is in progress. " +
-                                    $"Only the model value should be modified, and {nameof(this.RaiseAutomationPropertyUpdated)} should be called in the view-model");
+                                    $"Only the model value should be modified, and {nameof(this.RaisePropertyChanged)} should be called in the view-model");
             }
         }
     }

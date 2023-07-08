@@ -47,13 +47,13 @@ namespace FramePFX.Editor.Timeline.Utils {
 
         public static void ValidateNonNegative(double value) {
             if (value < 0d) {
-                throw new Exception("New value cannot be null");
+                throw new Exception("New value cannot be negative");
             }
         }
 
         public static void ValidateNonNegative(long value) {
             if (value < 0d) {
-                throw new Exception("New value cannot be null");
+                throw new Exception("New value cannot be negative");
             }
         }
     }

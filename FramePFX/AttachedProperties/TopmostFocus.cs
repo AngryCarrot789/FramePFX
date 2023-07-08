@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.Controls.Helpers {
+namespace FramePFX.AttachedProperties {
     public static class TopmostFocus {
         private class ZIndexExchangeData {
             public int OldFocusZIndex { get; set; }

@@ -5,9 +5,9 @@
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   xmlns:userInputs1="clr-namespace:FramePFX.Core.Views.Dialogs.UserInputs;assembly=FramePFX.Core"
                   xmlns:attached="clr-namespace:FramePFX.Themes.Attached"
-                  xmlns:helper="clr-namespace:FramePFX.Controls.Helpers"
                   xmlns:views="clr-namespace:FramePFX.Views"
                   xmlns:userInputs="clr-namespace:FramePFX.Views.UserInputs"
+                  xmlns:attachedProperties="clr-namespace:FramePFX.AttachedProperties"
                   mc:Ignorable="d"
                   d:DataContext="{d:DesignInstance userInputs1:DoubleInputViewModel}"
                   Title="{Binding Title}" Height="264" Width="320"
@@ -27,7 +27,7 @@
         <StackPanel Margin="10,10,10,15" DockPanel.Dock="Top">
             <TextBlock VerticalAlignment="Top" Text="{Binding MessageA}" Padding="5"/>
             <TextBox x:Name="InputBoxA" Padding="1" VerticalContentAlignment="Center" VerticalAlignment="Top" Height="27"
-                     helper:TextBoxHelper.SelectAllOnFocus="True" 
+                     attachedProperties:TextBoxHelper.SelectAllOnFocus="True" 
                      Background="{DynamicResource PanelBackground2}"
                      BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}">
                 <Binding Path="InputA" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
@@ -38,7 +38,7 @@
             </TextBox>
             <TextBlock VerticalAlignment="Top" Text="{Binding MessageB}" Padding="5"/>
             <TextBox x:Name="InputBoxB" Padding="1" VerticalContentAlignment="Center" VerticalAlignment="Top" Height="27"
-                     helper:TextBoxHelper.SelectAllOnFocus="True" 
+                     attachedProperties:TextBoxHelper.SelectAllOnFocus="True" 
                      Background="{DynamicResource PanelBackground2}"
                      BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}">
                 <Binding Path="InputB" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">

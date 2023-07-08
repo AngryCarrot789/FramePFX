@@ -27,7 +27,7 @@ namespace FramePFX.Core.PropertyPages {
             return entry;
         }
 
-        protected void RegisterPage<T, TPage>() where T : TBase where TPage : TPageBase {
+        protected void AddPage<T, TPage>() where T : TBase where TPage : TPageBase {
             List<Type> list = this.GetEntry(typeof(T)).types;
             if (!list.Contains(typeof(TPage)))
                 list.Add(typeof(TPage));

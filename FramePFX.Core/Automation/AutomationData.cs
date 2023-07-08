@@ -7,7 +7,8 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation {
     /// <summary>
-    /// Contains automation data, which is a collection of <see cref="AutomationSequence"/>s mapped by an <see cref="AutomationKey"/>
+    /// Contains a collection of <see cref="AutomationSequence"/>s mapped by an <see cref="AutomationKey"/>. The sequences are designed to
+    /// be immutable; initialised once during the creation of an automatable object, and never modified again
     /// </summary>
     public class AutomationData : IRBESerialisable {
         private readonly Dictionary<AutomationKey, AutomationSequence> map;

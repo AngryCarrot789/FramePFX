@@ -1,5 +1,7 @@
 namespace FramePFX.Core {
     public static class AppLogger {
+        public const int MAX_LEN = 40000;
+
         public delegate void LogEventHandler(string line);
 
         public static event LogEventHandler Log;
@@ -8,17 +10,18 @@ namespace FramePFX.Core {
 
         public static void WriteLine(string line) {
             int new_len = LogText.Length + line.Length;
-            if (new_len > 25000) {
-                int min_index = new_len - 25000;
+            if (new_len > MAX_LEN) {
+                int count = new_len - MAX_LEN;
                 int i = -1;
                 do {
                     i = LogText.IndexOf('\n', i + 1);
-                } while (i < min_index);
-                if (i < min_index) {
-                    LogText = line;
+                } while (i != -1 && i < count);
+                if (i < count) { // hard cut
+                    LogText = LogText.Substring(0, MAX_LEN - count);
                 }
-
-                LogText = LogText.Substring(i + 1);
+                else { // cut to oldest new line
+                    LogText = LogText.Substring(i + 1);
+                }
             }
 
             LogText += line;

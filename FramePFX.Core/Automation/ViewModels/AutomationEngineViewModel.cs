@@ -21,7 +21,7 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void TickAndRefreshProjectAtFrame(bool isRendering, long frame) {
-            this.Model.TickProjectAtFrame(frame);
+            this.Model.UpdateAt(frame);
             if (!isRendering) {
                 this.RefreshTimeline(this.Project.Timeline, frame);
             }

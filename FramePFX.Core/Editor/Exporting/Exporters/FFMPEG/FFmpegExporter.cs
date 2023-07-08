@@ -179,7 +179,7 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
                 RenderContext render_context = new RenderContext(surface, surface.Canvas, frameInfo);
                 for (long fidx = duration.Begin, end = duration.EndIndex; fidx < end; fidx++) {
                     render_context.Canvas.Clear(SKColors.Black);
-                    project.AutomationEngine.TickProjectAtFrame(fidx);
+                    project.AutomationEngine.UpdateAt(fidx);
                     project.Timeline.Render(render_context, fidx);
                     surface.Flush();
 

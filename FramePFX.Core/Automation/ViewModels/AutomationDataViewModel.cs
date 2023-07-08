@@ -8,6 +8,10 @@ using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 
 namespace FramePFX.Core.Automation.ViewModels {
+    /// <summary>
+    /// A view model wrapper for <see cref="AutomationData"/>. This class contains a collection
+    /// of <see cref="AutomationSequenceViewModel"/> instances. The collection is designed to be immutable
+    /// </summary>
     public class AutomationDataViewModel : BaseViewModel {
         private readonly Dictionary<AutomationKey, AutomationSequenceViewModel> dataMap;
         private readonly ObservableCollection<AutomationSequenceViewModel> sequences;
@@ -25,13 +29,13 @@ namespace FramePFX.Core.Automation.ViewModels {
             get => this.activeSequence;
             set {
                 if (this.activeSequence != null) {
-                    this.activeSequence.IsPrimarySelection = false;
+                    this.activeSequence.IsActive = false;
                 }
 
                 this.Model.ActiveKeyFullId = value?.Key.FullId;
                 this.RaisePropertyChanged(ref this.activeSequence, value);
                 if (value != null) {
-                    value.IsPrimarySelection = true;
+                    value.IsActive = true;
                 }
 
                 this.RaisePropertyChanged(nameof(this.ActiveSequenceKey));
@@ -73,6 +77,8 @@ namespace FramePFX.Core.Automation.ViewModels {
 
         public IAutomatableViewModel Owner { get; }
 
+        public event EventHandler OverrideStateChanged;
+
         public AutomationDataViewModel(IAutomatableViewModel owner, AutomationData model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -103,13 +109,13 @@ namespace FramePFX.Core.Automation.ViewModels {
                 throw new Exception("Invalid sequence; not owned by this instance");
             }
 
+            this.ToggleOverrideCommand.RaiseCanExecuteChanged();
+            this.DeselectSequenceCommand.RaiseCanExecuteChanged(); // just in case
+            this.OverrideStateChanged?.Invoke(this, EventArgs.Empty);
             AutomationEngineViewModel engine = this.Owner.AutomationEngine;
             if (engine != null) {
                 engine.OnOverrideStateChanged(this, sequence);
             }
-
-            this.ToggleOverrideCommand.RaiseCanExecuteChanged();
-            this.DeselectSequenceCommand.RaiseCanExecuteChanged(); // just in case
         }
 
         public void OnKeyFrameChanged(AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {

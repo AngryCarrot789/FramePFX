@@ -245,7 +245,7 @@ namespace FramePFX.Editor.Automation {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.scroller = VisualTreeUtils.FindVisualParent<ScrollViewer>(this);
+            this.scroller = VisualTreeUtils.FindParent<ScrollViewer>(this);
             if (this.scroller == null) {
                 return;
             }
@@ -696,6 +696,8 @@ namespace FramePFX.Editor.Automation {
             if (this.IsPlacementPlaneEnabled) {
                 this.IsPlacementPlaneEnabled = false;
             }
+
+            this.InvalidateVisual();
         }
 
         protected override void OnMouseMove(MouseEventArgs e) {

@@ -183,11 +183,17 @@
     <Compile Include="AdvancedContextService\Static\StaticMenuItemCollection.cs" />
     <Compile Include="AdvancedContextService\Static\StaticMenuSeparator.cs" />
     <Compile Include="AdvancedContextService\Static\StaticShortcutMenuItem.cs" />
-    <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
+    <Compile Include="AttachedProperties\ActionControl.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
+    <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
     <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs" />
     <Compile Include="AttachedProperties\HistoryHelper.cs" />
     <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
+    <Compile Include="AttachedProperties\MultiSelectorHelper.cs" />
+    <Compile Include="AttachedProperties\TextBlockHelper.cs" />
+    <Compile Include="AttachedProperties\TextBoxHelper.cs" />
+    <Compile Include="AttachedProperties\ToggleButtonHelper.cs" />
+    <Compile Include="AttachedProperties\TopmostFocus.cs" />
     <Compile Include="BindingErrorListener.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\Dragger\IChangeMapper.cs" />
@@ -200,15 +206,6 @@
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
     <Compile Include="Controls\ViewBoxClone.cs" />
-    <Compile Include="Controls\Helpers\ActionControl.cs" />
-    <Compile Include="Controls\Helpers\AttachedInteractivity.cs" />
-    <Compile Include="Controls\Helpers\GridLatchSplitter.cs" />
-    <Compile Include="Controls\Helpers\SelectorHelper.cs" />
-    <Compile Include="Controls\Helpers\ScrollViewerHelper.cs" />
-    <Compile Include="Controls\Helpers\TextBlockHelper.cs" />
-    <Compile Include="Controls\Helpers\TextBoxHelper.cs" />
-    <Compile Include="Controls\Helpers\ToggleButtonHelper.cs" />
-    <Compile Include="Controls\Helpers\TopmostFocus.cs" />
     <Compile Include="Controls\HighlightableTextBlock.cs" />
     <Compile Include="Controls\HorizontalIncrement.cs" />
     <Compile Include="Controls\IconTextPair.cs" />
@@ -232,6 +229,7 @@
     <Compile Include="Converters\DbToVolumeConverter.cs" />
     <Compile Include="Converters\EmptyStringToBoolConverter.cs" />
     <Compile Include="Converters\EnumConverter.cs" />
+    <Compile Include="Converters\FloatToDoubleConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
@@ -267,18 +265,6 @@
     <Compile Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml.cs">
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\Properties\Pages\PropertyPageBaseClip.xaml.cs">
-      <DependentUpon>PropertyPageBaseClip.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Editor\Properties\Pages\PropertyPageShapeClip.xaml.cs">
-      <DependentUpon>PropertyPageShapeClip.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Editor\Properties\Pages\PropertyPageTextClip.xaml.cs">
-      <DependentUpon>PropertyPageTextClip.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Editor\Properties\Pages\PropertyPageVideoClip.xaml.cs">
-      <DependentUpon>PropertyPageVideoClip.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Editor\FrameworkElementPageRegistry.cs" />
     <Compile Include="Editor\Properties\PropertyPageDataTemplateSelector.cs" />
     <Compile Include="Editor\Properties\PropertyPageItem.cs" />
@@ -309,6 +295,7 @@
     <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
     <Compile Include="Editor\Timeline\Controls\VideoClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\VideoTrackControl.cs" />
+    <Compile Include="Editor\Timeline\TimelineStyles.xaml.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\ClipDragData.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\ClipType.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IAudioClip.cs" />
@@ -318,7 +305,7 @@
     <Compile Include="Editor\Timeline\TimelineTrackListItemTemplateSelector.cs" />
     <Compile Include="Editor\Timeline\TimelineTrackStyleSelector.cs" />
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
-    <Compile Include="Editor\Timeline\Utils\InputUtils.cs" />
+    <Compile Include="Editor\Timeline\Utils\KeyboardUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineClipDragData.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
@@ -459,22 +446,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editor\Properties\Pages\PropertyPageBaseClip.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editor\Properties\Pages\PropertyPageShapeClip.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editor\Properties\Pages\PropertyPageTextClip.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editor\Properties\Pages\PropertyPageVideoClip.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Properties\PropertyPageStyles.xaml">

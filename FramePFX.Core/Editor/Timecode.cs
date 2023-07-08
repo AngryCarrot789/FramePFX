@@ -21,15 +21,15 @@ namespace FramePFX.Core.Editor {
         /// </para>
         /// </summary>
         /// <param name="timestamp"></param>
-        /// <param name="tbase">Timebase</param>
+        /// <param name="tb">Timebase</param>
         /// <returns></returns>
-        public static unsafe Rational TimeStampToDuration(this Rational tbase, long timestamp) {
-            ffmpeg.av_reduce(&tbase.num, &tbase.den, tbase.num * timestamp, tbase.den, int.MaxValue);
-            return tbase;
+        public static unsafe Rational TimeStampToDuration(this Rational tb, long timestamp) {
+            ffmpeg.av_reduce(&tb.num, &tb.den, tb.num * timestamp, tb.den, int.MaxValue);
+            return tb;
         }
 
         public static unsafe Rational FromFrame(Rational tb, long frame) {
-            ffmpeg.av_reduce(&tb.num, &tb.den, tb.num * frame, tb.den * 1L, int.MaxValue);
+            ffmpeg.av_reduce(&tb.num, &tb.den, tb.num * frame, tb.den, int.MaxValue);
             return tb;
         }
 

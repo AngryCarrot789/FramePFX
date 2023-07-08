@@ -62,7 +62,7 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         /// <summary>
         /// The async render state. Should only be accessed after calling <see cref="BeginRender"/>
         /// </summary>
-        public bool IsAsyncRenderReady;
+        public volatile bool IsAsyncRenderReady;
 
         /// <summary>
         /// An event invoked when this video clip changes in some way that affects its render. 

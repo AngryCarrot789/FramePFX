@@ -27,7 +27,6 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public IResourceItemDropHandler ResourceItemDropHandler => this.DataContext as IResourceItemDropHandler;
 
-
         protected bool isProcessingDrop;
         public TimelineClipControl lastSelectedItem;
 

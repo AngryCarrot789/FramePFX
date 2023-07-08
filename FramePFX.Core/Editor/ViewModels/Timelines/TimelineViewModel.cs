@@ -151,7 +151,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public async Task<VideoTrackViewModel> AddVideoTrackAction() {
             VideoTrackViewModel track = new VideoTrackViewModel(this, new VideoTrack(this.Model));
             this.AddTrack(track);
-            this.DoRender(true);
+            await this.DoRender(true);
             return track;
         }
 
@@ -161,8 +161,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             return track;
         }
 
-        public void DoRender(bool schedule = false) {
-            this.Project.Editor?.DoRender(schedule);
+        public Task DoRender() => this.DoRender(false);
+
+        public async Task DoRender(bool schedule) {
+            VideoEditorViewModel editor = this.Project.Editor;
+            if (editor != null) {
+                await editor.DoRender(schedule);
+            }
         }
 
         public Task RemoveSelectedTracksAction() {
@@ -241,46 +246,27 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         }
 
         public void OnStepFrameCallback() {
-            this.StepFrameAsync().Wait();
+            this.StepFrame();
         }
 
-        public void StepFrame(long change = 1L, bool schedule = false) {
+        public void StepFrame(long change = 1L) {
             this.ignorePlayHeadPropertyChange = true;
             long oldFrame = this.PlayHeadFrame;
             this.PlayHeadFrame = Periodic.Add(oldFrame, change, 0L, this.MaxDuration);
 
             this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, this.PlayHeadFrame);
-            this.Project.Editor.View.Render(schedule);
+            this.Project.Editor.DoRender().ContinueWith((t) => {
+                if (!this.isFramePropertyChangeScheduled) {
+                    this.isFramePropertyChangeScheduled = true;
+                    IoC.Dispatcher.Invoke(() => {
+                        this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+                        this.isFramePropertyChangeScheduled = false;
 
-            if (!this.isFramePropertyChangeScheduled) {
-                this.isFramePropertyChangeScheduled = true;
-                IoC.Dispatcher.Invoke(() => {
-                    this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
-                    this.isFramePropertyChangeScheduled = false;
+                    });
+                }
 
-                });
-            }
-
-            this.ignorePlayHeadPropertyChange = false;
-        }
-
-        public async Task StepFrameAsync(long change = 1L) {
-            this.ignorePlayHeadPropertyChange = true;
-            long oldFrame = this.PlayHeadFrame;
-            this.PlayHeadFrame = Periodic.Add(oldFrame, change, 0L, this.MaxDuration);
-
-            this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, this.PlayHeadFrame);
-            await this.Project.Editor.View.RenderAsync();
-
-            if (!this.isFramePropertyChangeScheduled) {
-                this.isFramePropertyChangeScheduled = true;
-                IoC.Dispatcher.InvokeAsync(() => {
-                    this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
-                    this.isFramePropertyChangeScheduled = false;
-                });
-            }
-
-            this.ignorePlayHeadPropertyChange = false;
+                this.ignorePlayHeadPropertyChange = false;
+            });
         }
 
         public void Dispose() {

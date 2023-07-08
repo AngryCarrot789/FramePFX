@@ -11,9 +11,6 @@ namespace FramePFX.Converters {
                 typeof(ScrollBinder),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnVerticalBindGroupPropertyChanged));
 
-        public static void SetVerticalBindGroup(ScrollViewer element, string value) => element.SetValue(VerticalBindGroupProperty, value);
-        public static string GetVerticalBindGroup(ScrollViewer element) => (string) element.GetValue(VerticalBindGroupProperty);
-
         public static readonly DependencyProperty HorizontalBindGroupProperty =
             DependencyProperty.RegisterAttached(
                 "HorizontalBindGroup",
@@ -21,8 +18,11 @@ namespace FramePFX.Converters {
                 typeof(ScrollBinder),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnHorizontalBindGroupPropertyChanged));
 
-        public static void SetHorizontalBindGroup(ScrollViewer element, string value) => element.SetValue(HorizontalBindGroupProperty, value);
-        public static string GetHorizontalBindGroup(ScrollViewer element) => (string) element.GetValue(HorizontalBindGroupProperty);
+        public static void SetVerticalBindGroup(DependencyObject element, string value) => element.SetValue(VerticalBindGroupProperty, value);
+        public static string GetVerticalBindGroup(DependencyObject element) => (string) element.GetValue(VerticalBindGroupProperty);
+
+        public static void SetHorizontalBindGroup(DependencyObject element, string value) => element.SetValue(HorizontalBindGroupProperty, value);
+        public static string GetHorizontalBindGroup(DependencyObject element) => (string) element.GetValue(HorizontalBindGroupProperty);
 
         private static bool IsUpdatingScroll;
         private static readonly Dictionary<string, List<ScrollViewer>> RegisteredScrollers = new Dictionary<string, List<ScrollViewer>>();

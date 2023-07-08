@@ -39,7 +39,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey)) {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, AudioTrack.VolumeKey)) {
                     this.AutomationData[AudioTrack.VolumeKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetFloatValue(value);
                 }
                 else {
@@ -65,10 +65,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
                     this.HistoryManager.AddAction(new HistoryAudioTrackIsMuted(this, value), "Switch IsMuted");
                 }
 
-                this.AutomationData[AudioTrack.IsMutedKey].GetOverride().SetBooleanValue(value);
-                this.Model.IsMuted = value;
-                this.RaisePropertyChanged();
-                this.Timeline.DoRender(true);
+                TimelineViewModel timeline = this.Timeline;
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, AudioTrack.IsMutedKey)) {
+                    this.AutomationData[AudioTrack.IsMutedKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
+                }
+                else {
+                    this.AutomationData[AudioTrack.IsMutedKey].GetOverride().SetBooleanValue(value);
+                    this.AutomationData[AudioTrack.IsMutedKey].RaiseOverrideValueChanged();
+                }
             }
         }
 

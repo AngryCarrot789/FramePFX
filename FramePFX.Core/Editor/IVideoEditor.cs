@@ -7,9 +7,7 @@ namespace FramePFX.Core.Editor {
     /// An interface for a video editor view
     /// </summary>
     public interface IVideoEditor : IViewBase {
-        void Render(bool scheduleRender = false);
-
-        Task RenderAsync();
+        Task Render(bool scheduleRender = false);
 
         void UpdateClipSelection();
 

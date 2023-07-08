@@ -3,9 +3,10 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Controls.Helpers {
+namespace FramePFX.AttachedProperties {
     /// <summary>
     /// A helper class for binding selected item collections
     /// <para>
@@ -15,26 +16,26 @@ namespace FramePFX.Controls.Helpers {
     /// When using a normal list, ensure the list is not null at all times. This class will set the list property when the selected items are changed
     /// </para>
     /// </summary>
-    public static class SelectorHelper {
+    public static class MultiSelectorHelper {
         public static readonly DependencyProperty SelectedItemsProperty =
             DependencyProperty.RegisterAttached(
                 "SelectedItems",
                 typeof(IList),
-                typeof(SelectorHelper),
+                typeof(MultiSelectorHelper),
                 new FrameworkPropertyMetadata(null, OnSelectedItemsChanged));
 
         public static readonly DependencyProperty UpdateSelectedItemsOnChangeProperty =
             DependencyProperty.RegisterAttached(
                 "UpdateSelectedItemsOnChange",
                 typeof(bool),
-                typeof(SelectorHelper),
+                typeof(MultiSelectorHelper),
                 new PropertyMetadata(BoolBox.True, OnUpdateSelectedItemsOnChangeChanged));
 
         private static readonly DependencyPropertyKey IsUpdatingSelectionProperty =
             DependencyProperty.RegisterAttachedReadOnly(
                 "IsUpdatingSelection",
                 typeof(bool),
-                typeof(SelectorHelper),
+                typeof(MultiSelectorHelper),
                 new PropertyMetadata(BoolBox.False));
 
         public static IList GetSelectedItems(DependencyObject obj) {
@@ -115,6 +116,21 @@ namespace FramePFX.Controls.Helpers {
             }
         }
 
+        private static bool ListEquals(IList a, IList b) {
+            int cA = a.Count, cB = b.Count;
+            if (cA != cB) {
+                return false;
+            }
+
+            for (int i = 0; i < cA; i++) {
+                if (!ReferenceEquals(a[i], b[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static void OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
             if (sender is Selector selector) {
                 if (GetIsUpdatingSelection(selector)) {
@@ -126,21 +142,27 @@ namespace FramePFX.Controls.Helpers {
                     return;
                 }
 
-                SetIsUpdatingSelection(selector, true);
                 try {
-                    IList enumerable;
+                    IList src;
                     switch (selector) {
-                        case ListBox lb: enumerable = lb.SelectedItems; break;
-                        case MultiSelector ms: enumerable = ms.SelectedItems; break;
-                        default: enumerable = null; break;
+                        case ListBox lb: src = lb.SelectedItems; break;
+                        case MultiSelector ms: src = ms.SelectedItems; break;
+                        default: src = null; break;
                     }
 
-                    if (enumerable != null) {
+                    if (src != null) {
+                        // Can massively improve performance for property pages
+                        if (ListEquals(src, selectedItems)) {
+                            return;
+                        }
+
+                        SetIsUpdatingSelection(selector, true);
                         selectedItems.Clear();
-                        foreach (object item in enumerable)
+                        foreach (object item in src)
                             selectedItems.Add(item);
                     }
                     else {
+                        SetIsUpdatingSelection(selector, true);
                         if (e.RemovedItems != null) {
                             foreach (object value in e.RemovedItems) {
                                 selectedItems.Remove(value);

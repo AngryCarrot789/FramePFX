@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.AttachedProperties {
     /// <summary>
@@ -54,7 +55,7 @@ namespace FramePFX.AttachedProperties {
                 "IsEnabled",
                 typeof(bool),
                 typeof(GridLatchSplitter),
-                new FrameworkPropertyMetadata(false, OnIsEnabledChanged));
+                new FrameworkPropertyMetadata(BoolBox.False, OnIsEnabledChanged));
 
         public static readonly DependencyProperty TargetColumnProperty =
             DependencyProperty.RegisterAttached(
@@ -75,30 +76,33 @@ namespace FramePFX.AttachedProperties {
                 "IsOpen",
                 typeof(bool),
                 typeof(GridLatchSplitter),
-                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnIsColumnOpenPropertyChanged));
+                new FrameworkPropertyMetadata(BoolBox.False, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnIsColumnOpenPropertyChanged));
 
         public static readonly DependencyProperty IsHorizontalCloseDirectionLeftProperty =
             DependencyProperty.RegisterAttached(
                 "IsHorizontalCloseDirectionLeft",
                 typeof(bool),
                 typeof(GridLatchSplitter),
-                new FrameworkPropertyMetadata(true));
+                new FrameworkPropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty IsVerticalCloseDirectionDownProperty =
             DependencyProperty.RegisterAttached(
                 "IsVerticalCloseDirectionDown",
                 typeof(bool),
                 typeof(GridLatchSplitter),
-                new FrameworkPropertyMetadata(true));
+                new FrameworkPropertyMetadata(BoolBox.True));
 
         #region Getters and Setters
 
         /// <summary>
-        /// Sets the minimum size of the column. Default value is 100 (pixels)
+        /// Sets the minimum size of the column. Default value is 100 (pixels). Once the target width/height goes below this, the column/row is in a "closable" state
         /// </summary>
         public static void SetMinimumSize(DependencyObject element, double value) {
             element.SetValue(MinimumSizeProperty, value);
         }
 
+        /// <summary>
+        /// Gets the minimum size of the column. Default value is 100 (pixels). Once the target width/height goes below this, the column/row is in a "closable" state
+        /// </summary>
         public static double GetMinimumSize(DependencyObject element) {
             return (double) element.GetValue(MinimumSizeProperty);
         }
@@ -110,6 +114,9 @@ namespace FramePFX.AttachedProperties {
             element.SetValue(MaximumSizeProperty, value);
         }
 
+        /// <summary>
+        /// Gets the maximum size of the column. Default value is NaN, meaning it is auto-calculated based on the size of the parent and grid-splitter
+        /// </summary>
         public static double GetMaximumSize(DependencyObject element) {
             return (double) element.GetValue(MaximumSizeProperty);
         }
@@ -120,11 +127,24 @@ namespace FramePFX.AttachedProperties {
         /// Ideally, this should be slightly below or equal to half of <see cref="MinimumSizeProperty"/> and
         /// less than or equal to <see cref="ThresholdSizeToOpenProperty"/>
         /// </para>
+        /// <para>
+        /// Default value is 30
+        /// </para>
         /// </summary>
         public static void SetThresholdSizeToClose(DependencyObject element, double value) {
             element.SetValue(ThresholdSizeToCloseProperty, value);
         }
 
+        /// <summary>
+        /// Gets the threshold width for the column to "close" (where its width will be set <see cref="ClosedSizeProperty"/>).
+        /// <para>
+        /// Ideally, this should be slightly below or equal to half of <see cref="MinimumSizeProperty"/> and
+        /// less than or equal to <see cref="ThresholdSizeToOpenProperty"/>
+        /// </para>
+        /// <para>
+        /// Default value is 30
+        /// </para>
+        /// </summary>
         public static double GetThresholdSizeToClose(DependencyObject element) {
             return (double) element.GetValue(ThresholdSizeToCloseProperty);
         }
@@ -135,19 +155,38 @@ namespace FramePFX.AttachedProperties {
         /// Ideally, this should be slightly above or equal to half of <see cref="MinimumSizeProperty"/> and
         /// more than or equal to <see cref="ThresholdSizeToCloseProperty"/>
         /// </para>
+        /// <para>
+        /// Default value is 70
+        /// </para>
         /// </summary>
         public static void SetThresholdSizeToOpen(DependencyObject element, double value) {
             element.SetValue(ThresholdSizeToOpenProperty, value);
         }
 
+        /// <summary>
+        /// Gets the threshold width for the column to "open" (where its width will be set <see cref="MinimumSizeProperty"/>).
+        /// <para>
+        /// Ideally, this should be slightly above or equal to half of <see cref="MinimumSizeProperty"/> and
+        /// more than or equal to <see cref="ThresholdSizeToCloseProperty"/>
+        /// </para>
+        /// <para>
+        /// Default value is 70
+        /// </para>
+        /// </summary>
         public static double GetThresholdSizeToOpen(DependencyObject element) {
             return (double) element.GetValue(ThresholdSizeToOpenProperty);
         }
 
+        /// <summary>
+        /// Sets the width or height of the target column/row when it is "closed". Default is 0 (pixels)
+        /// </summary>
         public static void SetClosedSize(DependencyObject element, double value) {
             element.SetValue(ClosedSizeProperty, value);
         }
 
+        /// <summary>
+        /// Gets the width or height of the target column/row when it is "closed". Default is 0 (pixels)
+        /// </summary>
         public static double GetClosedSize(DependencyObject element) {
             return (double) element.GetValue(ClosedSizeProperty);
         }

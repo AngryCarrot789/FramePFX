@@ -32,8 +32,8 @@ namespace FramePFX.Utils {
             }
         }
 
-        public static T FindVisualParent<T>(DependencyObject obj, bool includeSelf = true) where T : DependencyObject {
-            if (obj == null || (includeSelf && obj is T)) {
+        public static T FindParent<T>(DependencyObject obj, bool includeSelf = true) where T : DependencyObject {
+            if (obj == null || includeSelf && obj is T) {
                 return (T) obj;
             }
 
@@ -43,57 +43,50 @@ namespace FramePFX.Utils {
             return (T) obj;
         }
 
-        public static T FindDescendant<T>(DependencyObject d) where T : DependencyObject {
-            if (d == null)
-                return null;
-            if (d is T t)
-                return t;
+        public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf = true) where T : DependencyObject {
+            if (obj == null || includeSelf && obj is T) {
+                return (T) obj;
+            }
 
-            int count = VisualTreeHelper.GetChildrenCount(d);
-            for (int i = 0; i < count; i++) {
-                DependencyObject child = VisualTreeHelper.GetChild(d, i);
-                T result = child as T ?? FindDescendant<T>(child);
-                if (result != null) {
-                    return result;
+            return FindVisualChildInternal<T>(obj);
+        }
+
+        private static T FindVisualChildInternal<T>(DependencyObject obj) where T : DependencyObject {
+            int count, i;
+            if (obj is ContentControl) {
+                DependencyObject child = ((ContentControl) obj).Content as DependencyObject;
+                if (child is T) {
+                    return (T) child;
+                }
+                else {
+                    return child != null ? FindVisualChildInternal<T>(child) : null;
+                }
+            }
+            else if ((obj is Visual || obj is Visual3D) && (count = VisualTreeHelper.GetChildrenCount(obj)) > 0) {
+                for (i = 0; i < count;) {
+                    DependencyObject child = VisualTreeHelper.GetChild(obj, i++);
+                    if (child is T) {
+                        return (T) child;
+                    }
+                }
+
+                for (i = 0; i < count;) {
+                    T child = FindVisualChildInternal<T>(VisualTreeHelper.GetChild(obj, i++));
+                    if (child != null) {
+                        return child;
+                    }
                 }
             }
 
             return null;
         }
 
-        public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf = true) where T : DependencyObject {
-            if (obj == null || (includeSelf && obj is T)) {
-                return (T) obj;
-            }
-
-            if (!(obj is Visual) && !(obj is Visual3D)) {
-                return null;
-            }
-
-            int count = VisualTreeHelper.GetChildrenCount(obj);
-            for (int i = 0; i < count; i++) {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                if (child is T) {
-                    return (T) child;
-                }
-            }
-
-            for (int i = 0; i < count; i++) {
-                T child = FindVisualChild<T>(VisualTreeHelper.GetChild(obj, i));
-                if (child != null) {
-                    return child;
-                }
-            }
-
-            return obj is ContentControl element && element.Content is T t ? t : null;
-        }
-
         public static object GetDataContext(DependencyObject value) {
-            if (value is FrameworkElement element) {
-                return element.DataContext;
+            if (value is FrameworkElement) {
+                return ((FrameworkElement) value).DataContext;
             }
-            else if (value is FrameworkContentElement contentElement) {
-                return contentElement.DataContext;
+            else if (value is FrameworkContentElement) {
+                return ((FrameworkContentElement) value).DataContext;
             }
             else {
                 return null;

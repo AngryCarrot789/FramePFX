@@ -6,17 +6,23 @@ namespace FramePFX.Core.Automation {
     public class AutomationEngine {
         public Project Project { get; }
 
+        public Rational FrameRate { get; set; }
+
         public AutomationEngine(Project project) {
             this.Project = project;
+            this.FrameRate = new Rational(1000);
         }
 
-        public void TickProject() {
-            this.TickProjectAtFrame(this.Project.Timeline.PlayHeadFrame);
-        }
+        // public void UpdateAt(long frame, Rational timeBase) {
+        //     // Timeline timeline = this.Project.Timeline;
+        //     // this.UpdateTimeline(timeline, frame);
+        //     Rational time = Timecode.FromFrame(this.Project.Settings.TimeBase, frame);
+        //     Rational frameTime = Rational.Transform(time, this.Project.Settings.TimeBase, timeBase);
+        //     this.UpdateAt(frameTime.ToInt);
+        // }
 
-        public void TickProjectAtFrame(long frame) {
-            Timeline timeline = this.Project.Timeline;
-            this.UpdateTimeline(timeline, frame);
+        public void UpdateAt(long frame) {
+            this.UpdateTimeline(this.Project.Timeline, frame);
         }
 
         public void UpdateTimeline(Timeline timeline, long frame) {

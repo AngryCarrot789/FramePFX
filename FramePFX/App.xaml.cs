@@ -140,7 +140,7 @@ namespace FramePFX {
             #endif
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.ActiveProject.AutomationEngine.TickAndRefreshProject(false);
-            await editor.View.RenderAsync();
+            await editor.View.Render();
         }
 
         protected override void OnExit(ExitEventArgs e) {

@@ -6,9 +6,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Pages {
         public static ResourcePageFactory Instance { get; } = new ResourcePageFactory();
 
         private ResourcePageFactory() {
-            this.RegisterPage<BaseResourceObjectViewModel, BaseResourcePageViewModel>();
-            this.RegisterPage<ResourceItemViewModel, ResourceItemPageViewModel>();
-            this.RegisterPage<ResourceColourViewModel, ColourResourcePageViewModel>();
+            this.AddPage<BaseResourceObjectViewModel, BaseResourcePageViewModel>();
+            this.AddPage<ResourceItemViewModel, ResourceItemPageViewModel>();
+            this.AddPage<ResourceColourViewModel, ColourResourcePageViewModel>();
         }
     }
 }

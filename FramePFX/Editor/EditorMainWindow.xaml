@@ -10,23 +10,16 @@
             xmlns:ctrl2="clr-namespace:FramePFX.Editor.Timeline.Controls"
             xmlns:v="clr-namespace:FramePFX.Views"
             xmlns:evm="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
-            xmlns:h="clr-namespace:FramePFX.Controls.Helpers"
             xmlns:ctrl="clr-namespace:FramePFX.Controls"
             xmlns:rm="clr-namespace:FramePFX.Core.Editor.ResourceManaging;assembly=FramePFX.Core"
             xmlns:nn="clr-namespace:FramePFX.Notifications"
-            xmlns:types="clr-namespace:FramePFX.Core.Notifications.Types;assembly=FramePFX.Core"
             xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
             xmlns:editor="clr-namespace:FramePFX.Editor"
-            xmlns:notifications="clr-namespace:FramePFX.Core.Editor.Notifications;assembly=FramePFX.Core"
-            xmlns:sp="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
             xmlns:pfx="clr-namespace:FramePFX"
-            xmlns:history="clr-namespace:FramePFX.Core.History;assembly=FramePFX.Core"
             xmlns:props="clr-namespace:FramePFX.Editor.Properties"
             xmlns:resources="clr-namespace:FramePFX.Editor.Resources"
-            xmlns:timelines="clr-namespace:FramePFX.Core.Editor.ViewModels.Timelines;assembly=FramePFX.Core"
             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
-            xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
-            xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
+            xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -76,7 +69,7 @@
                 <MenuItem Header="Dark Grey"     Click="SetThemeClick" Uid="2"/>
                 <MenuItem Header="Grey"          Click="SetThemeClick" Uid="3"/>
                 <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4"/>
-                <MenuItem Header="Light Theme" Click="SetThemeClick" Uid="5"/>
+                <MenuItem Header="Light Theme"   Click="SetThemeClick" Uid="5"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Show logs" Click="ShowLogsClick"/>
@@ -122,41 +115,108 @@
                     </ctrl:FreeMoveViewPortV2>
                 </Grid>
                 <Border IsEnabled="{Binding ActiveProject, Converter={StaticResource NullToDisabledConverter}}" Background="{DynamicResource PanelBackground2}">
-                    <Border.Resources>
-                    </Border.Resources>
-                    <dockablz:Layout Partition="{StaticResource Partition}" InterLayoutClient="{DynamicResource ThingInterLayoutClient}">
-                        <!-- 
-                        TabablzControl causes designer bugs after stopping debug session
-                            dragablz:TabablzControl
-                            TabControl
+                    <!--
+                        <dockablz:Layout Partition="{StaticResource Partition}" InterLayoutClient="{DynamicResource ThingInterLayoutClient}">
+                        </dockablz:Layout>
+                    <dragablz:TabablzControl Style="{StaticResource ThingTabablzControlStyle}">
+                    -->
+                    <TabControl Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0" ItemContainerStyle="{StaticResource NoOffsetTabItem}"
+                                SelectedIndex="1">
+                        <TabControl.Style>
+                            <Style TargetType="{x:Type TabControl}">
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Setter Property="Background" Value="{DynamicResource TabItem.Selected.Background}" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Selected.Border}" />
+                                <Setter Property="BorderThickness" Value="1" />
+                                <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type TabControl}">
+                                            <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition x:Name="ColumnDefinition0" />
+                                                    <ColumnDefinition x:Name="ColumnDefinition1" Width="0" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition x:Name="RowDefinition0" Height="Auto" />
+                                                    <RowDefinition x:Name="RowDefinition1" Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <TabPanel x:Name="headerPanel" Background="Transparent" Grid.Column="0" IsItemsHost="true" Margin="0" Grid.Row="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1" />
+                                                <Border x:Name="contentPanel" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+                                                    <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                </Border>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="TabStripPlacement" Value="Bottom">
+                                                    <Setter Property="Grid.Row" TargetName="headerPanel" Value="1" />
+                                                    <Setter Property="Grid.Row" TargetName="contentPanel" Value="0" />
+                                                    <Setter Property="Height" TargetName="RowDefinition0" Value="*" />
+                                                    <Setter Property="Height" TargetName="RowDefinition1" Value="Auto" />
+                                                    <Setter Property="Margin" TargetName="headerPanel" Value="2,0,2,2" />
+                                                </Trigger>
+                                                <Trigger Property="TabStripPlacement" Value="Left">
+                                                    <Setter Property="Grid.Row" TargetName="headerPanel" Value="0" />
+                                                    <Setter Property="Grid.Row" TargetName="contentPanel" Value="0" />
+                                                    <Setter Property="Grid.Column" TargetName="headerPanel" Value="0" />
+                                                    <Setter Property="Grid.Column" TargetName="contentPanel" Value="1" />
+                                                    <Setter Property="Width" TargetName="ColumnDefinition0" Value="Auto" />
+                                                    <Setter Property="Width" TargetName="ColumnDefinition1" Value="*" />
+                                                    <Setter Property="Height" TargetName="RowDefinition0" Value="*" />
+                                                    <Setter Property="Height" TargetName="RowDefinition1" Value="0" />
+                                                    <Setter Property="Margin" TargetName="headerPanel" Value="2,2,0,2" />
+                                                </Trigger>
+                                                <Trigger Property="TabStripPlacement" Value="Right">
+                                                    <Setter Property="Grid.Row" TargetName="headerPanel" Value="0" />
+                                                    <Setter Property="Grid.Row" TargetName="contentPanel" Value="0" />
+                                                    <Setter Property="Grid.Column" TargetName="headerPanel" Value="1" />
+                                                    <Setter Property="Grid.Column" TargetName="contentPanel" Value="0" />
+                                                    <Setter Property="Width" TargetName="ColumnDefinition0" Value="*" />
+                                                    <Setter Property="Width" TargetName="ColumnDefinition1" Value="Auto" />
+                                                    <Setter Property="Height" TargetName="RowDefinition0" Value="*" />
+                                                    <Setter Property="Height" TargetName="RowDefinition1" Value="0" />
+                                                    <Setter Property="Margin" TargetName="headerPanel" Value="0,2,2,2" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="false">
+                                                    <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource ABrush.Foreground.Disabled}" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TabControl.Style>
+                        <!--
+                        <dragablz:TabablzControl.InterTabController>
+                            <dragablz:InterTabController Partition="{StaticResource Partition}" InterTabClient="{StaticResource ThingInterTabClient}" MoveWindowWithSolitaryTabs="False"/>
+                        </dragablz:TabablzControl.InterTabController>
                         -->
-                        <dragablz:TabablzControl Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0">
-                            <dragablz:TabablzControl.InterTabController>
-                                <dragablz:InterTabController Partition="{StaticResource Partition}" InterTabClient="{StaticResource ThingInterTabClient}" MoveWindowWithSolitaryTabs="False"/>
-                            </dragablz:TabablzControl.InterTabController>
-                            <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
-                                <Grid sc:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
-                                    <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
-                                                                   ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
-                                                                   h:SelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
-                                                                   h:SelectorHelper.UpdateSelectedItemsOnChange="True"
-                                                                   HorizontalContentAlignment="Stretch"
-                                                                   VerticalContentAlignment="Stretch"/>
-                                </Grid>
-                            </TabItem>
-                            <TabItem Header="Property Pages (v2)">
-                                <props:PropertyPageItemsControl Background="{DynamicResource PanelBackground3}"
-                                                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                                        ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                        ScrollViewer.CanContentScroll="False"
-                                                        h:ScrollViewerHelper.UseHorizontalScrollWheel="True"
-                                                        ItemDirection="Vertical"
-                                                        HorizontalContentAlignment="Left"
-                                                        ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=PropertyPageItemsSource}">
-                                </props:PropertyPageItemsControl>
-                            </TabItem>
-                        </dragablz:TabablzControl>
-                    </dockablz:Layout>
+                        <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
+                            <Grid sc:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+                                <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
+                                                               ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
+                                                               ap:MultiSelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
+                                                               ap:MultiSelectorHelper.UpdateSelectedItemsOnChange="True"
+                                                               HorizontalContentAlignment="Stretch"
+                                                               VerticalContentAlignment="Stretch"/>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Property Pages (v2)">
+                            <props:PropertyPageItemsControl Background="{DynamicResource PanelBackground3}"
+                                                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                            ScrollViewer.CanContentScroll="False"
+                                                            ap:HorizontalScrolling.UseHorizontalScrolling="True"
+                                                            ItemDirection="Vertical"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=PropertyPageItemsSource}">
+                            </props:PropertyPageItemsControl>
+                        </TabItem>
+                        <!--
+                    </dragablz:TabablzControl>
+                        -->
+                    </TabControl>
                 </Border>
                 <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" Grid.Column="1" Margin="-3,-1,-3,0" SnapsToDevicePixels="True"/>
             </Grid>
@@ -212,94 +272,16 @@
                                 Grid.Row="1" Grid.Column="0" BorderThickness="0 0 0 0"
                                 Background="{DynamicResource PanelBackground3}"
                                 BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
-                        <ListBox x:Name="TrackListBox" sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
+                        <ListBox x:Name="TrackListBox"
+                                 Style="{StaticResource TrackListBoxStyle}"
                                  Grid.Row="1" Grid.Column="0"
                                  SelectionMode="Extended"
-                                 ItemsSource="{Binding Tracks, Mode=OneTime}"
-                                 SelectedItem="{Binding PrimarySelectedTrack, UpdateSourceTrigger=PropertyChanged}"
-                                 h:SelectorHelper.SelectedItems="{Binding SelectedTracks}"
-                                 h:SelectorHelper.UpdateSelectedItemsOnChange="True"
+                                 ItemsSource="{Binding Tracks}"
+                                 SelectedItem="{Binding PrimarySelectedTrack}"
+                                 ap:MultiSelectorHelper.SelectedItems="{Binding SelectedTracks}"
+                                 ap:MultiSelectorHelper.UpdateSelectedItemsOnChange="True"
                                  Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="Transparent"
-                                 HorizontalContentAlignment="Stretch"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                                 ScrollViewer.CanContentScroll="False"
-                                 BorderThickness="0 0 0 0" Padding="0"
-                                 ItemTemplateSelector="{StaticResource TimelineTrackListItemContainerSelector}">
-                            <ListBox.Template>
-                                <ControlTemplate TargetType="{x:Type ListBox}">
-                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="0" SnapsToDevicePixels="true">
-                                        <ScrollViewer Style="{StaticResource CompactBarsScrollViewerStyle}" CanContentScroll="False"
-                                                      x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}"
-                                                      c:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
-                                                      h:ScrollViewerHelper.UseHorizontalScrollWheel="True">
-                                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="0"/>
-                                        </ScrollViewer>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsEnabled" Value="false">
-                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Background}" />
-                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Border}" />
-                                        </Trigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsGrouping" Value="true" />
-                                                <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
-                                            </MultiTrigger.Conditions>
-                                            <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
-                                        </MultiTrigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </ListBox.Template>
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-                                    <Setter Property="Height" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=60}"/>
-                                    <Setter Property="MinHeight" Value="{Binding MinHeight, UpdateSourceTrigger=PropertyChanged, FallbackValue=40}"/>
-                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
-                                    <Setter Property="Padding" Value="0"/>
-                                    <Setter Property="Margin" Value="0"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                                <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
-                                                    <Grid d:DataContext="{d:DesignInstance timelines:TrackViewModel}">
-                                                        <Rectangle Fill="{Binding TrackColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
-                                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4" />
-                                                        <Thumb DragDelta="OnBottomThumbDrag" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS"/>
-                                                    </Grid>
-                                                </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <MultiTrigger>
-                                                        <MultiTrigger.Conditions>
-                                                            <Condition Property="IsMouseOver" Value="True" />
-                                                        </MultiTrigger.Conditions>
-                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
-                                                    </MultiTrigger>
-                                                    <MultiTrigger>
-                                                        <MultiTrigger.Conditions>
-                                                            <Condition Property="Selector.IsSelectionActive" Value="False" />
-                                                            <Condition Property="IsSelected" Value="True" />
-                                                        </MultiTrigger.Conditions>
-                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
-                                                    </MultiTrigger>
-                                                    <MultiTrigger>
-                                                        <MultiTrigger.Conditions>
-                                                            <Condition Property="Selector.IsSelectionActive" Value="True" />
-                                                            <Condition Property="IsSelected" Value="True" />
-                                                        </MultiTrigger.Conditions>
-                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
-                                                    </MultiTrigger>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
+                                 BorderThickness="0 0 0 0" Padding="0">
                         </ListBox>
                         <ctrl2:TimelineControl x:Name="TheTimeline"
                                                Background="{DynamicResource PanelBackground2}"

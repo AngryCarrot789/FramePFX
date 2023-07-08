@@ -22,7 +22,16 @@ namespace FramePFX.Core.Utils {
                 return active == null || !active.IsOverrideEnabled;
             }
             else {
-                return active != null && active.Key == key && !active.IsOverrideEnabled;
+                if (active != null && active.Key == key) {
+                    return !active.IsOverrideEnabled;
+                }
+
+                AutomationSequenceViewModel modifiedSequence = automatable.AutomationData[key];
+                if (modifiedSequence.IsActive) {
+                    return !modifiedSequence.IsOverrideEnabled;
+                }
+
+                return false;
             }
         }
     }

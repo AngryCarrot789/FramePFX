@@ -108,7 +108,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             };
 
             await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
-            this.ActiveProject.Timeline.DoRender();
+            await this.ActiveProject.Timeline.DoRender();
         }
 
         private void OnProjectModified(object sender, string property) {
@@ -310,8 +310,10 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.notification = null;
         }
 
-        public void DoRender(bool schedule = false) {
-            this.View.Render(schedule);
+        public Task DoRender() => this.DoRender(false);
+
+        public Task DoRender(bool schedule) {
+            return this.View.Render(schedule);
         }
     }
 }

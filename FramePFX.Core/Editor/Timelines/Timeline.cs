@@ -102,14 +102,6 @@ namespace FramePFX.Core.Editor.Timelines {
             this.Tracks.Clear();
         }
 
-        public void Render(RenderContext render) {
-            this.Render(render, this.PlayHeadFrame);
-        }
-
-        public Task RenderAsync(RenderContext render) {
-            return this.RenderAsync(render, this.PlayHeadFrame);
-        }
-
         // SaveLayer requires a temporary drawing bitmap, which can slightly
         // decrease performance, so only SaveLayer when absolutely necessary
         private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
@@ -203,7 +195,6 @@ namespace FramePFX.Core.Editor.Timelines {
                         Thread.Sleep(1);
                     }
 
-                    clip.IsAsyncRenderReady = false;
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
                     try {
@@ -291,7 +282,6 @@ namespace FramePFX.Core.Editor.Timelines {
                         await Task.Delay(1);
                     }
 
-                    clip.IsAsyncRenderReady = false;
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
                     try {

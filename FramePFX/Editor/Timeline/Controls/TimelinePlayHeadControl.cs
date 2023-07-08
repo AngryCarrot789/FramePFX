@@ -83,21 +83,13 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         }
 
-        protected override Size MeasureOverride(Size constraint) {
-            return base.MeasureOverride(constraint);
-        }
-
-        protected override Size ArrangeOverride(Size arrangeBounds) {
-            return base.ArrangeOverride(arrangeBounds);
-        }
-
         private T GetTemplateElement<T>(string name) where T : DependencyObject {
             return this.GetTemplateChild(name) is T value ? value : throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
         }
 
         public override void OnApplyTemplate() {
-            this.PART_ThumbHead = this.GetTemplateElement<Thumb>("PART_ThumbHead");
-            this.PART_ThumbBody = this.GetTemplateElement<Thumb>("PART_ThumbBody");
+            this.PART_ThumbHead = this.GetTemplateChild("PART_ThumbHead") as Thumb;
+            this.PART_ThumbBody = this.GetTemplateChild("PART_ThumbBody") as Thumb;
             if (this.PART_ThumbHead != null) {
                 this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
             }
@@ -141,7 +133,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                 const long range = 80;
                 List<VideoClipControl> clips = timeline.GetClipsInSpan<VideoClipControl>(new FrameSpan(newFrame - (range / 2), range)).ToList();
-                if (clips.Count >= 1) {
+                if (clips.Count > 0) {
                     long closestFrame = long.MaxValue;
                     long targetFrame = newFrame;
                     foreach (VideoClipControl clip in clips) {
@@ -197,18 +189,24 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public void EnableDragging(Point point) {
             this.isDraggingThumb = true;
-            this.PART_ThumbBody.Focus();
-            this.PART_ThumbBody.CaptureMouse();
+
+            Thumb thumb = this.PART_ThumbBody ?? this.PART_ThumbHead;
+            if (thumb == null) {
+                return;
+            }
+
+            thumb.Focus();
+            thumb.CaptureMouse();
             // lazy... could create custom control extending Thumb to modify this but this works so :D
-            this.PART_ThumbBody.SetValue((DependencyPropertyKey) IsDraggingPropertyKeyField.GetValue(null), true);
+            thumb.SetValue((DependencyPropertyKey) IsDraggingPropertyKeyField.GetValue(null), true);
             bool flag = true;
             try {
-                this.PART_ThumbBody.RaiseEvent(new DragStartedEventArgs(point.X, point.Y));
+                thumb.RaiseEvent(new DragStartedEventArgs(point.X, point.Y));
                 flag = false;
             }
             finally {
                 if (flag) {
-                    this.PART_ThumbBody.CancelDrag();
+                    thumb.CancelDrag();
                 }
 
                 this.isDraggingThumb = false;

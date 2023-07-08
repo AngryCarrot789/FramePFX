@@ -5,12 +5,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages {
         public static ClipPageFactory Instance { get; } = new ClipPageFactory();
 
         private ClipPageFactory() {
-            this.RegisterPage<ClipViewModel, ClipPageViewModel>();
-            this.RegisterPage<VideoClipViewModel, VideoClipPageViewModel>();
-            this.RegisterPage<ShapeClipViewModel, ShapeClipPageViewModel>();
-            this.RegisterPage<TextClipViewModel, TextClipPageViewModel>();
-            this.RegisterPage<ImageClipViewModel, ImageClipPageViewModel>();
-            this.RegisterPage<OldMediaClipViewModel, MediaClipPageViewModel>();
+            this.AddPage<ClipViewModel, ClipPageViewModel>();
+            this.AddPage<VideoClipViewModel, VideoClipPageViewModel>();
+            this.AddPage<ShapeClipViewModel, ShapeClipPageViewModel>();
+            this.AddPage<TextClipViewModel, TextClipPageViewModel>();
+            this.AddPage<ImageClipViewModel, ImageClipPageViewModel>();
+            this.AddPage<OldMediaClipViewModel, MediaClipPageViewModel>();
         }
     }
 }

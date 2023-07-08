@@ -5,7 +5,7 @@
              xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
              xmlns:editor="clr-namespace:FramePFX.Editor"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             xmlns:v="clr-namespace:FramePFX.Views"
+             xmlns:v="clr-namespace:FramePFX.Views" xmlns:conv="clr-namespace:FramePFX.Converters"
              Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
@@ -27,9 +27,15 @@
                 <ResourceDictionary Source="Editor/Properties/PropertyPageStyles.xaml"/>
                 <ResourceDictionary Source="Notifications/NotificationStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
             <system:String x:Key="Partition">ThingsIdek</system:String>
-            <editor:ThingInterLayoutClient x:Key="ThingInterLayoutClient"/>
+
+            <Style x:Key="ThingTabablzControlStyle" TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource {x:Type dragablz:TabablzControl}}">
+                <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BrushPanelGap}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+
+            <editor:ThingInterLayoutClient x:Key="ThingInterLayoutClient" TabablzControlStyle="{StaticResource ThingTabablzControlStyle}"/>
             <editor:ThingInterTabClient x:Key="ThingInterTabClient">
                 <editor:ThingInterTabClient.WindowExStyle>
                     <Style TargetType="{x:Type v:WindowEx}" BasedOn="{StaticResource CustomWindowStyleEx}"></Style>

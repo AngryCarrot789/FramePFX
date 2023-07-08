@@ -11,7 +11,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         private readonly ObservableCollection<KeyFrameViewModel> keyFrames;
         public ReadOnlyObservableCollection<KeyFrameViewModel> KeyFrames { get; }
 
-        private bool isPrimarySelection;
+        private bool isActive;
 
         public bool IsOverrideEnabled {
             get => this.Model.IsOverrideEnabled;
@@ -41,9 +41,9 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         /// <summary>
         /// Whether or not this automation sequence is indirectly active (as in, active but not the selected sequence)
         /// </summary>
-        public bool IsPrimarySelection {
-            get => this.isPrimarySelection;
-            set => this.RaisePropertyChanged(ref this.isPrimarySelection, value);
+        public bool IsActive {
+            get => this.isActive;
+            set => this.RaisePropertyChanged(ref this.isActive, value);
         }
 
         public bool HasKeyFrames => this.Model.HasKeyFrames;
@@ -268,5 +268,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public void RaiseOverrideValueChanged() {
             this.AutomationData.OnKeyFrameChanged(this, this.OverrideKeyFrame);
         }
+
+        public void ToggleOverrideAction() => this.IsOverrideEnabled = !this.IsOverrideEnabled;
     }
 }

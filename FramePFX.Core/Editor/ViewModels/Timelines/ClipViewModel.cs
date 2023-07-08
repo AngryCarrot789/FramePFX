@@ -460,9 +460,5 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
             this.lastDragHistoryAction = null;
         }
-
-        protected virtual void RaiseAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
-            this.RaisePropertyChanged(propertyName);
-        }
     }
 }

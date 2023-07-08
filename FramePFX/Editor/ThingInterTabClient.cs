@@ -21,7 +21,7 @@ namespace FramePFX.Editor {
             window.Width = 400;
 
             DependencyObject content = this.WinContentTemplate.LoadContent() ?? throw new ArgumentException("Failed to create control");
-            TabablzControl dst = VisualTreeUtils.FindVisualChild<TabablzControl>(content) ?? throw new ArgumentException("Failed to find tab control");
+            TabablzControl dst = VisualTreeUtils.FindVisualChild<TabablzControl>(content, true) ?? throw new ArgumentException("Failed to find tab control");
             dst.DataContext = source.DataContext;
             window.Content = dst;
             return new NewTabHost<Window>(window, dst);

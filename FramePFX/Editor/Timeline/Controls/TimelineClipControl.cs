@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -13,6 +14,7 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
+using Rect = System.Windows.Rect;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public abstract class TimelineClipControl : Control {
@@ -167,7 +169,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.Focusable = true;
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
-            this.Loaded+= this.OnLoaded;
+            this.Loaded += this.OnLoaded;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
@@ -291,10 +293,10 @@ namespace FramePFX.Editor.Timeline.Controls {
 
                     this.lastLeftClickPoint = e.GetPosition(this);
 
-                    if (InputUtils.AreModifiersPressed(ModifierKeys.Control)) {
+                    if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
                         this.Track.SetItemSelectedProperty(this, true);
                     }
-                    else if (InputUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.lastSelectedItem != null && this.Track.SelectedItems.Count > 0) {
+                    else if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.lastSelectedItem != null && this.Track.SelectedItems.Count > 0) {
                         this.Track.MakeRangedSelection(this.Track.lastSelectedItem, this);
                     }
                     else if (this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
@@ -322,7 +324,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 e.Handled = true;
             }
 
-            if (wasDragging != true && this.IsSelected && !InputUtils.AreModifiersPressed(ModifierKeys.Control) && !InputUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
+            if (wasDragging != true && this.IsSelected && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Control) && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
                 this.Track.Timeline.SetPrimarySelection(this);
             }
 

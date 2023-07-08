@@ -1674,8 +1674,7 @@
                                 <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SecondItemLength, Mode=TwoWay}" />
                             </Grid.ColumnDefinitions>
                             <ContentPresenter x:Name="PART_FirstContentPresenter" Content="{TemplateBinding FirstItem}" />
-                            <GridSplitter Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" 
-                                          Width="5"/>
+                            <GridSplitter Grid.Column="1" Width="1" Background="{DynamicResource BrushPanelGap}" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"/>
                             <ContentPresenter x:Name="PART_SecondContentPresenter" Grid.Column="2" Content="{TemplateBinding SecondItem}" />
                         </Grid>
                     </Border>
@@ -1697,7 +1696,7 @@
                                         <RowDefinition Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SecondItemLength, Mode=TwoWay}" />
                                     </Grid.RowDefinitions>
                                     <ContentPresenter x:Name="PART_FirstContentPresenter" Content="{TemplateBinding FirstItem}" />
-                                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Height="5" HorizontalAlignment="Stretch" />
+                                    <GridSplitter Grid.Row="1" Height="1" Margin="0,-3" Background="{DynamicResource BrushPanelGap}" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" />
                                     <ContentPresenter x:Name="PART_SecondContentPresenter" Grid.Row="2" Content="{TemplateBinding SecondItem}" />
                                 </Grid>
                             </Border>

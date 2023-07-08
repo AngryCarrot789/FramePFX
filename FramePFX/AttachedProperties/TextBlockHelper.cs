@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
-namespace FramePFX.Controls.Helpers {
+namespace FramePFX.AttachedProperties {
     public static class TextBlockHelper {
         public static readonly DependencyProperty BindableInlinesProperty =
             DependencyProperty.RegisterAttached(

@@ -5,7 +5,7 @@ using FramePFX.Core.Actions;
 using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Controls.Helpers {
+namespace FramePFX.AttachedProperties {
     public static class ActionControl {
         public static readonly DependencyProperty TargetActionIdProperty = DependencyProperty.RegisterAttached("TargetActionId", typeof(string), typeof(ActionControl), new PropertyMetadata(null, PropertyChangedCallback));
         public static readonly DependencyProperty CanControlBecomeCollapsedProperty = DependencyProperty.RegisterAttached("CanControlBecomeCollapsed", typeof(bool), typeof(ActionControl), new PropertyMetadata(true));

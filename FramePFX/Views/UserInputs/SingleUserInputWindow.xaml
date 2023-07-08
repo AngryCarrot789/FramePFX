@@ -5,9 +5,9 @@
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   xmlns:userInputsCore="clr-namespace:FramePFX.Core.Views.Dialogs.UserInputs;assembly=FramePFX.Core"
                   xmlns:attached="clr-namespace:FramePFX.Themes.Attached"
-                  xmlns:helper="clr-namespace:FramePFX.Controls.Helpers"
                   xmlns:views="clr-namespace:FramePFX.Views"
                   xmlns:userInputs="clr-namespace:FramePFX.Views.UserInputs"
+                  xmlns:attachedProperties="clr-namespace:FramePFX.AttachedProperties"
                   mc:Ignorable="d"
                   d:DataContext="{d:DesignInstance userInputsCore:SingleInputViewModel}"
                   Title="{Binding Title}" 
@@ -27,7 +27,7 @@
         <StackPanel DockPanel.Dock="Top" Margin="10,10,10,15" Orientation="Vertical">
             <TextBlock VerticalAlignment="Top" Text="{Binding Message}" Padding="5"/>
             <TextBox x:Name="InputBox" Padding="5,1" VerticalContentAlignment="Center" VerticalAlignment="Top" Height="29"
-                     helper:TextBoxHelper.SelectAllOnFocus="True" 
+                     attachedProperties:TextBoxHelper.SelectAllOnFocus="True" 
                      Background="{DynamicResource PanelBackground2}"
                      BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}">
                 <Binding Path="Input" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">

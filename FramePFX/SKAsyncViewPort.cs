@@ -40,7 +40,7 @@ namespace FramePFX {
                 return false;
             }
 
-            SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out float scaleX, out float scaleY, source);
+            SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
             SKSizeI size2 = this.IgnorePixelScaling ? unscaledSize : pixelSize;
             this.CanvasSize = size2;
             if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
@@ -50,14 +50,20 @@ namespace FramePFX {
 
             SKImageInfo frameInfo = new SKImageInfo(pixelSize.Width, pixelSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             this.skImageInfo = frameInfo;
-            if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelWidth || frameInfo.Height != this.bitmap.PixelHeight)
-                this.bitmap = new WriteableBitmap(frameInfo.Width, pixelSize.Height, 96.0 * scaleX, 96.0 * scaleY, PixelFormats.Pbgra32, null);
+            if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelWidth || frameInfo.Height != this.bitmap.PixelHeight) {
+                this.bitmap = new WriteableBitmap(
+                    frameInfo.Width, pixelSize.Height,
+                    scaleX == 1d ? 96d : (96d * scaleX),
+                    scaleY == 1d ? 96d : (96d * scaleY),
+                    PixelFormats.Pbgra32, null);
+            }
+
             this.bitmap.Lock();
 
             this.targetSurface = surface = SKSurface.Create(frameInfo, this.bitmap.BackBuffer, this.bitmap.BackBufferStride);
             if (this.IgnorePixelScaling) {
                 SKCanvas canvas = surface.Canvas;
-                canvas.Scale(scaleX, scaleY);
+                canvas.Scale((float) scaleX, (float) scaleY);
                 canvas.Save();
             }
 
@@ -85,7 +91,7 @@ namespace FramePFX {
             this.InvalidateVisual();
         }
 
-        private SKSizeI CreateSize(out SKSizeI unscaledSize, out float scaleX, out float scaleY, PresentationSource source) {
+        private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source) {
             unscaledSize = SKSizeI.Empty;
             scaleX = 1f;
             scaleY = 1f;
@@ -94,8 +100,8 @@ namespace FramePFX {
             if (IsPositive(actualWidth) && IsPositive(actualHeight)) {
                 unscaledSize = new SKSizeI((int) actualWidth, (int) actualHeight);
                 Matrix transformToDevice = source.CompositionTarget.TransformToDevice;
-                scaleX = (float) transformToDevice.M11;
-                scaleY = (float) transformToDevice.M22;
+                scaleX = transformToDevice.M11;
+                scaleY = transformToDevice.M22;
                 return new SKSizeI((int) (actualWidth * scaleX), (int) (actualHeight * scaleY));
             }
 

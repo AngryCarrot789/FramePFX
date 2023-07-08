@@ -24,6 +24,10 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         }
 
+        protected override bool IsItemItsOwnContainerOverride(object item) {
+            return item is VideoClipControl;
+        }
+
         protected override TimelineClipControl GetContainerForItem(object item) {
             if (item == null || item is VideoClipViewModel)
                 return new VideoClipControl();

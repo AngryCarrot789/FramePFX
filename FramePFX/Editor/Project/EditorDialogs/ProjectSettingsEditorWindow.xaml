@@ -5,7 +5,6 @@
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   xmlns:ed="clr-namespace:FramePFX.Editor.Project.EditorDialogs"
-                  xmlns:helpers="clr-namespace:FramePFX.Controls.Helpers"
                   xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger"
                   xmlns:attached="clr-namespace:FramePFX.Themes.Attached"
                   mc:Ignorable="d"

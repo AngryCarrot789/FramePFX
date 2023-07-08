@@ -5,35 +5,38 @@ using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Editor.Project.EditorDialogs {
     public class ProjectSettingsEditorViewModel : BaseConfirmableDialogViewModel {
+        private static readonly ObservableCollection<string> ActualFrameRates;
         public static readonly ReadOnlyObservableCollection<string> FrameRates;
 
         private static readonly Rational[] rationals = new Rational[] {
-            new Rational(10, 1),
-            new Rational(12, 1),
-            new Rational(15, 1),
-            new Rational(24000, 1001), // 23.976
-            new Rational(24, 1),
-            new Rational(25, 1),
-            new Rational(30000, 1001), // 29.97
-            new Rational(30, 1),
-            new Rational(50, 1),
-            new Rational(60000, 1001), // 59,94
-            new Rational(60, 1)
+            Timecode.Fps10,
+            Timecode.Fps12,
+            Timecode.Fps15,
+            Timecode.Fps18,
+            Timecode.Fps23_976,
+            Timecode.Fps24,
+            Timecode.Fps25,
+            Timecode.Fps29_970,
+            Timecode.Fps30,
+            Timecode.Fps50,
+            Timecode.Fps59_940,
+            Timecode.Fps60,
+            Timecode.Fps74_925,
+            Timecode.Fps75,
+            Timecode.Fps119_88,
+            Timecode.Fps120,
+            Timecode.Fps143_86,
+            Timecode.Fps144,
+            Timecode.Fps239_76,
+            Timecode.Fps240_00
         };
 
         static ProjectSettingsEditorViewModel() {
-            FrameRates = new ReadOnlyObservableCollection<string>(new ObservableCollection<string>() {
-                "10.000 FPS",
-                "12.000 FPS",
-                "15.000 FPS",
-                "23.976 FPS",
-                "24.000 FPS",
-                "25.000 FPS",
-                "29.970 FPS",
-                "30.000 FPS",
-                "50.000 FPS",
-                "59.940 FPS",
-                "60.000 FPS",
+            FrameRates = new ReadOnlyObservableCollection<string>(ActualFrameRates = new ObservableCollection<string>() {
+                "10.00", "12.00", "15.00", "18.00", "23.976", "24.00",
+                "25.00", "29.97", "30.00", "50.00", "59.94", "60.00",
+                "74.925", "75.00", "119.88", "120.00",
+                "143.86", "144.00", "239.76", "240.00"
             });
         }
 
@@ -46,7 +49,53 @@ namespace FramePFX.Editor.Project.EditorDialogs {
             }
         }
 
-        public Rational SelectedRational => rationals[Maths.Clamp(this.SelectedIndex, 0, rationals.Length - 1)];
+        // private string userInputText;
+        // public string UserInputText {
+        //     get => this.userInputText;
+        //     set {
+        //         if (this.FrameRateModificationLock.IsRunning) {
+        //             this.RaisePropertyChanged();
+        //             return;
+        //         }
+        //         if (string.IsNullOrWhiteSpace(value)) {
+        //             this.RaisePropertyChanged(ref this.userInputText, value);
+        //         }
+        //         else {
+        //             if (!FrameRates.Contains(value)) {
+        //                 if (double.TryParse(value, out double _)) {
+        //                     ActualFrameRates.Add(value);
+        //                 }
+        //                 else {
+        //                     string oldText = this.userInputText;
+        //                     this.FrameRateModificationLock.Execute(async () => {
+        //                         await IoC.MessageDialogs.ShowMessageAsync("Invalid FPS", "The given value is not a valid number: " + value);
+        //                         this.userInputText = oldText;
+        //                         this.RaisePropertyChanged(nameof(this.UserInputText));
+        //                     });
+        //                     this.RaisePropertyChanged();
+        //                     return;
+        //                 }
+        //             }
+        //             this.RaisePropertyChanged(ref this.userInputText, value);
+        //         }
+        //     }
+        // }
+
+        // public Rational SelectedRational {
+        //     get {
+        //         if (this.SelectedIndex < 0) {
+        //             return rationals[0];
+        //         }
+        //         else if (this.SelectedIndex > (rationals.Length - 1)) {
+        //             return Rational.FromDouble(double.Parse(ActualFrameRates[this.SelectedIndex]));
+        //         }
+        //         else {
+        //             return rationals[this.SelectedIndex];
+        //         }
+        //     }
+        // }
+
+        public Rational SelectedRational => rationals[this.SelectedIndex];
 
         private int width;
         public int Width {
@@ -60,7 +109,10 @@ namespace FramePFX.Editor.Project.EditorDialogs {
             set => this.RaisePropertyChanged(ref this.height, value);
         }
 
+        // public AsyncLock FrameRateModificationLock { get; } = new AsyncLock();
+
         public ProjectSettingsEditorViewModel(IDialog dialog) : base(dialog) {
+
         }
 
         public ProjectSettings ToSettings() {
@@ -79,10 +131,14 @@ namespace FramePFX.Editor.Project.EditorDialogs {
                 if (fps <= rationals[i]) {
                     this.SelectedIndex = i;
                     return;
+                    //goto end;
                 }
             }
 
             this.SelectedIndex = 7;
+            // end:
+            // this.userInputText = ActualFrameRates[this.SelectedIndex];
+            // this.RaisePropertyChanged(nameof(this.UserInputText));
         }
     }
 }

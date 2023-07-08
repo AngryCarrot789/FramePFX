@@ -3,29 +3,25 @@ using System;
 namespace FramePFX.Core.Utils {
     public readonly struct FrameSpan : IEquatable<FrameSpan> {
         public static readonly FrameSpan Empty = new FrameSpan(0, 0);
-        private readonly long begin;
-        private readonly long duration;
 
         /// <summary>
         /// The beginning of this span (inclusive index). This value may be negative (which isn't a valid span value, but is allowed anyway)
         /// </summary>
-        public long Begin => this.begin;
+        public readonly long Begin;
 
         /// <summary>
         /// The duration (in frames) of this span. This value may be negative (which isn't a valid span value, but is allowed anyway)
         /// </summary>
-        public long Duration => this.duration;
+        public readonly long Duration;
 
         /// <summary>
         /// A calculated end-index (exclusive) for this span. This value may be negative (which isn't a valid span value, but is allowed anyway)
         /// </summary>
-        public long EndIndex {
-            get => this.begin + this.duration;
-        }
+        public long EndIndex => this.Begin + this.Duration;
 
         public FrameSpan(long begin, long duration) {
-            this.begin = begin;
-            this.duration = duration;
+            this.Begin = begin;
+            this.Duration = duration;
         }
 
         public static FrameSpan FromDuration(long begin, long duration) {
@@ -37,49 +33,49 @@ namespace FramePFX.Core.Utils {
         }
 
         public FrameSpan Expand(long expand) {
-            return new FrameSpan(this.begin - expand, this.duration + expand + expand);
+            return new FrameSpan(this.Begin - expand, this.Duration + expand + expand);
         }
 
         public FrameSpan Contract(long contract) {
-            return new FrameSpan(this.begin + contract, this.duration - contract - contract);
+            return new FrameSpan(this.Begin + contract, this.Duration - contract - contract);
         }
 
         /// <summary>
         /// Returns a new span where the <see cref="Begin"/> property is offset by the given amount, and <see cref="Duration"/> is untouched
         /// </summary>
         public FrameSpan Offset(long frames) {
-            return new FrameSpan(this.begin + frames, this.duration);
+            return new FrameSpan(this.Begin + frames, this.Duration);
         }
 
         /// <summary>
         /// Returns a new span where the <see cref="Duration"/> property is offset by the given amount, and <see cref="Begin"/> is untouched
         /// </summary>
         public FrameSpan OffsetDuration(long frames) {
-            return new FrameSpan(this.begin, this.duration + frames);
+            return new FrameSpan(this.Begin, this.Duration + frames);
         }
 
         public FrameSpan Offset(long offsetBegin, long offsetDuration) {
-            return new FrameSpan(this.begin + offsetBegin, this.duration + offsetDuration);
+            return new FrameSpan(this.Begin + offsetBegin, this.Duration + offsetDuration);
         }
 
         public FrameSpan WithBegin(long newBegin) {
-            return new FrameSpan(newBegin, this.duration);
+            return new FrameSpan(newBegin, this.Duration);
         }
 
         public FrameSpan WithDuration(long newDuration) {
-            return new FrameSpan(this.begin, newDuration);
+            return new FrameSpan(this.Begin, newDuration);
         }
 
         public FrameSpan WithEndIndex(long newEndIndex) {
-            if (newEndIndex < this.begin) {
-                throw new ArgumentOutOfRangeException(nameof(newEndIndex), $"Value cannot be smaller than the begin index ({newEndIndex} < {this.begin})");
+            if (newEndIndex < this.Begin) {
+                throw new ArgumentOutOfRangeException(nameof(newEndIndex), $"Value cannot be smaller than the begin index ({newEndIndex} < {this.Begin})");
             }
 
-            return new FrameSpan(this.begin, newEndIndex - this.begin);
+            return new FrameSpan(this.Begin, newEndIndex - this.Begin);
         }
 
         public FrameSpan WithBeginIndex(long newBeginIndex) {
-            long begin = this.begin, dur = this.duration, end = begin + dur;
+            long begin = this.Begin, dur = this.Duration, end = begin + dur;
 
             if (newBeginIndex > end) {
                 throw new ArgumentOutOfRangeException(nameof(newBeginIndex), $"Value cannot be greater than the end index ({newBeginIndex} > {end})");
@@ -94,16 +90,16 @@ namespace FramePFX.Core.Utils {
         /// </summary>
         /// <returns></returns>
         public FrameSpan Abs() {
-            if (this.begin >= 0 && this.duration >= 0) {
+            if (this.Begin >= 0 && this.Duration >= 0) {
                 return this;
             }
             else {
-                return new FrameSpan(Math.Abs(this.begin), Math.Abs(this.duration));
+                return new FrameSpan(Math.Abs(this.Begin), Math.Abs(this.Duration));
             }
         }
 
         public bool Intersects(long frame) {
-            return frame >= this.begin && frame < this.EndIndex;
+            return frame >= this.Begin && frame < this.EndIndex;
         }
 
         public bool Intersects(in FrameSpan span) {
@@ -112,23 +108,23 @@ namespace FramePFX.Core.Utils {
 
         public static bool Intersects(in FrameSpan a, in FrameSpan b) {
             // no idea if this works both ways... CBA to test lolol
-            return a.begin < b.EndIndex && a.EndIndex > b.begin;
+            return a.Begin < b.EndIndex && a.EndIndex > b.Begin;
         }
 
         public static bool operator ==(in FrameSpan a, in FrameSpan b) {
-            return a.begin == b.begin && a.duration == b.duration;
+            return a.Begin == b.Begin && a.Duration == b.Duration;
         }
 
         public static bool operator !=(in FrameSpan a, in FrameSpan b) {
-            return a.begin != b.begin || a.duration != b.duration;
+            return a.Begin != b.Begin || a.Duration != b.Duration;
         }
 
         public override string ToString() {
-            return $"{this.begin} -> {this.EndIndex} ({this.duration})";
+            return $"{this.Begin} -> {this.EndIndex} ({this.Duration})";
         }
 
         public bool Equals(FrameSpan other) {
-            return this.begin == other.begin && this.duration == other.duration;
+            return this.Begin == other.Begin && this.Duration == other.Duration;
         }
 
         public override bool Equals(object obj) {
@@ -137,7 +133,7 @@ namespace FramePFX.Core.Utils {
 
         public override int GetHashCode() {
             unchecked {
-                return (this.begin.GetHashCode() * 397) ^ this.duration.GetHashCode();
+                return (this.Begin.GetHashCode() * 397) ^ this.Duration.GetHashCode();
             }
         }
     }

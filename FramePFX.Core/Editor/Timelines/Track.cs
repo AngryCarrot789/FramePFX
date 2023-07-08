@@ -60,8 +60,6 @@ namespace FramePFX.Core.Editor.Timelines {
             this.AutomationData = new AutomationData(this);
         }
 
-        long IAutomatable.GetRelativeFrame(long frame) => frame;
-
         public List<Clip> GetClipsAtFrame(long frame) {
             List<Clip> src = this.Clips;
             int count = src.Count, i = 0;

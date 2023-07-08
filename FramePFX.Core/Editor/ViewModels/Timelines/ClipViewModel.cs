@@ -69,6 +69,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                     this.RaisePropertyChanged(nameof(this.Project));
                     this.RaisePropertyChanged(nameof(this.Editor));
                     this.RaisePropertyChanged(nameof(this.HistoryManager));
+                    this.RaisePropertyChanged(nameof(this.RelativePlayHead));
                 }
             }
         }
@@ -92,6 +93,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 this.RaisePropertyChanged(nameof(this.FrameBegin));
                 this.RaisePropertyChanged(nameof(this.FrameDuration));
                 this.RaisePropertyChanged(nameof(this.FrameEndIndex));
+                this.RaisePropertyChanged(nameof(this.RelativePlayHead));
                 this.OnFrameSpanChanged(oldSpan, value);
                 this.Track?.OnProjectModified();
             }
@@ -130,6 +132,21 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 this.RaisePropertyChanged();
                 this.OnMediaFrameOffsetChanged(oldValue, value);
                 this.Track?.OnProjectModified();
+            }
+        }
+
+        /// <summary>
+        /// Returns the parented timeline's play head, relative to this clip's <see cref="FrameBegin"/>. If the
+        /// clip's begin is at 300 and the play head is at 325, this property returns 25
+        /// </summary>
+        public long RelativePlayHead {
+            get {
+                if (this.track != null) {
+                    return this.track.Timeline.PlayHeadFrame - this.FrameBegin;
+                }
+                else {
+                    return this.FrameBegin;
+                }
             }
         }
 

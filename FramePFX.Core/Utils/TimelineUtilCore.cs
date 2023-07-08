@@ -16,6 +16,10 @@ namespace FramePFX.Core.Utils {
                 return false;
             }
 
+            if (automatable is ClipViewModel clip && !clip.Model.GetRelativeFrame(timeline.PlayHeadFrame, out long _)) {
+                return false;
+            }
+
             AutomationSequenceViewModel active = automatable.AutomationData.ActiveSequence;
             VideoEditorViewModel editor = timeline.Project.Editor;
             if (editor != null && editor.IsRecordingKeyFrames) {

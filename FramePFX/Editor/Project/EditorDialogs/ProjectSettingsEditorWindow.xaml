@@ -22,6 +22,11 @@
         <TextBlock Text="FPS" Margin="10,72,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5"/>
         <dragger:NumberDragger Minimum="8" Maximum="16384" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="60,10,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
         <dragger:NumberDragger Minimum="8" Maximum="16384" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="60,41,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>
+        <!--
+        Text="{Binding UserInputText, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+        IsEnabled="{Binding FrameRateModificationLock.CanExecute}"
+                  IsEditable="True"
+        -->
         <ComboBox ItemsSource="{x:Static ed:ProjectSettingsEditorViewModel.FrameRates}"
                   SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}"
                   Margin="60,72,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top"/>

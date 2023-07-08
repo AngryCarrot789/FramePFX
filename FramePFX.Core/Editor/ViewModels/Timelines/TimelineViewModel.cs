@@ -151,7 +151,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public async Task<VideoTrackViewModel> AddVideoTrackAction() {
             VideoTrackViewModel track = new VideoTrackViewModel(this, new VideoTrack(this.Model));
             this.AddTrack(track);
-            await this.DoRender(true);
+            await this.DoRenderAsync(true);
             return track;
         }
 
@@ -161,9 +161,16 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             return track;
         }
 
-        public Task DoRender() => this.DoRender(false);
+        public void DoRender() => this.DoRender(false);
 
-        public async Task DoRender(bool schedule) {
+        public void DoRender(bool schedule) {
+            VideoEditorViewModel editor = this.Project.Editor;
+            if (editor != null) {
+                editor.DoRender(schedule);
+            }
+        }
+
+        public async Task DoRenderAsync(bool schedule) {
             VideoEditorViewModel editor = this.Project.Editor;
             if (editor != null) {
                 await editor.DoRender(schedule);

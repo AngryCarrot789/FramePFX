@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.Timelines.Tracks;
@@ -76,9 +77,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             }
         }
 
+        private static readonly RefreshAutomationValueEventHandler RefreshVolumeHandler = (s, e) => {
+            AudioTrackViewModel track = (AudioTrackViewModel) s.AutomationData.Owner;
+            track.RaisePropertyChanged(nameof(track.Volume));
+        };
+
+        private static readonly RefreshAutomationValueEventHandler RefreshIsMutedHandler = (s, e) => {
+            AudioTrackViewModel track = (AudioTrackViewModel) s.AutomationData.Owner;
+            track.RaisePropertyChanged(nameof(track.IsMuted));
+        };
+
         public AudioTrackViewModel(TimelineViewModel timeline, AudioTrack model) : base(timeline, model) {
-            this.AutomationData.AssignRefreshHandler(AudioTrack.VolumeKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.Volume), in e));
-            this.AutomationData.AssignRefreshHandler(AudioTrack.IsMutedKey, (s, e) => this.OnAutomationPropertyUpdated(nameof(this.IsMuted), in e));
+            this.AutomationData.AssignRefreshHandler(AudioTrack.VolumeKey, RefreshVolumeHandler);
+            this.AutomationData.AssignRefreshHandler(AudioTrack.IsMutedKey, RefreshIsMutedHandler);
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {

@@ -20,12 +20,5 @@ namespace FramePFX.Core.Automation {
         /// </para>
         /// </summary>
         bool IsAutomationChangeInProgress { get; set; }
-
-        /// <summary>
-        /// Returns a relative frame from an absolute frame (which is relative to the timeline)
-        /// </summary>
-        /// <param name="frame">Input absolute frame</param>
-        /// <returns>Output relative frame</returns>
-        long GetRelativeFrame(long frame);
     }
 }

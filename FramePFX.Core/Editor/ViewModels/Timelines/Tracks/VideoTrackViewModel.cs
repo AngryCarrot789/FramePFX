@@ -108,9 +108,21 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             }
         }
 
+        private static readonly RefreshAutomationValueEventHandler RefreshOpacityHandler = (s, e) => {
+            VideoTrackViewModel track = (VideoTrackViewModel) s.AutomationData.Owner;
+            track.RaisePropertyChanged(nameof(track.Opacity));
+            track.InvalidateRenderForAutomationRefresh(in e);
+        };
+
+        private static readonly RefreshAutomationValueEventHandler RefreshIsVisibleHandler = (s, e) => {
+            VideoTrackViewModel track = (VideoTrackViewModel) s.AutomationData.Owner;
+            track.RaisePropertyChanged(nameof(track.IsVisible));
+            track.InvalidateRenderForAutomationRefresh(in e);
+        };
+
         public VideoTrackViewModel(TimelineViewModel timeline, VideoTrack model) : base(timeline, model) {
-            this.AutomationData.AssignRefreshHandler(VideoTrack.OpacityKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.Opacity), in f));
-            this.AutomationData.AssignRefreshHandler(VideoTrack.IsVisibleKey, (s, f) => this.OnAutomationPropertyUpdated(nameof(this.IsVisible), in f));
+            this.AutomationData.AssignRefreshHandler(VideoTrack.OpacityKey, RefreshOpacityHandler);
+            this.AutomationData.AssignRefreshHandler(VideoTrack.IsVisibleKey, RefreshIsVisibleHandler);
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {
@@ -236,8 +248,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             return range;
         }
 
-        protected override void OnAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
-            base.OnAutomationPropertyUpdated(propertyName, e);
+        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             VideoEditorViewModel editor; // slight performance helper
             if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.DoRender(true);

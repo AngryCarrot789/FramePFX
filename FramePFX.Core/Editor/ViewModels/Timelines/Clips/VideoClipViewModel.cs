@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using FramePFX.Core.Annotations;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.History;
@@ -50,7 +51,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaPositionKey)) {
-                    this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
+                    this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetVector2Value(value);
                 }
                 else {
                     this.AutomationData[VideoClip.MediaPositionKey].GetOverride().SetVector2Value(value);
@@ -84,7 +85,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaScaleKey)) {
-                    this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
+                    this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetVector2Value(value);
                 }
                 else {
                     this.AutomationData[VideoClip.MediaScaleKey].GetOverride().SetVector2Value(value);
@@ -118,7 +119,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaScaleOriginKey)) {
-                    this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetVector2Value(value);
+                    this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetVector2Value(value);
                 }
                 else {
                     this.AutomationData[VideoClip.MediaScaleOriginKey].GetOverride().SetVector2Value(value);
@@ -139,7 +140,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.OpacityKey)) {
-                    this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(timeline.PlayHeadFrame)).SetDoubleValue(value);
+                    this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetDoubleValue(value);
                 }
                 else {
                     this.AutomationData[VideoClip.OpacityKey].GetOverride().SetDoubleValue(value);
@@ -205,6 +206,40 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
         private readonly ClipRenderInvalidatedEventHandler renderCallback;
 
+        #region Cached refresh event handlers
+
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaPositionHandler = (s, e) => {
+            VideoClipViewModel clip = (VideoClipViewModel) s.AutomationData.Owner;
+            clip.RaisePropertyChanged(nameof(clip.MediaPosition));
+            clip.RaisePropertyChanged(nameof(clip.MediaPositionX));
+            clip.RaisePropertyChanged(nameof(clip.MediaPositionY));
+            clip.InvalidateRenderForAutomationRefresh(in e);
+        };
+
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaScaleHandler = (s, e) => {
+            VideoClipViewModel clip = (VideoClipViewModel) s.AutomationData.Owner;
+            clip.RaisePropertyChanged(nameof(clip.MediaScale));
+            clip.RaisePropertyChanged(nameof(clip.MediaScaleX));
+            clip.RaisePropertyChanged(nameof(clip.MediaScaleY));
+            clip.InvalidateRenderForAutomationRefresh(in e);
+        };
+
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaScaleOriginHandler = (s, e) => {
+            VideoClipViewModel clip = (VideoClipViewModel) s.AutomationData.Owner;
+            clip.RaisePropertyChanged(nameof(clip.MediaScaleOrigin));
+            clip.RaisePropertyChanged(nameof(clip.MediaScaleOriginX));
+            clip.RaisePropertyChanged(nameof(clip.MediaScaleOriginY));
+            clip.InvalidateRenderForAutomationRefresh(in e);
+        };
+
+        private static readonly RefreshAutomationValueEventHandler RefreshOpacityHandler = (s, e) => {
+            VideoClipViewModel clip = (VideoClipViewModel) s.AutomationData.Owner;
+            clip.RaisePropertyChanged(nameof(clip.Opacity));
+            clip.InvalidateRenderForAutomationRefresh(in e);
+        };
+
+        #endregion
+
         protected VideoClipViewModel(VideoClip model) : base(model) {
             this.ResetTransformationCommand = new RelayCommand(() => {
                 this.MediaPosition = VideoClip.MediaPositionKey.Descriptor.DefaultValue;
@@ -217,10 +252,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             this.ResetMediaScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = VideoClip.MediaScaleOriginKey.Descriptor.DefaultValue);
             this.ResetOpacityCommand =          new RelayCommand(() => this.Opacity = VideoClip.OpacityKey.Descriptor.DefaultValue);
 
-            this.InsertMediaPositionKeyFrameCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetVector2Value(this.MediaPosition));
-            this.InsertMediaScaleKeyFrameCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetVector2Value(this.MediaScale));
-            this.InsertMediaScaleOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetVector2Value(this.MediaScaleOrigin));
-            this.InsertOpacityKeyFrameCommand =          new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame)).SetDoubleValue(this.Opacity));
+            Func<bool> canInsertKeyFrame = () => this.Track != null && this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame, out long _);
+            this.InsertMediaPositionKeyFrameCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetVector2Value(this.MediaPosition), canInsertKeyFrame);
+            this.InsertMediaScaleKeyFrameCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetVector2Value(this.MediaScale), canInsertKeyFrame);
+            this.InsertMediaScaleOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.RelativePlayHead).SetVector2Value(this.MediaScaleOrigin), canInsertKeyFrame);
+            this.InsertOpacityKeyFrameCommand =          new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetDoubleValue(this.Opacity), canInsertKeyFrame);
 
             this.ToggleMediaPositionActiveCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].ToggleOverrideAction());
             this.ToggleMediaScaleActiveCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].ToggleOverrideAction());
@@ -233,28 +269,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             };
 
             this.Model.RenderInvalidated += this.renderCallback;
-            this.AutomationData.AssignRefreshHandler(VideoClip.MediaPositionKey, (s, e) => {
-                this.RaisePropertyChanged(nameof(this.MediaPosition));
-                this.RaisePropertyChanged(nameof(this.MediaPositionX));
-                this.RaisePropertyChanged(nameof(this.MediaPositionY));
-                this.InvalidateRenderForAutomationRefresh(in e);
-            });
-            this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleKey, (s, e) => {
-                this.RaisePropertyChanged(nameof(this.MediaScale));
-                this.RaisePropertyChanged(nameof(this.MediaScaleX));
-                this.RaisePropertyChanged(nameof(this.MediaScaleY));
-                this.InvalidateRenderForAutomationRefresh(in e);
-            });
-            this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleOriginKey, (s, e) => {
-                this.RaisePropertyChanged(nameof(this.MediaScaleOrigin));
-                this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
-                this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
-                this.InvalidateRenderForAutomationRefresh(in e);
-            });
-            this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, (s, e) => {
-                this.RaisePropertyChanged(nameof(this.Opacity));
-                this.InvalidateRenderForAutomationRefresh(in e);
-            });
+            this.AutomationData.AssignRefreshHandler(VideoClip.MediaPositionKey, RefreshMediaPositionHandler);
+            this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleKey, RefreshMediaScaleHandler);
+            this.AutomationData.AssignRefreshHandler(VideoClip.MediaScaleOriginKey, RefreshMediaScaleOriginHandler);
+            this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, RefreshOpacityHandler);
         }
 
         // this is messy asf but it works :DDD

@@ -1,16 +1,16 @@
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Timelines;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation {
     public class AutomationEngine {
-        public Project Project { get; }
+        public const long FrameRate = 1000L;
 
-        public Rational FrameRate { get; set; }
+        public Project Project { get; }
 
         public AutomationEngine(Project project) {
             this.Project = project;
-            this.FrameRate = new Rational(1000);
         }
 
         // public void UpdateAt(long frame, Rational timeBase) {
@@ -57,24 +57,21 @@ namespace FramePFX.Core.Automation {
             }
 
             foreach (Clip clip in track.Clips) {
-                if (clip.IntersectsFrameAt(frame)) {
-                    this.UpdateClip(clip, frame);
-                }
-            }
-        }
-
-        public void UpdateClip(Clip clip, long absoluteFrame) {
-            clip.IsAutomationChangeInProgress = true;
-            try {
-                long relativeFrame = ((IAutomatable) clip).GetRelativeFrame(absoluteFrame);
-                foreach (AutomationSequence sequence in clip.AutomationData.Sequences) {
-                    if (sequence.IsAutomationInUse) {
-                        sequence.DoUpdateValue(this, relativeFrame);
+                FrameSpan span = clip.FrameSpan;
+                long relative = frame - span.Begin;
+                if (relative >= 0 && relative < span.Duration) {
+                    try {
+                        clip.IsAutomationChangeInProgress = true;
+                        foreach (AutomationSequence sequence in clip.AutomationData.Sequences) {
+                            if (sequence.IsAutomationInUse) {
+                                sequence.DoUpdateValue(this, relative);
+                            }
+                        }
+                    }
+                    finally {
+                        clip.IsAutomationChangeInProgress = false;
                     }
                 }
-            }
-            finally {
-                clip.IsAutomationChangeInProgress = false;
             }
         }
     }

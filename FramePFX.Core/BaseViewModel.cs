@@ -11,10 +11,9 @@ namespace FramePFX.Core {
     ///     This class should normally be inherited by a ViewModel, such as a MainViewModel for the main view
     /// </para>
     /// </summary>
-    public abstract class BaseViewModel : INotifyPropertyChanged, INotifyPropertyChanging {
+    public abstract class BaseViewModel : INotifyPropertyChanged {
         private Dictionary<object, object> internalData;
 
-        public event PropertyChangingEventHandler PropertyChanging;
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected BaseViewModel() {
@@ -27,27 +26,20 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual bool RaisePropertyChanged([CallerMemberName] string propertyName = null) {
+        public virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
-            bool handled = this.RaisePropertyChangingCore(propertyName);
-            if (!handled)
-                this.RaisePropertyChangedCore(propertyName);
-            return handled;
+            this.RaisePropertyChangedCore(propertyName);
         }
 
         /// <summary>
         /// Raises the <see cref="PropertyChanging"/> event, sets <see cref="property"/> to <see cref="newValue"/>, and then raises the <see cref="PropertyChanged"/> event
         /// </summary>
-        public virtual bool RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+        public virtual void RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
-            bool handled = this.RaisePropertyChangingCore(propertyName);
-            if (!handled) {
-                property = newValue;
-                this.RaisePropertyChangedCore(propertyName);
-            }
-            return handled;
+            property = newValue;
+            this.RaisePropertyChangedCore(propertyName);
         }
 
         /// <summary>
@@ -55,32 +47,18 @@ namespace FramePFX.Core {
         /// type <see cref="T"/>, then nothing happens. Otherwise, the <see cref="PropertyChanging"/> event is raised, <see cref="property"/> is
         /// set to <see cref="newValue"/>, and then the <see cref="PropertyChanged"/> event is raised
         /// </summary>
-        public virtual bool RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+        public virtual void RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
             if (EqualityComparer<T>.Default.Equals(property, newValue))
-                return false;
-            bool handled = this.RaisePropertyChangingCore(propertyName);
-            if (!handled) {
-                property = newValue;
-                this.RaisePropertyChangedCore(propertyName);
-            }
-            return handled;
+                return;
+            property = newValue;
+            this.RaisePropertyChangedCore(propertyName);
         }
 
         #endregion
 
         #region Virtual event raisers
-
-        /// <summary>
-        /// Fires the <see cref="PropertyChanging"/> event
-        /// </summary>
-        /// <param name="propertyName"></param>
-        /// <returns>If the changing event is handled or not. When handled, the <see cref="PropertyChanged"/> event is not fired and a ref field is not updated</returns>
-        protected virtual bool RaisePropertyChangingCore(string propertyName) {
-            this.PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
-            return false;
-        }
 
         protected virtual void RaisePropertyChangedCore(string propertyName) {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

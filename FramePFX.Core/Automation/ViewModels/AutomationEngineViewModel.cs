@@ -1,7 +1,9 @@
 using System;
+using System.Collections.ObjectModel;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.ViewModels {
     public class AutomationEngineViewModel {
@@ -28,55 +30,64 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         private void RefreshTimeline(TimelineViewModel timeline, long frame) {
-            timeline.IsAutomationChangeInProgress = true;
+            ReadOnlyObservableCollection<AutomationSequenceViewModel> sequences = timeline.AutomationData.Sequences;
             try {
-                foreach (AutomationSequenceViewModel sequence in timeline.AutomationData.Sequences) {
+                timeline.IsAutomationChangeInProgress = true;
+                for (int i = 0, c = sequences.Count; i < c; i++) {
+                    AutomationSequenceViewModel sequence = sequences[i];
                     if (sequence.IsAutomationInUse) {
                         sequence.DoRefreshValue(this, frame, true, true);
                     }
+                }
+
+                for (int i = 0, c = timeline.Tracks.Count; i < c; i++) {
+                    TrackViewModel track = timeline.Tracks[i];
+                    this.RefreshTrack(track, frame);
                 }
             }
             finally {
                 timeline.IsAutomationChangeInProgress = false;
             }
-
-            foreach (TrackViewModel track in timeline.Tracks) {
-                this.RefreshTrack(track, frame);
-            }
         }
 
         private void RefreshTrack(TrackViewModel track, long frame) {
-            track.IsAutomationRefreshInProgress = true;
+            int i, c, j, k;
+            AutomationSequenceViewModel sequence;
+            ReadOnlyObservableCollection<AutomationSequenceViewModel> sequences;
             try {
-                foreach (AutomationSequenceViewModel sequence in track.AutomationData.Sequences) {
+                sequences = track.AutomationData.Sequences;
+                track.IsAutomationRefreshInProgress = true;
+                for (i = 0, c = sequences.Count; i < c; i++) {
+                    sequence = sequences[i];
                     if (sequence.IsAutomationInUse) {
                         sequence.DoRefreshValue(this, frame, true, true);
+                    }
+                }
+
+                ReadOnlyObservableCollection<ClipViewModel> clips = track.Clips;
+                for (i = 0, c = clips.Count; i < c; i++) {
+                    ClipViewModel clip = track.Clips[i];
+                    FrameSpan span = clip.FrameSpan;
+                    long relativeFrame = frame - span.Begin;
+                    if (relativeFrame >= 0 && relativeFrame < span.Duration) {
+                        try {
+                            sequences = clip.AutomationData.Sequences;
+                            clip.IsAutomationRefreshInProgress = true;
+                            for (j = 0, k = sequences.Count; j < k; j++) {
+                                sequence = sequences[j];
+                                if (sequence.IsAutomationInUse) {
+                                    sequence.DoRefreshValue(this, relativeFrame, true, true);
+                                }
+                            }
+                        }
+                        finally {
+                            clip.IsAutomationRefreshInProgress = false;
+                        }
                     }
                 }
             }
             finally {
                 track.IsAutomationRefreshInProgress = false;
-            }
-
-            foreach (ClipViewModel clip in track.Clips) {
-                if (clip.IntersectsFrameAt(frame)) {
-                    this.RefreshClip(clip, frame);
-                }
-            }
-        }
-
-        private void RefreshClip(ClipViewModel clip, long absoluteFrame) {
-            clip.IsAutomationRefreshInProgress = true;
-            try {
-                long relativeFrame = ((IAutomatable) clip.Model).GetRelativeFrame(absoluteFrame);
-                foreach (AutomationSequenceViewModel sequence in clip.AutomationData.Sequences) {
-                    if (sequence.IsAutomationInUse) {
-                        sequence.DoRefreshValue(this, relativeFrame, true, true);
-                    }
-                }
-            }
-            finally {
-                clip.IsAutomationRefreshInProgress = false;
             }
         }
 
@@ -89,7 +100,12 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void UpdateAndRefresh(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
-            long frame = data.Owner.AutomationModel.GetRelativeFrame(this.Project.Timeline.PlayHeadFrame);
+            long frame = this.Project.Timeline.PlayHeadFrame;
+            if (data.Owner is ClipViewModel clip) {
+                FrameSpan span = clip.FrameSpan;
+                frame = Maths.Clamp(frame - span.Begin, 0, span.Duration - 1);
+            }
+
             sequence.Model.DoUpdateValue(this.Model, frame);
             sequence.DoRefreshValue(this, frame, this.IsPlayback, false);
         }

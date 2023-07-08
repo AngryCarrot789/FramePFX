@@ -27,6 +27,9 @@ namespace FramePFX.Core {
         public static Action<string> OnShortcutModified { get; set; }
         public static Action<string> BroadcastShortcutActivity { get; set; }
 
+        /// <summary>
+        /// The application dispatcher, used to execute actions on the main thread
+        /// </summary>
         public static IDispatcher Dispatcher { get; set; }
         public static IClipboardService Clipboard => Provide<IClipboardService>();
         public static IMessageDialogService MessageDialogs => Provide<IMessageDialogService>();

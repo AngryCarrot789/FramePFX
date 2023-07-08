@@ -319,9 +319,5 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public bool IsClipTypeAcceptable(ClipViewModel clip) {
             return this.Model.IsClipTypeAcceptable(clip.Model);
         }
-
-        protected virtual void OnAutomationPropertyUpdated(string propertyName, in RefreshAutomationValueEventArgs e) {
-            base.RaisePropertyChanged(propertyName);
-        }
     }
 }

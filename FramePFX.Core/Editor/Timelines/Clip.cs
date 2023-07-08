@@ -62,7 +62,7 @@ namespace FramePFX.Core.Editor.Timelines {
         /// <summary>
         /// The position of this clip in terms of video frames, in the form of a <see cref="Utils.FrameSpan"/> which has a begin and duration property
         /// </summary>
-        public FrameSpan FrameSpan { get; set; }
+        public FrameSpan FrameSpan;
 
         /// <summary>
         /// Helper property for getting and setting the <see cref="Utils.FrameSpan.Begin"/> property
@@ -108,8 +108,6 @@ namespace FramePFX.Core.Editor.Timelines {
             this.AutomationData = new AutomationData(this);
         }
 
-        public long GetRelativeFrame(long frame) => frame - this.FrameBegin;
-
         /// <summary>
         /// Sets the given clip's track
         /// </summary>
@@ -130,6 +128,14 @@ namespace FramePFX.Core.Editor.Timelines {
             else {
                 model.Track = track;
             }
+        }
+
+        public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
+
+        public bool GetRelativeFrame(long playhead, out long frame) {
+            FrameSpan span = this.FrameSpan;
+            frame = playhead - span.Begin;
+            return frame >= 0 && frame < span.Duration;
         }
 
         /// <summary>

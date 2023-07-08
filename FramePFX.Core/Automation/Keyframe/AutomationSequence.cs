@@ -30,7 +30,8 @@ namespace FramePFX.Core.Automation.Keyframe {
         public bool HasKeyFrames => this.keyFrameList.Count > 0;
 
         /// <summary>
-        /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present, meaning the automation engine is operating in normal operation
+        /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key
+        /// frames present, meaning the automation sequence can operate normally
         /// </summary>
         public bool IsAutomationInUse => !this.IsOverrideEnabled && this.HasKeyFrames;
 
@@ -78,42 +79,42 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         #region Helper Getter Functions
 
-        // Caching just as a slight performance helper... hopefully. It seems like a new lambda class is creating
-        // each time one is used, unless it gets inlined by the JIT... dunno. TBD
-        private static readonly Func<KeyFrame, float>   VAL_float =   k => ((KeyFrameFloat) k).Value;
-        private static readonly Func<KeyFrame, double>  VAL_double =  k => ((KeyFrameDouble) k).Value;
-        private static readonly Func<KeyFrame, long>    VAL_long =    k => ((KeyFrameLong) k).Value;
-        private static readonly Func<KeyFrame, bool>    VAL_bool =    k => ((KeyFrameBoolean) k).Value;
-        private static readonly Func<KeyFrame, Vector2> VAL_Vector2 = k => ((KeyFrameVector2) k).Value;
-        private static readonly Func<long, KeyFrame, KeyFrame, float>   IPOL_float =   (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, double>  IPOL_double =  (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, long>    IPOL_long =    (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, bool>    IPOL_bool =    (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, Vector2> IPOL_Vector2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
+        // Caching just as a slight performance helper... hopefully. It seems like a new lambda class
+        // is being instantiated each time one is used, unless it gets inlined by the JIT... dunno. TBD
+        private static readonly Func<KeyFrame, float>   FuncGetFloat =  k => ((KeyFrameFloat) k).Value;
+        private static readonly Func<KeyFrame, double>  FuncGetDouble = k => ((KeyFrameDouble) k).Value;
+        private static readonly Func<KeyFrame, long>    FuncGetLong =   k => ((KeyFrameLong) k).Value;
+        private static readonly Func<KeyFrame, bool>    FuncGetBool =   k => ((KeyFrameBoolean) k).Value;
+        private static readonly Func<KeyFrame, Vector2> FuncGetVect2 =  k => ((KeyFrameVector2) k).Value;
+        private static readonly Func<long, KeyFrame, KeyFrame, float>   FuncCalcFloat =  (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, double>  FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, long>    FuncCalcLong =   (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, bool>    FuncCalcBool =   (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVec2 =   (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
 
         public float GetFloatValue(long time) {
             ValidateType(AutomationDataType.Float, this.DataType);
-            return this.TryGetValueInternal(time, VAL_float, IPOL_float);
+            return this.TryGetValueInternal(time, FuncGetFloat, FuncCalcFloat);
         }
 
         public double GetDoubleValue(long time) {
             ValidateType(AutomationDataType.Double, this.DataType);
-            return this.TryGetValueInternal(time, VAL_double, IPOL_double);
+            return this.TryGetValueInternal(time, FuncGetDouble, FuncCalcDouble);
         }
 
         public long GetLongValue(long time) {
             ValidateType(AutomationDataType.Long, this.DataType);
-            return this.TryGetValueInternal(time, VAL_long, IPOL_long);
+            return this.TryGetValueInternal(time, FuncGetLong, FuncCalcLong);
         }
 
         public bool GetBooleanValue(long time) {
             ValidateType(AutomationDataType.Boolean, this.DataType);
-            return this.TryGetValueInternal(time, VAL_bool, IPOL_bool);
+            return this.TryGetValueInternal(time, FuncGetBool, FuncCalcBool);
         }
 
         public Vector2 GetVector2Value(long time) {
             ValidateType(AutomationDataType.Vector2, this.DataType);
-            return this.TryGetValueInternal(time, VAL_Vector2, IPOL_Vector2);
+            return this.TryGetValueInternal(time, FuncGetVect2, FuncCalcVec2);
         }
 
         private T TryGetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate) {

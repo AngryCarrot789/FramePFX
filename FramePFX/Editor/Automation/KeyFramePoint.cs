@@ -13,7 +13,6 @@ namespace FramePFX.Editor.Automation {
         private readonly AutomationSequenceEditor editor;
         public readonly KeyFrameViewModel keyFrame;
         private Point? renderPoint;
-        private StreamGeometry geometry;
 
         /// <summary>
         /// The index of this key frame point in the backing list
@@ -45,12 +44,11 @@ namespace FramePFX.Editor.Automation {
         }
 
         public static KeyFramePoint ForKeyFrame(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {
-            return keyFrame is KeyFrameVector2ViewModel ? new KeyFramePointVec2(editor, keyFrame) : new KeyFramePoint(editor, keyFrame);
+            return new KeyFramePoint(editor, keyFrame);
         }
 
         public void InvalidateRenderData() {
             this.renderPoint = null;
-            this.geometry = null;
         }
 
         public Point GetLocation() {
@@ -73,7 +71,7 @@ namespace FramePFX.Editor.Automation {
             if (AutomationSequenceEditor.RectContains(ref drawing_area, ref area)) {
                 dc.DrawEllipse(Brushes.Transparent, this.editor.KeyFrameTransparentPen, point, rH, rH);
                 Pen pen;
-                if (this.editor.IsOverrideEnabled) {
+                if (this.editor.isOverrideEnabled) {
                     pen = this.editor.KeyOverridePen;
                 }
                 else if (this.IsMovingPoint || this.IsMouseOverPoint) {
@@ -87,9 +85,21 @@ namespace FramePFX.Editor.Automation {
             }
         }
 
+        public static bool IsLineVisible(ref Rect rect, ref Point p1, ref Point p2) {
+            double leftmost = Math.Min(p1.X, p2.X);
+            double rightmost = Math.Max(p1.X, p2.X);
+            double topmost = Math.Min(p1.Y, p2.Y);
+            double bottommost = Math.Max(p1.Y, p2.Y);
+            if (rightmost < rect.Left || leftmost > rect.Right || bottommost < rect.Top || topmost > rect.Bottom) {
+                return false;
+            }
+
+            return true;
+        }
+
         public virtual void RenderLine(DrawingContext dc, KeyFramePoint target, ref Rect drawing_area) {
             Point p1 = this.GetLocation();
-            Point p2 = AutomationSequenceEditor.ClampRightSide(ref drawing_area, target.GetLocation());
+            Point p2 = target.GetLocation();
 
             // long timeA = this.keyFrame.Timestamp;
             // long timeB = target.keyFrame.Timestamp;
@@ -109,15 +119,15 @@ namespace FramePFX.Editor.Automation {
             //     }
             // }
 
-            if (AutomationSequenceEditor.RectContains(ref drawing_area, ref p1) || AutomationSequenceEditor.RectContains(ref drawing_area, ref p2)) {
+            if (IsLineVisible(ref drawing_area, ref p1, ref p2)) { // AutomationSequenceEditor.RectContains(ref drawing_area, ref p1) || AutomationSequenceEditor.RectContains(ref drawing_area, ref p2)
                 dc.DrawLine(this.editor.LineTransparentPen, p1, p2);
                 // dc.DrawGeometry(null, this.editor.LineTransparentPen, this.geometry);
                 Pen pen;
                 if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail) {
-                    pen = this.editor.IsOverrideEnabled ? this.editor.LineOverridePen : (this.LastLineHitType != LineHitType.None ? this.editor.LineMouseOverPen : this.editor.LinePen);
+                    pen = this.editor.isOverrideEnabled ? this.editor.LineOverridePen : (this.LastLineHitType != LineHitType.None ? this.editor.LineMouseOverPen : this.editor.LinePen);
                 }
                 else {
-                    pen = this.editor.IsOverrideEnabled ? this.editor.LineOverridePen : this.editor.LinePen;
+                    pen = this.editor.isOverrideEnabled ? this.editor.LineOverridePen : this.editor.LinePen;
                 }
 
                 dc.DrawLine(pen, p1, p2);
@@ -175,18 +185,6 @@ namespace FramePFX.Editor.Automation {
             double maxX = Math.Max(a.X, b.X);
             double rangeY = thickness * bend;
             return lineY >= p.Y - rangeY && lineY <= p.Y + rangeY && p.X >= minX && p.X <= maxX;
-        }
-    }
-
-    public class KeyFramePointVec2 : KeyFramePoint {
-        public KeyFramePointVec2(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) : base(editor, keyFrame) {
-
-        }
-
-        public override void RenderEllipse(DrawingContext dc, ref Rect drawing_area) {
-            base.RenderEllipse(dc, ref drawing_area);
-            // Point vecPoint = AutomationSequenceEditor.GetVec2SubPoint(this, zoom, ref rect);
-            // dc.DrawEllipse(Brushes.Transparent, AutomationSequenceEditor.Vec2Pen, vecPoint, 3d, 3d);
         }
     }
 }

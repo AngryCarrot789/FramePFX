@@ -82,8 +82,8 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
                 return;
             }
 
-            bool positionUpdated = this.positionManager.OnUpdateMakerPosition(this.Marker, point);
-            this.Marker.Visibility = positionUpdated ? Visibility.Visible : Visibility.Collapsed;
+            // bool positionUpdated = this.positionManager.OnUpdateMakerPosition(this.Marker, point);
+            // this.Marker.Visibility = positionUpdated ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void OnRulerSizeChanged(object sender, SizeChangedEventArgs e) => this.InvalidateVisual();
@@ -97,48 +97,67 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
 
         protected override void OnRender(DrawingContext dc) {
             base.OnRender(dc);
-            if (this.CanDrawRuler()) {
-                Rect db = this.scroller == null ? new Rect(new Point(), this.RenderSize) : new Rect(this.scroller.HorizontalOffset, this.scroller.VerticalOffset, this.scroller.ViewportWidth, this.scroller.ViewportHeight);
-                (double pixel_step, double value_step) = this.GetStepProperties();
-                double major_line_pos = this.DisplayZeroLine ? 0 : pixel_step;
-                double subpixel_size = pixel_step / SubStepNumber;
-
-                // calculate visible pixel bounds
-                double pixel_bound_begin = this.Position == RulerPosition.Top ? db.Left : db.Top;
-                double pixel_bound_end = this.Position == RulerPosition.Top ? db.Right : db.Bottom;
-
-                // calculate an initial offset instead of looping until we get into a visible region
-                // Flooring may result in us drawing things partially offscreen to the left, which is kinda required
-                int initial_offset = (int) Math.Floor(pixel_bound_begin / pixel_step);
-                for (int i = initial_offset; true; i++) {
-                    double pixel = i * pixel_step;
-                    if (pixel <= pixel_bound_end) {
-                        for (int y = 1; y < SubStepNumber; ++y) {
-                            double sub_pixel = pixel + y * subpixel_size;
-                            this.positionManager.DrawMinorLine(dc, sub_pixel);
-                        }
-
-                        double text_value = i * value_step;
-                        this.positionManager.DrawMajorLine(dc, pixel + major_line_pos);
-                        this.positionManager.DrawText(dc, text_value, pixel);
-                    }
-                    else {
-                        break;
-                    }
-                }
-            }
-            else {
+            if (!this.CanDrawRuler()) {
                 return;
             }
-        }
 
-        // public static void Draw(DrawingContext dc, Rect render_area, Size control_size, double pixel_offset) {
-        //     double cycles = Math.Ceiling(rect.Left - 0) / subPixelSize;
-        //     double pixel_start = cycles * subPixelSize;
-        //     double pixel = pixel_start;
-        //     while (pixel >= rect.Left && pixel <= ) {
-        //     }
-        // }
+            // calculate visible pixel bounds
+            Rect rect = this.scroller == null ? new Rect(new Point(), this.RenderSize) : new Rect(this.scroller.HorizontalOffset, this.scroller.VerticalOffset, this.scroller.ViewportWidth, this.scroller.ViewportHeight);
+
+            double pixelStep;
+            double valueStep;
+            if (this.SlaveStepProperties == null) {
+                (pixelStep, valueStep) = this.GetMajorStep();
+                this.StepProperties = new RulerStepProperties {PixelSize = pixelStep, Value = valueStep};
+            }
+            else {
+                (pixelStep, valueStep) = this.SlaveStepProperties;
+            }
+
+            if (this.ValueStepTransform != null) {
+                valueStep = this.ValueStepTransform(valueStep);
+            }
+
+            double major_line_pos = this.DisplayZeroLine ? 0 : pixelStep;
+
+            int steps = Math.Min((int) Math.Floor(valueStep), SubStepNumber);
+            double subpixel_size = pixelStep / steps;
+
+            // pxA = bound begin, pxB = bound end
+            double pxA, pxB;
+            if (this.Position == RulerPosition.Top) {
+                pxA = rect.Left;
+                pxB = rect.Right + pixelStep;
+            }
+            else {
+                pxA = rect.Top;
+                pxB = rect.Bottom + pixelStep;
+            }
+
+            // calculate an initial offset instead of looping until we get into a visible region
+            // Flooring may result in us drawing things partially offscreen to the left, which is kinda required
+            int i = (int) Math.Floor(pxA / pixelStep);
+            int j = (int) Math.Ceiling(pxB / pixelStep);
+            do {
+                double pixel = i * pixelStep;
+                if (i > j) {
+                    break;
+                }
+
+                for (int y = 1; y < steps; ++y) {
+                    double sub_pixel = pixel + y * subpixel_size;
+                    this.positionManager.DrawMinorLine(dc, sub_pixel);
+                }
+
+                double text_value = i * valueStep;
+                if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
+                    this.positionManager.DrawMajorLine(dc, pixel);
+                    this.positionManager.DrawText(dc, text_value, pixel);
+                }
+
+                i++;
+            } while (true);
+        }
 
         private (double pixelStep, double valueStep) GetStepProperties() {
             double pixelStep;

@@ -277,20 +277,20 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         private object currentItem;
 
-        protected override DependencyObject GetContainerForItemOverride() {
+        protected sealed override DependencyObject GetContainerForItemOverride() {
             object item = this.currentItem;
             this.currentItem = null;
             return this.GetContainerForItem(item);
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item) {
-            if (this is VideoTrackControl) {
-                return item is VideoClipControl;
-            }
-
+        protected sealed override bool IsItemItsOwnContainerOverride(object item) {
+            if (this.IsItemAContainer(item))
+                return true;
             this.currentItem = item;
             return false;
         }
+
+        protected abstract bool IsItemAContainer(object item);
 
         protected abstract TimelineClipControl GetContainerForItem(object item);
     }

@@ -296,7 +296,6 @@
     <Compile Include="Editor\Timeline\Controls\VideoClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\VideoTrackControl.cs" />
     <Compile Include="Editor\Timeline\TimelineStyles.xaml.cs" />
-    <Compile Include="Editor\Timeline\Track\Clips\ClipDragData.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\ClipType.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IAudioClip.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IClip.cs" />
@@ -306,7 +305,6 @@
     <Compile Include="Editor\Timeline\TimelineTrackStyleSelector.cs" />
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\KeyboardUtils.cs" />
-    <Compile Include="Editor\Timeline\Utils\TimelineClipDragData.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
     <Compile Include="Highlighting\HighlightableString.cs" />

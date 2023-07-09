@@ -7,6 +7,8 @@ namespace FramePFX.Editor.Timeline.Controls {
         public AudioTrackControl() {
         }
 
+        protected override bool IsItemAContainer(object item) => item is AudioClipControl;
+
         protected override TimelineClipControl GetContainerForItem(object item) {
             if (item == null || item is AudioClipViewModel)
                 return new AudioClipControl();

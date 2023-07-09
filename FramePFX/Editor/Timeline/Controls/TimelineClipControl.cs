@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -14,10 +13,9 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
-using Rect = System.Windows.Rect;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public abstract class TimelineClipControl : Control {
+    public class TimelineClipControl : Control {
         private static readonly object LongZeroObject = 0L;
 
         public static readonly DependencyProperty IsSelectedProperty =
@@ -163,7 +161,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         private bool isLoadedWithActiveDrag;
 
-        protected TimelineClipControl() {
+        public TimelineClipControl() {
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.Focusable = true;

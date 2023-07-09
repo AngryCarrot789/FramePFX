@@ -3,7 +3,6 @@ namespace FramePFX.Editor.Timeline.Controls {
         public new AudioTrackControl Track => (AudioTrackControl) base.Track;
 
         public AudioClipControl() {
-
         }
 
         public override string ToString() {

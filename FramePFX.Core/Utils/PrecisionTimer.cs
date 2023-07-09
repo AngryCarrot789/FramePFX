@@ -113,15 +113,20 @@ namespace FramePFX.Core.Utils {
             //     }
             // }
 
-            long currentTime = Time.GetSystemTicks();
-            while (currentTime >= this.nextTickTime) {
+            // long currentTime = Time.GetSystemTicks();
+            // while (currentTime >= this.nextTickTime) {
+            //     this.nextTickTime += this.intervalTicks;
+            //     long a = Time.GetSystemTicks();
+            //     this.TickCallback?.Invoke();
+            //     long b = Time.GetSystemTicks() - a;
+            //     if (b >= this.nextTickTime) {
+            //         break;
+            //     }
+            // }
+
+            if (Time.GetSystemTicks() >= this.nextTickTime) {
                 this.nextTickTime += this.intervalTicks;
-                long a = Time.GetSystemTicks();
                 this.TickCallback?.Invoke();
-                long b = Time.GetSystemTicks() - a;
-                if (b >= this.nextTickTime) {
-                    break;
-                }
             }
         }
 

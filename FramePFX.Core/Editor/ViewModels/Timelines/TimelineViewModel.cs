@@ -261,19 +261,38 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             long oldFrame = this.PlayHeadFrame;
             this.PlayHeadFrame = Periodic.Add(oldFrame, change, 0L, this.MaxDuration);
 
-            this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, this.PlayHeadFrame);
-            this.Project.Editor.DoRender().ContinueWith((t) => {
-                if (!this.isFramePropertyChangeScheduled) {
-                    this.isFramePropertyChangeScheduled = true;
-                    IoC.Dispatcher.Invoke(() => {
-                        this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
-                        this.isFramePropertyChangeScheduled = false;
+            if (IoC.Dispatcher.IsOnOwnerThread) {
+                this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, this.PlayHeadFrame);
+                this.Project.Editor.DoRender().ContinueWith((t) => {
+                    if (!this.isFramePropertyChangeScheduled) {
+                        this.isFramePropertyChangeScheduled = true;
+                        IoC.Dispatcher.InvokeAsync(() => {
+                            this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+                            this.isFramePropertyChangeScheduled = false;
+                        });
+                    }
 
+                    this.ignorePlayHeadPropertyChange = false;
+                });
+                this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+            }
+            else {
+                IoC.Dispatcher.Invoke(() => {
+                    this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, this.PlayHeadFrame);
+                    this.Project.Editor.DoRender().ContinueWith((t) => {
+                        if (!this.isFramePropertyChangeScheduled) {
+                            this.isFramePropertyChangeScheduled = true;
+                            IoC.Dispatcher.InvokeAsync(() => {
+                                this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+                                this.isFramePropertyChangeScheduled = false;
+                            });
+                        }
+
+                        this.ignorePlayHeadPropertyChange = false;
                     });
-                }
-
-                this.ignorePlayHeadPropertyChange = false;
-            });
+                    this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+                });
+            }
         }
 
         public void Dispose() {

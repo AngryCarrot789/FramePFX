@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Core.Editor;
-using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
@@ -15,6 +14,10 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
     public class TimelineControl : ItemsControl, IHasZoom {
+        //       Width
+        // --------------------
+        //  Zoom   x   Duration
+
         public static readonly DependencyProperty UnitZoomProperty =
             DependencyProperty.Register(
                 "UnitZoom",
@@ -32,7 +35,7 @@ namespace FramePFX.Editor.Timeline.Controls {
                 typeof(long),
                 typeof(TimelineControl),
                 new FrameworkPropertyMetadata(
-                    10000L,
+                    long.MaxValue,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.AffectsMeasure,
                     (d, e) => ((TimelineControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
@@ -56,8 +59,6 @@ namespace FramePFX.Editor.Timeline.Controls {
         /// </summary>
         public double VisibleFrames => this.ActualWidth / this.UnitZoom;
 
-        public TimelineClipDragData DragData { get; set; }
-
         public Point ClipMousePosForTrackTransition { get; set; }
 
         private ScrollViewer PART_ScrollViewer;
@@ -77,8 +78,8 @@ namespace FramePFX.Editor.Timeline.Controls {
             return this.GetTrackContainers<TimelineTrackControl>(this.Items);
         }
 
-        public IEnumerable<TTrack> GetTrackContainers<TTrack>() where TTrack : TimelineTrackControl {
-            return this.GetTrackContainers<TTrack>(this.Items);
+        public IEnumerable<T> GetTrackContainers<T>() where T : TimelineTrackControl {
+            return this.GetTrackContainers<T>(this.Items);
         }
 
         public IEnumerable<TTRack> GetTrackContainers<TTRack>(IEnumerable items) where TTRack : TimelineTrackControl {
@@ -126,19 +127,6 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public bool HasActiveDrag() {
-            if (this.DragData == null) {
-                return false;
-            }
-            else if (this.DragData.IsCompleted) {
-                this.DragData = null; // just in case
-                return false;
-            }
-            else {
-                return true;
-            }
-        }
-
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.PART_ScrollViewer = this.GetTemplateElement<ScrollViewer>("PART_ScrollViewer");
@@ -181,6 +169,10 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
             base.OnPreviewMouseWheel(e);
+            if (e.Delta == 0) {
+                return;
+            }
+
             ModifierKeys mods = Keyboard.Modifiers;
             if ((mods & ModifierKeys.Alt) != 0) {
                 if (e.OriginalSource is DependencyObject src) {
@@ -202,15 +194,12 @@ namespace FramePFX.Editor.Timeline.Controls {
 
                 e.Handled = true;
                 bool shift = (mods & ModifierKeys.Shift) != 0;
-                double multiplier;
+                double multiplier = (shift ? 0.1 : 0.25);
                 if (e.Delta > 0) {
-                    multiplier = shift ? 1.05 : 1.2;
-                }
-                else if (e.Delta < 0) {
-                    multiplier = shift ? 0.95 : 0.8;
+                    multiplier = 1d + multiplier;
                 }
                 else {
-                    return;
+                    multiplier = 1d - multiplier;
                 }
 
                 double oldzoom = this.UnitZoom;
@@ -233,13 +222,10 @@ namespace FramePFX.Editor.Timeline.Controls {
                     this.PART_ScrollViewer.LineRight();
                     this.PART_ScrollViewer.LineRight();
                 }
-                else if (e.Delta > 0) {
-                    this.PART_ScrollViewer.LineLeft();
-                    this.PART_ScrollViewer.LineLeft();
-                    this.PART_ScrollViewer.LineLeft();
-                }
                 else {
-                    return;
+                    this.PART_ScrollViewer.LineLeft();
+                    this.PART_ScrollViewer.LineLeft();
+                    this.PART_ScrollViewer.LineLeft();
                 }
 
                 e.Handled = true;
@@ -273,8 +259,8 @@ namespace FramePFX.Editor.Timeline.Controls {
                 this.PART_ItemsPresenter.Width = TimelineUtils.FrameToPixel(this.MaxDuration, this.UnitZoom);
             }
 
-            foreach (TimelineTrackControl element in this.GetTrackContainers()) {
-                element.OnUnitZoomChanged();
+            foreach (TimelineTrackControl track in this.GetTrackContainers()) {
+                track.OnUnitZoomChanged();
             }
 
             this.PART_PlayHead?.UpdatePosition();

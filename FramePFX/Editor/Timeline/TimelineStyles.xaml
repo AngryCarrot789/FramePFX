@@ -103,7 +103,7 @@
                                 </DockPanel>
                             </DockPanel>
                         </Border>
-                        <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True"/>
+                        <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True" Panel.ZIndex="2"/>
                         <ctrl:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                         <ctrl:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
                         <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"

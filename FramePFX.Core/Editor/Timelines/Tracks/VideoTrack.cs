@@ -27,7 +27,7 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
         /// </summary>
         public bool IsActuallyVisible => this.IsVisible && this.Opacity > MinimumVisibleOpacity;
 
-        public VideoTrack(Timeline timeline) : base(timeline) {
+        public VideoTrack() {
             this.Opacity = 1d;
             this.IsVisible = true;
             this.AutomationData.AssignKey(OpacityKey, UpdateOpacity);
@@ -35,7 +35,7 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
         }
 
         public override Track CloneCore() {
-            VideoTrack track = new VideoTrack(this.Timeline) {
+            VideoTrack track = new VideoTrack() {
                 MaxHeight = this.MaxHeight,
                 MinHeight = this.MinHeight,
                 Height = this.Height,

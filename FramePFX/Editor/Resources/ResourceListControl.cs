@@ -96,8 +96,11 @@ namespace FramePFX.Editor.Resources {
             }
 
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files) {
-                e.Handled = true;
-                await this.FileDropNotifier.OnFilesDropped(files);
+                FileDropType type = FileDropType.None;
+                if (await this.FileDropNotifier.CanDrop(files, ref type)) {
+                    e.Handled = true;
+                    await this.FileDropNotifier.OnFilesDropped(files);
+                }
             }
             else if (e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel item) {
                 return;

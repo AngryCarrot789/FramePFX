@@ -1,6 +1,5 @@
 using System;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 
 namespace Dragablz {
     public delegate void DragablzItemEventHandler(object sender, DragablzItemEventArgs e);

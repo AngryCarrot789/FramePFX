@@ -7,6 +7,7 @@ using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Views.Dialogs.FilePicking;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
+using SkiaSharp;
 
 namespace FramePFX.Core {
     public static class IoC {

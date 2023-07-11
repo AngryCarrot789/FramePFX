@@ -22,7 +22,7 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
         public double sampleRate = 44100;
         public double frequency = 441;
 
-        public AudioTrack(Timeline timeline) : base(timeline) {
+        public AudioTrack() {
             this.Volume = VolumeKey.Descriptor.DefaultValue;
             this.IsMuted = IsMutedKey.Descriptor.DefaultValue;
             this.AutomationData.AssignKey(VolumeKey, UpdateVolume);
@@ -85,7 +85,7 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
         }
 
         public override Track CloneCore() {
-            AudioTrack track = new AudioTrack(this.Timeline) {
+            AudioTrack track = new AudioTrack() {
                 Volume = this.Volume,
                 MaxHeight = this.MaxHeight,
                 MinHeight = this.MinHeight,

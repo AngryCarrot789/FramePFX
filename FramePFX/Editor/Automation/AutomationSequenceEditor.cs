@@ -5,7 +5,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,7 +15,6 @@ using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Utils;
 using FramePFX.Utils;
-using SkiaSharp;
 using Rect = System.Windows.Rect;
 using Vector = System.Windows.Vector;
 
@@ -615,14 +613,14 @@ namespace FramePFX.Editor.Automation {
             }
 
             Point mPos = e.GetPosition(this);
-            if (this.GetIntersection(ref mPos, out KeyFramePoint hitKey, out LineHitType lineHit, out int index)) {
+            if (this.GetIntersection(ref mPos, out KeyFramePoint hitKey, out LineHitType lineHit)) {
                 if (this.captured != null) {
                     this.ClearCapture(lineHit != LineHitType.None);
                 }
 
                 if (lineHit == LineHitType.None) {
                     e.Handled = true;
-                    hitKey.keyFrame.OwnerSequence.RemoveKeyFrameAt(index);
+                    hitKey.keyFrame.OwnerSequence.RemoveKeyFrameAt(hitKey.Index);
                 }
                 else if (this.Sequence is AutomationSequenceViewModel sequence) {
                     if (this.isCaptureInitialised) {
@@ -1028,7 +1026,8 @@ namespace FramePFX.Editor.Automation {
         // TODO: iterate through all key frames to find the one which the mouse is closest to maybe?
 
         public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
-            return this.GetIntersection(ref p, out keyFrame, out lineHit, out _);
+            return this.GetIntersectionActuallyBinarySearch(ref p, out keyFrame, out lineHit);
+            // return this.GetIntersection(ref p, out keyFrame, out lineHit, out _);
         }
 
         // TODO: binary search maybe?
@@ -1085,20 +1084,54 @@ namespace FramePFX.Editor.Automation {
             return false;
         }
 
-        public static bool Intersects(ref Point pos, ref Point p1, ref Point p2, out bool hitLine) {
-            const double r2 = EllipseHitRadius * 2d;
-            Rect point_area = new Rect(p2.X - EllipseHitRadius, p2.Y - EllipseHitRadius, r2, r2);
-            if (RectContains(ref point_area, ref pos)) { // lazy; AABB intersection
-                hitLine = false;
+        private const double R1 = EllipseHitRadius, R2 = R1 * 2d;
+
+        public bool GetIntersectionActuallyBinarySearch(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
+            List<KeyFramePoint> list = this.backingList;
+            int count = list.Count, i = 0, j = count - 1;
+            if (count < 1) {
+                goto fail;
+            }
+
+            Point lastPoint = new Point(0, list[0].GetLocation().Y);
+
+            loop:
+            keyFrame = this.backingList[i];
+            Point point = keyFrame.GetLocation();
+            Rect aabb = new Rect(point.X - R1, point.Y - R1, R2, R2);
+            if (RectContains(ref aabb, ref p)) {
+                lineHit = LineHitType.None;
                 return true;
             }
-            else if (IsMouseOverLine(ref pos, ref p1, ref p2, LineHitThickness)) {
-                hitLine = true;
+            else if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness)) {
+                if (i != 0) {
+                    lineHit = LineHitType.Normal;
+                    keyFrame = list[i - 1];
+                }
+                else {
+                    lineHit = LineHitType.Head;
+                }
+
                 return true;
             }
             else {
-                return hitLine = false;
+                lastPoint = point;
+                point = new Point(this.ActualWidth, point.Y);
+                if (++i < count) {
+                    goto loop;
+                }
+
+                if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness)) {
+                    keyFrame = this.backingList[count - 1];
+                    lineHit = LineHitType.Tail;
+                    return true;
+                }
             }
+
+            fail:
+            keyFrame = null;
+            lineHit = LineHitType.None;
+            return false;
         }
 
         #endregion

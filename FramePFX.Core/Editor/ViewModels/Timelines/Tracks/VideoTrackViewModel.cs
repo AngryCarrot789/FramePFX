@@ -120,7 +120,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             track.InvalidateRenderForAutomationRefresh(in e);
         };
 
-        public VideoTrackViewModel(TimelineViewModel timeline, VideoTrack model) : base(timeline, model) {
+        public VideoTrackViewModel(VideoTrack model) : base(model) {
             this.AutomationData.AssignRefreshHandler(VideoTrack.OpacityKey, RefreshOpacityHandler);
             this.AutomationData.AssignRefreshHandler(VideoTrack.IsVisibleKey, RefreshIsVisibleHandler);
         }

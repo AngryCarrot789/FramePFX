@@ -43,18 +43,23 @@ namespace FramePFX.Core.Editor.Timelines {
             }
         }
 
-        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
-            base.OnTrackChanged(oldTrack, newTrack);
+        public override void OnTrackChanged(Track oldTrack, Track track) {
+            base.OnTrackChanged(oldTrack, track);
             if (this.ResourcePath == null)
                 return;
-            if (newTrack == null) {
-                this.ResourcePath.SetManager(null);
+            ResourceManager manager = track?.Timeline?.Project?.ResourceManager;
+            if (manager != this.ResourcePath.Manager) {
+                this.ResourcePath.SetManager(manager);
             }
-            else {
-                ResourceManager manager = newTrack.Timeline.Project.ResourceManager;
-                if (manager != this.ResourcePath.Manager) {
-                    this.ResourcePath.SetManager(manager);
-                }
+        }
+
+        public override void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+            base.OnTrackTimelineChanged(oldTimeline, timeline);
+            if (this.ResourcePath == null)
+                return;
+            ResourceManager manager = timeline?.Project?.ResourceManager;
+            if (manager != this.ResourcePath.Manager) {
+                this.ResourcePath.SetManager(manager);
             }
         }
 

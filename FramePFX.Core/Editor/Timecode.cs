@@ -11,8 +11,8 @@ namespace FramePFX.Core.Editor {
         public static readonly Rational Fps18 = new Rational(18, 1);
         public static readonly Rational Fps23_976 = new Rational(24000, 1001);
         public static readonly Rational Fps24 = new Rational(24, 1);
-        public static readonly Rational Fps25 = new Rational(25, 1);
-        public static readonly Rational Fps29_970 = new Rational(30000, 1001);
+        public static readonly Rational Fps25 = new Rational(25, 1); // PAL
+        public static readonly Rational Fps29_970 = new Rational(30000, 1001); // NTSC
         public static readonly Rational Fps30 = new Rational(30, 1);
         public static readonly Rational Fps50 = new Rational(50, 1);
         public static readonly Rational Fps59_940 = new Rational(60000, 1001);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Automation;
@@ -99,8 +100,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public List<HistoryVideoClipPosition> DragStopHistoryList { get; set; }
 
         public TimelineViewModel(ProjectViewModel project, Timeline model) {
-            this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.tracks = new ObservableCollectionEx<TrackViewModel>();
             this.Tracks = new ReadOnlyObservableCollection<TrackViewModel>(this.tracks);
@@ -115,13 +116,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.AddAudioTrackCommand = new AsyncRelayCommand(this.AddAudioTrackAction, () => false);
             this.TrackNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Clip name cannot be empty" : null);
             foreach (Track track in this.Model.Tracks) {
-                this.tracks.Add(TrackRegistry.Instance.CreateViewModelFromModel(this, track));
+                TrackViewModel trackVm = TrackRegistry.Instance.CreateViewModelFromModel(track);
+                TrackViewModel.SetTimeline(trackVm, this);
+                this.tracks.Add(trackVm);
             }
         }
 
-        public void AddTrack(TrackViewModel track, bool addToModel = true) {
-            if (addToModel)
-                this.Model.AddTrack(track.Model);
+        public void AddTrack(TrackViewModel track) {
+            this.Model.AddTrack(track.Model);
+            TrackViewModel.SetTimeline(track, this);
             this.tracks.Add(track);
             this.OnProjectModified();
         }
@@ -149,14 +152,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         }
 
         public async Task<VideoTrackViewModel> AddVideoTrackAction() {
-            VideoTrackViewModel track = new VideoTrackViewModel(this, new VideoTrack(this.Model));
+            VideoTrackViewModel track = new VideoTrackViewModel(new VideoTrack());
             this.AddTrack(track);
             await this.DoRenderAsync(true);
             return track;
         }
 
         public async Task<AudioTrackViewModel> AddAudioTrackAction() {
-            AudioTrackViewModel track = new AudioTrackViewModel(this, new AudioTrack(this.Model));
+            AudioTrackViewModel track = new AudioTrackViewModel(new AudioTrack());
             this.AddTrack(track);
             return track;
         }
@@ -199,6 +202,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             foreach (TrackViewModel item in list) {
                 this.Model.RemoveTrack(item.Model);
                 this.tracks.Remove(item);
+                TrackViewModel.SetTimeline(item, null);
             }
 
             this.OnProjectModified();
@@ -308,9 +312,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         protected virtual void DisposeCore(ExceptionStack stack) {
             using (ExceptionStack innerStack = new ExceptionStack(false)) {
-                foreach (TrackViewModel clip in this.tracks) {
+                foreach (TrackViewModel track in this.tracks) {
                     try {
-                        clip.Dispose();
+                        track.Dispose();
                     }
                     catch (Exception e) {
                         innerStack.Add(e);
@@ -332,7 +336,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public void MoveClip(ClipViewModel clip, TrackViewModel oldTrack, TrackViewModel newTrack) {
             oldTrack.RemoveClipFromTrack(clip);
-            newTrack.AddClipToTrack(clip);
+            newTrack.AddClip(clip);
         }
 
         public void OnProjectModified() {

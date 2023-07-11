@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using FramePFX.Core.Annotations;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.History;

@@ -193,15 +193,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.track?.OnProjectModified();
         }
 
-        public static void SetTrack(ClipViewModel viewModel, TrackViewModel track) {
-            Track oldTrack = viewModel.Model.Track;
-            Track newTrack = track?.Model;
-            if (!ReferenceEquals(oldTrack, newTrack)) {
-                Clip.SetTrack(viewModel.Model, track?.Model);
-            }
-
-            viewModel.Track = track;
-        }
+        public static void SetTrack(ClipViewModel viewModel, TrackViewModel track) => viewModel.Track = track;
 
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
 

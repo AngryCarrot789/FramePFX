@@ -97,10 +97,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         private async Task CreateResourceAction(string type) {
             BaseResourceObjectViewModel resObj;
             switch (type) {
-                case nameof(ResourceColour): resObj = new ResourceColourViewModel(new ResourceColour()); break;
-                case nameof(ResourceImage):  resObj = new ResourceImageViewModel(new ResourceImage()); break;
-                case nameof(ResourceText):   resObj = new ResourceTextViewModel(new ResourceText()); break;
-                case nameof(ResourceGroup):  resObj = new ResourceGroupViewModel(new ResourceGroup()); break;
+                case nameof(ResourceColour):   resObj = new ResourceColourViewModel(new ResourceColour()); break;
+                case nameof(ResourceImage):    resObj = new ResourceImageViewModel(new ResourceImage()); break;
+                case nameof(ResourceTextFile): resObj = new ResourceTextFileViewModel(new ResourceTextFile()); break;
+                case nameof(ResourceText):     resObj = new ResourceTextViewModel(new ResourceText()); break;
+                case nameof(ResourceGroup):    resObj = new ResourceGroupViewModel(new ResourceGroup()); break;
                 default:
                     await IoC.MessageDialogs.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
                     return;
@@ -136,7 +137,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     case ".mp4":
                     case ".mov":
                     case ".mkv":
-                    case ".flv":
+                    case ".flv": {
                         ResourceMpegMediaViewModel media = new ResourceMpegMediaViewModel(new ResourceMpegMedia() {FilePath = path});
                         using (ExceptionStack stack = new ExceptionStack(false)) {
                             await media.LoadResource(null, stack);
@@ -157,10 +158,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                         }
 
                         break;
+                    }
                     case ".png":
                     case ".bmp":
                     case ".jpg":
-                    case ".jpeg":
+                    case ".jpeg": {
                         ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path});
                         using (ExceptionStack stack = new ExceptionStack(false)) {
                             await image.LoadResource(null, stack);
@@ -174,6 +176,30 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                         this.Manager.RegisterEntry(image.Model);
                         this.CurrentGroup.AddItem(image, true);
                         break;
+                    }
+                    // lol
+                    case ".txt":
+                    case ".text":
+                    case ".log":
+                    case ".cs":
+                    case ".js":
+                    case ".html":
+                    case ".htm":
+                    case ".json":
+                    case ".md":
+                    case ".h":
+                    case ".c":
+                    case ".hpp":
+                    case ".cpp": {
+                        ResourceTextFileViewModel file = new ResourceTextFileViewModel(new ResourceTextFile() {
+                            Path = new ProjectPath(path, EnumPathFlags.AbsoluteFilePath),
+                            IsOnline = true
+                        });
+
+                        this.Manager.RegisterEntry(file.Model);
+                        this.CurrentGroup.AddItem(file, true);
+                        break;
+                    }
                 }
             }
         }

@@ -9,8 +9,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.Colour;
             set {
                 this.Model.Colour = value;
-                this.Model.OnDataModified(nameof(this.Colour));
-                this.RaisePropertyChanged();
+                this.OnColourChanged();
             }
         }
 
@@ -18,9 +17,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ScA;
             set {
                 this.Model.ScA = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.ByteA));
+                this.OnColourChanged();
             }
         }
 
@@ -28,9 +25,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ByteA;
             set {
                 this.Model.ByteA = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.A));
+                this.OnColourChanged();
             }
         }
 
@@ -38,9 +33,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ScR;
             set {
                 this.Model.ScR = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.ByteR));
+                this.OnColourChanged();
             }
         }
 
@@ -48,9 +41,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ByteR;
             set {
                 this.Model.ByteR = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.R));
+                this.OnColourChanged();
             }
         }
 
@@ -58,9 +49,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ScG;
             set {
                 this.Model.ScG = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.ByteG));
+                this.OnColourChanged();
             }
         }
 
@@ -68,9 +57,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ByteG;
             set {
                 this.Model.ByteG = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.G));
+                this.OnColourChanged();
             }
         }
 
@@ -78,9 +65,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ScB;
             set {
                 this.Model.ScB = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.ByteB));
+                this.OnColourChanged();
             }
         }
 
@@ -88,14 +73,25 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
             get => this.Model.ByteB;
             set {
                 this.Model.ByteB = value;
-                this.Model.OnDataModified(nameof(this.Model.Colour));
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.B));
+                this.OnColourChanged();
             }
         }
 
         public ResourceColourViewModel(ResourceColour model) : base(model) {
 
+        }
+
+        private void OnColourChanged() {
+            this.Model.OnDataModified(nameof(this.Colour));
+            this.RaisePropertyChanged(nameof(this.Colour));
+            this.RaisePropertyChanged(nameof(this.A));
+            this.RaisePropertyChanged(nameof(this.ByteA));
+            this.RaisePropertyChanged(nameof(this.R));
+            this.RaisePropertyChanged(nameof(this.ByteR));
+            this.RaisePropertyChanged(nameof(this.G));
+            this.RaisePropertyChanged(nameof(this.ByteG));
+            this.RaisePropertyChanged(nameof(this.B));
+            this.RaisePropertyChanged(nameof(this.ByteB));
         }
     }
 }

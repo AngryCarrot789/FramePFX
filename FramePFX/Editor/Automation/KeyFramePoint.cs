@@ -1,8 +1,6 @@
 using System;
-using System.Numerics;
 using System.Windows;
 using System.Windows.Media;
-using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Utils;

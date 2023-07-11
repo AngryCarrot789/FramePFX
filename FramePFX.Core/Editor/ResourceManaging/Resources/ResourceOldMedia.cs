@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FramePFX.Core.FFmpeg;
 using FramePFX.Core.FFmpegWrapper;

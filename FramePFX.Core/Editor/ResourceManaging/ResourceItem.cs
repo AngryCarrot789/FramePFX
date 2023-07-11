@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Events;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;

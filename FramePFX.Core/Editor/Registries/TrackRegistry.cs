@@ -20,20 +20,16 @@ namespace FramePFX.Core.Editor.Registries {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public Track CreateModel(Timeline timeline, string id) {
-            return (Track) Activator.CreateInstance(base.GetModelType(id), timeline);
+        public Track CreateModel(string id) {
+            return (Track) Activator.CreateInstance(base.GetModelType(id));
         }
 
-        public TrackViewModel CreateViewModel(TimelineViewModel timeline, string id) {
-            return (TrackViewModel) Activator.CreateInstance(base.GetViewModelType(id), timeline);
+        public TrackViewModel CreateViewModel(string id) {
+            return (TrackViewModel) Activator.CreateInstance(base.GetViewModelType(id));
         }
 
-        public TrackViewModel CreateViewModelFromModel(TimelineViewModel timeline, Track model) {
-            if (!ReferenceEquals(timeline.Model, model.Timeline)) {
-                throw new ArgumentException("Timeline models do not match");
-            }
-
-            return (TrackViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(model), timeline, model);
+        public TrackViewModel CreateViewModelFromModel(Track model) {
+            return (TrackViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(model), model);
         }
     }
 }

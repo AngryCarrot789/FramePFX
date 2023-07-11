@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Utils;
-using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Core.Editor.ResourceChecker.Resources {
     public class InvalidImageViewModel : InvalidResourceViewModel {

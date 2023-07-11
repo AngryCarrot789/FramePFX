@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
@@ -13,7 +14,7 @@ namespace FramePFX.Core.Editor.Timelines {
         /// <summary>
         /// The timeline that created this track. Will never be null
         /// </summary>
-        public Timeline Timeline { get; }
+        public Timeline Timeline { get; private set; }
 
         /// <summary>
         /// This track's clips (unordered)
@@ -24,11 +25,6 @@ namespace FramePFX.Core.Editor.Timelines {
         /// This track's registry ID, used to create instances dynamically through the <see cref="TrackRegistry"/>
         /// </summary>
         public string RegistryId => TrackRegistry.Instance.GetTypeIdForModel(this.GetType());
-
-        /// <summary>
-        /// This track's owning timeline's play head position
-        /// </summary>
-        public long TimelinePlayhead => this.Timeline.PlayHeadFrame;
 
         /// <summary>
         /// A readable layer name
@@ -50,8 +46,7 @@ namespace FramePFX.Core.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
-        protected Track(Timeline timeline) {
-            this.Timeline = timeline;
+        protected Track() {
             this.Clips = new List<Clip>();
             this.MinHeight = 21;
             this.MaxHeight = 200;
@@ -60,25 +55,32 @@ namespace FramePFX.Core.Editor.Timelines {
             this.AutomationData = new AutomationData(this);
         }
 
-        public List<Clip> GetClipsAtFrame(long frame) {
+        public static void SetTimeline(Track track, Timeline timeline) {
+            Timeline oldTimeline = track.Timeline;
+            if (ReferenceEquals(oldTimeline, timeline)) {
+                Debug.WriteLine("Attempted to set the timeline to the same value");
+            }
+            else {
+                track.Timeline = timeline;
+                track.OnTimelineChanged(oldTimeline, timeline);
+            }
+        }
+
+        public virtual void OnTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+            foreach (Clip clip in this.Clips) {
+                clip.OnTrackTimelineChanged(oldTimeline, timeline);
+            }
+        }
+
+        public void GetClipsAtFrame(long frame, List<Clip> list) {
             List<Clip> src = this.Clips;
             int count = src.Count, i = 0;
-            do {
-                if (i >= count)
-                    return null;
+            while (i < count) {
                 Clip clip = src[i++];
                 if (clip.IntersectsFrameAt(frame)) {
-                    List<Clip> outList = new List<Clip> {clip};
-                    while (i < count) {
-                        clip = src[i++];
-                        if (clip.IntersectsFrameAt(frame)) {
-                            outList.Add(clip);
-                        }
-                    }
-
-                    return outList;
+                    list.Add(clip);
                 }
-            } while (true);
+            }
         }
 
         public Clip GetClipAtFrame(long frame) {
@@ -92,37 +94,33 @@ namespace FramePFX.Core.Editor.Timelines {
             return null;
         }
 
-        public void AddClip(Clip model, bool setTrack = true) {
-            this.InsertClip(this.Clips.Count, model, setTrack);
+        public void AddClip(Clip model) {
+            this.InsertClip(this.Clips.Count, model);
         }
 
-        public void InsertClip(int index, Clip model, bool setTrack = true) {
+        public void InsertClip(int index, Clip model) {
             this.Clips.Insert(index, model);
-            if (setTrack) {
-                Clip.SetTrack(model, this);
-            }
+            Clip.SetTrack(model, this);
         }
 
-        public bool RemoveClip(Clip model, bool clearTrack = true) {
+        public bool RemoveClip(Clip model) {
             int index = this.Clips.IndexOf(model);
-            if (index >= 0) {
-                this.RemoveClipAt(index, clearTrack);
-                return true;
+            if (index < 0) {
+                return false;
             }
 
-            return false;
+            this.RemoveClipAt(index);
+            return true;
         }
 
-        public void RemoveClipAt(int index, bool clearTrack = true) {
+        public void RemoveClipAt(int index) {
             Clip clip = this.Clips[index];
             if (!ReferenceEquals(this, clip.Track)) {
                 throw new Exception("Expected model (to remove)'s track to equal this instance");
             }
 
+            Clip.SetTrack(clip, null);
             this.Clips.RemoveAt(index);
-            if (clearTrack) {
-                Clip.SetTrack(clip, null);
-            }
         }
 
         public abstract Track CloneCore();

@@ -1,14 +1,14 @@
 using System.Numerics;
-using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
+using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timelines.VideoClips {
-    public class ShapeVideoClip : BaseResourceVideoClip<ResourceColour> {
+    public class ShapeVideoClip : BaseResourceVideoClip<ResourceColour> {//, OGLRenderTarget {
         public float Width { get; set; }
 
         public float Height { get; set; }
@@ -55,6 +55,22 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
             using (SKPaint paint = new SKPaint() {Color = colour}) {
                 rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
             }
+        }
+
+        public void RenderGL(long frame) {
+            if (!this.TryGetResource(out ResourceColour r)) {
+                return;
+            }
+            
+            GL.Color3(0.2f, 0.3f, 0.7f);
+            GL.Vertex3(-0.5f, -0.5f, 0f);
+            GL.Vertex3( 0.0f,  0.5f, 0f);
+            GL.Vertex3( 0.5f, -0.5f, 0f);
+
+            // SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
+            // using (SKPaint paint = new SKPaint() {Color = colour}) {
+            //     rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
+            // }
         }
 
         private long ff;

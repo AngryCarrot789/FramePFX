@@ -87,7 +87,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             track.RaisePropertyChanged(nameof(track.IsMuted));
         };
 
-        public AudioTrackViewModel(TimelineViewModel timeline, AudioTrack model) : base(timeline, model) {
+        public AudioTrackViewModel(AudioTrack model) : base(model) {
             this.AutomationData.AssignRefreshHandler(AudioTrack.VolumeKey, RefreshVolumeHandler);
             this.AutomationData.AssignRefreshHandler(AudioTrack.IsMutedKey, RefreshIsMutedHandler);
         }

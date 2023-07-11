@@ -18,6 +18,7 @@ namespace FramePFX.Core.Editor.Registries {
             base.Register<ResourceOldMedia, ResourceOldMediaViewModel>("r_media_old");
             base.Register<ResourceMpegMedia, ResourceMpegMediaViewModel>("r_media");
             base.Register<ResourceText, ResourceTextViewModel>("r_txt");
+            base.Register<ResourceTextFile, ResourceTextFileViewModel>("r_txtfile");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : BaseResourceObject where TViewModel : BaseResourceObjectViewModel {

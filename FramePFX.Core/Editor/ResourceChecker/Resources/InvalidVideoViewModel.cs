@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Core.FFmpeg;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceChecker.Resources {

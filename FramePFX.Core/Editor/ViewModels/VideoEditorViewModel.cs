@@ -7,7 +7,6 @@ using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
-using FramePFX.Core.Views.Dialogs;
 
 namespace FramePFX.Core.Editor.ViewModels {
     /// <summary>
@@ -145,7 +144,7 @@ namespace FramePFX.Core.Editor.ViewModels {
             RBEDictionary dictionary = (RBEDictionary) rbe;
             Project project = new Project();
             project.ReadFromRBE(dictionary);
-            ProjectViewModel pvm = new ProjectViewModel(project) {ProjectDirectory = result[0]};
+            ProjectViewModel pvm = new ProjectViewModel(project);
             #else
             RBEDictionary dictionary;
             try {
@@ -295,14 +294,14 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.notification.BeginSave();
         }
 
-        public async Task OnProjectSaved(bool success = true) {
+        public async Task OnProjectSaved(Exception e) {
             this.IsProjectSaving = false;
-            await this.Playback.OnProjectSaved(success);
-            if (success) {
+            await this.Playback.OnProjectSaved(e == null);
+            if (e == null) {
                 this.notification.OnSaveComplete();
             }
             else {
-                this.notification.OnSaveFailed("TODO implement this lol");
+                this.notification.OnSaveFailed(e.GetToString());
             }
 
             this.notification.Timeout = TimeSpan.FromSeconds(5);

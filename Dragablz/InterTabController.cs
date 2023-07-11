@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Dragablz {
     public class InterTabController : FrameworkElement {

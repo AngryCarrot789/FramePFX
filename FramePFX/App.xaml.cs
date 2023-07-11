@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -13,13 +11,9 @@ using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
-using FramePFX.Core.Editor.Timelines;
-using FramePFX.Core.Editor.Timelines.AudioClips;
 using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
-using FramePFX.Core.Editor.ViewModels.Timelines;
-using FramePFX.Core.RBC;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
@@ -28,6 +22,7 @@ using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
 using FramePFX.Views;
+using SkiaSharp;
 
 namespace FramePFX {
     /// <summary>
@@ -35,11 +30,6 @@ namespace FramePFX {
     /// </summary>
     public partial class App : Application {
         private AppSplashScreen splash;
-
-        #if DEBUG
-        public static ProjectViewModel DemoProject { get; } = new ProjectViewModel(CreateDemoProject());
-        public static TimelineViewModel DemoTimeline { get; } = new TimelineViewModel(DemoProject, new Timeline(DemoProject.Model));
-        #endif
 
         public App() {
         }
@@ -93,6 +83,9 @@ namespace FramePFX {
 
             await this.SetActivity("Loading FFmpeg...");
             ffmpeg.avdevice_register_all();
+
+            await this.SetActivity("Loading SkiaSharp...");
+            SKGraphics.Init();
         }
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
@@ -163,7 +156,7 @@ namespace FramePFX {
             ulong id_d = manager.RegisterEntry(group.Add(new ResourceColour(50, 100, 220) { DisplayName = "idek"}));
 
             {
-                VideoTrack track1 = new VideoTrack(project.Timeline) {
+                VideoTrack track1 = new VideoTrack() {
                     DisplayName = "Track 1 with stuff"
                 };
                 project.Timeline.AddTrack(track1);
@@ -193,7 +186,7 @@ namespace FramePFX {
                 track1.AddClip(clip2);
             }
             {
-                VideoTrack track2 = new VideoTrack(project.Timeline) {
+                VideoTrack track2 = new VideoTrack() {
                     DisplayName = "Track 2"
                 };
                 project.Timeline.AddTrack(track2);
@@ -224,7 +217,7 @@ namespace FramePFX {
                 track2.AddClip(clip2);
             }
             {
-                VideoTrack track1 = new VideoTrack(project.Timeline) {
+                VideoTrack track1 = new VideoTrack() {
                     DisplayName = "Empty track"
                 };
                 project.Timeline.AddTrack(track1);

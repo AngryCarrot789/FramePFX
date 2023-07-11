@@ -108,26 +108,33 @@ namespace FramePFX.Core.Editor.Timelines {
             this.AutomationData = new AutomationData(this);
         }
 
-        /// <summary>
-        /// Sets the given clip's track
-        /// </summary>
-        /// <param name="model">Model to set the track of</param>
-        /// <param name="track">New track</param>
-        /// <param name="fireTrackChangedEvent">Whether to invoke the model's <see cref="OnTrackChanged"/> function. If false, it must be called manually</param>
-        public static void SetTrack(Clip model, Track track, bool fireTrackChangedEvent = true) {
-            if (fireTrackChangedEvent) {
-                Track oldTrack = model.Track;
-                if (ReferenceEquals(oldTrack, track)) {
-                    Debug.WriteLine("Attempted to set the track to the same instance.\n" + new Exception().GetToString());
-                }
-                else {
-                    model.Track = track;
-                    model.OnTrackChanged(oldTrack, track);
-                }
+        public static void SetTrack(Clip clip, Track track) {
+            Track oldTrack = clip.Track;
+            if (ReferenceEquals(oldTrack, track)) {
+                Debug.WriteLine("Attempted to set the track to the same instance");
             }
             else {
-                model.Track = track;
+                clip.Track = track;
+                clip.OnTrackChanged(oldTrack, track);
             }
+        }
+
+        /// <summary>
+        /// Called when this clip is added to or removed from a track, or moved between tracks
+        /// </summary>
+        /// <param name="oldTrack">The track this clip was originally in (not in by the time this method is called)</param>
+        /// <param name="track">The track that this clip now exists in</param>
+        public virtual void OnTrackChanged(Track oldTrack, Track track) {
+
+        }
+
+        /// <summary>
+        /// Called when this clip's track's timeline is changed (e.g. a track is moved into another timeline)
+        /// </summary>
+        /// <param name="oldTimeline">The timeline this clip was originally in (not in by the time this method is called)</param>
+        /// <param name="timeline">The timeline that this clip now exists in</param>
+        public virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+
         }
 
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
@@ -174,17 +181,6 @@ namespace FramePFX.Core.Editor.Timelines {
             long begin = this.FrameBegin;
             long duration = this.FrameDuration;
             return frame >= begin && frame < (begin + duration);
-        }
-
-        /// <summary>
-        /// Called when this clip's track changes, either by the clip being added to it for the first time (in which case,
-        /// <paramref name="oldTrack"/> will be null and <paramref name="newTrack"/> will not be null), or by a user dragging
-        /// this clip from track to track
-        /// </summary>
-        /// <param name="oldTrack"></param>
-        /// <param name="newTrack"></param>
-        protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
-
         }
 
         /// <summary>

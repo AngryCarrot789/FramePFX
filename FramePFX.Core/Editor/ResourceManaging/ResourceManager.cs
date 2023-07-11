@@ -1,17 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Mail;
-using System.Runtime.InteropServices;
-using System.Text;
-using FFmpeg.AutoGen;
-using FramePFX.Core.Configurations;
-using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging.Events;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
-using SkiaSharp;
 
 namespace FramePFX.Core.Editor.ResourceManaging {
     /// <summary>
@@ -77,16 +68,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             // That is unless it gets set maliciously either via modifying the
             // saved config's data or through cheat engine or something
             ulong id = this.currId;
-            if (id == ulong.MaxValue) {
-                id = 0UL;
-                do { // do {} while looks cooler ;)
-                    id++;
-                } while (this.uuidToItem.ContainsKey(id));
-                return this.currId = id;
-            }
-            else {
-                return this.currId = id + 1;
-            }
+            do {
+                id++;
+            } while (this.uuidToItem.ContainsKey(id) && id != 0);
+            return this.currId = id;
         }
 
         public void WriteToRBE(RBEDictionary data) {

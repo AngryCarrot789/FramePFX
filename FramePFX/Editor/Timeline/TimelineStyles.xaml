@@ -430,6 +430,7 @@
                                         Grid.Row="1">
                                     <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </Border>
+                                <Border x:Name="PART_SelectionRange" HorizontalAlignment="Left" VerticalAlignment="Top" Background="DodgerBlue"/>
                                 <Border x:Name="PART_TimestampBoard"
                                         Background="{DynamicResource ABrush.Tone4.Background.Static}"
                                         BorderBrush="{DynamicResource BrushPanelGap}"

@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using FramePFX.Controls.xclemence.RulerWPF.PositionManagers;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Converters {

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using FramePFX.Core.Editor.ResourceManaging;
 
 namespace FramePFX.Core.Utils {
     public static class TextIncrement {

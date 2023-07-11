@@ -36,8 +36,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             data.SetDouble(nameof(this.FontSize), this.FontSize);
             data.SetDouble(nameof(this.SkewX), this.SkewX);
             data.SetString(nameof(this.FontFamily), this.FontFamily);
-            data.SetStruct(nameof(this.Foreground), this.Foreground);
-            data.SetStruct(nameof(this.Border), this.Border);
+            data.SetUInt(nameof(this.Foreground), (uint) this.Foreground);
+            data.SetUInt(nameof(this.Border), (uint) this.Border);
             data.SetDouble(nameof(this.BorderThickness), this.BorderThickness);
             data.SetBool(nameof(this.IsAntiAliased), this.IsAntiAliased);
         }
@@ -48,8 +48,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             this.FontSize = data.GetDouble(nameof(this.FontSize));
             this.SkewX = data.GetDouble(nameof(this.SkewX));
             this.FontFamily = data.GetString(nameof(this.FontFamily), null);
-            this.Foreground = data.GetStruct<SKColor>(nameof(this.Foreground));
-            this.Border = data.GetStruct<SKColor>(nameof(this.Border));
+            this.Foreground = data.GetUInt(nameof(this.Foreground));
+            this.Border = data.GetUInt(nameof(this.Border));
             this.BorderThickness = data.GetDouble(nameof(this.BorderThickness));
             this.IsAntiAliased = data.GetBool(nameof(this.IsAntiAliased));
         }

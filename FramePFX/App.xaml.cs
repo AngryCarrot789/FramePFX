@@ -85,7 +85,10 @@ namespace FramePFX {
             ffmpeg.avdevice_register_all();
 
             await this.SetActivity("Loading SkiaSharp...");
-            SKGraphics.Init();
+            // SKGraphics.Init();
+            IoC.GRGlInterface = GRGlInterface.Create();
+            IoC.GrContext = GRContext.CreateGl(IoC.GRGlInterface);
+            // GRBackendRenderTarget target = new GRBackendRenderTarget();
         }
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
@@ -101,10 +104,10 @@ namespace FramePFX {
             }
             catch (Exception ex) {
                 if (IoC.MessageDialogs != null) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("App initialisation failed", "Failed to start FramePFX", ex.GetToString());
+                    await IoC.MessageDialogs.ShowMessageExAsync("App init failed", "Failed to start FramePFX", ex.GetToString());
                 }
                 else {
-                    MessageBox.Show("Failed to start FramePFX:\n\n" + ex, "Fatal App initialisation failure");
+                    MessageBox.Show("Failed to start FramePFX:\n\n" + ex, "Fatal App init failure");
                 }
 
                 this.Dispatcher.Invoke(() => {

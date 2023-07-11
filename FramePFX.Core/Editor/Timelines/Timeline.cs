@@ -187,12 +187,9 @@ namespace FramePFX.Core.Editor.Timelines {
                             int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
                             int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                             try {
-                                if (clip is OGLRenderTarget) {
-                                    ((OGLRenderTarget) clip).RenderGL(frame);
+                                clip.Render(render, frame);
+                                if (clip.UsesOpenGL) {
                                     GLUtils.CleanGL();
-                                }
-                                else {
-                                    clip.Render(render, frame);
                                 }
                             }
                             finally {
@@ -234,12 +231,9 @@ namespace FramePFX.Core.Editor.Timelines {
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
                     try {
-                        if (clip is OGLRenderTarget) {
-                            ((OGLRenderTarget) clip).RenderGL(frame);
+                        clip.Render(render, frame);
+                        if (clip.UsesOpenGL) {
                             GLUtils.CleanGL();
-                        }
-                        else {
-                            clip.Render(render, frame);
                         }
                     }
                     finally {
@@ -287,12 +281,9 @@ namespace FramePFX.Core.Editor.Timelines {
                             int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
                             int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                             try {
-                                if (clip is OGLRenderTarget) {
-                                    ((OGLRenderTarget) clip).RenderGL(frame);
+                                clip.Render(render, frame);
+                                if (clip.UsesOpenGL) {
                                     GLUtils.CleanGL();
-                                }
-                                else {
-                                    clip.Render(render, frame);
                                 }
                             }
                             finally {
@@ -333,12 +324,9 @@ namespace FramePFX.Core.Editor.Timelines {
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
                     try {
-                        if (clip is OGLRenderTarget) {
-                            ((OGLRenderTarget) clip).RenderGL(frame);
+                        clip.Render(render, frame);
+                        if (clip.UsesOpenGL) {
                             GLUtils.CleanGL();
-                        }
-                        else {
-                            clip.Render(render, frame);
                         }
                     }
                     finally {

@@ -40,6 +40,9 @@ namespace FramePFX.Core {
         public static IKeyboardDialogService KeyboardDialogs => Provide<IKeyboardDialogService>();
         public static IMouseDialogService MouseDialogs => Provide<IMouseDialogService>();
 
+        public static GRGlInterface GRGlInterface { get; set; }
+        public static GRContext GrContext { get; set; }
+
         public static Action<string> BroadcastShortcutChanged { get; set; }
 
         public static void LoadServicesFromAttributes() {

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.Modal;
 
@@ -16,6 +17,8 @@ namespace FramePFX.Views.Message {
         public MessageWindow() : base() {
             this.InitializeComponent();
             this.Loaded += (sender, args) => {
+                // 588x260 = window
+                // 580x140 = text
                 // Makes the window fit the size of the button bar + check boxes
                 this.ButtonBarBorder.Measure(new Size(double.PositiveInfinity, this.ButtonBarBorder.ActualHeight));
                 // ceil because half pixels result in annoying low opacity/badly rendered border brushes
@@ -27,6 +30,15 @@ namespace FramePFX.Views.Message {
                 this.ButtonBarBorder.InvalidateMeasure();
                 if (width > actualWidth) {
                     this.Width = width;
+                }
+
+                {
+                    double oldTextWidth = this.PART_TextBox.ActualWidth;
+                    this.PART_TextBox.Measure(new Size(this.MaxWidth, double.PositiveInfinity));
+                    Size newSize = this.PART_TextBox.DesiredSize;
+                    double diffW = Maths.Clamp(newSize.Width - oldTextWidth, 0, this.MaxWidth);
+                    this.Width += diffW;
+                    this.Height = Math.Min((this.Height - this.PART_ScrollViewer.ActualHeight) + this.PART_ScrollViewer.ExtentHeight + 8, this.MaxHeight);
                 }
 
                 if (DODGY_PRIMARY_SELECTION != null && this.DataContext is MessageDialog dialog) {

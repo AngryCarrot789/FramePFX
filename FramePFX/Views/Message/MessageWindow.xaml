@@ -11,7 +11,8 @@
                   mc:Ignorable="d"
                   d:DataContext="{d:DesignInstance message:MessageDialog}"
                   Title="{Binding Titlebar, Mode=OneWay}"
-                  MinWidth="250" MinHeight="120"
+                  MinWidth="250" MinHeight="150"
+                  MaxWidth="650" MaxHeight="900"
                   Width="400" Height="175"
                   WindowStyle="ToolWindow"
                   ResizeMode="CanResize"
@@ -76,7 +77,7 @@
                 </ItemsControl>
             </DockPanel>
         </Border>
-        <ScrollViewer DockPanel.Dock="Top" Margin="0,0,0,0"
+        <ScrollViewer x:Name="PART_ScrollViewer" DockPanel.Dock="Top" Margin="0,0,0,0"
                       VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto"
                       BorderThickness="0,1" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}">
             <ScrollViewer.Style>
@@ -122,7 +123,7 @@
             </ScrollViewer.Style>
             <ItemsControl Padding="8,10">
                 <TextBlock Text="{Binding Header}" Visibility="{Binding Header, Converter={StaticResource StringToVisibility}, Mode=OneWay}" VerticalAlignment="Top" Padding="0,0,0,5" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
-                <TextBox Text="{Binding Message, Mode=OneWay}"
+                <TextBox x:Name="PART_TextBox" Text="{Binding Message, Mode=OneWay}"
                          Background="Transparent" BorderBrush="Transparent"
                          BorderThickness="0"
                          IsReadOnly="True" IsReadOnlyCaretVisible="True"

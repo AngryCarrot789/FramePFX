@@ -71,7 +71,7 @@
                 <Style TargetType="{x:Type n:NotificationControl}">
                     <Setter Property="Margin" Value="0,0,5,5"/>
                     <Setter Property="Background" Value="{DynamicResource NotificationBackground1}"/>
-                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="BorderThickness" Value="1"/>
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Template">
                         <Setter.Value>

@@ -55,6 +55,11 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         public virtual bool UseCustomOpacityCalculation { get => false; }
 
         /// <summary>
+        /// Whether or not this clip directly uses GL calls, requiring a pre-setup and cleanup (so that Skia doesn't get corrupted)
+        /// </summary>
+        public virtual bool UsesOpenGL { get => false; }
+
+        /// <summary>
         /// Whether or not this clip supports async rendering
         /// </summary>
         public virtual bool UseAsyncRendering { get => false; }

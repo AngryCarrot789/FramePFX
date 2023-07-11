@@ -20,31 +20,25 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions {
                 return false;
             }
 
-            ResourceGroupViewModel group;
+            if (resItem is BaseResourceObjectViewModel item) {
+                ResourceGroupViewModel group = item.Parent;
+                int selected = group.SelectedItems.Count;
+                if (selected < 1) {
+                    return true;
+                }
 
-            if (resItem is ResourceItemViewModel item) {
-                group = item.Parent;
-            }
-            else if (resItem is ResourceGroupViewModel) {
-                group = (ResourceGroupViewModel) resItem;
+                try {
+                    await group.DeleteSelectionAction();
+                }
+                catch (Exception ex) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
+                }
+
+                return true;
             }
             else {
                 return false;
             }
-
-            int selected = group.SelectedItems.Count;
-            if (selected < 1) {
-                return true;
-            }
-
-            try {
-                await group.DeleteSelectionAction();
-            }
-            catch (Exception ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
-            }
-
-            return true;
         }
     }
 }

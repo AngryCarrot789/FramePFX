@@ -18,7 +18,6 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         // public override bool UseAsyncRendering => true;
 
         public ShapeVideoClip() {
-
         }
 
         protected override void OnResourceDataModified(string property) {

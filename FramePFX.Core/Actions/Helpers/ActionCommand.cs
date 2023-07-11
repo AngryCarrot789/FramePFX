@@ -44,17 +44,13 @@ namespace FramePFX.Core.Actions.Helpers {
             return true;
         }
 
-        public override Presentation GetPresentation(AnActionEventArgs e) {
+        public override bool CanExecute(AnActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
-                return Presentation.Invisible;
+                return false;
             }
 
             ICommand cmd = this.GetCommand(instance);
-            if (cmd == null || !cmd.CanExecute(null)) {
-                return Presentation.VisibleAndDisabled;
-            }
-
-            return Presentation.VisibleAndEnabled;
+            return cmd != null && cmd.CanExecute(null);
         }
     }
 }

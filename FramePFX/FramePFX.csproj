@@ -281,10 +281,6 @@
     <Compile Include="Editor\Resources\ResourceListControl.cs" />
     <Compile Include="Editor\ThingInterLayoutClient.cs" />
     <Compile Include="Editor\ThingInterTabClient.cs" />
-    <Compile Include="Editor\Timeline\Actions\DeleteSelectedClips.cs" />
-    <Compile Include="Editor\Timeline\Actions\EditorActionUtils.cs" />
-    <Compile Include="Editor\Timeline\Actions\NewTrackActions.cs" />
-    <Compile Include="Editor\Timeline\Actions\SliceClipsAction.cs" />
     <Compile Include="Editor\Timeline\Controls\AudioClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\AudioTrackControl.cs" />
     <Compile Include="Editor\Timeline\Controls\AutomationComboBox.cs" />
@@ -600,6 +596,10 @@
     <Content Include="Resources\Shaders\textureatlas.vert" />
     <Content Include="Resources\Shaders\xyz.frag" />
     <Content Include="Resources\Shaders\xyz.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Editor\Timeline\Actions" />
+    <Folder Include="Translations" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

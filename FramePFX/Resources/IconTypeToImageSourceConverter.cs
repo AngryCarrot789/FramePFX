@@ -64,7 +64,7 @@ namespace FramePFX.Resources {
         }
 
         private static string GetResourcePath(string fileInResources) {
-            return $"/FrameControlEx;component/Resources/{fileInResources}";
+            return $"/FramePFX;component/Resources/{fileInResources}";
         }
 
         private static Uri GetUri(string fileInResources) {

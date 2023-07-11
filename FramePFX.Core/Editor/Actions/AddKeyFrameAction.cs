@@ -6,7 +6,6 @@ using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Core.Editor.Actions {
-    [ActionRegistration("actions.automation.AddKeyFrame")]
     public class AddKeyFrameAction : EditorAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             AutomationSequenceViewModel sequence;

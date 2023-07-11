@@ -6,7 +6,6 @@ using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.History.ViewModels;
 
 namespace FramePFX.Core.History.Actions {
-    [ActionRegistration("actions.project.history.Undo")]
     public class UndoAction : AnAction {
         public static HistoryManagerViewModel GetHistoryManager(IDataContext context, out VideoEditorViewModel editor) {
             if (context.TryGetContext(out ClipViewModel clip) && clip.Track != null && (editor = clip.Track.Timeline.Project.Editor) != null) {

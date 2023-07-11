@@ -70,11 +70,13 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         public DataContext ActionContext { get; set; }
 
-        public GroupedShortcut(ShortcutGroup @group, string name, IShortcut shortcut, bool isGlobal = false, bool isInherited = true) {
-            this.Group = @group ?? throw new ArgumentNullException(nameof(@group), "Collection cannot be null");
-            this.Shortcut = shortcut;
-            this.FullPath = @group.GetPathForName(name);
+        public GroupedShortcut(ShortcutGroup group, string name, IShortcut shortcut, bool isGlobal = false, bool isInherited = true) {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
+            this.Group = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
             this.Name = name;
+            this.Shortcut = shortcut;
+            this.FullPath = group.GetPathForName(name);
             this.IsGlobal = isGlobal;
             this.IsInherited = isInherited;
         }

@@ -9,11 +9,14 @@ using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Editor;
+using FramePFX.Core.Editor.Actions;
 using FramePFX.Core.Editor.ResourceManaging;
+using FramePFX.Core.Editor.ResourceManaging.Actions;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels;
+using FramePFX.Core.History.Actions;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
@@ -35,7 +38,23 @@ namespace FramePFX {
         }
 
         public void RegisterActions() {
-            ActionManager.SearchAndRegisterActions(ActionManager.Instance);
+            // ActionManager.SearchAndRegisterActions(ActionManager.Instance);
+            // TODO: Maybe use an XML file to store this, similar to how intellij registers actions?
+            ActionManager.Instance.Register("actions.project.Open", new OpenProjectAction());
+            ActionManager.Instance.Register("actions.project.Save", new SaveProjectAction());
+            ActionManager.Instance.Register("actions.project.SaveAs", new SaveProjectAsAction());
+            ActionManager.Instance.Register("actions.project.history.Undo", new UndoAction());
+            ActionManager.Instance.Register("actions.project.history.Redo", new RedoAction());
+            ActionManager.Instance.Register("actions.automation.AddKeyFrame", new AddKeyFrameAction());
+            ActionManager.Instance.Register("actions.editor.timeline.TogglePlayPause", new TogglePlayPauseAction());
+            ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
+            ActionManager.Instance.Register("actions.resources.GroupSelection", new GroupSelectedResourcesAction());
+            ActionManager.Instance.Register("actions.resources.RenameItem", new RenameResourceAction());
+            ActionManager.Instance.Register("actions.resources.ToggleOnlineState", new ToggleResourceOnlineStateAction());
+            ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedClips", new DeleteSelectedClips());
+            ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());
+            ActionManager.Instance.Register("actions.editor.NewAudioTrack", new NewAudioTrackAction());
+            ActionManager.Instance.Register("actions.editor.timeline.SliceClips", new SliceClipsAction());
         }
 
         private async Task SetActivity(string activity) {
@@ -83,12 +102,6 @@ namespace FramePFX {
 
             await this.SetActivity("Loading FFmpeg...");
             ffmpeg.avdevice_register_all();
-
-            await this.SetActivity("Loading SkiaSharp...");
-            // SKGraphics.Init();
-            IoC.GRGlInterface = GRGlInterface.Create();
-            IoC.GrContext = GRContext.CreateGl(IoC.GRGlInterface);
-            // GRBackendRenderTarget target = new GRBackendRenderTarget();
         }
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
@@ -113,7 +126,6 @@ namespace FramePFX {
                 this.Dispatcher.Invoke(() => {
                     this.Shutdown(0);
                 }, DispatcherPriority.Background);
-
                 return;
             }
 

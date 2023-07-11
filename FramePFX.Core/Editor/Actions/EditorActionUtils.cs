@@ -2,7 +2,7 @@ using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 
-namespace FramePFX.Editor.Timeline.Actions {
+namespace FramePFX.Core.Editor.Actions {
     public static class EditorActionUtils {
         public static TimelineViewModel FindTimeline(IDataContext context) {
             if (context.TryGetContext(out TimelineViewModel timeline)) {

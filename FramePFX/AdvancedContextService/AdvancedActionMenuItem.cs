@@ -68,8 +68,6 @@ namespace FramePFX.AdvancedContextService {
         // probably doesn't even need to be volatile, a bool will be fine
         public bool IsExecuting { get; private set; }
 
-        private Presentation presentation;
-
         private bool canExecute;
         protected bool CanExecute {
             get => this.canExecute;
@@ -171,35 +169,26 @@ namespace FramePFX.AdvancedContextService {
             return context;
         }
 
-        protected virtual bool GetCanExecute(Presentation presentation) {
-            return presentation.IsEnabled;
-        }
-
         public void UpdateVisuals() {
             if (!this.IsLoaded)
                 return;
 
             if (this.IsExecuting) {
-                this.SetPresentation(Presentation.VisibleAndDisabled);
+                this.CanExecute = false;
             }
             else if (!this.IsActionExecutionEnabled) {
-                this.SetPresentation(Presentation.VisibleAndEnabled);
+                this.CanExecute = true;
             }
             else {
                 string id = this.ActionId;
                 if (string.IsNullOrEmpty(id)) {
-                    this.SetPresentation(Presentation.VisibleAndDisabled);
+                    this.CanExecute = false;
                 }
                 else {
                     DataContext context = this.GetDataContext();
-                    this.SetPresentation(ActionManager.Instance.GetPresentation(id, context));
+                    this.CanExecute = ActionManager.Instance.CanExecute(id, context);
                 }
             }
-        }
-
-        private void SetPresentation(Presentation presentation) {
-            this.Visibility = presentation.IsVisible ? Visibility.Visible : Visibility.Collapsed;
-            this.CanExecute = presentation.IsEnabled;
         }
 
         protected override void OnClick() {

@@ -43,8 +43,8 @@ namespace FramePFX.Core.Actions {
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>This action's presentation</returns>
-        public virtual Presentation GetPresentation(AnActionEventArgs e) {
-            return Presentation.VisibleAndEnabled;
+        public virtual bool CanExecute(AnActionEventArgs e) {
+            return true;
         }
     }
 }

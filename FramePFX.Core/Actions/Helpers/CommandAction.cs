@@ -21,9 +21,9 @@ namespace FramePFX.Core.Actions.Helpers {
         public bool ResultWhenCannotExecute { get; set; } = false;
         public bool ResultWhenExecuteSuccess { get; set; } = true;
 
-        public Presentation PresentationWhenNullCommand { get; set; } = Presentation.VisibleAndDisabled;
-        public Presentation PresentationWhenCannotExecute { get; set; } = Presentation.VisibleAndDisabled;
-        public Presentation PresentationWhenCanExecute { get; set; } = Presentation.VisibleAndEnabled;
+        public bool PresentationWhenNullCommand { get; set; } = false;
+        public bool PresentationWhenCannotExecute { get; set; } = false;
+        public bool PresentationWhenCanExecute { get; set; } = true;
 
         /// <summary>
         /// Constructor for <see cref="CommandAction{T}"/>
@@ -79,9 +79,9 @@ namespace FramePFX.Core.Actions.Helpers {
             return this.ResultWhenExecuteSuccess;
         }
 
-        public override Presentation GetPresentation(AnActionEventArgs e) {
+        public override bool CanExecute(AnActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
-                return Presentation.Invisible;
+                return false;
             }
 
             ICommand cmd = this.CommandAccessor(instance);
@@ -124,9 +124,8 @@ namespace FramePFX.Core.Actions.Helpers {
                 this.accessors = accessors;
             }
 
-            public override Presentation GetPresentation(AnActionEventArgs e) {
-                ICommand cmd = this.GetCommand(e.DataContext);
-                return cmd == null ? Presentation.VisibleAndDisabled : Presentation.VisibleAndEnabled;
+            public override bool CanExecute(AnActionEventArgs e) {
+                return this.GetCommand(e.DataContext) != null;
             }
 
             public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
@@ -146,12 +145,12 @@ namespace FramePFX.Core.Actions.Helpers {
                         continue;
                     }
 
-                    if (command.CanExecute(null)) {
+                    if (command.CanExecute(e)) {
                         if (command is BaseAsyncRelayCommand asyncCmd) {
-                            await asyncCmd.ExecuteAsync(null);
+                            await asyncCmd.ExecuteAsync(e);
                         }
                         else {
-                            command.Execute(null);
+                            command.Execute(e);
                         }
 
                         return true;

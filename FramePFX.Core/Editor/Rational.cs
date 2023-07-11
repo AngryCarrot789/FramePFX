@@ -10,7 +10,7 @@ namespace FramePFX.Core.Editor {
         /// <summary>
         /// A rational with a numerator and denominator of 0, which is typically an invalid rational (representing zero time)
         /// </summary>
-        public static readonly Rational NaN = new Rational(0, 0);
+        public static readonly Rational NaN = default;
 
         public static readonly Rational Zero = new Rational(0, 1);
         public static readonly Rational One = new Rational(1, 1);

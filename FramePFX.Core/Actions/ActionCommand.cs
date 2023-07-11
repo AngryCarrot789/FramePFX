@@ -29,8 +29,7 @@ namespace FramePFX.Core.Actions {
         }
 
         protected override bool CanExecuteCore(object parameter) {
-            Presentation p = ActionManager.Instance.GetPresentation(this.ActionId, this.Context);
-            return p.IsVisible && p.IsEnabled;
+            return ActionManager.Instance.CanExecute(this.ActionId, this.Context);
         }
 
         protected override Task ExecuteCoreAsync(object parameter) {

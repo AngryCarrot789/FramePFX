@@ -8,7 +8,6 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Actions {
-    [ActionRegistration("actions.resources.ToggleOnlineState")]
     public class ToggleResourceOnlineStateAction : ToggleAction {
         public override async Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
             if (e.DataContext.TryGetContext(out ResourceItemViewModel resItem)) {

@@ -30,7 +30,7 @@
             sc:UIFocusGroup.IsShortcutInputSource="True"
             sc:UIFocusGroup.FocusGroupPath="Application/Editor">
     <Window.Resources>
-        <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="FramePFX (v0.1.171)"/>
+        <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v0.1.171)"/>
         <c:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True"/>
         <Style TargetType="{x:Type Slider}">
             <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
@@ -220,7 +220,7 @@
                 </Border>
                 <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" Grid.Column="1" Margin="-3,-1,-3,0" SnapsToDevicePixels="True"/>
             </Grid>
-            <DockPanel Grid.Row="2">
+            <DockPanel Grid.Row="2" sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
                 <Border Background="{DynamicResource ABrush.Tone4.Border.Static}" VerticalAlignment="Bottom" Height="20" BorderThickness="0 1 0 0" DockPanel.Dock="Bottom">
                     <!-- Status bar -->
                     <StackPanel Orientation="Horizontal">
@@ -243,8 +243,7 @@
                     </DockPanel>
                 </Border>
                 <Border DataContext="{Binding ActiveProject}"
-                        IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}"
-                        sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline">
+                        IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}">
                     <Border.InputBindings>
                         <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/TrackControllers/DeleteSelectedTrack" Command="{Binding Timeline.RemoveSelectedTracksCommand}"/>
                         <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/Surface/PlayPauseAction" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
@@ -273,6 +272,7 @@
                                 Background="{DynamicResource PanelBackground3}"
                                 BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
                         <ListBox x:Name="TrackListBox"
+                                 sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
                                  Style="{StaticResource TrackListBoxStyle}"
                                  Grid.Row="1" Grid.Column="0"
                                  SelectionMode="Extended"

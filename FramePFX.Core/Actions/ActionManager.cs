@@ -91,7 +91,7 @@ namespace FramePFX.Core.Actions {
 
         private void RegisterInternal(string id, AnAction action) {
             if (this.actions.TryGetValue(id, out AnAction existing)) {
-                throw new Exception($"An action is already registered with the ID '{id}': {existing?.GetType()}");
+                throw new Exception($"An action is already registered with the ID '{id}': {existing.GetType()}");
             }
 
             this.actions[id] = action;
@@ -164,20 +164,10 @@ namespace FramePFX.Core.Actions {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the GetPresentation function threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public virtual Presentation GetPresentation(string id, IDataContext context, bool isUserInitiated = true) {
+        public virtual bool CanExecute(string id, IDataContext context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
-            AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
-            if (this.actions.TryGetValue(id, out AnAction action)) {
-                return action.GetPresentation(args);
-            }
-            else {
-                return this.GetNoSuchActionPresentation(args);
-            }
-        }
-
-        public virtual Presentation GetNoSuchActionPresentation(AnActionEventArgs e) {
-            return Presentation.VisibleAndDisabled;
+            return this.actions.TryGetValue(id, out AnAction action) && action != null && action.CanExecute(new AnActionEventArgs(this, id, context, isUserInitiated));
         }
 
         public void AddPresentationUpdateHandler(string id, GlobalPresentationUpdateHandler handler) {
@@ -223,9 +213,9 @@ namespace FramePFX.Core.Actions {
                 return false;
 
             AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
-            Presentation presentation = action.GetPresentation(args);
+            bool canExecute = action.CanExecute(args);
             foreach (GlobalPresentationUpdateHandler handler in list) {
-                handler(id, action, args, presentation);
+                handler(id, action, args, canExecute);
             }
 
             return true;

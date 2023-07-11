@@ -1,15 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 
-namespace FramePFX.Editor.Timeline.Actions {
-    [ActionRegistration("actions.editor.timeline.DeleteSelectedClips")]
+namespace FramePFX.Core.Editor.Actions {
     public class DeleteSelectedClips : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
@@ -48,9 +46,8 @@ namespace FramePFX.Editor.Timeline.Actions {
             return true;
         }
 
-        public override Presentation GetPresentation(AnActionEventArgs e) {
-            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
-            return timeline == null ? Presentation.VisibleAndDisabled : base.GetPresentation(e);
+        public override bool CanExecute(AnActionEventArgs e) {
+            return EditorActionUtils.FindTimeline(e.DataContext) != null;
         }
 
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {

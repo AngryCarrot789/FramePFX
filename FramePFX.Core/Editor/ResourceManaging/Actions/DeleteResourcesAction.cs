@@ -6,7 +6,6 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Actions {
-    [ActionRegistration("actions.resources.DeleteItems")]
     public class DeleteResourcesAction : AnAction {
         public static readonly MessageDialog ConfirmationDialog;
 

@@ -50,22 +50,17 @@ namespace FramePFX.Core.Actions {
         /// <returns>Whether the action was executed successfully</returns>
         public abstract Task<bool> ExecuteNoToggle(AnActionEventArgs e);
 
-        public override Presentation GetPresentation(AnActionEventArgs e) {
+        public override bool CanExecute(AnActionEventArgs e) {
             bool? result = this.GetIsToggled(e);
-            if (result.HasValue) {
-                return this.GetPresentation(e, result.Value);
-            }
-            else {
-                return this.GetPresentationNoToggle(e);
-            }
+            return result.HasValue ? this.CanExecute(e, result.Value) : this.CanExecuteNoToggle(e);
         }
 
-        public virtual Presentation GetPresentation(AnActionEventArgs e, bool isToggled) {
-            return Presentation.VisibleAndEnabled;
+        public virtual bool CanExecute(AnActionEventArgs e, bool isToggled) {
+            return true;
         }
 
-        public virtual Presentation GetPresentationNoToggle(AnActionEventArgs e) {
-            return this.GetPresentation(e, false);
+        public virtual bool CanExecuteNoToggle(AnActionEventArgs e) {
+            return this.CanExecute(e, false);
         }
     }
 }

@@ -9,8 +9,12 @@ using FramePFX.Utils;
 
 namespace FramePFX.AdvancedContextService {
     public class AdvancedContextMenu : ContextMenu {
-        public static readonly DependencyProperty ContextGeneratorProperty = DependencyProperty.RegisterAttached(
-            "ContextGenerator", typeof(IContextGenerator), typeof(AdvancedContextMenu), new PropertyMetadata(null, OnContextGeneratorPropertyChanged));
+        public static readonly DependencyProperty ContextGeneratorProperty =
+            DependencyProperty.RegisterAttached(
+                "ContextGenerator",
+                typeof(IContextGenerator),
+                typeof(AdvancedContextMenu),
+                new PropertyMetadata(null, OnContextGeneratorPropertyChanged));
 
         public static readonly DependencyProperty ContextProviderProperty =
             DependencyProperty.RegisterAttached(
@@ -221,28 +225,13 @@ namespace FramePFX.AdvancedContextService {
             return advancedMenu;
         }
 
-        public static void SetContextGenerator(DependencyObject element, IContextGenerator value) {
-            element.SetValue(ContextGeneratorProperty, value);
-        }
+        public static void SetContextGenerator(DependencyObject element, IContextGenerator value) => element.SetValue(ContextGeneratorProperty, value);
+        public static IContextGenerator GetContextGenerator(DependencyObject element) => (IContextGenerator) element.GetValue(ContextGeneratorProperty);
 
-        public static IContextGenerator GetContextGenerator(DependencyObject element) {
-            return (IContextGenerator) element.GetValue(ContextGeneratorProperty);
-        }
+        public static void SetContextProvider(DependencyObject element, IContextProvider value) => element.SetValue(ContextProviderProperty, value);
+        public static IContextProvider GetContextProvider(DependencyObject element) => (IContextProvider) element.GetValue(ContextProviderProperty);
 
-        public static void SetContextProvider(DependencyObject element, IContextProvider value) {
-            element.SetValue(ContextProviderProperty, value);
-        }
-
-        public static IContextProvider GetContextProvider(DependencyObject element) {
-            return (IContextProvider) element.GetValue(ContextProviderProperty);
-        }
-
-        public static void SetContextEntrySource(DependencyObject element, IEnumerable<IContextEntry> value) {
-            element.SetValue(ContextEntrySourceProperty, value);
-        }
-
-        public static IEnumerable<IContextEntry> GetContextEntrySource(DependencyObject element) {
-            return (IEnumerable<IContextEntry>) element.GetValue(ContextEntrySourceProperty);
-        }
+        public static void SetContextEntrySource(DependencyObject element, IEnumerable<IContextEntry> value) => element.SetValue(ContextEntrySourceProperty, value);
+        public static IEnumerable<IContextEntry> GetContextEntrySource(DependencyObject element) => (IEnumerable<IContextEntry>) element.GetValue(ContextEntrySourceProperty);
     }
 }

@@ -24,7 +24,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public string FullPath { get; }
 
         /// <summary>
-        /// This group's name. It will either be null (meaning no parent), or a non-empty string. It will also never consist of only whitespaces
+        /// This group's name. It will either be null (meaning no parent), or a non-empty string (and also never consisting of only whitespaces)
         /// </summary>
         public string Name { get; }
 
@@ -59,8 +59,10 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public IEnumerable<ShortcutGroup> Groups => this.groups;
 
         public ShortcutGroup(ShortcutGroup parent, string name, bool isGlobal = false, bool inherit = false) {
-            this.FullPath = (parent != null && name != null) ? parent.GetPathForName(name) : name;
+            if (name != null && string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name must be null or a non-empty string that does not consist of only whitespaces");
             this.Name = name;
+            this.FullPath = parent != null && name != null ? parent.GetPathForName(name) : name;
             this.Inherit = inherit;
             this.IsGlobal = isGlobal;
             this.Parent = parent;

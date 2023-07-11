@@ -214,8 +214,8 @@ namespace FramePFX.Views {
                 }
             }
 
-            public override Presentation GetPresentation(AnActionEventArgs e) {
-                return Presentation.BoolToEnabled(e.DataContext.TryGetContext<WindowEx>(out _));
+            public override bool CanExecute(AnActionEventArgs e) {
+                return e.DataContext.TryGetContext<WindowEx>(out _);
             }
         }
     }

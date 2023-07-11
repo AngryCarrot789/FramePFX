@@ -24,6 +24,5 @@
 
   <ItemGroup>
     <Folder Include="Editor\Exporting\Exporters\Services" />
-    <Folder Include="Times" />
   </ItemGroup>
 </Project>

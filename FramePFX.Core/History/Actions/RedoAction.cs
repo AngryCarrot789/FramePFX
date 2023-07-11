@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using FramePFX.Core.Actions;
 
 namespace FramePFX.Core.History.Actions {
-    [ActionRegistration("actions.project.history.Redo")]
     public class RedoAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             if (UndoAction.TryGetHistoryManager(e.DataContext, out var manager, out var editor)) {

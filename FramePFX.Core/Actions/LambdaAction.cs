@@ -5,9 +5,9 @@ namespace FramePFX.Core.Actions {
     public class LambdaAction : AnAction {
         public Func<AnActionEventArgs, Task<bool>> MyAction { get; }
 
-        public Func<AnActionEventArgs, Presentation> MyGetPresentation { get; }
+        public Func<AnActionEventArgs, bool> MyGetPresentation { get; }
 
-        public LambdaAction(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation) : base() {
+        public LambdaAction(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, bool> getPresentation) : base() {
             this.MyAction = action ?? throw new ArgumentNullException(nameof(action), "Action function cannot be null");
             this.MyGetPresentation = getPresentation;
         }
@@ -16,15 +16,15 @@ namespace FramePFX.Core.Actions {
             return this.MyAction(e);
         }
 
-        public override Presentation GetPresentation(AnActionEventArgs e) {
-            return this.MyGetPresentation != null ? this.MyGetPresentation(e) : base.GetPresentation(e);
+        public override bool CanExecute(AnActionEventArgs e) {
+            return this.MyGetPresentation != null ? this.MyGetPresentation(e) : base.CanExecute(e);
         }
 
         public static AnAction Lambda(Func<AnActionEventArgs, Task<bool>> action) {
             return new LambdaAction(action, null);
         }
 
-        public static AnAction LambdaEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation) {
+        public static AnAction LambdaEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, bool> getPresentation) {
             return new LambdaAction(action, getPresentation);
         }
 
@@ -32,11 +32,7 @@ namespace FramePFX.Core.Actions {
             return Lambda(GetLambdaExecutor(action));
         }
 
-        public static AnAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation) {
-            return LambdaForContextEx(action, presentation, Presentation.VisibleAndDisabled);
-        }
-
-        public static AnAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, Presentation noContextAvailable) {
+        public static AnAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, bool> presentation, bool noContextAvailable = false) {
             return LambdaEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable));
         }
 
@@ -44,7 +40,7 @@ namespace FramePFX.Core.Actions {
             return new LambdaAction(action, null);
         }
 
-        public static AnAction LambdaI18NEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, Presentation> getPresentation) {
+        public static AnAction LambdaI18NEx(Func<AnActionEventArgs, Task<bool>> action, Func<AnActionEventArgs, bool> getPresentation) {
             return new LambdaAction(action, getPresentation);
         }
 
@@ -52,11 +48,7 @@ namespace FramePFX.Core.Actions {
             return LambdaI18N(GetLambdaExecutor(action));
         }
 
-        public static AnAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation) {
-            return LambdaForContextI18NEx(action, presentation, Presentation.VisibleAndDisabled);
-        }
-
-        public static AnAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, Presentation> presentation, Presentation noContextAvailable) {
+        public static AnAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, bool> presentation, bool noContextAvailable = false) {
             return LambdaI18NEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable));
         }
 
@@ -71,7 +63,7 @@ namespace FramePFX.Core.Actions {
             };
         }
 
-        private static Func<AnActionEventArgs, Presentation> GetLambdaPresentator<T>(Func<T, Presentation> action, Presentation noContextAvailable) {
+        private static Func<AnActionEventArgs, bool> GetLambdaPresentator<T>(Func<T, bool> action, bool noContextAvailable) {
             return x => x.DataContext.TryGetContext(out T editor) ? action(editor) : noContextAvailable;
         }
     }

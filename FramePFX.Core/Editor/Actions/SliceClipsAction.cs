@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FramePFX.Core;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 
-namespace FramePFX.Editor.Timeline.Actions {
+namespace FramePFX.Core.Editor.Actions {
     [ActionRegistration("actions.editor.timeline.SliceClips")]
     public class SliceClipsAction : AnAction {
         public SliceClipsAction() {
@@ -38,9 +37,8 @@ namespace FramePFX.Editor.Timeline.Actions {
             return true;
         }
 
-        public override Presentation GetPresentation(AnActionEventArgs e) {
-            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
-            return timeline == null ? Presentation.VisibleAndDisabled : base.GetPresentation(e);
+        public override bool CanExecute(AnActionEventArgs e) {
+            return EditorActionUtils.FindTimeline(e.DataContext) != null;
         }
 
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {

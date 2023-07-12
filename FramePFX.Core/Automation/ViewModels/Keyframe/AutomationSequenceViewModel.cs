@@ -148,29 +148,9 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         #endregion
 
-        public IEnumerable<KeyFrameViewModel> GetFrameExactlyAt(long frame) {
-            foreach (KeyFrameViewModel keyFrame in this.keyFrames) {
-                if (keyFrame.Timestamp == frame) {
-                    yield return keyFrame;
-                }
-                else if (keyFrame.Timestamp > frame) {
-                    yield break;
-                }
-            }
-        }
-
         public KeyFrameViewModel GetLastFrameExactlyAt(long frame) {
-            KeyFrameViewModel last = null;
-            foreach (KeyFrameViewModel keyFrame in this.keyFrames) {
-                if (keyFrame.Timestamp == frame) {
-                    last = keyFrame;
-                }
-                else if (keyFrame.Timestamp > frame) {
-                    break;
-                }
-            }
-
-            return last;
+            int index = this.Model.GetLastFrameExactlyAt(frame);
+            return index == -1 ? null : this.keyFrames[index];
         }
 
         public bool RemoveKeyFrame(KeyFrameViewModel keyFrame) {
@@ -222,20 +202,12 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public KeyFrameViewModel GetActiveKeyFrameOrOverride(long timestamp) {
             KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(timestamp);
-            if (keyFrame != null) {
-                if (this.IsOverrideEnabled)
-                    this.IsOverrideEnabled = false;
-                return keyFrame;
-            }
-
-            return this.GetOverride();
+            return keyFrame ?? this.GetOverride();
         }
 
         public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long timestamp) {
             KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(timestamp);
             if (keyFrame != null) {
-                if (this.IsOverrideEnabled)
-                    this.IsOverrideEnabled = false;
                 return keyFrame;
             }
 

@@ -10,16 +10,14 @@ namespace FramePFX.Core.Editor.Actions {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
-                if (e.IsUserInitiated) {
-                    await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to add a new video track");
-                }
-
-                return true;
+                return false;
             }
 
-            string name = TextIncrement.GetNextText(timeline.Tracks.OfType<VideoTrackViewModel>().Select(x => x.DisplayName), "Video Track");
-            VideoTrackViewModel track = await timeline.AddVideoTrackAction();
-            track.DisplayName = name;
+            int index; // slightly compact code... get index of track otherwise get timeline track count
+            if (!e.DataContext.TryGetContext(out TrackViewModel track) || (index = timeline.Tracks.IndexOf(track)) == -1)
+                index = timeline.Tracks.Count;
+            track = await timeline.InsertNewVideoTrackAction(index);
+            track.DisplayName = TextIncrement.GetNextText(timeline.Tracks.OfType<VideoTrackViewModel>().Select(x => x.DisplayName), "Video Track");
             return true;
         }
     }
@@ -28,16 +26,15 @@ namespace FramePFX.Core.Editor.Actions {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
-                if (e.IsUserInitiated) {
-                    await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to add a new audio track");
-                }
-
-                return true;
+                return false;
             }
 
-            string name = TextIncrement.GetNextText(timeline.Tracks.OfType<AudioTrackViewModel>().Select(x => x.DisplayName), "Audio Track");
-            AudioTrackViewModel track = await timeline.AddAudioTrackAction();
-            track.DisplayName = name;
+
+            int index;
+            if (!e.DataContext.TryGetContext(out TrackViewModel track) || (index = timeline.Tracks.IndexOf(track)) == -1)
+                index = timeline.Tracks.Count;
+            track = await timeline.InsertNewAudioTrackAction(index);
+            track.DisplayName = TextIncrement.GetNextText(timeline.Tracks.OfType<AudioTrackViewModel>().Select(x => x.DisplayName), "Audio Track");
             return true;
         }
     }

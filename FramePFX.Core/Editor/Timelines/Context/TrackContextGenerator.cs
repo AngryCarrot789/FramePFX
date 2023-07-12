@@ -9,15 +9,15 @@ namespace FramePFX.Core.Editor.Timelines.Context {
 
         public void Generate(List<IContextEntry> list, IDataContext context) {
             if (context.TryGetContext(out TrackViewModel track)) {
-                list.Add(new ActionContextEntry(track, "actions.resources.RenameItem"));
+                list.Add(new ActionContextEntry(null, "actions.resources.RenameItem", "Rename track"));
                 list.Add(SeparatorEntry.Instance);
-                list.Add(new ActionContextEntry(track.Timeline, "actions.editor.NewVideoTrack"));
-                list.Add(new ActionContextEntry(track.Timeline, "actions.editor.NewAudioTrack"));
-                list.Add(new ActionContextEntry(track, "actions.resources.RenameItem"));
+                list.Add(new ActionContextEntry(null, "actions.editor.NewVideoTrack", "Insert video track below"));
+                list.Add(new ActionContextEntry(null, "actions.editor.NewAudioTrack", "Insert audio track below"));
+                list.Add(new ActionContextEntry(null, "actions.resources.RenameItem"));
             }
-            else if (context.TryGetContext(out TimelineViewModel timeline)) {
-                list.Add(new ActionContextEntry(timeline, "actions.editor.NewVideoTrack"));
-                list.Add(new ActionContextEntry(timeline, "actions.editor.NewAudioTrack"));
+            else if (context.TryGetContext(out TimelineViewModel _)) {
+                list.Add(new ActionContextEntry(null, "actions.editor.NewVideoTrack", "Add Video track"));
+                list.Add(new ActionContextEntry(null, "actions.editor.NewAudioTrack", "Add Audio Track"));
             }
         }
     }

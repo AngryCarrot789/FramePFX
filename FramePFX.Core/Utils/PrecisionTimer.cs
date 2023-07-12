@@ -102,31 +102,15 @@ namespace FramePFX.Core.Utils {
         }
 
         private void OnTimerTick() {
-            // long currentTime = Time.GetSystemTicks();
-            // while (currentTime >= this.nextTickTime) {
-            //     this.nextTickTime += this.intervalTicks;
-            //     long a = Time.GetSystemTicks();
-            //     this.TickCallback?.Invoke();
-            //     long b = Time.GetSystemTicks() - a;
-            //     if (b >= this.nextTickTime) {
-            //         break;
-            //     }
-            // }
-
-            // long currentTime = Time.GetSystemTicks();
-            // while (currentTime >= this.nextTickTime) {
-            //     this.nextTickTime += this.intervalTicks;
-            //     long a = Time.GetSystemTicks();
-            //     this.TickCallback?.Invoke();
-            //     long b = Time.GetSystemTicks() - a;
-            //     if (b >= this.nextTickTime) {
-            //         break;
-            //     }
-            // }
-
-            if (Time.GetSystemTicks() >= this.nextTickTime) {
+            long currentTime = Time.GetSystemTicks();
+            while (currentTime >= this.nextTickTime) {
                 this.nextTickTime += this.intervalTicks;
+                long a = Time.GetSystemTicks();
                 this.TickCallback?.Invoke();
+                long b = Time.GetSystemTicks() - a;
+                if (b >= this.nextTickTime) {
+                    break;
+                }
             }
         }
 

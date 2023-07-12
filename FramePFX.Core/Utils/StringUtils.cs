@@ -218,5 +218,10 @@ namespace FramePFX.Core.Utils {
                 return value - 'A' + 10;
             return -1;
         }
+
+        public static string SplitLast(string str, char ch) {
+            int index = str.LastIndexOf(ch);
+            return index == -1 ? str : str.Substring(index + 1);
+        }
     }
 }

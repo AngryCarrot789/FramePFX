@@ -79,8 +79,10 @@ namespace FramePFX.Core.Editor.Timelines {
             this.MaxDuration = Math.Max(this.MaxDuration, this.Tracks.Count < 1 ? 0 : this.Tracks.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
         }
 
-        public void AddTrack(Track track) {
-            this.Tracks.Add(track);
+        public void AddTrack(Track track) => this.InsertTrack(this.Tracks.Count, track);
+
+        public void InsertTrack(int index, Track track) {
+            this.Tracks.Insert(index, track);
             Track.SetTimeline(track, this);
         }
 
@@ -96,7 +98,10 @@ namespace FramePFX.Core.Editor.Timelines {
 
         public void RemoveTrack(int index) {
             Track track = this.Tracks[index];
-            Validate.Exception(ReferenceEquals(track.Timeline, this), "Expected track's timeline and the current timeline instance to be equal");
+            if (!ReferenceEquals(track.Timeline, this)) {
+                throw new Exception("Expected track's timeline and the current timeline instance to be equal");
+            }
+
             this.Tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
         }

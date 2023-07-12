@@ -24,5 +24,6 @@
 
   <ItemGroup>
     <Folder Include="Editor\Exporting\Exporters\Services" />
+    <Folder Include="Utils\Collections" />
   </ItemGroup>
 </Project>

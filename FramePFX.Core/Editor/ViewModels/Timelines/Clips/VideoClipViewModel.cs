@@ -274,6 +274,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, RefreshOpacityHandler);
         }
 
+        // TODO: implement "OnPlayHeadEnter", "OnPlayHeadMoved", and "OnPlayHeadLeave" to refresh
+        // the key frame insertion commands
+
         // this is messy asf but it works :DDD
 
         protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {

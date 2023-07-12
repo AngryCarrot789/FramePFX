@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.AdvancedContextService {
     /// <summary>
@@ -19,7 +20,7 @@ namespace FramePFX.Core.AdvancedContextService {
 
         }
 
-        public ActionContextEntry(object dataContext, string actionId, IEnumerable<IContextEntry> children = null) : this(dataContext, actionId, null, null, children) {
+        public ActionContextEntry(object dataContext, string actionId, IEnumerable<IContextEntry> children = null) : this(dataContext, actionId, StringUtils.SplitLast(actionId, '.'), null, children) {
 
         }
 

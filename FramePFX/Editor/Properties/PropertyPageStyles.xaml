@@ -42,11 +42,14 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="1"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="1"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <d:NumberDragger FontWeight="Normal" Padding="6,2" Grid.Row="0" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"         DisplayTextOverride="Position" Height="18" Margin="0,2,0,3"/>
                     <d:NumberDragger FontWeight="Normal" Padding="6,2" Grid.Row="2" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"       DisplayTextOverride="Scale" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
                     <d:NumberDragger FontWeight="Normal" Padding="6,2" Grid.Row="4" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                    <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="6" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,2,0,3"/>
+                    <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="6" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,2,0,3"/>
+                    <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="8" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,2,0,3"/>
                     <Grid Grid.Column="1" Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -105,14 +108,11 @@
                         </StackPanel>
                     </Grid>
                     <Grid Grid.Column="1" Grid.Row="6">
-                        <TextBlock Grid.Column="0" Grid.Row="0" Padding="6,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding MediaFrameOffset, Mode=OneWay}"/>
-                    </Grid>
-                    <Grid Grid.Column="1" Grid.Row="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"/>
                         <StackPanel Orientation="Horizontal" Grid.Column="1">
                             <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="A"/>
                             <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="O"/>
@@ -124,9 +124,13 @@
                             </Button>
                         </StackPanel>
                     </Grid>
+                    <Grid Grid.Column="1" Grid.Row="8">
+                        <TextBlock Grid.Column="0" Grid.Row="0" Padding="6,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding MediaFrameOffset, Mode=OneWay}"/>
+                    </Grid>
                     <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                     <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                     <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="7" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>

@@ -20,6 +20,7 @@
             xmlns:resources="clr-namespace:FramePFX.Editor.Resources"
             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
             xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
+            xmlns:context="clr-namespace:FramePFX.Core.Editor.Timelines.Context;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -273,6 +274,7 @@
                                 BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
                         <ListBox x:Name="TrackListBox"
                                  sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
+                                 acs:AdvancedContextMenu.ContextGenerator="{x:Static context:TrackContextGenerator.Instance}"
                                  Style="{StaticResource TrackListBoxStyle}"
                                  Grid.Row="1" Grid.Column="0"
                                  SelectionMode="Extended"

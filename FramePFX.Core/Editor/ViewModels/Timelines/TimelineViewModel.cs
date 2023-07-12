@@ -12,10 +12,13 @@ using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Core.Utils;
+using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines {
     public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IDisposable {
+        public static readonly MessageDialog DeleteTracksDialog;
+
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
 
@@ -99,6 +102,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public List<HistoryVideoClipPosition> DragStopHistoryList { get; set; }
 
+        static TimelineViewModel() {
+            DeleteTracksDialog = Dialogs.YesCancelDialog.Clone();
+            DeleteTracksDialog.ShowAlwaysUseNextResultOption = true;
+        }
+
         public TimelineViewModel(ProjectViewModel project, Timeline model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
@@ -112,8 +120,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.RemoveSelectedTracksCommand = new AsyncRelayCommand(this.RemoveSelectedTracksAction, () => this.SelectedTracks.Count > 0);
             this.MoveSelectedUpCommand = new RelayCommand(this.MoveSelectedItemUpAction);
             this.MoveSelectedDownCommand = new RelayCommand(this.MoveSelectedItemDownAction);
-            this.AddVideoTrackCommand = new AsyncRelayCommand(this.AddVideoTrackAction);
-            this.AddAudioTrackCommand = new AsyncRelayCommand(this.AddAudioTrackAction, () => false);
+            this.AddVideoTrackCommand = new AsyncRelayCommand(this.AddNewVideoTrackAction);
+            this.AddAudioTrackCommand = new AsyncRelayCommand(this.AddNewAudioTrackAction, () => false);
             this.TrackNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Clip name cannot be empty" : null);
             foreach (Track track in this.Model.Tracks) {
                 TrackViewModel trackVm = TrackRegistry.Instance.CreateViewModelFromModel(track);
@@ -122,10 +130,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             }
         }
 
-        public void AddTrack(TrackViewModel track) {
-            this.Model.AddTrack(track.Model);
+        public void AddTrack(TrackViewModel track) => this.InsertTrack(this.tracks.Count, track);
+
+        public void InsertTrack(int index, TrackViewModel track) {
+            this.Model.InsertTrack(index, track.Model);
+            this.tracks.Insert(index, track);
             TrackViewModel.SetTimeline(track, this);
-            this.tracks.Add(track);
             this.OnProjectModified();
         }
 
@@ -151,16 +161,19 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             return this.tracks.SelectMany(x => x.SelectedClips);
         }
 
-        public async Task<VideoTrackViewModel> AddVideoTrackAction() {
+        public Task<VideoTrackViewModel> AddNewVideoTrackAction() => this.InsertNewVideoTrackAction(this.tracks.Count);
+
+        public Task<AudioTrackViewModel> AddNewAudioTrackAction()  => this.InsertNewAudioTrackAction(this.tracks.Count);
+        public async Task<VideoTrackViewModel> InsertNewVideoTrackAction(int index) {
             VideoTrackViewModel track = new VideoTrackViewModel(new VideoTrack());
-            this.AddTrack(track);
+            this.InsertTrack(index, track);
             await this.DoRenderAsync(true);
             return track;
         }
 
-        public async Task<AudioTrackViewModel> AddAudioTrackAction() {
+        public async Task<AudioTrackViewModel> InsertNewAudioTrackAction(int index) {
             AudioTrackViewModel track = new AudioTrackViewModel(new AudioTrack());
-            this.AddTrack(track);
+            this.InsertTrack(index, track);
             return track;
         }
 
@@ -190,8 +203,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 return;
             }
 
-            string msg = list.Count == 1 ? "1 track" : $"{list.Count} tracks";
-            if (confirm && !await IoC.MessageDialogs.ShowYesNoDialogAsync("Delete tracks?", $"Are you sure you want to delete {msg}?")) {
+            if (confirm && await DeleteTracksDialog.ShowAsync("Delete tracks?", $"Are you sure you want to delete {list.Count} track{Lang.S(list.Count)}?") != "yes") {
                 return;
             }
 

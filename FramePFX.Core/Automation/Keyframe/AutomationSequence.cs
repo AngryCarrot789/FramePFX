@@ -118,44 +118,15 @@ namespace FramePFX.Core.Automation.Keyframe {
         }
 
         private T TryGetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate) {
-            if (this.IsOverrideEnabled || this.IsEmpty) {
+            if (this.IsOverrideEnabled || !this.GetIndicesForFrame(time, out int a, out int b)) {
                 return toValue(this.OverrideKeyFrame);
             }
-            else if (this.GetKeyFramesForFrame(time, out KeyFrame a, out KeyFrame b, out int index)) {
-                // pass `time` parameter to the interpolate function to remove closure allocation; performance helper
-                return b == null ? toValue(a) : interpolate(time, a, b);
-            }
             else {
-                // this shouldn't occur because the above code checks if there are no key frames
-                #if DEBUG
-                System.Diagnostics.Debugger.Break();
-                #endif
-                throw new Exception("???");
+                return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(time, this.keyFrameList[a], this.keyFrameList[b]);
             }
         }
 
         #endregion
-
-        // not used
-        public int BinarySearch(long frame) {
-            List<KeyFrame> list = this.keyFrameList;
-            int i = 0, j = list.Count - 1;
-            while (i <= j) {
-                int k = i + (j - i >> 1);
-                long time = list[k].time;
-                if (time == frame) {
-                    return k;
-                }
-                else if (time < frame) {
-                    i = k + 1;
-                }
-                else {
-                    j = k - 1;
-                }
-            }
-
-            return ~i;
-        }
 
         /// <summary>
         /// Gets the two key frames that the given time should attempt to interpolate between, or a single key frame if that's all that is possible or logical
@@ -174,189 +145,105 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <param name="b">The second key frame, may be null under certain conditions, in which case use a's value directly</param>
         /// <returns>False if there are no key frames, otherwise true</returns>
         public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b, out int i) {
+            if (this.GetIndicesForFrame(frame, out i, out int j)) {
+                a = this.keyFrameList[i];
+                b = j == -1 ? null : this.keyFrameList[j];
+                return true;
+            }
+
+            a = b = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the two indices of the key frames that the given time should attempt to interpolate between, or a single key frame if that's all that is possible or logical
+        /// <para>
+        /// If the time directly intersects a key frame, then the last keyframe that intersects frame will be set as a, and b will be -1
+        /// </para>
+        /// <para>
+        /// If the time is before the first key frame or after the last key frame, the first/last key frame index is set as a, and b will be -1
+        /// </para>
+        /// <para>
+        /// If all other cases are false, and the list is not empty, then a and b will point to a pair of key frames that frame can be interpolated between (based on a's interpolation method)
+        /// </para>
+        /// </summary>
+        /// <param name="frame">The time</param>
+        /// <param name="a">The first or only index available</param>
+        /// <param name="b">The second key frame index, may be -1 under certain conditions, in which case use a</param>
+        /// <returns>False if there are no key frames, otherwise true</returns>
+        public bool GetIndicesForFrame(long frame, out int a, out int b) {
             List<KeyFrame> list = this.keyFrameList;
             int count = list.Count;
             if (count < 1) {
-                a = b = null;
-                i = -1;
+                a = b = -1;
                 return false;
             }
 
-            KeyFrame value = list[i = 0], prev = null;
-            while (true) { // node is never null, as it is only reassigned to next (which won't be null at that point)
-                long valTime = value.time;
-                if (frame > valTime) {
-                    if (++i < count) {
-                        prev = value;
-                        value = list[i];
-                    }
-                    else { // last key frame
-                        a = value;
-                        b = null;
-                        return true;
-                    }
+            int lhs = 0, rhs = count - 1;
+            while (lhs <= rhs) {
+                int mid = (lhs + rhs) / 2;
+                KeyFrame value = list[mid];
+                if (frame > value.time) {
+                    lhs = mid + 1;
                 }
-                else if (frame < valTime) {
-                    if (prev == null) { // first key frame; time is before the first node
-                        a = value;
-                        b = null;
-                        return true;
-                    }
-                    else { // found pair of key frames to interpolate between
-                        a = prev;
-                        b = value;
-                        return true;
-                    }
+                else if (frame < value.time) {
+                    rhs = mid - 1;
                 }
-                else {
-                    // get the last node next node whose timestamp equals the input time, otherwise
-                    // use the last node (the input time is the same as the very last node's timestamp)
-                    KeyFrame temp = value, tempPrev = prev;
-                    while (temp != null && temp.time == frame) {
-                        tempPrev = temp;
-                        temp = ++i < count ? list[i] : null;
-                    }
-
-                    if (temp != null && tempPrev != null) {
-                        a = tempPrev;
-                        b = temp;
-                    }
-                    else {
-                        a = temp ?? tempPrev;
-                        b = null;
-                    }
-
+                else { // find last matching timestamp
+                    int j = mid + 1;
+                    while (j < count && list[j].time == frame)
+                        j++;
+                    a = j - 1;
+                    b = j < count ? j : -1;
                     return true;
                 }
             }
-        }
 
-        /*
-            implements caching but it breaks sometimes
-            public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b, out int i) {
-                List<KeyFrame> list = this.keyFrameList;
-                int count = list.Count, j;
-                if (count < 1) {
-                    a = b = null;
-                    i = -1;
-                    return false;
-                }
-
-                if (this.cache_valid) {
-                    if (frame >= this.cache_time) {
-                        i = this.cache_index;
-                        j = count - 1;
-                    }
-                    else {
-                        i = 0;
-                        j = this.cache_index;
-                    }
-                }
-                else {
-                    i = 0;
-                    j = count - 1;
-                }
-
-                KeyFrame value = list[i], prev = null;
-                while (true) { // node is never null, as it is only reassigned to next (which won't be null at that point)
-                    long valTime = value.Timestamp;
-                    if (frame > valTime) {
-                        if (++i <= j) {
-                            prev = value;
-                            value = list[i];
-                        }
-                        else { // last key frame
-                            a = value;
-                            b = null;
-                            this.cache_valid = true;
-                            this.cache_index = i - 1;
-                            this.cache_time = frame;
-                            return true;
-                        }
-                    }
-                    else if (frame < valTime) {
-                        this.cache_valid = true;
-                        this.cache_index = i;
-                        this.cache_time = frame;
-                        if (prev == null) { // first key frame; time is before the first node
-                            if (this.cache_valid && this.cache_index > 0) {
-                                a = list[this.cache_index - 1];
-                                b = value;
-                                return true;
-                            }
-
-                            a = value;
-                            b = null;
-                            return true;
-                        }
-                        else { // found pair of key frames to interpolate between
-                            a = prev;
-                            b = value;
-                            return true;
-                        }
-                    }
-                    else {
-                        // get the last node next node whose timestamp equals the input time, otherwise
-                        // use the last node (the input time is the same as the very last node's timestamp)
-                        KeyFrame temp = value, tempPrev = prev;
-                        while (temp != null && temp.Timestamp == frame) {
-                            tempPrev = temp;
-                            temp = ++i <= j ? list[i] : null;
-                        }
-
-                        if (temp != null && tempPrev != null) {
-                            a = tempPrev;
-                            b = temp;
-                        }
-                        else {
-                            a = temp ?? tempPrev;
-                            b = null;
-                        }
-
-                        this.cache_valid = true;
-                        this.cache_index = i - 1;
-                        this.cache_time = frame;
-                        return true;
-                    }
-                }
+            // no intersecting key frame found... figure out interpolation
+            if (rhs < 0) {
+                a = 0;
+                b = -1;
             }
-         */
-
-        /// <summary>
-        /// Enumerates all of they keys are are located at the given frame
-        /// </summary>
-        /// <param name="frame">Target frame</param>
-        /// <returns>The key frames at the given frame</returns>
-        public IEnumerable<KeyFrame> GetKeyFramesAt(long frame) {
-            foreach (KeyFrame keyFrame in this.keyFrameList) {
-                long time = keyFrame.time;
-                if (time == frame) {
-                    yield return keyFrame;
-                }
-                else if (time > frame) {
-                    yield break;
-                }
+            else if (lhs >= count) {
+                a = count - 1;
+                b = -1;
             }
+            else {
+                a = rhs;
+                b = lhs;
+            }
+
+            return true;
         }
 
         /// <summary>
-        /// Gets the last <see cref="KeyFrame"/> at the given frame. Key frames are ordered left to right, but in the vertical axis, it is unordered
+        /// Gets the index of the last <see cref="KeyFrame"/> at the given frame. Key frames are ordered left to
+        /// right, but in the vertical axis, it is unordered, so return the index of the last one at the frame
         /// </summary>
         /// <param name="frame">Target frame</param>
         /// <returns>The last key frame at the given frame, or null, if there are no key frames at the given frame</returns>
-        public KeyFrame GetLastFrameExactlyAt(long frame) {
-            KeyFrame last = null;
-            foreach (KeyFrame keyFrame in this.keyFrameList) {
-                long time = keyFrame.time;
-                if (time == frame) {
-                    last = keyFrame;
+        public int GetLastFrameExactlyAt(long frame) {
+            // Do binary search until a matching timestamp, then do a linear search
+            // towards the end of the list to find the last matching timestamp
+            List<KeyFrame> list = this.keyFrameList;
+            int lhs = 0, rhs, k = rhs = list.Count - 1;
+            while (lhs <= rhs) {
+                int i = lhs + (rhs - lhs) / 2;
+                KeyFrame keyFrame = list[i];
+                if (keyFrame.time == frame) {
+                    while (i < k && list[i + 1].time == frame)
+                        i++;
+                    return i;
                 }
-                else if (time > frame) {
-                    break;
+                else if (keyFrame.time < frame) {
+                    lhs = i + 1;
+                }
+                else {
+                    rhs = i - 1;
                 }
             }
 
-            return last;
+            return -1;
         }
 
         /// <summary>

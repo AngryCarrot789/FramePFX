@@ -17,6 +17,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages {
         public static readonly ShapeClipPageViewModel Dummy = new ShapeClipPageViewModel(new ShapeClipViewModel(new ShapeVideoClip()));
 
         public new ShapeClipViewModel Target => (ShapeClipViewModel) base.Target;
+
         public ShapeClipPageViewModel(ShapeClipViewModel target) : base(target, "Shape Info") {
 
         }

@@ -78,16 +78,11 @@ namespace FramePFX.Core.PropertyPages {
         }
 
         public List<TPageBase> CreatePages(List<TBase> instances) {
-            if (instances == null || instances.Count < 1) {
+            if (instances == null || instances.Count != 1) {
                 return new List<TPageBase>();
             }
 
-            if (instances.Count == 1) {
-                return this.CreatePages(instances[0]);
-            }
-
-            return new List<TPageBase>();
-
+            return this.CreatePages(instances[0]);
             // List<TPageBase> pages = new List<TPageBase>();
             // foreach (Type type in this.GetTypes(instances.GetType())) {
             //     TPageBase page = this.CreateInstance(enumerable, type);

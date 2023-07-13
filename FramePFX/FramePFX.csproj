@@ -309,6 +309,10 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
+    <Compile Include="PropertyEditing\ok.cs" />
+    <Compile Include="PropertyEditing\PropertyEditorItem.cs" />
+    <Compile Include="PropertyEditing\PropertyEditorItemsControl.cs" />
+    <Compile Include="PropertyEditing\PropertyGroupItem.cs" />
     <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Services\WinExplorerService.cs" />
@@ -363,6 +367,7 @@
     <Compile Include="Utils\DispatcherUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\KeyUtils.cs" />
+    <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs" />
     <Compile Include="Utils\ScrollerUtils.cs" />
     <Compile Include="Utils\TextPointerUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />

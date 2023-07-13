@@ -21,6 +21,7 @@
             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
             xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
             xmlns:context="clr-namespace:FramePFX.Core.Editor.Timelines.Context;assembly=FramePFX.Core"
+            xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core" xmlns:pe="clr-namespace:FramePFX.PropertyEditing"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -70,7 +71,7 @@
                 <MenuItem Header="Dark Grey"     Click="SetThemeClick" Uid="2"/>
                 <MenuItem Header="Grey"          Click="SetThemeClick" Uid="3"/>
                 <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4"/>
-                <MenuItem Header="Light Theme"   Click="SetThemeClick" Uid="5"/>
+                <MenuItem Header="Light Theme (PLEASE DONT USE FOR YOUR OWN GOOD D:)"   Click="SetThemeClick" Uid="5"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Show logs" Click="ShowLogsClick"/>
@@ -121,7 +122,9 @@
                         </dockablz:Layout>
                     <dragablz:TabablzControl Style="{StaticResource ThingTabablzControlStyle}">
                     -->
-                    <TabControl Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0" ItemContainerStyle="{StaticResource NoOffsetTabItem}" SelectedIndex="1">
+                    <TabControl Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0" 
+                                ItemContainerStyle="{StaticResource NoOffsetTabItem}" SelectedIndex="2">
                         <TabControl.Style>
                             <Style TargetType="{x:Type TabControl}">
                                 <Setter Property="Padding" Value="0" />
@@ -212,6 +215,45 @@
                                                             HorizontalContentAlignment="Stretch"
                                                             ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=PropertyPageItemsSource}">
                             </props:PropertyPageItemsControl>
+                        </TabItem>
+                        <TabItem Header="New Property Editor">
+                            <pe:PropertyEditorItemsControl DataContext="{Binding ActiveProject.Timeline}" ItemsSource="{Binding PrimarySelectedTrack}"/>
+                            <!--
+                            <ListView Visibility="Collapsed" DataContext="{Binding ActiveProject.Timeline.PrimarySelectedTrack.PrimarySelectedClip.AutomationData.ActiveSequence}" ItemsSource="{Binding KeyFrames}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Time" Width="150" DisplayMemberBinding="{Binding Timestamp}"/>
+                                        <GridViewColumn Width="150">
+                                            <GridViewColumn.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="OK"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.HeaderTemplate>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ContentControl Content="{Binding}">
+                                                        <ContentControl.Resources>
+                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameVector2ViewModel}">
+                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
+                                                            </DataTemplate>
+                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameFloatViewModel}">
+                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
+                                                            </DataTemplate>
+                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameDoubleViewModel}">
+                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
+                                                            </DataTemplate>
+                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameBooleanViewModel}">
+                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
+                                                            </DataTemplate>
+                                                        </ContentControl.Resources>
+                                                    </ContentControl>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            -->
                         </TabItem>
                         <!--
                     </dragablz:TabablzControl>

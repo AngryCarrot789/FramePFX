@@ -29,7 +29,7 @@ namespace FramePFX.Core.Automation.ViewModels {
             }
         }
 
-        private void RefreshTimeline(TimelineViewModel timeline, long frame) {
+        public void RefreshTimeline(TimelineViewModel timeline, long frame) {
             ReadOnlyObservableCollection<AutomationSequenceViewModel> sequences = timeline.AutomationData.Sequences;
             try {
                 timeline.IsAutomationChangeInProgress = true;
@@ -50,7 +50,8 @@ namespace FramePFX.Core.Automation.ViewModels {
             }
         }
 
-        private void RefreshTrack(TrackViewModel track, long frame) {
+        public void RefreshTrack(TrackViewModel track, long frame) {
+            // this is super messy but it's basically just caching local variables, to just barely outperform enumerators
             int i, c, j, k;
             AutomationSequenceViewModel sequence;
             ReadOnlyObservableCollection<AutomationSequenceViewModel> sequences;
@@ -92,14 +93,21 @@ namespace FramePFX.Core.Automation.ViewModels {
         }
 
         public void OnOverrideStateChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
-            this.UpdateAndRefresh(data, sequence);
+            long frame = this.Project.Timeline.PlayHeadFrame;
+            if (data.Owner is ClipViewModel clip) {
+                FrameSpan span = clip.FrameSpan;
+                frame = Maths.Clamp(frame - span.Begin, 0, span.Duration - 1);
+            }
+
+            if (sequence.IsOverrideEnabled) {
+                sequence.OverrideKeyFrame.Model.AssignCurrentValue(frame, sequence.Model);
+            }
+
+            sequence.Model.DoUpdateValue(this.Model, frame);
+            sequence.DoRefreshValue(this, frame, this.IsPlayback, false);
         }
 
         public void OnKeyFrameChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
-            this.UpdateAndRefresh(data, sequence);
-        }
-
-        public void UpdateAndRefresh(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
             long frame = this.Project.Timeline.PlayHeadFrame;
             if (data.Owner is ClipViewModel clip) {
                 FrameSpan span = clip.FrameSpan;

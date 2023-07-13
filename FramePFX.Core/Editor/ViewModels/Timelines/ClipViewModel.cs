@@ -189,12 +189,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.ConnectedGroups = new ObservableCollection<ClipGroupViewModel>();
         }
 
-        public void OnProjectModified() {
-            this.track?.OnProjectModified();
-        }
-
-        public static void SetTrack(ClipViewModel viewModel, TrackViewModel track) => viewModel.Track = track;
-
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
 
         }
@@ -468,6 +462,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             }
 
             this.lastDragHistoryAction = null;
+        }
+
+        /// <summary>
+        /// Called when the user seeks a specific frame, and it intersects with this clip. The frame is relative to this clip's begin frame
+        /// </summary>
+        /// <param name="oldFrame">Previous frame (not relative to this clip)</param>
+        /// <param name="newFrame">Current frame (relative to this clip)</param>
+        public virtual void OnUserSeekedFrame(long oldFrame, long newFrame) {
+
         }
     }
 }

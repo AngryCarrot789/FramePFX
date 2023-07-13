@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -108,6 +109,11 @@ namespace FramePFX {
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
 
+            #if false
+            this.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            this.MainWindow = new PropertyPageDemoWindow();
+            this.MainWindow.Show();
+            #else
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.MainWindow = this.splash = new AppSplashScreen();
             this.splash.Show();
@@ -138,6 +144,7 @@ namespace FramePFX {
             await this.Dispatcher.Invoke(async () => {
                 await this.OnVideoEditorLoaded(window.Editor);
             }, DispatcherPriority.Loaded);
+            #endif
         }
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {

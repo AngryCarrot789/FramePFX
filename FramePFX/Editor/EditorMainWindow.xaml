@@ -121,8 +121,7 @@
                         </dockablz:Layout>
                     <dragablz:TabablzControl Style="{StaticResource ThingTabablzControlStyle}">
                     -->
-                    <TabControl Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0" ItemContainerStyle="{StaticResource NoOffsetTabItem}"
-                                SelectedIndex="1">
+                    <TabControl Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0" ItemContainerStyle="{StaticResource NoOffsetTabItem}" SelectedIndex="1">
                         <TabControl.Style>
                             <Style TargetType="{x:Type TabControl}">
                                 <Setter Property="Padding" Value="0" />
@@ -203,8 +202,8 @@
                                                                VerticalContentAlignment="Stretch"/>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Property Pages (v2)">
-                            <props:PropertyPageItemsControl Background="{DynamicResource PanelBackground3}"
+                        <TabItem Header="Property Pages">
+                            <props:PropertyPageItemsControl Background="{DynamicResource PanelBackground2}"
                                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                             ScrollViewer.CanContentScroll="False"

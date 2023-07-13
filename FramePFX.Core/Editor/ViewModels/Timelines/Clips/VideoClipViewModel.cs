@@ -239,7 +239,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
         #endregion
 
+        public readonly Func<bool> CanInsertKeyFrame;
+
         protected VideoClipViewModel(VideoClip model) : base(model) {
+            this.CanInsertKeyFrame = () => this.Track != null && this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame, out long _);
             this.ResetTransformationCommand = new RelayCommand(() => {
                 this.MediaPosition = VideoClip.MediaPositionKey.Descriptor.DefaultValue;
                 this.MediaScale = VideoClip.MediaScaleKey.Descriptor.DefaultValue;
@@ -251,11 +254,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             this.ResetMediaScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = VideoClip.MediaScaleOriginKey.Descriptor.DefaultValue);
             this.ResetOpacityCommand =          new RelayCommand(() => this.Opacity = VideoClip.OpacityKey.Descriptor.DefaultValue);
 
-            Func<bool> canInsertKeyFrame = () => this.Track != null && this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame, out long _);
-            this.InsertMediaPositionKeyFrameCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetVector2Value(this.MediaPosition), canInsertKeyFrame);
-            this.InsertMediaScaleKeyFrameCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetVector2Value(this.MediaScale), canInsertKeyFrame);
-            this.InsertMediaScaleOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.RelativePlayHead).SetVector2Value(this.MediaScaleOrigin), canInsertKeyFrame);
-            this.InsertOpacityKeyFrameCommand =          new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetDoubleValue(this.Opacity), canInsertKeyFrame);
+            this.InsertMediaPositionKeyFrameCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetVector2Value(this.MediaPosition), this.CanInsertKeyFrame);
+            this.InsertMediaScaleKeyFrameCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetVector2Value(this.MediaScale), this.CanInsertKeyFrame);
+            this.InsertMediaScaleOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.RelativePlayHead).SetVector2Value(this.MediaScaleOrigin), this.CanInsertKeyFrame);
+            this.InsertOpacityKeyFrameCommand =          new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetDoubleValue(this.Opacity), this.CanInsertKeyFrame);
 
             this.ToggleMediaPositionActiveCommand =    new RelayCommand(() => this.AutomationData[VideoClip.MediaPositionKey].ToggleOverrideAction());
             this.ToggleMediaScaleActiveCommand =       new RelayCommand(() => this.AutomationData[VideoClip.MediaScaleKey].ToggleOverrideAction());
@@ -277,7 +279,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         // TODO: implement "OnPlayHeadEnter", "OnPlayHeadMoved", and "OnPlayHeadLeave" to refresh
         // the key frame insertion commands
 
-        // this is messy asf but it works :DDD
+        public override void OnUserSeekedFrame(long oldFrame, long newFrame) {
+            base.OnUserSeekedFrame(oldFrame, newFrame);
+            this.InsertMediaPositionKeyFrameCommand.RaiseCanExecuteChanged();
+            this.InsertMediaScaleKeyFrameCommand.RaiseCanExecuteChanged();
+            this.InsertMediaScaleOriginKeyFrameCommand.RaiseCanExecuteChanged();
+            this.InsertOpacityKeyFrameCommand.RaiseCanExecuteChanged();
+        }
 
         protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
             base.OnFrameSpanChanged(oldSpan, newSpan);

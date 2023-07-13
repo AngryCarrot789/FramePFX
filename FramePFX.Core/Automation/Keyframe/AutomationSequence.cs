@@ -92,37 +92,37 @@ namespace FramePFX.Core.Automation.Keyframe {
         private static readonly Func<long, KeyFrame, KeyFrame, bool>    FuncCalcBool =   (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
         private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVec2 =   (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
 
-        public float GetFloatValue(long time) {
+        public float GetFloatValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Float, this.DataType);
-            return this.TryGetValueInternal(time, FuncGetFloat, FuncCalcFloat);
+            return this.GetValueInternal(time, FuncGetFloat, FuncCalcFloat, ignoreOverrideState);
         }
 
-        public double GetDoubleValue(long time) {
+        public double GetDoubleValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Double, this.DataType);
-            return this.TryGetValueInternal(time, FuncGetDouble, FuncCalcDouble);
+            return this.GetValueInternal(time, FuncGetDouble, FuncCalcDouble, ignoreOverrideState);
         }
 
-        public long GetLongValue(long time) {
+        public long GetLongValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Long, this.DataType);
-            return this.TryGetValueInternal(time, FuncGetLong, FuncCalcLong);
+            return this.GetValueInternal(time, FuncGetLong, FuncCalcLong, ignoreOverrideState);
         }
 
-        public bool GetBooleanValue(long time) {
+        public bool GetBooleanValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Boolean, this.DataType);
-            return this.TryGetValueInternal(time, FuncGetBool, FuncCalcBool);
+            return this.GetValueInternal(time, FuncGetBool, FuncCalcBool, ignoreOverrideState);
         }
 
-        public Vector2 GetVector2Value(long time) {
+        public Vector2 GetVector2Value(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Vector2, this.DataType);
-            return this.TryGetValueInternal(time, FuncGetVect2, FuncCalcVec2);
+            return this.GetValueInternal(time, FuncGetVect2, FuncCalcVec2, ignoreOverrideState);
         }
 
-        private T TryGetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate) {
-            if (this.IsOverrideEnabled || !this.GetIndicesForFrame(time, out int a, out int b)) {
-                return toValue(this.OverrideKeyFrame);
+        private T GetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, bool ignoreOverride = false) {
+            if ((ignoreOverride || !this.IsOverrideEnabled) && this.GetIndicesForFrame(time, out int a, out int b)) {
+                return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(time, this.keyFrameList[a], this.keyFrameList[b]);
             }
             else {
-                return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(time, this.keyFrameList[a], this.keyFrameList[b]);
+                return toValue(this.OverrideKeyFrame);
             }
         }
 

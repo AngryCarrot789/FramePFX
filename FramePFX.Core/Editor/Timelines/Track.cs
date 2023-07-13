@@ -4,6 +4,7 @@ using System.Diagnostics;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timelines {
     /// <summary>
@@ -88,10 +89,39 @@ namespace FramePFX.Core.Editor.Timelines {
             int i = 0, c = src.Count;
             while (i < c) {
                 Clip clip = src[i++];
-                if (clip.IntersectsFrameAt(frame))
+                long begin = clip.FrameBegin;
+                long duration = clip.FrameDuration;
+                if (frame >= begin && frame < (begin + duration))
                     return clip;
             }
             return null;
+
+            // cannot use binary search until Clips is ordered
+            //List<Clip> src = this.Clips;
+            //int a = 0, b = src.Count - 1;
+            //while (a <= b) {
+            //    int mid = (a + b) / 2;
+            //    Clip clip = src[mid];
+            //    if (clip.IntersectsFrameAt(frame)) {
+            //        return clip;
+            //    }
+            //    else if (frame < clip.FrameBegin) {
+            //        b = mid - 1;
+            //    }
+            //    else {
+            //        a = mid + 1;
+            //    }
+            //}
+            //return null;
+        }
+
+        public void GetClipIndicesAt(long frame, ICollection<int> indices) {
+            List<Clip> list = this.Clips;
+            for (int i = 0, count = list.Count; i < count; i++) {
+                if (list[i].IntersectsFrameAt(frame)) {
+                    indices.Add(i);
+                }
+            }
         }
 
         public void AddClip(Clip model) {
@@ -160,5 +190,41 @@ namespace FramePFX.Core.Editor.Timelines {
         }
 
         public abstract bool IsClipTypeAcceptable(Clip clip);
+
+        /// <summary>
+        /// Returns the maximum (exclusive) frame that any clip exists at
+        /// <para>
+        /// This is the same as doing Clips.Max(x => x.FrameEndIndex)
+        /// </para>
+        /// </summary>
+        public long GetMaxDuration() {
+            long max = 0L;
+            List<Clip> clips = this.Clips;
+            for (int i = 0, c = clips.Count; i < c; i++)
+                max = Math.Max(max, clips[i].FrameEndIndex);
+            return max;
+        }
+
+        public bool GetUsedFrameSpan(out FrameSpan span) {
+            using (var enumerator = this.Clips.GetEnumerator()) {
+                if (enumerator.MoveNext()) {
+                    span = enumerator.Current.FrameSpan;
+                    while (enumerator.MoveNext())
+                        span = span.MinMax(enumerator.Current.FrameSpan);
+                    return true;
+                }
+            }
+
+            span = default;
+            return false;
+        }
+
+        public void GetUsedFrameSpan(ref long begin, ref long endIndex) {
+            foreach (Clip clip in this.Clips) {
+                FrameSpan span = clip.FrameSpan;
+                begin = Math.Min(begin, span.Begin);
+                endIndex = Math.Max(endIndex, span.EndIndex);
+            }
+        }
     }
 }

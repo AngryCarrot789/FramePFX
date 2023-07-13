@@ -16,8 +16,9 @@ namespace FramePFX.Core.Editor.Actions {
             int index; // slightly compact code... get index of track otherwise get timeline track count
             if (!e.DataContext.TryGetContext(out TrackViewModel track) || (index = timeline.Tracks.IndexOf(track)) == -1)
                 index = timeline.Tracks.Count;
+            string newName = TextIncrement.GetNextText(timeline.Tracks.OfType<VideoTrackViewModel>().Select(x => x.DisplayName), "Video Track");
             track = await timeline.InsertNewVideoTrackAction(index);
-            track.DisplayName = TextIncrement.GetNextText(timeline.Tracks.OfType<VideoTrackViewModel>().Select(x => x.DisplayName), "Video Track");
+            track.DisplayName = newName;
             return true;
         }
     }
@@ -33,8 +34,9 @@ namespace FramePFX.Core.Editor.Actions {
             int index;
             if (!e.DataContext.TryGetContext(out TrackViewModel track) || (index = timeline.Tracks.IndexOf(track)) == -1)
                 index = timeline.Tracks.Count;
+            string newName = TextIncrement.GetNextText(timeline.Tracks.OfType<AudioTrackViewModel>().Select(x => x.DisplayName), "Audio Track");
             track = await timeline.InsertNewAudioTrackAction(index);
-            track.DisplayName = TextIncrement.GetNextText(timeline.Tracks.OfType<AudioTrackViewModel>().Select(x => x.DisplayName), "Audio Track");
+            track.DisplayName = newName;
             return true;
         }
     }

@@ -29,7 +29,7 @@ namespace FramePFX.Core.Utils {
 
             long max = 0;
             foreach (string input in inputs) {
-                if (GetNumbered(input, out string left, out long number) && text.Equals(left)) {
+                if (input != null && GetNumbered(input, out string left, out long number) && text.Equals(left)) {
                     if (number >= max) {
                         max = number + 1;
                     }

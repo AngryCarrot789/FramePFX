@@ -332,5 +332,20 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public bool IsClipTypeAcceptable(ClipViewModel clip) {
             return this.Model.IsClipTypeAcceptable(clip.Model);
         }
+
+        /// <summary>
+        /// Called when the user seeks a specific frame
+        /// </summary>
+        /// <param name="oldFrame">Previous frame</param>
+        /// <param name="newFrame">Current frame</param>
+        public virtual void OnUserSeekedFrame(long oldFrame, long newFrame) {
+            foreach (ClipViewModel clip in this.clips) {
+                FrameSpan span = clip.FrameSpan;
+                long relative = newFrame - span.Begin;
+                if (relative >= 0 && relative < span.Duration) {
+                    clip.OnUserSeekedFrame(oldFrame, newFrame);
+                }
+            }
+        }
     }
 }

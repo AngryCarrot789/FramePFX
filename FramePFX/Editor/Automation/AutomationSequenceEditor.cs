@@ -278,21 +278,11 @@ namespace FramePFX.Editor.Automation {
             long timestamp = (long) Math.Round(point.X / this.UnitZoom);
             KeyFrameViewModel keyFrame;
             switch (sequence.Model.DataType) {
-                case AutomationDataType.Float:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameFloatViewModel(new KeyFrameFloat(timestamp, ((KeyDescriptorFloat) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                case AutomationDataType.Double:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameDoubleViewModel(new KeyFrameDouble(timestamp, ((KeyDescriptorDouble) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                case AutomationDataType.Long:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameLongViewModel(new KeyFrameLong(timestamp, ((KeyDescriptorLong) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                case AutomationDataType.Boolean:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameBooleanViewModel(new KeyFrameBoolean(timestamp, ((KeyDescriptorBoolean) sequence.Key.Descriptor).DefaultValue)));
-                    break;
-                case AutomationDataType.Vector2:
-                    sequence.AddKeyFrame(keyFrame = new KeyFrameVector2ViewModel(new KeyFrameVector2(timestamp, ((KeyDescriptorVector2) sequence.Key.Descriptor).DefaultValue)));
-                    break;
+                case AutomationDataType.Float:   sequence.AddKeyFrame(keyFrame = new KeyFrameFloatViewModel(new KeyFrameFloat(timestamp, ((KeyDescriptorFloat) sequence.Key.Descriptor).DefaultValue))); break;
+                case AutomationDataType.Double:  sequence.AddKeyFrame(keyFrame = new KeyFrameDoubleViewModel(new KeyFrameDouble(timestamp, ((KeyDescriptorDouble) sequence.Key.Descriptor).DefaultValue))); break;
+                case AutomationDataType.Long:    sequence.AddKeyFrame(keyFrame = new KeyFrameLongViewModel(new KeyFrameLong(timestamp, ((KeyDescriptorLong) sequence.Key.Descriptor).DefaultValue))); break;
+                case AutomationDataType.Boolean: sequence.AddKeyFrame(keyFrame = new KeyFrameBooleanViewModel(new KeyFrameBoolean(timestamp, ((KeyDescriptorBoolean) sequence.Key.Descriptor).DefaultValue))); break;
+                case AutomationDataType.Vector2: sequence.AddKeyFrame(keyFrame = new KeyFrameVector2ViewModel(new KeyFrameVector2(timestamp, ((KeyDescriptorVector2) sequence.Key.Descriptor).DefaultValue))); break;
                 default: throw new ArgumentOutOfRangeException();
             }
 

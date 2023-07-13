@@ -7,6 +7,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using FramePFX.Core.Utils;
+using OpenTK.Audio.OpenAL;
 
 namespace FramePFX.Controls.Dragger {
     [TemplatePart(Name = "PART_TextBlock", Type = typeof(TextBlock))]
@@ -293,15 +294,15 @@ namespace FramePFX.Controls.Dragger {
         }
 
         private object OnCoerceValue(object value) {
+            double val = Maths.Clamp(this.GetRoundedValue((double) value, false), this.Minimum, this.Maximum);
             if (this.ValuePreProcessor is IValuePreProcessor processor) {
-                double val = (double) value;
                 double proc = processor.Process(val, this.Minimum, this.Maximum);
                 if (!Maths.Equals(val, proc, 0.00000000001d)) {
                     return proc;
                 }
             }
 
-            return value;
+            return val;
         }
 
         public override void OnApplyTemplate() {

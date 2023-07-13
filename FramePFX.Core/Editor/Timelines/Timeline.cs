@@ -50,6 +50,41 @@ namespace FramePFX.Core.Editor.Timelines {
             this.AutomationData = new AutomationData(this);
         }
 
+        /// <summary>
+        /// Returns a span that all of our tracks' clips can fit into
+        /// </summary>
+        /// <returns></returns>
+        public bool GetUsedFrameSpan(out FrameSpan span) {
+            using (List<Track>.Enumerator enumerator = this.Tracks.GetEnumerator()) {
+                while (enumerator.MoveNext()) {
+                    if (enumerator.Current.GetUsedFrameSpan(out span)) {
+                        while (enumerator.MoveNext()) {
+                            if (enumerator.Current.GetUsedFrameSpan(out FrameSpan other)) {
+                                span = span.MinMax(other);
+                            }
+                        }
+
+                        return true;
+                    }
+                }
+            }
+
+            span = default;
+            return false;
+        }
+
+        public void GetUsedFrameSpan(ref long begin, ref long endIndex) {
+            foreach (Track track in this.Tracks) {
+                track.GetUsedFrameSpan(ref begin, ref endIndex);
+            }
+        }
+
+        public void GetClipIndicesAt(long frame, ICollection<int> indices) {
+            foreach (Track track in this.Tracks) {
+                track.GetClipIndicesAt(frame, indices);
+            }
+        }
+
         public void WriteToRBE(RBEDictionary data) {
             data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);

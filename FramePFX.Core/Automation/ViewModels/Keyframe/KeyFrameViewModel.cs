@@ -1,6 +1,8 @@
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using FramePFX.Core.Automation.Keyframe;
+using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.ViewModels.Keyframe {
@@ -41,28 +43,26 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         /// </summary>
         /// <param name="keyFrame"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string GetPropertyName(KeyFrameViewModel keyFrame) {
+            // Use fixed name so that an abstract property is not required
             // return keyFrame.ValuePropertyName;
             return "Value";
         }
 
-        public void SetFloatValue(float value) => ((KeyFrameFloatViewModel) this).Value = value;
-
-        public void SetDoubleValue(double value) => ((KeyFrameDoubleViewModel) this).Value = value;
-
-        public void SetLongValue(long value) => ((KeyFrameLongViewModel) this).Value = value;
-
+        public void SetFloatValue(float value) => ((KeyFrameFloatViewModel) this).Value = ((KeyDescriptorFloat) this.Model.sequence.Key.Descriptor).Clamp(value);
+        public void SetDoubleValue(double value) => ((KeyFrameDoubleViewModel) this).Value = ((KeyDescriptorDouble) this.Model.sequence.Key.Descriptor).Clamp(value);
+        public void SetLongValue(long value) => ((KeyFrameLongViewModel) this).Value = ((KeyDescriptorLong) this.Model.sequence.Key.Descriptor).Clamp(value);
         public void SetBooleanValue(bool value) => ((KeyFrameBooleanViewModel) this).Value = value;
-
-        public void SetVector2Value(Vector2 value) => ((KeyFrameVector2ViewModel) this).Value = value;
+        public void SetVector2Value(Vector2 value) => ((KeyFrameVector2ViewModel) this).Value = ((KeyDescriptorVector2) this.Model.sequence.Key.Descriptor).Clamp(value);
 
         public static KeyFrameViewModel NewInstance(KeyFrame keyFrame) {
             switch (keyFrame) {
-                case KeyFrameFloat frame:   return new KeyFrameFloatViewModel(frame);
-                case KeyFrameDouble frame:  return new KeyFrameDoubleViewModel(frame);
-                case KeyFrameLong frame:    return new KeyFrameLongViewModel(frame);
-                case KeyFrameBoolean frame: return new KeyFrameBooleanViewModel(frame);
-                case KeyFrameVector2 frame: return new KeyFrameVector2ViewModel(frame);
+                case KeyFrameFloat f:   return new KeyFrameFloatViewModel(f);
+                case KeyFrameDouble f:  return new KeyFrameDoubleViewModel(f);
+                case KeyFrameLong f:    return new KeyFrameLongViewModel(f);
+                case KeyFrameBoolean f: return new KeyFrameBooleanViewModel(f);
+                case KeyFrameVector2 f: return new KeyFrameVector2ViewModel(f);
                 default:
                     throw new Exception("Unknown key frame type: " + keyFrame?.GetType());
             }
@@ -70,12 +70,12 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
     }
 
     public class KeyFrameFloatViewModel : KeyFrameViewModel {
-        public new KeyFrameFloat KeyFrame => (KeyFrameFloat) base.Model;
+        public new KeyFrameFloat Model => (KeyFrameFloat) base.Model;
 
         public float Value {
-            get => this.KeyFrame.Value;
+            get => this.Model.Value;
             set {
-                this.KeyFrame.Value = value;
+                this.Model.Value = value;
                 this.RaisePropertyChanged();
             }
         }
@@ -86,12 +86,12 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
     }
 
     public class KeyFrameDoubleViewModel : KeyFrameViewModel {
-        public new KeyFrameDouble KeyFrame => (KeyFrameDouble) base.Model;
+        public new KeyFrameDouble Model => (KeyFrameDouble) base.Model;
 
         public double Value {
-            get => this.KeyFrame.Value;
+            get => this.Model.Value;
             set {
-                this.KeyFrame.Value = value;
+                this.Model.Value = value;
                 this.RaisePropertyChanged();
             }
         }
@@ -102,20 +102,20 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
     }
 
     public class KeyFrameLongViewModel : KeyFrameViewModel {
-        public new KeyFrameLong KeyFrame => (KeyFrameLong) base.Model;
+        public new KeyFrameLong Model => (KeyFrameLong) base.Model;
 
         public long Value {
-            get => this.KeyFrame.Value;
+            get => this.Model.Value;
             set {
-                this.KeyFrame.Value = value;
+                this.Model.Value = value;
                 this.RaisePropertyChanged();
             }
         }
 
         public int RoundingMode {
-            get => this.KeyFrame.RoundingMode;
+            get => this.Model.RoundingMode;
             set {
-                this.KeyFrame.RoundingMode = Maths.Clamp(value, 0, 3);
+                this.Model.RoundingMode = Maths.Clamp(value, 0, 3);
                 this.RaisePropertyChanged();
             }
         }
@@ -126,12 +126,12 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
     }
 
     public class KeyFrameBooleanViewModel : KeyFrameViewModel {
-        public new KeyFrameBoolean KeyFrame => (KeyFrameBoolean) base.Model;
+        public new KeyFrameBoolean Model => (KeyFrameBoolean) base.Model;
 
         public bool Value {
-            get => this.KeyFrame.Value;
+            get => this.Model.Value;
             set {
-                this.KeyFrame.Value = value;
+                this.Model.Value = value;
                 this.RaisePropertyChanged();
             }
         }
@@ -142,12 +142,12 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
     }
 
     public class KeyFrameVector2ViewModel : KeyFrameViewModel {
-        public new KeyFrameVector2 KeyFrame => (KeyFrameVector2) base.Model;
+        public new KeyFrameVector2 Model => (KeyFrameVector2) base.Model;
 
         public Vector2 Value {
-            get => this.KeyFrame.Value;
+            get => this.Model.Value;
             set {
-                this.KeyFrame.Value = value;
+                this.Model.Value = value;
                 this.RaisePropertyChanged();
             }
         }

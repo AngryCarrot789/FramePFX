@@ -116,6 +116,12 @@ namespace FramePFX.Core.Automation.ViewModels {
             if (engine != null) {
                 engine.OnOverrideStateChanged(this, sequence);
             }
+            #if DEBUG
+            else {
+                Debugger.Break();
+                Debug.WriteLine("No automation engine available");
+            }
+            #endif
         }
 
         public void OnKeyFrameChanged(AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {

@@ -96,55 +96,55 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         #region Helper Setter Functions
 
-        public void SetFloatValue(long timestamp, float value) {
-            AutomationSequence.ValidateType(AutomationDataType.Float, this.Model.DataType);
-            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameFloatViewModel keyFrame)) {
-                keyFrame = (KeyFrameFloatViewModel) this.OverrideKeyFrame;
-                this.IsOverrideEnabled = true;
-            }
-
-            keyFrame.Value = ((KeyDescriptorFloat) this.Model.Key.Descriptor).Clamp(value);
-        }
-
-        public void SetDoubleValue(long timestamp, double value) {
-            AutomationSequence.ValidateType(AutomationDataType.Double, this.Model.DataType);
-            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameDoubleViewModel keyFrame)) {
-                keyFrame = (KeyFrameDoubleViewModel) this.OverrideKeyFrame;
-                this.IsOverrideEnabled = true;
-            }
-
-            keyFrame.Value = ((KeyDescriptorDouble) this.Model.Key.Descriptor).Clamp(value);
-        }
-
-        public void SetLongValue(long timestamp, long value) {
-            AutomationSequence.ValidateType(AutomationDataType.Long, this.Model.DataType);
-            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameLongViewModel keyFrame)) {
-                keyFrame = (KeyFrameLongViewModel) this.OverrideKeyFrame;
-                this.IsOverrideEnabled = true;
-            }
-
-            keyFrame.Value = ((KeyDescriptorLong) this.Model.Key.Descriptor).Clamp(value);
-        }
-
-        public void SetBooleanValue(long timestamp, bool value) {
-            AutomationSequence.ValidateType(AutomationDataType.Boolean, this.Model.DataType);
-            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameBooleanViewModel keyFrame)) {
-                keyFrame = (KeyFrameBooleanViewModel) this.OverrideKeyFrame;
-                this.IsOverrideEnabled = true;
-            }
-
-            keyFrame.Value = value;
-        }
-
-        public void SetVector2Value(long timestamp, Vector2 value) {
-            AutomationSequence.ValidateType(AutomationDataType.Vector2, this.Model.DataType);
-            if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameVector2ViewModel keyFrame)) {
-                keyFrame = (KeyFrameVector2ViewModel) this.OverrideKeyFrame;
-                this.IsOverrideEnabled = true;
-            }
-
-            keyFrame.Value = ((KeyDescriptorVector2) this.Model.Key.Descriptor).Clamp(value);
-        }
+        // public void SetFloatValue(long timestamp, float value) {
+        //     AutomationSequence.ValidateType(AutomationDataType.Float, this.Model.DataType);
+        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameFloatViewModel keyFrame)) {
+        //         keyFrame = (KeyFrameFloatViewModel) this.OverrideKeyFrame;
+        //         this.IsOverrideEnabled = true;
+        //     }
+        //
+        //     keyFrame.Value = ((KeyDescriptorFloat) this.Model.Key.Descriptor).Clamp(value);
+        // }
+        //
+        // public void SetDoubleValue(long timestamp, double value) {
+        //     AutomationSequence.ValidateType(AutomationDataType.Double, this.Model.DataType);
+        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameDoubleViewModel keyFrame)) {
+        //         keyFrame = (KeyFrameDoubleViewModel) this.OverrideKeyFrame;
+        //         this.IsOverrideEnabled = true;
+        //     }
+        //
+        //     keyFrame.Value = ((KeyDescriptorDouble) this.Model.Key.Descriptor).Clamp(value);
+        // }
+        //
+        // public void SetLongValue(long timestamp, long value) {
+        //     AutomationSequence.ValidateType(AutomationDataType.Long, this.Model.DataType);
+        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameLongViewModel keyFrame)) {
+        //         keyFrame = (KeyFrameLongViewModel) this.OverrideKeyFrame;
+        //         this.IsOverrideEnabled = true;
+        //     }
+        //
+        //     keyFrame.Value = ((KeyDescriptorLong) this.Model.Key.Descriptor).Clamp(value);
+        // }
+        //
+        // public void SetBooleanValue(long timestamp, bool value) {
+        //     AutomationSequence.ValidateType(AutomationDataType.Boolean, this.Model.DataType);
+        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameBooleanViewModel keyFrame)) {
+        //         keyFrame = (KeyFrameBooleanViewModel) this.OverrideKeyFrame;
+        //         this.IsOverrideEnabled = true;
+        //     }
+        //
+        //     keyFrame.Value = value;
+        // }
+        //
+        // public void SetVector2Value(long timestamp, Vector2 value) {
+        //     AutomationSequence.ValidateType(AutomationDataType.Vector2, this.Model.DataType);
+        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameVector2ViewModel keyFrame)) {
+        //         keyFrame = (KeyFrameVector2ViewModel) this.OverrideKeyFrame;
+        //         this.IsOverrideEnabled = true;
+        //     }
+        //
+        //     keyFrame.Value = ((KeyDescriptorVector2) this.Model.Key.Descriptor).Clamp(value);
+        // }
 
         #endregion
 

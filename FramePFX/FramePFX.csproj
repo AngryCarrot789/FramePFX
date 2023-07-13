@@ -42,9 +42,9 @@
       <HintPath>..\packages\FFmpeg.AutoGen.6.0.0.2\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FFmpegWrapper, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\FFmpegWrapper\FFmpegWrapper\bin\Debug\netstandard2.0\FFmpegWrapper.dll</HintPath>
+    <Reference Include="FFmpegWrapper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\FFmpeg.ApiWrapper.2.0.0\lib\netstandard2.0\FFmpegWrapper.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.7.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -400,6 +400,9 @@
     <Compile Include="Views\Modal\BaseDialogEx.xaml.cs">
       <DependentUpon>BaseDialogEx.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PropertyPageDemoWindow.xaml.cs">
+      <DependentUpon>PropertyPageDemoWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UserInputs\DoubleUserInputWindow.xaml.cs">
       <DependentUpon>DoubleUserInputWindow.xaml</DependentUpon>
     </Compile>
@@ -531,6 +534,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\PropertyPageDemoWindow.xaml" />
     <Page Include="Views\UserInputs\DoubleUserInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

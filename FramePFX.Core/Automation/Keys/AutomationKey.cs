@@ -15,14 +15,29 @@ namespace FramePFX.Core.Automation.Keys {
 
         private readonly int hashCode;
 
+        /// <summary>
+        /// The "domain" aka "group" that this key is stored in. This is typically the readable name of the type that stores the key (e.g. VideoClip)
+        /// </summary>
         public string Domain { get; }
 
+        /// <summary>
+        /// A unique ID (per domain; the same ID can be used across different domains), to identify this specific key
+        /// </summary>
         public string Id { get; }
 
+        /// <summary>
+        /// Metadata about this automation key
+        /// </summary>
         public KeyDescriptor Descriptor { get; }
 
+        /// <summary>
+        /// The <see cref="Domain"/> and <see cref="Id"/>, joined with <see cref="FullIdSplitter"/>
+        /// </summary>
         public string FullId => this.Domain + FullIdSplitter + this.Id;
 
+        /// <summary>
+        /// The data type of this key
+        /// </summary>
         public abstract AutomationDataType DataType { get; }
 
         protected AutomationKey(string domain, string id, KeyDescriptor descriptor) {

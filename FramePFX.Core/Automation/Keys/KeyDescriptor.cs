@@ -1,10 +1,17 @@
 using System;
 using System.Numerics;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.Keys {
+    /// <summary>
+    /// The base class for a <see cref="AutomationKey"/> descriptor, which stores metadata about a key
+    /// </summary>
     public abstract class KeyDescriptor {
-
+        /// <summary>
+        /// The data type of this descriptor
+        /// </summary>
+        public abstract AutomationDataType DataType { get; }
     }
 
     public class KeyDescriptorFloat : KeyDescriptor {
@@ -17,6 +24,8 @@ namespace FramePFX.Core.Automation.Keys {
         public bool HasPrecision => this.Precision >= 0;
 
         public bool IsStepEnabled => !float.IsNaN(this.Step);
+
+        public override AutomationDataType DataType => AutomationDataType.Float;
 
         public KeyDescriptorFloat(float defaultValue, float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, int precision = -1, float step = float.NaN) {
             this.DefaultValue = defaultValue;
@@ -43,6 +52,8 @@ namespace FramePFX.Core.Automation.Keys {
 
         public bool IsStepEnabled => !double.IsNaN(this.Step);
 
+        public override AutomationDataType DataType => AutomationDataType.Double;
+
         public KeyDescriptorDouble(double defaultValue, double minimum = double.NegativeInfinity, double maximum = double.PositiveInfinity, int precision = -1, double step = double.NaN) {
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
@@ -65,6 +76,8 @@ namespace FramePFX.Core.Automation.Keys {
 
         public bool HasStep => this.Step > 1;
 
+        public override AutomationDataType DataType => AutomationDataType.Long;
+
         public KeyDescriptorLong(long defaultValue, long minimum = long.MinValue, long maximum = long.MaxValue, long step = 1) {
             if (step < 1)
                 throw new ArgumentOutOfRangeException(nameof(step), "Step must be greater than zero");
@@ -84,6 +97,8 @@ namespace FramePFX.Core.Automation.Keys {
     public class KeyDescriptorBoolean : KeyDescriptor {
         public bool DefaultValue { get; }
 
+        public override AutomationDataType DataType => AutomationDataType.Boolean;
+
         public KeyDescriptorBoolean(bool defaultValue = false) {
             this.DefaultValue = defaultValue;
         }
@@ -96,6 +111,8 @@ namespace FramePFX.Core.Automation.Keys {
         public int Precision { get; }
 
         public bool HasPrecision => this.Precision >= 0;
+
+        public override AutomationDataType DataType => AutomationDataType.Vector2;
 
         public KeyDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum, int precision = -1) {
             this.DefaultValue = defaultValue;
@@ -117,6 +134,8 @@ namespace FramePFX.Core.Automation.Keys {
         public int Precision { get; }
 
         public bool HasPrecision => this.Precision >= 0;
+
+        public override AutomationDataType DataType => AutomationDataType.Vector3;
 
         public KeyDescriptorVector3(Vector3 defaultValue, Vector3 minimum, Vector3 maximum, int precision = -1) {
             this.DefaultValue = defaultValue;

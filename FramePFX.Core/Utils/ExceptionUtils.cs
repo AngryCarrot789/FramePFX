@@ -8,13 +8,13 @@ namespace FramePFX.Core.Utils {
         private const String CAUSE_CAPTION = "Caused By: ";
         private const String SUPPRESSED_CAPTION = "Suppressed: ";
 
-        public static List<Exception> GetSuppressed(this Exception @this, bool create = true) {
-            if (@this.Data.Contains("SuppressedList")) {
-                return (List<Exception>) @this.Data["SuppressedList"];
+        public static List<Exception> GetSuppressed(this Exception e, bool create = true) {
+            if (e.Data.Contains("SuppressedList")) {
+                return (List<Exception>) e.Data["SuppressedList"];
             }
             else if (create) {
                 List<Exception> list = new List<Exception>();
-                @this.Data["SuppressedList"] = list;
+                e.Data["SuppressedList"] = list;
                 return list;
             }
             else {

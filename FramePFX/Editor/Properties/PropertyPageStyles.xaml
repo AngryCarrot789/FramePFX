@@ -19,45 +19,47 @@
             <DataTemplate DataType="{x:Type pgc:ClipPageViewModel}">
                 <Grid DataContext="{Binding Target}" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0Splitter"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Display Name" Padding="5" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" Padding="3,2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox Grid.Column="2" Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Padding="3,2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.ClipPageTemplate>
         <p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
             <DataTemplate DataType="{x:Type pgc:VideoClipPageViewModel}">
-                <Grid DataContext="{Binding Target}">
+                <Grid DataContext="{Binding Target}" UseLayoutRounding="False" SnapsToDevicePixels="False">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0Splitter"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="1"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="1"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="1"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="1"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <d:NumberDragger FontWeight="Normal" Padding="6,2" Grid.Row="0" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"         DisplayTextOverride="Position" Height="18" Margin="0,2,0,3"/>
-                    <d:NumberDragger FontWeight="Normal" Padding="6,2" Grid.Row="2" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"       DisplayTextOverride="Scale" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                    <d:NumberDragger FontWeight="Normal" Padding="6,2" Grid.Row="4" VerticalAlignment="Center" RoundedPlaces="4" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" Margin="0,2,0,3" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                    <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="6" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,2,0,3"/>
-                    <TextBlock FontWeight="Normal" Padding="3,1" Grid.Row="8" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,2,0,3"/>
-                    <Grid Grid.Column="1" Grid.Row="0">
+                    <d:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center" RoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"         DisplayTextOverride="Position" Height="18"/>
+                    <d:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" RoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"       DisplayTextOverride="Scale" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05"/>
+                    <d:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" RoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05"/>
+                    <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="6" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,0,0,0"/>
+                    <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="8" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,0,0,0"/>
+                    <Grid Grid.Column="2" Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <StackPanel Orientation="Horizontal" Grid.Column="2">
                             <ToggleButton IsChecked="{Binding MediaPositionAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="A"/>
                             <ToggleButton IsChecked="{Binding MediaPositionAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="O"/>
@@ -69,14 +71,14 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                    <Grid Grid.Column="1" Grid.Row="2">
+                    <Grid Grid.Column="2" Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05"/>
+                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05"/>
                         <StackPanel Orientation="Horizontal" Grid.Column="2">
                             <ToggleButton IsChecked="{Binding MediaScaleAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="A"/>
                             <ToggleButton IsChecked="{Binding MediaScaleAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="O"/>
@@ -88,14 +90,14 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                    <Grid Grid.Column="1" Grid.Row="4">
+                    <Grid Grid.Column="2" Grid.Row="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
-                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="2"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05"/>
+                        <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05"/>
                         <StackPanel Orientation="Horizontal" Grid.Column="2">
                             <ToggleButton IsChecked="{Binding MediaScaleOriginAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="A"/>
                             <ToggleButton IsChecked="{Binding MediaScaleOriginAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="O"/>
@@ -107,12 +109,12 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                    <Grid Grid.Column="1" Grid.Row="6">
+                    <Grid Grid.Column="2" Grid.Row="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="6,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"/>
+                        <d:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"/>
                         <StackPanel Orientation="Horizontal" Grid.Column="1">
                             <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="A"/>
                             <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" a:CornerHelper.CornerRadius="2" Background="Transparent" BorderThickness="0" Content="O"/>
@@ -124,13 +126,13 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                    <Grid Grid.Column="1" Grid.Row="8">
+                    <Grid Grid.Column="2" Grid.Row="8">
                         <TextBlock Grid.Column="0" Grid.Row="0" Padding="6,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding MediaFrameOffset, Mode=OneWay}"/>
                     </Grid>
-                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                    <Separator Background="{DynamicResource ABrush.Tone4.Background.Static}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="7" Padding="0" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                    <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                    <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="3" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                    <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="5" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                    <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="7" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.VideoClipPageTemplate>
@@ -138,13 +140,14 @@
             <DataTemplate DataType="{x:Type pgc:ShapeClipPageViewModel}">
                 <Grid DataContext="{Binding Target}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0Splitter"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Size" FontWeight="Normal" Padding="3,1" Grid.Row="0" VerticalAlignment="Center" Margin="0,1"/>
-                    <d:NumberDragger Grid.Column="1" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,2"/>
-                    <d:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,2"/>
+                    <TextBlock Text="Size" FontWeight="Normal" Padding="6,1" Grid.Row="0" VerticalAlignment="Center" Margin="0,1"/>
+                    <d:NumberDragger Grid.Column="2" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,2"/>
+                    <d:NumberDragger Grid.Column="3" Grid.Row="0" Padding="6,2,2,2" RoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,2"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.ShapeClipPageTemplate>
@@ -168,7 +171,6 @@
                         <Button Content="I" Margin="2,2,0,2" HorizontalAlignment="Left" Width="22" FontStyle="Italic" FontFamily="Consolas"/>
                     </StackPanel>
                     <TextBox MinHeight="40" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" AcceptsReturn="True" AcceptsTab="True">
-
                     </TextBox>
                 </StackPanel>
             </DataTemplate>
@@ -191,11 +193,12 @@
             <DataTemplate DataType="{x:Type pgr:BaseResourcePageViewModel}">
                 <Grid DataContext="{Binding Target}" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0Splitter"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Display Name" Padding="5" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="3,2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox Grid.Column="2" Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Padding="3,2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.BaseResourcePageTemplate>
@@ -207,7 +210,8 @@
             <DataTemplate DataType="{x:Type pgr:ColourResourcePageViewModel}">
                 <Grid DataContext="{Binding Target}" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0"/>
+                        <ColumnDefinition SharedSizeGroup="PropertyPageSharedColumn0Splitter"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -220,10 +224,10 @@
                     <TextBlock Text="G" Padding="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
                     <TextBlock Text="B" Padding="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
                     <TextBlock Text="A" Padding="2" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
-                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteR}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="0"/>
-                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteG}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="1"/>
-                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteB}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="2"/>
-                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteA}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="3"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteR}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="2" Grid.Row="0"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteG}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="2" Grid.Row="1"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteB}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="2" Grid.Row="2"/>
+                    <d:NumberDragger Minimum="0" Maximum="255" Value="{Binding ByteA}" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="2" Grid.Row="3"/>
                 </Grid>
             </DataTemplate>
         </p:PropertyPageDataTemplateSelector.ResourceColourPageTemplate>
@@ -239,8 +243,9 @@
 
     <Style TargetType="{x:Type p:PropertyPageItem}" BasedOn="{StaticResource {x:Type HeaderedContentControl}}">
         <Setter Property="Margin" Value="0"/>
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone8.Border.Static}"/>
+        <Setter Property="HeaderLineBrush" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
         <Setter Property="ContentTemplateSelector" Value="{StaticResource PropertyPageDataTemplateSelector}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -248,30 +253,61 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type p:PropertyPageItem}">
-                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2">
-                        <Border.OpacityMask>
-                            <VisualBrush Visual="{Binding ElementName=__BORDER__}"/>
-                        </Border.OpacityMask>
-                        <Grid>
-                            <Border x:Name="__BORDER__" Background="{DynamicResource ABrush.Tone7.Background.Static}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
-                            <DockPanel>
-                                <Border x:Name="PART_HeaderBorder" MinHeight="18" DockPanel.Dock="Top">
-                                    <DockPanel>
-                                        <ToggleButton DockPanel.Dock="Left" IsChecked="True" x:Name="PART_ToggleButton" Style="{DynamicResource ExpanderDownHeaderStyle}"/>
-                                        <ContentPresenter x:Name="PART_HeaderPresenter" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <DockPanel>
+                            <Border x:Name="PART_HeaderBorder" MinHeight="18" DockPanel.Dock="Top">
+                                <Grid Margin="5,0">
+                                    <ToggleButton HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" DockPanel.Dock="Left" IsChecked="True" x:Name="PART_ToggleButton">
+                                        <ToggleButton.Style>
+                                            <Style TargetType="{x:Type ToggleButton}">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                                            <Border Padding="{TemplateBinding Padding}">
+                                                                <Grid Background="Transparent" SnapsToDevicePixels="False">
+                                                                    <Path x:Name="arrow" Data="M 1,1.5 L 4.5,5 L 8,1.5" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="false" Stroke="{DynamicResource Expander.Static.Arrow.Stroke}" StrokeThickness="2" VerticalAlignment="Center" />
+                                                                    <ContentPresenter x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
+                                                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                                                                </Grid>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsChecked" Value="true">
+                                                                    <Setter Property="Data" TargetName="arrow" Value="M 1,4.5  L 4.5,1  L 8,4.5" />
+                                                                </Trigger>
+                                                                <Trigger Property="IsMouseOver" Value="true">
+                                                                    <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.MouseOver.Arrow.Stroke}" />
+                                                                </Trigger>
+                                                                <Trigger Property="IsPressed" Value="true">
+                                                                    <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Pressed.Arrow.Stroke}" />
+                                                                </Trigger>
+                                                                <Trigger Property="IsEnabled" Value="false">
+                                                                    <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Disabled.Arrow.Stroke}" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                    <DockPanel Margin="16,0,0,0">
+                                        <ContentPresenter DockPanel.Dock="Left" x:Name="PART_HeaderPresenter" HorizontalAlignment="Left"
+                                                          Margin="0" VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                        <Border Margin="10,0,5,0" Background="{TemplateBinding HeaderLineBrush}" Height="1" IsHitTestVisible="True"/>
                                     </DockPanel>
-                                </Border>
-                                <Border Visibility="{Binding ElementName=PART_ToggleButton, Path=IsChecked, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" 
-                                        Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
-                                        BorderThickness="{TemplateBinding BorderThickness}" 
-                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                    <ContentPresenter x:Name="PART_ContentPresenter" 
-                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
-                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                </Border>
-                            </DockPanel>
-                        </Grid>
+                                </Grid>
+                            </Border>
+                            <Border Visibility="{Binding ElementName=PART_ToggleButton, Path=IsChecked, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" 
+                                    Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <ContentPresenter x:Name="PART_ContentPresenter" Margin="25,0,10,0"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                        </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
@@ -284,7 +320,7 @@
         <Setter Property="HeaderTemplate">
             <Setter.Value>
                 <DataTemplate DataType="{x:Type pgc:BaseClipPropertyPageViewModel}">
-                    <TextBlock Text="{Binding PageName, Mode=OneTime}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding PageName, Mode=OneTime}" VerticalAlignment="Center" IsHitTestVisible="False"/>
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -301,13 +337,21 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type p:PropertyPageItemsControl}">
-                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
-                        <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}">
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                        </ScrollViewer>
-                    </Border>
+                    <Grid Grid.IsSharedSizeScope="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" SharedSizeGroup="PropertyPageSharedColumn0"/>
+                            <ColumnDefinition Width="1"   SharedSizeGroup="PropertyPageSharedColumn0Splitter"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}" SnapsToDevicePixels="true"
+                                Grid.ColumnSpan="3">
+                            <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}">
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="ItemDirection" Value="Horizontal">
                             <Setter Property="ItemsPanel" Value="{StaticResource WrapPanelItemsPanelTemplate}"/>

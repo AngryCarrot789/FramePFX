@@ -97,13 +97,15 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
         }
 
-        private async Task ExportAction() {
+        public async Task ExportAction() {
             if (this.ActiveProject == null) {
                 return;
             }
 
+            long begin = 0L, endIndex = 0L;
+            this.ActiveProject.Timeline.Model.GetUsedFrameSpan(ref begin, ref endIndex);
             ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject.Model) {
-                RenderSpan = new FrameSpan(0, this.ActiveProject.Timeline.Tracks.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameEndIndex)))
+                RenderSpan = new FrameSpan(0, endIndex)
             };
 
             await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);

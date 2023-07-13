@@ -98,6 +98,17 @@ namespace FramePFX.Core.Utils {
             }
         }
 
+        /// <summary>
+        /// Returns a new span where the smallest <see cref="Begin"/> and largest <see cref="EndIndex"/> are returned
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public FrameSpan MinMax(FrameSpan other) {
+            long minBegin = Math.Min(this.Begin, other.Begin);
+            long maxEnd = Math.Max(this.Begin + this.Duration, other.Begin + other.Duration);
+            return new FrameSpan(minBegin, maxEnd - minBegin);
+        }
+
         public bool Intersects(long frame) {
             return frame >= this.Begin && frame < this.EndIndex;
         }

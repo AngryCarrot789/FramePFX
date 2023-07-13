@@ -142,22 +142,22 @@ namespace FramePFX.Editor.Automation {
             AutomationKey key = this.keyFrame.OwnerSequence.Key;
             switch (this.keyFrame) {
                 case KeyFrameFloatViewModel frame when key.Descriptor is KeyDescriptorFloat fd:
-                    frame.Value = (float) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
+                    frame.SetFloatValue((float) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum));
                     break;
                 case KeyFrameDoubleViewModel frame when key.Descriptor is KeyDescriptorDouble fd:
-                    frame.Value = Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
+                    frame.SetDoubleValue(Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum));
                     break;
                 case KeyFrameLongViewModel frame when key.Descriptor is KeyDescriptorLong fd:
-                    frame.Value = (long) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum);
+                    frame.SetLongValue((long) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum));
                     break;
                 case KeyFrameBooleanViewModel frame:
                     double offset = (height / 100) * 30;
                     double bound_b = height - offset;
                     if (point.Y >= bound_b) {
-                        frame.Value = false;
+                        frame.SetBooleanValue(false);
                     }
                     else if (point.Y < offset) {
-                        frame.Value = true;
+                        frame.SetBooleanValue(true);
                     }
                     else {
                         return false;

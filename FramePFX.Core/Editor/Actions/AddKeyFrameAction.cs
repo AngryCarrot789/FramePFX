@@ -40,16 +40,7 @@ namespace FramePFX.Core.Editor.Actions {
         }
 
         public static void CreateKeyFrame(long frame, AutomationSequenceViewModel sequence) {
-            KeyFrameViewModel keyFrame;
-            switch (sequence.Key.DataType) {
-                case AutomationDataType.Float:   keyFrame = new KeyFrameFloatViewModel(new KeyFrameFloat(frame, sequence.Model.GetFloatValue(frame))); break;
-                case AutomationDataType.Double:  keyFrame = new KeyFrameDoubleViewModel(new KeyFrameDouble(frame, sequence.Model.GetDoubleValue(frame))); break;
-                case AutomationDataType.Long:    keyFrame = new KeyFrameLongViewModel(new KeyFrameLong(frame, sequence.Model.GetLongValue(frame))); break;
-                case AutomationDataType.Boolean: keyFrame = new KeyFrameBooleanViewModel(new KeyFrameBoolean(frame, sequence.Model.GetBooleanValue(frame))); break;
-                case AutomationDataType.Vector2: keyFrame = new KeyFrameVector2ViewModel(new KeyFrameVector2(frame, sequence.Model.GetVector2Value(frame))); break;
-                default: throw new ArgumentOutOfRangeException();
-            }
-
+            KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(KeyFrame.CreateInstance(sequence.Key.DataType, frame, sequence.Model));
             sequence.AddKeyFrame(keyFrame);
         }
     }

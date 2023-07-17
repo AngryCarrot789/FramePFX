@@ -405,6 +405,10 @@
     <Compile Include="Views\Modal\BaseDialogEx.xaml.cs">
       <DependentUpon>BaseDialogEx.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Progression\IndeterminateProgressionWindow.xaml.cs">
+      <DependentUpon>IndeterminateProgressionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Progression\ProgressionDialogService.cs" />
     <Compile Include="Views\PropertyPageDemoWindow.xaml.cs">
       <DependentUpon>PropertyPageDemoWindow.xaml</DependentUpon>
     </Compile>
@@ -539,6 +543,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\Progression\IndeterminateProgressionWindow.xaml" />
     <Page Include="Views\PropertyPageDemoWindow.xaml" />
     <Page Include="Views\UserInputs\DoubleUserInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Shell;
 using FramePFX.Core.Actions;
 using FramePFX.Utils;
+using FramePFX.Views.FilePicking;
 
 namespace FramePFX.Views {
     /// <summary>
@@ -37,6 +38,15 @@ namespace FramePFX.Views {
         public WindowEx() : base() {
             this.showAction = this.Show;
             this.showDialogAction = this.ShowDialog;
+        }
+
+        public void SetToCenterOfScreen() {
+            Window owner = FolderPicker.GetCurrentActiveWindow();
+            if (owner != this && owner.Owner != this) {
+                this.Owner = owner;
+            }
+
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         }
 
         public Task ShowAsync() {

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Notifications;
+using FramePFX.Core.Views.Dialogs.Progression;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.History.ViewModels {
@@ -15,7 +16,6 @@ namespace FramePFX.Core.History.ViewModels {
 
         public int MaxUndo => this.Model.MaxUndo;
         public int MaxRedo => this.Model.MaxRedo;
-
         public bool CanUndo => this.Model.CanUndo;
         public bool CanRedo => this.Model.CanRedo;
 
@@ -144,6 +144,33 @@ namespace FramePFX.Core.History.ViewModels {
 
             await IoC.MessageDialogs.ShowMessageAsync("Invalid value", "Value is not an integer: " + value);
             return null;
+        }
+
+        public async Task ResetAsync() {
+            if (this.Model.IsUndoing || this.Model.IsRedoing) {
+                IndeterminateProgressViewModel progress = new IndeterminateProgressViewModel(true) {
+                    Message = "Waiting for a history action to complete...",
+                    Titlebar = "Clearing history"
+                };
+
+                await IoC.ProgressionDialogs.ShowIndeterminateAsync(progress);
+                do {
+                    await Task.Delay(250);
+                    if (progress.IsCancelled) {
+                        this.Model.UnsafeReset();
+                        goto end;
+                    }
+
+                } while (this.Model.IsUndoing || this.Model.IsRedoing);
+            }
+
+            this.Model.Reset();
+
+            end:
+            this.RaisePropertyChanged(nameof(this.MaxUndo));
+            this.RaisePropertyChanged(nameof(this.MaxRedo));
+            this.RaisePropertyChanged(nameof(this.CanUndo));
+            this.RaisePropertyChanged(nameof(this.CanRedo));
         }
     }
 }

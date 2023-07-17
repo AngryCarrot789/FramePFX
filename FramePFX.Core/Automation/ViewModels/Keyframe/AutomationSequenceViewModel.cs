@@ -1,13 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Numerics;
+using FramePFX.Core.Automation.History;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
+using FramePFX.Core.Editor;
+using FramePFX.Core.History;
+using FramePFX.Core.History.ViewModels;
 
 namespace FramePFX.Core.Automation.ViewModels.Keyframe {
-    public class AutomationSequenceViewModel : BaseViewModel {
+    public class AutomationSequenceViewModel : BaseViewModel, IHistoryHolder {
         private readonly ObservableCollection<KeyFrameViewModel> keyFrames;
         public ReadOnlyObservableCollection<KeyFrameViewModel> KeyFrames { get; }
 
@@ -53,6 +55,9 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         /// </summary>
         public AutomationDataViewModel AutomationData { get; }
 
+        public bool IsHistoryChanging { get; set; }
+
+        // there will most likely only be 1 handler, being the owner to the automation data
         public event RefreshAutomationValueEventHandler RefreshValue;
 
         private readonly PropertyChangedEventHandler keyFramePropertyChangedHandler;
@@ -68,6 +73,10 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             foreach (KeyFrame frame in model.KeyFrames) {
                 this.AddInternalUnsafe(this.keyFrames.Count, KeyFrameViewModel.NewInstance(frame));
             }
+        }
+
+        public bool GetHistoryManager(out HistoryManagerViewModel manager) {
+            return (manager = (this.AutomationData.Owner as IProjectViewModelBound)?.Project?.Editor?.HistoryManager) != null;
         }
 
         public void UpdateKeyFrameCollectionProperties() {
@@ -94,88 +103,39 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             this.UpdateKeyFrameCollectionProperties();
         }
 
-        #region Helper Setter Functions
-
-        // public void SetFloatValue(long timestamp, float value) {
-        //     AutomationSequence.ValidateType(AutomationDataType.Float, this.Model.DataType);
-        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameFloatViewModel keyFrame)) {
-        //         keyFrame = (KeyFrameFloatViewModel) this.OverrideKeyFrame;
-        //         this.IsOverrideEnabled = true;
-        //     }
-        //
-        //     keyFrame.Value = ((KeyDescriptorFloat) this.Model.Key.Descriptor).Clamp(value);
-        // }
-        //
-        // public void SetDoubleValue(long timestamp, double value) {
-        //     AutomationSequence.ValidateType(AutomationDataType.Double, this.Model.DataType);
-        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameDoubleViewModel keyFrame)) {
-        //         keyFrame = (KeyFrameDoubleViewModel) this.OverrideKeyFrame;
-        //         this.IsOverrideEnabled = true;
-        //     }
-        //
-        //     keyFrame.Value = ((KeyDescriptorDouble) this.Model.Key.Descriptor).Clamp(value);
-        // }
-        //
-        // public void SetLongValue(long timestamp, long value) {
-        //     AutomationSequence.ValidateType(AutomationDataType.Long, this.Model.DataType);
-        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameLongViewModel keyFrame)) {
-        //         keyFrame = (KeyFrameLongViewModel) this.OverrideKeyFrame;
-        //         this.IsOverrideEnabled = true;
-        //     }
-        //
-        //     keyFrame.Value = ((KeyDescriptorLong) this.Model.Key.Descriptor).Clamp(value);
-        // }
-        //
-        // public void SetBooleanValue(long timestamp, bool value) {
-        //     AutomationSequence.ValidateType(AutomationDataType.Boolean, this.Model.DataType);
-        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameBooleanViewModel keyFrame)) {
-        //         keyFrame = (KeyFrameBooleanViewModel) this.OverrideKeyFrame;
-        //         this.IsOverrideEnabled = true;
-        //     }
-        //
-        //     keyFrame.Value = value;
-        // }
-        //
-        // public void SetVector2Value(long timestamp, Vector2 value) {
-        //     AutomationSequence.ValidateType(AutomationDataType.Vector2, this.Model.DataType);
-        //     if (!(this.GetLastFrameExactlyAt(timestamp) is KeyFrameVector2ViewModel keyFrame)) {
-        //         keyFrame = (KeyFrameVector2ViewModel) this.OverrideKeyFrame;
-        //         this.IsOverrideEnabled = true;
-        //     }
-        //
-        //     keyFrame.Value = ((KeyDescriptorVector2) this.Model.Key.Descriptor).Clamp(value);
-        // }
-
-        #endregion
-
         public KeyFrameViewModel GetLastFrameExactlyAt(long frame) {
             int index = this.Model.GetLastFrameExactlyAt(frame);
             return index == -1 ? null : this.keyFrames[index];
         }
 
-        public bool RemoveKeyFrame(KeyFrameViewModel keyFrame) {
+        public bool RemoveKeyFrame(KeyFrameViewModel keyFrame, bool applyHistory = true) {
             int index = this.keyFrames.IndexOf(keyFrame);
             if (index == -1)
                 return false;
-            this.RemoveKeyFrameAt(index);
+            this.RemoveKeyFrameAt(index, applyHistory);
             return true;
         }
 
-        public void RemoveKeyFrameAt(int index) {
-            if (!ReferenceEquals(this.keyFrames[index].Model, this.Model.GetKeyFrameAtIndex(index))) {
+        public void RemoveKeyFrameAt(int index, bool applyHistory = true) {
+            KeyFrameViewModel removed = this.keyFrames[index];
+            if (!ReferenceEquals(removed.Model, this.Model.GetKeyFrameAtIndex(index))) {
                 throw new Exception("Model-ViewModel de-sync");
             }
 
             this.Model.RemoveKeyFrame(index);
             this.RemoveInternalUnsafe(index);
+
+            if (applyHistory && !this.IsHistoryChanging && this.GetHistoryManager(out HistoryManagerViewModel manager)) {
+                manager.AddAction(new HistoryKeyFrameRemove(this, new KeyFrameViewModel[] {removed}), "Add key frame");
+            }
         }
 
-        public void AddKeyFrame(long timestamp, KeyFrameViewModel keyFrame) {
+        public void AddKeyFrame(long timestamp, KeyFrameViewModel keyFrame, bool applyHistory = true) {
             keyFrame.Timestamp = timestamp;
-            this.AddKeyFrame(keyFrame);
+            this.AddKeyFrame(keyFrame, applyHistory);
         }
 
-        public void AddKeyFrame(KeyFrameViewModel newKeyFrame) {
+        public void AddKeyFrame(KeyFrameViewModel newKeyFrame, bool applyHistory = true) {
             long timeStamp = newKeyFrame.Timestamp;
             if (timeStamp < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
@@ -185,6 +145,12 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             int index = this.Model.AddKeyFrame(newKeyFrame.Model);
             newKeyFrame.OwnerSequence = this;
             this.AddInternalUnsafe(index, newKeyFrame);
+
+            if (applyHistory && !this.IsHistoryChanging && this.GetHistoryManager(out HistoryManagerViewModel manager)) {
+                HistoryKeyFrameAdd action = new HistoryKeyFrameAdd(this);
+                action.unsafeKeyFrameList.Add(newKeyFrame);
+                manager.AddAction(action, "Add key frame");
+            }
         }
 
         /// <summary>

@@ -7,12 +7,7 @@ using FramePFX.Views.FilePicking;
 namespace FramePFX.Views {
     public class BaseDialog : WindowViewBase, IDialog {
         public BaseDialog() {
-            Window owner = FolderPicker.GetCurrentActiveWindow();
-            if (owner != this && owner.Owner != this) {
-                this.Owner = owner;
-            }
-
-            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            this.SetToCenterOfScreen();
             this.DataContextChanged += (sender, args) => {
                 if (args.NewValue is BaseDialogViewModel vm) {
                     vm.Dialog = this;

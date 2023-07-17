@@ -4,6 +4,7 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.History.Tasks;
+using FramePFX.Core.History.ViewModels;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
     public class ShapeClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
@@ -14,9 +15,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         public float Width {
             get => this.Model.Width;
             set {
-                if (!this.IsHistoryChanging && this.Track != null) {
+                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.sizeHistory.TryGetAction(out HistoryShapeSize action))
-                        this.sizeHistory.PushAction(this.HistoryManager, action = new HistoryShapeSize(this), "Edit shape size");
+                        this.sizeHistory.PushAction(m, action = new HistoryShapeSize(this), "Edit shape size");
                     action.Width.SetCurrent(value);
                 }
 
@@ -29,9 +30,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         public float Height {
             get => this.Model.Height;
             set {
-                if (!this.IsHistoryChanging && this.Track != null) {
+                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.sizeHistory.TryGetAction(out HistoryShapeSize action))
-                        this.sizeHistory.PushAction(this.HistoryManager, action = new HistoryShapeSize(this), "Edit shape size");
+                        this.sizeHistory.PushAction(m, action = new HistoryShapeSize(this), "Edit shape size");
                     action.Height.SetCurrent(value);
                 }
 

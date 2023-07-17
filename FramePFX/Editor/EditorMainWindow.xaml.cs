@@ -39,6 +39,7 @@ namespace FramePFX.Editor {
 
         private readonly Action renderCallback;
         private readonly Action renderAsyncCallback;
+        private readonly Func<Task> renderAsyncCallbackFunc;
 
         private const long RefreshInterval = 5000;
         private long lastRefreshTime;
@@ -64,6 +65,8 @@ namespace FramePFX.Editor {
             this.renderAsyncCallback = async () => {
                 await this.DoRenderCoreAsync();
             };
+
+            this.renderAsyncCallbackFunc = this.DoRenderCoreAsync;
 
             this.lastRefreshTime = Time.GetSystemMillis();
 
@@ -268,7 +271,7 @@ namespace FramePFX.Editor {
             }
             else {
                 // this.Dispatcher.Invoke(this.renderCallback);
-                await await this.Dispatcher.InvokeAsync(this.DoRenderCoreAsync);
+                await await this.Dispatcher.InvokeAsync(this.renderAsyncCallbackFunc);
             }
 
             this.isRenderScheduled = 0;

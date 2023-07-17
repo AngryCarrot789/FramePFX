@@ -7,6 +7,9 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.ViewModels.Keyframe {
     public abstract class KeyFrameViewModel : BaseViewModel {
+        /// <summary>
+        /// The underlying key frame object
+        /// </summary>
         public KeyFrame Model { get; }
 
         private AutomationSequenceViewModel ownerSequence;
@@ -57,14 +60,26 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
         public void SetVector2Value(Vector2 value) => ((KeyFrameVector2ViewModel) this).Value = ((KeyDescriptorVector2) this.Model.sequence.Key.Descriptor).Clamp(value);
 
         public static KeyFrameViewModel NewInstance(KeyFrame keyFrame) {
-            switch (keyFrame) {
-                case KeyFrameFloat f:   return new KeyFrameFloatViewModel(f);
-                case KeyFrameDouble f:  return new KeyFrameDoubleViewModel(f);
-                case KeyFrameLong f:    return new KeyFrameLongViewModel(f);
-                case KeyFrameBoolean f: return new KeyFrameBooleanViewModel(f);
-                case KeyFrameVector2 f: return new KeyFrameVector2ViewModel(f);
-                default:
-                    throw new Exception("Unknown key frame type: " + keyFrame?.GetType());
+            switch (keyFrame.DataType) {
+                case AutomationDataType.Float:   return new KeyFrameFloatViewModel((KeyFrameFloat) keyFrame);
+                case AutomationDataType.Double:  return new KeyFrameDoubleViewModel((KeyFrameDouble) keyFrame);
+                case AutomationDataType.Long:    return new KeyFrameLongViewModel((KeyFrameLong) keyFrame);
+                case AutomationDataType.Boolean: return new KeyFrameBooleanViewModel((KeyFrameBoolean) keyFrame);
+                case AutomationDataType.Vector2: return new KeyFrameVector2ViewModel((KeyFrameVector2) keyFrame);
+                default: throw new Exception("Unknown key frame type: " + keyFrame?.GetType());
+            }
+        }
+
+        public static KeyFrameViewModel NewInstance(AutomationDataType type) {
+            // works the same as the switch cases below
+            // return NewInstance(KeyFrame.CreateInstance(type));
+            switch (type) {
+                case AutomationDataType.Float:   return new KeyFrameFloatViewModel(new KeyFrameFloat());
+                case AutomationDataType.Double:  return new KeyFrameDoubleViewModel(new KeyFrameDouble());
+                case AutomationDataType.Long:    return new KeyFrameLongViewModel(new KeyFrameLong());
+                case AutomationDataType.Boolean: return new KeyFrameBooleanViewModel(new KeyFrameBoolean());
+                case AutomationDataType.Vector2: return new KeyFrameVector2ViewModel(new KeyFrameVector2());
+                default: throw new ArgumentOutOfRangeException(nameof(type), $"Invalid data type: {type}");
             }
         }
     }

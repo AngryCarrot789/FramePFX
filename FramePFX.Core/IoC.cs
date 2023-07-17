@@ -6,6 +6,7 @@ using FramePFX.Core.Shortcuts.Dialogs;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Views.Dialogs.FilePicking;
 using FramePFX.Core.Views.Dialogs.Message;
+using FramePFX.Core.Views.Dialogs.Progression;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using SkiaSharp;
 
@@ -34,6 +35,7 @@ namespace FramePFX.Core {
         public static IDispatcher Dispatcher { get; set; }
         public static IClipboardService Clipboard => Provide<IClipboardService>();
         public static IMessageDialogService MessageDialogs => Provide<IMessageDialogService>();
+        public static IProgressionDialogService ProgressionDialogs => Provide<IProgressionDialogService>();
         public static IFilePickDialogService FilePicker => Provide<IFilePickDialogService>();
         public static IUserInputDialogService UserInput => Provide<IUserInputDialogService>();
         public static IExplorerService ExplorerService => Provide<IExplorerService>();

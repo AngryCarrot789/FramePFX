@@ -7,6 +7,7 @@ using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.History.Tasks;
+using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
@@ -42,9 +43,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.MediaPosition;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null) {
+                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
+                        this.transformationHistory.PushAction(m, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaPosition.SetCurrent(value);
                 }
 
@@ -76,9 +77,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.MediaScale;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null) {
+                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
+                        this.transformationHistory.PushAction(m, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScale.SetCurrent(value);
                 }
 
@@ -110,9 +111,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.MediaScaleOrigin;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null) {
+                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(this.HistoryManager, action = new HistoryClipMediaTransformation(this), "Edit transformation");
+                        this.transformationHistory.PushAction(m, action = new HistoryClipMediaTransformation(this), "Edit transformation");
                     action.MediaScaleOrigin.SetCurrent(value);
                 }
 
@@ -131,9 +132,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.Opacity;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null) {
+                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.opacityHistory.TryGetAction(out HistoryVideoClipOpacity action))
-                        this.opacityHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipOpacity(this), "Edit opacity");
+                        this.opacityHistory.PushAction(m, action = new HistoryVideoClipOpacity(this), "Edit opacity");
                     action.Opacity.SetCurrent(value);
                 }
 

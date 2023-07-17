@@ -18,13 +18,13 @@ namespace FramePFX.Core.Automation.ViewModels {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
         }
 
-        public void TickAndRefreshProject(bool isRendering) {
-            this.TickAndRefreshProjectAtFrame(isRendering, this.Project.Timeline.PlayHeadFrame);
+        public void UpdateAndRefresh(bool refresh) {
+            this.UpdateAndRefreshAt(refresh, this.Project.Timeline.PlayHeadFrame);
         }
 
-        public void TickAndRefreshProjectAtFrame(bool isRendering, long frame) {
+        public void UpdateAndRefreshAt(bool refresh, long frame) {
             this.Model.UpdateAt(frame);
-            if (!isRendering) {
+            if (refresh) {
                 this.RefreshTimeline(this.Project.Timeline, frame);
             }
         }

@@ -62,7 +62,7 @@ namespace FramePFX.Core.Automation.ViewModels {
                     return sequence;
 
                 #if DEBUG
-                System.Diagnostics.Debugger.Break();
+                Debugger.Break();
                 #endif
 
                 throw new Exception($"Key has not been assigned: {key}");
@@ -95,7 +95,7 @@ namespace FramePFX.Core.Automation.ViewModels {
 
             string activeId = model.ActiveKeyFullId;
             AutomationSequenceViewModel foundSequence;
-            if (model.ActiveKeyFullId != null && (foundSequence = this.sequences.FirstOrDefault(x => x.Key.FullId == activeId)) != null) {
+            if (activeId != null && (foundSequence = this.sequences.FirstOrDefault(x => x.Key.FullId == activeId)) != null) {
                 this.ActiveSequence = foundSequence;
             }
         }

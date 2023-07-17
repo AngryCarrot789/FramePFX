@@ -2,6 +2,10 @@ using System.Threading.Tasks;
 using FramePFX.Core.History;
 
 namespace FramePFX.Core.Editor.History {
+    /// <summary>
+    /// A helper class for storing a "Holder" object (that implements <see cref="IHistoryHolder"/>), and updating the <see cref="IHistoryHolder.IsHistoryChanging"/> property of the holder before and after undoing/redoing
+    /// </summary>
+    /// <typeparam name="T">Type of holder object</typeparam>
     public abstract class BaseHistoryHolderAction<T> : IHistoryAction where T : class, IHistoryHolder {
         public T Holder { get; }
 

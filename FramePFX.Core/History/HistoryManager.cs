@@ -32,11 +32,27 @@ namespace FramePFX.Core.History {
         /// </summary>
         public HistoryActionModel NextRedo => this.redoList.Last?.Value;
 
-        public HistoryManager(int maxUndo = 200, int maxRedo = 200) {
+        public const int DefaultUndo = 2000;
+        public const int DefaultRedo = 2000;
+
+        public HistoryManager(int maxUndo = DefaultUndo, int maxRedo = DefaultRedo) {
             this.undoList = new LinkedList<HistoryActionModel>();
             this.redoList = new LinkedList<HistoryActionModel>();
             this.MaxUndo = maxUndo < 1 ? throw new ArgumentOutOfRangeException(nameof(maxUndo), "maxUndo must be greater than 0") : maxUndo;
             this.MaxRedo = maxRedo < 1 ? throw new ArgumentOutOfRangeException(nameof(maxRedo), "maxRedo must be greater than 0") : maxRedo;
+        }
+
+        public void Reset() {
+            this.IsUndoing = false;
+            this.IsRedoing = false;
+            this.Clear();
+        }
+
+        public void UnsafeReset() {
+            this.IsUndoing = false;
+            this.IsRedoing = false;
+            this.undoList.Clear();
+            this.redoList.Clear();
         }
 
         private static void RemoveFirst(LinkedList<HistoryActionModel> list) {
@@ -155,8 +171,10 @@ namespace FramePFX.Core.History {
                 catch (Exception e) {
                     stack.Add(new Exception("Failed to undo action", e));
                 }
+                finally {
+                    this.IsUndoing = false;
+                }
 
-                this.IsUndoing = false;
                 this.redoList.AddLast(action);
                 while (this.redoList.Count > this.MaxRedo) { // loop just in case
                     try {
@@ -196,8 +214,10 @@ namespace FramePFX.Core.History {
                 catch (Exception e) {
                     stack.Add(new Exception("Failed to redo action", e));
                 }
+                finally {
+                    this.IsRedoing = false;
+                }
 
-                this.IsRedoing = false;
                 this.undoList.AddLast(action);
                 while (this.undoList.Count > this.MaxUndo) { // loop just in case
                     try {

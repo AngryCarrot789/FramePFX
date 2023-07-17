@@ -10,7 +10,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         /// <summary>
         /// The playback model that this view model delegates to and from
         /// </summary>
-        public EditorPlaybackModel Model { get; }
+        public EditorPlayback Model { get; }
 
         /// <summary>
         /// The video editor that owns this playback

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.Exporting;
 using FramePFX.Core.Editor.Notifications;
 using FramePFX.Core.Editor.ResourceChecker;
+using FramePFX.Core.History;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
@@ -88,7 +89,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditor();
-            this.HistoryManager = new HistoryManagerViewModel(view.NotificationPanel, this.Model.HistoryManager);
+            this.HistoryManager = new HistoryManagerViewModel(view.NotificationPanel, new HistoryManager());
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
             this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameCallback();
@@ -189,6 +190,7 @@ namespace FramePFX.Core.Editor.ViewModels {
         }
 
         public async Task SetProject(ProjectViewModel project, bool loadResources = false) {
+            await this.HistoryManager.ResetAsync();
             await this.Playback.OnProjectChanging(project);
             this.ActiveProject = project;
             await this.Playback.OnProjectChanged(project);
@@ -311,9 +313,9 @@ namespace FramePFX.Core.Editor.ViewModels {
             this.notification = null;
         }
 
-        public Task DoRender() => this.DoRender(false);
+        public Task DoRenderFrame() => this.DoRenderFrame(false);
 
-        public Task DoRender(bool schedule) {
+        public Task DoRenderFrame(bool schedule) {
             return this.View.Render(schedule);
         }
     }

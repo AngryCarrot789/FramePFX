@@ -148,13 +148,13 @@ namespace FramePFX {
         }
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
-            #if DEBUG
+            #if !DEBUG
             await editor.SetProject(new ProjectViewModel(CreateDebugProject()), true);
             #else
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()), true);
             #endif
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
-            editor.ActiveProject.AutomationEngine.TickAndRefreshProject(false);
+            editor.ActiveProject.AutomationEngine.UpdateAndRefresh(true);
             await editor.View.Render();
         }
 
@@ -250,7 +250,87 @@ namespace FramePFX {
 
          public static Project CreateDebugProject() {
             // Debug project - test a lot of features and make sure they work
-            Project project = CreateDemoProject();
+            // Demo project -- projects can be created as entirely models
+            Project project = new Project();
+            project.Settings.Resolution = new Resolution(1920, 1080);
+
+            ResourceManager manager = project.ResourceManager;
+            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) { DisplayName = "colour_red" }));
+            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) { DisplayName = "colour_green" }));
+            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) { DisplayName = "colour_blue" }));
+
+            ResourceGroup @group = new ResourceGroup("Extra Colours");
+            manager.RootGroup.AddItemToList(@group);
+            ulong id_w = manager.RegisterEntry(@group.Add(new ResourceColour(220, 220, 220) { DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(@group.Add(new ResourceColour(50, 100, 220) { DisplayName = "idek"}));
+
+            {
+                VideoTrack track1 = new VideoTrack() {
+                    DisplayName = "Track 1 with stuff"
+                };
+                project.Timeline.AddTrack(track1);
+
+                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                track1.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
+
+                ShapeVideoClip clip1 = new ShapeVideoClip {
+                    Width = 200, Height = 200,
+                    FrameSpan = new FrameSpan(0, 120),
+                    DisplayName = "Clip colour_red"
+                };
+
+                clip1.MediaPosition = new Vector2(0, 0);
+                clip1.SetTargetResourceId(id_r);
+                track1.AddClip(clip1);
+
+                ShapeVideoClip clip2 = new ShapeVideoClip {
+                    Width = 200, Height = 200,
+                    FrameSpan = new FrameSpan(150, 30),
+                    DisplayName = "Clip colour_green"
+                };
+                clip2.MediaPosition = new Vector2(200, 200);
+                clip2.SetTargetResourceId(id_g);
+                track1.AddClip(clip2);
+            }
+            {
+                VideoTrack track2 = new VideoTrack() {
+                    DisplayName = "Track 2"
+                };
+                project.Timeline.AddTrack(track2);
+
+                ShapeVideoClip clip1 = new ShapeVideoClip {
+                    Width = 400, Height = 400,
+                    FrameSpan = new FrameSpan(300, 90),
+                    DisplayName = "Clip colour_blue"
+                };
+
+                clip1.MediaPosition = new Vector2(200, 200);
+                clip1.SetTargetResourceId(id_b);
+                track2.AddClip(clip1);
+                ShapeVideoClip clip2 = new ShapeVideoClip {
+                    Width = 100, Height = 1000,
+                    FrameSpan = new FrameSpan(15, 130),
+                    DisplayName = "Clip blueish"
+                };
+
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip2.AutomationData.ActiveKeyFullId = VideoClip.MediaPositionKey.FullId;
+
+                clip2.MediaPosition = new Vector2(400, 400);
+                clip2.SetTargetResourceId(id_d);
+                track2.AddClip(clip2);
+            }
+            {
+                VideoTrack track1 = new VideoTrack() {
+                    DisplayName = "Empty track"
+                };
+                project.Timeline.AddTrack(track1);
+            }
             // {
             //     AudioTrack track = new AudioTrack(project.Timeline) {
             //         DisplayName = "Audio Track 1"

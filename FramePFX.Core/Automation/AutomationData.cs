@@ -27,8 +27,9 @@ namespace FramePFX.Core.Automation {
         /// <param name="key"></param>
         public AutomationSequence this[AutomationKey key] {
             get {
-                if (this.map.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequence sequence))
+                if (this.map.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequence sequence)) {
                     return sequence;
+                }
 
                 #if DEBUG
                 System.Diagnostics.Debugger.Break();

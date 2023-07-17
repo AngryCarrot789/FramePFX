@@ -40,7 +40,7 @@ namespace FramePFX.Core.Editor.Actions {
         }
 
         public static void CreateKeyFrame(long frame, AutomationSequenceViewModel sequence) {
-            KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(KeyFrame.CreateInstance(sequence.Key.DataType, frame, sequence.Model));
+            KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(KeyFrame.CreateInstance(sequence.Model, frame));
             sequence.AddKeyFrame(keyFrame);
         }
     }

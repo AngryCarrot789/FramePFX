@@ -17,7 +17,7 @@ using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines {
-    public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IDisposable {
+    public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound, IDisposable {
         public static readonly MessageDialog DeleteTracksDialog;
 
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
@@ -123,7 +123,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.AddVideoTrackCommand = new AsyncRelayCommand(this.AddNewVideoTrackAction);
             this.AddAudioTrackCommand = new AsyncRelayCommand(this.AddNewAudioTrackAction, () => false);
             this.TrackNameValidator = InputValidator.FromFunc((x) => string.IsNullOrEmpty(x) ? "Clip name cannot be empty" : null);
-            this.CachedDoRenderAndScheduleUpdatePlayHead = this.DoRenderAndScheduleUIUpdate;
+            this.CachedDoRenderAndScheduleUpdatePlayHead = this.DoFullRenderAndScheduleUIUpdate;
             foreach (Track track in this.Model.Tracks) {
                 TrackViewModel trackVm = TrackRegistry.Instance.CreateViewModelFromModel(track);
                 TrackViewModel.SetTimeline(trackVm, this);
@@ -149,7 +149,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 track.OnUserSeekedFrame(oldFrame, newFrame);
             }
 
-            this.Project.AutomationEngine.TickAndRefreshProjectAtFrame(false, newFrame);
+            this.Project.AutomationEngine.UpdateAndRefreshAt(true, newFrame);
             this.Project.Editor.View.Render(b);
         }
 
@@ -182,20 +182,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             return track;
         }
 
-        public void DoRender() => this.DoRender(false);
-
-        public void DoRender(bool schedule) {
-            VideoEditorViewModel editor = this.Project.Editor;
-            if (editor != null) {
-                editor.DoRender(schedule);
-            }
+        public void DoRender(bool schedule = false) {
+            this.Project.AutomationEngine.UpdateAndRefreshAt(true, this.PlayHeadFrame);
+            this.Project.Editor.DoRenderFrame(schedule);
         }
 
         public async Task DoRenderAsync(bool schedule) {
-            VideoEditorViewModel editor = this.Project.Editor;
-            if (editor != null) {
-                await editor.DoRender(schedule);
-            }
+            this.Project.AutomationEngine.UpdateAndRefreshAt(true, this.PlayHeadFrame);
+            await this.Project.Editor.DoRenderFrame(schedule);
         }
 
         public Task RemoveSelectedTracksAction() {
@@ -261,26 +255,20 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.OnProjectModified();
         }
 
-        public virtual void MoveSelectedItemUpAction() {
-            this.MoveSelectedItems(-1);
-        }
+        public virtual void MoveSelectedItemUpAction() => this.MoveSelectedItems(-1);
 
-        public virtual void MoveSelectedItemDownAction() {
-            this.MoveSelectedItems(1);
-        }
+        public virtual void MoveSelectedItemDownAction() => this.MoveSelectedItems(1);
 
         protected virtual void OnSelectionChanged() {
             this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
         }
 
-        public void OnStepFrameCallback() {
-            IoC.Dispatcher.Invoke(this.CachedDoRenderAndScheduleUpdatePlayHead);
-        }
+        public void OnStepFrameCallback() => IoC.Dispatcher.Invoke(this.CachedDoRenderAndScheduleUpdatePlayHead);
 
-        private void DoRenderAndScheduleUIUpdate() {
+        private void DoFullRenderAndScheduleUIUpdate() {
             this.Model.PlayHeadFrame = Periodic.Add(this.PlayHeadFrame, 1, 0L, this.MaxDuration);
             this.Project.AutomationEngine.Model.UpdateAt(this.PlayHeadFrame);
-            this.Project.Editor.DoRender().ContinueWith((t) => {
+            this.Project.Editor.DoRenderFrame().ContinueWith((t) => {
                 if (Interlocked.CompareExchange(ref this.isPlayBackUiUpdateScheduledState, 1, 0) != 0) {
                     return;
                 }

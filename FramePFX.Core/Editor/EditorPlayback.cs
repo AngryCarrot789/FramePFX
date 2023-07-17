@@ -3,7 +3,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
-    public class EditorPlaybackModel : IRBESerialisable {
+    public class EditorPlayback : IRBESerialisable {
         private volatile bool isPlaying;
 
         public PrecisionTimer PlaybackTimer { get; }
@@ -27,7 +27,7 @@ namespace FramePFX.Core.Editor {
 
         public VideoEditor Editor { get; }
 
-        public EditorPlaybackModel(VideoEditor editor) {
+        public EditorPlayback(VideoEditor editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.PlaybackTimer = new PrecisionTimer();
         }

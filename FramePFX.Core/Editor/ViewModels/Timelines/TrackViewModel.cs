@@ -19,7 +19,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for a timeline track. This could be a video or audio track (or others...)
     /// </summary>
-    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel {
+    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel, IProjectViewModelBound {
         protected readonly HistoryBuffer<HistoryTrackDisplayName> displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
 
         private readonly ObservableCollectionEx<ClipViewModel> clips;

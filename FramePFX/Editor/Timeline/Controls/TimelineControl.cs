@@ -165,6 +165,10 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.OnLeftButtonUp(e.GetPosition(this));
         }
 
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
+            base.OnPreviewMouseLeftButtonUp(e);
+        }
+
         private void OnLeftButtonDown(Point point) {
             this.selectionBeginPoint = point;
             this.isLMBDownForSelection = true;

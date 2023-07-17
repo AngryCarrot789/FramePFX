@@ -68,6 +68,9 @@ namespace FramePFX.Converters {
     }
 
     public class BoolToVisibilityConverter : BoolConverter {
+        public static BoolToVisibilityConverter BoolToVisibleOrCollapsed { get; } = new BoolToVisibilityConverter();
+        public static BoolToVisibilityConverter BoolToVisibleOrHidden { get; } = new BoolToVisibilityConverter() {FalseValue = Visibility.Hidden};
+
         public new Visibility TrueValue {
             get => (Visibility) base.TrueValue;
             set => base.TrueValue = NullToVisibilityConverter.Box(value);

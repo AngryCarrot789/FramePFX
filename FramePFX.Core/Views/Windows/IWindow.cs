@@ -5,5 +5,7 @@ namespace FramePFX.Core.Views.Windows {
         void CloseWindow();
 
         Task CloseWindowAsync();
+
+        bool IsOpen { get; }
     }
 }

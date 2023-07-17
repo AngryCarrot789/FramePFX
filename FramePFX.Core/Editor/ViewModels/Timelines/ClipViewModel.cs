@@ -17,7 +17,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IDisposable {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IProjectViewModelBound, IDisposable {
         protected readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
@@ -44,9 +44,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public string DisplayName {
             get => this.Model.DisplayName;
             set {
-                if (!this.IsHistoryChanging && this.Track != null) {
+                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.displayNameHistory.TryGetAction(out HistoryClipDisplayName action))
-                        this.displayNameHistory.PushAction(this.HistoryManager, action = new HistoryClipDisplayName(this), "Edit media duration");
+                        this.displayNameHistory.PushAction(m, action = new HistoryClipDisplayName(this), "Edit media duration");
                     action.DisplayName.SetCurrent(value);
                 }
 
@@ -68,7 +68,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                     this.RaisePropertyChanged(nameof(this.Timeline));
                     this.RaisePropertyChanged(nameof(this.Project));
                     this.RaisePropertyChanged(nameof(this.Editor));
-                    this.RaisePropertyChanged(nameof(this.HistoryManager));
                     this.RaisePropertyChanged(nameof(this.RelativePlayHead));
                 }
             }
@@ -83,8 +82,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 }
 
                 if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
-                    if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
-                        this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                    if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action) && this.GetHistoryManager(out HistoryManagerViewModel m))
+                        this.clipPositionHistory.PushAction(m, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.Span.SetCurrent(value);
                 }
 
@@ -122,9 +121,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                     return;
                 }
 
-                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
+                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
                     if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
-                        this.clipPositionHistory.PushAction(this.HistoryManager, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                        this.clipPositionHistory.PushAction(m, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.MediaFrameOffset.SetCurrent(value);
                 }
 
@@ -152,15 +151,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public TimelineViewModel Timeline => this.Track?.Timeline;
 
-        public ProjectViewModel Project => this.Track?.Timeline.Project;
+        public ProjectViewModel Project => this.Track?.Timeline?.Project;
 
-        public VideoEditorViewModel Editor => this.Track?.Timeline.Project.Editor;
-
-        public HistoryManagerViewModel HistoryManager => this.Track?.Timeline.Project.Editor.HistoryManager;
+        public VideoEditorViewModel Editor => this.Project?.Editor;
 
         public AutomationDataViewModel AutomationData { get; }
 
-        public AutomationEngineViewModel AutomationEngine => this.Track?.Timeline.Project.AutomationEngine;
+        public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
 
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
@@ -187,6 +184,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             });
 
             this.ConnectedGroups = new ObservableCollection<ClipGroupViewModel>();
+        }
+
+        public bool GetHistoryManager(out HistoryManagerViewModel manager) {
+            return (manager = this.Editor?.HistoryManager) != null;
         }
 
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
@@ -457,8 +458,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             if (cancelled) {
                 this.lastDragHistoryAction.Undo();
             }
-            else {
-                this.HistoryManager?.AddAction(this.lastDragHistoryAction, "Drag clip");
+            else if (this.GetHistoryManager(out HistoryManagerViewModel m)) {
+                m.AddAction(this.lastDragHistoryAction, "Drag clip");
             }
 
             this.lastDragHistoryAction = null;

@@ -65,9 +65,15 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         #endregion
 
+        /// <summary>
+        /// Assigns this key frame's value to the given key descriptor's default value
+        /// </summary>
         public abstract void AssignDefaultValue(KeyDescriptor desc);
 
-        public abstract void AssignCurrentValue(long frame, AutomationSequence seq);
+        /// <summary>
+        /// Assigns this key frame's value to what the given sequence evaluates at the given frame
+        /// </summary>
+        public abstract void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false);
 
         // demo interpolation
         // public static float GetMultiplier(long time, long timeA, long timeB) {
@@ -133,15 +139,18 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <param name="sequence">The sequence, in order to access to actual value at the given frame</param>
         /// <returns>A new key frame instance</returns>
         /// <exception cref="ArgumentOutOfRangeException">Unknown automation data type</exception>
-        public static KeyFrame CreateInstance(AutomationDataType type, long frame, AutomationSequence sequence) {
-            switch (type) {
-                case AutomationDataType.Float:   return new KeyFrameFloat(frame, sequence.GetFloatValue(frame));
-                case AutomationDataType.Double:  return new KeyFrameDouble(frame, sequence.GetDoubleValue(frame));
-                case AutomationDataType.Long:    return new KeyFrameLong(frame, sequence.GetLongValue(frame));
-                case AutomationDataType.Boolean: return new KeyFrameBoolean(frame, sequence.GetBooleanValue(frame));
-                case AutomationDataType.Vector2: return new KeyFrameVector2(frame, sequence.GetVector2Value(frame));
-                default: throw new ArgumentOutOfRangeException(nameof(type), $"Invalid data type: {type}");
-            }
+        public static KeyFrame CreateInstance(AutomationSequence sequence, long frame) {
+            KeyFrame keyFrame = CreateInstance(sequence.DataType); // same as sequence.Key.CreateKeyFrame()
+            keyFrame.time = frame;
+            keyFrame.AssignCurrentValue(frame, sequence);
+            return keyFrame;
+        }
+
+        public static KeyFrame CreateDefault(AutomationKey key, long frame = 0L) {
+            KeyFrame keyFrame = CreateInstance(key.DataType);
+            keyFrame.time = frame;
+            keyFrame.AssignDefaultValue(key.Descriptor);
+            return keyFrame;
         }
 
         #endregion
@@ -233,7 +242,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public override void AssignDefaultValue(KeyDescriptor desc) => this.Value = ((KeyDescriptorFloat) desc).DefaultValue;
 
-        public override void AssignCurrentValue(long frame, AutomationSequence seq) => this.Value = seq.GetFloatValue(frame, true);
+        public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetFloatValue(frame, ignoreOverrideState);
 
         public float Interpolate(long time, KeyFrameFloat frame) {
             this.ValidateTime(time, frame);
@@ -270,7 +279,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public override void AssignDefaultValue(KeyDescriptor desc) => this.Value = ((KeyDescriptorDouble) desc).DefaultValue;
 
-        public override void AssignCurrentValue(long frame, AutomationSequence seq) => this.Value = seq.GetDoubleValue(frame, true);
+        public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetDoubleValue(frame, ignoreOverrideState);
 
         public double Interpolate(long time, KeyFrameDouble nextFrame) {
             this.ValidateTime(time, nextFrame);
@@ -312,7 +321,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public override void AssignDefaultValue(KeyDescriptor desc) => this.Value = ((KeyDescriptorLong) desc).DefaultValue;
 
-        public override void AssignCurrentValue(long frame, AutomationSequence seq) => this.Value = seq.GetLongValue(frame, true);
+        public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetLongValue(frame, ignoreOverrideState);
 
         public long Interpolate(long time, KeyFrameLong frame) {
             this.ValidateTime(time, frame);
@@ -349,7 +358,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public override void AssignDefaultValue(KeyDescriptor desc) => this.Value = ((KeyDescriptorBoolean) desc).DefaultValue;
 
-        public override void AssignCurrentValue(long frame, AutomationSequence seq) => this.Value = seq.GetBooleanValue(frame, true);
+        public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetBooleanValue(frame, ignoreOverrideState);
 
         public bool Interpolate(long time, KeyFrameBoolean frame) {
             this.ValidateTime(time, frame);
@@ -396,7 +405,7 @@ namespace FramePFX.Core.Automation.Keyframe {
 
         public override void AssignDefaultValue(KeyDescriptor desc) => this.Value = ((KeyDescriptorVector2) desc).DefaultValue;
 
-        public override void AssignCurrentValue(long frame, AutomationSequence seq) => this.Value = seq.GetVector2Value(frame, true);
+        public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetVector2Value(frame, ignoreOverrideState);
 
         public Vector2 Interpolate(long time, KeyFrameVector2 frame) {
             this.ValidateTime(time, frame);

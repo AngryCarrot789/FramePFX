@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FramePFX.Core.History {
     /// <summary>
-    /// An action that can be undone and then also redone (only after being undone)
+    /// An action that can be undone and then also redone (but only after being undone)
     /// </summary>
     public interface IHistoryAction {
         /// <summary>

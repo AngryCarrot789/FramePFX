@@ -249,39 +249,38 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// <summary>
         /// Inserts the given key frame based on its timestamp, and returns the index that it was inserted at
         /// </summary>
-        /// <param name="newKeyFrame">The key frame to add</param>
+        /// <param name="keyFrame">The key frame to add</param>
         /// <returns>The index of the key frame</returns>
         /// <exception cref="ArgumentException">Timestamp is negative or the data type is invalid</exception>
-        public int AddKeyFrame(KeyFrame newKeyFrame) {
-            long timeStamp = newKeyFrame.time;
+        public int AddKeyFrame(KeyFrame keyFrame) {
+            long timeStamp = keyFrame.time;
             if (timeStamp < 0)
-                throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
-            if (newKeyFrame.DataType != this.DataType)
-                throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
-            newKeyFrame.sequence = this;
+                throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(keyFrame));
+            if (keyFrame.DataType != this.DataType)
+                throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {keyFrame.DataType}", nameof(keyFrame));
+            keyFrame.sequence = this;
             List<KeyFrame> list = this.keyFrameList;
             for (int i = list.Count - 1; i >= 0; i--) {
                 if (timeStamp >= list[i].time) {
-                    list.Insert(i + 1, newKeyFrame);
+                    list.Insert(i + 1, keyFrame);
                     return i + 1;
                 }
             }
 
-            list.Insert(0, newKeyFrame);
+            list.Insert(0, keyFrame);
             return 0;
         }
 
         /// <summary>
         /// Unsafely inserts the key frame at the given index, ignoring order. Do not use!
         /// </summary>
-        public void InsertKeyFrame(int index, KeyFrame newKeyFrame) {
-            long timeStamp = newKeyFrame.time;
-            if (timeStamp < 0)
-                throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(newKeyFrame));
-            if (newKeyFrame.DataType != this.DataType)
-                throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {newKeyFrame.DataType}", nameof(newKeyFrame));
-            newKeyFrame.sequence = this;
-            this.keyFrameList.Insert(index, newKeyFrame);
+        public void InsertKeyFrame(int index, KeyFrame keyFrame) {
+            if (keyFrame.time < 0)
+                throw new ArgumentException("Keyframe time stamp must be non-negative: " + keyFrame.time, nameof(keyFrame));
+            if (keyFrame.DataType != this.DataType)
+                throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {keyFrame.DataType}", nameof(keyFrame));
+            keyFrame.sequence = this;
+            this.keyFrameList.Insert(index, keyFrame);
         }
 
         /// <summary>

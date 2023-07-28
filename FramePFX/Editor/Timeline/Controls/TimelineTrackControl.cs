@@ -12,7 +12,7 @@ using FramePFX.Editor.Timeline.Track;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public abstract class TimelineTrackControl : MultiSelector {
+    public sealed class TimelineTrackControl : MultiSelector {
         /// <summary>
         /// The timeline that contains this track
         /// </summary>
@@ -27,10 +27,10 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         public IResourceItemDropHandler ResourceItemDropHandler => this.DataContext as IResourceItemDropHandler;
 
-        protected bool isProcessingDrop;
+        private bool isProcessingDrop;
         public TimelineClipControl lastSelectedItem;
 
-        protected TimelineTrackControl() {
+        public TimelineTrackControl() {
             this.CanSelectMultipleItems = true;
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
@@ -48,34 +48,26 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public IEnumerable<TimelineClipControl> GetClipContainers() {
-            return this.GetClipContainers<TimelineClipControl>(this.Items);
-        }
-
-        public IEnumerable<T> GetClipContainers<T>() where T : TimelineClipControl {
-            return this.GetClipContainers<T>(this.Items);
+            return this.GetClipContainers(this.Items);
         }
 
         public IEnumerable<TimelineClipControl> GetSelectedClipContainers() {
-            return this.GetClipContainers<TimelineClipControl>(this.SelectedItems);
+            return this.GetClipContainers(this.SelectedItems);
         }
 
-        public IEnumerable<T> GetSelectedClipContainers<T>() where T : TimelineClipControl {
-            return this.GetClipContainers<T>(this.SelectedItems);
-        }
-
-        public IEnumerable<T> GetClipContainers<T>(IEnumerable items, bool canUseIcgIndex = true) where T : TimelineClipControl {
+        public IEnumerable<TimelineClipControl> GetClipContainers(IEnumerable items, bool canUseIcgIndex = true) {
             int i = 0;
             foreach (object item in items) {
-                if (item is T a) {
+                if (item is TimelineClipControl a) {
                     yield return a;
                 }
                 else if (canUseIcgIndex) {
-                    if (this.ItemContainerGenerator.ContainerFromIndex(i) is T b) {
+                    if (this.ItemContainerGenerator.ContainerFromIndex(i) is TimelineClipControl b) {
                         yield return b;
                     }
                 }
                 else {
-                    if (this.ItemContainerGenerator.ContainerFromItem(item) is T b) {
+                    if (this.ItemContainerGenerator.ContainerFromItem(item) is TimelineClipControl b) {
                         yield return b;
                     }
                 }
@@ -84,9 +76,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<TimelineClipControl> GetClipsThatIntersect(FrameSpan span) {
-            return this.GetClipContainers<TimelineClipControl>().Where(x => x.Span.Intersects(span));
-        }
+        public IEnumerable<TimelineClipControl> GetClipsThatIntersect(FrameSpan span) => this.GetClipContainers().Where(x => x.Span.Intersects(span));
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);
@@ -259,39 +249,12 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         protected override Size MeasureOverride(Size constraint) {
-            base.MeasureOverride(constraint);
-            TimelineControl timeline = this.Timeline;
-            return timeline == null ? constraint : new Size(timeline.MaxDuration * this.UnitZoom, constraint.Height);
+            Size size = base.MeasureOverride(constraint);
+            return this.Timeline is TimelineControl timeline ? new Size(timeline.MaxDuration * this.UnitZoom, constraint.Height) : size;
         }
 
-        public bool CanAcceptClip(TimelineClipControl clip) {
-            if (this is VideoTrackControl) {
-                return clip is VideoClipControl;
-            }
-            else if (this is AudioTrackControl) {
+        protected override DependencyObject GetContainerForItemOverride() => new TimelineClipControl();
 
-            }
-
-            return false;
-        }
-
-        private object currentItem;
-
-        protected sealed override DependencyObject GetContainerForItemOverride() {
-            object item = this.currentItem;
-            this.currentItem = null;
-            return this.GetContainerForItem(item);
-        }
-
-        protected sealed override bool IsItemItsOwnContainerOverride(object item) {
-            if (this.IsItemAContainer(item))
-                return true;
-            this.currentItem = item;
-            return false;
-        }
-
-        protected abstract bool IsItemAContainer(object item);
-
-        protected abstract TimelineClipControl GetContainerForItem(object item);
+        protected override bool IsItemItsOwnContainerOverride(object item) => item is TimelineClipControl;
     }
 }

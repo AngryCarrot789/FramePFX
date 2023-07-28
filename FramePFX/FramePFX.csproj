@@ -201,8 +201,10 @@
     <Compile Include="Controls\Dragger\EditCompletedEventHandler.cs" />
     <Compile Include="Controls\Dragger\EditStartEventArgs.cs" />
     <Compile Include="Controls\Dragger\EditStartEventHandler.cs" />
+    <Compile Include="Controls\Dragger\IValueFormatter.cs" />
     <Compile Include="Controls\Dragger\IValuePreProcessor.cs" />
     <Compile Include="Controls\Dragger\NumberDragger.cs" />
+    <Compile Include="Controls\Dragger\ValueStringFormatter.cs" />
     <Compile Include="Controls\FocusHelper.cs" />
     <Compile Include="Controls\FreeMoveViewPortV2.cs" />
     <Compile Include="Controls\ViewBoxClone.cs" />
@@ -266,9 +268,6 @@
       <DependentUpon>ProjectSettingsEditorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\FrameworkElementPageRegistry.cs" />
-    <Compile Include="Editor\Properties\PropertyPageDataTemplateSelector.cs" />
-    <Compile Include="Editor\Properties\PropertyPageItem.cs" />
-    <Compile Include="Editor\Properties\PropertyPageItemsControl.cs" />
     <Compile Include="Editor\ResourceChecker\ResourceCheckerDialog.xaml.cs">
       <DependentUpon>ResourceCheckerDialog.xaml</DependentUpon>
     </Compile>
@@ -281,24 +280,22 @@
     <Compile Include="Editor\Resources\ResourceListControl.cs" />
     <Compile Include="Editor\ThingInterLayoutClient.cs" />
     <Compile Include="Editor\ThingInterTabClient.cs" />
-    <Compile Include="Editor\Timeline\Controls\AudioClipControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\AudioTrackControl.cs" />
     <Compile Include="Editor\Timeline\Controls\AutomationComboBox.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineContentPanel.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelinePreviewPlayHeadControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineTrackControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\VideoClipControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\VideoTrackControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\V2\TimelineClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\V2\TimelineControlV2.cs" />
+    <Compile Include="Editor\Timeline\Controls\V2\TimelineTrackControl.cs" />
     <Compile Include="Editor\Timeline\TimelineStyles.xaml.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\ClipType.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IAudioClip.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IClip.cs" />
     <Compile Include="Editor\Timeline\Track\IndexMap.cs" />
-    <Compile Include="Editor\Timeline\TimelineClipStyleSelector.cs" />
     <Compile Include="Editor\Timeline\TimelineTrackListItemTemplateSelector.cs" />
-    <Compile Include="Editor\Timeline\TimelineTrackStyleSelector.cs" />
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\KeyboardUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
@@ -309,10 +306,9 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
-    <Compile Include="PropertyEditing\ok.cs" />
-    <Compile Include="PropertyEditing\PropertyEditorItem.cs" />
+    <Compile Include="PropertyEditing\PropertyEditor.cs" />
+    <Compile Include="PropertyEditing\PropertyEditorItemContainer.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemsControl.cs" />
-    <Compile Include="PropertyEditing\PropertyGroupItem.cs" />
     <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Services\WinExplorerService.cs" />
@@ -470,6 +466,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Notifications\NotificationStyles.xaml" />
+    <Page Include="PropertyEditing\PropertyEditorStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -612,8 +612,8 @@
     <Content Include="Resources\Shaders\xyz.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Editor\Timeline\Actions" />
-    <Folder Include="Translations" />
+    <Folder Include="Editor\Timeline\Actions\" />
+    <Folder Include="Translations\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

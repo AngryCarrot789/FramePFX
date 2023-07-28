@@ -114,13 +114,6 @@ namespace FramePFX.Editor.Automation {
                 typeof(AutomationSequenceEditor),
                 new PropertyMetadata(10000L));
 
-        public static readonly DependencyProperty IsPlacementPlaneEnabledProperty =
-            DependencyProperty.Register(
-                "IsPlacementPlaneEnabled",
-                typeof(bool),
-                typeof(AutomationSequenceEditor),
-                new FrameworkPropertyMetadata(BoolBox.False, FrameworkPropertyMetadataOptions.AffectsRender));
-
         public Brush OverrideModeBrush {
             get => (Brush) this.GetValue(OverrideModeBrushProperty);
             set => this.SetValue(OverrideModeBrushProperty, value);
@@ -171,11 +164,6 @@ namespace FramePFX.Editor.Automation {
         public long FrameDuration {
             get => (long) this.GetValue(FrameDurationProperty);
             set => this.SetValue(FrameDurationProperty, value);
-        }
-
-        public bool IsPlacementPlaneEnabled {
-            get => (bool) this.GetValue(IsPlacementPlaneEnabledProperty);
-            set => this.SetValue(IsPlacementPlaneEnabledProperty, value.Box());
         }
 
         private Pen keyOverridePen;
@@ -582,10 +570,6 @@ namespace FramePFX.Editor.Automation {
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
             Point mPos = e.GetPosition(this);
-            if (this.IsPlacementPlaneEnabled && this.Sequence is AutomationSequenceViewModel sequence) {
-                this.CreateKeyFrameAt(sequence, mPos, true);
-                e.Handled = true;
-            }
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
@@ -666,11 +650,7 @@ namespace FramePFX.Editor.Automation {
 
         protected override void OnMouseEnter(MouseEventArgs e) {
             base.OnMouseEnter(e);
-            if (this.backingList.Count < 1 && (Keyboard.Modifiers & ModifierKeys.Alt) != 0) {
-                this.IsPlacementPlaneEnabled = true;
-            }
-
-            this.UpdateMouseOver(e.GetPosition(this), !this.IsPlacementPlaneEnabled);
+            this.UpdateMouseOver(e.GetPosition(this));
         }
 
         protected override void OnMouseLeave(MouseEventArgs e) {
@@ -679,10 +659,6 @@ namespace FramePFX.Editor.Automation {
                 this.lastMouseOver.LastLineHitType = LineHitType.None;
                 this.lastMouseOver.IsMouseOverPoint = false;
                 this.lastMouseOver = null;
-            }
-
-            if (this.IsPlacementPlaneEnabled) {
-                this.IsPlacementPlaneEnabled = false;
             }
 
             this.InvalidateVisual();
@@ -783,63 +759,6 @@ namespace FramePFX.Editor.Automation {
 
         #region Rendering
 
-        // protected override void OnRender(DrawingContext dc) {
-        //     List<KeyFramePoint> list = this.backingList;
-        //     if (list.Count < 1) {
-        //         if (this.IsPlacementPlaneEnabled) {
-        //             dc.DrawRectangle(this.PlacementPlaneBrush, null, new Rect(new Point(), this.RenderSize));
-        //         }
-        //
-        //         return;
-        //     }
-        //
-        //     if (this.isOverrideEnabled) {
-        //         dc.PushOpacity(0.5d);
-        //     }
-        //
-        //     Rect visible;
-        //     if (this.scroller == null) {
-        //         visible = new Rect(new Point(), this.RenderSize);
-        //     }
-        //     else {
-        //         Point location = this.TranslatePoint(new Point(), this.scroller);
-        //         double x = location.X > 0 ? 0 : -location.X;
-        //         double y = location.Y > 0 ? 0 : -location.Y;
-        //         double w = Math.Min(Math.Min(location.X, 0) + this.ActualWidth, this.scroller.ViewportWidth);
-        //         double h = Math.Min(Math.Min(location.Y, 0) + this.ActualHeight, this.scroller.ViewportHeight);
-        //         visible = new Rect(x, y, Math.Max(w, 0), Math.Max(h, 0)); // only includes control bounds
-        //         // visible = new Rect(x, y, this.scroller.ViewportWidth, this.scroller.ViewportHeight); // includes bounds of entire scroll viewer
-        //     }
-        //
-        //     int end = list.Count - 1;
-        //     KeyFramePoint first = list[0], prev = first;
-        //     this.DrawFirstKeyFrameLine(dc, first, ref visible);
-        //     if (end == 0) {
-        //         this.DrawLastKeyFrameLine(dc, first, ref visible);
-        //         first.RenderEllipse(dc, ref visible);
-        //     }
-        //     else {
-        //         for (int i = 1; i < end; i++) {
-        //             KeyFramePoint keyFrame = list[i];
-        //             DrawKeyFramesAndLine(dc, prev, keyFrame, ref visible);
-        //             prev = keyFrame;
-        //         }
-        //
-        //         this.DrawLastKeyFrameLine(dc, list[end], ref visible);
-        //         DrawKeyFramesAndLine(dc, prev, list[end], ref visible);
-        //     }
-        //
-        //     if (this.isOverrideEnabled) {
-        //         AutomationSequenceViewModel seq = this.Sequence;
-        //         if (seq != null) {
-        //             double y = this.ActualHeight - KeyPointUtils.GetY(seq.OverrideKeyFrame, this.ActualHeight);
-        //             dc.DrawLine(this.OverrideModeValueLinePen, new Point(0, y), new Point(visible.Right, y));
-        //         }
-        //
-        //         dc.Pop();
-        //     }
-        // }
-
         public static Rect GetVisibleRect(ScrollViewer scroller, UIElement element) {
             Rect rect;
             Size size = element.RenderSize;
@@ -873,11 +792,8 @@ namespace FramePFX.Editor.Automation {
 
         protected override void OnRender(DrawingContext dc) {
             List<KeyFramePoint> list = this.backingList;
-            if (list.Count < 1) {
-                if (this.IsPlacementPlaneEnabled) {
-                    dc.DrawRectangle(this.PlacementPlaneBrush, null, new Rect(new Point(), this.RenderSize));
-                }
-
+            int end = list.Count - 1;
+            if (end < 0) {
                 return;
             }
 
@@ -886,17 +802,6 @@ namespace FramePFX.Editor.Automation {
                 dc.PushOpacity(0.5d);
             }
 
-            // SKImageInfo skImageInfo = new SKImageInfo(size1.Width, size1.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
-            // if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelWidth || frameInfo.Height != this.bitmap.PixelHeight) {
-            //     this.bitmap = new WriteableBitmap(
-            //         frameInfo.Width, pixelSize.Height,
-            //         scaleX == 1d ? 96d : (96d * scaleX),
-            //         scaleY == 1d ? 96d : (96d * scaleY),
-            //         PixelFormats.Pbgra32, null);
-            // }
-
-            // using (SKSurface surface = SKSurface.Create())
-            int end = list.Count - 1;
             KeyFramePoint first = list[0], prev = first;
             this.DrawFirstKeyFrameLine(dc, first, ref visible);
             if (end == 0) {
@@ -955,7 +860,7 @@ namespace FramePFX.Editor.Automation {
         // draw a horizontal line at the key's Y pos
         private void DrawLastKeyFrameLine(DrawingContext dc, KeyFramePoint key, ref Rect rect) {
             Point a = key.GetLocation();
-            Point b = ClampRightSide(ref rect, new Point(rect.Right, a.Y));
+            Point b = new Point(rect.Right, a.Y);
             if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b)) {
                 dc.DrawLine(this.LineTransparentPen, a, b);
                 dc.DrawLine(this.isOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Tail ? this.LineMouseOverPen : this.LinePen), a, b);
@@ -1005,70 +910,7 @@ namespace FramePFX.Editor.Automation {
             return p.X >= minX && p.X <= maxX && p.Y >= minY && p.Y <= maxY;
         }
 
-        // TODO: iterate through all key frames to find the one which the mouse is closest to maybe?
-
         public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
-            return this.GetIntersectionActuallyBinarySearch(ref p, out keyFrame, out lineHit);
-            // return this.GetIntersection(ref p, out keyFrame, out lineHit, out _);
-        }
-
-        // TODO: binary search maybe?
-        /// <summary>
-        /// Performs a hit test across each key frame and it's line
-        /// </summary>
-        /// <param name="pos">The point to test (e.g. mouse cursor)</param>
-        /// <param name="keyFrame">The hit key frame, or it's associated line if <param name="lineHit"></param> is true</param>
-        /// <param name="lineHit">Whether or not the hit was a line</param>
-        /// <returns>True if something was hit, otherwise false, meaning <param name="keyFrame"></param> will be null and <param name="lineHit"></param> will be false</returns>
-        public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit, out int index) {
-            List<KeyFramePoint> list = this.backingList;
-            int c = list.Count;
-            if (c > 0) {
-                Point lastPoint = new Point(0, list[0].GetLocation().Y);
-                for (int i = 0; i < c; i++) {
-                    keyFrame = this.backingList[i];
-                    Point point = keyFrame.GetLocation();
-
-                    // lazy; AABB intersection
-                    const double r1 = EllipseHitRadius, r2 = r1 * 2d;
-                    Rect point_area = new Rect(point.X - r1, point.Y - r1, r2, r2);
-                    if (RectContains(ref point_area, ref p)) {
-                        lineHit = LineHitType.None;
-                        index = i;
-                        return true;
-                    }
-                    else if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness)) {
-                        if (i > 0) {
-                            keyFrame = this.backingList[index = i - 1];
-                        }
-                        else {
-                            index = i;
-                        }
-
-                        lineHit = i == 0 ? LineHitType.Head : LineHitType.Normal;
-                        return true;
-                    }
-
-                    lastPoint = point;
-                }
-
-                Point endPoint = new Point(this.ActualWidth, lastPoint.Y);
-                if (IsMouseOverLine(ref p, ref lastPoint, ref endPoint, LineHitThickness)) {
-                    keyFrame = this.backingList[index = c - 1];
-                    lineHit = LineHitType.Tail;
-                    return true;
-                }
-            }
-
-            keyFrame = null;
-            lineHit = LineHitType.None;
-            index = -1;
-            return false;
-        }
-
-        private const double R1 = EllipseHitRadius, R2 = R1 * 2d;
-
-        public bool GetIntersectionActuallyBinarySearch(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
             List<KeyFramePoint> list = this.backingList;
             int count = list.Count, i = 0, j = count - 1;
             if (count < 1) {
@@ -1115,6 +957,8 @@ namespace FramePFX.Editor.Automation {
             lineHit = LineHitType.None;
             return false;
         }
+
+        private const double R1 = EllipseHitRadius, R2 = R1 * 2d;
 
         #endregion
 

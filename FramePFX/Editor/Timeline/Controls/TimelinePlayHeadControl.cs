@@ -25,10 +25,10 @@ namespace FramePFX.Editor.Timeline.Controls {
                     (d, v) => {
                         long value = (long) v;
                         if (value < 0) {
-                            return 0;
+                            return TimelineUtils.ZeroLongBox;
                         }
-                        else if (((TimelinePlayHeadControl) d).Timeline is TimelineControl timeline && value > timeline.MaxDuration) {
-                            return timeline.MaxDuration;
+                        else if (((TimelinePlayHeadControl) d).Timeline is TimelineControl timeline && value >= timeline.MaxDuration) {
+                            return timeline.MaxDuration - 1;
                         }
                         else {
                             return v;
@@ -83,10 +83,6 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         }
 
-        private T GetTemplateElement<T>(string name) where T : DependencyObject {
-            return this.GetTemplateChild(name) is T value ? value : throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
-        }
-
         public override void OnApplyTemplate() {
             this.PART_ThumbHead = this.GetTemplateChild("PART_ThumbHead") as Thumb;
             this.PART_ThumbBody = this.GetTemplateChild("PART_ThumbBody") as Thumb;
@@ -96,20 +92,6 @@ namespace FramePFX.Editor.Timeline.Controls {
 
             if (this.PART_ThumbBody != null) {
                 this.PART_ThumbBody.DragDelta += this.PART_ThumbOnDragDelta;
-            }
-        }
-
-        public static long GetClosestEdge(FrameSpan span, long frame, out bool isEndIndex) {
-            long endIndex = span.EndIndex;
-            long beginDifferenceA = Math.Abs(span.Begin - frame);
-            long endDifferenceB = Math.Abs(endIndex - frame);
-            if (beginDifferenceA <= endDifferenceB) {
-                isEndIndex = false;
-                return span.Begin;
-            }
-            else {
-                isEndIndex = true;
-                return endIndex;
             }
         }
 
@@ -132,11 +114,11 @@ namespace FramePFX.Editor.Timeline.Controls {
 
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                 const long range = 80;
-                List<VideoClipControl> clips = timeline.GetClipsInSpan<VideoClipControl>(new FrameSpan(newFrame - (range / 2), range)).ToList();
+                List<TimelineClipControl> clips = timeline.GetClipsInSpan(new FrameSpan(newFrame - (range / 2), range)).ToList();
                 if (clips.Count > 0) {
                     long closestFrame = long.MaxValue;
                     long targetFrame = newFrame;
-                    foreach (VideoClipControl clip in clips) {
+                    foreach (TimelineClipControl clip in clips) {
                         FrameSpan span = clip.Span;
                         long distBegin = Math.Abs(span.Begin - newFrame);
                         long distEnd = Math.Abs(span.EndIndex - newFrame);

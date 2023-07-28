@@ -57,6 +57,8 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
 
         public bool IsHistoryChanging { get; set; }
 
+        public HistoryManagerViewModel HistoryManager => (this.AutomationData.Owner as IProjectViewModelBound)?.Project?.Editor?.HistoryManager;
+
         // there will most likely only be 1 handler, being the owner to the automation data
         public event RefreshAutomationValueEventHandler RefreshValue;
 
@@ -75,9 +77,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             }
         }
 
-        public bool GetHistoryManager(out HistoryManagerViewModel manager) {
-            return (manager = (this.AutomationData.Owner as IProjectViewModelBound)?.Project?.Editor?.HistoryManager) != null;
-        }
+        public bool GetHistoryManager(out HistoryManagerViewModel manager) => (manager = this.HistoryManager) != null;
 
         public void UpdateKeyFrameCollectionProperties() {
             this.RaisePropertyChanged(nameof(this.HasKeyFrames));

@@ -3,25 +3,27 @@ using System.Diagnostics;
 using System.Numerics;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
-using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.VideoClips;
-using FramePFX.Core.History.Tasks;
-using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
+    // TODO: Maybe instead of using inheritance, instead, use composition?
+    // Maybe using some sort of trait system, where a clip can have, for example, a
+    // transformation trait (pos, scale, origin), video media trait, etc. Or maybe other
+    // editors just call them "effects".
+
+    // Premiere pro's "effect controls" contains the "Motion" effect, and it automatically adds
+    // an instance that cannot be removed. Maybe that's better than inheritance? And to save/load
+    // clips, traits/effects can be serialised and deserialised (using a factory) just like everything else
+
+    // Vegas also does a similar thing but uses "Event Pan/Crop", which is an effect added
+    // to clips by default (or at least added when you open the effect window by clicking the button on the clip)
+
     /// <summary>
     /// Base view model class for video clips that are placed on a video track
     /// </summary>
     public abstract class VideoClipViewModel : ClipViewModel {
-        private readonly HistoryBuffer<HistoryClipMediaTransformation> transformationHistory = new HistoryBuffer<HistoryClipMediaTransformation>();
-        private readonly HistoryBuffer<HistoryVideoClipOpacity> opacityHistory = new HistoryBuffer<HistoryVideoClipOpacity>();
-
-        private float bothPos;
-        private float bothScale;
-        private float bothScaleOrigin;
-
         public new VideoClip Model => (VideoClip) base.Model;
 
         #region Media/Visual properties
@@ -43,12 +45,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.MediaPosition;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
-                    if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(m, action = new HistoryClipMediaTransformation(this), "Edit transformation");
-                    action.MediaPosition.SetCurrent(value);
-                }
-
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaPositionKey)) {
                     this.AutomationData[VideoClip.MediaPositionKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetVector2Value(value);
@@ -77,12 +73,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.MediaScale;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
-                    if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(m, action = new HistoryClipMediaTransformation(this), "Edit transformation");
-                    action.MediaScale.SetCurrent(value);
-                }
-
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaScaleKey)) {
                     this.AutomationData[VideoClip.MediaScaleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetVector2Value(value);
@@ -111,12 +101,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.MediaScaleOrigin;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
-                    if (!this.transformationHistory.TryGetAction(out HistoryClipMediaTransformation action))
-                        this.transformationHistory.PushAction(m, action = new HistoryClipMediaTransformation(this), "Edit transformation");
-                    action.MediaScaleOrigin.SetCurrent(value);
-                }
-
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.MediaScaleOriginKey)) {
                     this.AutomationData[VideoClip.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetVector2Value(value);
@@ -132,12 +116,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             get => this.Model.Opacity;
             set {
                 this.ValidateNotInAutomationChange();
-                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
-                    if (!this.opacityHistory.TryGetAction(out HistoryVideoClipOpacity action))
-                        this.opacityHistory.PushAction(m, action = new HistoryVideoClipOpacity(this), "Edit opacity");
-                    action.Opacity.SetCurrent(value);
-                }
-
                 TimelineViewModel timeline = this.Timeline;
                 if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoClip.OpacityKey)) {
                     this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetDoubleValue(value);
@@ -146,37 +124,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
                     this.AutomationData[VideoClip.OpacityKey].GetOverride().SetDoubleValue(value);
                     this.AutomationData[VideoClip.OpacityKey].RaiseOverrideValueChanged();
                 }
-            }
-        }
-
-        #endregion
-
-        #region WPF NumberDragger helpers
-
-        public float BothPos {
-            get => this.bothPos;
-            set {
-                this.MediaPosition += new Vector2(value - this.bothPos);
-                this.RaisePropertyChanged();
-                this.bothPos = 0;
-            }
-        }
-
-        public float BothScale {
-            get => this.bothScale;
-            set {
-                this.MediaScale += new Vector2(value - this.bothScale);
-                this.RaisePropertyChanged();
-                this.bothScale = 0;
-            }
-        }
-
-        public float BothScaleOrigin {
-            get => this.bothScaleOrigin;
-            set {
-                this.MediaScaleOrigin += new Vector2(value - this.bothScaleOrigin);
-                this.RaisePropertyChanged();
-                this.bothScaleOrigin = 0;
             }
         }
 
@@ -282,6 +229,20 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
 
         public override void OnUserSeekedFrame(long oldFrame, long newFrame) {
             base.OnUserSeekedFrame(oldFrame, newFrame);
+            this.UpdateCommands();
+        }
+
+        public override void OnClipMovedToPlayeHeadFrame(long frame) {
+            base.OnClipMovedToPlayeHeadFrame(frame);
+            this.UpdateCommands();
+        }
+
+        public override void OnPlayHeadLeaveClip(bool isPlayheadLeaveClip) {
+            base.OnPlayHeadLeaveClip(isPlayheadLeaveClip);
+            this.UpdateCommands();
+        }
+
+        private void UpdateCommands() {
             this.InsertMediaPositionKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleOriginKeyFrameCommand.RaiseCanExecuteChanged();

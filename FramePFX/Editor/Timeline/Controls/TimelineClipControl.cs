@@ -15,7 +15,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls {
-    public class TimelineClipControl : Control {
+    public sealed class TimelineClipControl : Control {
         private static readonly object LongZeroObject = 0L;
 
         public static readonly DependencyProperty IsSelectedProperty =
@@ -147,13 +147,13 @@ namespace FramePFX.Editor.Timeline.Controls {
         public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
         public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
 
-        protected bool isUpdatingUnitZoom;
-        protected Point? lastLeftClickPoint;
-        protected Thumb PART_ThumbLeft;
-        protected Thumb PART_ThumbRight;
-        protected bool isProcessingLeftThumbDrag;
-        protected bool isProcessingRightThumbDrag;
-        protected bool isProcessingMouseMove;
+        private bool isUpdatingUnitZoom;
+        private Point? lastLeftClickPoint;
+        private Thumb PART_ThumbLeft;
+        private Thumb PART_ThumbRight;
+        private bool isProcessingLeftThumbDrag;
+        private bool isProcessingRightThumbDrag;
+        private bool isProcessingMouseMove;
         private bool isUpdatingFrameBegin;
         private bool isUpdatingFrameDuration;
         private bool isProcessingAsyncDrop;
@@ -331,7 +331,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (this.isProcessingMouseMove || (this.PART_ThumbLeft?.IsDragging ?? true) || (this.PART_ThumbRight?.IsDragging ?? true)) {
+            if (!(this.DataContext is ClipViewModel clip) || this.isProcessingMouseMove || (this.PART_ThumbLeft?.IsDragging ?? true) || (this.PART_ThumbRight?.IsDragging ?? true)) {
                 return;
             }
 
@@ -418,9 +418,12 @@ namespace FramePFX.Editor.Timeline.Controls {
                     int index = 0;
                     List<TimelineTrackControl> tracks = this.Timeline.GetTrackContainers().ToList();
                     foreach (TimelineTrackControl track in tracks) {
+                        if (!(track.DataContext is TrackViewModel vm))
+                            continue;
+
                         // IsMouseOver does not work
                         Point mpos = e.GetPosition(track);
-                        if (mpos.Y >= 0 && mpos.Y < track.ActualHeight && track.CanAcceptClip(this))
+                        if (mpos.Y >= 0 && mpos.Y < track.ActualHeight && vm.IsClipTypeAcceptable(clip))
                             break;
                         index++;
                     }
@@ -451,11 +454,11 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public virtual void OnSelected(RoutedEventArgs e) {
+        public void OnSelected(RoutedEventArgs e) {
             this.RaiseEvent(e);
         }
 
-        public virtual void OnUnselected(RoutedEventArgs e) {
+        public void OnUnselected(RoutedEventArgs e) {
             this.RaiseEvent(e);
         }
 

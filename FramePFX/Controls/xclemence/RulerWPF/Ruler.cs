@@ -125,7 +125,7 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
 
             // pxA = bound begin, pxB = bound end
             double pxA, pxB;
-            if (this.Position == RulerPosition.Top) {
+            if (this.RulerPosition == RulerPosition.Top) {
                 pxA = rect.Left;
                 pxB = rect.Right + pixelStep;
             }

@@ -82,7 +82,6 @@ namespace FramePFX {
         }
 
         private SKSizeI CreateSize(out SKSizeI unscaledSize, out float scaleX, out float scaleY) {
-            unscaledSize = SKSizeI.Empty;
             scaleX = 1f;
             scaleY = 1f;
             double actualWidth = this.ActualWidth;
@@ -95,7 +94,7 @@ namespace FramePFX {
                 return new SKSizeI((int) (actualWidth * scaleX), (int) (actualHeight * scaleY));
             }
 
-            return SKSizeI.Empty;
+            return unscaledSize = SKSizeI.Empty;
         }
 
         private static bool IsPositive(double value) => !double.IsNaN(value) && !double.IsInfinity(value) && value > 0.0;

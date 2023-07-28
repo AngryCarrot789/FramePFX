@@ -16,12 +16,13 @@
             xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
             xmlns:editor="clr-namespace:FramePFX.Editor"
             xmlns:pfx="clr-namespace:FramePFX"
-            xmlns:props="clr-namespace:FramePFX.Editor.Properties"
             xmlns:resources="clr-namespace:FramePFX.Editor.Resources"
             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
             xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
             xmlns:context="clr-namespace:FramePFX.Core.Editor.Timelines.Context;assembly=FramePFX.Core"
             xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core" xmlns:pe="clr-namespace:FramePFX.PropertyEditing"
+            xmlns:v2="clr-namespace:FramePFX.Editor.Timeline.Controls.V2"
+            xmlns:propEdit="clr-namespace:FramePFX.Core.PropertyEditing;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -110,9 +111,6 @@
                         </Grid>
                     </Border>
                     <ctrl:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource PanelBackground1}">
-                        <!--
-                        <wpf:SKElement Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" PaintSurface="OnPaintViewPortSurface"/>
-                        -->
                         <pfx:SKAsyncViewPort Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement"/>
                     </ctrl:FreeMoveViewPortV2>
                 </Grid>
@@ -124,7 +122,7 @@
                     -->
                     <TabControl Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                 BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0" 
-                                ItemContainerStyle="{StaticResource NoOffsetTabItem}" SelectedIndex="2">
+                                ItemContainerStyle="{StaticResource NoOffsetTabItem}" SelectedIndex="1">
                         <TabControl.Style>
                             <Style TargetType="{x:Type TabControl}">
                                 <Setter Property="Padding" Value="0" />
@@ -190,11 +188,6 @@
                                 </Setter>
                             </Style>
                         </TabControl.Style>
-                        <!--
-                        <dragablz:TabablzControl.InterTabController>
-                            <dragablz:InterTabController Partition="{StaticResource Partition}" InterTabClient="{StaticResource ThingInterTabClient}" MoveWindowWithSolitaryTabs="False"/>
-                        </dragablz:TabablzControl.InterTabController>
-                        -->
                         <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
                             <Grid sc:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
                                 <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
@@ -206,58 +199,8 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="Property Pages">
-                            <props:PropertyPageItemsControl Background="{DynamicResource PanelBackground2}"
-                                                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                            ScrollViewer.CanContentScroll="False"
-                                                            ap:HorizontalScrolling.UseHorizontalScrolling="True"
-                                                            ItemDirection="Vertical"
-                                                            HorizontalContentAlignment="Stretch"
-                                                            ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=PropertyPageItemsSource}">
-                            </props:PropertyPageItemsControl>
+                            <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static propEdit:PFXPropertyEditorRegistry.Instance}"/>
                         </TabItem>
-                        <TabItem Header="New Property Editor">
-                            <pe:PropertyEditorItemsControl DataContext="{Binding ActiveProject.Timeline}" ItemsSource="{Binding PrimarySelectedTrack}"/>
-                            <!--
-                            <ListView Visibility="Collapsed" DataContext="{Binding ActiveProject.Timeline.PrimarySelectedTrack.PrimarySelectedClip.AutomationData.ActiveSequence}" ItemsSource="{Binding KeyFrames}">
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="Time" Width="150" DisplayMemberBinding="{Binding Timestamp}"/>
-                                        <GridViewColumn Width="150">
-                                            <GridViewColumn.HeaderTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="OK"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.HeaderTemplate>
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <ContentControl Content="{Binding}">
-                                                        <ContentControl.Resources>
-                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameVector2ViewModel}">
-                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
-                                                            </DataTemplate>
-                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameFloatViewModel}">
-                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
-                                                            </DataTemplate>
-                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameDoubleViewModel}">
-                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
-                                                            </DataTemplate>
-                                                            <DataTemplate DataType="{x:Type keyframe:KeyFrameBooleanViewModel}">
-                                                                <TextBlock Text="{Binding Value, Mode=OneWay}"/>
-                                                            </DataTemplate>
-                                                        </ContentControl.Resources>
-                                                    </ContentControl>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                            -->
-                        </TabItem>
-                        <!--
-                    </dragablz:TabablzControl>
-                        -->
                     </TabControl>
                 </Border>
                 <GridSplitter ResizeDirection="Columns" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" Grid.Column="1" Margin="-3,-1,-3,0" SnapsToDevicePixels="True"/>
@@ -269,7 +212,7 @@
                         <TextBlock VerticalAlignment="Center" x:Name="NotificationBarTextBlock" Padding="3,0"/>
                     </StackPanel>
                 </Border>
-                <Border Background="{DynamicResource ABrush.Tone4.Border.Static}" VerticalAlignment="Bottom" Height="25" BorderThickness="0 0 0 1" DockPanel.Dock="Top">
+                <Border Background="{DynamicResource ABrush.Tone4.Border.Static}" Height="25" BorderThickness="0 0 0 1" DockPanel.Dock="Top">
                     <!-- Button bar above timeline/track panel -->
                     <DockPanel>
                         <!-- Left side -->
@@ -290,13 +233,13 @@
                         <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/TrackControllers/DeleteSelectedTrack" Command="{Binding Timeline.RemoveSelectedTracksCommand}"/>
                         <sb:ShortcutCommandBinding ShortcutAndUsageId="Application/Editor/Timeline/Surface/PlayPauseAction" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
                     </Border.InputBindings>
-                    <Grid DataContext="{Binding Timeline}">
+                    <Grid DataContext="{Binding Timeline}" Grid.IsSharedSizeScope="True">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" SharedSizeGroup="TimelineHeaderSharedRow"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="5*" SharedSizeGroup="TimelineLeftTrackListSharedGroup"/>
+                            <ColumnDefinition Width="250" SharedSizeGroup="TimelineLeftTrackListSharedGroup"/>
                             <ColumnDefinition Width="1"/>
                             <ColumnDefinition Width="20*"/>
                         </Grid.ColumnDefinitions>
@@ -326,14 +269,14 @@
                                  Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="Transparent"
                                  BorderThickness="0 0 0 0" Padding="0">
                         </ListBox>
-                        <ctrl2:TimelineControl x:Name="TheTimeline"
+                        <ctrl2:TimelineControl x:Name="TheTimeline1"
                                                Background="{DynamicResource PanelBackground2}"
                                                ItemsSource="{Binding Tracks, Mode=OneTime}"
-                                               Grid.RowSpan="2" Grid.Column="2" BorderThickness="0"
+                                               BorderThickness="0"
+                                               Grid.RowSpan="2" Grid.Column="2"
                                                BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
-                                               MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=10000}"
-                                               sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
-                        </ctrl2:TimelineControl>
+                                               MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                               sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface"/>
                         <GridSplitter Background="Transparent" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderThickness="0" Grid.RowSpan="2" Margin="-5,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
@@ -343,8 +286,7 @@
         </Grid>
         <Popup x:Name="NotificationPanelPopup" AllowsTransparency="True" d:DataContext="{d:DesignInstance n:NotificationPanelViewModel}">
             <Border Background="Transparent">
-                <ScrollViewer MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ActualHeight}"
-                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" CanContentScroll="False">
+                <ScrollViewer MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ActualHeight}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" CanContentScroll="False">
                     <nn:NotificationList ItemsSource="{Binding Notifications, Mode=OneTime}" ItemTemplateSelector="{StaticResource NotificationTemplateSelector}" MinWidth="300"/>
                 </ScrollViewer>
             </Border>

@@ -14,11 +14,9 @@ using System.Windows.Threading;
 using FramePFX.Core;
 using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
-using FramePFX.Core.Editor.ResourceManaging.ViewModels.Pages;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
-using FramePFX.Core.Editor.ViewModels.Timelines.Clips.Pages;
 using FramePFX.Core.Notifications;
 using FramePFX.Core.Notifications.Types;
 using FramePFX.Core.Rendering;
@@ -215,42 +213,18 @@ namespace FramePFX.Editor {
         //     this.lastRefreshTime = Time.GetSystemMillis();
         // }
 
-        public static readonly DependencyProperty PropertyPageItemsSourceProperty = DependencyProperty.Register("PropertyPageItemsSource", typeof(IEnumerable), typeof(EditorMainWindow), new PropertyMetadata(null));
-
-        public IEnumerable PropertyPageItemsSource {
-            get => (IEnumerable) this.GetValue(PropertyPageItemsSourceProperty);
-            set => this.SetValue(PropertyPageItemsSourceProperty, value);
-        }
-
         public void UpdateClipSelection() {
-            // { // test dummy items
-            //     List<BaseClipPropertyPageViewModel> list = new List<BaseClipPropertyPageViewModel>();
-            //     list.AddRange(ClipPageFactory.Instance.CreatePages(MediaClipPageViewModel.Dummy.Target));
-            //     list.Add(null);
-            //     list.AddRange(ClipPageFactory.Instance.CreatePages(ImageClipPageViewModel.Dummy.Target));
-            //     list.Add(null);
-            //     list.AddRange(ClipPageFactory.Instance.CreatePages(TextClipPageViewModel.Dummy.Target));
-            //     list.Add(null);
-            //     list.AddRange(ClipPageFactory.Instance.CreatePages(ShapeClipPageViewModel.Dummy.Target));
-            //     list.Reverse();
-            //     this.ClipPropertyPageItemsSource = list;
-            //     return;
-            // }
-
-            this.PropertyPageItemsSource = null;
             if (this.Editor.ActiveProject is ProjectViewModel project) {
                 // TODO: maybe move this to a view model?
-                List<ClipViewModel> list = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
-                this.PropertyPageItemsSource = ClipPageFactory.Instance.CreatePages(list);
+                this.PFXPropertyEditor.InputItems = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
             }
         }
 
         public void UpdateResourceSelection() {
             // TODO: maybe move this to a view model?
-            this.PropertyPageItemsSource = null;
             ResourceGroupViewModel group;
             if (this.Editor.ActiveProject is ProjectViewModel project && (group = project.ResourceManager.CurrentGroup) != null) {
-                this.PropertyPageItemsSource = ResourcePageFactory.Instance.CreatePages(group.SelectedItems.Count < 1 ? new List<BaseResourceObjectViewModel>() {@group} : @group.SelectedItems.ToList());
+                this.PFXPropertyEditor.InputItems = group.SelectedItems.ToList();
             }
         }
 

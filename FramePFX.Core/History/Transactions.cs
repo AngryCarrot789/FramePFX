@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace FramePFX.Core.History {
     public class Transactions {
         /// <summary>
@@ -7,8 +11,15 @@ namespace FramePFX.Core.History {
         /// <param name="original"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static Transaction<T> ImmutableType<T>(T original) {
-            return new Transaction<T>(original, original);
+        public static Transaction<T> ImmutableType<T>(T original) => new Transaction<T>(original, original);
+
+        public static Transaction<T> ForBoth<T>(T value) => new Transaction<T>(value, value);
+
+        public static Transaction<T>[] NewArray<TSrc, T>(IReadOnlyList<TSrc> sources, Func<TSrc, T> func) where TSrc : class, IHistoryHolder {
+            Transaction<T>[] array = new Transaction<T>[sources.Count];
+            for (int i = 0; i < array.Length; i++)
+                array[i] = ForBoth(func(sources[i]));
+            return array;
         }
     }
 }

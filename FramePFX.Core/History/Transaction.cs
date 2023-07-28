@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace FramePFX.Core.History {
     /// <summary>
     /// A class for storing a transaction of a value; an unchangeable original and a changeable current value
@@ -29,5 +32,9 @@ namespace FramePFX.Core.History {
         public void SetCurrent(T current) {
             this.Current = current;
         }
+
+        public bool AreUnchanged() => EqualityComparer<T>.Default.Equals(this.Original, this.Current);
+
+        public bool AreUnchanged(Func<T, T, bool> equal) => equal(this.Original, this.Current);
     }
 }

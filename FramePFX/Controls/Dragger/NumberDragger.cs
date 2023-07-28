@@ -86,13 +86,6 @@ namespace FramePFX.Controls.Dragger {
                 typeof(NumberDragger),
                 new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
 
-        public static readonly DependencyProperty PreviewRoundedPlacesProperty =
-            DependencyProperty.Register(
-                "PreviewRoundedPlaces",
-                typeof(int?),
-                typeof(NumberDragger),
-                new PropertyMetadata(2, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
-
         public static readonly DependencyProperty LockCursorWhileDraggingProperty =
             DependencyProperty.Register(
                 "LockCursorWhileDragging",
@@ -134,6 +127,8 @@ namespace FramePFX.Controls.Dragger {
                 typeof(IValuePreProcessor),
                 typeof(NumberDragger),
                 new PropertyMetadata(null));
+
+        public static readonly DependencyProperty ValueFormatterProperty = DependencyProperty.Register("ValueFormatter", typeof(IValueFormatter), typeof(NumberDragger), new PropertyMetadata(null));
 
         #endregion
 
@@ -193,14 +188,6 @@ namespace FramePFX.Controls.Dragger {
             set => this.SetValue(RoundedPlacesProperty, value);
         }
 
-        /// <summary>
-        /// The number of digits to round the preview value (not the actual value). Set to null to disable rounding
-        /// </summary>
-        public int? PreviewRoundedPlaces {
-            get => (int?) this.GetValue(PreviewRoundedPlacesProperty);
-            set => this.SetValue(PreviewRoundedPlacesProperty, value);
-        }
-
         public bool LockCursorWhileDragging {
             get => (bool) this.GetValue(LockCursorWhileDraggingProperty);
             set => this.SetValue(LockCursorWhileDraggingProperty, value.Box());
@@ -239,6 +226,14 @@ namespace FramePFX.Controls.Dragger {
         public IValuePreProcessor ValuePreProcessor {
             get => (IValuePreProcessor) this.GetValue(ValuePreProcessorProperty);
             set => this.SetValue(ValuePreProcessorProperty, value);
+        }
+
+        /// <summary>
+        /// An interface used to convert the value into a string in any form
+        /// </summary>
+        public IValueFormatter ValueFormatter {
+            get => (IValueFormatter) this.GetValue(ValueFormatterProperty);
+            set => this.SetValue(ValueFormatterProperty, value);
         }
 
         public bool IsValueReadOnly {
@@ -331,17 +326,8 @@ namespace FramePFX.Controls.Dragger {
         }
 
         public double GetRoundedValue(double value, bool isPreview, out int? places) {
-            if (this.RoundedPlaces is int rounding) {
+            if ((places = this.RoundedPlaces) is int rounding) {
                 value = Math.Round(value, rounding);
-                places = rounding;
-            }
-            else {
-                places = null;
-            }
-
-            if (isPreview && this.PreviewRoundedPlaces is int roundingPreview) {
-                value = Math.Round(value, roundingPreview);
-                places = places != null ? Math.Min(places.Value, roundingPreview) : roundingPreview;
             }
 
             return value;
@@ -350,8 +336,6 @@ namespace FramePFX.Controls.Dragger {
         public double GetRoundedValue(double value, bool isPreview) {
             if (this.RoundedPlaces is int rounding)
                 value = Math.Round(value, rounding);
-            if (isPreview && this.PreviewRoundedPlaces is int roundingPreview)
-                value = Math.Round(value, roundingPreview);
             return value;
         }
 
@@ -500,24 +484,31 @@ namespace FramePFX.Controls.Dragger {
             }
         }
 
+        private string GetPreviewText(out double value) {
+            value = this.GetRoundedValue(this.Value, true, out int? places);
+            if (this.ValueFormatter is IValueFormatter formatter) {
+                return formatter.ToString(value, places);
+            }
+
+            return places.HasValue ? value.ToString("F" + places.Value.ToString()) : value.ToString();
+        }
+
         protected void UpdateText() {
             if (this.PART_TextBox == null && this.PART_TextBlock == null) {
                 return;
             }
 
-            double value = this.GetRoundedValue(this.Value, true, out int? places);
-            string valueTextPreview = places.HasValue ? value.ToString("F" + places.Value) : value.ToString();
             if (this.IsEditingTextBox) {
                 if (this.PART_TextBox == null)
                     return;
-                this.PART_TextBox.Text = places.HasValue ? value.ToString("F" + places.Value) : value.ToString();
+                this.PART_TextBox.Text = this.GetPreviewText(out _);
             }
             else {
                 if (this.PART_TextBlock == null)
                     return;
                 string text = this.DisplayTextOverride;
                 if (string.IsNullOrEmpty(text))
-                    text = valueTextPreview;
+                    text = this.GetPreviewText(out _);
                 this.PART_TextBlock.Text = text;
             }
         }

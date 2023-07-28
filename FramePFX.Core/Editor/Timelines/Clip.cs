@@ -67,26 +67,17 @@ namespace FramePFX.Core.Editor.Timelines {
         /// <summary>
         /// Helper property for getting and setting the <see cref="Utils.FrameSpan.Begin"/> property
         /// </summary>
-        public long FrameBegin {
-            get => this.FrameSpan.Begin;
-            set => this.FrameSpan = this.FrameSpan.WithBegin(value);
-        }
+        public long FrameBegin => this.FrameSpan.Begin;
 
         /// <summary>
         /// Helper property for getting and setting the <see cref="Utils.FrameSpan.Duration"/> property
         /// </summary>
-        public long FrameDuration {
-            get => this.FrameSpan.Duration;
-            set => this.FrameSpan = this.FrameSpan.WithDuration(value);
-        }
+        public long FrameDuration => this.FrameSpan.Duration;
 
         /// <summary>
         /// Helper property for getting and setting the <see cref="Utils.FrameSpan.EndIndex"/> property
         /// </summary>
-        public long FrameEndIndex {
-            get => this.FrameSpan.EndIndex;
-            set => this.FrameSpan = this.FrameSpan.WithEndIndex(value);
-        }
+        public long FrameEndIndex => this.FrameSpan.EndIndex;
 
         /// <summary>
         /// The number of frames (offset relative to <see cref="FrameBegin"/>) where the media originally begun

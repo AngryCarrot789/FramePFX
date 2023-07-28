@@ -18,14 +18,17 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
     public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IProjectViewModelBound, IDisposable {
-        protected readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
+
+        public long LastSeekedFrame { get; set; }
 
         /// <summary>
         /// Whether or not this clip's history is being changed, and therefore, no changes should be pushed to the history manager
         /// </summary>
         public bool IsHistoryChanging { get; set; }
+
+        public HistoryManagerViewModel HistoryManager => this.Editor?.HistoryManager;
 
         /// <summary>
         /// Whether or not this clip's parameter properties are being refreshed
@@ -44,12 +47,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public string DisplayName {
             get => this.Model.DisplayName;
             set {
-                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
-                    if (!this.displayNameHistory.TryGetAction(out HistoryClipDisplayName action))
-                        this.displayNameHistory.PushAction(m, action = new HistoryClipDisplayName(this), "Edit media duration");
-                    action.DisplayName.SetCurrent(value);
-                }
-
                 this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
                 this.Track?.OnProjectModified();
@@ -94,7 +91,20 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 this.RaisePropertyChanged(nameof(this.FrameEndIndex));
                 this.RaisePropertyChanged(nameof(this.RelativePlayHead));
                 this.OnFrameSpanChanged(oldSpan, value);
-                this.Track?.OnProjectModified();
+                if (this.Track != null) {
+                    this.Track.OnProjectModified();
+                    long frame = this.Track.Timeline.PlayHeadFrame;
+                    if (this.LastSeekedFrame != -1) {
+                        if (!this.IntersectsFrameAt(frame)) {
+                            this.OnPlayHeadLeaveClip(false);
+                            this.LastSeekedFrame = -1;
+                        }
+                    }
+                    else if (this.IntersectsFrameAt(frame)) {
+                        this.LastSeekedFrame = frame;
+                        this.OnClipMovedToPlayeHeadFrame(frame);
+                    }
+                }
             }
         }
 
@@ -471,6 +481,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         /// <param name="oldFrame">Previous frame (not relative to this clip)</param>
         /// <param name="newFrame">Current frame (relative to this clip)</param>
         public virtual void OnUserSeekedFrame(long oldFrame, long newFrame) {
+
+        }
+
+        /// <summary>
+        /// Called when the user moves this clip such that it intersects with the play head
+        /// </summary>
+        /// <param name="frame">The play head frame, relative to this clip</param>
+        public virtual void OnClipMovedToPlayeHeadFrame(long frame) {
+
+        }
+
+        public virtual void OnPlayHeadLeaveClip(bool isPlayheadLeaveClip) {
 
         }
     }

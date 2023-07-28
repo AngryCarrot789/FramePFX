@@ -25,6 +25,7 @@
                 <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml"/>
                 <ResourceDictionary Source="Editor/Resources/ResManagerStyles.xaml"/>
                 <ResourceDictionary Source="Editor/Properties/PropertyPageStyles.xaml"/>
+                <ResourceDictionary Source="PropertyEditing/PropertyEditorStyles.xaml"/>
                 <ResourceDictionary Source="Notifications/NotificationStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <system:String x:Key="Partition">ThingsIdek</system:String>

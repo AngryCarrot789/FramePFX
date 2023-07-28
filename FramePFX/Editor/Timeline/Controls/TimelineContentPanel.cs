@@ -30,9 +30,5 @@ namespace FramePFX.Editor.Timeline.Controls {
 
             return new Size(Math.Max(width, size.Width), size.Height);
         }
-
-        protected override Size ArrangeOverride(Size arrangeSize) {
-            return base.ArrangeOverride(arrangeSize);
-        }
     }
 }

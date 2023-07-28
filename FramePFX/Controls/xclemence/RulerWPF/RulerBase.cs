@@ -15,7 +15,7 @@ using FramePFX.Controls.xclemence.RulerWPF.PositionManagers;
 namespace FramePFX.Controls.xclemence.RulerWPF {
     public abstract class RulerBase : Control {
         public static readonly DependencyProperty MaxValueProperty = DependencyProperty.Register(nameof(MaxValue), typeof(double), typeof(RulerBase), new FrameworkPropertyMetadata(double.NaN, FrameworkPropertyMetadataOptions.AffectsRender));
-        public static readonly DependencyProperty PositionProperty = DependencyProperty.Register(nameof(Position), typeof(RulerPosition), typeof(RulerBase), new FrameworkPropertyMetadata(RulerPosition.Top, OnRulerPositionChanged));
+        public static readonly DependencyProperty RulerPositionProperty = DependencyProperty.Register(nameof(RulerPosition), typeof(RulerPosition), typeof(RulerBase), new FrameworkPropertyMetadata(RulerPosition.Top, OnRulerPositionChanged));
         public static readonly DependencyProperty MajorStepValuesProperty = DependencyProperty.Register(nameof(MajorStepValues), typeof(IEnumerable<int>), typeof(RulerBase), new FrameworkPropertyMetadata(new int[] {1, 2, 5}, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty MinPixelSizeProperty = DependencyProperty.Register(nameof(MinPixelSize), typeof(int), typeof(RulerBase), new FrameworkPropertyMetadata(4, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty ValueStepTransformProperty = DependencyProperty.Register(nameof(ValueStepTransform), typeof(Func<double, double>), typeof(RulerBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
@@ -42,9 +42,9 @@ namespace FramePFX.Controls.xclemence.RulerWPF {
             set => this.SetValue(MaxValueProperty, value);
         }
 
-        public RulerPosition Position {
-            get => (RulerPosition) this.GetValue(PositionProperty);
-            set => this.SetValue(PositionProperty, value);
+        public RulerPosition RulerPosition {
+            get => (RulerPosition) this.GetValue(RulerPositionProperty);
+            set => this.SetValue(RulerPositionProperty, value);
         }
 
         public IEnumerable<int> MajorStepValues {

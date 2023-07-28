@@ -344,6 +344,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 long relative = newFrame - span.Begin;
                 if (relative >= 0 && relative < span.Duration) {
                     clip.OnUserSeekedFrame(oldFrame, newFrame);
+                    clip.LastSeekedFrame = newFrame;
+                }
+                else if (clip.LastSeekedFrame != -1) {
+                    if (clip.IntersectsFrameAt(clip.LastSeekedFrame)) {
+                        clip.OnPlayHeadLeaveClip(true);
+                    }
+
+                    clip.LastSeekedFrame = -1;
                 }
             }
         }

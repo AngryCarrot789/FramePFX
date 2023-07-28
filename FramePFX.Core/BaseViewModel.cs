@@ -26,7 +26,7 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
+        public void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
             this.RaisePropertyChangedCore(propertyName);
@@ -35,7 +35,7 @@ namespace FramePFX.Core {
         /// <summary>
         /// Raises the <see cref="PropertyChanging"/> event, sets <see cref="property"/> to <see cref="newValue"/>, and then raises the <see cref="PropertyChanged"/> event
         /// </summary>
-        public virtual void RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+        public void RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
             property = newValue;
@@ -47,7 +47,7 @@ namespace FramePFX.Core {
         /// type <see cref="T"/>, then nothing happens. Otherwise, the <see cref="PropertyChanging"/> event is raised, <see cref="property"/> is
         /// set to <see cref="newValue"/>, and then the <see cref="PropertyChanged"/> event is raised
         /// </summary>
-        public virtual void RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+        public void RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
             if (EqualityComparer<T>.Default.Equals(property, newValue))

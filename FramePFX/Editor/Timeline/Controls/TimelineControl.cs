@@ -42,12 +42,11 @@ namespace FramePFX.Editor.Timeline.Controls {
                     (d, e) => ((TimelineControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
-        public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRect?), typeof(TimelineControl), new PropertyMetadata((SelectionRect?) null));
+        public static readonly DependencyProperty PreviewPlayHeadFrameProperty = DependencyProperty.Register("PreviewPlayHeadFrame", typeof(long), typeof(TimelineControl), new PropertyMetadata(0L));
+        public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineControl), new PropertyMetadata(0L));
+        public static readonly DependencyProperty IsPreviewPlayHeadVisibleProperty = DependencyProperty.Register("IsPreviewPlayHeadVisible", typeof(bool), typeof(TimelineControl), new PropertyMetadata(BoolBox.False));
 
-        public SelectionRect? SelectionRectangle {
-            get => (SelectionRect?) this.GetValue(SelectionRectangleProperty);
-            set => this.SetValue(SelectionRectangleProperty, value);
-        }
+        public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRect?), typeof(TimelineControl), new PropertyMetadata((SelectionRect?) null));
 
         /// <summary>
         /// The horizontal zoom multiplier of this timeline, which affects the size of all tracks
@@ -61,6 +60,26 @@ namespace FramePFX.Editor.Timeline.Controls {
         public long MaxDuration {
             get => (long) this.GetValue(MaxDurationProperty);
             set => this.SetValue(MaxDurationProperty, value);
+        }
+
+        public long PreviewPlayHeadFrame {
+            get => (long) this.GetValue(PreviewPlayHeadFrameProperty);
+            set => this.SetValue(PreviewPlayHeadFrameProperty, value);
+        }
+
+        public long PlayHeadFrame {
+            get => (long) this.GetValue(PlayHeadFrameProperty);
+            set => this.SetValue(PlayHeadFrameProperty, value);
+        }
+
+        public bool IsPreviewPlayHeadVisible {
+            get => (bool) this.GetValue(IsPreviewPlayHeadVisibleProperty);
+            set => this.SetValue(IsPreviewPlayHeadVisibleProperty, value);
+        }
+
+        public SelectionRect? SelectionRectangle {
+            get => (SelectionRect?) this.GetValue(SelectionRectangleProperty);
+            set => this.SetValue(SelectionRectangleProperty, value);
         }
 
         /// <summary>
@@ -89,20 +108,16 @@ namespace FramePFX.Editor.Timeline.Controls {
         }
 
         public IEnumerable<TimelineTrackControl> GetTrackContainers() {
-            return this.GetTrackContainers<TimelineTrackControl>(this.Items);
+            return this.GetTrackContainers(this.Items);
         }
 
-        public IEnumerable<T> GetTrackContainers<T>() where T : TimelineTrackControl {
-            return this.GetTrackContainers<T>(this.Items);
-        }
-
-        public IEnumerable<TTRack> GetTrackContainers<TTRack>(IEnumerable items) where TTRack : TimelineTrackControl {
+        public IEnumerable<TimelineTrackControl> GetTrackContainers(IEnumerable items) {
             int i = 0;
             foreach (object item in items) {
-                if (item is TTRack a) {
+                if (item is TimelineTrackControl a) {
                     yield return a;
                 }
-                else if (this.ItemContainerGenerator.ContainerFromIndex(i) is TTRack b) {
+                else if (this.ItemContainerGenerator.ContainerFromIndex(i) is TimelineTrackControl b) {
                     yield return b;
                 }
 
@@ -110,29 +125,19 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        public IEnumerable<TimelineClipControl> GetSelectedClipContainers() {
-            return this.GetTrackContainers().SelectMany(x => x.GetSelectedClipContainers());
-        }
+        public IEnumerable<TimelineClipControl> GetSelectedClipContainers() => this.GetTrackContainers().SelectMany(x => x.GetSelectedClipContainers());
 
-        public IEnumerable<TClip> GetSelectedClipContainers<TClip>() where TClip : TimelineClipControl {
-            return this.GetTrackContainers().SelectMany(x => x.GetSelectedClipContainers<TClip>());
-        }
-
-        public IEnumerable<TClip> GetClipsInSpan<TClip>(FrameSpan span) where TClip : TimelineClipControl {
-            List<TClip> list = new List<TClip>();
+        public IEnumerable<TimelineClipControl> GetClipsInSpan(FrameSpan span) {
+            List<TimelineClipControl> list = new List<TimelineClipControl>();
             foreach (TimelineTrackControl track in this.GetTrackContainers()) {
                 foreach (TimelineClipControl clip in track.GetClipsThatIntersect(span)) {
-                    if (clip is TClip t) {
+                    if (clip is TimelineClipControl t) {
                         list.Add(t);
                     }
                 }
             }
 
             return list;
-        }
-
-        public IEnumerable<TimelineClipControl> GetClipsInSpan(FrameSpan span) {
-            return this.GetClipsInSpan<TimelineClipControl>(span);
         }
 
         private void OnMaxDurationChanged(long oldValue, long newValue) {
@@ -190,8 +195,33 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.isSelectionActive = false;
         }
 
+        public void UpdatePreviewPlayHead() {
+            this.PreviewPlayHeadFrame = TimelineUtils.PixelToFrame(Mouse.GetPosition((IInputElement) this.PART_ItemsPresenter ?? this).X, this.UnitZoom);
+            this.IsPreviewPlayHeadVisible = this.IsMouseOver;
+        }
+
+        protected override void OnMouseEnter(MouseEventArgs e) {
+            base.OnMouseEnter(e);
+            this.UpdatePreviewPlayHead();
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e) {
+            base.OnMouseLeave(e);
+            this.IsPreviewPlayHeadVisible = false;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
+
+            if (this.IsMouseOver) {
+                this.PreviewPlayHeadFrame = TimelineUtils.PixelToFrame(e.GetPosition((IInputElement) this.PART_ItemsPresenter ?? this).X, this.UnitZoom);
+                if (!this.IsPreviewPlayHeadVisible) {
+                    this.IsPreviewPlayHeadVisible = true;
+                }
+            }
+            else if (this.IsPreviewPlayHeadVisible) {
+                this.IsPreviewPlayHeadVisible = false;
+            }
 
             if (!this.isLMBDownForSelection)
                 return;
@@ -368,27 +398,9 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
         }
 
-        private object lastItem;
+        protected override DependencyObject GetContainerForItemOverride() => new TimelineTrackControl();
 
-        protected override DependencyObject GetContainerForItemOverride() {
-            object item = this.lastItem;
-            this.lastItem = null;
-            switch (item) {
-                case VideoTrackViewModel _: return new VideoTrackControl();
-                case AudioTrackViewModel _: return new AudioTrackControl();
-            }
-
-            throw new Exception("Could not create track container for item: " + item);
-        }
-
-        protected override bool IsItemItsOwnContainerOverride(object item) {
-            if (item is TimelineTrackControl) {
-                return true;
-            }
-
-            this.lastItem = item;
-            return false;
-        }
+        protected override bool IsItemItsOwnContainerOverride(object item) => item is TimelineTrackControl;
 
         private void OnUnitZoomChanged(double oldZoom, double newZoom) {
             if (this.PART_ItemsPresenter != null) {
@@ -400,6 +412,7 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
 
             this.PART_PlayHead?.UpdatePosition();
+            this.UpdatePreviewPlayHead();
         }
 
         private T GetTemplateElement<T>(string name) where T : DependencyObject {

@@ -215,5 +215,11 @@ namespace FramePFX.Core.History.Tasks {
                 this.expirationTask = null;
             }
         }
+
+        public void Clear() {
+            lock (this.locker) {
+                this.OnExpired();
+            }
+        }
     }
 }

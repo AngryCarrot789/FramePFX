@@ -72,38 +72,7 @@ namespace FramePFX.Core.PropertyEditing.Editors.Primitives {
         }
 
         public bool? CalculateDefaultValue() {
-            if (this.IsMultiSelection) {
-                bool lastValue = this.getter(this.Handlers[0]);
-                for (int i = 1; i < this.Handlers.Count; i++) {
-                    if (this.getter(base.Handlers[i]) != lastValue) {
-                        return null;
-                    }
-                }
-
-                return lastValue;
-            }
-            else {
-                return this.IsEmpty ? (bool?) null : this.getter(this.Handlers[0]);
-            }
-        }
-
-        public static bool? GetDefaultBool(IReadOnlyList<object> objects, Func<object, bool> getter) {
-            if (objects == null || objects.Count < 1) {
-                return null;
-            }
-            else if (objects.Count > 1) {
-                bool lastValue = getter(objects[0]);
-                for (int i = 1; i < objects.Count; i++) {
-                    if (getter(objects[i]) != lastValue) {
-                        return null;
-                    }
-                }
-
-                return lastValue;
-            }
-            else {
-                return getter(objects[0]);
-            }
+            return GetValueForObjects(this.Handlers, this.getter, out bool b) ? b : (bool?) null;
         }
 
         public static CheckBoxEditorViewModel ForGeneric<T>(string label, Func<T, bool> getter, Action<T, bool> setter) {

@@ -52,17 +52,18 @@ namespace FramePFX.Core.PropertyEditing {
         /// The value that is equal across all objects (will be set to <see cref="objects"/>[0]'s value)
         /// </param>
         /// <typeparam name="T">Type of object to get</typeparam>
-        /// <returns>True if there is 1 or more objects and they all contain the an value, otherwise false</returns>
+        /// <returns>True if there is 1 object, or more than 1 and they have the same value, otherwise false</returns>
         public static bool GetValueForObjects<T>(IReadOnlyList<object> objects, Func<object, T> getter, out T equal) {
-            if (objects == null || objects.Count < 1) {
+            int count;
+            if (objects == null || (count = objects.Count) < 1) {
                 equal = default;
                 return false;
             }
-            else if (objects.Count > 1) {
+            else if (count > 1) {
                 // handle multiple selection separately to reduce usage of EqualityComparer
                 EqualityComparer<T> comparator = EqualityComparer<T>.Default;
                 equal = getter(objects[0]);
-                for (int i = 1, c = objects.Count; i < c; i++) {
+                for (int i = 1; i < count; i++) {
                     if (!comparator.Equals(getter(objects[i]), equal)) {
                         return false;
                     }
@@ -107,38 +108,26 @@ namespace FramePFX.Core.PropertyEditing {
         }
 
         /// <summary>
-        /// Creates a new instance of the property handler for a specific target.
-        /// This is invoked on demand when an instance is required
-        /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        protected virtual PropertyHandler NewHandler(object target) => new PropertyHandler(target);
-
-        /// <summary>
-        /// Creates an instance of the <see cref="PropertyHandler"/> for each object currently loaded, to save dynamic creation
-        /// <para>
-        /// There are very few reason to use this
-        /// </para>
-        /// </summary>
-        protected void PreallocateHandlerData() {
-            foreach (object obj in this.Handlers) {
-                this.handlerToDataMap[obj] = this.NewHandler(obj);
-            }
-        }
-
-        /// <summary>
-        /// Called just before the handlers are cleared
+        /// Called just before the handlers are cleared. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
         protected virtual void OnClearHandlers() {
 
         }
 
         /// <summary>
-        /// Called just after all handlers are fulled loaded
+        /// Called just after all handlers are fulled loaded. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
         protected virtual void OnHandlersLoaded() {
 
         }
+
+        /// <summary>
+        /// Creates a new instance of the property handler for a specific target.
+        /// This is invoked on demand when an instance is required
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected virtual PropertyHandler NewHandler(object target) => new PropertyHandler(target);
 
         protected PropertyHandler GetHandlerData(object target) {
             PropertyHandler data = this.handlerToDataMap[target];
@@ -152,5 +141,17 @@ namespace FramePFX.Core.PropertyEditing {
         protected T GetHandlerData<T>(int index) where T : PropertyHandler => (T) this.GetHandlerData(index);
 
         protected IEnumerable<T> GetHandlerData<T>() where T : PropertyHandler => this.Handlers.Select(this.GetHandlerData).Cast<T>();
+
+        /// <summary>
+        /// Creates an instance of the <see cref="PropertyHandler"/> for each object currently loaded, to save dynamic creation
+        /// <para>
+        /// There are very few reason to use this
+        /// </para>
+        /// </summary>
+        protected void PreallocateHandlerData() {
+            foreach (object obj in this.Handlers) {
+                this.handlerToDataMap[obj] = this.NewHandler(obj);
+            }
+        }
     }
 }

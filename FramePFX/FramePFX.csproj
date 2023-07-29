@@ -196,6 +196,7 @@
     <Compile Include="AttachedProperties\TopmostFocus.cs" />
     <Compile Include="BindingErrorListener.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
+    <Compile Include="Controls\CursorUtils.cs" />
     <Compile Include="Controls\Dragger\IChangeMapper.cs" />
     <Compile Include="Controls\Dragger\EditCompletedEventArgs.cs" />
     <Compile Include="Controls\Dragger\EditCompletedEventHandler.cs" />

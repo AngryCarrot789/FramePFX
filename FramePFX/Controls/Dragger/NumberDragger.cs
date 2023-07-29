@@ -91,7 +91,7 @@ namespace FramePFX.Controls.Dragger {
                 "LockCursorWhileDragging",
                 typeof(bool),
                 typeof(NumberDragger),
-                new PropertyMetadata(BoolBox.False, (d, e) => throw new NotImplementedException("Locking the mouse cursor is currently unsupported")));
+                new PropertyMetadata(BoolBox.True));
 
         public static readonly DependencyProperty DisplayTextOverrideProperty =
             DependencyProperty.Register(
@@ -129,6 +129,8 @@ namespace FramePFX.Controls.Dragger {
                 new PropertyMetadata(null));
 
         public static readonly DependencyProperty ValueFormatterProperty = DependencyProperty.Register("ValueFormatter", typeof(IValueFormatter), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty EditStartedCommandProperty = DependencyProperty.Register("EditStartedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty EditCompletedCommandProperty = DependencyProperty.Register("EditCompletedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
 
         #endregion
 
@@ -236,6 +238,22 @@ namespace FramePFX.Controls.Dragger {
             set => this.SetValue(ValueFormatterProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a command executed when an edit begins
+        /// </summary>
+        public ICommand EditStartedCommand {
+            get => (ICommand) this.GetValue(EditStartedCommandProperty);
+            set => this.SetValue(EditStartedCommandProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a command executed when an edit is completed, passing the cancelled state as a parameter
+        /// </summary>
+        public ICommand EditCompletedCommand {
+            get => (ICommand) this.GetValue(EditCompletedCommandProperty);
+            set => this.SetValue(EditCompletedCommandProperty, value);
+        }
+
         public bool IsValueReadOnly {
             get {
                 if (this.GetValue(ForcedReadOnlyStateProperty) is bool forced)
@@ -271,6 +289,7 @@ namespace FramePFX.Controls.Dragger {
         private TextBox PART_TextBox;
         private Point? lastClickPoint;
         private Point? lastMouseMove;
+        private (int, int)? screenClip;
         private double? previousValue;
         private bool ignoreMouseMove;
         private bool isUpdatingExternalMouse;
@@ -406,21 +425,8 @@ namespace FramePFX.Controls.Dragger {
                 }
             }
             else {
-                Cursor cursor;
-                switch (this.Orientation) {
-                    case Orientation.Horizontal:
-                        cursor = Cursors.SizeWE;
-                        break;
-                    case Orientation.Vertical:
-                        cursor = Cursors.SizeNS;
-                        break;
-                    default:
-                        cursor = Cursors.Arrow;
-                        break;
-                }
-
                 if (this.IsDragging) {
-                    this.Cursor = cursor;
+                    this.Cursor = this.LockCursorWhileDragging ? Cursors.None : this.GetCursorForOrientation();
                     if (this.PART_TextBlock != null) {
                         this.PART_TextBlock.ClearValue(CursorProperty);
                     }
@@ -440,6 +446,7 @@ namespace FramePFX.Controls.Dragger {
                         this.ClearValue(CursorProperty);
                     }
                     else {
+                        Cursor cursor = this.GetCursorForOrientation();
                         this.Cursor = cursor;
                         if (this.PART_TextBlock != null) {
                             this.PART_TextBlock.Cursor = cursor;
@@ -513,6 +520,13 @@ namespace FramePFX.Controls.Dragger {
             }
         }
 
+        protected override void OnMouseLeave(MouseEventArgs e) {
+            base.OnMouseLeave(e);
+            if (e.LeftButton != MouseButtonState.Pressed && this.IsDragging) {
+                this.CompleteDrag();
+            }
+        }
+
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             if (!this.IsDragging && !this.IsValueReadOnly) {
                 e.Handled = true;
@@ -579,9 +593,53 @@ namespace FramePFX.Controls.Dragger {
                 return;
             }
 
-            Point mouse = e.GetPosition(this);
+            if (!(this.lastMouseMove is Point lastPos)) {
+                return;
+            }
+
+            Point mpos = e.GetPosition(this);
+            if (this.LockCursorWhileDragging) {
+                bool wrap = false;
+                double x = mpos.X, y = mpos.Y;
+                if (this.Orientation == Orientation.Horizontal) {
+                    if (mpos.X < 0) {
+                        x = this.ActualWidth;
+                        wrap = true;
+                    }
+                    else if (mpos.X > this.ActualWidth) {
+                        x = 0;
+                        wrap = true;
+                    }
+                }
+                else {
+                    if (mpos.Y < 0) {
+                        y = this.ActualHeight;
+                        wrap = true;
+                    }
+                    else if (mpos.X > this.ActualHeight) {
+                        y = 0;
+                        wrap = true;
+                    }
+                }
+
+                if (wrap) {
+                    this.isUpdatingExternalMouse = true;
+                    try {
+                        Point mp = new Point(x, y);
+                        this.lastMouseMove = mp;
+                        Point sp = this.PointToScreen(mp);
+                        CursorUtils.SetCursorPos((int) sp.X, (int) sp.Y);
+                    }
+                    finally {
+                        this.isUpdatingExternalMouse = false;
+                    }
+
+                    return;
+                }
+            }
+
             if (this.lastClickPoint is Point lastClick && !this.IsDragging) {
-                if (Math.Abs(mouse.X - lastClick.X) < 5d && Math.Abs(mouse.Y - lastClick.Y) < 5d) {
+                if (Math.Abs(mpos.X - lastClick.X) < 5d && Math.Abs(mpos.Y - lastClick.Y) < 5d) {
                     return;
                 }
 
@@ -597,20 +655,15 @@ namespace FramePFX.Controls.Dragger {
                 this.IsEditingTextBox = false;
             }
 
-            if (!(this.lastMouseMove is Point lastMouse)) {
-                return;
-            }
-
-
             double change;
             Orientation orientation = this.Orientation;
             switch (orientation) {
                 case Orientation.Horizontal: {
-                    change = mouse.X - lastMouse.X;
+                    change = mpos.X - lastPos.X;
                     break;
                 }
                 case Orientation.Vertical: {
-                    change = mouse.Y - lastMouse.Y;
+                    change = mpos.Y - lastPos.Y;
                     break;
                 }
                 default: {
@@ -651,7 +704,7 @@ namespace FramePFX.Controls.Dragger {
             }
 
             this.Value = roundedValue;
-            this.lastMouseMove = mouse;
+            this.lastMouseMove = mpos;
         }
 
         protected override void OnKeyDown(KeyEventArgs e) {
@@ -728,6 +781,10 @@ namespace FramePFX.Controls.Dragger {
                     this.CancelDrag();
                 }
             }
+
+            if (this.EditStartedCommand is ICommand command && command.CanExecute(null)) {
+                command.Execute(null);
+            }
         }
 
         public void CompleteDrag() {
@@ -757,19 +814,41 @@ namespace FramePFX.Controls.Dragger {
             this.ClearValue(IsDraggingPropertyKey);
 
             this.lastMouseMove = null;
+            if (this.lastClickPoint is Point point) {
+                this.isUpdatingExternalMouse = true;
+                try {
+                    Point p = this.PointToScreen(point);
+                    CursorUtils.SetCursorPos((int) p.X, (int) p.Y);
+                }
+                finally {
+                    this.isUpdatingExternalMouse = false;
+                }
+            }
+
             this.lastClickPoint = null;
             this.UpdateCursor();
 
             this.RaiseEvent(new EditCompletedEventArgs(cancelled));
+            if (this.EditCompletedCommand is ICommand command && command.CanExecute(cancelled.Box())) {
+                command.Execute(cancelled.Box());
+            }
+        }
+
+        private Cursor GetCursorForOrientation() {
+            Cursor cursor;
+            switch (this.Orientation) {
+                case Orientation.Horizontal:
+                    cursor = Cursors.SizeWE;
+                    break;
+                case Orientation.Vertical:
+                    cursor = Cursors.SizeNS;
+                    break;
+                default:
+                    cursor = Cursors.Arrow;
+                    break;
+            }
+
+            return cursor;
         }
     }
-
-    // internal static class MouseUtils {
-    //     [DllImport("user32.dll")]
-    //     public static extern bool SetCursorPos(int x, int y);
-    // 
-    //     public static void SetCursorPos(Point position) {
-    //         SetCursorPos((int) position.X, (int) position.Y);
-    //     }
-    // }
 }

@@ -33,8 +33,12 @@ namespace FramePFX.Core.History {
             this.Current = current;
         }
 
-        public bool AreUnchanged() => EqualityComparer<T>.Default.Equals(this.Original, this.Current);
+        /// <summary>
+        /// Whether or not this transaction's origin and current value are equal (see <see cref="EqualityComparer{T}.Equals(T,T)"/>)
+        /// </summary>
+        /// <returns></returns>
+        public bool IsUnchanged() => EqualityComparer<T>.Default.Equals(this.Original, this.Current);
 
-        public bool AreUnchanged(Func<T, T, bool> equal) => equal(this.Original, this.Current);
+        public bool IsUnchanged(Func<T, T, bool> equal) => equal(this.Original, this.Current);
     }
 }

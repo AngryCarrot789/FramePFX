@@ -14,6 +14,11 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
         protected HistoryClipMediaTransformation transformationHistory;
         protected HistoryClipOpacity opacityHistory;
 
+        private bool isEditingMediaPosition;
+        private bool isEditingMediaScale;
+        private bool isEditingMediaScaleOrigin;
+        private bool isEditingOpacity;
+
         private Vector2 mediaPosition;
         private Vector2 mediaScale;
         private Vector2 mediaScaleOrigin;
@@ -42,20 +47,15 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
             set {
                 Vector2 oldVal = this.mediaPosition;
                 this.mediaPosition = value;
-                if (this.transformationHistory != null && this.HistoryManager != null && !this.IsChangingAny()) {
-                    foreach (Transaction<Vector2> t in this.transformationHistory.MediaPosition)
-                        t.Current = value;
-                }
-
-                if (this.Handlers.Count > 1 && this.isEditingMediaPosition) {
-                    Vector2 change = value - oldVal;
-                    foreach (object target in this.Handlers) {
-                        ((VideoClipViewModel) target).MediaPosition += change;
-                    }
-                }
-                else {
-                    foreach (object target in this.Handlers) {
-                        ((VideoClipViewModel) target).MediaPosition = value;
+                bool useAddition = this.Handlers.Count > 1 && this.isEditingMediaPosition;
+                Vector2 change = value - oldVal;
+                Transaction<Vector2>[] array = this.transformationHistory?.MediaPosition;
+                for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                    VideoClipViewModel clip = (VideoClipViewModel) this.Handlers[i];
+                    Vector2 val = useAddition ? (clip.MediaPosition + change) : value;
+                    clip.MediaPosition = val;
+                    if (array != null) {
+                        array[i].Current = val;
                     }
                 }
 
@@ -83,20 +83,15 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
             set {
                 Vector2 oldVal = this.mediaScale;
                 this.mediaScale = value;
-                if (this.transformationHistory != null && this.HistoryManager != null && !this.IsChangingAny()) {
-                    foreach (Transaction<Vector2> t in this.transformationHistory.MediaScale)
-                        t.Current = value;
-                }
-
-                if (this.Handlers.Count > 1 && this.isEditingMediaPosition) {
-                    Vector2 change = value - oldVal;
-                    foreach (object target in this.Handlers) {
-                        ((VideoClipViewModel) target).MediaScale += change;
-                    }
-                }
-                else {
-                    foreach (object target in this.Handlers) {
-                        ((VideoClipViewModel) target).MediaScale = value;
+                bool useAddition = this.Handlers.Count > 1 && this.isEditingMediaScale;
+                Vector2 change = value - oldVal;
+                Transaction<Vector2>[] array = this.transformationHistory?.MediaScale;
+                for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                    VideoClipViewModel clip = (VideoClipViewModel) this.Handlers[i];
+                    Vector2 val = useAddition ? (clip.MediaScale + change) : value;
+                    clip.MediaScale = val;
+                    if (array != null) {
+                        array[i].Current = val;
                     }
                 }
 
@@ -124,20 +119,15 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
             set {
                 Vector2 oldVal = this.mediaScaleOrigin;
                 this.mediaScaleOrigin = value;
-                if (this.transformationHistory != null && this.HistoryManager != null && !this.IsChangingAny()) {
-                    foreach (Transaction<Vector2> t in this.transformationHistory.MediaScaleOrigin)
-                        t.Current = value;
-                }
-
-                if (this.Handlers.Count > 1 && this.isEditingMediaPosition) {
-                    Vector2 change = value - oldVal;
-                    foreach (object target in this.Handlers) {
-                        ((VideoClipViewModel) target).MediaScaleOrigin += change;
-                    }
-                }
-                else {
-                    foreach (object target in this.Handlers) {
-                        ((VideoClipViewModel) target).MediaScaleOrigin = value;
+                bool useAddition = this.Handlers.Count > 1 && this.isEditingMediaScaleOrigin;
+                Vector2 change = value - oldVal;
+                Transaction<Vector2>[] array = this.transformationHistory?.MediaScaleOrigin;
+                for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                    VideoClipViewModel clip = (VideoClipViewModel) this.Handlers[i];
+                    Vector2 val = useAddition ? (clip.MediaScaleOrigin + change) : value;
+                    clip.MediaScaleOrigin = val;
+                    if (array != null) {
+                        array[i].Current = val;
                     }
                 }
 
@@ -181,15 +171,18 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
         public double Opacity {
             get => this.opacity;
             set {
+                double oldVal = this.opacity;
                 this.opacity = value;
-                if (this.opacityHistory != null && this.HistoryManager != null && !this.IsChangingAny()) {
-                    foreach (Transaction<double> t in this.opacityHistory.Opacity) {
-                        t.Current = value;
+                bool useAddition = this.Handlers.Count > 1 && this.isEditingOpacity;
+                double change = value - oldVal;
+                Transaction<double>[] array = this.opacityHistory?.Opacity;
+                for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                    VideoClipViewModel clip = (VideoClipViewModel) this.Handlers[i];
+                    double val = useAddition ? (clip.Opacity + change) : value;
+                    clip.Opacity = val;
+                    if (array != null) {
+                        array[i].Current = val;
                     }
-                }
-
-                foreach (object handler in this.Handlers) {
-                    ((VideoClipViewModel) handler).Opacity = value;
                 }
 
                 this.RaisePropertyChanged();
@@ -215,11 +208,6 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
 
         public IEnumerable<VideoClipViewModel> Clips => this.Handlers.Cast<VideoClipViewModel>();
 
-        private bool isEditingMediaPosition;
-        private bool isEditingMediaScale;
-        private bool isEditingMediaScaleOrigin;
-        private bool isEditingOpacity;
-
         public AutomationSequenceViewModel MediaPositionAutomationSequence => this.Clip.MediaPositionAutomationSequence;
         public AutomationSequenceViewModel MediaScaleAutomationSequence => this.Clip.MediaScaleAutomationSequence;
         public AutomationSequenceViewModel MediaScaleOriginAutomationSequence => this.Clip.MediaScaleOriginAutomationSequence;
@@ -240,26 +228,29 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
             this.ResetMediaScaleCommand =        new RelayCommand(() => this.MediaScale = VideoClip.MediaScaleKey.Descriptor.DefaultValue);
             this.ResetMediaScaleOriginCommand =  new RelayCommand(() => this.MediaScaleOrigin = VideoClip.MediaScaleOriginKey.Descriptor.DefaultValue);
             this.ResetOpacityCommand =           new RelayCommand(() => this.Opacity = VideoClip.OpacityKey.Descriptor.DefaultValue);
+
             this.BeginEditMediaPositionCommand = new RelayCommand(() => {
                 this.isEditingMediaPosition = true;
                 this.BeginEditTransformation();
             }, () => !this.isEditingMediaPosition);
-            this.BeginEditMediaScaleCommand =       new RelayCommand(() => {
-                this.isEditingMediaScale = true;
-                this.BeginEditTransformation();
-            }, () => !this.isEditingMediaScale);
-            this.BeginEditMediaScaleOriginCommand = new RelayCommand(() => {
-                this.isEditingMediaScaleOrigin = true;
-                this.BeginEditTransformation();
-            }, () => !this.isEditingMediaScaleOrigin);
             this.EndEditMediaPositionCommand =      new RelayCommand(() => {
                 this.isEditingMediaPosition = false;
                 this.EndEditTransformation();
             }, () => this.isEditingMediaPosition);
+
+            this.BeginEditMediaScaleCommand =       new RelayCommand(() => {
+                this.isEditingMediaScale = true;
+                this.BeginEditTransformation();
+            }, () => !this.isEditingMediaScale);
             this.EndEditMediaScaleCommand =         new RelayCommand(() => {
                 this.isEditingMediaScale = false;
                 this.EndEditTransformation();
             }, () => this.isEditingMediaScale);
+
+            this.BeginEditMediaScaleOriginCommand = new RelayCommand(() => {
+                this.isEditingMediaScaleOrigin = true;
+                this.BeginEditTransformation();
+            }, () => !this.isEditingMediaScaleOrigin);
             this.EndEditMediaScaleOriginCommand =   new RelayCommand(() => {
                 this.isEditingMediaScaleOrigin = false;
                 this.EndEditTransformation();
@@ -280,7 +271,7 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
                 this.EndEditTransformation();
             }
 
-            this.transformationHistory = new HistoryClipMediaTransformation(this.Clips);
+            this.transformationHistory = new HistoryClipMediaTransformation(this.Clips, this);
         }
 
         protected void EndEditTransformation() {
@@ -300,7 +291,7 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
                 this.EndEditOpacity();
             }
 
-            this.opacityHistory = new HistoryClipOpacity(this.Clips);
+            this.opacityHistory = new HistoryClipOpacity(this.Clips, this);
         }
 
         protected void EndEditOpacity() {
@@ -309,6 +300,8 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
                 this.opacityHistory = null;
             }
         }
+
+        // these are only handled for single selection
 
         private void RefreshMediaPosition(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
             this.RaisePropertyChanged(ref this.mediaPosition, ((VideoClipViewModel) this.Handlers[0]).MediaPosition, nameof(this.MediaPosition));
@@ -342,15 +335,41 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
                 clip.OpacityAutomationSequence.RefreshValue += this.RefreshOpacityHandler;
             }
 
-            this.mediaPosition = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaPosition, out Vector2 a) ? a : default;
-            this.mediaScale = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScale, out Vector2 b) ? b : default;
-            this.mediaScaleOrigin = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScaleOrigin, out Vector2 c) ? c : default;
-            this.opacity = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).Opacity, out double d) ? d : default;
+            this.RequeryPositionFromHandlers();
+            this.RequeryScaleFromHandlers();
+            this.RequeryScaleOriginFromHandlers();
+            this.RequeryOpacityFromHandlers();
 
             this.RaisePropertyChanged(nameof(this.MediaPositionAutomationSequence));
             this.RaisePropertyChanged(nameof(this.MediaScaleAutomationSequence));
             this.RaisePropertyChanged(nameof(this.MediaScaleOriginAutomationSequence));
             this.RaisePropertyChanged(nameof(this.OpacityAutomationSequence));
+        }
+
+        public void RequeryPositionFromHandlers() {
+            this.mediaPosition = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaPosition, out Vector2 a) ? a : default;
+            this.RaisePropertyChanged(nameof(this.MediaPosition));
+            this.RaisePropertyChanged(nameof(this.MediaPositionX));
+            this.RaisePropertyChanged(nameof(this.MediaPositionY));
+        }
+
+        public void RequeryScaleFromHandlers() {
+            this.mediaScale = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScale, out Vector2 b) ? b : default;
+            this.RaisePropertyChanged(nameof(this.MediaScale));
+            this.RaisePropertyChanged(nameof(this.MediaScaleX));
+            this.RaisePropertyChanged(nameof(this.MediaScaleY));
+        }
+
+        public void RequeryScaleOriginFromHandlers() {
+            this.mediaScaleOrigin = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScaleOrigin, out Vector2 c) ? c : default;
+            this.RaisePropertyChanged(nameof(this.MediaScaleOrigin));
+            this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
+            this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
+        }
+
+        public void RequeryOpacityFromHandlers() {
+            this.opacity = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).Opacity, out double d) ? d : default;
+            this.RaisePropertyChanged(nameof(this.Opacity));
         }
 
         protected override void OnClearHandlers() {
@@ -371,17 +390,22 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
             public readonly Transaction<Vector2>[] MediaPosition;
             public readonly Transaction<Vector2>[] MediaScale;
             public readonly Transaction<Vector2>[] MediaScaleOrigin;
+            public readonly VideoClipDataEditorViewModel editor;
 
-            public HistoryClipMediaTransformation(IEnumerable<VideoClipViewModel> holders) : base(holders) {
+            public HistoryClipMediaTransformation(IEnumerable<VideoClipViewModel> holders, VideoClipDataEditorViewModel editor) : base(holders) {
                 this.MediaPosition = Transactions.NewArray(this.Holders, x => x.MediaPosition);
                 this.MediaScale = Transactions.NewArray(this.Holders, x => x.MediaScale);
                 this.MediaScaleOrigin = Transactions.NewArray(this.Holders, x => x.MediaScaleOrigin);
+                this.editor = editor;
             }
 
             protected override Task UndoAsyncCore(VideoClipViewModel holder, int i) {
                 holder.MediaPosition = this.MediaPosition[i].Original;
                 holder.MediaScale = this.MediaScale[i].Original;
                 holder.MediaScaleOrigin = this.MediaScaleOrigin[i].Original;
+                this.editor.RequeryPositionFromHandlers();
+                this.editor.RequeryScaleFromHandlers();
+                this.editor.RequeryScaleOriginFromHandlers();
                 return Task.CompletedTask;
             }
 
@@ -389,28 +413,35 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
                 holder.MediaPosition = this.MediaPosition[i].Current;
                 holder.MediaScale = this.MediaScale[i].Current;
                 holder.MediaScaleOrigin = this.MediaScaleOrigin[i].Current;
+                this.editor.RequeryPositionFromHandlers();
+                this.editor.RequeryScaleFromHandlers();
+                this.editor.RequeryScaleOriginFromHandlers();
                 return Task.CompletedTask;
             }
 
             public bool AreValuesUnchanged() {
-                return this.MediaPosition.All(x => x.AreUnchanged()) && this.MediaScale.All(x => x.AreUnchanged()) && this.MediaScaleOrigin.All(x => x.AreUnchanged());
+                return this.MediaPosition.All(x => x.IsUnchanged()) && this.MediaScale.All(x => x.IsUnchanged()) && this.MediaScaleOrigin.All(x => x.IsUnchanged());
             }
         }
 
         protected class HistoryClipOpacity : BaseHistoryMultiHolderAction<VideoClipViewModel> {
             public readonly Transaction<double>[] Opacity;
+            public readonly VideoClipDataEditorViewModel editor;
 
-            public HistoryClipOpacity(IEnumerable<VideoClipViewModel> holders) : base(holders) {
+            public HistoryClipOpacity(IEnumerable<VideoClipViewModel> holders, VideoClipDataEditorViewModel editor) : base(holders) {
                 this.Opacity = Transactions.NewArray(this.Holders, x => x.Opacity);
+                this.editor = editor;
             }
 
             protected override Task UndoAsyncCore(VideoClipViewModel holder, int i) {
                 holder.Opacity = this.Opacity[i].Original;
+                this.editor.RequeryOpacityFromHandlers();
                 return Task.CompletedTask;
             }
 
             protected override Task RedoAsyncCore(VideoClipViewModel holder, int i) {
                 holder.Opacity = this.Opacity[i].Current;
+                this.editor.RequeryOpacityFromHandlers();
                 return Task.CompletedTask;
             }
         }

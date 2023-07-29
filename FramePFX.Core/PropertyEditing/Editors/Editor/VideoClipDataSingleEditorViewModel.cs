@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 
 namespace FramePFX.Core.PropertyEditing.Editors.Editor {

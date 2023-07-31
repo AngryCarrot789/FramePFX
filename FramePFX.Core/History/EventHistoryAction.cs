@@ -5,14 +5,12 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.History {
     /// <summary>
-    /// A history action
+    /// A history action that fires an event when it is undone, redone or removed. The methods are delegated to the other action
     /// </summary>
-    public class BufferedHistoryAction : IHistoryAction {
-        public delegate void UndoEventHandler(BufferedHistoryAction action);
-        public delegate void RedoEventHandler(BufferedHistoryAction action);
-        public delegate void RemovedEventHandler(BufferedHistoryAction action);
-
-        public HistoryManagerViewModel Manager { get; }
+    public class EventHistoryAction : IHistoryAction {
+        public delegate void UndoEventHandler(EventHistoryAction action);
+        public delegate void RedoEventHandler(EventHistoryAction action);
+        public delegate void RemovedEventHandler(EventHistoryAction action);
 
         public IHistoryAction Action { get; }
 
@@ -22,8 +20,7 @@ namespace FramePFX.Core.History {
         public event RedoEventHandler Redo;
         public event RemovedEventHandler Removed;
 
-        public BufferedHistoryAction(HistoryManagerViewModel manager, IHistoryAction action) {
-            this.Manager = manager;
+        public EventHistoryAction(IHistoryAction action) {
             this.Action = action;
         }
 

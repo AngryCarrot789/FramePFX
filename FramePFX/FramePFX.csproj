@@ -409,6 +409,9 @@
     <Compile Include="Views\PropertyPageDemoWindow.xaml.cs">
       <DependentUpon>PropertyPageDemoWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\TestControlPreview.xaml.cs">
+      <DependentUpon>TestControlPreview.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UserInputs\DoubleUserInputWindow.xaml.cs">
       <DependentUpon>DoubleUserInputWindow.xaml</DependentUpon>
     </Compile>
@@ -546,6 +549,10 @@
     </Page>
     <Page Include="Views\Progression\IndeterminateProgressionWindow.xaml" />
     <Page Include="Views\PropertyPageDemoWindow.xaml" />
+    <Page Include="Views\TestControlPreview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\UserInputs\DoubleUserInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -613,8 +620,8 @@
     <Content Include="Resources\Shaders\xyz.vert" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Behaviours" />
     <Folder Include="Editor\Timeline\Actions\" />
-    <Folder Include="Translations\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.3\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

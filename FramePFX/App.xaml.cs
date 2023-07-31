@@ -156,6 +156,8 @@ namespace FramePFX {
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.ActiveProject.AutomationEngine.UpdateAndRefresh(true);
             await editor.View.Render();
+
+            new TestControlPreview().Show();
         }
 
         protected override void OnExit(ExitEventArgs e) {

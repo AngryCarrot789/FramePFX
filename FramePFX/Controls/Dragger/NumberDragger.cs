@@ -154,7 +154,6 @@ namespace FramePFX.Controls.Dragger {
 
         public bool IsDragging {
             get => (bool) this.GetValue(IsDraggingProperty);
-            protected set => this.SetValue(IsDraggingPropertyKey, value.Box());
         }
 
         public bool? CompleteEditOnTextBoxLostFocus {
@@ -768,7 +767,7 @@ namespace FramePFX.Controls.Dragger {
             this.previousValue = this.Value;
             this.Focus();
             this.CaptureMouse();
-            this.IsDragging = true;
+            this.SetValue(IsDraggingPropertyKey, BoolBox.True);
             this.UpdateCursor();
 
             bool fail = true;

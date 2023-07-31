@@ -19,8 +19,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             set {
                 if (!this.IsHistoryChanging) {
                     if (FrontEndHistoryHelper.ActiveDragId == VolumeHistoryKey) {
-                        if (this.volumeHistory == null)
+                        if (this.volumeHistory == null) {
                             this.volumeHistory = new HistoryAudioTrackVolume(this, value);
+                        }
+
                         FrontEndHistoryHelper.OnDragEnd = FrontEndHistoryHelper.OnDragEnd ?? ((s, cancel) => {
                             if (cancel) {
                                 this.IsHistoryChanging = true;

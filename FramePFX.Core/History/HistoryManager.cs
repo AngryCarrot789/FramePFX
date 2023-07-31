@@ -5,8 +5,8 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.History {
     public class HistoryManager {
-        private readonly LinkedList<HistoryActionModel> undoList;
-        private readonly LinkedList<HistoryActionModel> redoList;
+        private readonly LinkedList<IHistoryAction> undoList;
+        private readonly LinkedList<IHistoryAction> redoList;
 
         public bool IsUndoing { get; private set; }
         public bool IsRedoing { get; private set; }
@@ -25,19 +25,19 @@ namespace FramePFX.Core.History {
         /// <summary>
         /// Returns the action that is next to be undone
         /// </summary>
-        public HistoryActionModel NextUndo => this.undoList.Last?.Value;
+        public IHistoryAction NextUndo => this.undoList.Last?.Value;
 
         /// <summary>
         /// Returns the action that is next to be redone
         /// </summary>
-        public HistoryActionModel NextRedo => this.redoList.Last?.Value;
+        public IHistoryAction NextRedo => this.redoList.Last?.Value;
 
         public const int DefaultUndo = 2000;
         public const int DefaultRedo = 2000;
 
         public HistoryManager(int maxUndo = DefaultUndo, int maxRedo = DefaultRedo) {
-            this.undoList = new LinkedList<HistoryActionModel>();
-            this.redoList = new LinkedList<HistoryActionModel>();
+            this.undoList = new LinkedList<IHistoryAction>();
+            this.redoList = new LinkedList<IHistoryAction>();
             this.MaxUndo = maxUndo < 1 ? throw new ArgumentOutOfRangeException(nameof(maxUndo), "maxUndo must be greater than 0") : maxUndo;
             this.MaxRedo = maxRedo < 1 ? throw new ArgumentOutOfRangeException(nameof(maxRedo), "maxRedo must be greater than 0") : maxRedo;
         }
@@ -55,8 +55,8 @@ namespace FramePFX.Core.History {
             this.redoList.Clear();
         }
 
-        private static void RemoveFirst(LinkedList<HistoryActionModel> list) {
-            HistoryActionModel model = list.First.Value;
+        private static void RemoveFirst(LinkedList<IHistoryAction> list) {
+            IHistoryAction model = list.First.Value;
             list.RemoveFirst();
             model.OnRemoved();
         }
@@ -109,7 +109,7 @@ namespace FramePFX.Core.History {
             }
         }
 
-        public HistoryActionModel AddAction(IHistoryAction action) {
+        public void AddAction(IHistoryAction action) {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
             if (this.IsUndoing)
@@ -117,18 +117,15 @@ namespace FramePFX.Core.History {
             if (this.IsRedoing)
                 throw new Exception("Redo is in progress");
 
-            HistoryActionModel model = new HistoryActionModel(this, action);
-            foreach (HistoryActionModel item in this.redoList) {
+            foreach (IHistoryAction item in this.redoList) {
                 item.OnRemoved();
             }
 
             this.redoList.Clear();
-            this.undoList.AddLast(model);
+            this.undoList.AddLast(action);
             while (this.undoList.Count > this.MaxUndo) { // loop just in case
                 RemoveFirst(this.undoList);
             }
-
-            return model;
         }
 
         public void Clear() {
@@ -137,9 +134,9 @@ namespace FramePFX.Core.History {
             if (this.IsRedoing)
                 throw new Exception("Redo is in progress");
 
-            foreach (HistoryActionModel item in this.undoList)
+            foreach (IHistoryAction item in this.undoList)
                 item.OnRemoved();
-            foreach (HistoryActionModel item in this.redoList)
+            foreach (IHistoryAction item in this.redoList)
                 item.OnRemoved();
 
             this.undoList.Clear();
@@ -152,7 +149,7 @@ namespace FramePFX.Core.History {
         /// <returns>A task containing the undone action</returns>
         /// <exception cref="Exception">Undo or redo is in progress</exception>
         /// <exception cref="InvalidOperationException">Nothing to undo</exception>
-        public async Task<HistoryActionModel> OnUndoAsync() {
+        public async Task<IHistoryAction> OnUndoAsync() {
             if (this.IsUndoing)
                 throw new Exception("Undo is already in progress");
             if (this.IsRedoing)
@@ -160,7 +157,7 @@ namespace FramePFX.Core.History {
             if (this.undoList.Count < 1)
                 throw new InvalidOperationException("Nothing to undo");
 
-            HistoryActionModel action = this.undoList.Last.Value;
+            IHistoryAction action = this.undoList.Last.Value;
             this.undoList.RemoveLast();
 
             using (ExceptionStack stack = new ExceptionStack(false)) {
@@ -195,7 +192,7 @@ namespace FramePFX.Core.History {
         /// <returns>A task containing the redone action</returns>
         /// <exception cref="Exception">Undo or redo is in progress</exception>
         /// <exception cref="InvalidOperationException">Nothing to redo</exception>
-        public async Task<HistoryActionModel> OnRedoAsync() {
+        public async Task<IHistoryAction> OnRedoAsync() {
             if (this.IsUndoing)
                 throw new Exception("Undo is in progress");
             if (this.IsRedoing)
@@ -203,7 +200,7 @@ namespace FramePFX.Core.History {
             if (this.redoList.Count < 1)
                 throw new InvalidOperationException("Nothing to redo");
 
-            HistoryActionModel action = this.redoList.Last.Value;
+            IHistoryAction action = this.redoList.Last.Value;
             this.redoList.RemoveLast();
 
             using (ExceptionStack stack = new ExceptionStack(false)) {

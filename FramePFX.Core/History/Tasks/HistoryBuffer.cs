@@ -32,9 +32,9 @@ namespace FramePFX.Core.History.Tasks {
     /// </summary>
     public class HistoryBuffer<T> where T : class, IHistoryAction {
         private readonly PropertyChangedEventHandler propertyChangedEventHandler;
-        private readonly HistoryActionModel.RemovedEventHandler removedHandler;
-        private readonly HistoryActionModel.UndoEventHandler undoHandler;
-        private readonly HistoryActionModel.RedoEventHandler redoHandler;
+        private readonly EventHistoryAction.RemovedEventHandler removedHandler;
+        private readonly EventHistoryAction.UndoEventHandler undoHandler;
+        private readonly EventHistoryAction.RedoEventHandler redoHandler;
         private readonly bool canAttachPropertyChangedEvent;
         private readonly long pushBackGapTime;
         private readonly long pushBackTime;
@@ -42,7 +42,7 @@ namespace FramePFX.Core.History.Tasks {
         private readonly object locker;
 
         private long expiryTime;
-        private volatile HistoryActionModel currentAction;
+        private volatile EventHistoryAction currentAction;
         private volatile INotifyPropertyChanged propertyChanged;
         private volatile CancellationTokenSource cancellationTokenSource;
         private volatile Task expirationTask;
@@ -112,7 +112,7 @@ namespace FramePFX.Core.History.Tasks {
                     throw new InvalidOperationException($"Action time has not expired. {nameof(this.TryGetAction)} should be invoked before this function");
                 }
 
-                this.currentAction = manager.AddAction(action, information).Model;
+                manager.AddAction(this.currentAction = new EventHistoryAction(action), information);
                 this.currentAction.Undo += this.undoHandler;
                 this.currentAction.Redo += this.redoHandler;
                 this.currentAction.Removed += this.removedHandler;
@@ -169,21 +169,21 @@ namespace FramePFX.Core.History.Tasks {
             } while (true);
         }
 
-        private void OnActionUndo(HistoryActionModel action) {
+        private void OnActionUndo(EventHistoryAction action) {
             lock (this.locker) {
                 Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
                 this.OnExpired();
             }
         }
 
-        private void OnActionRedo(HistoryActionModel action) {
+        private void OnActionRedo(EventHistoryAction action) {
             lock (this.locker) {
                 Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
                 this.OnExpired();
             }
         }
 
-        private void OnActionRemoved(HistoryActionModel action) {
+        private void OnActionRemoved(EventHistoryAction action) {
             lock (this.locker) {
                 Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
                 this.OnExpired();

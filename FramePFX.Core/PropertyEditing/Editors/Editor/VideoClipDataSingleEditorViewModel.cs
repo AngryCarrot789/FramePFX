@@ -4,7 +4,7 @@ using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 
 namespace FramePFX.Core.PropertyEditing.Editors.Editor {
     public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel {
-        public override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
+        public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
 
         public RelayCommand InsertMediaPositionKeyFrameCommand => this.Clip?.InsertMediaPositionKeyFrameCommand;
         public RelayCommand InsertMediaScaleKeyFrameCommand => this.Clip?.InsertMediaScaleKeyFrameCommand;
@@ -17,10 +17,6 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
         }
 
         protected override void OnHandlersLoaded() {
-            if (this.Handlers.Count != 1) {
-                throw new Exception("Expected only 1 handler");
-            }
-
             base.OnHandlersLoaded();
             this.Clip.PropertyChanged += this.OnClipPropertyChanged;
 

@@ -5,8 +5,12 @@ using FramePFX.Core.Views.Dialogs.Progression;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.History.ViewModels {
-    public class HistoryManagerViewModel : BaseViewModel {
-        public HistoryManager Model { get; }
+    public class HistoryManagerViewModel : BaseViewModel, IHistoryManager {
+        // Despite the fact there is a separation between history manager and the view model,
+        // the history manager itself really should not be modified outside of the view model's control,
+        // as is the case with most viewmodel-model combos. This is to maintain the state of the view model (obviously)
+
+        private readonly HistoryManager manager;
 
         public AsyncRelayCommand UndoCommand { get; }
         public AsyncRelayCommand RedoCommand { get; }
@@ -14,10 +18,10 @@ namespace FramePFX.Core.History.ViewModels {
         public AsyncRelayCommand EditMaxUndoCommand { get; }
         public AsyncRelayCommand EditMaxRedoCommand { get; }
 
-        public int MaxUndo => this.Model.MaxUndo;
-        public int MaxRedo => this.Model.MaxRedo;
-        public bool CanUndo => this.Model.CanUndo;
-        public bool CanRedo => this.Model.CanRedo;
+        public int MaxUndo => this.manager.MaxUndo;
+        public int MaxRedo => this.manager.MaxRedo;
+        public bool CanUndo => this.manager.CanUndo;
+        public bool CanRedo => this.manager.CanRedo;
 
         private HistoryNotification notification;
         private HistoryNotification Notification {
@@ -36,13 +40,13 @@ namespace FramePFX.Core.History.ViewModels {
         public NotificationPanelViewModel NotificationPanel { get; }
 
         public HistoryManagerViewModel(NotificationPanelViewModel panel, HistoryManager model) {
-            this.Model = model ?? throw new ArgumentNullException();
+            this.manager = model ?? throw new ArgumentNullException();
             this.NotificationPanel = panel;
-            this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.Model.IsActionActive && this.Model.CanUndo);
-            this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.Model.IsActionActive && this.Model.CanRedo);
-            this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.Model.IsActionActive && (this.Model.CanRedo || this.Model.CanUndo));
-            this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.Model.IsActionActive);
-            this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.Model.IsActionActive);
+            this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.manager.IsActionActive && this.manager.CanUndo);
+            this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.manager.IsActionActive && this.manager.CanRedo);
+            this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsActionActive && (this.manager.CanRedo || this.manager.CanUndo));
+            this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.manager.IsActionActive);
+            this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.manager.IsActionActive);
         }
 
         public async Task SetMaxUndoAction() {
@@ -50,8 +54,8 @@ namespace FramePFX.Core.History.ViewModels {
                 return;
             }
 
-            if (await this.GetInput("Set max undo", "Input a new maximum undo count:", this.Model.MaxUndo) is int value) {
-                this.Model.SetMaxUndoAsync(value);
+            if (await this.GetInput("Set max undo", "Input a new maximum undo count:", this.manager.MaxUndo) is int value) {
+                this.manager.SetMaxUndoAsync(value);
                 this.RaisePropertyChanged(nameof(this.MaxUndo));
             }
         }
@@ -61,15 +65,14 @@ namespace FramePFX.Core.History.ViewModels {
                 return;
             }
 
-            if (await this.GetInput("Set max redo", "Input a new maximum redo count:", this.Model.MaxRedo) is int value) {
-                this.Model.SetMaxRedo(value);
+            if (await this.GetInput("Set max redo", "Input a new maximum redo count:", this.manager.MaxRedo) is int value) {
+                this.manager.SetMaxRedo(value);
                 this.RaisePropertyChanged(nameof(this.MaxRedo));
             }
         }
 
-        public HistoryActionViewModel AddAction(IHistoryAction action, string information = null) {
-            HistoryActionModel model = this.Model.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
-            return new HistoryActionViewModel(this, model, action, information);
+        public void AddAction(IHistoryAction action, string information = null) {
+            this.manager.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
         }
 
         public async Task UndoAction() {
@@ -78,7 +81,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             if (this.CanUndo) {
-                await this.Model.OnUndoAsync();
+                await this.manager.OnUndoAsync();
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
                 this.Notification?.OnUndo();
@@ -91,7 +94,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             if (this.CanRedo) {
-                await this.Model.OnRedoAsync();
+                await this.manager.OnRedoAsync();
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
                 this.Notification?.OnRedo();
@@ -103,15 +106,15 @@ namespace FramePFX.Core.History.ViewModels {
                 return;
             }
 
-            this.Model.Clear();
+            this.manager.Clear();
             this.Notification?.OnUndo();
         }
 
         private async Task<bool> IsActionActive(string message) {
-            if (this.Model.IsUndoing) {
+            if (this.manager.IsUndoing) {
                 await IoC.MessageDialogs.ShowMessageAsync("Undo active", message + ". Undo is in progress");
             }
-            else if (this.Model.IsRedoing) {
+            else if (this.manager.IsRedoing) {
                 await IoC.MessageDialogs.ShowMessageAsync("Redo active", message + ". Redo is in progress");
             }
             else {
@@ -147,7 +150,7 @@ namespace FramePFX.Core.History.ViewModels {
         }
 
         public async Task ResetAsync() {
-            if (this.Model.IsUndoing || this.Model.IsRedoing) {
+            if (this.manager.IsUndoing || this.manager.IsRedoing) {
                 IndeterminateProgressViewModel progress = new IndeterminateProgressViewModel(true) {
                     Message = "Waiting for a history action to complete...",
                     Titlebar = "Clearing history"
@@ -157,14 +160,14 @@ namespace FramePFX.Core.History.ViewModels {
                 do {
                     await Task.Delay(250);
                     if (progress.IsCancelled) {
-                        this.Model.UnsafeReset();
+                        this.manager.UnsafeReset();
                         goto end;
                     }
 
-                } while (this.Model.IsUndoing || this.Model.IsRedoing);
+                } while (this.manager.IsUndoing || this.manager.IsRedoing);
             }
 
-            this.Model.Reset();
+            this.manager.Reset();
 
             end:
             this.RaisePropertyChanged(nameof(this.MaxUndo));

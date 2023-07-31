@@ -77,6 +77,12 @@ namespace FramePFX.Core.PropertyEditing {
             }
         }
 
+        /// <summary>
+        /// Clears this editor's active handlers. This will not clear the underlying list, and instead, assigns it to an empty list
+        /// <para>
+        /// If there are no handlers currently loaded, then this function does nothing
+        /// </para>
+        /// </summary>
         public void ClearHandlers() {
             if (this.Handlers.Count < 1) {
                 return;
@@ -91,9 +97,23 @@ namespace FramePFX.Core.PropertyEditing {
             this.RaisePropertyChanged(nameof(this.IsMultiSelection));
         }
 
+        /// <summary>
+        /// Sets this editor's handler list, and calls <see cref="OnHandlersLoaded"/>. If there are currently
+        /// handlers loaded, then <see cref="ClearHandlers"/> must be called before this function
+        /// </summary>
+        /// <param name="targets">A reference to the handler list, which will be stored in this editor</param>
+        /// <exception cref="InvalidOperationException"><see cref="ClearHandlers"/> was not called, and there were handlers already loaded</exception>
+        /// <exception cref="ArgumentException">An invalid number of objects were provided in relation to <see cref="BasePropertyObjectViewModel.HandlerCountMode"/></exception>
         public void SetHandlers(IReadOnlyList<object> targets) {
             if (this.Handlers.Count > 0) {
-                throw new Exception("Editor was not cleared before handlers were set again");
+                throw new InvalidOperationException("Editor was not cleared before handlers were set again");
+            }
+
+            switch (this.HandlerCountMode) {
+                case HandlerCountMode.Single when targets.Count != 1:
+                    throw new ArgumentException($"Expected list to contain only 1 handler, as {nameof(this.HandlerCountMode)} is {nameof(HandlerCountMode.Single)}");
+                case HandlerCountMode.Multi when targets.Count < 2:
+                    throw new ArgumentException($"Expected list to contain more than 1 handler, as {nameof(this.HandlerCountMode)} is {nameof(HandlerCountMode.Multi)}");
             }
 
             foreach (object entry in targets) {

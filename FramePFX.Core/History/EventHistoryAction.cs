@@ -1,14 +1,18 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.History {
-    public class HistoryActionModel {
-        public delegate void UndoEventHandler(HistoryActionModel action);
-        public delegate void RedoEventHandler(HistoryActionModel action);
-        public delegate void RemovedEventHandler(HistoryActionModel action);
+    /// <summary>
+    /// A history action
+    /// </summary>
+    public class BufferedHistoryAction : IHistoryAction {
+        public delegate void UndoEventHandler(BufferedHistoryAction action);
+        public delegate void RedoEventHandler(BufferedHistoryAction action);
+        public delegate void RemovedEventHandler(BufferedHistoryAction action);
 
-        public HistoryManager Manager { get; }
+        public HistoryManagerViewModel Manager { get; }
 
         public IHistoryAction Action { get; }
 
@@ -18,7 +22,7 @@ namespace FramePFX.Core.History {
         public event RedoEventHandler Redo;
         public event RemovedEventHandler Removed;
 
-        public HistoryActionModel(HistoryManager manager, IHistoryAction action) {
+        public BufferedHistoryAction(HistoryManagerViewModel manager, IHistoryAction action) {
             this.Manager = manager;
             this.Action = action;
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FramePFX.Core.Shortcuts.Inputs;
 
@@ -113,9 +114,9 @@ namespace FramePFX.Core.Shortcuts.Managing {
             }
         }
 
-        public virtual void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focusedGroup, List<GroupedShortcut> shortcutList) {
-            // could implement caching here at some point... but the focusedGroup thingy makes it a bit tricky
-            this.root.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, shortcutList);
+        public virtual void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focus, List<GroupedShortcut> shortcuts, Predicate<GroupedShortcut> filter = null) {
+            ShortcutCollectorArgs args = new ShortcutCollectorArgs(stroke, shortcuts, filter);
+            this.root.CollectShortcutsWithPrimaryStroke(ref args, focus);
         }
 
         public IEnumerable<GroupedShortcut> FindShortcutsByPaths(IEnumerable<string> paths) {

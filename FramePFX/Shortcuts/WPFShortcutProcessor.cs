@@ -1,3 +1,5 @@
+// #define PRINT_DEBUG_KEYSTROKES
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +11,7 @@ using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.Usage;
 using FramePFX.Core.Utils;
+using FramePFX.Shortcuts.Bindings;
 
 namespace FramePFX.Shortcuts {
     public class WPFShortcutProcessor : ShortcutProcessor {
@@ -18,6 +21,8 @@ namespace FramePFX.Shortcuts {
         public new WPFShortcutManager Manager => (WPFShortcutManager) base.Manager;
 
         public string CurrentInputBindingUsageID { get; set; } = WPFShortcutManager.DEFAULT_USAGE_ID;
+
+        public DependencyObject CurrentSource { get; private set; }
 
         public WPFShortcutProcessor(WPFShortcutManager manager) : base(manager) {
 
@@ -59,7 +64,7 @@ namespace FramePFX.Shortcuts {
                 try {
                     this.IsProcessingMouse = true;
                     this.CurrentInputBindingUsageID = UIFocusGroup.GetInputBindingUsageID(focused) ?? WPFShortcutManager.DEFAULT_USAGE_ID;
-                    this.SetupDataContext(sender, focused);
+                    this.SetupContext(sender, focused);
                     MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, e.ClickCount);
                     if (await this.OnMouseStroke(UIFocusGroup.FocusedGroupPath, stroke)) {
                         e.Handled = true;
@@ -68,6 +73,7 @@ namespace FramePFX.Shortcuts {
                 finally {
                     this.IsProcessingMouse = false;
                     this.CurrentDataContext = null;
+                    this.CurrentSource = null;
                     this.CurrentInputBindingUsageID = WPFShortcutManager.DEFAULT_USAGE_ID;
                 }
             }
@@ -93,7 +99,7 @@ namespace FramePFX.Shortcuts {
                 try {
                     this.IsProcessingMouse = true;
                     this.CurrentInputBindingUsageID = UIFocusGroup.GetInputBindingUsageID(focused) ?? WPFShortcutManager.DEFAULT_USAGE_ID;
-                    this.SetupDataContext(sender, focused);
+                    this.SetupContext(sender, focused);
                     MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, 0, e.Delta);
                     if (await this.OnMouseStroke(UIFocusGroup.FocusedGroupPath, stroke)) {
                         e.Handled = true;
@@ -102,6 +108,7 @@ namespace FramePFX.Shortcuts {
                 finally {
                     this.IsProcessingMouse = false;
                     this.CurrentDataContext = null;
+                    this.CurrentSource = null;
                     this.CurrentInputBindingUsageID = WPFShortcutManager.DEFAULT_USAGE_ID;
                 }
             }
@@ -112,16 +119,16 @@ namespace FramePFX.Shortcuts {
                 return;
             }
 
-            #if false // DEBUG
-            if (!isPreviewEvent) {
-                System.Diagnostics.Debug.WriteLine($"{(isRelease ? "UP  " : "DOWN")}: {e.Key}");
-            }
-            #endif
-
             Key key = e.Key == Key.System ? e.SystemKey : e.Key;
             if (ShortcutUtils.IsModifierKey(key) || key == Key.DeadCharProcessed) {
                 return;
             }
+
+#if PRINT_DEBUG_KEYSTROKES
+            if (!isPreviewEvent) {
+                System.Diagnostics.Debug.WriteLine($"{(isRelease ? "UP  " : "DOWN")}: {e.Key}");
+            }
+#endif
 
             if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e)) {
                 return;
@@ -135,7 +142,7 @@ namespace FramePFX.Shortcuts {
             try {
                 this.IsProcessingKey = true;
                 this.CurrentInputBindingUsageID = UIFocusGroup.GetInputBindingUsageID(focused) ?? WPFShortcutManager.DEFAULT_USAGE_ID;
-                this.SetupDataContext(sender, focused);
+                this.SetupContext(sender, focused);
                 KeyStroke stroke = new KeyStroke((int) key, (int) Keyboard.Modifiers, isRelease);
                 if (await processor.OnKeyStroke(UIFocusGroup.FocusedGroupPath, stroke)) {
                     e.Handled = true;
@@ -144,11 +151,12 @@ namespace FramePFX.Shortcuts {
             finally {
                 this.IsProcessingKey = false;
                 this.CurrentDataContext = null;
+                this.CurrentSource = null;
                 this.CurrentInputBindingUsageID = WPFShortcutManager.DEFAULT_USAGE_ID;
             }
         }
 
-        public void SetupDataContext(object sender, DependencyObject obj) {
+        public void SetupContext(object sender, DependencyObject obj) {
             DataContext context = new DataContext();
             WPFShortcutManager.AccumulateContext(context, obj, true, true, false);
             if (sender is FrameworkElement s && s.DataContext is object sdc) {
@@ -157,10 +165,40 @@ namespace FramePFX.Shortcuts {
 
             context.AddContext(sender);
             this.CurrentDataContext = context;
+            this.CurrentSource = obj;
         }
 
         public override async Task<bool> ActivateShortcut(GroupedShortcut shortcut) {
             bool finalResult = false;
+            if (this.CurrentSource?.GetValue(ShortcutBindingCollection.CollectionProperty) is ShortcutBindingCollection collection) {
+                foreach (ShortcutCommandBinding binding in collection) {
+                    if (!shortcut.FullPath.Equals(binding.ShortcutPath)) {
+                        continue;
+                    }
+
+                    if (!finalResult || binding.AllowChainExecution) {
+                        object param;
+                        ICommand cmd = binding.Command;
+                        if (cmd is BaseAsyncRelayCommand asyncCommand) {
+                            IoC.BroadcastShortcutActivity($"Activating shortcut: {shortcut} via command...");
+                            if (await asyncCommand.TryExecuteAsync(binding.CommandParameter)) {
+                                IoC.BroadcastShortcutActivity($"Activating shortcut: {shortcut} via command... Complete!");
+                                finalResult = true;
+                            }
+                        }
+                        else if (cmd != null && cmd.CanExecute(param = binding.CommandParameter)) {
+                            IoC.BroadcastShortcutActivity($"Activated shortcut: {shortcut} via command... Complete!");
+                            cmd.Execute(param);
+                            finalResult = true;
+                        }
+                    }
+                }
+            }
+
+            if (finalResult) {
+                return true;
+            }
+
             if (WPFShortcutManager.InputBindingCallbackMap.TryGetValue(shortcut.FullPath, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
                 if (shortcut.IsGlobal || shortcut.Group.IsGlobal) {
                     if (usageMap.TryGetValue(WPFShortcutManager.DEFAULT_USAGE_ID, out List<ActivationHandlerReference> list) && list.Count > 0) {

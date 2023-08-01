@@ -44,8 +44,12 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                     shortcutElement.SetAttribute("DisplayName", shortcut.DisplayName);
                 if (shortcut.IsGlobal)
                     shortcutElement.SetAttribute("IsGlobal", "true");
-                if (shortcut.IsInherited)
-                    shortcutElement.SetAttribute("Inherit", "true");
+                if (!shortcut.IsInherited) // inherit is true by default, so only serialise if explicitly false
+                    shortcutElement.SetAttribute("Inherit", "false");
+                switch (shortcut.RepeatMode) {
+                    case RepeatMode.NonRepeat: shortcutElement.SetAttribute("RepeatMode", "NonRepeat"); break;
+                    case RepeatMode.RepeatOnly: shortcutElement.SetAttribute("RepeatMode", "RepeatOnly"); break;
+                }
                 if (!string.IsNullOrWhiteSpace(shortcut.ActionId))
                     shortcutElement.SetAttribute("ActionId", shortcut.ActionId);
                 if (!string.IsNullOrWhiteSpace(shortcut.Description))
@@ -73,10 +77,10 @@ namespace FramePFX.Core.Shortcuts.Serialization {
         }
 
         protected void SerialiseContext(XmlDocument doc, XmlElement shortcutElement, DataContext context) {
-            if (context.InternalDataMap != null && context.InternalDataMap.Count > 0) {
+            if (context.EntryMap != null && context.EntryMap.Count > 0) {
                 List<string> flags = new List<string>();
                 List<KeyValuePair<string, string>> entries = new List<KeyValuePair<string, string>>();
-                foreach (KeyValuePair<string, object> pair in context.InternalDataMap) {
+                foreach (KeyValuePair<string, object> pair in context.EntryMap) {
                     if (string.IsNullOrWhiteSpace(pair.Key)) {
                         continue;
                     }
@@ -146,25 +150,21 @@ namespace FramePFX.Core.Shortcuts.Serialization {
             return root;
         }
 
-        public void DeserialiseGroupData(XmlElement element, ShortcutGroup group) {
-            foreach (XmlElement child in element.ChildNodes.OfType<XmlElement>()) {
-                string name = child.GetAttribute("Name");
-                if (string.IsNullOrWhiteSpace(name)) {
-                    throw new Exception($"Invalid 'Name' attribute for element in group '{group.FullPath ?? "<root>"}'");
-                }
-
+        public void DeserialiseGroupData(XmlElement src, ShortcutGroup dst) {
+            foreach (XmlElement child in src.ChildNodes.OfType<XmlElement>()) {
                 DataContext context = null;
                 switch (child.Name) {
                     case "Group": {
-                        ShortcutGroup innerGroup = group.CreateGroupByName(name, GetIsGlobal(child), GetIsInherit(child));
+                        ShortcutGroup innerGroup = dst.CreateGroupByName(GetElementName(dst, child), GetIsGlobal(child), GetIsInherit(child));
                         innerGroup.Description = GetDescription(child);
                         innerGroup.DisplayName = GetDisplayName(child);
                         this.DeserialiseGroupData(child, innerGroup);
                         break;
                     }
-                    case "Shortcut": { // XML should have strict name cases, buuut... why not be nice ;)
+                    case "Shortcut": {
                         List<IInputStroke> inputs = new List<IInputStroke>();
                         foreach (XmlElement innerElement in child.ChildNodes.OfType<XmlElement>()) {
+                            // XML should have strict name cases, buuuut... why not be nice ;)
                             switch (innerElement.Name) {
                                 case "KeyStroke":
                                 case "Keystroke":
@@ -190,13 +190,17 @@ namespace FramePFX.Core.Shortcuts.Serialization {
 
                                             foreach (string flag in flags.Split(' ')) {
                                                 if (!string.IsNullOrWhiteSpace(flag)) {
-                                                    context.Set(flag, true);
+                                                    context.Set(flag, BoolBox.True);
                                                 }
                                             }
                                         }
                                         else {
-                                            bool isBoolFlag = contextNode.Name.EqualsIgnoreCase("flag");
-                                            if (isBoolFlag || contextNode.Name.EqualsIgnoreCase("entry")) {
+                                            bool isBoolFlag, isFloatEntry = false, isIntEntry = false;
+                                            if ((isBoolFlag = contextNode.Name.EqualsIgnoreCase("flag")) ||
+                                                (isFloatEntry = contextNode.Name.EqualsIgnoreCase("floatentry")) ||
+                                                (isIntEntry = contextNode.Name.EqualsIgnoreCase("intentry")) ||
+                                                contextNode.Name.EqualsIgnoreCase("entry"))
+                                            { // slightly messy code above but it works ;)
                                                 string key = GetAttributeNullable(contextNode, "Key");
                                                 string value = GetAttributeNullable(contextNode, "Value");
                                                 if (string.IsNullOrEmpty(key)) {
@@ -214,6 +218,16 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                                                         throw new Exception($"Invalid flag value. Expected 'true' or 'false', but got '{value}'");
                                                     }
                                                 }
+                                                else if (isIntEntry) {
+                                                    if (value == null || !long.TryParse(value, out long v))
+                                                        throw new Exception("Invalid int entry value: " + value);
+                                                    context.Set(key, v);
+                                                }
+                                                else if (isFloatEntry) {
+                                                    if (value == null || !double.TryParse(value, out double v))
+                                                        throw new Exception("Invalid float entry value: " + value);
+                                                    context.Set(key, v);
+                                                }
                                                 else {
                                                     context.Set(key, value ?? "");
                                                 }
@@ -221,7 +235,7 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                                         }
                                     }
 
-                                    if (context.InternalDataMap == null || context.InternalDataMap.Count < 1) {
+                                    if (context.EntryMap == null || context.EntryMap.Count < 1) {
                                         context = null;
                                     }
 
@@ -246,7 +260,9 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                             continue;
                         }
 
-                        GroupedShortcut managed = group.AddShortcut(name, shortcut, GetIsGlobal(child), GetIsInherit(child));
+                        GroupedShortcut managed = dst.AddShortcut(GetElementName(dst, child), shortcut, GetIsGlobal(child));
+                        managed.IsInherited = GetIsInherit(child);
+                        managed.RepeatMode = GetRepeatMode(child);
                         managed.ActionId = GetAttributeNullable(child, "ActionId");
                         managed.Description = GetDescription(child);
                         managed.DisplayName = GetDisplayName(child);
@@ -263,16 +279,32 @@ namespace FramePFX.Core.Shortcuts.Serialization {
 
         protected static bool GetIsGlobal(XmlElement element) { // false by default
             string attrib = element.GetAttribute("IsGlobal");
-            if (string.IsNullOrWhiteSpace(attrib))
+            if (attrib.Length == 0)
                 attrib = element.GetAttribute("Global");
             return !string.IsNullOrWhiteSpace(attrib) && attrib.Equals("True", StringComparison.OrdinalIgnoreCase);
         }
 
         protected static bool GetIsInherit(XmlElement element) { // true by default
             string attrib = element.GetAttribute("IsInherit");
-            if (string.IsNullOrWhiteSpace(attrib))
+            if (attrib.Length == 0)
                 attrib = element.GetAttribute("Inherit");
             return string.IsNullOrWhiteSpace(attrib) || attrib.Equals("True", StringComparison.OrdinalIgnoreCase);
+        }
+
+        protected static RepeatMode GetRepeatMode(XmlElement element) { // true by default
+            string attrib = element.GetAttribute("RepeatMode");
+            if (string.IsNullOrWhiteSpace(attrib)) {
+                return RepeatMode.Ignored;
+            }
+            else if (attrib.EqualsIgnoreCase("nonrepeat") || attrib.EqualsIgnoreCase("norepeat") || attrib.EqualsIgnoreCase("nonrepeated")) {
+                return RepeatMode.NonRepeat;
+            }
+            else if (attrib.EqualsIgnoreCase("repeatonly") || attrib.EqualsIgnoreCase("repeat") || attrib.EqualsIgnoreCase("onlyrepeat")) {
+                return RepeatMode.RepeatOnly;
+            }
+            else {
+                return RepeatMode.NonRepeat;
+            }
         }
 
         protected static string GetDescription(XmlElement element) {
@@ -289,6 +321,19 @@ namespace FramePFX.Core.Shortcuts.Serialization {
                 return null;
             string value = node.Value;
             return string.IsNullOrEmpty(value) ? null : value;
+        }
+
+        protected static string GetElementName(ShortcutGroup dst, XmlElement child) {
+            if (!child.HasAttribute("Name")) {
+                throw new Exception($"'Name' attribute must be provided, in group '{dst.FullPath ?? "<root>"}'");
+            }
+
+            string childName = child.GetAttribute("Name");
+            if (string.IsNullOrWhiteSpace(childName)) {
+                throw new Exception($"Invalid 'Name' attribute value, in group '{dst.FullPath ?? "<root>"}'");
+            }
+
+            return childName;
         }
 
         #endregion

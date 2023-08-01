@@ -23,7 +23,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
             set => this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
         }
 
-        /// <summary>
+         /// <summary>
         /// The name of the shortcut. This will not be null or empty and will not consist of only whitespaces;
         /// this is always some sort of valid string (even if only 1 character)
         /// </summary>
@@ -61,24 +61,31 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public string ActionId { get; set; }
 
         /// <summary>
-        /// This shortcut's full path (the parent's path (if available/not root) and this shortcut's name)
+        /// This shortcut's full path (the parent's path (if available/not root) and this shortcut's name). Will not be null and will always containing valid characters
         /// </summary>
         public string FullPath { get; }
+
+        /// <summary>
+        /// Whether or not this shortcut is triggered by non-repeated key strokes, repeated key strokes, or if repeats are ignored
+        /// <para>
+        /// Set to true to accept
+        /// </para>
+        /// </summary>
+        public RepeatMode RepeatMode { get; set; }
 
         /// <summary>
         /// Additional context for this shortcut to be passed to the action system
         /// </summary>
         public DataContext ActionContext { get; set; }
 
-        public GroupedShortcut(ShortcutGroup group, string name, IShortcut shortcut, bool isGlobal = false, bool isInherited = true) {
+        public GroupedShortcut(ShortcutGroup group, string name, IShortcut shortcut, bool isGlobal = false) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
             this.Group = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
             this.Name = name;
-            this.Shortcut = shortcut;
+            this.Shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut));
             this.FullPath = group.GetPathForName(name);
             this.IsGlobal = isGlobal;
-            this.IsInherited = isInherited;
         }
 
         public override string ToString() {

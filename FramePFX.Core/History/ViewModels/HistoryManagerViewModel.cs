@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Core.Notifications;
 using FramePFX.Core.Views.Dialogs.Progression;
@@ -39,6 +40,9 @@ namespace FramePFX.Core.History.ViewModels {
 
         public NotificationPanelViewModel NotificationPanel { get; }
 
+        private readonly List<IHistoryAction> mergeList;
+        private int mergeListCount;
+
         public HistoryManagerViewModel(NotificationPanelViewModel panel, HistoryManager model) {
             this.manager = model ?? throw new ArgumentNullException();
             this.NotificationPanel = panel;
@@ -47,7 +51,43 @@ namespace FramePFX.Core.History.ViewModels {
             this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsActionActive && (this.manager.CanRedo || this.manager.CanUndo));
             this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.manager.IsActionActive);
             this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.manager.IsActionActive);
+            this.mergeList = new List<IHistoryAction>();
         }
+
+        private class MergeContext : IDisposable {
+            private readonly HistoryManagerViewModel manager;
+            private bool isDisposed;
+
+            public MergeContext(HistoryManagerViewModel manager) {
+                this.manager = manager;
+                this.manager.mergeListCount++;
+            }
+
+            public void Dispose() {
+                if (this.isDisposed) {
+                    throw new ObjectDisposedException(nameof(IDisposable));
+                }
+
+                this.isDisposed = true;
+                if (--this.manager.mergeListCount == 0) {
+                    int count = this.manager.mergeList.Count;
+                    if (count > 1) {
+                        this.manager.AddAction(new MultiHistoryAction(new List<IHistoryAction>(this.manager.mergeList)), "Multi action");
+                    }
+                    else if (count == 1) {
+                        this.manager.AddAction(this.manager.mergeList[0], "Multi action");
+                    }
+
+                    this.manager.mergeList.Clear();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets up the history manager for merging multiple actions into a single action
+        /// </summary>
+        /// <returns></returns>
+        public IDisposable OpenMerge() => new MergeContext(this);
 
         public async Task SetMaxUndoAction() {
             if (await this.IsActionActive("Cannot set maximum undo count")) {
@@ -72,7 +112,12 @@ namespace FramePFX.Core.History.ViewModels {
         }
 
         public void AddAction(IHistoryAction action, string information = null) {
-            this.manager.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
+            if (this.mergeListCount == 0) {
+                this.manager.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
+            }
+            else {
+                this.mergeList.Add(action);
+            }
         }
 
         public async Task UndoAction() {

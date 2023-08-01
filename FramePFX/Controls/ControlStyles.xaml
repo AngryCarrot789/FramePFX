@@ -44,7 +44,7 @@
 
     <Style x:Key="AbletonNumberDraggerStyle" TargetType="{x:Type dragger:NumberDragger}" BasedOn="{StaticResource {x:Type dragger:NumberDragger}}">
         <Setter Property="Background" Value="{DynamicResource PanelBackground2}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BrushPanelGap}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="Template">

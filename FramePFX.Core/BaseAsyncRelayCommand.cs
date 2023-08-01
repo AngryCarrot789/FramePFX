@@ -64,6 +64,9 @@ namespace FramePFX.Core {
             await this.ExecuteAsync(parameter);
         }
 
+        // The 2 functions below have almost the same copied code in order to give a slightly cleaner
+        // stack trace when debugging... and it probably also improves performance slightly
+
         /// <summary>
         /// Executes this async command, if it is not running. If the command is already running,
         /// then this method will return and the command will not be executed.
@@ -73,12 +76,17 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
         // Slight optimisation by not using async for ExecuteAsync, so that a state machine isn't needed
-        public Task ExecuteAsync(object parameter) {
-            if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 1) {
-                return Task.CompletedTask;
+        public async Task ExecuteAsync(object parameter) {
+            if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
+                this.RaiseCanExecuteChanged();
+                try {
+                    await this.ExecuteCoreAsync(parameter);
+                }
+                finally {
+                    this.isRunningState = 0;
+                }
+                this.RaiseCanExecuteChanged();
             }
-
-            return this.ExecuteInternalAsync(parameter);
         }
 
         /// <summary>
@@ -89,27 +97,20 @@ namespace FramePFX.Core {
         /// </para>
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
-        // Cannot make this non-async because... well... ContinueWith seems dodgy
         public async Task<bool> TryExecuteAsync(object parameter) {
-            if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 1) {
-                return false;
+            if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
+                this.RaiseCanExecuteChanged();
+                try {
+                    await this.ExecuteCoreAsync(parameter);
+                }
+                finally {
+                    this.isRunningState = 0;
+                }
+                this.RaiseCanExecuteChanged();
+                return true;
             }
 
-            await this.ExecuteInternalAsync(parameter);
-            return true;
-        }
-
-        // Actually executes the command, raising the CanExecuteChanged event in
-        // the process and finally setting the running state to not running
-        private async Task ExecuteInternalAsync(object parameter) {
-            this.RaiseCanExecuteChanged();
-            try {
-                await this.ExecuteCoreAsync(parameter);
-            }
-            finally {
-                this.isRunningState = 0;
-            }
-            this.RaiseCanExecuteChanged();
+            return false;
         }
 
         /// <summary>

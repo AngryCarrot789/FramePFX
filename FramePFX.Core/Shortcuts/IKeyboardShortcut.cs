@@ -3,6 +3,9 @@ using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Usage;
 
 namespace FramePFX.Core.Shortcuts {
+    /// <summary>
+    /// An interface for shortcuts that accept keyboard inputs
+    /// </summary>
     public interface IKeyboardShortcut : IShortcut {
         /// <summary>
         /// All of the Key Strokes that this shortcut contains

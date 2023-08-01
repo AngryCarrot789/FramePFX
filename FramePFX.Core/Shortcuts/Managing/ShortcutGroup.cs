@@ -96,10 +96,10 @@ namespace FramePFX.Core.Shortcuts.Managing {
             this.groups.Add(group);
         }
 
-        public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false, bool inherit = true) {
+        public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false) {
             ValidateName(name, "Shortcut name cannot be null or consist of only whitespaces");
             this.ValidateNameNotInUse(name);
-            GroupedShortcut managed = new GroupedShortcut(this, name, shortcut, isGlobal, inherit);
+            GroupedShortcut managed = new GroupedShortcut(this, name, shortcut, isGlobal);
             this.mapToItem[name] = managed;
             this.shortcuts.Add(managed);
             return managed;
@@ -113,33 +113,38 @@ namespace FramePFX.Core.Shortcuts.Managing {
             return this.mapToItem.TryGetValue(name, out object value) && value is ShortcutGroup;
         }
 
-        public List<GroupedShortcut> GetShortcutsWithPrimaryStroke(IInputStroke stroke, string focus) {
-            List<GroupedShortcut> list = new List<GroupedShortcut>();
-            this.CollectShortcutsWithPrimaryStroke(stroke, focus, list);
-            return list;
+        public void CollectShortcutsWithPrimaryStroke(ref ShortcutCollectorArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
+            this.CollectShortcutsInternal(ref args, string.IsNullOrWhiteSpace(focus) ? null : focus, allowDuplicateInheritedShortcuts);
         }
 
-        public void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focus, List<GroupedShortcut> list, bool allowDuplicateInheritedShortcuts = false) {
-            this.CollectShortcutsInternal(stroke, string.IsNullOrWhiteSpace(focus) ? null : focus, list, allowDuplicateInheritedShortcuts);
+        private static bool FindPrimaryStroke(List<GroupedShortcut> list, IInputStroke stroke) {
+            for (int i = 0, c = list.Count; i < c; i++) {
+                if (list[i].Shortcut.IsPrimaryStroke(stroke)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        private void CollectShortcutsInternal(IInputStroke stroke, string focus, List<GroupedShortcut> list, bool allowDuplicateInheritedShortcuts = false) {
+        private void CollectShortcutsInternal(ref ShortcutCollectorArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
             // Searching groups first is what allows inheritance to work properly, because you search the deepest
             // levels first and make your way to the root. Similar to how bubble events work
-            foreach (ShortcutGroup group in this.Groups) {
-                group.CollectShortcutsInternal(stroke, focus, list);
+            foreach (ShortcutGroup group in this.groups) {
+                group.CollectShortcutsInternal(ref args, focus);
             }
 
             bool requireGlobal = !this.IsGlobal && !IsFocusPathInScope(this.FullPath, focus, this.Inherit);
             foreach (GroupedShortcut shortcut in this.shortcuts) {
+                if (args.filter != null && !args.filter(shortcut)) {
+                    continue;
+                }
+
                 if (requireGlobal && !shortcut.IsGlobal) {
                     // I actually can't remember if this.FullPath should be used here or shortcut.Path
                     if (shortcut.IsInherited && IsFocusPathInScope(this.FullPath, focus, true)) {
-                        if (!allowDuplicateInheritedShortcuts && list.Count > 0) {
-                            IInputStroke primary = shortcut.Shortcut.PrimaryStroke; // saves potentially boxing Key/Mouse strokes multiple times
-                            if (list.Find(x => x.Shortcut.IsPrimaryStroke(primary)) != null) {
-                                continue;
-                            }
+                        if (!allowDuplicateInheritedShortcuts && FindPrimaryStroke(args.list, shortcut.Shortcut.PrimaryStroke)) {
+                            continue;
                         }
                     }
                     else {
@@ -147,8 +152,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
                     }
                 }
 
-                if (shortcut.Shortcut != null && !shortcut.Shortcut.IsEmpty && shortcut.Shortcut.IsPrimaryStroke(stroke)) {
-                    list.Add(shortcut);
+                if (!shortcut.Shortcut.IsEmpty && shortcut.Shortcut.IsPrimaryStroke(args.stroke)) {
+                    args.list.Add(shortcut);
                 }
             }
         }

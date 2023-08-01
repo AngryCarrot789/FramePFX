@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -6,6 +7,7 @@ using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Shortcuts.Managing;
 
 namespace FramePFX.Shortcuts.Bindings {
+    [Obsolete]
     public class ShortcutActionBinding : InputBinding {
         public static readonly DependencyProperty ShortcutAndUsageIdProperty =
             DependencyProperty.Register(
@@ -20,13 +22,6 @@ namespace FramePFX.Shortcuts.Bindings {
                 typeof(string),
                 typeof(ShortcutActionBinding),
                 new PropertyMetadata(null));
-
-        public static readonly DependencyProperty AdditionalContextProperty = DependencyProperty.Register("AdditionalContext", typeof(IDataContext), typeof(ShortcutActionBinding), new PropertyMetadata(null));
-
-        public IDataContext AdditionalContext {
-            get => (IDataContext) this.GetValue(AdditionalContextProperty);
-            set => this.SetValue(AdditionalContextProperty, value);
-        }
 
         /// <summary>
         /// <para>
@@ -98,11 +93,6 @@ namespace FramePFX.Shortcuts.Bindings {
             try {
                 DataContext context = new DataContext();
                 context.Merge(processor.CurrentDataContext);
-                IDataContext myDc = this.AdditionalContext;
-                if (myDc != null) {
-                    context.Merge(myDc);
-                }
-
                 context.AddContext(this);
                 if (Window.GetWindow(this) is Window w) {
                     if (w.DataContext is object dc1) {

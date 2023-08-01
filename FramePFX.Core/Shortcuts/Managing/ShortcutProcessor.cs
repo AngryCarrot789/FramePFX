@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +17,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
     /// </para>
     /// </summary>
     public class ShortcutProcessor {
-        private readonly List<GroupedShortcut> shortcutList;
+        private readonly List<GroupedShortcut> cachedShortcutList;
+        private readonly List<GroupedShortcut> cachedInstantActivationList;
 
         /// <summary>
         /// A reference to the manager that created this processor
@@ -36,17 +38,28 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public ShortcutProcessor(ShortcutManager manager) {
             this.Manager = manager;
             this.ActiveUsages = new Dictionary<IShortcutUsage, GroupedShortcut>();
-            this.shortcutList = new List<GroupedShortcut>(5);
+            this.cachedShortcutList = new List<GroupedShortcut>(8);
+            this.cachedInstantActivationList = new List<GroupedShortcut>(4);
         }
 
-        protected virtual void AccumulateShortcuts(IInputStroke stroke, string focusedGroup) {
-            this.Manager.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, this.shortcutList);
+        protected void AccumulateShortcuts(IInputStroke stroke, string focusedGroup) {
+            this.Manager.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, this.cachedShortcutList);
         }
 
-        protected virtual List<GroupedShortcut> GetInstantActivationShortcuts() {
-            List<GroupedShortcut> instantActivate = this.shortcutList.Where(x => !x.Shortcut.HasSecondaryStrokes).ToList();
-            this.shortcutList.RemoveAll(x => !x.Shortcut.HasSecondaryStrokes);
-            return instantActivate;
+        protected void AccumulateInstantActivationShortcuts() {
+            // List<GroupedShortcut> src = this.cachedShortcutList;
+            // int index = src.FindIndex(x => !x.Shortcut.HasSecondaryStrokes);
+            // if (index == -1)
+            //     return false;
+            // this.cachedInstantActivationList.Add(src[index]);
+            // src.RemoveAt(index);
+            // while ((index = src.FindIndex(index + 1, x => !x.Shortcut.HasSecondaryStrokes)) != -1) {
+            //     this.cachedInstantActivationList.Add(src[index]);
+            //     src.RemoveAt(index);
+            // }
+            // src.RemoveAll(x => !x.Shortcut.HasSecondaryStrokes);
+            this.cachedInstantActivationList.AddRange(this.cachedShortcutList.Where(x => !x.Shortcut.HasSecondaryStrokes));
+            this.cachedShortcutList.RemoveAll(x => !x.Shortcut.HasSecondaryStrokes);
         }
 
         protected virtual async Task<bool> OnUnexpectedCompletedUsage(IShortcutUsage usage, GroupedShortcut shortcut) {
@@ -63,17 +76,22 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public async Task<bool> OnKeyStroke(string focusedGroup, KeyStroke stroke) {
             if (this.ActiveUsages.Count < 1) {
                 this.AccumulateShortcuts(stroke, focusedGroup);
-                if (this.shortcutList.Count < 1) {
+                if (this.cachedShortcutList.Count < 1) {
                     return this.OnNoSuchShortcutForKeyStroke(focusedGroup, stroke);
                 }
 
                 bool result = false;
-                List<GroupedShortcut> instantActivate = this.GetInstantActivationShortcuts();
-                foreach (GroupedShortcut s in instantActivate) {
-                    result |= await this.ActivateShortcut(s);
+                try {
+                    this.AccumulateInstantActivationShortcuts();
+                    foreach (GroupedShortcut s in this.cachedInstantActivationList) {
+                        result |= await this.ActivateShortcut(s);
+                    }
+                }
+                finally {
+                    this.cachedInstantActivationList.Clear();
                 }
 
-                if (this.shortcutList.Count < 1) {
+                if (this.cachedShortcutList.Count < 1) {
                     return result;
                 }
 
@@ -82,7 +100,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 // In most cases, the list should only ever have 1 item with no secondary inputs, or be full of
                 // shortcuts that all have secondary inputs (because logically, that's how a key map should work...
                 // why would you want multiple shortcuts to activate on the same key stroke?)
-                foreach (GroupedShortcut mc in this.shortcutList) {
+                foreach (GroupedShortcut mc in this.cachedShortcutList) {
                     if (mc.Shortcut is IKeyboardShortcut shortcut) {
                         IKeyboardShortcutUsage usage = shortcut.CreateKeyUsage();
                         this.ActiveUsages[usage] = mc;
@@ -90,7 +108,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                     }
                 }
 
-                this.shortcutList.Clear();
+                this.cachedShortcutList.Clear();
                 if (this.ActiveUsages.Count > 0) {
                     return result | this.OnShortcutUsagesCreated();
                 }
@@ -167,21 +185,26 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public async Task<bool> OnMouseStroke(string focusedGroup, MouseStroke stroke) {
             if (this.ActiveUsages.Count < 1) {
                 this.AccumulateShortcuts(stroke, focusedGroup);
-                if (this.shortcutList.Count < 1) {
+                if (this.cachedShortcutList.Count < 1) {
                     return this.OnNoSuchShortcutForMouseStroke(focusedGroup, stroke);
                 }
 
                 bool result = false;
-                List<GroupedShortcut> instantActivate = this.GetInstantActivationShortcuts();
-                foreach (GroupedShortcut s in instantActivate) {
-                    result |= await this.ActivateShortcut(s);
+                try {
+                    this.AccumulateInstantActivationShortcuts();
+                    foreach (GroupedShortcut s in this.cachedInstantActivationList) {
+                        result |= await this.ActivateShortcut(s);
+                    }
+                }
+                finally {
+                    this.cachedInstantActivationList.Clear();
                 }
 
-                if (this.shortcutList.Count < 1) {
+                if (this.cachedShortcutList.Count < 1) {
                     return result;
                 }
 
-                foreach (GroupedShortcut mc in this.shortcutList) {
+                foreach (GroupedShortcut mc in this.cachedShortcutList) {
                     if (mc.Shortcut is IMouseShortcut shortcut) {
                         IMouseShortcutUsage usage = shortcut.CreateMouseUsage();
                         this.ActiveUsages[usage] = mc;
@@ -189,7 +212,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
                     }
                 }
 
-                this.shortcutList.Clear();
+                this.cachedShortcutList.Clear();
                 if (this.ActiveUsages.Count > 0) {
                     return result | this.OnShortcutUsagesCreated();
                 }

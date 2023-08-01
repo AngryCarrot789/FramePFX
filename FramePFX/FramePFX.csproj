@@ -314,9 +314,9 @@
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Services\WinExplorerService.cs" />
     <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
-    <Compile Include="Shortcuts\Bindings\ContextualShortcutCommandBinding.cs" />
-    <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutCommandBinding.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutBindingCollection.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
     <Compile Include="Shortcuts\Converters\ActionIdToGestureConverter.cs" />
     <Compile Include="Shortcuts\Converters\GlobalUpdateShortcutGestureConverter.cs" />
     <Compile Include="Shortcuts\Converters\KeyStrokeStringConverter.cs" />
@@ -345,6 +345,9 @@
     <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
     <Compile Include="SKAsyncViewPort.cs" />
     <Compile Include="SKViewPort.cs" />
+    <Compile Include="TestBinding\SexMachine.cs" />
+    <Compile Include="TestBinding\SexMachineCollection.cs" />
+    <Compile Include="TestBinding\SexMachines.cs" />
     <Compile Include="Themes\Attached\CornerHelper.cs" />
     <Compile Include="Themes\Attached\MenuHelper.cs" />
     <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
@@ -356,7 +359,7 @@
     </Compile>
     <Compile Include="Themes\Converters\TreeViewLineConverter.cs" />
     <Compile Include="Themes\ThemesController.cs" />
-    <Compile Include="Themes\ThemeTypes.cs" />
+    <Compile Include="Themes\ThemeType.cs" />
     <Compile Include="Themes\ToneGenerator.cs" />
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
@@ -510,10 +513,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\ColourDictionaries\VeryDarkTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Themes\ControlColours.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -606,6 +605,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Keymap.xsd" />
     <Content Include="Resources\Shaders\pink.frag" />
     <Content Include="Resources\Shaders\pink.vert" />
     <Content Include="Resources\Shaders\rgb.frag" />
@@ -620,7 +620,6 @@
     <Content Include="Resources\Shaders\xyz.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Behaviours" />
     <Folder Include="Editor\Timeline\Actions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

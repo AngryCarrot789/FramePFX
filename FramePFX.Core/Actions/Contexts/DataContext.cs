@@ -4,12 +4,13 @@ using System.Linq;
 
 namespace FramePFX.Core.Actions.Contexts {
     public class DataContext : IDataContext {
-        public Dictionary<string, object> InternalDataMap { get; set; }
+        public Dictionary<string, object> EntryMap { get; set; }
         public List<object> InternalContext { get; }
 
         public IEnumerable<object> Context => this.InternalContext;
 
-        public IEnumerable<(string, object)> CustomData => this.InternalDataMap != null ? this.InternalDataMap.Select(x => (x.Key, x.Value)) : Enumerable.Empty<(string, object)>();
+        // not read only dictionary because EntryMap may be null
+        public IEnumerable<(string, object)> Entries => this.EntryMap != null ? this.EntryMap.Select(x => (x.Key, x.Value)) : Enumerable.Empty<(string, object)>();
 
         public DataContext() {
             this.InternalContext = new List<object>();
@@ -49,7 +50,7 @@ namespace FramePFX.Core.Actions.Contexts {
                 throw new ArgumentNullException(nameof(key), "Key cannot be null");
             }
 
-            if (this.InternalDataMap != null && this.InternalDataMap.TryGetValue(key, out object data) && data is T t) {
+            if (this.EntryMap != null && this.EntryMap.TryGetValue(key, out object data) && data is T t) {
                 value = t;
                 return true;
             }
@@ -81,14 +82,14 @@ namespace FramePFX.Core.Actions.Contexts {
             }
 
             if (value == null) {
-                this.InternalDataMap?.Remove(key);
+                this.EntryMap?.Remove(key);
             }
             else {
-                if (this.InternalDataMap == null) {
-                    this.InternalDataMap = new Dictionary<string, object>();
+                if (this.EntryMap == null) {
+                    this.EntryMap = new Dictionary<string, object>();
                 }
 
-                this.InternalDataMap[key] = value;
+                this.EntryMap[key] = value;
             }
         }
 
@@ -98,24 +99,24 @@ namespace FramePFX.Core.Actions.Contexts {
             }
 
             if (ctx is DataContext ctxImpl) { // slight optimisation; no need to deconstruct KeyValuePairs into tuples
-                if (ctxImpl.InternalDataMap != null && ctxImpl.InternalDataMap.Count > 0) {
-                    if (this.InternalDataMap == null) {
-                        this.InternalDataMap = new Dictionary<string, object>(ctxImpl.InternalDataMap);
+                if (ctxImpl.EntryMap != null && ctxImpl.EntryMap.Count > 0) {
+                    if (this.EntryMap == null) {
+                        this.EntryMap = new Dictionary<string, object>(ctxImpl.EntryMap);
                     }
                     else {
-                        foreach (KeyValuePair<string, object> entry in ctxImpl.InternalDataMap) {
-                            this.InternalDataMap[entry.Key] = entry.Value;
+                        foreach (KeyValuePair<string, object> entry in ctxImpl.EntryMap) {
+                            this.EntryMap[entry.Key] = entry.Value;
                         }
                     }
                 }
             }
             else {
-                List<(string, object)> list = ctx.CustomData.ToList();
+                List<(string, object)> list = ctx.Entries.ToList();
                 if (list.Count < 1) {
                     return;
                 }
 
-                Dictionary<string, object> map = this.InternalDataMap ?? (this.InternalDataMap = new Dictionary<string, object>());
+                Dictionary<string, object> map = this.EntryMap ?? (this.EntryMap = new Dictionary<string, object>());
                 foreach ((string a, object b) in list) {
                     map[a] = b;
                 }

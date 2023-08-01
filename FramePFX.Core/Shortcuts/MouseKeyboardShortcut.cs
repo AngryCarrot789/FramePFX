@@ -5,6 +5,9 @@ using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Usage;
 
 namespace FramePFX.Core.Shortcuts {
+    /// <summary>
+    /// A shortcut that accepts a combination of key and mouse strokes
+    /// </summary>
     public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut {
         public static readonly MouseShortcut EmptyMouseKeyboardShortcut = new MouseShortcut();
 

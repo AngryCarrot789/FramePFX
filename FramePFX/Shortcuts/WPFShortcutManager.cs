@@ -96,41 +96,44 @@ namespace FramePFX.Shortcuts {
 
         // Typically applied only to windows
         public static void OnIsGlobalShortcutFocusTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (d is UIElement element) {
-                if (!(Instance is WPFShortcutManager manager)) {
-                    Debug.WriteLine($"ShortcutManager Global Instance is not an instance of {nameof(WPFShortcutManager)}: {Instance?.GetType()}");
-                    return;
-                }
+            if (!(d is UIElement element)) {
+                throw new Exception("This property must be applied to type UIElement only, not " + d?.GetType());
+            }
 
-                element.MouseDown -= RootMouseDownHandlerNonPreview;
-                element.MouseUp -= RootMouseUpHandlerNonPreview;
-                element.KeyDown -= RootKeyDownHandlerNonPreview;
-                element.KeyUp -= RootKeyUpHandlerNonPreview;
-                element.MouseWheel -= RootWheelHandlerNonPreview;
-                element.PreviewMouseDown -= RootMouseDownHandlerPreview;
-                element.PreviewMouseUp -= RootMouseUpHandlerPreview;
-                element.PreviewKeyDown -= RootKeyDownHandlerPreview;
-                element.PreviewKeyUp -= RootKeyUpHandlerPreview;
-                element.PreviewMouseWheel -= RootWheelHandlerPreview;
-                if (e.NewValue != e.OldValue && (bool) e.NewValue) {
-                    element.MouseDown += RootMouseDownHandlerNonPreview;
-                    element.MouseUp += RootMouseUpHandlerNonPreview;
-                    element.KeyDown += RootKeyDownHandlerNonPreview;
-                    element.KeyUp += RootKeyUpHandlerNonPreview;
-                    element.MouseWheel += RootWheelHandlerNonPreview;
-                    element.PreviewMouseDown += RootMouseDownHandlerPreview;
-                    element.PreviewMouseUp += RootMouseUpHandlerPreview;
-                    element.PreviewKeyDown += RootKeyDownHandlerPreview;
-                    element.PreviewKeyUp += RootKeyUpHandlerPreview;
-                    element.PreviewMouseWheel += RootWheelHandlerPreview;
-                    element.SetValue(UIFocusGroup.ShortcutProcessorProperty, new WPFShortcutProcessor(manager));
-                }
-                else {
-                    element.ClearValue(UIFocusGroup.ShortcutProcessorProperty);
-                }
+            if (e.OldValue == e.NewValue) {
+                return;
+            }
+
+            if (!(Instance is WPFShortcutManager manager)) {
+                Debug.WriteLine($"ShortcutManager Global Instance is not an instance of {nameof(WPFShortcutManager)}: {Instance?.GetType()}");
+                return;
+            }
+
+            element.MouseDown -= RootMouseDownHandlerNonPreview;
+            element.MouseUp -= RootMouseUpHandlerNonPreview;
+            element.KeyDown -= RootKeyDownHandlerNonPreview;
+            element.KeyUp -= RootKeyUpHandlerNonPreview;
+            element.MouseWheel -= RootWheelHandlerNonPreview;
+            element.PreviewMouseDown -= RootMouseDownHandlerPreview;
+            element.PreviewMouseUp -= RootMouseUpHandlerPreview;
+            element.PreviewKeyDown -= RootKeyDownHandlerPreview;
+            element.PreviewKeyUp -= RootKeyUpHandlerPreview;
+            element.PreviewMouseWheel -= RootWheelHandlerPreview;
+            if ((bool) e.NewValue) {
+                element.MouseDown += RootMouseDownHandlerNonPreview;
+                element.MouseUp += RootMouseUpHandlerNonPreview;
+                element.KeyDown += RootKeyDownHandlerNonPreview;
+                element.KeyUp += RootKeyUpHandlerNonPreview;
+                element.MouseWheel += RootWheelHandlerNonPreview;
+                element.PreviewMouseDown += RootMouseDownHandlerPreview;
+                element.PreviewMouseUp += RootMouseUpHandlerPreview;
+                element.PreviewKeyDown += RootKeyDownHandlerPreview;
+                element.PreviewKeyUp += RootKeyUpHandlerPreview;
+                element.PreviewMouseWheel += RootWheelHandlerPreview;
+                element.SetValue(UIFocusGroup.ShortcutProcessorProperty, new WPFShortcutProcessor(manager));
             }
             else {
-                throw new Exception("This property must be applied to type UIElement only, not " + d?.GetType());
+                element.ClearValue(UIFocusGroup.ShortcutProcessorProperty);
             }
         }
 

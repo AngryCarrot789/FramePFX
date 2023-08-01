@@ -58,13 +58,14 @@ namespace FramePFX.Core.Shortcuts.Inputs {
             this.CustomParam = customParam;
         }
 
-        public bool Equals(IInputStroke stroke) {
-            return stroke is MouseStroke other && this.Equals(other);
-        }
+        /// <summary>
+        /// Gets whether the given stroke is a mouse stroke and it matches this instance
+        /// </summary>
+        /// <param name="stroke">The stroke to compare</param>
+        /// <returns>The current instance and the given stroke are "equal/match"</returns>
+        public bool Equals(IInputStroke stroke) => stroke is MouseStroke other && this.Equals(other);
 
-        public override bool Equals(object obj) {
-            return obj is MouseStroke other && this.Equals(other);
-        }
+        public override bool Equals(object obj) => obj is MouseStroke other && this.Equals(other);
 
         public bool Equals(MouseStroke other) {
             return this.MouseButton == other.MouseButton &&
@@ -109,7 +110,7 @@ namespace FramePFX.Core.Shortcuts.Inputs {
             }
 
             if (appendDelta && this.WheelDelta != 0) {
-                sb.Append(" (ROT ").Append(this.WheelDelta).Append(')');
+                sb.Append(" (Delta ").Append(this.WheelDelta).Append(')');
             }
 
             return sb.ToString();

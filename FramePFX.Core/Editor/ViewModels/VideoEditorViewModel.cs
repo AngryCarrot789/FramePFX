@@ -70,6 +70,12 @@ namespace FramePFX.Core.Editor.ViewModels {
             set => this.RaisePropertyChanged(ref this.isRecordingKeyFrames, value);
         }
 
+        private bool areAutomationShortcutsEnabled;
+        public bool AreAutomationShortcutsEnabled {
+            get => this.areAutomationShortcutsEnabled;
+            set => this.RaisePropertyChanged(ref this.areAutomationShortcutsEnabled, value);
+        }
+
         public EditorPlaybackViewModel Playback { get; }
 
         public VideoEditor Model { get; }
@@ -109,7 +115,14 @@ namespace FramePFX.Core.Editor.ViewModels {
                 RenderSpan = new FrameSpan(0, endIndex)
             };
 
-            await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
+            this.IsExporting = true;
+            try {
+                await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
+            }
+            finally {
+                this.IsExporting = false;
+            }
+
             await this.ActiveProject.Timeline.DoRenderAsync(false);
         }
 

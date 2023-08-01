@@ -5,6 +5,9 @@
                     xmlns:edn="clr-namespace:FramePFX.Core.Editor.Notifications;assembly=FramePFX.Core"
                     xmlns:sp="clr-namespace:FramePFX.Editor.Notifications.SavingProject"
                     xmlns:types="clr-namespace:FramePFX.Core.Notifications.Types;assembly=FramePFX.Core">
+    <SolidColorBrush x:Key="NotificationHeaderBackground" Color="{DynamicResource AColour.Tone7.Background.Static}"/>
+    <SolidColorBrush x:Key="NotificationBackground"       Color="{DynamicResource AColour.Tone6.Background.Static}"/>
+
     <n:NotificationDataTemplateSelector x:Key="NotificationTemplateSelector">
         <n:NotificationDataTemplateSelector.MessageNotificationTemplate>
             <DataTemplate DataType="{x:Type types:MessageNotification}">
@@ -12,7 +15,7 @@
                     <Grid.InputBindings>
                         <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}"/>
                     </Grid.InputBindings>
-                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground1}">
+                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground}">
                         <Grid>
                             <Label Content="{Binding Header, Mode=OneWay}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
                             <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse"/>
@@ -28,7 +31,7 @@
                     <Grid.InputBindings>
                         <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}"/>
                     </Grid.InputBindings>
-                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground1}">
+                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground}">
                         <Grid>
                             <Label Content="History" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
                             <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse"/>
@@ -44,7 +47,7 @@
                     <Grid.InputBindings>
                         <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}"/>
                     </Grid.InputBindings>
-                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground1}">
+                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground}">
                         <Grid>
                             <Label Content="Save Project" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0"/>
                             <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse"/>
@@ -70,7 +73,7 @@
             <Setter.Value>
                 <Style TargetType="{x:Type n:NotificationControl}">
                     <Setter Property="Margin" Value="0,0,5,5"/>
-                    <Setter Property="Background" Value="{DynamicResource NotificationBackground1}"/>
+                    <Setter Property="Background" Value="{DynamicResource NotificationBackground}"/>
                     <Setter Property="BorderThickness" Value="1"/>
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Template">

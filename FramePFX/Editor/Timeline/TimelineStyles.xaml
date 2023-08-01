@@ -428,7 +428,7 @@
                                 <Border x:Name="PART_SelectionRange" HorizontalAlignment="Left" VerticalAlignment="Top" Background="DodgerBlue"/>
                                 <Border x:Name="PART_TimestampBoard"
                                         Background="{DynamicResource ABrush.Tone4.Background.Static}"
-                                        BorderBrush="{DynamicResource BrushPanelGap}"
+                                        BorderBrush="{DynamicResource PanelBorderBrush}"
                                         BorderThickness="0 0 0 1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="40">
                                     <rulerwpf:Ruler VerticalAlignment="Stretch"
                                                 HorizontalAlignment="Stretch"

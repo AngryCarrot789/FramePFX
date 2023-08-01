@@ -49,16 +49,17 @@ namespace FramePFX.Core.Shortcuts.Inputs {
             this.IsKeyRelease = isKeyRelease;
         }
 
-        public bool Equals(IInputStroke stroke) {
-            return stroke is KeyStroke other && this.Equals(other);
-        }
+        /// <summary>
+        /// Gets whether the given stroke is a key stroke and it matches this instance
+        /// </summary>
+        /// <param name="stroke">The stroke to compare</param>
+        /// <returns>The current instance and the given stroke are "equal/match"</returns>
+        public bool Equals(IInputStroke stroke) => stroke is KeyStroke other && this.Equals(other);
+
+        public override bool Equals(object obj) => obj is KeyStroke other && this.Equals(other);
 
         public bool Equals(KeyStroke stroke) {
             return this.KeyCode == stroke.KeyCode && this.Modifiers == stroke.Modifiers && this.IsKeyRelease == stroke.IsKeyRelease;
-        }
-
-        public override bool Equals(object obj) {
-            return obj is KeyStroke other && this.Equals(other);
         }
 
         public override int GetHashCode() {

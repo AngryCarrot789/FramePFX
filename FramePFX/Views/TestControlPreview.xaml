@@ -32,9 +32,9 @@
                 <Button Content="C"/>
             </ToolBar>
             <ToolBar>
-                <Button Content="A"/>
-                <Button Content="B"/>
-                <Button Content="C"/>
+                <Button Content="D"/>
+                <Button Content="E"/>
+                <Button Content="F"/>
             </ToolBar>
         </ToolBarPanel>
         <TabControl HorizontalAlignment="Left" Height="108" Margin="0,198,0,0" VerticalAlignment="Top" Width="255">

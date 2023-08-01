@@ -31,7 +31,7 @@
 
             <Style x:Key="ThingTabablzControlStyle" TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource {x:Type dragablz:TabablzControl}}">
                 <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BrushPanelGap}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
             </Style>
 
@@ -43,7 +43,7 @@
                 <editor:ThingInterTabClient.WinContentTemplate>
                     <DataTemplate>
                         <dockablz:Layout Partition="{StaticResource Partition}" InterLayoutClient="{DynamicResource ThingInterLayoutClient}">
-                            <dragablz:TabablzControl Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderBrush="{DynamicResource BrushPanelGap}" BorderThickness="0">
+                            <dragablz:TabablzControl Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0">
                                 <dragablz:TabablzControl.InterTabController>
                                     <dragablz:InterTabController Partition="{StaticResource Partition}" InterTabClient="{DynamicResource ThingInterTabClient}"/>
                                 </dragablz:TabablzControl.InterTabController>

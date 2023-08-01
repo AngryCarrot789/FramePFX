@@ -5,13 +5,11 @@
 
     <!-- The letter A is in front of the colours themselves, because it's annoying having to scroll down in visual studio's designer to "Colour" or "Brush" -->
 
-    <SolidColorBrush x:Key="BrushPanelGap"    Color="{DynamicResource AColour.Tone1.Border.Static}"/>
+    <!-- If you fancy going the JetBrains GUI way, where the main UI is just crammed with a single 1px border, then you can use these -->
+    <SolidColorBrush x:Key="PanelBorderBrush" Color="{DynamicResource AColour.Tone1.Border.Static}"/>
     <SolidColorBrush x:Key="PanelBackground1" Color="{DynamicResource AColour.Tone1.Background.Static}"/>
     <SolidColorBrush x:Key="PanelBackground2" Color="{DynamicResource AColour.Tone2.Background.Static}"/>
     <SolidColorBrush x:Key="PanelBackground3" Color="{DynamicResource AColour.Tone3.Background.Static}"/>
-
-    <SolidColorBrush x:Key="NotificationHeaderBackground1" Color="{DynamicResource AColour.Tone7.Background.Static}"/>
-    <SolidColorBrush x:Key="NotificationBackground1"       Color="{DynamicResource AColour.Tone6.Background.Static}"/>
 
     <SolidColorBrush x:Key="Button.Static.Background"                      Color="{DynamicResource AColour.Tone5.Background.Static}"/>
     <SolidColorBrush x:Key="Button.Static.Border"                          Color="{DynamicResource AColour.Tone5.Border.Static}"/>
@@ -29,8 +27,8 @@
     <SolidColorBrush x:Key="ToggleButton.IsChecked.Border"                 Color="{DynamicResource AColour.AccentTone2.Border.Static}"/>
     <SolidColorBrush x:Key="ToggleButton.Pressed.IsChecked.Background"     Color="{DynamicResource AColour.Tone6.Border.Selected}"/>
     <SolidColorBrush x:Key="ToggleButton.Pressed.IsChecked.Border"         Color="{DynamicResource AColour.Tone6.Border.Selected}"/>
-    <SolidColorBrush x:Key="ToggleButton.MouseOver.IsChecked.Background"   Color="{DynamicResource AColour.Tone7.Border.Selected}"/>
-    <SolidColorBrush x:Key="ToggleButton.MouseOver.IsChecked.Border"       Color="{DynamicResource AColour.Tone7.Border.Selected}"/>
+    <SolidColorBrush x:Key="ToggleButton.MouseOver.IsChecked.Background"   Color="{DynamicResource AColour.AccentTone1.Background.Static}"/>
+    <SolidColorBrush x:Key="ToggleButton.MouseOver.IsChecked.Border"       Color="{DynamicResource AColour.AccentTone1.Border.Static}"/>
 
     <SolidColorBrush x:Key="ComboBox.Static.Background"                    Color="{DynamicResource AColour.Tone4.Background.Static}"/>
     <SolidColorBrush x:Key="ComboBox.Static.Border"                        Color="{DynamicResource AColour.Tone4.Border.Static}"/>
@@ -262,8 +260,20 @@
     <SolidColorBrush x:Key="TreeViewItem.MouseDown.Background"                  Color="{DynamicResource AColour.Tone6.Background.MouseDown}"/>
     <SolidColorBrush x:Key="TreeViewItem.MouseDown.Border"                      Color="{DynamicResource AColour.Tone6.Border.MouseDown}"/>
 
-    <SolidColorBrush x:Key="Window.Static.Background"                           Color="{DynamicResource AColour.Tone3.Background.Static}"/>
-    <SolidColorBrush x:Key="Window.Static.Border"                               Color="{DynamicResource AColour.Tone5.Border.Static}"/>
-    <SolidColorBrush x:Key="Window.Static.Foreground"                           Color="{DynamicResource AColour.Foreground.Static}"/>
-    <SolidColorBrush x:Key="Window.Static.Title.Background"                     Color="{DynamicResource AColour.Tone3.Border.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.Static.Background"               Color="{DynamicResource AColour.Tone4.Background.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.Static.Border"                   Color="{DynamicResource AColour.Tone4.Border.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.HorizontalSeparatorBrush"        Color="{DynamicResource AColour.Tone7.Background.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.VerticalSeparatorBrush"          Color="{DynamicResource AColour.Tone7.Background.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.HeaderItem.Static.Background"    Color="{DynamicResource AColour.Tone6.Background.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.HeaderItem.MouseOver.Background" Color="{DynamicResource AColour.Tone6.Background.MouseOver}"/>
+    <SolidColorBrush x:Key="DataGrid.HeaderItem.MouseDown.Background" Color="{DynamicResource AColour.Tone6.Background.MouseDown}"/>
+    <SolidColorBrush x:Key="DataGrid.RowHeader.Static.Background"     Color="{DynamicResource AColour.Tone6.Background.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.Row.Selected.Background"         Color="{DynamicResource AColour.Tone5.Background.Selected}"/>
+    <SolidColorBrush x:Key="DataGrid.CellItem.Static.Background"      Color="{DynamicResource AColour.Tone5.Background.Static}"/>
+    <SolidColorBrush x:Key="DataGrid.CellItem.MouseOver.Background"   Color="{DynamicResource AColour.Tone5.Background.MouseOver}"/>
+
+    <SolidColorBrush x:Key="Window.Static.Background"                 Color="{DynamicResource AColour.Tone3.Background.Static}"/>
+    <SolidColorBrush x:Key="Window.Static.Border"                     Color="{DynamicResource AColour.Tone5.Border.Static}"/>
+    <SolidColorBrush x:Key="Window.Static.Foreground"                 Color="{DynamicResource AColour.Foreground.Static}"/>
+    <SolidColorBrush x:Key="Window.Static.Title.Background"           Color="{DynamicResource AColour.Tone3.Border.Static}"/>
 </ResourceDictionary>

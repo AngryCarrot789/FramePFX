@@ -32,6 +32,12 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             set => this.RaisePropertyChanged(ref this.inherit, value);
         }
 
+        private RepeatMode repeatMode;
+        public RepeatMode RepeatMode {
+            get => this.repeatMode;
+            set => this.RaisePropertyChanged(ref this.repeatMode, value);
+        }
+
         public ICommand AddKeyStrokeCommand { get; set; }
 
         public ICommand AddMouseStrokeCommand { get; set; }
@@ -46,6 +52,7 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             this.Description = reference.Description;
             this.isGlobal = reference.IsGlobal;
             this.inherit = reference.IsInherited;
+            this.repeatMode = reference.RepeatMode;
             this.InputStrokes = new ObservableCollection<InputStrokeViewModel>();
             this.AddKeyStrokeCommand = new RelayCommand(this.AddKeyStrokeAction);
             this.AddMouseStrokeCommand = new RelayCommand(this.AddMouseStrokeAction);
@@ -95,13 +102,8 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
         }
 
         public IShortcut SaveToRealShortcut() {
-            bool hasKey = false;
-            bool hasMouse = false;
-            if (this.InputStrokes.Count(x => x is KeyStrokeViewModel) > 0)
-                hasKey = true;
-            if (this.InputStrokes.Count(x => x is MouseStrokeViewModel) > 0)
-                hasMouse = true;
-
+            bool hasKey = this.InputStrokes.Any(x => x is KeyStrokeViewModel);
+            bool hasMouse = this.InputStrokes.Any(x => x is MouseStrokeViewModel);
             // These 3 different shortcut types only really exist for a performance reason. You can
             // always fall back to MouseKeyboardShortcut, and just ignore the other types
             if (hasKey && hasMouse) {

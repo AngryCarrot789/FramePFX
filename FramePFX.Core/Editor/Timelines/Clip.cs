@@ -3,6 +3,7 @@ using System.Diagnostics;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.ResourceManaging;
+using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
@@ -10,7 +11,9 @@ namespace FramePFX.Core.Editor.Timelines {
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IAutomatable, IRBESerialisable, IDisposable {
+    public abstract class Clip : IAutomatable, IDisposable {
+        internal long internalClipId = -1;
+
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
         /// </summary>
@@ -46,18 +49,24 @@ namespace FramePFX.Core.Editor.Timelines {
         public bool IsDisposing { get; private set; }
 
         /// <summary>
-        /// A unique identifier for this clip, relative to the project. Returns -1 if the clip does not have an
-        /// ID assigned and is not associated with a track yet (otherwise, a new id is assigned through the project model)
+        /// A unique identifier for this clip, relative to the project. If an ID is not
+        /// assigned, then a new ID is created for this clip
         /// </summary>
         public long UniqueClipId {
-            get => this.clipId >= 0 ? this.clipId : (this.clipId = this.Track?.Timeline.Project.GetNextClipId() ?? -1);
-            set => this.clipId = value;
+            get {
+                if (this.internalClipId >= 0)
+                    return this.internalClipId;
+                if (this.Timeline == null)
+                    throw new Exception("No timeline assigned");
+                return this.internalClipId = this.Timeline.GetNextClipId(this);
+            }
+            set => this.internalClipId = value;
         }
 
         /// <summary>
         /// Whether or not this clip has an ID assigned or not
         /// </summary>
-        public bool HasClipId => this.clipId >= 0;
+        public bool HasClipId => this.internalClipId >= 0;
 
         /// <summary>
         /// The position of this clip in terms of video frames, in the form of a <see cref="Utils.FrameSpan"/> which has a begin and duration property
@@ -93,7 +102,8 @@ namespace FramePFX.Core.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
-        private long clipId = -1;
+        // this feels like such bad design...
+        internal ClipViewModel viewModel;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
@@ -143,8 +153,8 @@ namespace FramePFX.Core.Editor.Timelines {
         public virtual void WriteToRBE(RBEDictionary data) {
             if (!string.IsNullOrEmpty(this.DisplayName))
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
-            if (this.clipId >= 0)
-                data.SetLong(nameof(this.UniqueClipId), this.clipId);
+            if (this.internalClipId >= 0)
+                data.SetLong(nameof(this.UniqueClipId), this.internalClipId);
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
@@ -157,7 +167,7 @@ namespace FramePFX.Core.Editor.Timelines {
         public virtual void ReadFromRBE(RBEDictionary data) {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             if (data.TryGetLong(nameof(this.UniqueClipId), out long id) && id >= 0)
-                this.clipId = id;
+                this.internalClipId = id;
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));

@@ -42,5 +42,9 @@ namespace FramePFX.Core.Notifications {
                 this.Handler.OnNotificationRemoved(notification);
             }
         }
+
+        public bool IsNotificationPresent(NotificationViewModel notification) {
+            return this.notifications.Contains(notification);
+        }
     }
 }

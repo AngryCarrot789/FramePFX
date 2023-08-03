@@ -18,8 +18,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public ShortcutGroup Parent { get; }
 
         /// <summary>
-        /// This group's full path (containing the parent's path and this group's name into one).
-        /// It will either be null (meaning no parent), or a non-empty string; it will never consist of only whitespaces
+        /// This group's full path (containing the parent's path and this group's name into one). It will either be
+        /// null (meaning we are a root group), or a non-empty string; it will never consist of only whitespaces
         /// </summary>
         public string FullPath { get; }
 
@@ -268,6 +268,10 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 string path = this.FullPath != null ? StringUtils.Join(this.FullPath, name, SeparatorChar) : name;
                 throw new Exception($"Group or shortcut already exists with name: '{path}'");
             }
+        }
+
+        public override string ToString() {
+            return $"{nameof(ShortcutGroup)} ({this.FullPath ?? "<root>"}{(!string.IsNullOrWhiteSpace(this.DisplayName) ? $" \"{this.DisplayName}\"" : "")})";
         }
     }
 }

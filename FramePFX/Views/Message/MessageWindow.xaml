@@ -68,7 +68,7 @@
                                     HorizontalAlignment="Center" VerticalAlignment="Stretch"
                                     Padding="10,0" MinWidth="75" Margin="0,0,5,0"
                                     SnapsToDevicePixels="True"
-                                    attached:CornerHelper.CornerRadius="2"
+                                    attached:CornerRadiusHelper.Value="2"
                                     Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                     BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
                                     Focusable="True"/>

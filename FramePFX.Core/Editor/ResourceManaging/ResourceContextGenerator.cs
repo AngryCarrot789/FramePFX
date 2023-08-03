@@ -19,7 +19,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 ObservableCollection<BaseResourceObjectViewModel> selected = resItem.Parent.SelectedItems;
                 if (selected.Count > 0 && selected.Contains(resItem)) {
                     if (selected.Count == 1) {
-                        list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.RenameItem", "Rename"));
+                        list.Add(new ActionContextEntry(resItem.Manager, "actions.general.RenameItem", "Rename"));
                         list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.GroupSelection", "Add to group"));
                         list.Add(SeparatorEntry.Instance);
                     }
@@ -46,7 +46,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                     }
                 }
                 else {
-                    list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.RenameItem", "Rename"));
+                    list.Add(new ActionContextEntry(resItem.Manager, "actions.general.RenameItem", "Rename"));
                     list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.DeleteItems", "Delete"));
                     list.Add(SeparatorEntry.Instance);
                     if (resItem is ResourceItemViewModel item) {

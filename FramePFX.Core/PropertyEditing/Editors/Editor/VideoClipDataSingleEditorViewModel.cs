@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 

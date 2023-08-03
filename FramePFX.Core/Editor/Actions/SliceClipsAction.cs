@@ -5,7 +5,6 @@ using FramePFX.Core.Actions;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Core.Editor.Actions {
-    [ActionRegistration("actions.editor.timeline.SliceClips")]
     public class SliceClipsAction : AnAction {
         public SliceClipsAction() {
 

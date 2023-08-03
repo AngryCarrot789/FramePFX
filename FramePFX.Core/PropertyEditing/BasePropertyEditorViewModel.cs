@@ -53,28 +53,24 @@ namespace FramePFX.Core.PropertyEditing {
         /// </param>
         /// <typeparam name="T">Type of object to get</typeparam>
         /// <returns>True if there is 1 object, or more than 1 and they have the same value, otherwise false</returns>
-        public static bool GetValueForObjects<T>(IReadOnlyList<object> objects, Func<object, T> getter, out T equal) {
+        public static bool GetEqualValue<T>(IReadOnlyList<object> objects, Func<object, T> getter, out T equal) {
             int count;
             if (objects == null || (count = objects.Count) < 1) {
                 equal = default;
                 return false;
             }
-            else if (count > 1) {
-                // handle multiple selection separately to reduce usage of EqualityComparer
+
+            equal = getter(objects[0]);
+            if (count > 1) {
                 EqualityComparer<T> comparator = EqualityComparer<T>.Default;
-                equal = getter(objects[0]);
                 for (int i = 1; i < count; i++) {
                     if (!comparator.Equals(getter(objects[i]), equal)) {
                         return false;
                     }
                 }
+            }
 
-                return true;
-            }
-            else {
-                equal = getter(objects[0]);
-                return true;
-            }
+            return true;
         }
 
         /// <summary>

@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
-using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.Timelines.Tracks;
@@ -87,19 +85,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public InputValidator TrackNameValidator { get; }
 
-        /// <summary>
-        /// A flag used when handing clip drag events so that other clips know if they are being dragged by a source clip (multi-clip drag)
-        /// </summary>
-        public bool IsGloballyDragging { get; set; }
-
-        public bool IsAboutToDragAcrossTracks { get; set; }
-
-        public ClipViewModel ProcessingDragEventClip { get; set; }
-
-        public List<ClipViewModel> DraggingClips { get; set; }
-
-        public List<HistoryVideoClipPosition> DragStopHistoryList { get; set; }
-
         static TimelineViewModel() {
             DeleteTracksDialog = Dialogs.YesCancelDialog.Clone();
             DeleteTracksDialog.ShowAlwaysUseNextResultOption = true;
@@ -126,8 +111,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.CachedDoRenderAndScheduleUpdatePlayHead = this.DoFullRenderAndScheduleUIUpdate;
             foreach (Track track in this.Model.Tracks) {
                 TrackViewModel trackVm = TrackRegistry.Instance.CreateViewModelFromModel(track);
-                TrackViewModel.SetTimeline(trackVm, this);
+                trackVm.Timeline = this;
                 this.tracks.Add(trackVm);
+                TrackViewModel.RaiseTimelineChanged(trackVm);
             }
         }
 
@@ -135,8 +121,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public void InsertTrack(int index, TrackViewModel track) {
             this.Model.InsertTrack(index, track.Model);
+            track.Timeline = this;
             this.tracks.Insert(index, track);
-            TrackViewModel.SetTimeline(track, this);
+            TrackViewModel.RaiseTimelineChanged(track);
             this.OnProjectModified();
         }
 
@@ -212,8 +199,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public void RemoveTracks(IEnumerable<TrackViewModel> list) {
             foreach (TrackViewModel item in list) {
                 this.Model.RemoveTrack(item.Model);
+                item.Timeline = null;
                 this.tracks.Remove(item);
-                TrackViewModel.SetTimeline(item, null);
+                TrackViewModel.RaiseTimelineChanged(item);
             }
 
             this.OnProjectModified();
@@ -317,7 +305,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         }
 
         public void MoveClip(ClipViewModel clip, TrackViewModel oldTrack, TrackViewModel newTrack) {
-            oldTrack.RemoveClipFromTrack(clip);
+            if (!oldTrack.RemoveClipFromTrack(clip))
+                throw new Exception("Clip was not present in the old track");
             newTrack.AddClip(clip);
         }
 

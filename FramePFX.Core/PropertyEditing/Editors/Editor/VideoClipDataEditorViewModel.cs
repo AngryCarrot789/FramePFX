@@ -347,28 +347,28 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
         }
 
         public void RequeryPositionFromHandlers() {
-            this.mediaPosition = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaPosition, out Vector2 a) ? a : default;
+            this.mediaPosition = GetEqualValue(this.Handlers, (x) => ((VideoClipViewModel) x).MediaPosition, out Vector2 a) ? a : default;
             this.RaisePropertyChanged(nameof(this.MediaPosition));
             this.RaisePropertyChanged(nameof(this.MediaPositionX));
             this.RaisePropertyChanged(nameof(this.MediaPositionY));
         }
 
         public void RequeryScaleFromHandlers() {
-            this.mediaScale = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScale, out Vector2 b) ? b : default;
+            this.mediaScale = GetEqualValue(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScale, out Vector2 b) ? b : default;
             this.RaisePropertyChanged(nameof(this.MediaScale));
             this.RaisePropertyChanged(nameof(this.MediaScaleX));
             this.RaisePropertyChanged(nameof(this.MediaScaleY));
         }
 
         public void RequeryScaleOriginFromHandlers() {
-            this.mediaScaleOrigin = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScaleOrigin, out Vector2 c) ? c : default;
+            this.mediaScaleOrigin = GetEqualValue(this.Handlers, (x) => ((VideoClipViewModel) x).MediaScaleOrigin, out Vector2 c) ? c : default;
             this.RaisePropertyChanged(nameof(this.MediaScaleOrigin));
             this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
             this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
         }
 
         public void RequeryOpacityFromHandlers() {
-            this.opacity = GetValueForObjects(this.Handlers, (x) => ((VideoClipViewModel) x).Opacity, out double d) ? d : default;
+            this.opacity = GetEqualValue(this.Handlers, (x) => ((VideoClipViewModel) x).Opacity, out double d) ? d : default;
             this.RaisePropertyChanged(nameof(this.Opacity));
         }
 

@@ -1,6 +1,12 @@
 ﻿<?xml version="1.0"?>
 <KeyMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
     <Group Name="Application">
+        <Shortcut Name="RenameItem" ActionId="actions.general.RenameItem" Description="Rename the thing">
+            <KeyStroke Key="F2"/>
+        </Shortcut>
+        <Shortcut Name="RenameItem2" ActionId="actions.general.RenameItem" Description="Rename the thing">
+            <KeyStroke Mods="CTRL" Key="R"/>
+        </Shortcut>
         <Group Name="Editor">
             <Shortcut Name="SaveProject" ActionId="actions.project.Save">
                 <KeyStroke Mods="CTRL" Key="S"/>
@@ -37,12 +43,6 @@
                 <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
                     <KeyStroke Key="Delete"/>
                 </Shortcut>
-                <Shortcut Name="RenameItem" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
-                    <KeyStroke Key="F2"/>
-                </Shortcut>
-                <Shortcut Name="RenameItem2" ActionId="actions.resources.RenameItem" Description="Rename the selected resource item">
-                    <KeyStroke Mods="CTRL" Key="R"/>
-                </Shortcut>
                 <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupSelection" Description="Puts the selected items into their own group">
                     <KeyStroke Mods="CTRL" Key="G"/>
                 </Shortcut>
@@ -66,6 +66,12 @@
                 </Shortcut>
                 <Shortcut Name="NewAudioTrack" ActionId="actions.editor.NewAudioTrack" Description="Creates a new audio clip">
                     <KeyStroke Mods="CTRL" Key="Q"/>
+                </Shortcut>
+                <Shortcut Name="MoveSelectedTrackUp">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="NumPad8"/>
+                </Shortcut>
+                <Shortcut Name="MoveSelectedTrackDown">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="NumPad2"/>
                 </Shortcut>
                 <Shortcut Name="TogglePlayPause" ActionId="actions.editor.timeline.TogglePlayPause" Description="Causes the timeline to play or pause">
                     <KeyStroke Key="Space"/>

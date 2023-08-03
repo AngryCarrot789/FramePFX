@@ -1,23 +1,28 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using FFmpeg.AutoGen;
 using FramePFX.Core.Editor.History;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Core.History;
+using FramePFX.Core.History.Tasks;
 
 namespace FramePFX.Core.PropertyEditing.Editors.Editor {
     public class ClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
-        protected HistoryClipDisplayName displayNameHistory;
+        protected readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory;
 
         private string displayName;
-
         public string DisplayName {
             get => this.displayName;
             set {
                 this.RaisePropertyChanged(ref this.displayName, value);
-                if (this.displayNameHistory != null && this.HistoryManager != null && !this.IsChangingAny()) {
-                    foreach (Transaction<string> t in this.displayNameHistory.DisplayName) {
+                if (this.HistoryManager != null && !this.IsChangingAny()) {
+                    if (!this.displayNameHistory.TryGetAction(out HistoryClipDisplayName action)) {
+                        this.displayNameHistory.PushAction(this.HistoryManager, action = new HistoryClipDisplayName(this.Clips));
+                    }
+
+                    foreach (Transaction<string> t in action.DisplayName) {
                         t.Current = value;
                     }
                 }
@@ -28,13 +33,21 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
             }
         }
 
-        public ClipDataEditorViewModel() : base(typeof(ClipViewModel)) {
+        public IEnumerable<ClipViewModel> Clips => this.Handlers.Cast<ClipViewModel>();
 
+        public ClipDataEditorViewModel() : base(typeof(ClipViewModel)) {
+            this.displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
         }
 
         protected override void OnClearHandlers() {
             base.OnClearHandlers();
-            this.displayNameHistory = null;
+            this.displayNameHistory.Clear();
+        }
+
+        protected override void OnHandlersLoaded() {
+            base.OnHandlersLoaded();
+            this.displayName = GetEqualValue(this.Handlers, (x) => ((ClipViewModel) x).DisplayName, out string name) ? name : IoC.Translator.GetString("S.PropertyEditor.Clips.DifferingDisplayNames");
+            this.RaisePropertyChanged(nameof(this.DisplayName));
         }
 
         protected class HistoryClipDisplayName : BaseHistoryMultiHolderAction<ClipViewModel> {

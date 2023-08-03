@@ -12,12 +12,13 @@ using FramePFX.Core.History;
 using FramePFX.Core.History.Tasks;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
+using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IProjectViewModelBound, IDisposable {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IProjectViewModelBound, IDisposable, IRenameable {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
 
@@ -56,19 +57,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         /// <summary>
         /// The track this clip is located in
         /// </summary>
-        private TrackViewModel track;
-        public TrackViewModel Track {
-            get => this.track;
-            set {
-                if (!ReferenceEquals(this.track, value)) {
-                    this.RaisePropertyChanged(ref this.track, value);
-                    this.RaisePropertyChanged(nameof(this.Timeline));
-                    this.RaisePropertyChanged(nameof(this.Project));
-                    this.RaisePropertyChanged(nameof(this.Editor));
-                    this.RaisePropertyChanged(nameof(this.RelativePlayHead));
-                }
-            }
-        }
+        public TrackViewModel Track { get; set; }
 
         public FrameSpan FrameSpan {
             get => this.Model.FrameSpan;
@@ -150,8 +139,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         /// </summary>
         public long RelativePlayHead {
             get {
-                if (this.track != null) {
-                    return this.track.Timeline.PlayHeadFrame - this.FrameBegin;
+                if (this.Track != null) {
+                    return this.Track.Timeline.PlayHeadFrame - this.FrameBegin;
                 }
                 else {
                     return this.FrameBegin;
@@ -179,8 +168,12 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public ObservableCollection<ClipGroupViewModel> ConnectedGroups { get; }
 
+        private ClipDragData drag;
+
         protected ClipViewModel(Clip model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            model.viewModel = this;
+
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
                 string name = await IoC.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
@@ -238,223 +231,6 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             return IoC.MessageDialogs.ShowMessageAsync("Resource dropped", "This clip can't do anything with that resource!");
         }
 
-        public virtual void OnLeftThumbDragStart() {
-            if (this.IsDraggingLeftThumb)
-                throw new Exception("Already dragging left thumb");
-            this.IsDraggingLeftThumb = true;
-            this.CreateClipDragHistoryAction();
-        }
-
-        public virtual void OnLeftThumbDragStop(bool cancelled) {
-            if (!this.IsDraggingLeftThumb)
-                throw new Exception("Not dragging left thumb");
-            this.IsDraggingLeftThumb = false;
-            this.PushClipDragHistoryAction(cancelled);
-        }
-
-        public virtual void OnRightThumbDragStart() {
-            if (this.IsDraggingRightThumb)
-                throw new Exception("Already dragging right thumb");
-            this.IsDraggingRightThumb = true;
-            this.CreateClipDragHistoryAction();
-        }
-
-        public virtual void OnRightThumbDragStop(bool cancelled) {
-            if (!this.IsDraggingRightThumb)
-                throw new Exception("Not dragging right thumb");
-            this.IsDraggingRightThumb = false;
-            this.PushClipDragHistoryAction(cancelled);
-        }
-
-        public virtual void OnDragStart() {
-            if (this.IsDraggingClip)
-                throw new Exception("Already dragging");
-            this.IsDraggingClip = true;
-            this.CreateClipDragHistoryAction();
-            if (this.Timeline is TimelineViewModel timeline) {
-                if (timeline.IsGloballyDragging) {
-                    return;
-                }
-
-                List<ClipViewModel> selected = timeline.GetSelectedClips().ToList();
-                if (selected.Count > 1) {
-                    timeline.IsGloballyDragging = true;
-                    timeline.DraggingClips = selected;
-                    timeline.ProcessingDragEventClip = this;
-                    foreach (ClipViewModel clip in selected) {
-                        if (clip != this) {
-                            clip.OnDragStart();
-                        }
-                    }
-
-                    timeline.ProcessingDragEventClip = null;
-                }
-            }
-        }
-
-        public virtual void OnDragStop(bool cancelled) {
-            if (!this.IsDraggingClip)
-                throw new Exception("Not dragging");
-
-            this.IsDraggingClip = false;
-            if (this.Timeline is TimelineViewModel timeline && timeline.IsGloballyDragging) {
-                if (timeline.ProcessingDragEventClip == null) {
-                    timeline.DragStopHistoryList = new List<HistoryVideoClipPosition>();
-                }
-
-                if (cancelled) {
-                    this.lastDragHistoryAction.Undo();
-                }
-                else {
-                    timeline.DragStopHistoryList.Add(this.lastDragHistoryAction);
-                }
-
-                this.lastDragHistoryAction = null;
-                if (timeline.ProcessingDragEventClip != null) {
-                    return;
-                }
-
-                timeline.ProcessingDragEventClip = this;
-                foreach (ClipViewModel clip in timeline.DraggingClips) {
-                    if (this != clip) {
-                        clip.OnDragStop(cancelled);
-                    }
-                }
-
-                timeline.IsGloballyDragging = false;
-                timeline.ProcessingDragEventClip = null;
-                timeline.DraggingClips = null;
-                timeline.Project.Editor.HistoryManager.AddAction(new MultiHistoryAction(new List<IHistoryAction>(timeline.DragStopHistoryList)));
-                timeline.DragStopHistoryList = null;
-            }
-            else {
-                this.PushClipDragHistoryAction(cancelled);
-            }
-        }
-
-        private long addedOffset;
-
-        public virtual void OnLeftThumbDelta(long offset) {
-            if (this.Timeline == null) {
-                return;
-            }
-
-            // limit frame begin such that media frame offset is always greater than or equal to 0
-            // long temp = this.MediaFrameOffset + offset;
-            // if (temp < 0) {
-            //     offset += -temp;
-            // }
-            // if (offset == 0) {
-            //     return;
-            // }
-
-            long newFrameBegin = this.FrameBegin + offset;
-
-            if (newFrameBegin < 0) {
-                offset += -newFrameBegin;
-                newFrameBegin = 0;
-            }
-
-            long duration = this.FrameDuration - offset;
-            if (duration < 1) {
-                newFrameBegin += (duration - 1);
-                duration = 1;
-                if (newFrameBegin < 0) {
-                    return;
-                }
-            }
-
-            this.MediaFrameOffset += (newFrameBegin - this.FrameBegin);
-            this.FrameSpan = new FrameSpan(newFrameBegin, duration);
-            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
-        }
-
-        public virtual void OnRightThumbDelta(long offset) {
-            FrameSpan span = this.FrameSpan;
-            long newEndIndex = Math.Max(span.EndIndex + offset, span.Begin + 1);
-            if (this.Timeline is TimelineViewModel timeline) {
-                if (newEndIndex > timeline.MaxDuration) {
-                    timeline.MaxDuration = newEndIndex + 300;
-                }
-            }
-
-            this.FrameSpan = span.WithEndIndex(newEndIndex);
-            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
-        }
-
-        public virtual void OnDragDelta(long offset) {
-            FrameSpan span = this.FrameSpan;
-            long begin = (span.Begin + offset) - this.addedOffset;
-            this.addedOffset = 0L;
-            if (begin < 0) {
-                this.addedOffset = -begin;
-                begin = 0;
-            }
-
-            long endIndex = begin + span.Duration;
-            TimelineViewModel timeline = this.Timeline;
-            if (timeline != null) {
-                if (endIndex > timeline.MaxDuration) {
-                    timeline.MaxDuration = endIndex + 300;
-                }
-            }
-
-            this.FrameSpan = new FrameSpan(begin, span.Duration);
-
-            if (timeline != null && timeline.IsGloballyDragging) {
-                if (timeline.ProcessingDragEventClip == null) {
-                    timeline.ProcessingDragEventClip = this;
-                    foreach (ClipViewModel clip in timeline.DraggingClips) {
-                        if (this != clip) {
-                            clip.OnDragDelta(offset);
-                        }
-                    }
-
-                    timeline.ProcessingDragEventClip = null;
-                }
-            }
-
-            this.lastDragHistoryAction.Span.SetCurrent(this.FrameSpan);
-        }
-
-        public virtual void OnDragToTrack(int index) {
-            if (!(this.Track is TrackViewModel track)) {
-                return;
-            }
-
-            TimelineViewModel timeline = track.Timeline;
-            if (timeline.IsGloballyDragging && timeline.IsAboutToDragAcrossTracks) {
-                return;
-            }
-
-            int target = Maths.Clamp(index, 0, timeline.Tracks.Count - 1);
-            TrackViewModel targetTrack = timeline.Tracks[target];
-            if (ReferenceEquals(track, targetTrack)) {
-                return;
-            }
-
-            if (!targetTrack.IsClipTypeAcceptable(this)) {
-                return;
-            }
-
-            if (timeline.IsGloballyDragging) {
-                if (timeline.DraggingClips.All(x => ReferenceEquals(x.Track, track) && track.IsClipTypeAcceptable(x))) {
-                    timeline.IsAboutToDragAcrossTracks = true;
-                    foreach (ClipViewModel clip in timeline.DraggingClips) {
-                        timeline.MoveClip(clip, track, targetTrack);
-                    }
-
-                    timeline.IsAboutToDragAcrossTracks = false;
-                }
-                else {
-                    return;
-                }
-            }
-            else {
-                timeline.MoveClip(this, track, targetTrack);
-            }
-        }
-
         protected void CreateClipDragHistoryAction() {
             if (this.lastDragHistoryAction != null) {
                 throw new Exception("Drag history was non-null, which means a drag was started before another drag was completed");
@@ -494,6 +270,86 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public virtual void OnPlayHeadLeaveClip(bool isPlayheadLeaveClip) {
 
+        }
+
+        private List<ClipViewModel> GetSelectedIncludingThis() {
+            List<ClipViewModel> list = this.Timeline.GetSelectedClips().ToList();
+            if (!list.Contains(this))
+                list.Add(this);
+            return list;
+        }
+
+        public void OnLeftThumbDragStart() {
+            this.OnDragStart();
+            this.IsDraggingLeftThumb = true;
+        }
+
+        public void OnRightThumbDragStart() {
+            this.OnDragStart();
+            this.IsDraggingRightThumb = true;
+        }
+
+        public void OnDragStart() {
+            if (this.drag != null)
+                throw new Exception("Drag already in progress");
+            if (this.Timeline == null)
+                throw new Exception("No timeline available");
+            this.drag = new ClipDragData(this.Timeline, this.GetSelectedIncludingThis());
+            this.drag.OnBegin();
+            this.IsDraggingClip = true;
+        }
+
+        public void OnLeftThumbDragStop(bool cancelled) {
+            this.OnDragStop(cancelled);
+            this.IsDraggingLeftThumb = false;
+        }
+
+        public void OnRightThumbDragStop(bool cancelled) {
+            this.OnDragStop(cancelled);
+            this.IsDraggingRightThumb = false;
+        }
+
+        public void OnDragStop(bool cancelled) {
+            if (this.drag != null) {
+                this.drag.OnFinished(cancelled);
+                this.drag = null;
+            }
+
+            this.IsDraggingClip = false;
+        }
+
+        public void OnLeftThumbDelta(long offset) {
+            this.drag?.OnLeftThumbDelta(offset);
+        }
+
+        public void OnRightThumbDelta(long offset) {
+            this.drag?.OnRightThumbDelta(offset);
+        }
+
+        public void OnDragDelta(long offset) {
+            this.drag?.OnDragDelta(offset);
+        }
+
+        public void OnDragToTrack(int index) {
+            this.drag?.OnDragToTrack(index);
+        }
+
+        public static void RaiseTrackChanged(ClipViewModel clip) {
+            clip.RaisePropertyChanged(nameof(Track));
+            clip.RaisePropertyChanged(nameof(Timeline));
+            clip.RaisePropertyChanged(nameof(Project));
+            clip.RaisePropertyChanged(nameof(Editor));
+            clip.RaisePropertyChanged(nameof(RelativePlayHead));
+        }
+
+        public async Task<bool> RenameAsync() {
+            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.DisplayName ?? "", Validators.ForNonWhiteSpaceString());
+            if (result != null) {
+                this.DisplayName = result;
+                return true;
+            }
+
+            return false;
         }
     }
 }

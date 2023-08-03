@@ -9,8 +9,7 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
     public class Project : IRBESerialisable {
-        // not a chance anyone's creating more than 9 quintillion clips
-        private long nextClipId;
+
         public volatile bool IsSaving;
 
         public ProjectSettings Settings { get; }
@@ -53,12 +52,7 @@ namespace FramePFX.Core.Editor {
             };
         }
 
-        public long GetNextClipId() {
-            return this.nextClipId++;
-        }
-
         public void WriteToRBE(RBEDictionary data) {
-            data.SetLong("NextClipId", this.nextClipId);
             this.DataFolder = data.GetString(nameof(this.DataFolder), null);
             if (string.IsNullOrEmpty(this.DataFolder))
                 this.TempDataFolder = data.GetString(nameof(this.TempDataFolder), null);
@@ -68,11 +62,6 @@ namespace FramePFX.Core.Editor {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            this.nextClipId = data.GetLong("NextClipId");
-            if (this.nextClipId < 0) {
-                throw new Exception("Invalid next clip id");
-            }
-
             if (!string.IsNullOrEmpty(this.DataFolder)) {
                 data.SetString(nameof(this.DataFolder), this.DataFolder);
             }

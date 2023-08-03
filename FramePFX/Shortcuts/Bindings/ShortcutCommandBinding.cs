@@ -9,19 +9,14 @@ namespace FramePFX.Shortcuts.Bindings {
     /// An input binding that is triggered by a shortcut. <see cref="InputBinding.Gesture"/> is unused
     /// </summary>
     public class ShortcutCommandBinding : Freezable {
-        public static readonly DependencyProperty ShortcutPathProperty = DependencyProperty.Register(nameof(ShortcutPath), typeof(string), typeof(ShortcutCommandBinding));
         public static readonly DependencyProperty CommandProperty = InputBinding.CommandProperty.AddOwner(typeof(ShortcutCommandBinding));
         public static readonly DependencyProperty CommandParameterProperty = InputBinding.CommandParameterProperty.AddOwner(typeof(ShortcutCommandBinding));
+        public static readonly DependencyProperty ShortcutPathProperty = DependencyProperty.Register(nameof(ShortcutPath), typeof(string), typeof(ShortcutCommandBinding));
         public static readonly DependencyProperty AllowChainExecutionProperty = DependencyProperty.Register("AllowChainExecution", typeof(bool), typeof(ShortcutCommandBinding), new PropertyMetadata(BoolBox.False));
 
         /// <summary>
-        /// The full path of the shortcut that must be activated in order for this binding's command to be executed
+        /// The command to execute when the shortcut is activated
         /// </summary>
-        public string ShortcutPath {
-            get => (string) this.GetValue(ShortcutPathProperty);
-            set => this.SetValue(ShortcutPathProperty, value);
-        }
-
         [Localizability(LocalizationCategory.NeverLocalize)]
         [TypeConverter("System.Windows.Input.CommandConverter, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, Custom=null")]
         public ICommand Command {
@@ -29,9 +24,20 @@ namespace FramePFX.Shortcuts.Bindings {
             set => this.SetValue(CommandProperty, value);
         }
 
+        /// <summary>
+        /// The parameter to pass to the command
+        /// </summary>
         public object CommandParameter {
             get => this.GetValue(CommandParameterProperty);
             set => this.SetValue(CommandParameterProperty, value);
+        }
+
+        /// <summary>
+        /// The full path of the shortcut that must be activated in order for this binding's command to be executed
+        /// </summary>
+        public string ShortcutPath {
+            get => (string) this.GetValue(ShortcutPathProperty);
+            set => this.SetValue(ShortcutPathProperty, value);
         }
 
         /// <summary>
@@ -45,6 +51,7 @@ namespace FramePFX.Shortcuts.Bindings {
         }
 
         public ShortcutCommandBinding() {
+
         }
 
         public ShortcutCommandBinding(string shortcutPath, ICommand command) {

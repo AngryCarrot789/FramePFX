@@ -176,18 +176,18 @@ namespace FramePFX.Shortcuts {
                         continue;
                     }
 
-                    if (!finalResult || binding.AllowChainExecution) {
+                    ICommand cmd;
+                    if ((!finalResult || binding.AllowChainExecution) && (cmd = binding.Command) != null) {
                         object param;
-                        ICommand cmd = binding.Command;
                         if (cmd is BaseAsyncRelayCommand asyncCommand) {
-                            IoC.BroadcastShortcutActivity($"Activating shortcut: {shortcut} via command...");
+                            IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.InProgress", shortcut));
                             if (await asyncCommand.TryExecuteAsync(binding.CommandParameter)) {
-                                IoC.BroadcastShortcutActivity($"Activating shortcut: {shortcut} via command... Complete!");
+                                IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.Completed", shortcut));
                                 finalResult = true;
                             }
                         }
-                        else if (cmd != null && cmd.CanExecute(param = binding.CommandParameter)) {
-                            IoC.BroadcastShortcutActivity($"Activated shortcut: {shortcut} via command... Complete!");
+                        else if (cmd.CanExecute(param = binding.CommandParameter)) {
+                            IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate", shortcut));
                             cmd.Execute(param);
                             finalResult = true;
                         }
@@ -202,13 +202,13 @@ namespace FramePFX.Shortcuts {
             if (WPFShortcutManager.InputBindingCallbackMap.TryGetValue(shortcut.FullPath, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
                 if (shortcut.IsGlobal || shortcut.Group.IsGlobal) {
                     if (usageMap.TryGetValue(WPFShortcutManager.DEFAULT_USAGE_ID, out List<ActivationHandlerReference> list) && list.Count > 0) {
-                        finalResult = await this.ActivateShortcut(shortcut, list);
+                        finalResult = await this.ActivateShortcutList(shortcut, list);
                     }
                 }
 
                 if (!finalResult) {
                     if (usageMap.TryGetValue(this.CurrentInputBindingUsageID, out List<ActivationHandlerReference> list) && list.Count > 0) {
-                        finalResult = await this.ActivateShortcut(shortcut, list);
+                        finalResult = await this.ActivateShortcutList(shortcut, list);
                     }
                 }
             }
@@ -216,7 +216,7 @@ namespace FramePFX.Shortcuts {
             return finalResult || await base.ActivateShortcut(shortcut);
         }
 
-        private async Task<bool> ActivateShortcut(GroupedShortcut shortcut, List<ActivationHandlerReference> callbacks) {
+        private async Task<bool> ActivateShortcutList(GroupedShortcut shortcut, List<ActivationHandlerReference> callbacks) {
             bool result = false;
             IoC.BroadcastShortcutActivity($"Activated global shortcut: {shortcut}. Calling {callbacks.Count} callbacks...");
             foreach (ActivationHandlerReference reference in callbacks) {

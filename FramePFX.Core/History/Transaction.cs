@@ -25,6 +25,15 @@ namespace FramePFX.Core.History {
             this.Current = current;
         }
 
+        // Convenience function to reduce code duplication
+
+        /// <summary>
+        /// Gets the value as either the original or current
+        /// </summary>
+        /// <param name="original"></param>
+        /// <returns></returns>
+        public T GetValue(bool original) => original ? this.Original : this.Current;
+
         /// <summary>
         /// A function that just sets <see cref="Current"/>
         /// </summary>
@@ -40,5 +49,9 @@ namespace FramePFX.Core.History {
         public bool IsUnchanged() => EqualityComparer<T>.Default.Equals(this.Original, this.Current);
 
         public bool IsUnchanged(Func<T, T, bool> equal) => equal(this.Original, this.Current);
+
+        public bool HasChanged() => !this.IsUnchanged();
+
+        public bool HasChanged(Func<T, T, bool> equal) => !this.IsUnchanged(equal);
     }
 }

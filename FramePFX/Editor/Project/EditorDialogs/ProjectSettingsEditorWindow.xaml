@@ -34,11 +34,11 @@
                 Content="OK" Margin="0,0,87,10"
                 VerticalAlignment="Bottom" Height="24"
                 HorizontalAlignment="Right" Width="72"
-                attached:CornerHelper.CornerRadius="2"/>
+                attached:CornerRadiusHelper.Value="2"/>
         <Button Command="{Binding CancelCommand, Mode=OneTime}"
                 Content="Cancel" Margin="0,0,10,10"
                 VerticalAlignment="Bottom" Height="24"
                 HorizontalAlignment="Right" Width="72"
-                attached:CornerHelper.CornerRadius="2"/>
+                attached:CornerRadiusHelper.Value="2"/>
     </Grid>
 </views:BaseDialog>

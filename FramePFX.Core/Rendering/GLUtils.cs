@@ -1,5 +1,4 @@
 using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
 
 namespace FramePFX.Core.Rendering {
     public static class GLUtils {

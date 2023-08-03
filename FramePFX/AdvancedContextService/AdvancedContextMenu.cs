@@ -38,7 +38,6 @@ namespace FramePFX.AdvancedContextService {
         private object currentItem;
 
         public AdvancedContextMenu() {
-
         }
 
         public static DependencyObject CreateChildMenuItem(object item) {

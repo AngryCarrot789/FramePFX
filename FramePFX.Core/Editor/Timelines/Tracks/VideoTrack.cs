@@ -35,7 +35,7 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
         }
 
         public override Track CloneCore() {
-            VideoTrack track = new VideoTrack() {
+            VideoTrack clone = new VideoTrack() {
                 MaxHeight = this.MaxHeight,
                 MinHeight = this.MinHeight,
                 Height = this.Height,
@@ -43,14 +43,14 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
                 DisplayName = TextIncrement.GetNextText(this.DisplayName)
             };
 
-            this.AutomationData.LoadDataIntoClone(track.AutomationData);
+            this.AutomationData.LoadDataIntoClone(clone.AutomationData);
             foreach (Clip clip in this.Clips) {
                 // assert clip is VideoClipModel
                 // assert CanAccept(clip)
-                track.AddClip(clip.Clone());
+                clone.AddClip(clip.Clone());
             }
 
-            return track;
+            return clone;
         }
 
         public override bool IsClipTypeAcceptable(Clip clip) {

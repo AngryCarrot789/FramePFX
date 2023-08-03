@@ -99,7 +99,7 @@ namespace FramePFX.Core.Notifications {
         }
 
         private void AutoHideAction() {
-            if (!this.IsHidden) {
+            if (!this.IsHidden && this.panel.IsNotificationPresent(this)) {
                 this.cancellation = null;
                 this.autoHideTask = null;
                 this.Panel.Handler.BeginNotificationFadeOutAnimation(this, this.OnNotificationNoLongerVisible);

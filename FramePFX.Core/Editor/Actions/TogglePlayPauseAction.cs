@@ -9,7 +9,7 @@ namespace FramePFX.Core.Editor.Actions {
                 return false;
             }
 
-            // await editor.Playback.TogglePlayAction();
+            await editor.Playback.TogglePlayAction();
             return true;
         }
     }

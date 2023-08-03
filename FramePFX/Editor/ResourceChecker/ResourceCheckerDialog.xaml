@@ -27,9 +27,9 @@
         </Grid.ColumnDefinitions>
         <Border x:Name="ButtonBarBorder" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0" Grid.Column="1" Grid.Row="1">
             <Grid>
-                <Button Command="{Binding OfflineAllCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline All" Height="25" Margin="0,0,182,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
-                <Button Command="{Binding OfflineCurrentCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Cancel" Height="25" Margin="0,0,10,0" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
-                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerHelper.CornerRadius="2" Content="Offline" Height="25" Margin="0,0,92,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding OfflineAllCommand, Mode=OneTime}" attached:CornerRadiusHelper.Value="2" Content="Offline All" Height="25" Margin="0,0,182,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding OfflineCurrentCommand, Mode=OneTime}" attached:CornerRadiusHelper.Value="2" Content="Cancel" Height="25" Margin="0,0,10,0" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerRadiusHelper.Value="2" Content="Offline" Height="25" Margin="0,0,92,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
             </Grid>
         </Border>
         <Grid Grid.RowSpan="2">

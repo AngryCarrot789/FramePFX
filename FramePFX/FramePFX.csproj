@@ -194,6 +194,7 @@
     <Compile Include="AttachedProperties\TextBoxHelper.cs" />
     <Compile Include="AttachedProperties\ToggleButtonHelper.cs" />
     <Compile Include="AttachedProperties\TopmostFocus.cs" />
+    <Compile Include="AttributeProcessor.cs" />
     <Compile Include="BindingErrorListener.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\CursorUtils.cs" />
@@ -288,9 +289,9 @@
     <Compile Include="Editor\Timeline\Controls\TimelineTrackControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\V2\TimelineClipControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\V2\TimelineClipControlV2.cs" />
     <Compile Include="Editor\Timeline\Controls\V2\TimelineControlV2.cs" />
-    <Compile Include="Editor\Timeline\Controls\V2\TimelineTrackControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\V2\TimelineTrackControlV2.cs" />
     <Compile Include="Editor\Timeline\TimelineStyles.xaml.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\ClipType.cs" />
     <Compile Include="Editor\Timeline\Track\Clips\IAudioClip.cs" />
@@ -310,13 +311,15 @@
     <Compile Include="PropertyEditing\PropertyEditor.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemContainer.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemsControl.cs" />
+    <Compile Include="Resources\I18N\LangType.cs" />
+    <Compile Include="Resources\I18N\LocalizationController.cs" />
+    <Compile Include="Resources\I18N\WPFDictionaryTranslator.cs" />
     <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Services\WinExplorerService.cs" />
     <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutCommandBinding.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutBindingCollection.cs" />
-    <Compile Include="Shortcuts\Bindings\ShortcutActionBinding.cs" />
     <Compile Include="Shortcuts\Converters\ActionIdToGestureConverter.cs" />
     <Compile Include="Shortcuts\Converters\GlobalUpdateShortcutGestureConverter.cs" />
     <Compile Include="Shortcuts\Converters\KeyStrokeStringConverter.cs" />
@@ -345,19 +348,15 @@
     <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
     <Compile Include="SKAsyncViewPort.cs" />
     <Compile Include="SKViewPort.cs" />
-    <Compile Include="TestBinding\SexMachine.cs" />
-    <Compile Include="TestBinding\SexMachineCollection.cs" />
-    <Compile Include="TestBinding\SexMachines.cs" />
-    <Compile Include="Themes\Attached\CornerHelper.cs" />
+    <Compile Include="Themes\Attached\CornerRadiusHelper.cs" />
     <Compile Include="Themes\Attached\MenuHelper.cs" />
     <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
     <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
     <Compile Include="Themes\Attached\TextHinting.cs" />
     <Compile Include="Themes\ColourKeys.cs" />
-    <Compile Include="Themes\Controls.xaml.cs">
-      <DependentUpon>Controls.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Themes\Controls.xaml.cs" />
     <Compile Include="Themes\Converters\TreeViewLineConverter.cs" />
+    <Compile Include="Themes\Generator\ThemeGenerator.cs" />
     <Compile Include="Themes\ThemesController.cs" />
     <Compile Include="Themes\ThemeType.cs" />
     <Compile Include="Themes\ToneGenerator.cs" />
@@ -477,6 +476,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Resources\I18N\Text\de.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\I18N\Text\en.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -522,8 +528,8 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\Controls.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\GenericDragablzStyles.xaml">
       <Generator>MSBuild:Compile</Generator>

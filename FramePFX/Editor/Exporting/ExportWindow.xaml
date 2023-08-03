@@ -24,7 +24,7 @@
         <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
             <Grid Height="43">
                 <Button Command="{Binding CancelCommand, Mode=OneTime}"
-                        attached:CornerHelper.CornerRadius="2"
+                        attached:CornerRadiusHelper.Value="2"
                         Content="Cancel" Margin="0,0,10,10"
                         VerticalAlignment="Bottom" Height="23"
                         HorizontalAlignment="Right" Width="72"

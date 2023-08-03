@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Automation;
@@ -19,7 +18,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for a timeline track. This could be a video or audio track (or others...)
     /// </summary>
-    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel, IProjectViewModelBound {
+    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel, IProjectViewModelBound, IRenameable {
         protected readonly HistoryBuffer<HistoryTrackDisplayName> displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
 
         private readonly ObservableCollectionEx<ClipViewModel> clips;
@@ -88,7 +87,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         public AsyncRelayCommand RemoveSelectedClipsCommand { get; }
 
-        public TimelineViewModel Timeline { get; private set; }
+        public TimelineViewModel Timeline { get; set; }
 
         public ProjectViewModel Project => this.Timeline?.Project;
 
@@ -106,6 +105,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
 
         protected TrackViewModel(Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            model.viewModel = this;
+
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
@@ -115,35 +116,11 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 this.Timeline.Project.Editor?.View.UpdateClipSelection();
             };
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
-            this.RenameTrackCommand = new AsyncRelayCommand(async () => {
-                string result = await IoC.UserInput.ShowSingleInputDialogAsync("Change track name", "Input a new track name:", this.DisplayName ?? "", this.Timeline.TrackNameValidator);
-                if (result != null) {
-                    this.DisplayName = result;
-                }
-            });
+            this.RenameTrackCommand = new AsyncRelayCommand(this.RenameAsync);
 
             for (int i = 0; i < model.Clips.Count; i++) {
                 this.InsertClip(i, ClipRegistry.Instance.CreateViewModelFromModel(model.Clips[i]), false);
             }
-        }
-
-        public static void SetTimeline(TrackViewModel track, TimelineViewModel timeline) {
-            TimelineViewModel oldTimeline = track.Timeline;
-            if (ReferenceEquals(oldTimeline, timeline)) {
-                Debug.WriteLine("Attempted to set the timeline to the same value");
-            }
-            else {
-                track.Timeline = timeline;
-                track.OnTimelineChanged(oldTimeline, timeline);
-            }
-        }
-
-        protected virtual void OnTimelineChanged(TimelineViewModel oldTimeline, TimelineViewModel timeline) {
-            this.RaisePropertyChanged(nameof(this.Timeline));
-            this.RaisePropertyChanged(nameof(this.Project));
-            this.RaisePropertyChanged(nameof(this.Editor));
-            this.RaisePropertyChanged(nameof(this.HistoryManager));
-            this.RaisePropertyChanged(nameof(this.AutomationEngine));
         }
 
         public virtual void OnProjectModified() {
@@ -174,9 +151,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 this.Model.InsertClip(index, clip.Model);
             }
 
-            this.clips.Insert(index, clip);
             clip.Track = this;
-            clip.RaisePropertyChanged(nameof(clip.Track));
+            this.clips.Insert(index, clip);
+            ClipViewModel.RaiseTrackChanged(clip);
         }
 
         public bool RemoveClipFromTrack(ClipViewModel clip) {
@@ -199,6 +176,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.Model.RemoveClipAt(index);
             this.clips.RemoveAt(index);
             clip.Track = null;
+            ClipViewModel.RaiseTrackChanged(clip);
             return clip;
         }
 
@@ -354,6 +332,24 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                     clip.LastSeekedFrame = -1;
                 }
             }
+        }
+
+        public static void RaiseTimelineChanged(TrackViewModel track) {
+            track.RaisePropertyChanged(nameof(Timeline));
+            track.RaisePropertyChanged(nameof(Project));
+            track.RaisePropertyChanged(nameof(Editor));
+            track.RaisePropertyChanged(nameof(HistoryManager));
+            track.RaisePropertyChanged(nameof(AutomationEngine));
+        }
+
+        public async Task<bool> RenameAsync() {
+            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Change track name", "Input a new track name:", this.DisplayName ?? "", this.Timeline.TrackNameValidator);
+            if (result != null) {
+                this.DisplayName = result;
+                return true;
+            }
+
+            return false;
         }
     }
 }

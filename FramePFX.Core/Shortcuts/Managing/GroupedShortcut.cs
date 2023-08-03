@@ -90,12 +90,12 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
-            sb.Append(this.Shortcut.IsEmpty ? "Empty/No Shortcut" : this.Shortcut.ToString()).Append(" -> ").Append(this.FullPath);
+            sb.Append(nameof(GroupedShortcut)).Append(" (").Append(this.Shortcut.IsEmpty ? "Empty/No Shortcut" : this.Shortcut.ToString()).Append(" -> ").Append(this.FullPath);
             if (!string.IsNullOrWhiteSpace(this.Description)) {
                 sb.Append(" (").Append(this.Description).Append(")");
             }
 
-            return sb.ToString();
+            return sb.Append(')').ToString();
         }
     }
 }

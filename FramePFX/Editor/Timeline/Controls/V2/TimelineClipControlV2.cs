@@ -2,19 +2,19 @@ using System.Windows;
 using System.Windows.Controls;
 
 namespace FramePFX.Editor.Timeline.Controls.V2 {
-    public class TimelineClipControl : Control {
+    public class TimelineClipControlV2 : Control {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",
                 typeof(long),
-                typeof(TimelineClipControl),
+                typeof(TimelineClipControlV2),
                 new PropertyMetadata(0L));
 
         public static readonly DependencyProperty FrameDurationProperty =
             DependencyProperty.Register(
                 "FrameDuration",
                 typeof(long),
-                typeof(TimelineClipControl),
+                typeof(TimelineClipControlV2),
                 new PropertyMetadata(0L));
 
         public long FrameBegin {
@@ -27,7 +27,7 @@ namespace FramePFX.Editor.Timeline.Controls.V2 {
             set => this.SetValue(FrameDurationProperty, value);
         }
 
-        public TimelineClipControl() {
+        public TimelineClipControlV2() {
 
         }
 

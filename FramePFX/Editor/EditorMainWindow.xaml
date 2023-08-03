@@ -7,23 +7,20 @@
             xmlns:acs="clr-namespace:FramePFX.AdvancedContextService"
             xmlns:sc="clr-namespace:FramePFX.Shortcuts"
             xmlns:sb="clr-namespace:FramePFX.Shortcuts.Bindings"
+            xmlns:ctrl="clr-namespace:FramePFX.Controls"
             xmlns:ctrl2="clr-namespace:FramePFX.Editor.Timeline.Controls"
             xmlns:v="clr-namespace:FramePFX.Views"
             xmlns:evm="clr-namespace:FramePFX.Core.Editor.ViewModels;assembly=FramePFX.Core"
-            xmlns:ctrl="clr-namespace:FramePFX.Controls"
             xmlns:rm="clr-namespace:FramePFX.Core.Editor.ResourceManaging;assembly=FramePFX.Core"
-            xmlns:nn="clr-namespace:FramePFX.Notifications"
-            xmlns:n="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
+            xmlns:n="clr-namespace:FramePFX.Notifications"
+            xmlns:cn="clr-namespace:FramePFX.Core.Notifications;assembly=FramePFX.Core"
             xmlns:editor="clr-namespace:FramePFX.Editor"
             xmlns:pfx="clr-namespace:FramePFX"
-            xmlns:resources="clr-namespace:FramePFX.Editor.Resources"
-            xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
+            xmlns:res="clr-namespace:FramePFX.Editor.Resources"
             xmlns:ap="clr-namespace:FramePFX.AttachedProperties"
-            xmlns:context="clr-namespace:FramePFX.Core.Editor.Timelines.Context;assembly=FramePFX.Core"
-            xmlns:keyframe="clr-namespace:FramePFX.Core.Automation.ViewModels.Keyframe;assembly=FramePFX.Core" xmlns:pe="clr-namespace:FramePFX.PropertyEditing"
-            xmlns:v2="clr-namespace:FramePFX.Editor.Timeline.Controls.V2"
-            xmlns:propEdit="clr-namespace:FramePFX.Core.PropertyEditing;assembly=FramePFX.Core"
-            xmlns:tb="clr-namespace:FramePFX.TestBinding"
+            xmlns:ctx="clr-namespace:FramePFX.Core.Editor.Timelines.Context;assembly=FramePFX.Core"
+            xmlns:pe="clr-namespace:FramePFX.PropertyEditing"
+            xmlns:cpe="clr-namespace:FramePFX.Core.PropertyEditing;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -33,14 +30,6 @@
             TitlebarBrush="{DynamicResource ABrush.Tone6.Background.Static}"
             sc:UIFocusGroup.IsShortcutInputSource="True"
             sc:UIFocusGroup.FocusGroupPath="Application/Editor">
-    <tb:SexMachines.SexMachineCollection>
-        <tb:SexMachineCollection>
-            <tb:SexMachine DisplayName="{Binding Playback.IsPlaying, Mode=OneWay}"/>
-        </tb:SexMachineCollection>
-    </tb:SexMachines.SexMachineCollection>
-    <Window.InputBindings>
-        <KeyBinding Command=""/>
-    </Window.InputBindings>
     <Window.Resources>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v0.1.171)"/>
         <c:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True"/>
@@ -199,7 +188,7 @@
                         </TabControl.Style>
                         <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
                             <Grid sc:UIFocusGroup.FocusGroupPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
-                                <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
+                                <res:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
                                                                ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
                                                                ap:MultiSelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
                                                                ap:MultiSelectorHelper.UpdateSelectedItemsOnChange="True"
@@ -208,7 +197,7 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="Property Pages">
-                            <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static propEdit:PFXPropertyEditorRegistry.Instance}"/>
+                            <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}"/>
                         </TabItem>
                     </TabControl>
                 </Border>
@@ -238,12 +227,6 @@
                 </Border>
                 <Border DataContext="{Binding ActiveProject}"
                         IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}">
-                    <sb:ShortcutBindingCollection.Collection>
-                        <sb:ShortcutBindingCollection>
-                            <sb:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/TrackControllers/DeleteSelectedTrack" Command="{Binding Timeline.RemoveSelectedTracksCommand}"/>
-                            <sb:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/TogglePlayPause" Command="{Binding Editor.Playback.TogglePlayCommand}"/>
-                        </sb:ShortcutBindingCollection>
-                    </sb:ShortcutBindingCollection.Collection>
                     <Grid DataContext="{Binding Timeline}" Grid.IsSharedSizeScope="True">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" SharedSizeGroup="TimelineHeaderSharedRow"/>
@@ -269,7 +252,7 @@
                                 BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
                         <ListBox x:Name="TrackListBox"
                                  sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/TrackControllers"
-                                 acs:AdvancedContextMenu.ContextGenerator="{x:Static context:TrackContextGenerator.Instance}"
+                                 acs:AdvancedContextMenu.ContextGenerator="{x:Static ctx:TrackContextGenerator.Instance}"
                                  Style="{StaticResource TrackListBoxStyle}"
                                  Grid.Row="1" Grid.Column="0"
                                  SelectionMode="Extended"
@@ -287,7 +270,14 @@
                                                Grid.RowSpan="2" Grid.Column="2"
                                                BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
                                                MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                               sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface"/>
+                                               sc:UIFocusGroup.FocusGroupPath="Application/Editor/Timeline/Surface">
+                            <sb:ShortcutBindingCollection.Collection>
+                                <sb:ShortcutBindingCollection>
+                                    <sb:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/Surface/MoveSelectedTrackUp" Command="{Binding MoveSelectedUpCommand, Mode=OneTime}"/>
+                                    <sb:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/Surface/MoveSelectedTrackDown" Command="{Binding MoveSelectedDownCommand, Mode=OneTime}"/>
+                                </sb:ShortcutBindingCollection>
+                            </sb:ShortcutBindingCollection.Collection>
+                        </ctrl2:TimelineControl>
                         <GridSplitter Background="Transparent" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderThickness="0" Grid.RowSpan="2" Margin="-5,-1,0,0" SnapsToDevicePixels="True"/>
                     </Grid>
                 </Border>
@@ -295,10 +285,10 @@
             <GridSplitter Margin="0,-3,0,-2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="Transparent" BorderThickness="0" SnapsToDevicePixels="True"/>
             <GridSplitter Margin="0,21,0,-26" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="Transparent" BorderThickness="0" SnapsToDevicePixels="True"/>
         </Grid>
-        <Popup x:Name="NotificationPanelPopup" AllowsTransparency="True" d:DataContext="{d:DesignInstance n:NotificationPanelViewModel}">
+        <Popup x:Name="NotificationPanelPopup" AllowsTransparency="True" d:DataContext="{d:DesignInstance cn:NotificationPanelViewModel}">
             <Border Background="Transparent">
                 <ScrollViewer MaxHeight="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type editor:EditorMainWindow}}, Path=ActualHeight}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" CanContentScroll="False">
-                    <nn:NotificationList ItemsSource="{Binding Notifications, Mode=OneTime}" ItemTemplateSelector="{StaticResource NotificationTemplateSelector}" MinWidth="300"/>
+                    <n:NotificationList ItemsSource="{Binding Notifications, Mode=OneTime}" ItemTemplateSelector="{StaticResource NotificationTemplateSelector}" MinWidth="300"/>
                 </ScrollViewer>
             </Border>
         </Popup>

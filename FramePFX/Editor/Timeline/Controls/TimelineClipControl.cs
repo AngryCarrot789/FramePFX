@@ -170,14 +170,21 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.Loaded += this.OnLoaded;
         }
 
+        private void OnInitialized(object sender, EventArgs e) {
+
+        }
+
         private void OnLoaded(object sender, RoutedEventArgs e) {
             if (this.DragHandler is IClipDragHandler handler) {
                 if (handler.IsDraggingClip) {
                     this.isLoadedWithActiveDrag = true;
                     this.Focus();
                     this.CaptureMouse();
+                    this.IsSelected = true;
                 }
             }
+
+            this.Loaded -= this.OnLoaded;
         }
 
         static TimelineClipControl() {
@@ -215,6 +222,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         private void OnLeftThumbDragStart(object sender, DragStartedEventArgs e) {
             if (this.DragHandler is IClipDragHandler handler && !handler.IsDraggingLeftThumb) {
+                this.Focus();
                 handler.OnLeftThumbDragStart();
             }
         }
@@ -244,6 +252,7 @@ namespace FramePFX.Editor.Timeline.Controls {
 
         private void OnRightThumbDragStart(object sender, DragStartedEventArgs e) {
             if (this.DragHandler is IClipDragHandler handler && !handler.IsDraggingRightThumb) {
+                this.Focus();
                 handler.OnRightThumbDragStart();
             }
         }

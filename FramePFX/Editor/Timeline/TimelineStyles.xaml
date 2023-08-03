@@ -116,8 +116,8 @@
                             </DockPanel>
                         </Border>
                         <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True" Panel.ZIndex="2"/>
-                        <ctrl:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="8" Margin="-4,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
-                        <ctrl:CancellableThumb Visibility="{TemplateBinding IsMouseOver, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"/>
+                        <ctrl:CancellableThumb x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="16" Margin="-8,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Panel.ZIndex="2"/>
+                        <ctrl:CancellableThumb x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="16" Margin="0,0,-8,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Panel.ZIndex="2"/>
                         <aa:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                      Sequence="{Binding ActiveSequence}"
                                                      IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
@@ -680,7 +680,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="{x:Type timelines:ClipViewModel}">
-                                                <v2:TimelineClipControl FrameBegin="{Binding FrameBegin}" FrameDuration="{Binding FrameDuration}"/>
+                                                <v2:TimelineClipControlV2 FrameBegin="{Binding FrameBegin}" FrameDuration="{Binding FrameDuration}"/>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

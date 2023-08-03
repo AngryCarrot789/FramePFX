@@ -89,7 +89,7 @@
                                     Content="Export" Margin="0,0,87,10"
                                     VerticalAlignment="Bottom" Height="24"
                                     HorizontalAlignment="Right" Width="75"
-                                    attached:CornerHelper.CornerRadius="2"
+                                    attached:CornerRadiusHelper.Value="2"
                                     Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                     BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
                                     SnapsToDevicePixels="True" ToolTip="Begin exporting"/>
@@ -98,7 +98,7 @@
                                     Content="Cancel" Margin="0,0,10,10"
                                     VerticalAlignment="Bottom" Height="24"
                                     HorizontalAlignment="Right" Width="72"
-                                    attached:CornerHelper.CornerRadius="2"
+                                    attached:CornerRadiusHelper.Value="2"
                                     Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                     BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
                                     SnapsToDevicePixels="True" ToolTip="Cancel export"/>

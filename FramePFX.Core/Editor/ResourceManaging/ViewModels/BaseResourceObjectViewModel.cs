@@ -4,7 +4,7 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public abstract class BaseResourceObjectViewModel : BaseViewModel {
+    public abstract class BaseResourceObjectViewModel : BaseViewModel, IRenameable {
         internal ResourceManagerViewModel manager;
         internal ResourceGroupViewModel parent;
 
@@ -79,5 +79,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         protected virtual void OnDisposing() {
 
         }
+
+        Task<bool> IRenameable.RenameAsync() => this.RenameSelfAction();
     }
 }

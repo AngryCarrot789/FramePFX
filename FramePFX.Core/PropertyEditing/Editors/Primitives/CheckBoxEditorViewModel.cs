@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace FramePFX.Core.PropertyEditing.Editors.Primitives {
     public class CheckBoxEditorViewModel : BasePropertyEditorViewModel {
@@ -72,7 +71,7 @@ namespace FramePFX.Core.PropertyEditing.Editors.Primitives {
         }
 
         public bool? CalculateDefaultValue() {
-            return GetValueForObjects(this.Handlers, this.getter, out bool b) ? b : (bool?) null;
+            return GetEqualValue(this.Handlers, this.getter, out bool b) ? b : (bool?) null;
         }
 
         public static CheckBoxEditorViewModel ForGeneric<T>(string label, Func<T, bool> getter, Action<T, bool> setter) {

@@ -6,19 +6,20 @@ namespace FramePFX.Themes {
     public static class ThemesController {
         public static ThemeType CurrentTheme { get; set; }
 
-        private static ResourceDictionary ThemeDictionary {
+        public static ResourceDictionary ThemeDictionary {
             get => Application.Current.Resources.MergedDictionaries[0];
             set => Application.Current.Resources.MergedDictionaries[0] = value;
         }
 
-        private static ResourceDictionary ControlColours {
+        public static ResourceDictionary ControlColours {
             get => Application.Current.Resources.MergedDictionaries[1];
             set => Application.Current.Resources.MergedDictionaries[1] = value;
         }
 
-        private static ResourceDictionary Controls {
-            get => Application.Current.Resources.MergedDictionaries[2];
-            set => Application.Current.Resources.MergedDictionaries[2] = value;
+        public static void RefreshControls() {
+            ResourceDictionary resource = Application.Current.Resources.MergedDictionaries[2];
+            Application.Current.Resources.MergedDictionaries.RemoveAt(2);
+            Application.Current.Resources.MergedDictionaries.Insert(2, resource);
         }
 
         public static void SetTheme(ThemeType theme) {
@@ -30,15 +31,12 @@ namespace FramePFX.Themes {
             CurrentTheme = theme;
             ThemeDictionary = new ResourceDictionary() { Source = new Uri($"Themes/ColourDictionaries/{themeName}.xaml", UriKind.Relative) };
             ControlColours = new ResourceDictionary() { Source = new Uri("Themes/ControlColours.xaml", UriKind.Relative) };
-            Controls = new ResourceDictionary() { Source = new Uri("Themes/Controls.xaml", UriKind.Relative) };
+            // App.Controls = new ResourceDictionary() { Source = new Uri("Themes/Controls.xaml", UriKind.Relative) };
+            RefreshControls();
         }
 
-        public static object GetResource(object key) {
-            return ThemeDictionary[key];
-        }
+        public static object GetResource(object key) => ThemeDictionary[key];
 
-        public static SolidColorBrush GetBrush(string name) {
-            return GetResource(name) is SolidColorBrush brush ? brush : new SolidColorBrush(Colors.White);
-        }
+        public static SolidColorBrush GetBrush(string name) => GetResource(name) is SolidColorBrush brush ? brush : new SolidColorBrush(Colors.White);
     }
 }

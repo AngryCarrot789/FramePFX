@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Actions;
 using FramePFX.Core.Automation.Keyframe;

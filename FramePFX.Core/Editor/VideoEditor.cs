@@ -1,5 +1,3 @@
-using FramePFX.Core.History;
-
 namespace FramePFX.Core.Editor {
     public class VideoEditor {
         public volatile bool IsProjectSaving;

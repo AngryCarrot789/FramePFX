@@ -3,10 +3,10 @@ using System.Windows.Controls;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timeline.Controls.V2 {
-    public class TimelineTrackControl : Control {
+    public class TimelineTrackControlV2 : Control {
         public TimelineControlV2 Timeline { get; private set; }
 
-        public TimelineTrackControl() {
+        public TimelineTrackControlV2() {
             this.Loaded += this.OnLoaded;
             this.Unloaded += this.OnUnloaded;
         }

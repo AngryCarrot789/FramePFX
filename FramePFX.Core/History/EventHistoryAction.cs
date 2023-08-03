@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.History {

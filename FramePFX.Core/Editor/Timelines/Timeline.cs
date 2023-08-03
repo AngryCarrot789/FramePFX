@@ -15,6 +15,13 @@ using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timelines {
     public class Timeline : IAutomatable, IRBESerialisable {
+        private readonly Dictionary<long, Clip> idToClip = new Dictionary<long, Clip>();
+        private readonly Dictionary<long, Track> idToTrack = new Dictionary<long, Track>();
+
+        // not a chance anyone's creating more than 9 quintillion clips or tracks
+        private long nextClipId;
+        private long nextTrackId;
+
         /// <summary>
         /// The project associated with this timeline
         /// </summary>
@@ -44,33 +51,39 @@ namespace FramePFX.Core.Editor.Timelines {
         // view model can access this
         public Dictionary<Clip, Exception> ExceptionsLastRender { get; } = new Dictionary<Clip, Exception>();
 
+        public event ClipIdAssignedEventHandler ClipIdAssigned;
+        public event TrackIdAssignedEventHandler TrackIdAssigned;
+
         public Timeline(Project project) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
         }
 
-        /// <summary>
-        /// Returns a span that all of our tracks' clips can fit into
-        /// </summary>
-        /// <returns></returns>
-        public bool GetUsedFrameSpan(out FrameSpan span) {
-            using (List<Track>.Enumerator enumerator = this.Tracks.GetEnumerator()) {
-                while (enumerator.MoveNext()) {
-                    if (enumerator.Current.GetUsedFrameSpan(out span)) {
-                        while (enumerator.MoveNext()) {
-                            if (enumerator.Current.GetUsedFrameSpan(out FrameSpan other)) {
-                                span = span.MinMax(other);
-                            }
-                        }
+        public bool GetClipById(long id, out Clip clip) {
+            if (id < 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Id must be non-negative");
+            return this.idToClip.TryGetValue(id, out clip);
+        }
 
-                        return true;
-                    }
-                }
-            }
+        public bool GetTrackById(long id, out Track track) {
+            if (id < 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Id must be non-negative");
+            return this.idToTrack.TryGetValue(id, out track);
+        }
 
-            span = default;
-            return false;
+        public long GetNextClipId(Clip clip) {
+            long id = this.nextClipId++;
+            this.idToClip[id] = clip;
+            this.ClipIdAssigned?.Invoke(clip, id);
+            return id;
+        }
+
+        public long GetNextTrackId(Track track) {
+            long id = this.nextTrackId++;
+            this.idToTrack[id] = track;
+            this.TrackIdAssigned?.Invoke(track, id);
+            return id;
         }
 
         public void GetUsedFrameSpan(ref long begin, ref long endIndex) {
@@ -86,6 +99,8 @@ namespace FramePFX.Core.Editor.Timelines {
         }
 
         public void WriteToRBE(RBEDictionary data) {
+            data.SetLong("NextClipId", this.nextClipId);
+            data.SetLong("NextTrackId", this.nextTrackId);
             data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
@@ -100,13 +115,26 @@ namespace FramePFX.Core.Editor.Timelines {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
+            if ((this.nextClipId = data.GetLong("NextClipId")) < 0)
+                throw new Exception("Invalid next clip id");
+            if ((this.nextTrackId = data.GetLong("NextTrackId")) < 0)
+                throw new Exception("Invalid next track id");
             this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+            HashSet<long> usedIds = new HashSet<long>();
             foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).OfType<RBEDictionary>()) {
                 string registryId = dictionary.GetString(nameof(Track.RegistryId));
                 Track track = TrackRegistry.Instance.CreateModel(registryId);
                 track.ReadFromRBE(dictionary.GetDictionary("Data"));
+
+                // check for duplicate track ids, caused by external modification or corruption
+                if (track.internalTrackId >= 0) {
+                    if (usedIds.Contains(track.internalTrackId))
+                        throw new Exception("Track ID already in use: " + track.internalTrackId);
+                    usedIds.Add(track.internalTrackId);
+                }
+
                 this.AddTrack(track);
             }
 
@@ -158,6 +186,24 @@ namespace FramePFX.Core.Editor.Timelines {
             }
         }
 
+        /// <summary>
+        /// Called when a clip is added to a track in this timeline
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="clip"></param>
+        public void OnClipAdded(Track track, Clip clip) {
+
+        }
+
+        /// <summary>
+        /// Called when a clip is removed from a track in this timeline
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="clip"></param>
+        public void OnClipRemoved(Track track, Clip clip) {
+
+        }
+
         // SaveLayer requires a temporary drawing bitmap, which can slightly
         // decrease performance, so only SaveLayer when absolutely necessary
         private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
@@ -201,15 +247,16 @@ namespace FramePFX.Core.Editor.Timelines {
                         continue;
                     }
 
-                    #if DEBUG
+#if DEBUG
                     try {
-                        #endif
+#endif
+                        int trackSaveCount, clipSaveCount;
                         if (clip.UseAsyncRendering) {
                             clip.IsAsyncRenderReady = false;
                             clip.BeginRender(frame);
                             if (bufferList.Count < 1 && clip.IsAsyncRenderReady) {
-                                int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
-                                int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
+                                trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
+                                clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                                 try {
                                     clip.EndRender(render);
                                 }
@@ -224,8 +271,8 @@ namespace FramePFX.Core.Editor.Timelines {
                             }
                         }
                         else if (bufferList.Count < 1) {
-                            int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
-                            int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
+                            trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
+                            clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                             try {
                                 clip.Render(render, frame);
                                 if (clip.UsesOpenGL) {
@@ -240,12 +287,12 @@ namespace FramePFX.Core.Editor.Timelines {
                         else {
                             bufferList.Add(clip);
                         }
-                        #if DEBUG
+#if DEBUG
                     }
                     catch (Exception e) {
                         this.ExceptionsLastRender[clip] = e;
                     }
-                    #endif
+#endif
                 }
             }
 
@@ -295,9 +342,9 @@ namespace FramePFX.Core.Editor.Timelines {
                         continue;
                     }
 
-                    #if DEBUG
+#if DEBUG
                     try {
-                        #endif
+#endif
                         if (clip.UseAsyncRendering) {
                             clip.IsAsyncRenderReady = false;
                             clip.BeginRender(frame);
@@ -334,12 +381,12 @@ namespace FramePFX.Core.Editor.Timelines {
                         else {
                             bufferList.Add(clip);
                         }
-                        #if DEBUG
+#if DEBUG
                     }
                     catch (Exception e) {
                         this.ExceptionsLastRender[clip] = e;
                     }
-                    #endif
+#endif
                 }
             }
 

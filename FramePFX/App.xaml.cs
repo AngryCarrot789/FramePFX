@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -22,6 +24,7 @@ using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Editor;
+using FramePFX.Resources.I18N;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
 using FramePFX.Utils;
@@ -36,6 +39,7 @@ namespace FramePFX {
         private AppSplashScreen splash;
 
         public App() {
+
         }
 
         public void RegisterActions() {
@@ -50,7 +54,7 @@ namespace FramePFX {
             ActionManager.Instance.Register("actions.editor.timeline.TogglePlayPause", new TogglePlayPauseAction());
             ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
             ActionManager.Instance.Register("actions.resources.GroupSelection", new GroupSelectedResourcesAction());
-            ActionManager.Instance.Register("actions.resources.RenameItem", new RenameResourceAction());
+            ActionManager.Instance.Register("actions.general.RenameItem", new RenameResourceAction());
             ActionManager.Instance.Register("actions.resources.ToggleOnlineState", new ToggleResourceOnlineStateAction());
             ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedClips", new DeleteSelectedClips());
             ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());
@@ -79,13 +83,60 @@ namespace FramePFX {
                 }
             };
 
-            IoC.LoadServicesFromAttributes();
+            List<(TypeInfo, ServiceImplementationAttribute)> serviceAttributes = new List<(TypeInfo, ServiceImplementationAttribute)>();
+            List<(TypeInfo, ActionRegistrationAttribute)> attributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
 
-            await this.SetActivity("Loading shortcut and action managers...");
+            // Process all attributes in a single scan, instead of multiple scans for services, actions, etc
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
+                foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
+                    ServiceImplementationAttribute serviceAttribute = typeInfo.GetCustomAttribute<ServiceImplementationAttribute>();
+                    if (serviceAttribute?.Type != null) {
+                        serviceAttributes.Add((typeInfo, serviceAttribute));
+                    }
+
+                    ActionRegistrationAttribute actionAttribute = typeInfo.GetCustomAttribute<ActionRegistrationAttribute>();
+                    if (actionAttribute != null) {
+                        attributes.Add((typeInfo, actionAttribute));
+                    }
+                }
+            }
+
+            foreach ((TypeInfo, ServiceImplementationAttribute) tuple in serviceAttributes) {
+                object instance;
+                try {
+                    instance = Activator.CreateInstance(tuple.Item1);
+                }
+                catch (Exception e) {
+                    throw new Exception($"Failed to create implementation of {tuple.Item2.Type} as {tuple.Item1}", e);
+                }
+
+                IoC.Instance.Register(tuple.Item2.Type, instance);
+            }
+
+            await this.SetActivity("Loading localization...");
+            LocalizationController.SetLang(LangType.En);
+
+            await this.SetActivity("Loading shortcuts and the action manager...");
             ShortcutManager.Instance = new WPFShortcutManager();
             ActionManager.Instance = new ActionManager();
             InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
             InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
+
+            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in attributes.OrderBy(x => x.Item2.RegistrationOrder)) {
+                AnAction action;
+                try {
+                    action = (AnAction) Activator.CreateInstance(type, true);
+                }
+                catch (Exception e) {
+                    throw new Exception($"Failed to create an instance of the registered action '{type.FullName}'", e);
+                }
+
+                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null) {
+                    ActionManager.Instance.Unregister(attribute.ActionId);
+                }
+
+                ActionManager.Instance.Register(attribute.ActionId, action);
+            }
 
             this.RegisterActions();
 
@@ -157,7 +208,7 @@ namespace FramePFX {
             editor.ActiveProject.AutomationEngine.UpdateAndRefresh(true);
             await editor.View.Render();
 
-            new TestControlPreview().Show();
+            // new TestControlPreview().Show();
         }
 
         protected override void OnExit(ExitEventArgs e) {

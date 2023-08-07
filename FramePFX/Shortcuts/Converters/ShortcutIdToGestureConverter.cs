@@ -59,7 +59,7 @@ namespace FramePFX.Shortcuts.Converters {
                 return MouseStrokeStringConverter.ToStringFunction(ms.MouseButton, ms.Modifiers, ms.ClickCount);
             }
             else if (stroke is KeyStroke ks) {
-                return KeyStrokeStringConverter.ToStringFunction(ks.KeyCode, ks.Modifiers, ks.IsKeyRelease, false, true);
+                return KeyStrokeStringConverter.ToStringFunction(ks.KeyCode, ks.Modifiers, ks.IsRelease, false, true);
             }
             else {
                 return stroke.ToString();

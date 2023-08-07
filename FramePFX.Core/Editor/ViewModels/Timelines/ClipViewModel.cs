@@ -74,26 +74,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 }
 
                 this.Model.FrameSpan = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.FrameBegin));
-                this.RaisePropertyChanged(nameof(this.FrameDuration));
-                this.RaisePropertyChanged(nameof(this.FrameEndIndex));
-                this.RaisePropertyChanged(nameof(this.RelativePlayHead));
-                this.OnFrameSpanChanged(oldSpan, value);
-                if (this.Track != null) {
-                    this.Track.OnProjectModified();
-                    long frame = this.Track.Timeline.PlayHeadFrame;
-                    if (this.LastSeekedFrame != -1) {
-                        if (!this.IntersectsFrameAt(frame)) {
-                            this.OnPlayHeadLeaveClip(false);
-                            this.LastSeekedFrame = -1;
-                        }
-                    }
-                    else if (this.IntersectsFrameAt(frame)) {
-                        this.LastSeekedFrame = frame;
-                        this.OnClipMovedToPlayeHeadFrame(frame);
-                    }
-                }
+                this.OnFrameSpanChanged(oldSpan);
             }
         }
 
@@ -127,9 +108,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
                 }
 
                 this.Model.MediaFrameOffset = value;
-                this.RaisePropertyChanged();
                 this.OnMediaFrameOffsetChanged(oldValue, value);
-                this.Track?.OnProjectModified();
             }
         }
 
@@ -193,12 +172,31 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             return (manager = this.Editor?.HistoryManager) != null;
         }
 
-        protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
-
+        public virtual void OnFrameSpanChanged(FrameSpan oldSpan) {
+            this.RaisePropertyChanged();
+            this.RaisePropertyChanged(nameof(this.FrameBegin));
+            this.RaisePropertyChanged(nameof(this.FrameDuration));
+            this.RaisePropertyChanged(nameof(this.FrameEndIndex));
+            this.RaisePropertyChanged(nameof(this.RelativePlayHead));
+            if (this.Track != null) {
+                this.Track.OnProjectModified();
+                long frame = this.Track.Timeline.PlayHeadFrame;
+                if (this.LastSeekedFrame != -1) {
+                    if (!this.IntersectsFrameAt(frame)) {
+                        this.OnPlayHeadLeaveClip(false);
+                        this.LastSeekedFrame = -1;
+                    }
+                }
+                else if (this.IntersectsFrameAt(frame)) {
+                    this.LastSeekedFrame = frame;
+                    this.OnClipMovedToPlayeHeadFrame(frame);
+                }
+            }
         }
 
         protected virtual void OnMediaFrameOffsetChanged(long oldFrame, long newFrame) {
-
+            this.RaisePropertyChanged();
+            this.Track?.OnProjectModified();
         }
 
         public void Dispose() {

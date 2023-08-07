@@ -26,9 +26,10 @@ namespace FramePFX.Core.Notifications {
             if (notification == null)
                 throw new ArgumentNullException(nameof(notification));
             if (notification.Panel != null && !ReferenceEquals(notification.Panel, this))
-                throw new Exception("The given notification was already placed in a panel");
-
-            this.notifications.Add(notification);
+                throw new Exception("The given notification belongs to another panel");
+            notification.IsHidden = false;
+            if (!this.notifications.Contains(notification))
+                this.notifications.Add(notification);
             notification.Panel = this;
             if (autoStartHideTask) {
                 notification.StartAutoHideTask();
@@ -37,10 +38,19 @@ namespace FramePFX.Core.Notifications {
             this.Handler.OnNotificationPushed(notification);
         }
 
-        public void RemoveNotification(NotificationViewModel notification) {
+        public bool RemoveNotification(NotificationViewModel notification) {
+            if (notification == null)
+                throw new ArgumentNullException(nameof(notification));
+            if (!ReferenceEquals(notification.Panel, this))
+                throw new Exception("The given notification was not placed in this panel");
+
             if (this.notifications.Remove(notification)) {
                 this.Handler.OnNotificationRemoved(notification);
+                notification.IsHidden = true;
+                return true;
             }
+
+            return false;
         }
 
         public bool IsNotificationPresent(NotificationViewModel notification) {

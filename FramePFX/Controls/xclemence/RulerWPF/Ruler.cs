@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using FramePFX.Controls.xclemence.RulerWPF.PositionManagers;
 using FramePFX.Utils;
+using PSWMGRv2.Utils;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Controls.xclemence.RulerWPF {

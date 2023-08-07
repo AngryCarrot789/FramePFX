@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Editor.ViewModels.Timelines;
@@ -42,7 +43,9 @@ namespace FramePFX.Core.Editor.History {
                     track.viewModel.AddClip(clip.viewModel);
                 }
 
-                clip.viewModel.FrameSpan = clipData.position.GetValue(original);
+                FrameSpan old = clip.FrameSpan;
+                clip.FrameSpan = clipData.position.GetValue(original);
+                clip.viewModel.OnFrameSpanChanged(old);
             }
         }
     }

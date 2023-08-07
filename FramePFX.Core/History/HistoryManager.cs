@@ -160,7 +160,7 @@ namespace FramePFX.Core.History {
             IHistoryAction action = this.undoList.Last.Value;
             this.undoList.RemoveLast();
 
-            using (ExceptionStack stack = new ExceptionStack(false)) {
+            using (ExceptionStack stack = new ExceptionStack()) {
                 try {
                     this.IsUndoing = true;
                     await action.UndoAsync();
@@ -203,7 +203,7 @@ namespace FramePFX.Core.History {
             IHistoryAction action = this.redoList.Last.Value;
             this.redoList.RemoveLast();
 
-            using (ExceptionStack stack = new ExceptionStack(false)) {
+            using (ExceptionStack stack = new ExceptionStack()) {
                 try {
                     this.IsRedoing = true;
                     await action.RedoAsync();

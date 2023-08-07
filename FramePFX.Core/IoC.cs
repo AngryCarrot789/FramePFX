@@ -66,6 +66,6 @@ namespace FramePFX.Core {
             }
         }
 
-        public static T Provide<T>() => Instance.Provide<T>();
+        public static T Provide<T>() => Instance.GetService<T>();
     }
 }

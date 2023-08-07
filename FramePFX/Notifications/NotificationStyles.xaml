@@ -79,7 +79,8 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type n:NotificationControl}">
-                                <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                        Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                                     <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </Border>
                                 <ControlTemplate.Triggers>

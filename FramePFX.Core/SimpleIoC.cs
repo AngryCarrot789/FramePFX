@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace FramePFX.Core {
-    public class SimpleIoC {
+    public class SimpleIoC : IServiceProvider {
         private readonly Dictionary<Type, object> services;
 
         public SimpleIoC() {
@@ -16,7 +16,7 @@ namespace FramePFX.Core {
         /// <returns>The instance of the service</returns>
         /// <exception cref="ServiceNotFoundException">Thrown if there isn't a ViewModel of that type</exception>
         /// <exception cref="InvalidCastException">Thrown if the target service type doesn't match the actual service type</exception>
-        public T Provide<T>() {
+        public T GetService<T>() {
             if (this.services.TryGetValue(typeof(T), out object service)) {
                 if (service is T t) {
                     return t;
@@ -25,11 +25,11 @@ namespace FramePFX.Core {
                 throw new InvalidCastException($"The target service type '{typeof(T)}' is incompatible with actual service type '{(service == null ? "NULL" : service.GetType().Name)}'");
             }
 
-            #if DEBUG
+#if DEBUG
             return default;
-            #else
+#else
             throw new Exception($"No service registered with type: {typeof(T)}");
-            #endif
+#endif
         }
 
         /// <summary>
@@ -38,20 +38,16 @@ namespace FramePFX.Core {
         /// <returns>The instance of the service</returns>
         /// <exception cref="ServiceNotFoundException">Thrown if there isn't a ViewModel of that type</exception>
         /// <exception cref="InvalidCastException">Thrown if the target service type doesn't match the actual service type</exception>
-        public object Provide(Type type) {
+        public object GetService(Type type) {
             if (this.services.TryGetValue(type, out object service)) {
-                if (type.IsInstanceOfType(service)) {
-                    return service;
-                }
-
-                throw new InvalidCastException($"The target service type '{type}' is incompatible with actual service type '{(service == null ? "NULL" : service.GetType().Name)}'");
+                return service;
             }
 
-            #if DEBUG
+#if DEBUG
             return default;
-            #else
+#else
             throw new Exception($"No service registered with type: {type}");
-            #endif
+#endif
         }
 
         /// <summary>
@@ -68,6 +64,8 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="service"></param>
         public void Register(Type type, object service) {
+            if (!type.IsInstanceOfType(service))
+                throw new InvalidCastException($"The target service type '{type}' is incompatible with actual service type '{(service == null ? "NULL" : service.GetType().Name)}'");
             this.services[type] = service;
         }
 

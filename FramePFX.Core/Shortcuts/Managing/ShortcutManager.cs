@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using FramePFX.Core.Shortcuts.Inputs;
 
 namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
@@ -25,6 +23,10 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
         public ShortcutManager() {
             this.Root = ShortcutGroup.CreateRoot();
+        }
+
+        public void DoRootEvaulateShortcutsAndInputStates(ref GroupEvaulationArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
+            this.root.DoEvaulateShortcutsAndInputStates(ref args, focus, allowDuplicateInheritedShortcuts);
         }
 
         public ShortcutGroup FindGroupByPath(string path) {
@@ -112,11 +114,6 @@ namespace FramePFX.Core.Shortcuts.Managing {
                     this.pathToShortcut[shortcut.FullPath] = shortcut;
                 }
             }
-        }
-
-        public virtual void CollectShortcutsWithPrimaryStroke(IInputStroke stroke, string focus, List<GroupedShortcut> shortcuts, Predicate<GroupedShortcut> filter = null) {
-            ShortcutCollectorArgs args = new ShortcutCollectorArgs(stroke, shortcuts, filter);
-            this.root.CollectShortcutsWithPrimaryStroke(ref args, focus);
         }
 
         public IEnumerable<GroupedShortcut> FindShortcutsByPaths(IEnumerable<string> paths) {

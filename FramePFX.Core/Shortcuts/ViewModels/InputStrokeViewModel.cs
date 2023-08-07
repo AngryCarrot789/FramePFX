@@ -53,7 +53,7 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
         public KeyStrokeViewModel(KeyStroke stroke) {
             this.keyCode = stroke.KeyCode;
             this.modifiers = stroke.Modifiers;
-            this.isKeyRelease = stroke.IsKeyRelease;
+            this.isKeyRelease = stroke.IsRelease;
         }
 
         public KeyStroke ToKeyStroke() {
@@ -82,6 +82,12 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             set => this.RaisePropertyChanged(ref this.modifiers, value);
         }
 
+        private bool isRelease;
+        public bool IsRelease {
+            get => this.isRelease;
+            set => this.RaisePropertyChanged(ref this.isRelease, value);
+        }
+
         private int clickCount;
         public int ClickCount {
             get => this.clickCount;
@@ -94,12 +100,6 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
             set => this.RaisePropertyChanged(ref this.wheelDelta, value);
         }
 
-        private int customParam;
-        public int CustomParam {
-            get => this.customParam;
-            set => this.RaisePropertyChanged(ref this.customParam, value);
-        }
-
         public MouseStrokeViewModel() {
 
         }
@@ -107,13 +107,13 @@ namespace FramePFX.Core.Shortcuts.ViewModels {
         public MouseStrokeViewModel(MouseStroke stroke) {
             this.mouseButton = stroke.MouseButton;
             this.modifiers = stroke.Modifiers;
+            this.isRelease = stroke.IsRelease;
             this.clickCount = stroke.ClickCount;
             this.wheelDelta = stroke.WheelDelta;
-            this.customParam = stroke.CustomParam;
         }
 
         public MouseStroke ToMouseStroke() {
-            return new MouseStroke(this.mouseButton, this.modifiers, this.clickCount, this.wheelDelta, this.customParam);
+            return new MouseStroke(this.mouseButton, this.modifiers, this.isRelease, this.clickCount, this.wheelDelta);
         }
 
         public override IInputStroke ToInputStroke() {

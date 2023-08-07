@@ -18,10 +18,10 @@
 
     <!-- Dammit visual studio why won't you accept d:DataContext on styles :'( -->
     <Style d:DataContext="{d:DesignInstance t:BaseContextEntry}" x:Key="BaseContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
-        <Setter Property="Header"           Value="{Binding Header, Mode=OneWay}"/>
-        <Setter Property="ToolTip"          Value="{Binding Description, Mode=OneWay}"/>
-        <Setter Property="ItemsSource"      Value="{Binding Children, Mode=OneTime}"/>
-        <Setter Property="IconType"         Value="{Binding IconType}"/>
+        <Setter Property="Header"      Value="{Binding Header, Mode=OneWay}"/>
+        <Setter Property="ToolTip"     Value="{Binding Description, Mode=OneWay}"/>
+        <Setter Property="ItemsSource" Value="{Binding Children, Mode=OneTime}"/>
+        <Setter Property="IconType"    Value="{Binding IconType}"/>
     </Style>
 
     <Style d:DataContext="{d:DesignInstance t:CommandContextEntry}" x:Key="CommandContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">

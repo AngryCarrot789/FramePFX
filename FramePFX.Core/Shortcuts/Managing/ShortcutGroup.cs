@@ -13,6 +13,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
         private readonly List<ShortcutGroup> groups;
         private readonly List<GroupedShortcut> shortcuts;
+        private readonly List<GroupedInputState> inputStates;
         private readonly Dictionary<string, object> mapToItem;
 
         public ShortcutGroup Parent { get; }
@@ -54,6 +55,11 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public IEnumerable<GroupedShortcut> Shortcuts => this.shortcuts;
 
         /// <summary>
+        /// All input states in this focus group
+        /// </summary>
+        public IEnumerable<GroupedInputState> InputStates => this.inputStates;
+
+        /// <summary>
         /// All child-groups in this focus group
         /// </summary>
         public IEnumerable<ShortcutGroup> Groups => this.groups;
@@ -68,6 +74,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
             this.Parent = parent;
             this.groups = new List<ShortcutGroup>();
             this.shortcuts = new List<GroupedShortcut>();
+            this.inputStates = new List<GroupedInputState>();
             this.mapToItem = new Dictionary<string, object>();
         }
 
@@ -105,6 +112,15 @@ namespace FramePFX.Core.Shortcuts.Managing {
             return managed;
         }
 
+        public GroupedInputState AddInputState(string name, IInputStroke activation, IInputStroke deactivation) {
+            ValidateName(name, "Shortcut name cannot be null or consist of only whitespaces");
+            this.ValidateNameNotInUse(name);
+            GroupedInputState managed = new GroupedInputState(this, name, activation, deactivation);
+            this.mapToItem[name] = managed;
+            this.inputStates.Add(managed);
+            return managed;
+        }
+
         public bool ContainsShortcutByName(string name) {
             return this.mapToItem.TryGetValue(name, out object value) && value is ShortcutGroup;
         }
@@ -113,7 +129,10 @@ namespace FramePFX.Core.Shortcuts.Managing {
             return this.mapToItem.TryGetValue(name, out object value) && value is ShortcutGroup;
         }
 
-        public void CollectShortcutsWithPrimaryStroke(ref ShortcutCollectorArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
+        /// <summary>
+        /// Old name: CollectShortcutsWithPrimaryStroke
+        /// </summary>
+        public void DoEvaulateShortcutsAndInputStates(ref GroupEvaulationArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
             this.CollectShortcutsInternal(ref args, string.IsNullOrWhiteSpace(focus) ? null : focus, allowDuplicateInheritedShortcuts);
         }
 
@@ -127,7 +146,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
             return false;
         }
 
-        private void CollectShortcutsInternal(ref ShortcutCollectorArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
+        private void CollectShortcutsInternal(ref GroupEvaulationArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
             // Searching groups first is what allows inheritance to work properly, because you search the deepest
             // levels first and make your way to the root. Similar to how bubble events work
             foreach (ShortcutGroup group in this.groups) {
@@ -141,9 +160,9 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 }
 
                 if (requireGlobal && !shortcut.IsGlobal) {
-                    // I actually can't remember if this.FullPath should be used here or shortcut.Path
+                    // I actually can't remember if this.FullPath should be used here or shortcut.FullPath
                     if (shortcut.IsInherited && IsFocusPathInScope(this.FullPath, focus, true)) {
-                        if (!allowDuplicateInheritedShortcuts && FindPrimaryStroke(args.list, shortcut.Shortcut.PrimaryStroke)) {
+                        if (!allowDuplicateInheritedShortcuts && FindPrimaryStroke(args.shortcuts, shortcut.Shortcut.PrimaryStroke)) {
                             continue;
                         }
                     }
@@ -153,7 +172,16 @@ namespace FramePFX.Core.Shortcuts.Managing {
                 }
 
                 if (!shortcut.Shortcut.IsEmpty && shortcut.Shortcut.IsPrimaryStroke(args.stroke)) {
-                    args.list.Add(shortcut);
+                    args.shortcuts.Add(shortcut);
+                }
+            }
+
+            foreach (GroupedInputState state in this.inputStates) {
+                if (state.ActivationStroke.Equals(args.stroke)) {
+                    args.inputStates.Add((state, true));
+                }
+                else if (state.DeactivationStroke.Equals(args.stroke)) {
+                    args.inputStates.Add((state, false));
                 }
             }
         }

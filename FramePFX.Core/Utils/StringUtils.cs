@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using FramePFX.Core.Configurations;
 
 namespace FramePFX.Core.Utils {
     public static class StringUtils {

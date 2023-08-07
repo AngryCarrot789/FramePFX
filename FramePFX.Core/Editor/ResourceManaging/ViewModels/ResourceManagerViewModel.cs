@@ -205,8 +205,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         }
 
         public void Dispose() {
-            this.Manager.ClearEntries();
             ((BaseResourceObjectViewModel) this.Root).Model.Dispose();
+            this.Manager.ClearEntries();
         }
 
         public async Task OfflineAllAsync(bool user) {

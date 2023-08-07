@@ -13,8 +13,8 @@ namespace FramePFX.Shortcuts {
         public WPFKeyMapSerialiser() {
         }
 
-        protected override void SerialiseKeystroke(XmlDocument doc, XmlElement shortcut, in KeyStroke stroke) {
-            XmlElement element = doc.CreateElement("KeyStroke");
+        protected override void SerialiseKeystroke(XmlDocument doc, XmlElement elem, in KeyStroke stroke, string childElementName = "KeyStroke") {
+            XmlElement element = doc.CreateElement(childElementName);
             if (stroke.Modifiers != 0) {
                 element.SetAttribute("Mods",  ModsToString((ModifierKeys) stroke.Modifiers));
             }
@@ -27,15 +27,15 @@ namespace FramePFX.Shortcuts {
                 element.SetAttribute("KeyCode", stroke.KeyCode.ToString());
             }
 
-            if (stroke.IsKeyRelease) {
+            if (stroke.IsRelease) {
                 element.SetAttribute("IsRelease", "true");
             }
 
-            shortcut.AppendChild(element);
+            elem.AppendChild(element);
         }
 
-        protected override void SerialiseMousestroke(XmlDocument doc, XmlElement shortcut, in MouseStroke stroke) {
-            XmlElement element = doc.CreateElement("MouseStroke");
+        protected override void SerialiseMousestroke(XmlDocument doc, XmlElement elem, in MouseStroke stroke, string childElementName = "MouseStroke") {
+            XmlElement element = doc.CreateElement(childElementName);
             if (stroke.Modifiers != 0) {
                 element.SetAttribute("Mods",  ModsToString((ModifierKeys) stroke.Modifiers));
             }
@@ -57,9 +57,9 @@ namespace FramePFX.Shortcuts {
                 element.SetAttribute("ClickCount", stroke.ClickCount.ToString());
             if (stroke.WheelDelta != 0)
                 element.SetAttribute("WheelDelta", stroke.WheelDelta.ToString());
-            if (stroke.CustomParam != 0)
-                element.SetAttribute("CustomParam", stroke.CustomParam.ToString());
-            shortcut.AppendChild(element);
+            if (stroke.IsRelease)
+                element.SetAttribute("IsRelease", "true");
+            elem.AppendChild(element);
         }
 
         protected override KeyStroke DeserialiseKeyStroke(XmlElement element) {
@@ -92,10 +92,9 @@ namespace FramePFX.Shortcuts {
         protected override MouseStroke DeserialiseMouseStroke(XmlElement element) {
             string modsText = GetAttributeNullable(element, "Mods");
             string buttonText = GetAttributeNullable(element, "Button");
+            string isReleaseText = GetAttributeNullable(element, "IsRelease");
             string clickCountText = GetAttributeNullable(element, "ClickCount");
             string wheelDeltaText = GetAttributeNullable(element, "WheelDelta");
-            string customParamText = GetAttributeNullable(element, "CustomParam");
-
             if (string.IsNullOrWhiteSpace(buttonText)) {
                 throw new Exception("Missing mouse button");
             }
@@ -138,19 +137,16 @@ namespace FramePFX.Shortcuts {
                 wheelDelta = 0;
             }
 
-            if (string.IsNullOrWhiteSpace(customParamText) || !int.TryParse(customParamText, out int param)) {
-                param = 0;
-            }
-
-            return new MouseStroke(mouseButton, mods, clickCout, wheelDelta, param);
+            bool isRelease = "true".Equals(isReleaseText, StringComparison.OrdinalIgnoreCase);
+            return new MouseStroke(mouseButton, mods, isRelease, clickCout, wheelDelta);
         }
 
         public static string ModsToString(ModifierKeys keys) {
             StringJoiner joiner = new StringJoiner("+");
-            if ((keys & ModifierKeys.Control) != 0) joiner.Append("ctrl");
-            if ((keys & ModifierKeys.Alt) != 0)     joiner.Append("alt");
-            if ((keys & ModifierKeys.Shift) != 0)   joiner.Append("shift");
-            if ((keys & ModifierKeys.Windows) != 0) joiner.Append("win");
+            if ((keys & ModifierKeys.Control) != 0) joiner.Append("CTRL");
+            if ((keys & ModifierKeys.Alt) != 0)     joiner.Append("ALT");
+            if ((keys & ModifierKeys.Shift) != 0)   joiner.Append("SHIFT");
+            if ((keys & ModifierKeys.Windows) != 0) joiner.Append("WIN");
             return joiner.ToString();
         }
 

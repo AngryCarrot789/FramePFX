@@ -16,7 +16,7 @@ namespace FramePFX.Core.Editor.ResourceManaging {
 
         public void Generate(List<IContextEntry> list, IDataContext context) {
             if (context.TryGetContext(out BaseResourceObjectViewModel resItem)) {
-                ObservableCollection<BaseResourceObjectViewModel> selected = resItem.Parent.SelectedItems;
+                List<BaseResourceObjectViewModel> selected = resItem.Parent.SelectedItems;
                 if (selected.Count > 0 && selected.Contains(resItem)) {
                     if (selected.Count == 1) {
                         list.Add(new ActionContextEntry(resItem.Manager, "actions.general.RenameItem", "Rename"));

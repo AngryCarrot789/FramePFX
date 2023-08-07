@@ -241,10 +241,13 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
 
             if (selected) {
-                this.SelectedItems.Add(x);
+                if (!this.SelectedItems.Contains(x))
+                    this.SelectedItems.Add(x);
             }
             else {
-                this.SelectedItems.Remove(x);
+                int index = this.SelectedItems.IndexOf(x);
+                if (index != -1)
+                    this.SelectedItems.RemoveAt(index);
             }
         }
 

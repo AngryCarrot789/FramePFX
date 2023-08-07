@@ -27,6 +27,7 @@ using FramePFX.Editor;
 using FramePFX.Resources.I18N;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Converters;
+using FramePFX.Themes;
 using FramePFX.Utils;
 using FramePFX.Views;
 using SkiaSharp;
@@ -36,10 +37,33 @@ namespace FramePFX {
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application {
+        public static ThemeType CurrentTheme { get; set; }
+
+        public static ResourceDictionary ThemeDictionary {
+            get => Current.Resources.MergedDictionaries[0];
+            set => Current.Resources.MergedDictionaries[0] = value;
+        }
+
+        public static ResourceDictionary ControlColours {
+            get => Current.Resources.MergedDictionaries[1];
+            set => Current.Resources.MergedDictionaries[1] = value;
+        }
+
+        public static ResourceDictionary I18NText {
+            get => Current.Resources.MergedDictionaries[3];
+            set => Current.Resources.MergedDictionaries[3] = value;
+        }
+
         private AppSplashScreen splash;
 
         public App() {
 
+        }
+
+        public static void RefreshControlsDictionary() {
+            ResourceDictionary resource = Current.Resources.MergedDictionaries[2];
+            Current.Resources.MergedDictionaries.RemoveAt(2);
+            Current.Resources.MergedDictionaries.Insert(2, resource);
         }
 
         public void RegisterActions() {
@@ -54,7 +78,6 @@ namespace FramePFX {
             ActionManager.Instance.Register("actions.editor.timeline.TogglePlayPause", new TogglePlayPauseAction());
             ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
             ActionManager.Instance.Register("actions.resources.GroupSelection", new GroupSelectedResourcesAction());
-            ActionManager.Instance.Register("actions.general.RenameItem", new RenameResourceAction());
             ActionManager.Instance.Register("actions.resources.ToggleOnlineState", new ToggleResourceOnlineStateAction());
             ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedClips", new DeleteSelectedClips());
             ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());
@@ -188,6 +211,9 @@ namespace FramePFX {
 
             await this.SetActivity("Loading FramePFX main window...");
             EditorMainWindow window = new EditorMainWindow();
+
+
+
             this.splash.Close();
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;

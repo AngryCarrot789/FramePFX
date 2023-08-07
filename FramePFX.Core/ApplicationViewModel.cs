@@ -5,11 +5,7 @@ namespace FramePFX.Core {
     public class ApplicationViewModel : BaseViewModel {
         public ApplicationSettings Settings { get; }
 
-        private VideoEditorViewModel editor;
-        public VideoEditorViewModel Editor {
-            get => this.editor;
-            set => this.RaisePropertyChanged(ref this.editor, value);
-        }
+        public VideoEditorViewModel Editor { get; set; }
 
         public ApplicationViewModel() {
             this.Settings = new ApplicationSettings();

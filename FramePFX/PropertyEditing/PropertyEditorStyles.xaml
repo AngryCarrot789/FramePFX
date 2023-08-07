@@ -10,6 +10,7 @@
                     xmlns:editor="clr-namespace:FramePFX.Core.PropertyEditing.Editors.Editor;assembly=FramePFX.Core">
     <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
+    <SolidColorBrush x:Key="SeparatorMouseOverBrush" Color="{DynamicResource AColour.AccentTone2.Border.Static}"/>
 
     <Style x:Key="HierarchicalExpanderToggleButtonStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Template">
@@ -25,11 +26,11 @@
                                   SnapsToDevicePixels="false"
                                   Stroke="{DynamicResource Expander.Static.Arrow.Stroke}"
                                   StrokeThickness="2" VerticalAlignment="Center"
-                                  Width="10"/>
+                                  Width="10" Margin="0,1,0,0"/>
                             <ContentPresenter Margin="3,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                            <Border Margin="6,0,0,0" Background="{DynamicResource ABrush.Tone6.Background.Static}" Height="1" IsHitTestVisible="True"/>
+                            <Separator x:Name="PART_Separator" Margin="8,0,0,0" IsHitTestVisible="True"/>
                         </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -38,6 +39,7 @@
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="true">
                             <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.MouseOver.Arrow.Stroke}" />
+                            <Setter Property="Background" TargetName="PART_Separator" Value="{DynamicResource SeparatorMouseOverBrush}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="true">
                             <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Pressed.Arrow.Stroke}" />
@@ -67,6 +69,7 @@
                             SnapsToDevicePixels="true"
                             HorizontalAlignment="Stretch">
                         <DockPanel>
+                            <Separator Margin="0,5" DockPanel.Dock="Bottom" x:Name="PART_Separator"/>
                             <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}"
                                           ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
                                           Content="{TemplateBinding Header}" DockPanel.Dock="Top"
@@ -97,6 +100,9 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}" />
+                        </Trigger>
+                        <Trigger SourceName="HeaderSite" Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="PART_Separator" Value="{DynamicResource SeparatorMouseOverBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -355,38 +361,11 @@
                                             <ColumnDefinition Width="{Binding ColumnWidth1, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}"/>
                                             <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}"/>
                                         </Grid.ColumnDefinitions>
-                                        <!--
-                                        <StackPanel Grid.ColumnSpan="4" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
-                                            <DockPanel>
-                                                Totally ripping off C4d with this LOL
-                                                <TextBlock Margin="4,0" Padding="0,3" FontWeight="Bold" Text="{Binding Id, Mode=OneTime}"/>
-                                                <Separator Margin="4,5"/>
-                                            </DockPanel>
-                                            <pe:PropertyEditorItemsControl Margin="4,0" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
-                                                <FrameworkElement.Resources>
-                                                    <HierarchicalDataTemplate DataType="{x:Type pec:PropertyGroupViewModel}" ItemsSource="{Binding PropertyObjects, Mode=OneTime}">
-                                                        <Expander Margin="0,0,0,0" IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
-                                                                  Header="{Binding Id, Mode=OneTime}"
-                                                                  Style="{StaticResource HierarchicalExpanderStyle}"
-                                                                  Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
-                                                            <pe:PropertyEditorItemsControl Margin="8,0,0,0" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
-                                                                <ItemsControl.ItemContainerStyle>
-                                                                    <Style TargetType="{x:Type pe:PropertyEditorItemContainer}" BasedOn="{StaticResource {x:Type pe:PropertyEditorItemContainer}}">
-                                                                        <Setter Property="Margin" Value="0,3,0,0"/>
-                                                                        <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
-                                                                    </Style>
-                                                                </ItemsControl.ItemContainerStyle>
-                                                            </pe:PropertyEditorItemsControl>
-                                                        </Expander>
-                                                    </HierarchicalDataTemplate>
-                                                </FrameworkElement.Resources>
-                                            </pe:PropertyEditorItemsControl>
-                                            <Separator Margin="4,5"/>
-                                        </StackPanel>
-                                        -->
-                                        <Expander Grid.ColumnSpan="3" Margin="4,0,4,0" IsExpanded="{Binding IsExpanded, Mode=TwoWay}" Header="{Binding Id, Mode=OneTime}" 
-                                                  Style="{StaticResource HierarchicalExpanderStyle}" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
-                                                  FontWeight="Bold">
+                                        <Expander Grid.ColumnSpan="3" Margin="4,0,4,0" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                                  Style="{StaticResource HierarchicalExpanderStyle}"
+                                                  Header="{Binding Id, Mode=OneTime}" FontWeight="Bold"
+                                                  IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
+                                                  x:Name="PART_Expander">
                                             <StackPanel>
                                                 <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,0,0,0" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
                                                     <ItemsControl.ItemContainerStyle>
@@ -396,7 +375,6 @@
                                                         </Style>
                                                     </ItemsControl.ItemContainerStyle>
                                                 </pe:PropertyEditorItemsControl>
-                                                <Separator Margin="0,5"/>
                                             </StackPanel>
                                         </Expander>
                                     </Grid>

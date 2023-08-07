@@ -14,21 +14,25 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         internal readonly ObservableCollection<BaseResourceObjectViewModel> items;
         public ReadOnlyObservableCollection<BaseResourceObjectViewModel> Items { get; }
 
-        public ObservableCollection<BaseResourceObjectViewModel> SelectedItems { get; }
+        private List<BaseResourceObjectViewModel> selectedItems;
+
+        public List<BaseResourceObjectViewModel> SelectedItems {
+            get => this.selectedItems;
+            set {
+                this.RaisePropertyChanged(ref this.selectedItems, value);
+                this.manager?.Project.Editor?.View.UpdateResourceSelection();
+            }
+        }
 
         public ResourceGroupViewModel(ResourceGroup model) : base(model) {
             this.items = new ObservableCollection<BaseResourceObjectViewModel>();
             this.Items = new ReadOnlyObservableCollection<BaseResourceObjectViewModel>(this.items);
-            this.SelectedItems = new ObservableCollectionEx<BaseResourceObjectViewModel>();
-            this.SelectedItems.CollectionChanged += (sender, args) => {
-                this.manager?.Project.Editor?.View.UpdateResourceSelection();
-            };
-
+            this.selectedItems = new List<BaseResourceObjectViewModel>();
             foreach (BaseResourceObject item in model.Items) {
                 BaseResourceObjectViewModel viewModel = ResourceTypeRegistry.Instance.CreateItemViewModelFromModel(item);
                 this.items.Add(viewModel);
 
-                // no need to set manager to ours because it will be null
+                // no need to set manager to ours because it will be null as we are in the ctor
                 viewModel.SetParent(this);
             }
         }

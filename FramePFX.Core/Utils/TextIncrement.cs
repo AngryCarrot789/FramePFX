@@ -97,7 +97,7 @@ namespace FramePFX.Core.Utils {
             if (accept(input))
                 return (output = input) != null; // one liner ;) always returns true
 
-            if (!TextIncrement.GetNumbered(input, out string content, out long textNumber) || textNumber < 1)
+            if (!GetNumbered(input, out string content, out long textNumber) || textNumber < 1)
                 textNumber = 1;
 
             ulong num = (ulong) textNumber;

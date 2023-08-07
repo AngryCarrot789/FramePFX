@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Core.Utils;
+using PSWMGRv2.Utils;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Utils {

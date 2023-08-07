@@ -130,23 +130,22 @@ namespace FramePFX.Core.Actions {
             }
         }
 
-        protected virtual async Task<bool> ExecuteCore(AnAction action, AnActionEventArgs e) {
+        protected virtual Task<bool> ExecuteCore(AnAction action, AnActionEventArgs e) {
             if (e.IsUserInitiated) {
-                if (Debugger.IsAttached) {
-                    return await action.ExecuteAsync(e);
-                }
-                else {
-                    try {
-                        return await action.ExecuteAsync(e);
-                    }
-                    catch (Exception ex) {
-                        await IoC.MessageDialogs.ShowMessageExAsync("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
-                        return true;
-                    }
-                }
+                return Debugger.IsAttached ? action.ExecuteAsync(e) : TryExecuteOrShowDialog(action, e);
             }
             else {
+                return action.ExecuteAsync(e);
+            }
+        }
+
+        private static async Task<bool> TryExecuteOrShowDialog(AnAction action, AnActionEventArgs e) {
+            try {
                 return await action.ExecuteAsync(e);
+            }
+            catch (Exception ex) {
+                await IoC.MessageDialogs.ShowMessageExAsync("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
+                return true;
             }
         }
 

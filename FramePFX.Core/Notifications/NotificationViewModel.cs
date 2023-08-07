@@ -82,7 +82,13 @@ namespace FramePFX.Core.Notifications {
         private async Task HideTaskMain(CancellationToken cancel) {
             long oldTicks = this.expiryTime;
             while (oldTicks > 0) {
-                await Task.Delay(new TimeSpan(oldTicks), cancel);
+                try {
+                    await Task.Delay(new TimeSpan(oldTicks), cancel);
+                }
+                catch (TaskCanceledException) {
+                    return;
+                }
+
                 this.expiryTime -= oldTicks;
                 oldTicks = this.expiryTime;
             }
@@ -95,6 +101,7 @@ namespace FramePFX.Core.Notifications {
         public virtual Task HideAction() {
             this.CancelAutoHideTask();
             this.Panel.RemoveNotification(this);
+            this.IsHidden = true;
             return Task.CompletedTask;
         }
 

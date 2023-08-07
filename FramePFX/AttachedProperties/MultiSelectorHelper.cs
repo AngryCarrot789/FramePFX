@@ -7,12 +7,14 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.AttachedProperties {
     /// <summary>
-    /// A helper class for binding selected item collections
+    /// A helper class for binding selected item collections.
     /// <para>
     /// When using observable collections, you just bind it directly and then handle the collection changed events in your code
     /// </para>
     /// <para>
-    /// When using a normal list, ensure the list is not null at all times. This class will set the list property when the selected items are changed
+    /// When using a normal list (that does not implement <see cref="INotifyCollectionChanged"/>), ensure the list is non-null at
+    /// all times. This class will set the list property (when the selected items change) to the same instance,
+    /// allowing you to handle the change in your property's setter
     /// </para>
     /// </summary>
     public static class MultiSelectorHelper {
@@ -21,7 +23,7 @@ namespace FramePFX.AttachedProperties {
                 "SelectedItems",
                 typeof(IList),
                 typeof(MultiSelectorHelper),
-                new FrameworkPropertyMetadata(null, OnSelectedItemsChanged));
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemsChanged));
 
         public static readonly DependencyProperty UpdateSelectedItemsOnChangeProperty =
             DependencyProperty.RegisterAttached(
@@ -156,6 +158,7 @@ namespace FramePFX.AttachedProperties {
                         }
 
                         SetIsUpdatingSelection(selector, true);
+
                         selectedItems.Clear();
                         foreach (object item in src)
                             selectedItems.Add(item);

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -6,6 +8,7 @@ using FramePFX.Core.Actions;
 using FramePFX.Core.Actions.Contexts;
 using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Usage;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Shortcuts.Managing {
     /// <summary>
@@ -17,6 +20,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
     /// </summary>
     public class ShortcutProcessor {
         private readonly List<GroupedShortcut> cachedShortcutList;
+        private readonly List<(GroupedInputState, bool)> cachedInputStateList; // (InputState, shouldActivate)
         private readonly List<GroupedShortcut> cachedInstantActivationList;
 
         /// <summary>
@@ -38,11 +42,13 @@ namespace FramePFX.Core.Shortcuts.Managing {
             this.Manager = manager;
             this.ActiveUsages = new Dictionary<IShortcutUsage, GroupedShortcut>();
             this.cachedShortcutList = new List<GroupedShortcut>(8);
+            this.cachedInputStateList = new List<(GroupedInputState, bool)>();
             this.cachedInstantActivationList = new List<GroupedShortcut>(4);
         }
 
-        protected void AccumulateShortcuts(IInputStroke stroke, string focusedGroup) {
-            this.Manager.CollectShortcutsWithPrimaryStroke(stroke, focusedGroup, this.cachedShortcutList);
+        protected void AccumulateShortcuts(IInputStroke stroke, string focusedGroup, Predicate<GroupedShortcut> filter = null) {
+            GroupEvaulationArgs args = new GroupEvaulationArgs(stroke, this.cachedShortcutList, this.cachedInputStateList, filter);
+            this.Manager.DoRootEvaulateShortcutsAndInputStates(ref args, focusedGroup);
         }
 
         protected void AccumulateInstantActivationShortcuts() {
@@ -72,9 +78,14 @@ namespace FramePFX.Core.Shortcuts.Managing {
             }
         }
 
-        public async Task<bool> OnKeyStroke(string focusedGroup, KeyStroke stroke) {
+        private static readonly Predicate<GroupedShortcut> RepeatedFilter = x => x.RepeatMode != RepeatMode.NonRepeat;
+        private static readonly Predicate<GroupedShortcut> NotRepeatedFilter = x => x.RepeatMode != RepeatMode.RepeatOnly;
+        private static readonly Predicate<GroupedShortcut> BlockAllFilter = x => false;
+
+        public async Task<bool> OnKeyStroke(string focusedGroup, KeyStroke stroke, bool isRepeat) {
             if (this.ActiveUsages.Count < 1) {
-                this.AccumulateShortcuts(stroke, focusedGroup);
+                this.AccumulateShortcuts(stroke, focusedGroup, isRepeat ? RepeatedFilter : NotRepeatedFilter);
+                await this.ProcessInputStates();
                 if (this.cachedShortcutList.Count < 1) {
                     return this.OnNoSuchShortcutForKeyStroke(focusedGroup, stroke);
                 }
@@ -184,6 +195,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
         public async Task<bool> OnMouseStroke(string focusedGroup, MouseStroke stroke) {
             if (this.ActiveUsages.Count < 1) {
                 this.AccumulateShortcuts(stroke, focusedGroup);
+                await this.ProcessInputStates();
                 if (this.cachedShortcutList.Count < 1) {
                     return this.OnNoSuchShortcutForMouseStroke(focusedGroup, stroke);
                 }
@@ -278,6 +290,64 @@ namespace FramePFX.Core.Shortcuts.Managing {
 
                     return this.OnSecondShortcutUsagesProgressed();
                 }
+            }
+        }
+
+        public async Task ProcessInputStatesForMouseUp(string focusedGroup, MouseStroke stroke) {
+            this.AccumulateShortcuts(stroke, focusedGroup, BlockAllFilter);
+            Debug.Assert(this.cachedShortcutList.Count == 0, "Expected the block all filter to work properly");
+            await this.ProcessInputStates();
+        }
+
+        private async Task ProcessInputStates() {
+            foreach ((GroupedInputState state, bool activate) in this.cachedInputStateList) {
+                if (activate) {
+                    if (state.IsActive) { // most likely repeated input from OS
+                        continue;
+                    }
+
+                    state.LastActivationTime = Time.GetSystemMillis();
+                    await this.OnInputStateTriggered(state, true);
+                }
+                else if (state.IsActive) {
+                    // long lastActivation = state.LastActivationTime;
+                    // if (lastActivation != -1) {
+                    //     state.LastActivationTime = -1;
+                    //     if (state.IsAutoLockThresholdEnabled) {
+                    //         long time = Time.GetSystemMillis();
+                    //         long duration = time - lastActivation;
+                    //         if (duration < state.ThresholdUntilDeactivateOnStroke) {
+                    //             state.IsCurrentlyLockedOpen = true;
+                    //             continue; // keep it locked open
+                    //         }
+                    //     }
+                    // }
+
+                    state.LastActivationTime = -1;
+                    await this.OnInputStateTriggered(state, false);
+                }
+                else {
+                    state.LastActivationTime = -1;
+                }
+            }
+
+            this.cachedInputStateList.Clear();
+        }
+
+        /// <summary>
+        /// Called when an input state should be set to activated or deactivated
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="isActive"></param>
+        /// <returns></returns>
+        protected virtual Task OnInputStateTriggered(GroupedInputState input, bool isActive) {
+            if (isActive) {
+                input.IsActive = true;
+                return input.OnActivate();
+            }
+            else {
+                input.IsActive = false;
+                return input.OnDeactivate();
             }
         }
 
@@ -429,13 +499,13 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// <param name="currentUsageKeyStroke"></param>
         /// <returns></returns>
         protected virtual bool ShouldIgnoreKeyStroke(IKeyboardShortcutUsage usage, GroupedShortcut shortcut, KeyStroke input, KeyStroke currentUsageKeyStroke) {
-            if (currentUsageKeyStroke.IsKeyRelease && !input.IsKeyRelease) {
+            if (currentUsageKeyStroke.IsRelease && !input.IsRelease) {
                 if (this.ShouldIgnorePressWhenRequiredStrokeIsRelease(usage, shortcut, input)) {
                     return true;
                 }
             }
 
-            if (input.IsKeyRelease && !usage.IsCompleted && !currentUsageKeyStroke.IsKeyRelease) {
+            if (input.IsRelease && !usage.IsCompleted && !currentUsageKeyStroke.IsRelease) {
                 if (this.ShouldIgnoreReleaseWhenRequiredStrokeIsPress(usage, shortcut, input)) {
                     return true;
                 }

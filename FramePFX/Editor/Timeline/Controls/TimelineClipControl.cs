@@ -170,10 +170,6 @@ namespace FramePFX.Editor.Timeline.Controls {
             this.Loaded += this.OnLoaded;
         }
 
-        private void OnInitialized(object sender, EventArgs e) {
-
-        }
-
         private void OnLoaded(object sender, RoutedEventArgs e) {
             if (this.DragHandler is IClipDragHandler handler) {
                 if (handler.IsDraggingClip) {
@@ -185,15 +181,6 @@ namespace FramePFX.Editor.Timeline.Controls {
             }
 
             this.Loaded -= this.OnLoaded;
-        }
-
-        static TimelineClipControl() {
-            EventManager.RegisterClassHandler(typeof(TimelineClipControl), Mouse.LostMouseCaptureEvent, new MouseEventHandler((sender, e) => {
-                TimelineClipControl thumb = (TimelineClipControl) sender;
-                if (ReferenceEquals(Mouse.Captured, thumb))
-                    return;
-                //thumb.CancelDrag();
-            }));
         }
 
         public override void OnApplyTemplate() {

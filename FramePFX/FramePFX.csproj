@@ -318,8 +318,10 @@
     <Compile Include="Services\ClipboardService.cs" />
     <Compile Include="Services\WinExplorerService.cs" />
     <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
+    <Compile Include="Shortcuts\Bindings\InputStateBinding.cs" />
+    <Compile Include="Shortcuts\Bindings\InputStateCollection.cs" />
     <Compile Include="Shortcuts\Bindings\ShortcutCommandBinding.cs" />
-    <Compile Include="Shortcuts\Bindings\ShortcutBindingCollection.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutCommandCollection.cs" />
     <Compile Include="Shortcuts\Converters\ActionIdToGestureConverter.cs" />
     <Compile Include="Shortcuts\Converters\GlobalUpdateShortcutGestureConverter.cs" />
     <Compile Include="Shortcuts\Converters\KeyStrokeStringConverter.cs" />
@@ -338,7 +340,7 @@
     </Compile>
     <Compile Include="Shortcuts\ShortcutActivateHandler.cs" />
     <Compile Include="Shortcuts\ShortcutUtils.cs" />
-    <Compile Include="Shortcuts\UIFocusGroup.cs" />
+    <Compile Include="Shortcuts\UIInputManager.cs" />
     <Compile Include="Shortcuts\Views\ShortcutEditorWindow.xaml.cs">
       <DependentUpon>ShortcutEditorWindow.xaml</DependentUpon>
     </Compile>
@@ -365,7 +367,9 @@
     <Compile Include="Utils\DispatcherDelegate.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
+    <Compile Include="Utils\KBUtils.cs" />
     <Compile Include="Utils\KeyUtils.cs" />
+    <Compile Include="Utils\PointUtils.cs" />
     <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs" />
     <Compile Include="Utils\ScrollerUtils.cs" />
     <Compile Include="Utils\TextPointerUtils.cs" />

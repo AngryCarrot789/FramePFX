@@ -249,8 +249,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             this.InsertOpacityKeyFrameCommand.RaiseCanExecuteChanged();
         }
 
-        protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
-            base.OnFrameSpanChanged(oldSpan, newSpan);
+        public override void OnFrameSpanChanged(FrameSpan oldSpan) {
+            base.OnFrameSpanChanged(oldSpan);
             this.Model.InvalidateRender();
         }
 

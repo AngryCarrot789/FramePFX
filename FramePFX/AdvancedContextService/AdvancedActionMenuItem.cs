@@ -150,6 +150,10 @@ namespace FramePFX.AdvancedContextService {
                 context.AddContext(obj);
                 ItemsControl itemsControl = ItemsControlFromItemContainer(obj);
                 if (itemsControl != null && itemsControl.IsItemItsOwnContainer(obj)) {
+                    if (itemsControl.DataContext is object dc2) {
+                        context.AddContext(dc2);
+                    }
+
                     context.AddContext(itemsControl);
                 }
             }

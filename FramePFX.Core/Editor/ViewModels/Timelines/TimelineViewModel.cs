@@ -21,7 +21,14 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
 
-        public ObservableCollectionEx<TrackViewModel> SelectedTracks { get; }
+        private List<TrackViewModel> selectedTracks;
+        public List<TrackViewModel> SelectedTracks {
+            get => this.selectedTracks;
+            set {
+                this.RaisePropertyChanged(ref this.selectedTracks, value);
+                this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
+            }
+        }
 
         private TrackViewModel primarySelectedTrack;
         private volatile int isPlayBackUiUpdateScheduledState;
@@ -98,10 +105,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.tracks = new ObservableCollectionEx<TrackViewModel>();
             this.Tracks = new ReadOnlyObservableCollection<TrackViewModel>(this.tracks);
-            this.SelectedTracks = new ObservableCollectionEx<TrackViewModel>();
-            this.SelectedTracks.CollectionChanged += (sender, args) => {
-                this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
-            };
+            this.selectedTracks = new List<TrackViewModel>();
             this.RemoveSelectedTracksCommand = new AsyncRelayCommand(this.RemoveSelectedTracksAction, () => this.SelectedTracks.Count > 0);
             this.MoveSelectedUpCommand = new RelayCommand(this.MoveSelectedItemUpAction);
             this.MoveSelectedDownCommand = new RelayCommand(this.MoveSelectedItemDownAction);
@@ -254,9 +258,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         public void OnStepFrameCallback() => IoC.Dispatcher.Invoke(this.CachedDoRenderAndScheduleUpdatePlayHead);
 
         private void DoFullRenderAndScheduleUIUpdate() {
+            VideoEditorViewModel editor = this.Project.Editor;
+            if (editor == null) {
+                return;
+            }
+
             this.Model.PlayHeadFrame = Periodic.Add(this.PlayHeadFrame, 1, 0L, this.MaxDuration);
             this.Project.AutomationEngine.Model.UpdateAt(this.PlayHeadFrame);
-            this.Project.Editor.DoRenderFrame().ContinueWith((t) => {
+
+            editor.DoRenderFrame().ContinueWith((t) => {
                 if (Interlocked.CompareExchange(ref this.isPlayBackUiUpdateScheduledState, 1, 0) != 0) {
                     return;
                 }

@@ -4,6 +4,7 @@ using System.Windows.Threading;
 using Dragablz;
 using FramePFX.Utils;
 using FramePFX.Views;
+using PSWMGRv2.Utils;
 
 namespace FramePFX.Editor {
     public class ThingInterTabClient : IInterTabClient {

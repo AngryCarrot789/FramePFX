@@ -111,7 +111,7 @@ namespace FramePFX.Core.Views.Dialogs.Modal {
 
         public override void MarkReadOnly() {
             if (this.ShowAlwaysUseNextResultOption) {
-                throw new InvalidOperationException($"Cannot set read-only when {nameof(ShowAlwaysUseNextResultOption)}");
+                throw new InvalidOperationException($"Cannot set read-only when {nameof(this.ShowAlwaysUseNextResultOption)}");
             }
 
             base.MarkReadOnly();

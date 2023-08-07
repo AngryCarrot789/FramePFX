@@ -41,7 +41,7 @@ namespace FramePFX.Shortcuts {
         }
 
         public static MouseStroke GetMouseStrokeForEvent(MouseButtonEventArgs e) {
-            return new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, e.ClickCount);
+            return new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, e.ButtonState == MouseButtonState.Released, e.ClickCount);
         }
 
         public static bool GetMouseStrokeForEvent(MouseWheelEventArgs e, out MouseStroke stroke) {
@@ -57,7 +57,7 @@ namespace FramePFX.Shortcuts {
                 return false;
             }
 
-            stroke = new MouseStroke(button, (int) Keyboard.Modifiers, 0, e.Delta);
+            stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
             return true;
         }
 

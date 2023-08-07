@@ -29,8 +29,6 @@ namespace FramePFX.Core.History.ViewModels {
             get {
                 if (this.notification != null && !this.notification.IsHidden)
                     return this.notification;
-                if (this.NotificationPanel == null)
-                    return null;
                 if (this.notification == null)
                     this.notification = new HistoryNotification();
                 this.NotificationPanel.PushNotification(this.notification, false);
@@ -44,8 +42,8 @@ namespace FramePFX.Core.History.ViewModels {
         private int mergeListCount;
 
         public HistoryManagerViewModel(NotificationPanelViewModel panel, HistoryManager model) {
-            this.manager = model ?? throw new ArgumentNullException();
-            this.NotificationPanel = panel;
+            this.manager = model ?? throw new ArgumentNullException(nameof(model));
+            this.NotificationPanel = panel ?? throw new ArgumentNullException(nameof(panel));
             this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.manager.IsActionActive && this.manager.CanUndo);
             this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.manager.IsActionActive && this.manager.CanRedo);
             this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsActionActive && (this.manager.CanRedo || this.manager.CanUndo));
@@ -129,7 +127,7 @@ namespace FramePFX.Core.History.ViewModels {
                 await this.manager.OnUndoAsync();
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
-                this.Notification?.OnUndo();
+                this.Notification.OnUndo();
             }
         }
 
@@ -142,7 +140,7 @@ namespace FramePFX.Core.History.ViewModels {
                 await this.manager.OnRedoAsync();
                 this.RaisePropertyChanged(nameof(this.CanUndo));
                 this.RaisePropertyChanged(nameof(this.CanRedo));
-                this.Notification?.OnRedo();
+                this.Notification.OnRedo();
             }
         }
 
@@ -152,7 +150,7 @@ namespace FramePFX.Core.History.ViewModels {
             }
 
             this.manager.Clear();
-            this.Notification?.OnUndo();
+            this.Notification.OnUndo();
         }
 
         private async Task<bool> IsActionActive(string message) {

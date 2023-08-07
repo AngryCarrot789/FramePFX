@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Core.Utils;
 using FramePFX.Utils;
+using PSWMGRv2.Utils;
 
 namespace FramePFX.AttachedProperties {
     public static class HorizontalScrolling {

@@ -22,34 +22,34 @@ namespace FramePFX.Core {
         #region Public functions
 
         /// <summary>
-        /// Raises
+        /// Raises the <see cref="PropertyChanged"/> event for the given property
         /// </summary>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException"></exception>
         public void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
             if (propertyName == null)
-                throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
+                throw new ArgumentNullException(nameof(propertyName), "Property name is null");
             this.RaisePropertyChangedCore(propertyName);
         }
 
         /// <summary>
-        /// Raises the <see cref="PropertyChanging"/> event, sets <see cref="property"/> to <see cref="newValue"/>, and then raises the <see cref="PropertyChanged"/> event
+        /// Sets <see cref="property"/> to <see cref="newValue"/>, and then raises the <see cref="PropertyChanged"/> event
         /// </summary>
         public void RaisePropertyChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
-                throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
+                throw new ArgumentNullException(nameof(propertyName), "Property name is null");
             property = newValue;
             this.RaisePropertyChangedCore(propertyName);
         }
 
         /// <summary>
         /// If <see cref="property"/> and <see cref="newValue"/> are equal according to the <see cref="EqualityComparer{T}"/> for
-        /// type <see cref="T"/>, then nothing happens. Otherwise, the <see cref="PropertyChanging"/> event is raised, <see cref="property"/> is
-        /// set to <see cref="newValue"/>, and then the <see cref="PropertyChanged"/> event is raised
+        /// type <see cref="T"/>, then nothing happens. Otherwise, <see cref="property"/> is set to <see cref="newValue"/>,
+        /// and then the <see cref="PropertyChanged"/> event is raised
         /// </summary>
         public void RaisePropertyChangedIfChanged<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
-                throw new ArgumentNullException(nameof(propertyName), "Property Name is null");
+                throw new ArgumentNullException(nameof(propertyName), "Property name is null");
             if (EqualityComparer<T>.Default.Equals(property, newValue))
                 return;
             property = newValue;
@@ -77,7 +77,9 @@ namespace FramePFX.Core {
         }
 
         public static object GetInternalData(BaseViewModel viewModel, object key) {
-            Dictionary<object, object> map = (viewModel ?? throw new ArgumentNullException(nameof(viewModel))).internalData;
+            if (viewModel == null)
+                throw new ArgumentNullException(nameof(viewModel));
+            Dictionary<object, object> map = viewModel.internalData;
             return map == null ? null : map.TryGetValue(key, out object data) ? data : null;
         }
 

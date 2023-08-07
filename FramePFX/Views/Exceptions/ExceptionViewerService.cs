@@ -18,7 +18,7 @@ namespace FramePFX.Views.Exceptions {
 
         public IWindow ShowException(Exception exception) {
             ExceptionViewerWindow window = new ExceptionViewerWindow();
-            using (ExceptionStack stack = new ExceptionStack(null, false)) {
+            using (ExceptionStack stack = new ExceptionStack(null, true, true)) {
                 stack.Add(exception);
 
                 ExceptionStackViewModel vm = new ExceptionStackViewModel(stack);

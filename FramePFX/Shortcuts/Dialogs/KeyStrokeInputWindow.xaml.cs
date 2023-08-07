@@ -33,7 +33,7 @@ namespace FramePFX.Shortcuts.Dialogs {
                 this.InputBox.Text = "";
             }
             else {
-                this.InputBox.Text = KeyStrokeStringConverter.ToStringFunction(stroke.KeyCode, stroke.Modifiers, stroke.IsKeyRelease, true, true);
+                this.InputBox.Text = KeyStrokeStringConverter.ToStringFunction(stroke.KeyCode, stroke.Modifiers, stroke.IsRelease, true, true);
             }
         }
 

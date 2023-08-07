@@ -86,6 +86,7 @@ namespace FramePFX.Core.Shortcuts.Managing {
             this.Shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut));
             this.FullPath = group.GetPathForName(name);
             this.IsGlobal = isGlobal;
+            this.IsInherited = true;
         }
 
         public override string ToString() {

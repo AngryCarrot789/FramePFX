@@ -9,7 +9,7 @@ namespace FramePFX.Utils {
             #if DEBUG
             throw new Exception(msg);
             #else
-            FramePFX.Core.AppLogger.WriteLine(msg);
+            PSWMGRv2.Core.AppLogger.WriteLine(msg);
             #endif
         }
 

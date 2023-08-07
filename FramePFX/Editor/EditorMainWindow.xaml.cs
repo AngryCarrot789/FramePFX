@@ -25,6 +25,7 @@ using FramePFX.Notifications;
 using FramePFX.Themes;
 using FramePFX.Utils;
 using FramePFX.Views;
+using PSWMGRv2.Utils;
 using SkiaSharp;
 using Time = FramePFX.Core.Utils.Time;
 
@@ -68,128 +69,47 @@ namespace FramePFX.Editor {
 
             this.lastRefreshTime = Time.GetSystemMillis();
 
-            this.NotificationPanelPopup.StaysOpen = true;
-            this.NotificationPanelPopup.Placement = PlacementMode.Absolute;
-            this.NotificationPanelPopup.PlacementTarget = this;
-            this.NotificationPanelPopup.PlacementRectangle = System.Windows.Rect.Empty;
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
-            this.RefreshPopupLocation();
             this.Width = 1257;
         }
 
         public void OnNotificationPushed(NotificationViewModel notification) {
-            if (!this.NotificationPanelPopup.IsOpen)
-                this.NotificationPanelPopup.IsOpen = true;
-            this.Dispatcher.InvokeAsync(this.RefreshPopupLocation, DispatcherPriority.Render);
         }
 
         public void OnNotificationRemoved(NotificationViewModel notification) {
-            if (this.NotificationPanel.Notifications.Count < 1) {
-                this.NotificationPanelPopup.IsOpen = false;
-            }
-
-            this.Dispatcher.InvokeAsync(this.RefreshPopupLocation, DispatcherPriority.Loaded);
         }
 
         public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null) {
-            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child, true);
-            if (list == null) {
-                return;
-            }
-
+            BaseViewModel.ClearInternalData(notification, "AnimationCompleted");
             int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
             if (index == -1) {
-                throw new Exception("Item not present in panel");
-            }
-
-            if (!(list.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control)) {
+                BaseViewModel.SetInternalData(notification, "AnimationCompleted", BoolBox.True);
                 return;
             }
 
-            DoubleAnimation animation = new DoubleAnimation(1d, 0d, TimeSpan.FromSeconds(2), FillBehavior.Stop);
-            animation.Completed += (sender, args) => {
-                onCompleteCallback?.Invoke(notification, BaseViewModel.GetInternalData<bool>(notification, "IsCancelled"));
-            };
+            if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control) {
+                DoubleAnimation animation = new DoubleAnimation(1d, 0d, TimeSpan.FromSeconds(2), FillBehavior.Stop);
+                animation.Completed += (sender, args) => {
+                    onCompleteCallback?.Invoke(notification, BaseViewModel.GetInternalData<bool>(notification, "AnimationCompleted"));
+                };
 
-            control.BeginAnimation(OpacityProperty, animation);
+                control.BeginAnimation(OpacityProperty, animation);
+            }
         }
 
         public void CancelNotificationFadeOutAnimation(NotificationViewModel notification) {
-            if (BaseViewModel.GetInternalData<bool>(notification, "IsCancelled")) {
+            if (BaseViewModel.GetInternalData<bool>(notification, "AnimationCompleted")) {
                 return;
             }
 
-            NotificationList list = VisualTreeUtils.FindVisualChild<NotificationList>(this.NotificationPanelPopup.Child, true);
-            if (list == null) {
-                return;
-            }
-
+            BaseViewModel.SetInternalData(notification, "AnimationCompleted", BoolBox.True);
             int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
             if (index == -1) {
-                throw new Exception("Item not present in panel");
-            }
-
-            if (!(list.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control)) {
                 return;
             }
 
-            BaseViewModel.SetInternalData(notification, "IsCancelled", BoolBox.True);
-            control.BeginAnimation(OpacityProperty, null);
-        }
-
-        protected override void OnLocationChanged(EventArgs e) {
-            base.OnLocationChanged(e);
-            this.RefreshPopupLocation();
-        }
-
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-            base.OnRenderSizeChanged(sizeInfo);
-            if (this.WindowState == WindowState.Maximized) {
-                this.Dispatcher.InvokeAsync(this.RefreshPopupLocation, DispatcherPriority.ApplicationIdle);
-            }
-            else {
-                this.RefreshPopupLocation();
-            }
-        }
-
-        private static readonly FieldInfo actualTopField = typeof(Window).GetField("_actualTop", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
-        private static readonly FieldInfo actualLeftField = typeof(Window).GetField("_actualLeft", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
-
-        public void RefreshPopupLocation() {
-            Popup popup = this.NotificationPanelPopup;
-            if (popup == null || !popup.IsOpen) {
-                return;
-            }
-
-            if (!(popup.Child is FrameworkElement element)) {
-                return;
-            }
-
-            // winpos = X 1663
-            // popup pos = X 1620
-            // popup wid = 300
-
-            switch (this.WindowState) {
-                case WindowState.Normal: {
-                    popup.Visibility = Visibility.Visible;
-                    popup.VerticalOffset = this.Top + this.ActualHeight - element.ActualHeight;
-                    popup.HorizontalOffset = this.Left + this.ActualWidth - element.ActualWidth;
-                    break;
-                }
-                case WindowState.Minimized: {
-                    popup.Visibility = Visibility.Collapsed;
-                    break;
-                }
-                case WindowState.Maximized: {
-                    popup.Visibility = Visibility.Visible;
-                    Thickness thicc = this.BorderThickness;
-                    double top = (double) actualTopField.GetValue(this) + thicc.Top;
-                    double left = (double) actualLeftField.GetValue(this) + thicc.Left;
-                    popup.VerticalOffset = top - (thicc.Top + thicc.Bottom) + this.ActualHeight - element.ActualHeight;
-                    popup.HorizontalOffset = left - (thicc.Left + thicc.Right) + this.ActualWidth - element.ActualWidth;
-                    break;
-                }
-                default: throw new ArgumentOutOfRangeException();
+            if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control) {
+                control.BeginAnimation(OpacityProperty, null);
             }
         }
 

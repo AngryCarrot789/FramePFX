@@ -82,6 +82,8 @@ namespace FramePFX.Core.PropertyEditing {
                         break;
                 }
             }
+
+            this.IsCurrentlyApplicable = false;
         }
 
         public void SetupHierarchyState(IReadOnlyList<object> input) {

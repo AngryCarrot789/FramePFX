@@ -24,7 +24,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         private readonly ObservableCollectionEx<ClipViewModel> clips;
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
-        public ObservableCollectionEx<ClipViewModel> SelectedClips { get; }
+        private List<ClipViewModel> selectedClips;
+        public List<ClipViewModel> SelectedClips {
+            get => this.selectedClips;
+            set {
+                this.RaisePropertyChanged(ref this.selectedClips, value);
+                this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
+                this.Timeline.Project.Editor?.View.UpdateClipSelection();
+            }
+        }
 
         private ClipViewModel primarySelectedClip;
         public ClipViewModel PrimarySelectedClip {
@@ -110,11 +118,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
-            this.SelectedClips = new ObservableCollectionEx<ClipViewModel>();
-            this.SelectedClips.CollectionChanged += (sender, args) => {
-                this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
-                this.Timeline.Project.Editor?.View.UpdateClipSelection();
-            };
+            this.selectedClips = new List<ClipViewModel>();
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
             this.RenameTrackCommand = new AsyncRelayCommand(this.RenameAsync);
 
@@ -124,9 +128,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
         }
 
         public virtual void OnProjectModified() {
-            if (this.Timeline != null) {
-                this.Timeline.OnProjectModified();
-            }
+            this.Timeline?.OnProjectModified();
         }
 
         public ClipViewModel CreateClip(Clip model, bool addToModel = true) {

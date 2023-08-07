@@ -2,8 +2,10 @@ using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Managing {
-    public class GroupedInputState {
+namespace FramePFX.Core.Shortcuts.Managing
+{
+    public class GroupedInputState
+    {
         private IInputStroke activationStroke;
         private IInputStroke deactivationStroke;
 
@@ -32,7 +34,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// The input stroke that activates this key state (as in, sets <see cref="IsActive"/> to true)
         /// </summary>
         /// <exception cref="ArgumentNullException">Value cannot be null</exception>
-        public IInputStroke ActivationStroke {
+        public IInputStroke ActivationStroke
+        {
             get => this.activationStroke;
             set => this.activationStroke = value ?? throw new ArgumentNullException(nameof(value), "Activation stroke cannot be null");
         }
@@ -41,7 +44,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// The input stroke that deactivates this key state (as in, sets <see cref="IsActive"/> to false)
         /// </summary>
         /// <exception cref="ArgumentNullException">Value cannot be null</exception>
-        public IInputStroke DeactivationStroke {
+        public IInputStroke DeactivationStroke
+        {
             get => this.deactivationStroke;
             set => this.deactivationStroke = value ?? throw new ArgumentNullException(nameof(value), "Activation stroke cannot be null");
         }
@@ -85,7 +89,8 @@ namespace FramePFX.Core.Shortcuts.Managing {
         /// </summary>
         public bool IsCurrentlyLockedOpen { get; set; }
 
-        public GroupedInputState(ShortcutGroup group, string name, IInputStroke activationStroke, IInputStroke deactivationStroke) {
+        public GroupedInputState(ShortcutGroup group, string name, IInputStroke activationStroke, IInputStroke deactivationStroke)
+        {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
             this.Group = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
@@ -95,15 +100,18 @@ namespace FramePFX.Core.Shortcuts.Managing {
             this.DeactivationStroke = deactivationStroke;
         }
 
-        public Task OnActivate() {
+        public Task OnActivate()
+        {
             return Task.CompletedTask;
         }
 
-        public Task OnDeactivate() {
+        public Task OnDeactivate()
+        {
             return Task.CompletedTask;
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"{nameof(GroupedInputState)} ({this.FullPath}: {(this.IsActive ? "pressed" : "released")} [{this.activationStroke}, {this.deactivationStroke}])";
         }
     }

@@ -1,10 +1,12 @@
 using System;
 
-namespace FramePFX.Core.PropertyEditing {
+namespace FramePFX.Core.PropertyEditing
+{
     /// <summary>
     /// A class which describes a single property
     /// </summary>
-    public class DataEntryDescriptor {
+    public class DataEntryDescriptor
+    {
         /// <summary>
         /// The property name. This is what will be passed to <see cref="IPropertyEditReceiver.OnExternalPropertyModified"/>
         /// </summary>
@@ -30,7 +32,8 @@ namespace FramePFX.Core.PropertyEditing {
         /// </summary>
         public bool CanSupportMultiSelect { get; }
 
-        public DataEntryDescriptor(string name, Type type, bool canSupportMultiSelect = false) {
+        public DataEntryDescriptor(string name, Type type, bool canSupportMultiSelect = false)
+        {
             this.Name = name;
             this.Type = type;
             this.CanSupportMultiSelect = canSupportMultiSelect;

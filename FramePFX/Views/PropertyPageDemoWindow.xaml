@@ -8,22 +8,22 @@
         Title="PropertyPageDemoWindow" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20*"/>
-            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="20*" />
+            <ColumnDefinition Width="30*" />
         </Grid.ColumnDefinitions>
         <Grid Background="Gray" Grid.IsSharedSizeScope="True">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="125" SharedSizeGroup="NOO"/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="125" SharedSizeGroup="NOO" />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <ScrollViewer Grid.ColumnSpan="2">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition SharedSizeGroup="NOO"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition SharedSizeGroup="NOO" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="ok1"/>
-                    <TextBlock Text="ok2" Grid.Column="1"/>
+                    <TextBlock Text="ok1" />
+                    <TextBlock Text="ok2" Grid.Column="1" />
                 </Grid>
             </ScrollViewer>
         </Grid>

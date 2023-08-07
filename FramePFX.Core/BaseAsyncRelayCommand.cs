@@ -1,7 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core {
+namespace FramePFX.Core
+{
     /// <summary>
     /// <para>
     /// A base async relay command class which extends <see cref="BaseRelayCommand"/> and also implements a mechanism for
@@ -13,7 +14,8 @@ namespace FramePFX.Core {
     /// be relied on due to the reality of multithreading; the command could finish just as another piece of code detects it's already running
     /// </para>
     /// </summary>
-    public abstract class BaseAsyncRelayCommand : BaseRelayCommand {
+    public abstract class BaseAsyncRelayCommand : BaseRelayCommand
+    {
         /// <summary>
         /// Because <see cref="Execute"/> is async void, it can be fired multiple
         /// times while the task that <see cref="execute"/> returns is still running. This
@@ -28,8 +30,8 @@ namespace FramePFX.Core {
         /// </summary>
         public bool IsRunning => this.isRunningState == 1;
 
-        protected BaseAsyncRelayCommand() {
-
+        protected BaseAsyncRelayCommand()
+        {
         }
 
         /// <summary>
@@ -41,7 +43,8 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
         /// <returns>Whether or not this command can be executed or not</returns>
-        public sealed override bool CanExecute(object parameter) {
+        public sealed override bool CanExecute(object parameter)
+        {
             return this.isRunningState == 0 && base.CanExecute(parameter) && this.CanExecuteCore(parameter);
         }
 
@@ -50,7 +53,8 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
         /// <returns>Whether or not this command can be executed or not</returns>
-        protected virtual bool CanExecuteCore(object parameter) {
+        protected virtual bool CanExecuteCore(object parameter)
+        {
             return true;
         }
 
@@ -60,7 +64,8 @@ namespace FramePFX.Core {
         /// because this function just calls that
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
-        public sealed override async void Execute(object parameter) {
+        public sealed override async void Execute(object parameter)
+        {
             await this.ExecuteAsync(parameter);
         }
 
@@ -76,15 +81,20 @@ namespace FramePFX.Core {
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
         // Slight optimisation by not using async for ExecuteAsync, so that a state machine isn't needed
-        public async Task ExecuteAsync(object parameter) {
-            if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
+        public async Task ExecuteAsync(object parameter)
+        {
+            if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0)
+            {
                 this.RaiseCanExecuteChanged();
-                try {
+                try
+                {
                     await this.ExecuteCoreAsync(parameter);
                 }
-                finally {
+                finally
+                {
                     this.isRunningState = 0;
                 }
+
                 this.RaiseCanExecuteChanged();
             }
         }
@@ -97,15 +107,20 @@ namespace FramePFX.Core {
         /// </para>
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
-        public async Task<bool> TryExecuteAsync(object parameter) {
-            if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
+        public async Task<bool> TryExecuteAsync(object parameter)
+        {
+            if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0)
+            {
                 this.RaiseCanExecuteChanged();
-                try {
+                try
+                {
                     await this.ExecuteCoreAsync(parameter);
                 }
-                finally {
+                finally
+                {
                     this.isRunningState = 0;
                 }
+
                 this.RaiseCanExecuteChanged();
                 return true;
             }

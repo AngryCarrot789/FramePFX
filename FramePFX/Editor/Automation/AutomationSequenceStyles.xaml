@@ -5,7 +5,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:AutomationSequenceEditor}">
-                    <Border Background="Transparent"/>
+                    <Border Background="Transparent" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

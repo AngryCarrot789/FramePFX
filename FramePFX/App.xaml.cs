@@ -32,41 +32,48 @@ using FramePFX.Utils;
 using FramePFX.Views;
 using SkiaSharp;
 
-namespace FramePFX {
+namespace FramePFX
+{
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application {
+    public partial class App : Application
+    {
         public static ThemeType CurrentTheme { get; set; }
 
-        public static ResourceDictionary ThemeDictionary {
+        public static ResourceDictionary ThemeDictionary
+        {
             get => Current.Resources.MergedDictionaries[0];
             set => Current.Resources.MergedDictionaries[0] = value;
         }
 
-        public static ResourceDictionary ControlColours {
+        public static ResourceDictionary ControlColours
+        {
             get => Current.Resources.MergedDictionaries[1];
             set => Current.Resources.MergedDictionaries[1] = value;
         }
 
-        public static ResourceDictionary I18NText {
+        public static ResourceDictionary I18NText
+        {
             get => Current.Resources.MergedDictionaries[3];
             set => Current.Resources.MergedDictionaries[3] = value;
         }
 
         private AppSplashScreen splash;
 
-        public App() {
-
+        public App()
+        {
         }
 
-        public static void RefreshControlsDictionary() {
+        public static void RefreshControlsDictionary()
+        {
             ResourceDictionary resource = Current.Resources.MergedDictionaries[2];
             Current.Resources.MergedDictionaries.RemoveAt(2);
             Current.Resources.MergedDictionaries.Insert(2, resource);
         }
 
-        public void RegisterActions() {
+        public void RegisterActions()
+        {
             // ActionManager.SearchAndRegisterActions(ActionManager.Instance);
             // TODO: Maybe use an XML file to store this, similar to how intellij registers actions?
             ActionManager.Instance.Register("actions.project.Open", new OpenProjectAction());
@@ -85,22 +92,28 @@ namespace FramePFX {
             ActionManager.Instance.Register("actions.editor.timeline.SliceClips", new SliceClipsAction());
         }
 
-        private async Task SetActivity(string activity) {
+        private async Task SetActivity(string activity)
+        {
             this.splash.CurrentActivity = activity;
-            await this.Dispatcher.InvokeAsync(() => {
+            await this.Dispatcher.InvokeAsync(() =>
+            {
             }, DispatcherPriority.ApplicationIdle);
         }
 
-        public async Task InitApp() {
+        public async Task InitApp()
+        {
             await this.SetActivity("Loading services...");
             string[] envArgs = Environment.GetCommandLineArgs();
-            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
+            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0)
+            {
                 Directory.SetCurrentDirectory(dir);
             }
 
             IoC.Dispatcher = new DispatcherDelegate(this.Dispatcher);
-            IoC.OnShortcutModified = (x) => {
-                if (!string.IsNullOrWhiteSpace(x)) {
+            IoC.OnShortcutModified = (x) =>
+            {
+                if (!string.IsNullOrWhiteSpace(x))
+                {
                     ShortcutManager.Instance.InvalidateShortcutCache();
                     GlobalUpdateShortcutGestureConverter.BroadcastChange();
                 }
@@ -110,26 +123,33 @@ namespace FramePFX {
             List<(TypeInfo, ActionRegistrationAttribute)> attributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
 
             // Process all attributes in a single scan, instead of multiple scans for services, actions, etc
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (TypeInfo typeInfo in assembly.DefinedTypes)
+                {
                     ServiceImplementationAttribute serviceAttribute = typeInfo.GetCustomAttribute<ServiceImplementationAttribute>();
-                    if (serviceAttribute?.Type != null) {
+                    if (serviceAttribute?.Type != null)
+                    {
                         serviceAttributes.Add((typeInfo, serviceAttribute));
                     }
 
                     ActionRegistrationAttribute actionAttribute = typeInfo.GetCustomAttribute<ActionRegistrationAttribute>();
-                    if (actionAttribute != null) {
+                    if (actionAttribute != null)
+                    {
                         attributes.Add((typeInfo, actionAttribute));
                     }
                 }
             }
 
-            foreach ((TypeInfo, ServiceImplementationAttribute) tuple in serviceAttributes) {
+            foreach ((TypeInfo, ServiceImplementationAttribute) tuple in serviceAttributes)
+            {
                 object instance;
-                try {
+                try
+                {
                     instance = Activator.CreateInstance(tuple.Item1);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     throw new Exception($"Failed to create implementation of {tuple.Item2.Type} as {tuple.Item1}", e);
                 }
 
@@ -145,16 +165,20 @@ namespace FramePFX {
             InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
             InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
 
-            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in attributes.OrderBy(x => x.Item2.RegistrationOrder)) {
+            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in attributes.OrderBy(x => x.Item2.RegistrationOrder))
+            {
                 AnAction action;
-                try {
+                try
+                {
                     action = (AnAction) Activator.CreateInstance(type, true);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     throw new Exception($"Failed to create an instance of the registered action '{type.FullName}'", e);
                 }
 
-                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null) {
+                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null)
+                {
                     ActionManager.Instance.Unregister(attribute.ActionId);
                 }
 
@@ -165,13 +189,16 @@ namespace FramePFX {
 
             await this.SetActivity("Loading keymap...");
             string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
-            if (File.Exists(keymapFilePath)) {
-                using (FileStream stream = File.OpenRead(keymapFilePath)) {
+            if (File.Exists(keymapFilePath))
+            {
+                using (FileStream stream = File.OpenRead(keymapFilePath))
+                {
                     ShortcutGroup group = WPFKeyMapSerialiser.Instance.Deserialise(stream);
                     WPFShortcutManager.WPFInstance.SetRoot(group);
                 }
             }
-            else {
+            else
+            {
                 await IoC.MessageDialogs.ShowMessageAsync("No keymap available", "Keymap file does not exist: " + keymapFilePath + $".\nCurrent directory: {Directory.GetCurrentDirectory()}\nCommand line args:{string.Join("\n", Environment.GetCommandLineArgs())}");
             }
 
@@ -179,31 +206,37 @@ namespace FramePFX {
             ffmpeg.avdevice_register_all();
         }
 
-        private async void Application_Startup(object sender, StartupEventArgs e) {
+        private async void Application_Startup(object sender, StartupEventArgs e)
+        {
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
 
-            #if false
+#if false
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             this.MainWindow = new PropertyPageDemoWindow();
             this.MainWindow.Show();
-            #else
+#else
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.MainWindow = this.splash = new AppSplashScreen();
             this.splash.Show();
 
-            try {
+            try
+            {
                 await this.InitApp();
             }
-            catch (Exception ex) {
-                if (IoC.MessageDialogs != null) {
+            catch (Exception ex)
+            {
+                if (IoC.MessageDialogs != null)
+                {
                     await IoC.MessageDialogs.ShowMessageExAsync("App init failed", "Failed to start FramePFX", ex.GetToString());
                 }
-                else {
+                else
+                {
                     MessageBox.Show("Failed to start FramePFX:\n\n" + ex, "Fatal App init failure");
                 }
 
-                this.Dispatcher.Invoke(() => {
+                this.Dispatcher.Invoke(() =>
+                {
                     this.Shutdown(0);
                 }, DispatcherPriority.Background);
                 return;
@@ -213,23 +246,24 @@ namespace FramePFX {
             EditorMainWindow window = new EditorMainWindow();
 
 
-
             this.splash.Close();
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Show();
-            await this.Dispatcher.Invoke(async () => {
+            await this.Dispatcher.Invoke(async () =>
+            {
                 await this.OnVideoEditorLoaded(window.Editor);
             }, DispatcherPriority.Loaded);
-            #endif
+#endif
         }
 
-        public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
-            #if !DEBUG
+        public async Task OnVideoEditorLoaded(VideoEditorViewModel editor)
+        {
+#if !DEBUG
             await editor.SetProject(new ProjectViewModel(CreateDebugProject()), true);
-            #else
+#else
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()), true);
-            #endif
+#endif
             ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.ActiveProject.AutomationEngine.UpdateAndRefresh(true);
             await editor.View.Render();
@@ -237,24 +271,26 @@ namespace FramePFX {
             // new TestControlPreview().Show();
         }
 
-        protected override void OnExit(ExitEventArgs e) {
+        protected override void OnExit(ExitEventArgs e)
+        {
             base.OnExit(e);
         }
 
-        public static Project CreateDemoProject() {
+        public static Project CreateDemoProject()
+        {
             // Demo project -- projects can be created as entirely models
             Project project = new Project();
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             ResourceManager manager = project.ResourceManager;
-            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) { DisplayName = "colour_red" }));
-            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) { DisplayName = "colour_green" }));
-            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) { DisplayName = "colour_blue" }));
+            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
+            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
+            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
 
             ResourceGroup group = new ResourceGroup("Extra Colours");
             manager.RootGroup.AddItemToList(group);
-            ulong id_w = manager.RegisterEntry(group.Add(new ResourceColour(220, 220, 220) { DisplayName = "white colour"}));
-            ulong id_d = manager.RegisterEntry(group.Add(new ResourceColour(50, 100, 220) { DisplayName = "idek"}));
+            ulong id_w = manager.RegisterEntry(group.Add(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(group.Add(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
 
             {
                 VideoTrack track1 = new VideoTrack() {
@@ -327,21 +363,22 @@ namespace FramePFX {
             return project;
         }
 
-         public static Project CreateDebugProject() {
+        public static Project CreateDebugProject()
+        {
             // Debug project - test a lot of features and make sure they work
             // Demo project -- projects can be created as entirely models
             Project project = new Project();
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             ResourceManager manager = project.ResourceManager;
-            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) { DisplayName = "colour_red" }));
-            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) { DisplayName = "colour_green" }));
-            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) { DisplayName = "colour_blue" }));
+            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
+            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
+            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
 
             ResourceGroup @group = new ResourceGroup("Extra Colours");
             manager.RootGroup.AddItemToList(@group);
-            ulong id_w = manager.RegisterEntry(@group.Add(new ResourceColour(220, 220, 220) { DisplayName = "white colour"}));
-            ulong id_d = manager.RegisterEntry(@group.Add(new ResourceColour(50, 100, 220) { DisplayName = "idek"}));
+            ulong id_w = manager.RegisterEntry(@group.Add(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(@group.Add(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
 
             {
                 VideoTrack track1 = new VideoTrack() {

@@ -3,15 +3,18 @@ using System.Threading.Tasks;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
-namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
-    public abstract class BaseResourceObjectViewModel : BaseViewModel, IRenameable {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
+{
+    public abstract class BaseResourceObjectViewModel : BaseViewModel, IRenameable
+    {
         internal ResourceManagerViewModel manager;
         internal ResourceGroupViewModel parent;
 
         /// <summary>
         /// The manager that this resource is currently associated with
         /// </summary>
-        public ResourceManagerViewModel Manager {
+        public ResourceManagerViewModel Manager
+        {
             get => this.manager;
             protected set => this.RaisePropertyChanged(ref this.manager, value);
         }
@@ -21,14 +24,17 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
         /// </summary>
         public BaseResourceObject Model { get; }
 
-        public ResourceGroupViewModel Parent {
+        public ResourceGroupViewModel Parent
+        {
             get => this.parent;
             private set => this.RaisePropertyChanged(ref this.parent, value);
         }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.Model.DisplayName;
-            set {
+            set
+            {
                 this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
             }
@@ -38,31 +44,38 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public AsyncRelayCommand DeleteCommand { get; }
 
-        protected BaseResourceObjectViewModel(BaseResourceObject model) {
+        protected BaseResourceObjectViewModel(BaseResourceObject model)
+        {
             this.Model = model;
             this.RenameCommand = new AsyncRelayCommand(this.RenameSelfAction, () => true);
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, () => this.Parent != null);
         }
 
-        public virtual void SetParent(ResourceGroupViewModel newParent) {
+        public virtual void SetParent(ResourceGroupViewModel newParent)
+        {
             this.Model.SetParent(newParent?.Model);
             this.Parent = newParent;
         }
 
-        public virtual void SetManager(ResourceManagerViewModel newManager) {
+        public virtual void SetManager(ResourceManagerViewModel newManager)
+        {
             this.Model.SetManager(newManager?.Manager);
             this.Manager = newManager;
         }
 
-        public async Task<bool> RenameSelfAction() {
+        public async Task<bool> RenameSelfAction()
+        {
             string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
-            if (string.IsNullOrWhiteSpace(result)) {
+            if (string.IsNullOrWhiteSpace(result))
+            {
                 return false;
             }
-            else if (this.Parent != null) {
+            else if (this.Parent != null)
+            {
                 this.DisplayName = TextIncrement.GetNextText(this.Parent.Items.OfType<ResourceGroupViewModel>().Select(x => x.DisplayName), result);
             }
-            else {
+            else
+            {
                 this.DisplayName = result;
             }
 
@@ -71,13 +84,14 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
 
         public abstract Task<bool> DeleteSelfAction();
 
-        public void Dispose() {
+        public void Dispose()
+        {
             this.OnDisposing();
             this.Model.Dispose();
         }
 
-        protected virtual void OnDisposing() {
-
+        protected virtual void OnDisposing()
+        {
         }
 
         Task<bool> IRenameable.RenameAsync() => this.RenameSelfAction();

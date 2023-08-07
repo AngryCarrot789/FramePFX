@@ -1,5 +1,7 @@
-namespace FramePFX.Core.Views.Dialogs.Message {
-    public enum MsgDialogResult {
+namespace FramePFX.Core.Views.Dialogs.Message
+{
+    public enum MsgDialogResult
+    {
         None = 0,
         OK = 1,
         Yes = 6,

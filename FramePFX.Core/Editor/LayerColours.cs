@@ -1,7 +1,9 @@
 using System;
 
-namespace FramePFX.Core.Editor {
-    public static class TrackColours {
+namespace FramePFX.Core.Editor
+{
+    public static class TrackColours
+    {
         private static readonly Random random = new Random();
 
         private static readonly string[] colours = {
@@ -88,7 +90,8 @@ namespace FramePFX.Core.Editor {
             "YellowGreen"
         };
 
-        public static string GetRandomColour() {
+        public static string GetRandomColour()
+        {
             return colours[random.Next(0, colours.Length)];
         }
     }

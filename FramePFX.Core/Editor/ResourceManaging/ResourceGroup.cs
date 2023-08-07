@@ -4,34 +4,42 @@ using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ResourceManaging {
+namespace FramePFX.Core.Editor.ResourceManaging
+{
     /// <summary>
     /// A group of resource items
     /// </summary>
-    public class ResourceGroup : BaseResourceObject {
+    public class ResourceGroup : BaseResourceObject
+    {
         private readonly List<BaseResourceObject> items;
 
         public IEnumerable<BaseResourceObject> Items => this.items;
 
-        public ResourceGroup() {
+        public ResourceGroup()
+        {
             this.items = new List<BaseResourceObject>();
         }
 
-        public ResourceGroup(string displayName) : this() {
+        public ResourceGroup(string displayName) : this()
+        {
             this.DisplayName = displayName;
         }
 
-        public override void SetManager(ResourceManager manager) {
+        public override void SetManager(ResourceManager manager)
+        {
             base.SetManager(manager);
-            foreach (BaseResourceObject item in this.items) {
+            foreach (BaseResourceObject item in this.items)
+            {
                 item.SetManager(manager);
             }
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             RBEList list = data.CreateList(nameof(this.items));
-            foreach (BaseResourceObject item in this.items) {
+            foreach (BaseResourceObject item in this.items)
+            {
                 if (!(item.RegistryId is string registryId))
                     throw new Exception($"Resource type is not registered: {this.GetType()}");
                 RBEDictionary dictionary = list.AddDictionary();
@@ -40,10 +48,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             RBEList list = data.GetList(nameof(this.items));
-            foreach (RBEBase item in list.List) {
+            foreach (RBEBase item in list.List)
+            {
                 if (!(item is RBEDictionary dictionary))
                     throw new Exception("Expected item list to contain only dictionaries, not " + item);
                 string registryId = dictionary.GetString(nameof(this.RegistryId), null);
@@ -56,7 +66,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             }
         }
 
-        public void AddItemToList(BaseResourceObject value, bool setManager = true) {
+        public void AddItemToList(BaseResourceObject value, bool setManager = true)
+        {
             this.InsertItemIntoList(this.items.Count, value, setManager);
         }
 
@@ -66,26 +77,32 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <param name="item"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T Add<T>(T item) where T : BaseResourceObject {
+        public T Add<T>(T item) where T : BaseResourceObject
+        {
             this.AddItemToList(item);
             return item;
         }
 
-        public void InsertItemIntoList(int index, BaseResourceObject value, bool setManager = true) {
+        public void InsertItemIntoList(int index, BaseResourceObject value, bool setManager = true)
+        {
             this.items.Insert(index, value);
             value.SetParent(this);
-            if (setManager) {
+            if (setManager)
+            {
                 value.SetManager(this.Manager);
             }
         }
 
-        public BaseResourceObject GetItemAt(int index) {
+        public BaseResourceObject GetItemAt(int index)
+        {
             return this.items[index];
         }
 
-        public bool RemoveItemFromList(BaseResourceObject value) {
+        public bool RemoveItemFromList(BaseResourceObject value)
+        {
             int index = this.items.IndexOf(value);
-            if (index < 0) {
+            if (index < 0)
+            {
                 return false;
             }
 
@@ -93,7 +110,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             return true;
         }
 
-        public void RemoveItemFromListAt(int index) {
+        public void RemoveItemFromListAt(int index)
+        {
             BaseResourceObject value = this.items[index];
             this.items.RemoveAt(index);
             value.SetManager(null);
@@ -103,8 +121,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <summary>
         /// Recursively sets this items' manager and group to null, then clears the collection
         /// </summary>
-        public void Clear() {
-            foreach (BaseResourceObject item in this.items) {
+        public void Clear()
+        {
+            foreach (BaseResourceObject item in this.items)
+            {
                 item.SetManager(null);
                 item.SetParent(null);
             }
@@ -115,17 +135,22 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <summary>
         /// Clears this group's items, without setting the items' parent group or manager to null
         /// </summary>
-        public void UnsafeClear() {
+        public void UnsafeClear()
+        {
             this.items.Clear();
         }
 
-        protected override void DisposeCore(ExceptionStack stack) {
+        protected override void DisposeCore(ExceptionStack stack)
+        {
             base.DisposeCore(stack);
-            foreach (BaseResourceObject resource in this.items) {
-                try {
+            foreach (BaseResourceObject resource in this.items)
+            {
+                try
+                {
                     resource.Dispose();
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception("Disposing resource", e));
                 }
             }

@@ -1,8 +1,10 @@
 using System.ComponentModel;
 using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 
-namespace FramePFX.Core.PropertyEditing.Editors.Editor {
-    public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel {
+namespace FramePFX.Core.PropertyEditing.Editors.Editor
+{
+    public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel
+    {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
 
         public RelayCommand InsertMediaPositionKeyFrameCommand => this.Clip?.InsertMediaPositionKeyFrameCommand;
@@ -12,10 +14,12 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
 
         public long MediaFrameOffset => this.Clip.MediaFrameOffset;
 
-        public VideoClipDataSingleEditorViewModel() {
+        public VideoClipDataSingleEditorViewModel()
+        {
         }
 
-        protected override void OnHandlersLoaded() {
+        protected override void OnHandlersLoaded()
+        {
             base.OnHandlersLoaded();
             this.Clip.PropertyChanged += this.OnClipPropertyChanged;
 
@@ -26,13 +30,16 @@ namespace FramePFX.Core.PropertyEditing.Editors.Editor {
             this.RaisePropertyChanged(nameof(this.InsertOpacityKeyFrameCommand));
         }
 
-        protected override void OnClearHandlers() {
+        protected override void OnClearHandlers()
+        {
             base.OnClearHandlers();
             this.Clip.PropertyChanged -= this.OnClipPropertyChanged;
         }
 
-        private void OnClipPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            if (e.PropertyName == nameof(VideoClipViewModel.MediaFrameOffset)) {
+        private void OnClipPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(VideoClipViewModel.MediaFrameOffset))
+            {
                 this.RaisePropertyChanged(nameof(this.MediaFrameOffset));
             }
         }

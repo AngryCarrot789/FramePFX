@@ -7,11 +7,13 @@ using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Timelines {
+namespace FramePFX.Core.Editor.Timelines
+{
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IAutomatable, IDisposable {
+    public abstract class Clip : IAutomatable, IDisposable
+    {
         internal long internalClipId = -1;
 
         /// <summary>
@@ -52,8 +54,10 @@ namespace FramePFX.Core.Editor.Timelines {
         /// A unique identifier for this clip, relative to the project. If an ID is not
         /// assigned, then a new ID is created for this clip
         /// </summary>
-        public long UniqueClipId {
-            get {
+        public long UniqueClipId
+        {
+            get
+            {
                 if (this.internalClipId >= 0)
                     return this.internalClipId;
                 if (this.Timeline == null)
@@ -105,16 +109,20 @@ namespace FramePFX.Core.Editor.Timelines {
         // this feels like such bad design...
         internal ClipViewModel viewModel;
 
-        protected Clip() {
+        protected Clip()
+        {
             this.AutomationData = new AutomationData(this);
         }
 
-        public static void SetTrack(Clip clip, Track track) {
+        public static void SetTrack(Clip clip, Track track)
+        {
             Track oldTrack = clip.Track;
-            if (ReferenceEquals(oldTrack, track)) {
+            if (ReferenceEquals(oldTrack, track))
+            {
                 Debug.WriteLine("Attempted to set the track to the same instance");
             }
-            else {
+            else
+            {
                 clip.Track = track;
                 clip.OnTrackChanged(oldTrack, track);
             }
@@ -125,8 +133,8 @@ namespace FramePFX.Core.Editor.Timelines {
         /// </summary>
         /// <param name="oldTrack">The track this clip was originally in (not in by the time this method is called)</param>
         /// <param name="track">The track that this clip now exists in</param>
-        public virtual void OnTrackChanged(Track oldTrack, Track track) {
-
+        public virtual void OnTrackChanged(Track oldTrack, Track track)
+        {
         }
 
         /// <summary>
@@ -134,13 +142,14 @@ namespace FramePFX.Core.Editor.Timelines {
         /// </summary>
         /// <param name="oldTimeline">The timeline this clip was originally in (not in by the time this method is called)</param>
         /// <param name="timeline">The timeline that this clip now exists in</param>
-        public virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
-
+        public virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline)
+        {
         }
 
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
 
-        public bool GetRelativeFrame(long playhead, out long frame) {
+        public bool GetRelativeFrame(long playhead, out long frame)
+        {
             FrameSpan span = this.FrameSpan;
             frame = playhead - span.Begin;
             return frame >= 0 && frame < span.Duration;
@@ -150,7 +159,8 @@ namespace FramePFX.Core.Editor.Timelines {
         /// Writes this clip's data
         /// </summary>
         /// <param name="data"></param>
-        public virtual void WriteToRBE(RBEDictionary data) {
+        public virtual void WriteToRBE(RBEDictionary data)
+        {
             if (!string.IsNullOrEmpty(this.DisplayName))
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
             if (this.internalClipId >= 0)
@@ -164,7 +174,8 @@ namespace FramePFX.Core.Editor.Timelines {
         /// Reads this clip's data
         /// </summary>
         /// <param name="data"></param>
-        public virtual void ReadFromRBE(RBEDictionary data) {
+        public virtual void ReadFromRBE(RBEDictionary data)
+        {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             if (data.TryGetLong(nameof(this.UniqueClipId), out long id) && id >= 0)
                 this.internalClipId = id;
@@ -178,7 +189,8 @@ namespace FramePFX.Core.Editor.Timelines {
         /// </summary>
         /// <param name="frame">Target frame</param>
         /// <returns>Intersection</returns>
-        public bool IntersectsFrameAt(long frame) {
+        public bool IntersectsFrameAt(long frame)
+        {
             long begin = this.FrameBegin;
             long duration = this.FrameDuration;
             return frame >= begin && frame < (begin + duration);
@@ -190,7 +202,8 @@ namespace FramePFX.Core.Editor.Timelines {
         /// splitting or duplicating clips, or even duplicating a track
         /// </summary>
         /// <returns></returns>
-        public Clip Clone() {
+        public Clip Clone()
+        {
             Clip clip = this.NewInstance();
             this.LoadDataIntoClone(clip);
             return clip;
@@ -198,7 +211,8 @@ namespace FramePFX.Core.Editor.Timelines {
 
         protected abstract Clip NewInstance();
 
-        protected virtual void LoadDataIntoClone(Clip clone) {
+        protected virtual void LoadDataIntoClone(Clip clone)
+        {
             clone.DisplayName = this.DisplayName;
             clone.FrameSpan = this.FrameSpan;
             clone.MediaFrameOffset = this.MediaFrameOffset;
@@ -217,15 +231,20 @@ namespace FramePFX.Core.Editor.Timelines {
         /// Dispose only throws an exception in truely exceptional cases
         /// </para>
         /// </summary>
-        public void Dispose() {
-            using (ExceptionStack stack = new ExceptionStack()) {
+        public void Dispose()
+        {
+            using (ExceptionStack stack = new ExceptionStack())
+            {
                 this.OnBeginDispose();
-                try {
+                try
+                {
                     this.DisposeCore(stack);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception($"{nameof(this.DisposeCore)} threw an unexpected exception", e));
                 }
+
                 this.OnEndDispose();
             }
         }
@@ -233,7 +252,8 @@ namespace FramePFX.Core.Editor.Timelines {
         /// <summary>
         /// Called just before <see cref="DisposeCore(ExceptionStack)"/>. This should not throw any exceptions
         /// </summary>
-        public virtual void OnBeginDispose() {
+        public virtual void OnBeginDispose()
+        {
             this.IsDisposing = true;
         }
 
@@ -245,14 +265,15 @@ namespace FramePFX.Core.Editor.Timelines {
         /// </para>
         /// </summary>
         /// <param name="stack">The exception stack in which to add any encountered exceptions during disposal</param>
-        protected virtual void DisposeCore(ExceptionStack stack) {
-
+        protected virtual void DisposeCore(ExceptionStack stack)
+        {
         }
 
         /// <summary>
         /// Called just after <see cref="DisposeCore(ExceptionStack)"/>. This should not throw any exceptions
         /// </summary>
-        public virtual void OnEndDispose() {
+        public virtual void OnEndDispose()
+        {
             this.IsDisposing = false;
         }
 

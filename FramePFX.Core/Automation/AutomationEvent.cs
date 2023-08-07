@@ -1,3 +1,4 @@
-namespace FramePFX.Core.Automation {
+namespace FramePFX.Core.Automation
+{
     public delegate void AutomationEvent(AutomationEventArgs e);
 }

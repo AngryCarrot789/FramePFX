@@ -1,6 +1,8 @@
-namespace FramePFX.Core.Editor.ResourceManaging {
+namespace FramePFX.Core.Editor.ResourceManaging
+{
     // probably not gonna use this...
-    public enum RenameResult {
+    public enum RenameResult
+    {
         EmptyOldId,
         EmptyNewId,
         NoSuchOldId,

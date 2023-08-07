@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using FramePFX.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage {
-    public class MouseKeyboardShortcutUsage : IKeyboardShortcutUsage, IMouseShortcutUsage {
+namespace FramePFX.Core.Shortcuts.Usage
+{
+    public class MouseKeyboardShortcutUsage : IKeyboardShortcutUsage, IMouseShortcutUsage
+    {
         private readonly MouseKeyboardShortcut shortcut;
         // private int clickCounter;
 
@@ -17,7 +19,8 @@ namespace FramePFX.Core.Shortcuts.Usage {
 
         public MouseStroke CurrentMouseStroke => this.currentStroke?.Value is MouseStroke value ? value : default;
 
-        public IShortcut Shortcut {
+        public IShortcut Shortcut
+        {
             get => this.KeyboardShortcut;
         }
 
@@ -27,10 +30,13 @@ namespace FramePFX.Core.Shortcuts.Usage {
 
         public IInputStroke CurrentStroke => this.currentStroke?.Value;
 
-        public IEnumerable<IInputStroke> RemainingStrokes {
-            get {
+        public IEnumerable<IInputStroke> RemainingStrokes
+        {
+            get
+            {
                 LinkedListNode<IInputStroke> stroke = this.currentStroke;
-                while (stroke != null) {
+                while (stroke != null)
+                {
                     yield return stroke.Value;
                     stroke = stroke.Next;
                 }
@@ -41,61 +47,77 @@ namespace FramePFX.Core.Shortcuts.Usage {
 
         public bool IsCurrentStrokeKeyBased => this.currentStroke?.Value is KeyStroke;
 
-        public MouseKeyboardShortcutUsage(MouseKeyboardShortcut shortcut) {
+        public MouseKeyboardShortcutUsage(MouseKeyboardShortcut shortcut)
+        {
             this.shortcut = shortcut;
             this.Strokes = new LinkedList<IInputStroke>(shortcut.InputStrokes);
             this.currentStroke = this.Strokes.First.Next;
             this.PreviousStroke = this.Strokes.First.Value;
         }
 
-        public bool OnKeyStroke(in KeyStroke stroke) {
-            if (this.currentStroke == null) {
+        public bool OnKeyStroke(in KeyStroke stroke)
+        {
+            if (this.currentStroke == null)
+            {
                 return true;
             }
 
-            if (stroke.Equals(this.currentStroke.Value)) {
+            if (stroke.Equals(this.currentStroke.Value))
+            {
                 this.ProgressCurrentStroke();
                 return true;
             }
-            else {
+            else
+            {
                 return false;
             }
         }
 
-        public bool OnMouseStroke(in MouseStroke stroke) {
-            if (this.currentStroke == null) {
+        public bool OnMouseStroke(in MouseStroke stroke)
+        {
+            if (this.currentStroke == null)
+            {
                 return true;
             }
-            else if (stroke.Equals(this.currentStroke.Value)) {
+            else if (stroke.Equals(this.currentStroke.Value))
+            {
                 this.ProgressCurrentStroke();
                 return true;
             }
-            else if (this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClick(stroke)) {
+            else if (this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClick(stroke))
+            {
                 return true;
             }
-            else {
+            else
+            {
                 return false;
             }
         }
 
-        public bool OnInputStroke(IInputStroke stroke) {
-            if (this.currentStroke == null) {
+        public bool OnInputStroke(IInputStroke stroke)
+        {
+            if (this.currentStroke == null)
+            {
                 return true;
             }
 
-            if (this.currentStroke.Value.Equals(stroke)) {
+            if (this.currentStroke.Value.Equals(stroke))
+            {
                 this.ProgressCurrentStroke();
                 return true;
             }
-            else if (stroke is MouseStroke mouseStroke && this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClick(mouseStroke)) {
+            else if (stroke is MouseStroke mouseStroke && this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClick(mouseStroke))
+            {
                 return true;
             }
-            else {
+            else
+            {
                 return false;
             }
         }
 
-        private void ProgressCurrentStroke() {
+        private void ProgressCurrentStroke()
+        {
             this.PreviousStroke = this.currentStroke.Value;
             this.currentStroke = this.currentStroke.Next;
         }

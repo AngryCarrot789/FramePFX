@@ -1,7 +1,9 @@
 using FramePFX.Core.RBC;
 
-namespace FramePFX.Core.Settings {
-    public class AppSettings : IRBESerialisable {
+namespace FramePFX.Core.Settings
+{
+    public class AppSettings : IRBESerialisable
+    {
         // fields so that the view models can use these easier
         public bool UseVerticalTrackNumberDraggerBehaviour;
         public bool StopOnTogglePlay;
@@ -10,18 +12,20 @@ namespace FramePFX.Core.Settings {
         /// Returns a new instance of the default app settings
         /// </summary>
         /// <returns></returns>
-        public static AppSettings Defaults() {
+        public static AppSettings Defaults()
+        {
             return new AppSettings() {
                 UseVerticalTrackNumberDraggerBehaviour = false,
                 StopOnTogglePlay = true
             };
         }
 
-        public AppSettings() {
-
+        public AppSettings()
+        {
         }
 
-        public AppSettings Clone() {
+        public AppSettings Clone()
+        {
             AppSettings settings = new AppSettings();
             RBEDictionary dictionary = new RBEDictionary();
             this.WriteToRBE(dictionary);
@@ -29,12 +33,14 @@ namespace FramePFX.Core.Settings {
             return settings;
         }
 
-        public void WriteToRBE(RBEDictionary data) {
+        public void WriteToRBE(RBEDictionary data)
+        {
             data.SetBool(nameof(this.UseVerticalTrackNumberDraggerBehaviour), this.UseVerticalTrackNumberDraggerBehaviour);
             data.SetBool(nameof(this.StopOnTogglePlay), this.StopOnTogglePlay);
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
+        public void ReadFromRBE(RBEDictionary data)
+        {
             this.UseVerticalTrackNumberDraggerBehaviour = data.GetBool(nameof(this.UseVerticalTrackNumberDraggerBehaviour));
             this.StopOnTogglePlay = data.GetBool(nameof(this.StopOnTogglePlay));
         }

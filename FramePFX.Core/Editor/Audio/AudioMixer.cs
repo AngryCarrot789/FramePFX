@@ -1,5 +1,6 @@
-namespace FramePFX.Core.Editor.Audio {
-    public class AudioMixer {
-        
+namespace FramePFX.Core.Editor.Audio
+{
+    public class AudioMixer
+    {
     }
 }

@@ -1,5 +1,6 @@
-namespace FramePFX.Core.Views {
-    public interface IViewBase {
-
+namespace FramePFX.Core.Views
+{
+    public interface IViewBase
+    {
     }
 }

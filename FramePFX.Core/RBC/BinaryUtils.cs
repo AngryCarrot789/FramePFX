@@ -3,8 +3,10 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace FramePFX.Core.RBC {
-    public static class BinaryUtils {
+namespace FramePFX.Core.RBC
+{
+    public static class BinaryUtils
+    {
         // Buffer.MemoryCopy implementation (on windows at least, .NET Framework) uses an internal function which accepts ulong length
         // Passing int to MemoryCopy will cast to long (twice due to 'len, len') and those get cast to ulong (in a checked context)
         // Just an optimisation to use ulong in these functions
@@ -13,8 +15,10 @@ namespace FramePFX.Core.RBC {
         public static unsafe void WriteArray(byte* src, byte[] dst, int dstBegin, int count) => Unsafe.CopyBlock(ref dst[dstBegin], ref *src, (uint) count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ReadExact(Stream stream, byte[] buffer, int count) {
-            if (stream.Read(buffer, 0, count) != count) {
+        public static void ReadExact(Stream stream, byte[] buffer, int count)
+        {
+            if (stream.Read(buffer, 0, count) != count)
+            {
                 throw new EndOfStreamException($"Failed to read {count} bytes");
             }
         }
@@ -41,17 +45,20 @@ namespace FramePFX.Core.RBC {
         private const int LEN_U2 = 0b01; // unsigned short
         private const int LEN_S4 = 0b10; // signed int
         private const int MAX_U1 = (byte.MaxValue) >> 2; // 63
-        private const int MAX_U2 = (byte.MaxValue  << 8)  | MAX_U1; // 65,343
+        private const int MAX_U2 = (byte.MaxValue << 8) | MAX_U1; // 65,343
         private const int MAX_S4 = (short.MaxValue << 16) | MAX_U2 | MAX_U1; // 2,147,483,455. Not using ushort because that results in integer overflow to -193
 
-        public static int ReadValue(BinaryReader reader, LengthReadStrategy strategy) {
-            if (strategy != LengthReadStrategy.SegmentedLength) {
+        public static int ReadValue(BinaryReader reader, LengthReadStrategy strategy)
+        {
+            if (strategy != LengthReadStrategy.SegmentedLength)
+            {
                 return -1;
             }
 
             int a = reader.ReadByte();
             int mask = a & 0b11;
-            switch (mask) {
+            switch (mask)
+            {
                 case LEN_U1: return a >> 2;
                 case LEN_U2: return ReadU2(reader, a);
                 case LEN_S4: return ReadU4(reader, a);
@@ -59,33 +66,41 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public static bool WriteValue(BinaryWriter writer, LengthReadStrategy strategy, int length) {
-            if (strategy != LengthReadStrategy.SegmentedLength) {
+        public static bool WriteValue(BinaryWriter writer, LengthReadStrategy strategy, int length)
+        {
+            if (strategy != LengthReadStrategy.SegmentedLength)
+            {
                 return false;
             }
 
-            if (length <= MAX_U1) {
+            if (length <= MAX_U1)
+            {
                 writer.Write((byte) ((length << 2) | LEN_U1));
             }
-            else if (length <= MAX_U2) {
+            else if (length <= MAX_U2)
+            {
                 writer.Write((ushort) ((length << 2) | LEN_U2));
             }
-            else if (length <= MAX_S4) {
+            else if (length <= MAX_S4)
+            {
                 writer.Write((length << 2) | LEN_S4);
             }
-            else {
+            else
+            {
                 throw new Exception($"Length is too large to fit into a segmented length: {length}");
             }
 
             return true;
         }
 
-        public static int ReadU2(BinaryReader reader, int a) {
+        public static int ReadU2(BinaryReader reader, int a)
+        {
             int b = reader.ReadByte();
             return b << 8 | (a >> 2);
         }
 
-        public static int ReadU4(BinaryReader reader, int a) {
+        public static int ReadU4(BinaryReader reader, int a)
+        {
             int b = reader.ReadByte();
             int c = reader.ReadUInt16();
             return (c << 16) | (b << 8) | (a >> 2);
@@ -101,30 +116,44 @@ namespace FramePFX.Core.RBC {
         public static long FromEnum64<TEnum>(TEnum value) where TEnum : unmanaged, Enum => Unsafe.As<TEnum, long>(ref value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe T ReadStruct<T>(byte[] array, int offset, int size) where T : unmanaged {
+        public static unsafe T ReadStruct<T>(byte[] array, int offset, int size) where T : unmanaged
+        {
             T value = default;
             Unsafe.CopyBlock(ref *(byte*) &value, ref array[offset], (uint) size);
             return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void WriteStruct<T>(T value, byte[] array, int offset, int size) where T : unmanaged {
+        public static unsafe void WriteStruct<T>(T value, byte[] array, int offset, int size) where T : unmanaged
+        {
             byte* src = (byte*) &value;
             Unsafe.CopyBlock(ref array[offset], ref *src, (uint) size);
         }
 
-        public static unsafe void WriteStruct<T>(this BinaryWriter writer, T value) where T : unmanaged {
-            switch (sizeof(T)) {
-                case 1: writer.Write(Unsafe.As<T, byte>(ref value)); return;
-                case 2: writer.Write(Unsafe.As<T, ushort>(ref value)); return;
-                case 4: writer.Write(Unsafe.As<T, uint>(ref value)); return;
-                case 8: writer.Write(Unsafe.As<T, ulong>(ref value)); return;
-                case 12: {
+        public static unsafe void WriteStruct<T>(this BinaryWriter writer, T value) where T : unmanaged
+        {
+            switch (sizeof(T))
+            {
+                case 1:
+                    writer.Write(Unsafe.As<T, byte>(ref value));
+                    return;
+                case 2:
+                    writer.Write(Unsafe.As<T, ushort>(ref value));
+                    return;
+                case 4:
+                    writer.Write(Unsafe.As<T, uint>(ref value));
+                    return;
+                case 8:
+                    writer.Write(Unsafe.As<T, ulong>(ref value));
+                    return;
+                case 12:
+                {
                     writer.Write(Unsafe.As<T, ulong>(ref value));
                     writer.Write(Unsafe.As<T, uint>(ref Unsafe.AddByteOffset(ref value, (IntPtr) 8)));
                     return;
                 }
-                case 16: {
+                case 16:
+                {
                     writer.Write(Unsafe.As<T, ulong>(ref value));
                     writer.Write(Unsafe.As<T, ulong>(ref Unsafe.AddByteOffset(ref value, (IntPtr) 8)));
                     return;
@@ -133,19 +162,39 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        public static unsafe T ReadStruct<T>(this BinaryReader reader) where T : unmanaged {
-            switch (sizeof(T)) {
-                case 1: { byte v = reader.ReadByte();     return Unsafe.As<byte, T>(ref v); }
-                case 2: { ushort v = reader.ReadUInt16(); return Unsafe.As<ushort, T>(ref v); }
-                case 4: { uint v = reader.ReadUInt32();   return Unsafe.As<uint, T>(ref v); }
-                case 8: { ulong v = reader.ReadUInt64();  return Unsafe.As<ulong, T>(ref v); }
-                case 12: {
+        public static unsafe T ReadStruct<T>(this BinaryReader reader) where T : unmanaged
+        {
+            switch (sizeof(T))
+            {
+                case 1:
+                {
+                    byte v = reader.ReadByte();
+                    return Unsafe.As<byte, T>(ref v);
+                }
+                case 2:
+                {
+                    ushort v = reader.ReadUInt16();
+                    return Unsafe.As<ushort, T>(ref v);
+                }
+                case 4:
+                {
+                    uint v = reader.ReadUInt32();
+                    return Unsafe.As<uint, T>(ref v);
+                }
+                case 8:
+                {
+                    ulong v = reader.ReadUInt64();
+                    return Unsafe.As<ulong, T>(ref v);
+                }
+                case 12:
+                {
                     ulong a = reader.ReadUInt64();
                     uint b = reader.ReadUInt32();
                     Block12 blk = new Block12(a, b);
                     return Unsafe.As<Block12, T>(ref blk);
                 }
-                case 16: {
+                case 16:
+                {
                     ulong a = reader.ReadUInt64();
                     ulong b = reader.ReadUInt64();
                     Block16 blk = new Block16(a, b);
@@ -156,20 +205,26 @@ namespace FramePFX.Core.RBC {
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private readonly struct Block12 {
+        private readonly struct Block12
+        {
             public readonly ulong a;
             public readonly uint b;
-            public Block12(ulong a, uint b) {
+
+            public Block12(ulong a, uint b)
+            {
                 this.a = a;
                 this.b = b;
             }
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private readonly struct Block16 {
+        private readonly struct Block16
+        {
             public readonly ulong a;
             public readonly ulong b;
-            public Block16(ulong a, ulong b) {
+
+            public Block16(ulong a, ulong b)
+            {
                 this.a = a;
                 this.b = b;
             }

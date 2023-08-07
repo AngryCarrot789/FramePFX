@@ -1,9 +1,12 @@
-namespace FramePFX.Core.Editor.Exporting {
+namespace FramePFX.Core.Editor.Exporting
+{
     /// <summary>
     /// A service that implement a project export procedure
     /// </summary>
-    public abstract class ExportService {
-        protected ExportService() {
+    public abstract class ExportService
+    {
+        protected ExportService()
+        {
         }
 
         /// <summary>

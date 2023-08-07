@@ -5,45 +5,60 @@ using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.History.ViewModels;
 
-namespace FramePFX.Core.History.Actions {
-    public class UndoAction : AnAction {
-        public static HistoryManagerViewModel GetHistoryManager(IDataContext context, out VideoEditorViewModel editor) {
-            if (context.TryGetContext(out ClipViewModel clip) && clip.Track != null && (editor = clip.Track.Timeline.Project.Editor) != null) {
+namespace FramePFX.Core.History.Actions
+{
+    public class UndoAction : AnAction
+    {
+        public static HistoryManagerViewModel GetHistoryManager(IDataContext context, out VideoEditorViewModel editor)
+        {
+            if (context.TryGetContext(out ClipViewModel clip) && clip.Track != null && (editor = clip.Track.Timeline.Project.Editor) != null)
+            {
                 return editor.HistoryManager;
             }
-            else if (context.TryGetContext(out TimelineViewModel timeline) && (editor = timeline.Project.Editor) != null) {
+            else if (context.TryGetContext(out TimelineViewModel timeline) && (editor = timeline.Project.Editor) != null)
+            {
                 return editor.HistoryManager;
             }
-            else if (context.TryGetContext(out ProjectViewModel project) && (editor = project.Editor) != null) {
+            else if (context.TryGetContext(out ProjectViewModel project) && (editor = project.Editor) != null)
+            {
                 return editor.HistoryManager;
             }
-            else if (context.TryGetContext(out editor)) {
+            else if (context.TryGetContext(out editor))
+            {
                 return editor.HistoryManager;
             }
-            else if (context.TryGetContext(out HistoryManagerViewModel manager)) {
+            else if (context.TryGetContext(out HistoryManagerViewModel manager))
+            {
                 return manager;
             }
-            else {
+            else
+            {
                 return null;
             }
         }
 
-        public static bool TryGetHistoryManager(IDataContext context, out HistoryManagerViewModel manager, out VideoEditorViewModel editor) {
+        public static bool TryGetHistoryManager(IDataContext context, out HistoryManagerViewModel manager, out VideoEditorViewModel editor)
+        {
             return (manager = GetHistoryManager(context, out editor)) != null;
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (TryGetHistoryManager(e.DataContext, out var manager, out var editor)) {
-                if (manager.CanUndo) {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
+        {
+            if (TryGetHistoryManager(e.DataContext, out var manager, out var editor))
+            {
+                if (manager.CanUndo)
+                {
                     await manager.UndoAction();
                 }
-                else {
+                else
+                {
                     editor.View.PushNotificationMessage("Nothing to undo!");
                 }
 
                 return true;
             }
-            else {
+            else
+            {
                 return false;
             }
         }

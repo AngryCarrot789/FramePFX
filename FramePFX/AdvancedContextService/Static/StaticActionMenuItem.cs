@@ -1,10 +1,12 @@
 using System.ComponentModel;
 using System.Windows.Markup;
 
-namespace FramePFX.AdvancedContextService.Static {
+namespace FramePFX.AdvancedContextService.Static
+{
     [DefaultProperty("Items")]
     [ContentProperty("Items")]
-    public class StaticActionMenuItem : StaticBaseMenuItem {
+    public class StaticActionMenuItem : StaticBaseMenuItem
+    {
         public string ActionID { get; set; }
     }
 }

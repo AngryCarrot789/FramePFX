@@ -2,13 +2,17 @@ using System;
 using System.Threading.Tasks;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.History {
+namespace FramePFX.Core.History
+{
     /// <summary>
     /// A history action that fires an event when it is undone, redone or removed. The methods are delegated to the other action
     /// </summary>
-    public class EventHistoryAction : IHistoryAction {
+    public class EventHistoryAction : IHistoryAction
+    {
         public delegate void UndoEventHandler(EventHistoryAction action);
+
         public delegate void RedoEventHandler(EventHistoryAction action);
+
         public delegate void RemovedEventHandler(EventHistoryAction action);
 
         public IHistoryAction Action { get; }
@@ -19,60 +23,79 @@ namespace FramePFX.Core.History {
         public event RedoEventHandler Redo;
         public event RemovedEventHandler Removed;
 
-        public EventHistoryAction(IHistoryAction action) {
+        public EventHistoryAction(IHistoryAction action)
+        {
             this.Action = action;
         }
 
-        public async Task UndoAsync() {
-            using (ExceptionStack stack = new ExceptionStack()) {
-                try {
+        public async Task UndoAsync()
+        {
+            using (ExceptionStack stack = new ExceptionStack())
+            {
+                try
+                {
                     await this.Action.UndoAsync();
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception("Failed to undo action", e));
                 }
 
-                try {
+                try
+                {
                     this.Undo?.Invoke(this);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception("Failed to fire model's undo event", e));
                 }
             }
         }
 
-        public async Task RedoAsync() {
-            using (ExceptionStack stack = new ExceptionStack()) {
-                try {
+        public async Task RedoAsync()
+        {
+            using (ExceptionStack stack = new ExceptionStack())
+            {
+                try
+                {
                     await this.Action.RedoAsync();
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception("Failed to redo action", e));
                 }
 
-                try {
+                try
+                {
                     this.Redo?.Invoke(this);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception("Failed to fire model's redo event", e));
                 }
             }
         }
 
-        public void OnRemoved() {
+        public void OnRemoved()
+        {
             this.IsRemoved = true;
-            using (ExceptionStack stack = new ExceptionStack()) {
-                try {
+            using (ExceptionStack stack = new ExceptionStack())
+            {
+                try
+                {
                     this.Action.OnRemoved();
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception("Failed to remove action", e));
                 }
 
-                try {
+                try
+                {
                     this.Removed?.Invoke(this);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     stack.Add(new Exception("Failed to fire model's removed event", e));
                 }
             }

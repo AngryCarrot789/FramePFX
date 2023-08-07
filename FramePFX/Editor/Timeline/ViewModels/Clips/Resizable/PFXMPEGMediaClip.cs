@@ -1,4 +1,5 @@
-namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable {
+namespace FramePFX.Editor.Timeline.ViewModels.Clips.Resizable
+{
     /*
 
     public class PFXMPEGMediaClip : IDisposable, IContextProvider, IVideoClip {

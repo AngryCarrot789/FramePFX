@@ -9,39 +9,37 @@
                 Title="TestControlPreview" Height="480.188" Width="453"
                 Style="{StaticResource CustomWindowStyleEx}">
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75"/>
-        <Calendar HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,25,0,0"/>
-        <CheckBox Content="CheckBox" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="80,0,0,0"/>
+        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" />
+        <Calendar HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,25,0,0" />
+        <CheckBox Content="CheckBox" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="80,0,0,0" />
         <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="157,0,0,0" SelectedIndex="1">
-            <ComboBoxItem Content="a"/>
-            <ComboBoxItem Content="b"/>
-            <ComboBoxItem Content="c"/>
+            <ComboBoxItem Content="a" />
+            <ComboBoxItem Content="b" />
+            <ComboBoxItem Content="c" />
         </ComboBox>
         <DataGrid HorizontalAlignment="Left" Height="100" Margin="292,0,0,0" VerticalAlignment="Top" Width="100">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ok1"/>
-                <DataGridTextColumn Header="ok2"/>
-                <DataGridTextColumn Header="ok3"/>
+                <DataGridTextColumn Header="ok1" />
+                <DataGridTextColumn Header="ok2" />
+                <DataGridTextColumn Header="ok3" />
             </DataGrid.Columns>
         </DataGrid>
-        <DatePicker HorizontalAlignment="Left" Margin="184,105,0,0" VerticalAlignment="Top" Width="208"/>
+        <DatePicker HorizontalAlignment="Left" Margin="184,105,0,0" VerticalAlignment="Top" Width="208" />
         <ToolBarPanel HorizontalAlignment="Left" Height="32" Margin="184,134,0,0" VerticalAlignment="Top" Width="208" Orientation="Horizontal">
             <ToolBar>
-                <Button Content="A"/>
-                <Button Content="B"/>
-                <Button Content="C"/>
+                <Button Content="A" />
+                <Button Content="B" />
+                <Button Content="C" />
             </ToolBar>
             <ToolBar>
-                <Button Content="D"/>
-                <Button Content="E"/>
-                <Button Content="F"/>
+                <Button Content="D" />
+                <Button Content="E" />
+                <Button Content="F" />
             </ToolBar>
         </ToolBarPanel>
         <TabControl HorizontalAlignment="Left" Height="108" Margin="0,198,0,0" VerticalAlignment="Top" Width="255">
-            <TabItem Header="TabItem">
-            </TabItem>
-            <TabItem Header="TabItem">
-            </TabItem>
+            <TabItem Header="TabItem" />
+            <TabItem Header="TabItem" />
         </TabControl>
     </Grid>
 </local:WindowEx>

@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core.Services {
+namespace FramePFX.Core.Services
+{
     /// <summary>
     /// An interface used to execute actions on a specific thread
     /// </summary>
-    public interface IDispatcher {
+    public interface IDispatcher
+    {
         /// <summary>
         /// Whether or not the caller is on the owner thread or not. When true, using any of the dispatcher functions is typically unnecessary
         /// </summary>

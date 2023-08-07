@@ -3,58 +3,76 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.Editor.Timeline.Utils {
+namespace FramePFX.Editor.Timeline.Utils
+{
     /// <summary>
     /// <see cref="ItemContainerGenerator"/> utility functions
     /// </summary>
-    public static class ICGenUtils {
-        public static IEnumerable<TResult> Select<TSource, TResult>(ItemCollection collection, Func<TSource, TResult> converter) {
-            foreach (object x in collection) {
-                if (x is TResult result) {
+    public static class ICGenUtils
+    {
+        public static IEnumerable<TResult> Select<TSource, TResult>(ItemCollection collection, Func<TSource, TResult> converter)
+        {
+            foreach (object x in collection)
+            {
+                if (x is TResult result)
+                {
                     yield return result;
                 }
-                else if (x is TSource src && converter(src) is TResult result2) {
+                else if (x is TSource src && converter(src) is TResult result2)
+                {
                     yield return result2;
                 }
             }
         }
 
-        public static TResult GetContainerForItem<TResult>(ItemContainerGenerator generator, object src) where TResult : class {
-            if (src is TResult result) {
+        public static TResult GetContainerForItem<TResult>(ItemContainerGenerator generator, object src) where TResult : class
+        {
+            if (src is TResult result)
+            {
                 return result;
             }
-            else if (generator.ContainerFromItem(src) is TResult result2) {
+            else if (generator.ContainerFromItem(src) is TResult result2)
+            {
                 return result2;
             }
-            else {
+            else
+            {
                 return null;
             }
         }
 
-        public static TResult GetContainerForItem<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter) where TResult : DependencyObject {
-            if (input is TResult a) {
+        public static TResult GetContainerForItem<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter) where TResult : DependencyObject
+        {
+            if (input is TResult a)
+            {
                 return a;
             }
-            else if (input is TSource src && converter(src) is TResult b) {
+            else if (input is TSource src && converter(src) is TResult b)
+            {
                 return b;
             }
-            else if (generator.ContainerFromItem(input) is TResult c) {
+            else if (generator.ContainerFromItem(input) is TResult c)
+            {
                 return c;
             }
-            else {
+            else
+            {
                 return null;
             }
         }
 
-        public static bool GetContainerForItem2<TItem, TContainer>(Predicate<TItem> predicate, ItemContainerGenerator generator, out TContainer result) where TContainer : DependencyObject {
+        public static bool GetContainerForItem2<TItem, TContainer>(Predicate<TItem> predicate, ItemContainerGenerator generator, out TContainer result) where TContainer : DependencyObject
+        {
             int index = 0;
-            foreach (object item in generator.Items) {
+            foreach (object item in generator.Items)
+            {
                 if (item is TItem src && predicate(src))
                     break;
                 index++;
             }
 
-            if (index < generator.Items.Count && generator.ContainerFromIndex(index) is TContainer container) {
+            if (index < generator.Items.Count && generator.ContainerFromIndex(index) is TContainer container)
+            {
                 result = container;
                 return true;
             }
@@ -63,17 +81,22 @@ namespace FramePFX.Editor.Timeline.Utils {
             return false;
         }
 
-        public static bool GetItemForContainer<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter, out TResult result) where TSource : DependencyObject {
-            if (input is TResult a) {
+        public static bool GetItemForContainer<TSource, TResult>(object input, ItemContainerGenerator generator, Func<TSource, TResult> converter, out TResult result) where TSource : DependencyObject
+        {
+            if (input is TResult a)
+            {
                 result = a;
                 return true;
             }
-            else if (input is TSource src) {
-                if (converter(src) is TResult b) {
+            else if (input is TSource src)
+            {
+                if (converter(src) is TResult b)
+                {
                     result = b;
                     return true;
                 }
-                else if (generator.ItemFromContainer(src) is TResult c) {
+                else if (generator.ItemFromContainer(src) is TResult c)
+                {
                     result = c;
                     return true;
                 }

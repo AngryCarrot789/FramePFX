@@ -1,15 +1,18 @@
 ﻿using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.Core.FFmpegWrapper.Codecs {
-
-    public abstract unsafe class CodecBase : FFObject {
+namespace FramePFX.Core.FFmpegWrapper.Codecs
+{
+    public abstract unsafe class CodecBase : FFObject
+    {
         protected AVCodecContext* ctx;
         protected readonly bool contextOwner;
         private bool hasUserExtraData;
 
-        public AVCodecContext* Handle {
-            get {
+        public AVCodecContext* Handle
+        {
+            get
+            {
                 this.ValidateNotDisposed();
                 return this.ctx;
             }
@@ -20,17 +23,20 @@ namespace FramePFX.Core.FFmpegWrapper.Codecs {
         public string CodecName => new string((sbyte*) this.ctx->codec->name);
         public string CodecLongName => new string((sbyte*) this.ctx->codec->long_name);
 
-        public AVRational TimeBase {
+        public AVRational TimeBase
+        {
             get => this.ctx->time_base;
             set => this.SetOrThrowIfOpen(ref this.ctx->time_base, value);
         }
 
-        public AVRational FrameRate {
+        public AVRational FrameRate
+        {
             get => this.ctx->framerate;
             set => this.SetOrThrowIfOpen(ref this.ctx->framerate, value);
         }
 
-        public Span<byte> ExtraData {
+        public Span<byte> ExtraData
+        {
             get => this.GetExtraData();
             set => this.SetExtraData(value);
         }
@@ -40,8 +46,10 @@ namespace FramePFX.Core.FFmpegWrapper.Codecs {
 
         public AVMediaType CodecType => this.ctx->codec_type;
 
-        internal CodecBase(AVCodecContext* ctx, AVMediaType expectedType, bool takeOwnership = true) {
-            if (ctx->codec->type != expectedType) {
+        internal CodecBase(AVCodecContext* ctx, AVMediaType expectedType, bool takeOwnership = true)
+        {
+            if (ctx->codec->type != expectedType)
+            {
                 if (takeOwnership)
                     ffmpeg.avcodec_free_context(&ctx);
 
@@ -52,36 +60,44 @@ namespace FramePFX.Core.FFmpegWrapper.Codecs {
             this.contextOwner = false;
         }
 
-        protected static AVCodec* FindCodecFromId(AVCodecID codecId, bool enc) {
+        protected static AVCodec* FindCodecFromId(AVCodecID codecId, bool enc)
+        {
             AVCodec* codec = enc
                 ? ffmpeg.avcodec_find_encoder(codecId)
                 : ffmpeg.avcodec_find_decoder(codecId);
 
-            if (codec == null) {
+            if (codec == null)
+            {
                 throw new NotSupportedException($"Could not find {(enc ? "decoder" : "encoder")} for codec {codecId.ToString().Substring("AV_CODEC_ID_".Length)}.");
             }
 
             return codec;
         }
 
-        protected static AVCodecContext* AllocContext(AVCodec* codec) {
+        protected static AVCodecContext* AllocContext(AVCodec* codec)
+        {
             AVCodecContext* ctx = ffmpeg.avcodec_alloc_context3(codec);
-            if (ctx == null) {
+            if (ctx == null)
+            {
                 throw new OutOfMemoryException("Failed to allocate codec context.");
             }
 
             return ctx;
         }
 
-        public void Open() {
-            if (!this.IsOpen) {
+        public void Open()
+        {
+            if (!this.IsOpen)
+            {
                 FFUtils.CheckError(ffmpeg.avcodec_open2(this.Handle, null, null), "Could not open codec");
             }
         }
 
         /// <summary> Initializes the codec if not already. </summary>
-        public void Open(AVDictionary* options) {
-            if (!this.IsOpen) {
+        public void Open(AVDictionary* options)
+        {
+            if (!this.IsOpen)
+            {
                 FFUtils.CheckError(ffmpeg.avcodec_open2(this.Handle, null, &options), "Could not open codec");
             }
         }
@@ -89,17 +105,20 @@ namespace FramePFX.Core.FFmpegWrapper.Codecs {
         /// <summary> Enables or disables multi-threading if supported by the codec implementation. </summary>
         /// <param name="threadCount">Number of threads to use. 1 to disable multi-threading, 0 to automatically pick a value.</param>
         /// <param name="preferFrameSlices">Allow only multi-threaded processing of frame slices rather than individual frames. Setting to true may reduce delay. </param>
-        public void SetThreadCount(int threadCount, bool preferFrameSlices = false) {
+        public void SetThreadCount(int threadCount, bool preferFrameSlices = false)
+        {
             this.ValidateNotOpen();
             this.ctx->thread_count = threadCount;
             int caps = this.ctx->codec->capabilities;
 
-            if ((caps & ffmpeg.AV_CODEC_CAP_SLICE_THREADS) != 0 && preferFrameSlices) {
+            if ((caps & ffmpeg.AV_CODEC_CAP_SLICE_THREADS) != 0 && preferFrameSlices)
+            {
                 this.ctx->thread_type = ffmpeg.FF_THREAD_SLICE;
                 return;
             }
 
-            if ((caps & ffmpeg.AV_CODEC_CAP_FRAME_THREADS) != 0) {
+            if ((caps & ffmpeg.AV_CODEC_CAP_FRAME_THREADS) != 0)
+            {
                 this.ctx->thread_type = ffmpeg.FF_THREAD_FRAME;
                 return;
             }
@@ -108,28 +127,34 @@ namespace FramePFX.Core.FFmpegWrapper.Codecs {
         }
 
         /// <summary> Reset the decoder state / flush internal buffers. </summary>
-        public virtual void Flush() {
-            if (!this.IsOpen) {
+        public virtual void Flush()
+        {
+            if (!this.IsOpen)
+            {
                 throw new InvalidOperationException("Cannot flush closed codec");
             }
 
             ffmpeg.avcodec_flush_buffers(this.Handle);
         }
 
-        private Span<byte> GetExtraData() {
+        private Span<byte> GetExtraData()
+        {
             return new Span<byte>(this.ctx->extradata, this.ctx->extradata_size);
         }
 
-        private void SetExtraData(Span<byte> buf) {
+        private void SetExtraData(Span<byte> buf)
+        {
             this.ValidateNotOpen();
 
             ffmpeg.av_freep(&this.ctx->extradata);
 
-            if (buf.IsEmpty) {
+            if (buf.IsEmpty)
+            {
                 this.ctx->extradata = null;
                 this.ctx->extradata_size = 0;
             }
-            else {
+            else
+            {
                 this.ctx->extradata = (byte*) ffmpeg.av_mallocz((ulong) buf.Length + ffmpeg.AV_INPUT_BUFFER_PADDING_SIZE);
                 this.ctx->extradata_size = buf.Length;
                 buf.CopyTo(new Span<byte>(this.ctx->extradata, buf.Length));
@@ -137,38 +162,49 @@ namespace FramePFX.Core.FFmpegWrapper.Codecs {
             }
         }
 
-        protected void SetOrThrowIfOpen<T>(ref T loc, T value) {
+        protected void SetOrThrowIfOpen<T>(ref T loc, T value)
+        {
             this.ValidateNotOpen();
             loc = value;
         }
 
-        protected void ValidateNotOpen() {
+        protected void ValidateNotOpen()
+        {
             this.ValidateNotDisposed();
 
-            if (this.IsOpen) {
+            if (this.IsOpen)
+            {
                 throw new InvalidOperationException("Value must be set before the codec is open.");
             }
         }
 
-        protected override void Free() {
-            if (this.ctx != null) {
-                if (this.hasUserExtraData) {
+        protected override void Free()
+        {
+            if (this.ctx != null)
+            {
+                if (this.hasUserExtraData)
+                {
                     ffmpeg.av_freep(&this.ctx->extradata);
                 }
 
-                if (this.contextOwner) {
-                    fixed (AVCodecContext** c = &this.ctx) {
+                if (this.contextOwner)
+                {
+                    fixed (AVCodecContext** c = &this.ctx)
+                    {
                         ffmpeg.avcodec_free_context(c);
                     }
                 }
-                else {
+                else
+                {
                     this.ctx = null;
                 }
             }
         }
 
-        protected void ValidateNotDisposed() {
-            if (this.ctx == null) {
+        protected void ValidateNotDisposed()
+        {
+            if (this.ctx == null)
+            {
                 throw new ObjectDisposedException(nameof(CodecBase));
             }
         }

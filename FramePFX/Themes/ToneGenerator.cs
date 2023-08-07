@@ -1,5 +1,6 @@
-namespace FramePFX.Themes {
-    public class ToneGenerator {
-        
+namespace FramePFX.Themes
+{
+    public class ToneGenerator
+    {
     }
 }

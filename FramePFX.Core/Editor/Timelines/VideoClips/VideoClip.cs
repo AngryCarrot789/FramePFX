@@ -7,12 +7,14 @@ using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timelines.VideoClips {
-    public abstract class VideoClip : Clip {
-        public static readonly AutomationKeyVector2 MediaPositionKey =    AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyVector2 MediaScaleKey =       AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
+namespace FramePFX.Core.Editor.Timelines.VideoClips
+{
+    public abstract class VideoClip : Clip
+    {
+        public static readonly AutomationKeyVector2 MediaPositionKey = AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleKey = AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyVector2 MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(VideoClip), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyDouble OpacityKey =           AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
+        public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
 
         // saves using closure allocation for each clip
         private static readonly UpdateAutomationValueEventHandler UpdateMediaPosition = (s, f) => ((VideoClip) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f);
@@ -75,7 +77,8 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         /// </summary>
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
-        protected VideoClip() {
+        protected VideoClip()
+        {
             this.MediaPosition = MediaPositionKey.Descriptor.DefaultValue;
             this.MediaScale = MediaScaleKey.Descriptor.DefaultValue;
             this.MediaScaleOrigin = MediaScaleOriginKey.Descriptor.DefaultValue;
@@ -91,11 +94,13 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         /// re-render to be scheduled, making it happen at some point in the very near future
         /// </summary>
         /// <param name="schedule">Schedule for the future and not in the current call</param>
-        public virtual void InvalidateRender(bool schedule = true) {
+        public virtual void InvalidateRender(bool schedule = true)
+        {
             this.RenderInvalidated?.Invoke(this, schedule);
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             data.SetStruct(nameof(this.MediaPosition), this.MediaPosition);
             data.SetStruct(nameof(this.MediaScale), this.MediaScale);
@@ -103,7 +108,8 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
             data.SetDouble(nameof(this.Opacity), this.Opacity);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.MediaPosition = data.GetStruct<Vector2>(nameof(this.MediaPosition));
             this.MediaScale = data.GetStruct<Vector2>(nameof(this.MediaScale));
@@ -119,21 +125,26 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         /// <returns></returns>
         public abstract Vector2? GetSize();
 
-        public void Transform(RenderContext rc, out Vector2? size, out SKMatrix oldMatrix) {
+        public void Transform(RenderContext rc, out Vector2? size, out SKMatrix oldMatrix)
+        {
             oldMatrix = rc.Canvas.TotalMatrix;
             this.Transform(rc, out size);
         }
 
-        public void Transform(RenderContext rc, out Vector2? size) {
+        public void Transform(RenderContext rc, out Vector2? size)
+        {
             Vector2 pos = this.MediaPosition, scale = this.MediaScale, origin = this.MediaScaleOrigin;
 
             rc.Canvas.Translate(pos.X, pos.Y);
             size = this.GetSize();
-            if (this.UseAbsoluteScaleOrigin) {
+            if (this.UseAbsoluteScaleOrigin)
+            {
                 rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
             }
-            else {
-                if (!(size is Vector2 sz)) {
+            else
+            {
+                if (!(size is Vector2 sz))
+                {
                     sz = new Vector2(rc.FrameInfo.Width, rc.FrameInfo.Height);
                 }
 
@@ -141,7 +152,8 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
             }
         }
 
-        public void Transform(RenderContext rc) {
+        public void Transform(RenderContext rc)
+        {
             this.Transform(rc, out _);
         }
 
@@ -151,7 +163,8 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         /// <param name="rc">The rendering context</param>
         /// <param name="frame">The frame being rendered. May be drastically different from the last render (frame seeked)</param>
         /// <exception cref="NotImplementedException">The clip does not support direct rendering (does not throw if <see cref="UseAsyncRendering"/> is false)</exception>
-        public virtual void Render(RenderContext rc, long frame) {
+        public virtual void Render(RenderContext rc, long frame)
+        {
             if (this.UseAsyncRendering)
                 throw new NotImplementedException("This clip does not implement direct rendering; use async rendering");
         }
@@ -164,7 +177,8 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         /// </summary>
         /// <param name="frame">The frame being rendered. May be drastically different from the last render (frame seeked)</param>
         /// <exception cref="NotImplementedException">The clip does not support async rendering (does not throw if <see cref="UseAsyncRendering"/> is true)</exception>
-        public virtual void BeginRender(long frame) {
+        public virtual void BeginRender(long frame)
+        {
             if (!this.UseAsyncRendering)
                 throw new NotImplementedException("This clip does not support async rendering; use direct rendering");
             this.IsAsyncRenderReady = true;
@@ -178,14 +192,16 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         /// </summary>
         /// <param name="frame">The frame being rendered. May be drastically different from the last render (frame seeked)</param>
         /// <exception cref="NotImplementedException">The clip does not support async rendering (does not throw if <see cref="UseAsyncRendering"/> is true)</exception>
-        public virtual void EndRender(RenderContext rc) {
+        public virtual void EndRender(RenderContext rc)
+        {
             if (!this.UseAsyncRendering)
                 throw new NotImplementedException("This clip does not support async rendering; use direct rendering");
             if (!this.IsAsyncRenderReady)
                 throw new InvalidOperationException("Async render is not ready");
         }
 
-        protected override void LoadDataIntoClone(Clip clone) {
+        protected override void LoadDataIntoClone(Clip clone)
+        {
             base.LoadDataIntoClone(clone);
         }
     }

@@ -1,7 +1,9 @@
 using FramePFX.Core.RBC;
 
-namespace FramePFX.Core {
-    public interface IRBESerialisable {
+namespace FramePFX.Core
+{
+    public interface IRBESerialisable
+    {
         /// <summary>
         /// Writes this object's data to the given dictionary
         /// </summary>

@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Views.Windows;
 
-namespace FramePFX.Core.Views.Dialogs.Progression {
-    public class IndeterminateProgressViewModel : BaseViewModel {
+namespace FramePFX.Core.Views.Dialogs.Progression
+{
+    public class IndeterminateProgressViewModel : BaseViewModel
+    {
         public IWindow Window { get; set; }
 
         public AsyncRelayCommand CancelCommand { get; }
@@ -16,34 +18,41 @@ namespace FramePFX.Core.Views.Dialogs.Progression {
         private string titlebar;
         private string message;
 
-        public string Titlebar {
+        public string Titlebar
+        {
             get => this.titlebar;
             set => this.RaisePropertyChanged(ref this.titlebar, value);
         }
 
-        public string Message {
+        public string Message
+        {
             get => this.message;
             set => this.RaisePropertyChanged(ref this.message, value);
         }
 
         public bool IsCancelled => !this.Window.IsOpen;
 
-        public IndeterminateProgressViewModel(bool canForceCompletion) {
+        public IndeterminateProgressViewModel(bool canForceCompletion)
+        {
             this.CanForceCompletion = canForceCompletion;
             this.CancelCommand = new AsyncRelayCommand(this.CancelAction);
             this.ForceCompleteCommand = new AsyncRelayCommand(this.ForceCompleteAction, () => canForceCompletion);
         }
 
-        public Task CancelAction() {
+        public Task CancelAction()
+        {
             return this.Window.CloseWindowAsync();
         }
 
-        public async Task ForceCompleteAction() {
-            if (this.CanForceCompletion) {
+        public async Task ForceCompleteAction()
+        {
+            if (this.CanForceCompletion)
+            {
                 this.WasForcedCompletion = true;
                 await this.Window.CloseWindowAsync();
             }
-            else {
+            else
+            {
                 await IoC.MessageDialogs.ShowMessageAsync("Cannot force", "Cannot force progress completion");
             }
         }

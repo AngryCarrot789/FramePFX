@@ -13,13 +13,13 @@
               Style="{DynamicResource CustomWindowStyleEx}">
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Margin="10,10,10,15" Orientation="Vertical">
-            <TextBlock VerticalAlignment="Top" Text="{Binding FilePath, StringFormat='Exporting video to {0}'}" Padding="5" TextWrapping="Wrap"/>
-            <Separator Margin="0,5"/>
-            <TextBlock VerticalAlignment="Top" Text="{Binding RenderProgressPercentage, StringFormat='Render Progress: {0}'}" Padding="5" Margin="0,5,0,0"/>
-            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentRenderFrame}" Height="24" Margin="0,5,0,0"/>
-            <Separator Margin="0,5"/>
-            <TextBlock VerticalAlignment="Top" Text="{Binding EncodeProgressPercentage, StringFormat='Encode Progress: {0}'}" Padding="5" Margin="0,5,0,0"/>
-            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentEncodeFrame}" Height="24" Margin="0,5,0,0"/>
+            <TextBlock VerticalAlignment="Top" Text="{Binding FilePath, StringFormat='Exporting video to {0}'}" Padding="5" TextWrapping="Wrap" />
+            <Separator Margin="0,5" />
+            <TextBlock VerticalAlignment="Top" Text="{Binding RenderProgressPercentage, StringFormat='Render Progress: {0}'}" Padding="5" Margin="0,5,0,0" />
+            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentRenderFrame}" Height="24" Margin="0,5,0,0" />
+            <Separator Margin="0,5" />
+            <TextBlock VerticalAlignment="Top" Text="{Binding EncodeProgressPercentage, StringFormat='Encode Progress: {0}'}" Padding="5" Margin="0,5,0,0" />
+            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentEncodeFrame}" Height="24" Margin="0,5,0,0" />
         </StackPanel>
         <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
             <Grid Height="43">
@@ -29,7 +29,7 @@
                         VerticalAlignment="Bottom" Height="23"
                         HorizontalAlignment="Right" Width="72"
                         Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                        BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                        BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
             </Grid>
         </Border>
     </DockPanel>

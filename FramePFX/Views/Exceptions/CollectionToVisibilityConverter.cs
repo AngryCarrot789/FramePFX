@@ -4,31 +4,39 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace FramePFX.Views.Exceptions {
-    public class CollectionToVisibilityConverter : IValueConverter {
+namespace FramePFX.Views.Exceptions
+{
+    public class CollectionToVisibilityConverter : IValueConverter
+    {
         public Visibility EmptyVisibility { get; set; } = Visibility.Collapsed;
 
         public Visibility NotEmptyVisibility { get; set; } = Visibility.Visible;
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
             int count;
-            if (value is ICollection collection) {
+            if (value is ICollection collection)
+            {
                 count = collection.Count;
             }
-            else if (value is int i) {
+            else if (value is int i)
+            {
                 count = i;
             }
-            else {
+            else
+            {
                 return DependencyProperty.UnsetValue;
             }
 
-            switch (count) {
+            switch (count)
+            {
                 case 0: return this.EmptyVisibility;
                 default: return this.NotEmptyVisibility;
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
             throw new NotImplementedException();
         }
     }

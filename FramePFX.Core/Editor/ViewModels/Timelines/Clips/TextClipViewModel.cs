@@ -4,19 +4,25 @@ using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 
-namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
-    public class TextClipViewModel : VideoClipViewModel, IAcceptResourceDrop {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips
+{
+    public class TextClipViewModel : VideoClipViewModel, IAcceptResourceDrop
+    {
         public new TextVideoClip Model => (TextVideoClip) ((ClipViewModel) this).Model;
 
-        public bool UseCustomText {
+        public bool UseCustomText
+        {
             get => this.Model.ULText;
-            set {
+            set
+            {
                 this.Model.ULText = value;
-                if (value) {
+                if (value)
+                {
                     this.Model.LocalText.Text = this.Model.TryGetResource(out ResourceText resource) ? resource.Text : this.text;
                     this.text = null;
                 }
-                else if (this.Model.TryGetResource(out ResourceText resource)) {
+                else if (this.Model.TryGetResource(out ResourceText resource))
+                {
                     this.text = resource.Text;
                 }
 
@@ -28,18 +34,24 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         }
 
         private string text; // the resource modified events will update this field
-        public string Text {
+
+        public string Text
+        {
             get => this.UseCustomText ? this.Model.LocalText.Text : this.text;
-            set {
-                if (this.UseCustomText) {
+            set
+            {
+                if (this.UseCustomText)
+                {
                     this.text = null;
                     this.Model.LocalText.Text = value;
                     this.Model.InvalidateTextCache();
                 }
-                else if (!this.Model.TryGetResource(out ResourceText resource)) {
+                else if (!this.Model.TryGetResource(out ResourceText resource))
+                {
                     this.text = value;
                 }
-                else {
+                else
+                {
                     resource.Text = value;
                     resource.OnDataModified(nameof(resource.Text));
                 }
@@ -50,11 +62,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         }
 
         private string fontFamily;
-        public string FontFamily {
+
+        public string FontFamily
+        {
             get => this.fontFamily;
-            set {
+            set
+            {
                 this.RaisePropertyChanged(ref this.fontFamily, value);
-                if (this.Model.TryGetResource(out ResourceText resource)) {
+                if (this.Model.TryGetResource(out ResourceText resource))
+                {
                     resource.FontFamily = value;
                     resource.OnDataModified(nameof(resource.FontFamily));
                 }
@@ -62,11 +78,15 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         }
 
         private double fontSize;
-        public double FontSize {
+
+        public double FontSize
+        {
             get => this.fontSize;
-            set {
+            set
+            {
                 this.RaisePropertyChanged(ref this.fontSize, value);
-                if (this.Model.TryGetResource(out ResourceText resource)) {
+                if (this.Model.TryGetResource(out ResourceText resource))
+                {
                     resource.FontSize = value;
                     resource.OnDataModified(nameof(resource.FontSize));
                 }
@@ -74,24 +94,31 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
         }
 
         private double skewX;
-        public double SkewX {
+
+        public double SkewX
+        {
             get => this.skewX;
-            set {
+            set
+            {
                 this.RaisePropertyChanged(ref this.skewX, value);
-                if (this.Model.TryGetResource(out ResourceText resource)) {
+                if (this.Model.TryGetResource(out ResourceText resource))
+                {
                     resource.SkewX = value;
                     resource.OnDataModified(nameof(resource.SkewX));
                 }
             }
         }
 
-        public TextClipViewModel(TextVideoClip model) : base(model) {
+        public TextClipViewModel(TextVideoClip model) : base(model)
+        {
             model.ClipResourceDataModified += this.OnResourceModified;
             model.ClipResourceChanged += this.OnResourceChanged;
         }
 
-        private void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
-            if (!this.UseCustomText) {
+        private void OnResourceChanged(ResourceText oldItem, ResourceText newItem)
+        {
+            if (!this.UseCustomText)
+            {
                 this.text = newItem?.Text ?? "Text Here";
                 this.RaisePropertyChanged(nameof(this.Text));
             }
@@ -104,8 +131,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             this.RaisePropertyChanged(nameof(this.FontFamily));
         }
 
-        private void OnResourceModified(ResourceText resource, string property) {
-            switch (property) {
+        private void OnResourceModified(ResourceText resource, string property)
+        {
+            switch (property)
+            {
                 case nameof(resource.Text) when !this.UseCustomText:
                     this.text = resource.Text;
                     this.RaisePropertyChanged(nameof(this.Text));
@@ -125,11 +154,13 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips {
             }
         }
 
-        public override bool CanDropResource(BaseResourceObjectViewModel resource) {
+        public override bool CanDropResource(BaseResourceObjectViewModel resource)
+        {
             return resource is ResourceTextViewModel;
         }
 
-        public override async Task OnDropResource(BaseResourceObjectViewModel resource) {
+        public override async Task OnDropResource(BaseResourceObjectViewModel resource)
+        {
             this.Model.SetTargetResourceId(((ResourceTextViewModel) resource).UniqueId);
             this.Model.InvalidateRender();
         }

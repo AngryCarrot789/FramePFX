@@ -1,8 +1,9 @@
 ﻿using FFmpeg.AutoGen;
 
-namespace FramePFX.Core.FFmpegWrapper {
-
-    public static class PixelFormats {
+namespace FramePFX.Core.FFmpegWrapper
+{
+    public static class PixelFormats
+    {
         public const AVPixelFormat None = AVPixelFormat.AV_PIX_FMT_NONE;
 
         /// <summary>planar YUV 4:2:0, 12bpp, (1 Cr &amp; Cb sample per 2x2 Y samples)</summary>
@@ -63,7 +64,8 @@ namespace FramePFX.Core.FFmpegWrapper {
         public const AVPixelFormat Gray8 = AVPixelFormat.AV_PIX_FMT_GRAY8;
     }
 
-    public static class SampleFormats {
+    public static class SampleFormats
+    {
         /// <summary> signed 16 bits </summary>
         public const AVSampleFormat S16 = AVSampleFormat.AV_SAMPLE_FMT_S16;
 
@@ -77,7 +79,8 @@ namespace FramePFX.Core.FFmpegWrapper {
         public const AVSampleFormat FloatPlanar = AVSampleFormat.AV_SAMPLE_FMT_FLTP;
     }
 
-    public static class CodecIds {
+    public static class CodecIds
+    {
         public const AVCodecID H264 = AVCodecID.AV_CODEC_ID_H264;
         public const AVCodecID HEVC = AVCodecID.AV_CODEC_ID_HEVC;
 
@@ -95,7 +98,8 @@ namespace FramePFX.Core.FFmpegWrapper {
         public const AVCodecID Opus = AVCodecID.AV_CODEC_ID_OPUS;
     }
 
-    public static class MediaTypes {
+    public static class MediaTypes
+    {
         public const AVMediaType
             Unknown = AVMediaType.AVMEDIA_TYPE_UNKNOWN,
             Video = AVMediaType.AVMEDIA_TYPE_VIDEO,
@@ -103,7 +107,8 @@ namespace FramePFX.Core.FFmpegWrapper {
             Subtitle = AVMediaType.AVMEDIA_TYPE_SUBTITLE;
     }
 
-    public static class HWDeviceTypes {
+    public static class HWDeviceTypes
+    {
         public const AVHWDeviceType
             None = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE,
             VDPAU = AVHWDeviceType.AV_HWDEVICE_TYPE_VDPAU,

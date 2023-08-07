@@ -2,35 +2,47 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FramePFX.Core.Utils {
-    public static class TextIncrement {
-        public static int GetChars(ulong value, char[] dst, int offset) {
+namespace FramePFX.Core.Utils
+{
+    public static class TextIncrement
+    {
+        public static int GetChars(ulong value, char[] dst, int offset)
+        {
             string str = value.ToString();
             str.CopyTo(0, dst, offset, str.Length);
             return str.Length;
         }
 
-        public static string GetNextText(string input) {
-            if (string.IsNullOrEmpty(input)) {
+        public static string GetNextText(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
                 return " (1)";
             }
-            else if (GetNumbered(input, out string left, out long number)) {
+            else if (GetNumbered(input, out string left, out long number))
+            {
                 return $"{left} ({number + 1})";
             }
-            else {
+            else
+            {
                 return $"{input} (1)";
             }
         }
 
-        public static string GetNextText(IEnumerable<string> inputs, string text) {
-            if (string.IsNullOrEmpty(text)) {
+        public static string GetNextText(IEnumerable<string> inputs, string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
                 return text;
             }
 
             long max = 0;
-            foreach (string input in inputs) {
-                if (input != null && GetNumbered(input, out string left, out long number) && text.Equals(left)) {
-                    if (number >= max) {
+            foreach (string input in inputs)
+            {
+                if (input != null && GetNumbered(input, out string left, out long number) && text.Equals(left))
+                {
+                    if (number >= max)
+                    {
                         max = number + 1;
                     }
                 }
@@ -39,8 +51,10 @@ namespace FramePFX.Core.Utils {
             return max < 1 ? text : $"{text} ({max})";
         }
 
-        public static bool GetNumbered(string input, out string left, out long number) {
-            if (GetNumberedRaw(input, out left, out string bracketed) && long.TryParse(bracketed, out number)) {
+        public static bool GetNumbered(string input, out string left, out long number)
+        {
+            if (GetNumberedRaw(input, out left, out string bracketed) && long.TryParse(bracketed, out number))
+            {
                 return true;
             }
 
@@ -48,22 +62,27 @@ namespace FramePFX.Core.Utils {
             return false;
         }
 
-        public static bool GetNumberedRaw(string input, out string left, out string bracketed) {
+        public static bool GetNumberedRaw(string input, out string left, out string bracketed)
+        {
             int indexA = input.LastIndexOf('(');
-            if (indexA < 0 || (indexA != 0 && input[indexA - 1] != ' ')) {
+            if (indexA < 0 || (indexA != 0 && input[indexA - 1] != ' '))
+            {
                 goto fail;
             }
 
             int indexB = input.LastIndexOf(')');
-            if (indexB < 0 || indexB <= indexA || indexB != (input.Length - 1)) {
+            if (indexB < 0 || indexB <= indexA || indexB != (input.Length - 1))
+            {
                 goto fail;
             }
 
-            if (indexA == 0) {
+            if (indexA == 0)
+            {
                 left = "";
                 bracketed = input.Substring(1, input.Length - 2);
             }
-            else {
+            else
+            {
                 left = input.Substring(0, indexA - 1);
                 bracketed = input.JSubstring(indexA + 1, indexB);
             }
@@ -89,7 +108,8 @@ namespace FramePFX.Core.Utils {
         /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
         /// <exception cref="ArgumentOutOfRangeException">The <see cref="count"/> parameter is zero</exception>
         /// <exception cref="ArgumentException">The <see cref="input"/> parameter is null or empty</exception>
-        public static bool GetIncrementableString(Predicate<string> accept, string input, out string output, ulong count = ulong.MaxValue) {
+        public static bool GetIncrementableString(Predicate<string> accept, string input, out string output, ulong count = ulong.MaxValue)
+        {
             if (count < 1)
                 throw new ArgumentOutOfRangeException(nameof(count), "Count must not be zero");
             if (string.IsNullOrEmpty(input))
@@ -110,9 +130,10 @@ namespace FramePFX.Core.Utils {
             char[] chars = new char[index + 23];
             content.CopyTo(0, chars, 0, index);
             chars[index] = ' ';
-            chars[index+1] = '(';
+            chars[index + 1] = '(';
             index += 2;
-            for (ulong i = num; i < max; i++) {
+            for (ulong i = num; i < max; i++)
+            {
                 // int len = TextIncrement.GetChars(i, chars, index);
                 // int j = index + len; // val.Length
                 string val = i.ToString();
@@ -122,7 +143,8 @@ namespace FramePFX.Core.Utils {
                 // TODO: stack allocate string instead of heap allocate? probably not in NS2.0 :(
                 // or maybe use some really really unsafe reflection/pointer manipulation
                 output = new string(chars, 0, j + 1);
-                if (accept(output)) {
+                if (accept(output))
+                {
                     return true;
                 }
             }
@@ -147,13 +169,16 @@ namespace FramePFX.Core.Utils {
         /// <param name="length">The length of the random id</param>
         /// <param name="loop">Maximum number of times to generate a random ID before throwing, default is 32</param>
         /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
-        public static unsafe bool GetRandomDisplayName(Predicate<string> accept, string src, int srcIndex, out string output, int length = 20, int loop = 32) {
+        public static unsafe bool GetRandomDisplayName(Predicate<string> accept, string src, int srcIndex, out string output, int length = 20, int loop = 32)
+        {
             Random random = new Random();
             char* chars = stackalloc char[length];
-            while (loop > 0) {
+            while (loop > 0)
+            {
                 RandomUtils.RandomString(random, chars, 0, length);
                 output = StringUtils.InjectOrUseChars(src, srcIndex, chars, length);
-                if (accept(output)) {
+                if (accept(output))
+                {
                     return true;
                 }
 
@@ -174,9 +199,11 @@ namespace FramePFX.Core.Utils {
         /// number, file name with a random string on the end, or null (and the function returns false)
         /// </param>
         /// <returns>True if the given predicate accepted any of the possible output strings</returns>
-        public static bool GenerateFileString(Predicate<string> accept, string filePath, out string output, ulong incrementCounter = 10000UL) {
+        public static bool GenerateFileString(Predicate<string> accept, string filePath, out string output, ulong incrementCounter = 10000UL)
+        {
             string fileName = Path.GetFileName(filePath);
-            if (!string.IsNullOrEmpty(fileName)) {
+            if (!string.IsNullOrEmpty(fileName))
+            {
                 // checks if the predicate accepts the raw fileName
                 if (GetIncrementableString(accept, fileName, out output, incrementCounter))
                     return true;

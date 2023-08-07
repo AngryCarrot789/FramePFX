@@ -13,8 +13,10 @@ using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.Timelines {
-    public class Timeline : IAutomatable, IRBESerialisable {
+namespace FramePFX.Core.Editor.Timelines
+{
+    public class Timeline : IAutomatable, IRBESerialisable
+    {
         private readonly Dictionary<long, Clip> idToClip = new Dictionary<long, Clip>();
         private readonly Dictionary<long, Track> idToTrack = new Dictionary<long, Track>();
 
@@ -54,58 +56,69 @@ namespace FramePFX.Core.Editor.Timelines {
         public event ClipIdAssignedEventHandler ClipIdAssigned;
         public event TrackIdAssignedEventHandler TrackIdAssigned;
 
-        public Timeline(Project project) {
+        public Timeline(Project project)
+        {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
         }
 
-        public bool GetClipById(long id, out Clip clip) {
+        public bool GetClipById(long id, out Clip clip)
+        {
             if (id < 0)
                 throw new ArgumentOutOfRangeException(nameof(id), "Id must be non-negative");
             return this.idToClip.TryGetValue(id, out clip);
         }
 
-        public bool GetTrackById(long id, out Track track) {
+        public bool GetTrackById(long id, out Track track)
+        {
             if (id < 0)
                 throw new ArgumentOutOfRangeException(nameof(id), "Id must be non-negative");
             return this.idToTrack.TryGetValue(id, out track);
         }
 
-        public long GetNextClipId(Clip clip) {
+        public long GetNextClipId(Clip clip)
+        {
             long id = this.nextClipId++;
             this.idToClip[id] = clip;
             this.ClipIdAssigned?.Invoke(clip, id);
             return id;
         }
 
-        public long GetNextTrackId(Track track) {
+        public long GetNextTrackId(Track track)
+        {
             long id = this.nextTrackId++;
             this.idToTrack[id] = track;
             this.TrackIdAssigned?.Invoke(track, id);
             return id;
         }
 
-        public void GetUsedFrameSpan(ref long begin, ref long endIndex) {
-            foreach (Track track in this.Tracks) {
+        public void GetUsedFrameSpan(ref long begin, ref long endIndex)
+        {
+            foreach (Track track in this.Tracks)
+            {
                 track.GetUsedFrameSpan(ref begin, ref endIndex);
             }
         }
 
-        public void GetClipIndicesAt(long frame, ICollection<int> indices) {
-            foreach (Track track in this.Tracks) {
+        public void GetClipIndicesAt(long frame, ICollection<int> indices)
+        {
+            foreach (Track track in this.Tracks)
+            {
                 track.GetClipIndicesAt(frame, indices);
             }
         }
 
-        public void WriteToRBE(RBEDictionary data) {
+        public void WriteToRBE(RBEDictionary data)
+        {
             data.SetLong("NextClipId", this.nextClipId);
             data.SetLong("NextTrackId", this.nextTrackId);
             data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Tracks));
-            foreach (Track track in this.Tracks) {
+            foreach (Track track in this.Tracks)
+            {
                 if (!(track.RegistryId is string registryId))
                     throw new Exception("Unknown track type: " + track.GetType());
                 RBEDictionary dictionary = list.AddDictionary();
@@ -114,7 +127,8 @@ namespace FramePFX.Core.Editor.Timelines {
             }
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
+        public void ReadFromRBE(RBEDictionary data)
+        {
             if ((this.nextClipId = data.GetLong("NextClipId")) < 0)
                 throw new Exception("Invalid next clip id");
             if ((this.nextTrackId = data.GetLong("NextTrackId")) < 0)
@@ -123,13 +137,15 @@ namespace FramePFX.Core.Editor.Timelines {
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             HashSet<long> usedIds = new HashSet<long>();
-            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).OfType<RBEDictionary>()) {
+            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).OfType<RBEDictionary>())
+            {
                 string registryId = dictionary.GetString(nameof(Track.RegistryId));
                 Track track = TrackRegistry.Instance.CreateModel(registryId);
                 track.ReadFromRBE(dictionary.GetDictionary("Data"));
 
                 // check for duplicate track ids, caused by external modification or corruption
-                if (track.internalTrackId >= 0) {
+                if (track.internalTrackId >= 0)
+                {
                     if (usedIds.Contains(track.internalTrackId))
                         throw new Exception("Track ID already in use: " + track.internalTrackId);
                     usedIds.Add(track.internalTrackId);
@@ -144,14 +160,17 @@ namespace FramePFX.Core.Editor.Timelines {
 
         public void AddTrack(Track track) => this.InsertTrack(this.Tracks.Count, track);
 
-        public void InsertTrack(int index, Track track) {
+        public void InsertTrack(int index, Track track)
+        {
             this.Tracks.Insert(index, track);
             Track.SetTimeline(track, this);
         }
 
-        public bool RemoveTrack(Track track) {
+        public bool RemoveTrack(Track track)
+        {
             int index = this.Tracks.IndexOf(track);
-            if (index < 0) {
+            if (index < 0)
+            {
                 return false;
             }
 
@@ -159,9 +178,11 @@ namespace FramePFX.Core.Editor.Timelines {
             return true;
         }
 
-        public void RemoveTrack(int index) {
+        public void RemoveTrack(int index)
+        {
             Track track = this.Tracks[index];
-            if (!ReferenceEquals(track.Timeline, this)) {
+            if (!ReferenceEquals(track.Timeline, this))
+            {
                 throw new Exception("Expected track's timeline and the current timeline instance to be equal");
             }
 
@@ -169,19 +190,24 @@ namespace FramePFX.Core.Editor.Timelines {
             Track.SetTimeline(track, null);
         }
 
-        public void ClearTracks() {
-            try {
-                foreach (Track track in this.Tracks) {
+        public void ClearTracks()
+        {
+            try
+            {
+                foreach (Track track in this.Tracks)
+                {
                     Track.SetTimeline(track, null);
                 }
             }
-            #if DEBUG
-            catch (Exception e) {
+#if DEBUG
+            catch (Exception e)
+            {
                 Debugger.Break();
                 throw;
             }
-            #endif
-            finally {
+#endif
+            finally
+            {
                 this.Tracks.Clear();
             }
         }
@@ -191,8 +217,8 @@ namespace FramePFX.Core.Editor.Timelines {
         /// </summary>
         /// <param name="track"></param>
         /// <param name="clip"></param>
-        public void OnClipAdded(Track track, Clip clip) {
-
+        public void OnClipAdded(Track track, Clip clip)
+        {
         }
 
         /// <summary>
@@ -200,130 +226,162 @@ namespace FramePFX.Core.Editor.Timelines {
         /// </summary>
         /// <param name="track"></param>
         /// <param name="clip"></param>
-        public void OnClipRemoved(Track track, Clip clip) {
-
+        public void OnClipRemoved(Track track, Clip clip)
+        {
         }
 
         // SaveLayer requires a temporary drawing bitmap, which can slightly
         // decrease performance, so only SaveLayer when absolutely necessary
-        private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
+        private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency)
+        {
             return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
         }
 
-        private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint) {
-            if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d)) {
+        private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint)
+        {
+            if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d))
+            {
                 return render.Canvas.Save();
             }
-            else {
+            else
+            {
                 return SaveLayerForOpacity(render.Canvas, clip.Opacity, ref paint);
             }
         }
 
-        private static int BeginTrackOpacityLayer(RenderContext render, VideoTrack track, ref SKPaint paint) {
+        private static int BeginTrackOpacityLayer(RenderContext render, VideoTrack track, ref SKPaint paint)
+        {
             return !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref paint) : render.Canvas.Save();
         }
 
-        private static void EndOpacityLayer(RenderContext render, int count, ref SKPaint paint) {
+        private static void EndOpacityLayer(RenderContext render, int count, ref SKPaint paint)
+        {
             render.Canvas.RestoreToCount(count);
-            if (paint != null) {
+            if (paint != null)
+            {
                 paint.Dispose();
                 paint = null;
             }
         }
 
-        public void RenderAudio(long frame) {
-
+        public void RenderAudio(long frame)
+        {
         }
 
-        public void Render(RenderContext render, long frame) {
+        public void Render(RenderContext render, long frame)
+        {
             List<Track> tracks = this.Tracks;
             SKPaint trackPaint = null, clipPaint = null;
             List<VideoClip> bufferList = new List<VideoClip>();
             int i, c;
-            for (i = tracks.Count - 1; i >= 0; i--) {
-                if (tracks[i] is VideoTrack track && track.IsActuallyVisible) {
+            for (i = tracks.Count - 1; i >= 0; i--)
+            {
+                if (tracks[i] is VideoTrack track && track.IsActuallyVisible)
+                {
                     VideoClip clip = (VideoClip) track.GetClipAtFrame(frame);
-                    if (clip == null) {
+                    if (clip == null)
+                    {
                         continue;
                     }
 
 #if DEBUG
-                    try {
+                    try
+                    {
 #endif
                         int trackSaveCount, clipSaveCount;
-                        if (clip.UseAsyncRendering) {
+                        if (clip.UseAsyncRendering)
+                        {
                             clip.IsAsyncRenderReady = false;
                             clip.BeginRender(frame);
-                            if (bufferList.Count < 1 && clip.IsAsyncRenderReady) {
+                            if (bufferList.Count < 1 && clip.IsAsyncRenderReady)
+                            {
                                 trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
                                 clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                                try {
+                                try
+                                {
                                     clip.EndRender(render);
                                 }
-                                finally {
+                                finally
+                                {
                                     EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                                     EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                                     clip.IsAsyncRenderReady = false;
                                 }
                             }
-                            else {
+                            else
+                            {
                                 bufferList.Add(clip);
                             }
                         }
-                        else if (bufferList.Count < 1) {
+                        else if (bufferList.Count < 1)
+                        {
                             trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
                             clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                            try {
+                            try
+                            {
                                 clip.Render(render, frame);
-                                if (clip.UsesOpenGL) {
+                                if (clip.UsesOpenGL)
+                                {
                                     GLUtils.CleanGL();
                                 }
                             }
-                            finally {
+                            finally
+                            {
                                 EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                                 EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                             }
                         }
-                        else {
+                        else
+                        {
                             bufferList.Add(clip);
                         }
 #if DEBUG
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         this.ExceptionsLastRender[clip] = e;
                     }
 #endif
                 }
             }
 
-            for (i = 0, c = bufferList.Count; i < c; i++) {
+            for (i = 0, c = bufferList.Count; i < c; i++)
+            {
                 VideoClip clip = bufferList[i];
-                if (clip.UseAsyncRendering) {
-                    while (!clip.IsAsyncRenderReady) {
+                if (clip.UseAsyncRendering)
+                {
+                    while (!clip.IsAsyncRenderReady)
+                    {
                         Thread.Sleep(1);
                     }
 
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
+                    try
+                    {
                         clip.EndRender(render);
                     }
-                    finally {
+                    finally
+                    {
                         clip.IsAsyncRenderReady = false;
                         EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                         EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                     }
                 }
-                else {
+                else
+                {
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
+                    try
+                    {
                         clip.Render(render, frame);
-                        if (clip.UsesOpenGL) {
+                        if (clip.UsesOpenGL)
+                        {
                             GLUtils.CleanGL();
                         }
                     }
-                    finally {
+                    finally
+                    {
                         EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                         EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                     }
@@ -331,92 +389,117 @@ namespace FramePFX.Core.Editor.Timelines {
             }
         }
 
-        public async Task RenderAsync(RenderContext render, long frame) {
+        public async Task RenderAsync(RenderContext render, long frame)
+        {
             List<Track> tracks = this.Tracks;
             SKPaint trackPaint = null, clipPaint = null;
             List<VideoClip> bufferList = new List<VideoClip>();
-            for (int i = tracks.Count - 1; i >= 0; i--) {
-                if (tracks[i] is VideoTrack track && track.IsActuallyVisible) {
+            for (int i = tracks.Count - 1; i >= 0; i--)
+            {
+                if (tracks[i] is VideoTrack track && track.IsActuallyVisible)
+                {
                     VideoClip clip = (VideoClip) track.GetClipAtFrame(frame);
-                    if (clip == null) {
+                    if (clip == null)
+                    {
                         continue;
                     }
 
 #if DEBUG
-                    try {
+                    try
+                    {
 #endif
-                        if (clip.UseAsyncRendering) {
+                        if (clip.UseAsyncRendering)
+                        {
                             clip.IsAsyncRenderReady = false;
                             clip.BeginRender(frame);
-                            if (bufferList.Count < 1 && clip.IsAsyncRenderReady) {
+                            if (bufferList.Count < 1 && clip.IsAsyncRenderReady)
+                            {
                                 int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
                                 int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                                try {
+                                try
+                                {
                                     clip.EndRender(render);
                                 }
-                                finally {
+                                finally
+                                {
                                     EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                                     EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                                     clip.IsAsyncRenderReady = false;
                                 }
                             }
-                            else {
+                            else
+                            {
                                 bufferList.Add(clip);
                             }
                         }
-                        else if (bufferList.Count < 1) {
+                        else if (bufferList.Count < 1)
+                        {
                             int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
                             int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                            try {
+                            try
+                            {
                                 clip.Render(render, frame);
-                                if (clip.UsesOpenGL) {
+                                if (clip.UsesOpenGL)
+                                {
                                     GLUtils.CleanGL();
                                 }
                             }
-                            finally {
+                            finally
+                            {
                                 EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                                 EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                             }
                         }
-                        else {
+                        else
+                        {
                             bufferList.Add(clip);
                         }
 #if DEBUG
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         this.ExceptionsLastRender[clip] = e;
                     }
 #endif
                 }
             }
 
-            foreach (VideoClip clip in bufferList) {
-                if (clip.UseAsyncRendering) {
-                    while (!clip.IsAsyncRenderReady) {
+            foreach (VideoClip clip in bufferList)
+            {
+                if (clip.UseAsyncRendering)
+                {
+                    while (!clip.IsAsyncRenderReady)
+                    {
                         await Task.Delay(1);
                     }
 
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
+                    try
+                    {
                         clip.EndRender(render);
                     }
-                    finally {
+                    finally
+                    {
                         clip.IsAsyncRenderReady = false;
                         EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                         EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                     }
                 }
-                else {
+                else
+                {
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
+                    try
+                    {
                         clip.Render(render, frame);
-                        if (clip.UsesOpenGL) {
+                        if (clip.UsesOpenGL)
+                        {
                             GLUtils.CleanGL();
                         }
                     }
-                    finally {
+                    finally
+                    {
                         EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                         EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                     }

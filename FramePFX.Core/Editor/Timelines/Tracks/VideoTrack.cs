@@ -3,8 +3,10 @@ using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Timelines.Tracks {
-    public class VideoTrack : Track {
+namespace FramePFX.Core.Editor.Timelines.Tracks
+{
+    public class VideoTrack : Track
+    {
         public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrack), nameof(Opacity), new KeyDescriptorDouble(1d, 0d, 1d));
         public static readonly AutomationKeyBoolean IsVisibleKey = AutomationKey.RegisterBool(nameof(VideoTrack), nameof(IsVisible), new KeyDescriptorBoolean(true));
         public const double MinimumVisibleOpacity = 0.0001d;
@@ -27,14 +29,16 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
         /// </summary>
         public bool IsActuallyVisible => this.IsVisible && this.Opacity > MinimumVisibleOpacity;
 
-        public VideoTrack() {
+        public VideoTrack()
+        {
             this.Opacity = 1d;
             this.IsVisible = true;
             this.AutomationData.AssignKey(OpacityKey, UpdateOpacity);
             this.AutomationData.AssignKey(IsVisibleKey, UpdateIsVisible);
         }
 
-        public override Track CloneCore() {
+        public override Track CloneCore()
+        {
             VideoTrack clone = new VideoTrack() {
                 MaxHeight = this.MaxHeight,
                 MinHeight = this.MinHeight,
@@ -44,7 +48,8 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
             };
 
             this.AutomationData.LoadDataIntoClone(clone.AutomationData);
-            foreach (Clip clip in this.Clips) {
+            foreach (Clip clip in this.Clips)
+            {
                 // assert clip is VideoClipModel
                 // assert CanAccept(clip)
                 clone.AddClip(clip.Clone());
@@ -53,7 +58,8 @@ namespace FramePFX.Core.Editor.Timelines.Tracks {
             return clone;
         }
 
-        public override bool IsClipTypeAcceptable(Clip clip) {
+        public override bool IsClipTypeAcceptable(Clip clip)
+        {
             return clip is VideoClip;
         }
     }

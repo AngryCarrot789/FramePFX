@@ -4,14 +4,14 @@
                     xmlns:controls="clr-namespace:FramePFX.Controls"
                     xmlns:converters1="clr-namespace:FramePFX.Converters"
                     xmlns:dragger="clr-namespace:FramePFX.Controls.Dragger">
-    <converters1:InvertBoolConverter x:Key="InvertBoolConverter"/>
+    <converters1:InvertBoolConverter x:Key="InvertBoolConverter" />
     <Style TargetType="{x:Type controls:IconTextPair}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:IconTextPair}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}">
-                        <ContentPresenter Width="{TemplateBinding IconWidth}" Height="{TemplateBinding IconHeight}" Content="{TemplateBinding Icon}" HorizontalAlignment="Left"/>
-                        <TextBlock Text="{TemplateBinding Text}" Margin="4 0 0 0" HorizontalAlignment="Stretch"/>
+                        <ContentPresenter Width="{TemplateBinding IconWidth}" Height="{TemplateBinding IconHeight}" Content="{TemplateBinding Icon}" HorizontalAlignment="Left" />
+                        <TextBlock Text="{TemplateBinding Text}" Margin="4 0 0 0" HorizontalAlignment="Stretch" />
                     </StackPanel>
                 </ControlTemplate>
             </Setter.Value>
@@ -19,22 +19,22 @@
     </Style>
 
     <Style TargetType="{x:Type dragger:NumberDragger}">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Focusable" Value="True"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type dragger:NumberDragger}">
-                    <Border Background="{TemplateBinding Background}" 
-                            BorderBrush="{TemplateBinding BorderBrush}" 
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <Grid Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                            <TextBlock Text="0" x:Name="PART_TextBlock" Padding="2,0,2,0" 
+                            <TextBlock Text="0" x:Name="PART_TextBlock" Padding="2,0,2,0"
                                        Background="Transparent"
-                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                            <TextBox   Text="0" x:Name="PART_TextBox" VerticalContentAlignment="Center"
-                                       HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                       BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch"/>
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                            <TextBox Text="0" x:Name="PART_TextBox" VerticalContentAlignment="Center"
+                                     HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                     BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" />
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -43,10 +43,10 @@
     </Style>
 
     <Style x:Key="AbletonNumberDraggerStyle" TargetType="{x:Type dragger:NumberDragger}" BasedOn="{StaticResource {x:Type dragger:NumberDragger}}">
-        <Setter Property="Background" Value="{DynamicResource PanelBackground2}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource PanelBackground2}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type dragger:NumberDragger}">
@@ -54,16 +54,16 @@
                         <ProgressBar Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                      Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
                                      Value="{TemplateBinding Value}"
-                                     UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+                                     UseLayoutRounding="True" SnapsToDevicePixels="True" />
                         <Grid Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                             <TextBlock Text="0" x:Name="PART_TextBlock" Padding="2,0"
                                        Background="Transparent"
                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                       VerticalAlignment="Center"/>
-                            <TextBox   Text="0" x:Name="PART_TextBox" VerticalContentAlignment="Center"
-                                       HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                       BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch"
-                                       VerticalAlignment="Center" Padding="0,0,0,0"/>
+                                       VerticalAlignment="Center" />
+                            <TextBox Text="0" x:Name="PART_TextBox" VerticalContentAlignment="Center"
+                                     HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                     BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Center" Padding="0,0,0,0" />
                         </Grid>
                     </Grid>
                 </ControlTemplate>

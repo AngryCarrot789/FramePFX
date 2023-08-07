@@ -1,87 +1,108 @@
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
-    public class ResourceColourViewModel : ResourceItemViewModel {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources
+{
+    public class ResourceColourViewModel : ResourceItemViewModel
+    {
         public new ResourceColour Model => (ResourceColour) base.Model;
 
-        public SKColor Colour {
+        public SKColor Colour
+        {
             get => this.Model.Colour;
-            set {
+            set
+            {
                 this.Model.Colour = value;
                 this.OnColourChanged();
             }
         }
 
-        public float A {
+        public float A
+        {
             get => this.Model.ScA;
-            set {
+            set
+            {
                 this.Model.ScA = value;
                 this.OnColourChanged();
             }
         }
 
-        public byte ByteA {
+        public byte ByteA
+        {
             get => this.Model.ByteA;
-            set {
+            set
+            {
                 this.Model.ByteA = value;
                 this.OnColourChanged();
             }
         }
 
-        public float R {
+        public float R
+        {
             get => this.Model.ScR;
-            set {
+            set
+            {
                 this.Model.ScR = value;
                 this.OnColourChanged();
             }
         }
 
-        public byte ByteR {
+        public byte ByteR
+        {
             get => this.Model.ByteR;
-            set {
+            set
+            {
                 this.Model.ByteR = value;
                 this.OnColourChanged();
             }
         }
 
-        public float G {
+        public float G
+        {
             get => this.Model.ScG;
-            set {
+            set
+            {
                 this.Model.ScG = value;
                 this.OnColourChanged();
             }
         }
 
-        public byte ByteG {
+        public byte ByteG
+        {
             get => this.Model.ByteG;
-            set {
+            set
+            {
                 this.Model.ByteG = value;
                 this.OnColourChanged();
             }
         }
 
-        public float B {
+        public float B
+        {
             get => this.Model.ScB;
-            set {
+            set
+            {
                 this.Model.ScB = value;
                 this.OnColourChanged();
             }
         }
 
-        public byte ByteB {
+        public byte ByteB
+        {
             get => this.Model.ByteB;
-            set {
+            set
+            {
                 this.Model.ByteB = value;
                 this.OnColourChanged();
             }
         }
 
-        public ResourceColourViewModel(ResourceColour model) : base(model) {
-
+        public ResourceColourViewModel(ResourceColour model) : base(model)
+        {
         }
 
-        private void OnColourChanged() {
+        private void OnColourChanged()
+        {
             this.Model.OnDataModified(nameof(this.Colour));
             this.RaisePropertyChanged(nameof(this.Colour));
             this.RaisePropertyChanged(nameof(this.A));

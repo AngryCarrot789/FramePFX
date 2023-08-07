@@ -2,10 +2,14 @@ using System;
 using System.Text;
 using FramePFX.Core.Notifications;
 
-namespace FramePFX.Core.History {
-    public class HistoryNotification : NotificationViewModel {
+namespace FramePFX.Core.History
+{
+    public class HistoryNotification : NotificationViewModel
+    {
         private string message;
-        public string Message {
+
+        public string Message
+        {
             get => this.message;
             set => this.RaisePropertyChanged(ref this.message, value);
         }
@@ -15,17 +19,21 @@ namespace FramePFX.Core.History {
         // 1 = undo, 2 = redo, 3 = clear
         private int lastType;
 
-        public HistoryNotification() {
+        public HistoryNotification()
+        {
             this.Timeout = TimeSpan.FromSeconds(3);
         }
 
-        public void OnUndo() {
-            if (this.IsHidden) {
+        public void OnUndo()
+        {
+            if (this.IsHidden)
+            {
                 return;
             }
 
             this.ResetAutoHide();
-            if (this.lastType != 1) {
+            if (this.lastType != 1)
+            {
                 this.lastType = 1;
                 this.count = 0;
             }
@@ -37,13 +45,16 @@ namespace FramePFX.Core.History {
             this.count++;
         }
 
-        public void OnRedo() {
-            if (this.IsHidden) {
+        public void OnRedo()
+        {
+            if (this.IsHidden)
+            {
                 return;
             }
 
             this.ResetAutoHide();
-            if (this.lastType != 2) {
+            if (this.lastType != 2)
+            {
                 this.lastType = 2;
                 this.count = 0;
             }
@@ -55,13 +66,16 @@ namespace FramePFX.Core.History {
             this.count++;
         }
 
-        public void OnClear() {
-            if (this.IsHidden) {
+        public void OnClear()
+        {
+            if (this.IsHidden)
+            {
                 return;
             }
 
             this.ResetAutoHide();
-            if (this.lastType != 3) {
+            if (this.lastType != 3)
+            {
                 this.lastType = 3;
                 this.count = 0;
             }
@@ -73,7 +87,8 @@ namespace FramePFX.Core.History {
             this.count++;
         }
 
-        public void ResetAutoHide() {
+        public void ResetAutoHide()
+        {
             this.Timeout = this.Timeout;
             this.CancelAutoHideTask();
             this.StartAutoHideTask(this.Timeout);

@@ -1,7 +1,9 @@
 using System.Windows;
 
-namespace FramePFX.Shortcuts.Bindings {
-    public class InputStateCollection : FreezableCollection<InputStateBinding> {
+namespace FramePFX.Shortcuts.Bindings
+{
+    public class InputStateCollection : FreezableCollection<InputStateBinding>
+    {
         public static readonly DependencyProperty CollectionProperty =
             DependencyProperty.RegisterAttached(
                 "Collection",
@@ -9,7 +11,8 @@ namespace FramePFX.Shortcuts.Bindings {
                 typeof(InputStateCollection),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
 
-        public InputStateCollection() {
+        public InputStateCollection()
+        {
             // ((INotifyCollectionChanged) this).CollectionChanged += this.OnCollectionChanged;
         }
 

@@ -4,15 +4,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace FramePFX.Core.Utils {
+namespace FramePFX.Core.Utils
+{
     /// <summary>
     /// A helper class for easily dealing with multiple exceptions that may be thrown
     /// </summary>
-    public class ExceptionStack : IDisposable, IEnumerable<Exception> {
+    public class ExceptionStack : IDisposable, IEnumerable<Exception>
+    {
         private static readonly ThreadLocal<Stack<ExceptionStack>> ThreadStackStorage;
         private readonly bool useFirstException;
 
-        static ExceptionStack() {
+        static ExceptionStack()
+        {
             ThreadStackStorage = new ThreadLocal<Stack<ExceptionStack>>(() => new Stack<ExceptionStack>());
         }
 
@@ -37,7 +40,8 @@ namespace FramePFX.Core.Utils {
         /// <param name="message">Message to use if an exception must be thrown and <see cref="ThrowOnDispose"/> is true. Ignored if <see cref="useFirstException"/> is true</param>
         /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Dispose"/> is called</param>
         /// <param name="useFirstException">Whether to use the first pushed exception as the main exception or to instead create one using <see cref="Message"/></param>
-        public ExceptionStack(string message, bool throwOnDispose = true, bool useFirstException = false) {
+        public ExceptionStack(string message, bool throwOnDispose = true, bool useFirstException = false)
+        {
             this.Message = message;
             this.Exceptions = new List<Exception>();
             this.ThrowOnDispose = throwOnDispose;
@@ -49,31 +53,39 @@ namespace FramePFX.Core.Utils {
         /// called. If <see cref="ThrowOnDispose"/> is false though, then no exception will be thrown on the dispose call
         /// </summary>
         /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Dispose"/> is called</param>
-        public ExceptionStack(bool throwOnDispose = true) : this(null, throwOnDispose, true) {
-
+        public ExceptionStack(bool throwOnDispose = true) : this(null, throwOnDispose, true)
+        {
         }
 
-        public void Add(Exception exception) {
+        public void Add(Exception exception)
+        {
             this.Exceptions.Add(exception ?? throw new ArgumentNullException(nameof(exception)));
         }
 
-        public void Dispose() {
-            if (this.ThrowOnDispose && this.TryGetException(out Exception exception)) {
+        public void Dispose()
+        {
+            if (this.ThrowOnDispose && this.TryGetException(out Exception exception))
+            {
                 throw exception;
             }
         }
 
-        public bool TryGetException(out Exception exception) {
-            if (this.Exceptions.Count > 0) {
+        public bool TryGetException(out Exception exception)
+        {
+            if (this.Exceptions.Count > 0)
+            {
                 int i = 0;
-                if (this.useFirstException) {
+                if (this.useFirstException)
+                {
                     exception = this.Exceptions[i++];
                 }
-                else {
+                else
+                {
                     exception = new Exception(this.Message ?? "Exceptions occurred during operation", this.Cause ?? this.Exceptions[i++]);
                 }
 
-                for (; i < this.Exceptions.Count; i++) {
+                for (; i < this.Exceptions.Count; i++)
+                {
                     exception.AddSuppressed(this.Exceptions[i]);
                 }
 

@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Usage;
 
-namespace FramePFX.Core.Shortcuts {
+namespace FramePFX.Core.Shortcuts
+{
     /// <summary>
     /// An interface for shortcuts that accept mouse inputs
     /// </summary>
-    public interface IMouseShortcut : IShortcut {
+    public interface IMouseShortcut : IShortcut
+    {
         /// <summary>
         /// All of the Mouse Strokes that this shortcut contains
         /// </summary>

@@ -2,13 +2,16 @@
 using System.IO;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.Core.FFmpegWrapper.Containers {
-
-    public abstract unsafe class IOContext : FFObject {
+namespace FramePFX.Core.FFmpegWrapper.Containers
+{
+    public abstract unsafe class IOContext : FFObject
+    {
         private AVIOContext* _ctx;
 
-        public AVIOContext* Handle {
-            get {
+        public AVIOContext* Handle
+        {
+            get
+            {
                 this.ValidateNotDisposed();
                 return this._ctx;
             }
@@ -23,7 +26,8 @@ namespace FramePFX.Core.FFmpegWrapper.Containers {
         private avio_alloc_context_write_packet _writeFn;
         private avio_alloc_context_seek _seekFn;
 
-        public IOContext(int bufferSize, bool canRead, bool canWrite, bool canSeek) {
+        public IOContext(int bufferSize, bool canRead, bool canWrite, bool canSeek)
+        {
             byte* buffer = (byte*) ffmpeg.av_mallocz((ulong) bufferSize);
             if (canRead)
                 this._readFn = this.ReadBridge;
@@ -37,18 +41,22 @@ namespace FramePFX.Core.FFmpegWrapper.Containers {
             );
         }
 
-        private int ReadBridge(void* opaque, byte* buffer, int length) {
+        private int ReadBridge(void* opaque, byte* buffer, int length)
+        {
             int bytesRead = this.Read(new Span<byte>(buffer, length));
             return bytesRead > 0 ? bytesRead : ffmpeg.AVERROR_EOF;
         }
 
-        private int WriteBridge(void* opaque, byte* buffer, int length) {
+        private int WriteBridge(void* opaque, byte* buffer, int length)
+        {
             this.Write(new ReadOnlySpan<byte>(buffer, length));
             return length;
         }
 
-        private long SeekBridge(void* opaque, long offset, int whence) {
-            if (whence == ffmpeg.AVSEEK_SIZE) {
+        private long SeekBridge(void* opaque, long offset, int whence)
+        {
+            if (whence == ffmpeg.AVSEEK_SIZE)
+            {
                 return this.GetLength() ?? ffmpeg.AVERROR(38); //ENOSYS
             }
 
@@ -67,16 +75,20 @@ namespace FramePFX.Core.FFmpegWrapper.Containers {
 
         protected virtual long? GetLength() => null;
 
-        protected override void Free() {
-            if (this._ctx != null) {
+        protected override void Free()
+        {
+            if (this._ctx != null)
+            {
                 ffmpeg.av_free(this._ctx->buffer);
                 fixed (AVIOContext** c = &this._ctx)
                     ffmpeg.avio_context_free(c);
             }
         }
 
-        protected void ValidateNotDisposed() {
-            if (this._ctx == null) {
+        protected void ValidateNotDisposed()
+        {
+            if (this._ctx == null)
+            {
                 throw new ObjectDisposedException(nameof(IOContext));
             }
         }

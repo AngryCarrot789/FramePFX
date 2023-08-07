@@ -1,8 +1,11 @@
-namespace FramePFX.Core.Views.Windows {
-    public abstract class BaseWindowViewModel : BaseViewModel {
+namespace FramePFX.Core.Views.Windows
+{
+    public abstract class BaseWindowViewModel : BaseViewModel
+    {
         public IWindow Window { get; }
 
-        protected BaseWindowViewModel(IWindow window) {
+        protected BaseWindowViewModel(IWindow window)
+        {
             this.Window = window;
         }
     }

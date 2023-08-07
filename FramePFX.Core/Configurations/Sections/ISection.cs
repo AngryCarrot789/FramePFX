@@ -1,8 +1,10 @@
-namespace FramePFX.Core.Configurations.Sections {
+namespace FramePFX.Core.Configurations.Sections
+{
     /// <summary>
     /// A configuration section
     /// </summary>
-    public interface ISection {
+    public interface ISection
+    {
         /// <summary>
         /// This section's parent section, or null if this is the root section
         /// </summary>
@@ -79,6 +81,6 @@ namespace FramePFX.Core.Configurations.Sections {
 
         ISection GetSection(string key);
         ISection GetOrCreateSection(string key); // overwrites existing value
-        ISection CreateSection(string key);      // overwrites existing value
+        ISection CreateSection(string key); // overwrites existing value
     }
 }

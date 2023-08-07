@@ -4,19 +4,24 @@ using FramePFX.Core.Editor.ResourceManaging.Events;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ResourceManaging {
-    public abstract class ResourceItem : BaseResourceObject, IRBESerialisable, IDisposable {
+namespace FramePFX.Core.Editor.ResourceManaging
+{
+    public abstract class ResourceItem : BaseResourceObject, IRBESerialisable, IDisposable
+    {
         public const ulong EmptyId = ResourceManager.EmptyId;
         private bool isOnline;
 
         /// <summary>
         /// Whether or not this resource is online or not
         /// </summary>
-        public bool IsOnline {
+        public bool IsOnline
+        {
             get => this.isOnline;
-            set {
+            set
+            {
                 this.isOnline = value;
-                if (value) {
+                if (value)
+                {
                     this.IsOfflineByUser = false;
                 }
             }
@@ -35,7 +40,8 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         public event ResourceModifiedEventHandler DataModified;
         public event ResourceItemEventHandler OnlineStateChanged;
 
-        protected ResourceItem() {
+        protected ResourceItem()
+        {
             this.IsOnline = true;
         }
 
@@ -46,8 +52,10 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// The registered resource is reference-equal to the current instance. This should always be true. If it's false, then something terrible has happened
         /// </param>
         /// <returns>True if this instance has a manager, a valid ID and is registered</returns>
-        public bool IsRegistered(out bool isReferenceValid) {
-            if (this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource)) {
+        public bool IsRegistered(out bool isReferenceValid)
+        {
+            if (this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource))
+            {
                 isReferenceValid = ReferenceEquals(this, resource);
                 return true;
             }
@@ -55,12 +63,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
             return isReferenceValid = false;
         }
 
-        public bool IsRegistered() {
-            if (this.IsRegistered(out bool isReferenceValid)) {
-                if (!isReferenceValid) {
-                    #if DEBUG
+        public bool IsRegistered()
+        {
+            if (this.IsRegistered(out bool isReferenceValid))
+            {
+                if (!isReferenceValid)
+                {
+#if DEBUG
                     System.Diagnostics.Debugger.Break();
-                    #endif
+#endif
                     throw new Exception("Registered resource is not reference-equal to the current instance");
                 }
 
@@ -76,18 +87,20 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// <param name="stack"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public void Disable(ExceptionStack stack, bool user) {
+        public void Disable(ExceptionStack stack, bool user)
+        {
             this.OnDisableCore(stack, user);
             this.IsOnline = false;
             this.IsOfflineByUser = user;
             this.OnIsOnlineStateChanged();
         }
 
-        protected virtual void OnDisableCore(ExceptionStack stack, bool user) {
-
+        protected virtual void OnDisableCore(ExceptionStack stack, bool user)
+        {
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             if (this.UniqueId != 0)
                 data.SetULong(nameof(this.UniqueId), this.UniqueId);
@@ -95,10 +108,12 @@ namespace FramePFX.Core.Editor.ResourceManaging {
                 data.SetBool(nameof(this.IsOnline), false);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.UniqueId = data.GetULong(nameof(this.UniqueId), EmptyId);
-            if (data.TryGetBool(nameof(this.IsOnline), out bool b) && !b) {
+            if (data.TryGetBool(nameof(this.IsOnline), out bool b) && !b)
+            {
                 this.isOnline = false;
                 this.IsOfflineByUser = true;
             }
@@ -110,13 +125,15 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// </summary>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual void OnDataModified([CallerMemberName] string propertyName = null) {
+        public virtual void OnDataModified([CallerMemberName] string propertyName = null)
+        {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));
             this.DataModified?.Invoke(this, propertyName);
         }
 
-        public virtual void OnIsOnlineStateChanged() {
+        public virtual void OnIsOnlineStateChanged()
+        {
             this.OnlineStateChanged?.Invoke(this.Manager, this);
         }
 
@@ -125,11 +142,13 @@ namespace FramePFX.Core.Editor.ResourceManaging {
         /// and instead, exceptions should be added to the given <see cref="ExceptionStack"/>
         /// </summary>
         /// <param name="stack">The exception stack in which exception should be added into when encountered during disposal</param>
-        protected override void DisposeCore(ExceptionStack stack) {
+        protected override void DisposeCore(ExceptionStack stack)
+        {
             base.DisposeCore(stack);
         }
 
-        public static void SetUniqueId(ResourceItem item, ulong id) {
+        public static void SetUniqueId(ResourceItem item, ulong id)
+        {
             item.UniqueId = id;
         }
     }

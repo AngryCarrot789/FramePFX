@@ -4,8 +4,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SkiaSharp;
 
-namespace FramePFX {
-    public sealed class SKAsyncViewPort : FrameworkElement {
+namespace FramePFX
+{
+    public sealed class SKAsyncViewPort : FrameworkElement
+    {
         private readonly bool designMode;
         private WriteableBitmap bitmap;
         private bool ignorePixelScaling;
@@ -18,9 +20,11 @@ namespace FramePFX {
         /// <summary>Gets or sets a value indicating whether the drawing canvas should be resized on high resolution displays.</summary>
         /// <value />
         /// <remarks>By default, when false, the canvas is resized to 1 canvas pixel per display pixel. When true, the canvas is resized to device independent pixels, and then stretched to fill the view. Although performance is improved and all objects are the same size on different display densities, blurring and pixelation may occur.</remarks>
-        public bool IgnorePixelScaling {
+        public bool IgnorePixelScaling
+        {
             get => this.ignorePixelScaling;
-            set {
+            set
+            {
                 this.ignorePixelScaling = value;
                 this.InvalidateVisual();
             }
@@ -33,9 +37,11 @@ namespace FramePFX {
 
         public SKAsyncViewPort() => this.designMode = DesignerProperties.GetIsInDesignMode(this);
 
-        public bool BeginRender(out SKSurface surface) {
+        public bool BeginRender(out SKSurface surface)
+        {
             PresentationSource source;
-            if (this.targetSurface != null || this.designMode || (source = PresentationSource.FromVisual(this)) == null) {
+            if (this.targetSurface != null || this.designMode || (source = PresentationSource.FromVisual(this)) == null)
+            {
                 surface = null;
                 return false;
             }
@@ -43,14 +49,16 @@ namespace FramePFX {
             SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
             SKSizeI size2 = this.IgnorePixelScaling ? unscaledSize : pixelSize;
             this.CanvasSize = size2;
-            if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
+            if (pixelSize.Width <= 0 || pixelSize.Height <= 0)
+            {
                 surface = null;
                 return false;
             }
 
             SKImageInfo frameInfo = new SKImageInfo(pixelSize.Width, pixelSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             this.skImageInfo = frameInfo;
-            if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelWidth || frameInfo.Height != this.bitmap.PixelHeight) {
+            if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelWidth || frameInfo.Height != this.bitmap.PixelHeight)
+            {
                 this.bitmap = new WriteableBitmap(
                     frameInfo.Width, pixelSize.Height,
                     scaleX == 1d ? 96d : (96d * scaleX),
@@ -61,7 +69,8 @@ namespace FramePFX {
             this.bitmap.Lock();
 
             this.targetSurface = surface = SKSurface.Create(frameInfo, this.bitmap.BackBuffer, this.bitmap.BackBufferStride);
-            if (this.IgnorePixelScaling) {
+            if (this.IgnorePixelScaling)
+            {
                 SKCanvas canvas = surface.Canvas;
                 canvas.Scale((float) scaleX, (float) scaleY);
                 canvas.Save();
@@ -70,7 +79,8 @@ namespace FramePFX {
             return true;
         }
 
-        public void EndRender() {
+        public void EndRender()
+        {
             SKImageInfo info = this.skImageInfo;
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
@@ -79,25 +89,30 @@ namespace FramePFX {
             this.targetSurface = null;
         }
 
-        protected override void OnRender(DrawingContext dc) {
+        protected override void OnRender(DrawingContext dc)
+        {
             WriteableBitmap bmp = this.bitmap;
-            if (bmp != null) {
+            if (bmp != null)
+            {
                 dc.DrawImage(bmp, new Rect(0d, 0d, this.ActualWidth, this.ActualHeight));
             }
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
             base.OnRenderSizeChanged(sizeInfo);
             this.InvalidateVisual();
         }
 
-        private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source) {
+        private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source)
+        {
             unscaledSize = SKSizeI.Empty;
             scaleX = 1f;
             scaleY = 1f;
             double actualWidth = this.ActualWidth;
             double actualHeight = this.ActualHeight;
-            if (IsPositive(actualWidth) && IsPositive(actualHeight)) {
+            if (IsPositive(actualWidth) && IsPositive(actualHeight))
+            {
                 unscaledSize = new SKSizeI((int) actualWidth, (int) actualHeight);
                 Matrix transformToDevice = source.CompositionTarget.TransformToDevice;
                 scaleX = transformToDevice.M11;

@@ -9,6 +9,6 @@
                 Title="Application Logs" Height="450" Width="600"
                 Style="{DynamicResource CustomWindowStyleEx}">
     <Grid>
-        <TextBox x:Name="LoggerTextBox" IsReadOnly="True" ap:HorizontalScrolling.UseHorizontalScrolling="True" BorderThickness="0"/>
+        <TextBox x:Name="LoggerTextBox" IsReadOnly="True" ap:HorizontalScrolling.UseHorizontalScrolling="True" BorderThickness="0" />
     </Grid>
 </local:WindowEx>

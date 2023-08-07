@@ -1,16 +1,21 @@
 using System;
 using System.Windows.Input;
 
-namespace FramePFX.Core {
+namespace FramePFX.Core
+{
     /// <summary>
     /// A base relay command class, that implements ICommand, and also has a simple implementation for dealing with
     /// the <see cref="CanExecuteChanged"/> event handler (via <see cref="RaiseCanExecuteChanged"/>)
     /// </summary>
-    public abstract class BaseRelayCommand : ICommand {
+    public abstract class BaseRelayCommand : ICommand
+    {
         private bool isEnabled;
-        public bool IsEnabled {
+
+        public bool IsEnabled
+        {
             get => this.isEnabled;
-            set {
+            set
+            {
                 this.isEnabled = value;
                 this.RaiseCanExecuteChanged();
             }
@@ -25,7 +30,8 @@ namespace FramePFX.Core {
         /// Initializes a new instance of <see cref="BaseRelayCommand"/>
         /// </summary>
         /// <param name="canExecute">The execution status logic</param>
-        protected BaseRelayCommand() {
+        protected BaseRelayCommand()
+        {
             this.isEnabled = true;
         }
 
@@ -40,7 +46,8 @@ namespace FramePFX.Core {
         /// <returns>
         /// True if the command can be executed, otherwise false if it cannot be executed
         /// </returns>
-        public virtual bool CanExecute(object parameter) {
+        public virtual bool CanExecute(object parameter)
+        {
             return this.IsEnabled;
         }
 
@@ -52,9 +59,12 @@ namespace FramePFX.Core {
         /// button to become greyed out (disabled) if <see cref="CanExecute"/> returns false
         /// </para>
         /// </summary>
-        public virtual void RaiseCanExecuteChanged() {
-            if (this.CanExecuteChanged != null) {
-                IoC.Dispatcher.Invoke(() => {
+        public virtual void RaiseCanExecuteChanged()
+        {
+            if (this.CanExecuteChanged != null)
+            {
+                IoC.Dispatcher.Invoke(() =>
+                {
                     this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
                 });
             }
@@ -67,8 +77,10 @@ namespace FramePFX.Core {
         /// <typeparam name="T">The type to convert the value to</typeparam>
         /// <returns>An object which is an instance of T</returns>
         /// <exception cref="Exception">The value is not null and could not be converted to T</exception>
-        protected static object GetConvertedParameter<T>(object value) {
-            switch (value) {
+        protected static object GetConvertedParameter<T>(object value)
+        {
+            switch (value)
+            {
                 case null: return null;
                 case T _: return value;
                 case IConvertible c: return c.ToType(typeof(T), null);

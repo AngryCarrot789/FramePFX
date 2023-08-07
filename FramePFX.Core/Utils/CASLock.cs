@@ -2,8 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace FramePFX.Core.Utils {
-    public sealed class CASLock {
+namespace FramePFX.Core.Utils
+{
+    public sealed class CASLock
+    {
         private readonly object locker;
         private volatile int counter;
         private volatile int isLocking;
@@ -15,7 +17,8 @@ namespace FramePFX.Core.Utils {
 
         private readonly string debugName;
 
-        public CASLock(string debugName = null) {
+        public CASLock(string debugName = null)
+        {
             this.locker = new object();
             this.debugName = debugName;
         }
@@ -25,23 +28,29 @@ namespace FramePFX.Core.Utils {
         /// </summary>
         /// <param name="force">Whether to force take the lock</param>
         /// <returns>True if the lock was successfully taken or already taken previously</returns>
-        public bool Lock(bool force) {
-            while (Interlocked.CompareExchange(ref this.isLocking, 1, 0) != 0) {
+        public bool Lock(bool force)
+        {
+            while (Interlocked.CompareExchange(ref this.isLocking, 1, 0) != 0)
+            {
                 Thread.SpinWait(8);
             }
 
             bool taken = Monitor.TryEnter(this.locker);
-            if (!taken) {
-                if (force) {
+            if (!taken)
+            {
+                if (force)
+                {
                     Monitor.Enter(this.locker);
                     taken = true;
                     Debug.WriteLine($"[{this.debugName ?? "CASLock"}] Force entered ({this.counter} deep). Thread = {Thread.CurrentThread.ManagedThreadId}");
                 }
-                else {
+                else
+                {
                     this.isLocking = 0;
                 }
             }
-            else {
+            else
+            {
                 Debug.WriteLine($"[{this.debugName ?? "CASLock"}] Entered ({this.counter} deep). Thread = {Thread.CurrentThread.ManagedThreadId}");
             }
 
@@ -53,18 +62,22 @@ namespace FramePFX.Core.Utils {
         /// <summary>
         /// Unlocks this <see cref="CASLock"/>. If this function is called before <see cref="Lock"/>, it may corrupt the state of this <see cref="CASLock"/>
         /// </summary>
-        public void Unlock() {
+        public void Unlock()
+        {
             int value = Interlocked.Decrement(ref this.counter);
             Monitor.Exit(this.locker);
-            if (value < 1) {
-                if (value < 0) {
+            if (value < 1)
+            {
+                if (value < 0)
+                {
                     this.counter = 1;
                     throw new Exception("Excess calls to Unlock");
                 }
 
                 Debug.WriteLine($"[{this.debugName ?? "CASLock"}] Fully Exited. Thread = {Thread.CurrentThread.ManagedThreadId}");
             }
-            else {
+            else
+            {
                 Debug.WriteLine($"[{this.debugName ?? "CASLock"}] Semaphore decremented (not exited). Thread = {Thread.CurrentThread.ManagedThreadId}");
             }
         }

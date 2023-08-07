@@ -1,56 +1,25 @@
 ﻿<Application x:Class="FramePFX.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz"
-             xmlns:dockablz="http://dragablz.net/winfx/xaml/dockablz"
-             xmlns:editor="clr-namespace:FramePFX.Editor"
-             xmlns:system="clr-namespace:System;assembly=mscorlib"
-             xmlns:v="clr-namespace:FramePFX.Views" xmlns:conv="clr-namespace:FramePFX.Converters"
              Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml"/>
-                <ResourceDictionary Source="Themes/ControlColours.xaml"/>
-                <ResourceDictionary Source="Themes/Controls.xaml"/>
-                <ResourceDictionary Source="Resources/I18N/Text/en.xaml"/>
+                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml" />
+                <ResourceDictionary Source="Themes/ControlColours.xaml" />
+                <ResourceDictionary Source="Themes/Controls.xaml" />
+                <ResourceDictionary Source="Resources/I18N/Text/en.xaml" />
 
-                <ResourceDictionary Source="Themes/GenericDragablzStyles.xaml"/>
-                <ResourceDictionary Source="Controls/xclemence/RulerWPF/RulerStyle.xaml"/>
-                <ResourceDictionary Source="Controls/ControlStyles.xaml"/>
-                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
-                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
-                <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml"/>
-                <ResourceDictionary Source="Editor/Resources/ResManagerStyles.xaml"/>
-                <ResourceDictionary Source="Editor/Properties/PropertyPageStyles.xaml"/>
-                <ResourceDictionary Source="PropertyEditing/PropertyEditorStyles.xaml"/>
-                <ResourceDictionary Source="Notifications/NotificationStyles.xaml"/>
+                <ResourceDictionary Source="Controls/xclemence/RulerWPF/RulerStyle.xaml" />
+                <ResourceDictionary Source="Controls/ControlStyles.xaml" />
+                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml" />
+                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml" />
+                <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml" />
+                <ResourceDictionary Source="Editor/Resources/ResManagerStyles.xaml" />
+                <ResourceDictionary Source="Editor/Properties/PropertyPageStyles.xaml" />
+                <ResourceDictionary Source="PropertyEditing/PropertyEditorStyles.xaml" />
+                <ResourceDictionary Source="Notifications/NotificationStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <system:String x:Key="Partition">ThingsIdek</system:String>
-
-            <Style x:Key="ThingTabablzControlStyle" TargetType="{x:Type dragablz:TabablzControl}" BasedOn="{StaticResource {x:Type dragablz:TabablzControl}}">
-                <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
-                <Setter Property="BorderThickness" Value="0"/>
-            </Style>
-
-            <editor:ThingInterLayoutClient x:Key="ThingInterLayoutClient" TabablzControlStyle="{StaticResource ThingTabablzControlStyle}"/>
-            <editor:ThingInterTabClient x:Key="ThingInterTabClient">
-                <editor:ThingInterTabClient.WindowExStyle>
-                    <Style TargetType="{x:Type v:WindowEx}" BasedOn="{StaticResource CustomWindowStyleEx}"></Style>
-                </editor:ThingInterTabClient.WindowExStyle>
-                <editor:ThingInterTabClient.WinContentTemplate>
-                    <DataTemplate>
-                        <dockablz:Layout Partition="{StaticResource Partition}" InterLayoutClient="{DynamicResource ThingInterLayoutClient}">
-                            <dragablz:TabablzControl Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0">
-                                <dragablz:TabablzControl.InterTabController>
-                                    <dragablz:InterTabController Partition="{StaticResource Partition}" InterTabClient="{DynamicResource ThingInterTabClient}"/>
-                                </dragablz:TabablzControl.InterTabController>
-                            </dragablz:TabablzControl>
-                        </dockablz:Layout>
-                    </DataTemplate>
-                </editor:ThingInterTabClient.WinContentTemplate>
-            </editor:ThingInterTabClient>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

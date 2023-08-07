@@ -10,13 +10,16 @@ using FramePFX.Core.Views.Dialogs.Progression;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using SkiaSharp;
 
-namespace FramePFX.Core {
-    public static class IoC {
+namespace FramePFX.Core
+{
+    public static class IoC
+    {
         private static volatile bool isAppRunning = true;
 
         public static SimpleIoC Instance { get; } = new SimpleIoC();
 
-        public static bool IsAppRunning {
+        public static bool IsAppRunning
+        {
             get => isAppRunning;
             set => isAppRunning = value;
         }
@@ -31,6 +34,7 @@ namespace FramePFX.Core {
         /// The application dispatcher, used to execute actions on the main thread
         /// </summary>
         public static IDispatcher Dispatcher { get; set; }
+
         public static IClipboardService Clipboard => Provide<IClipboardService>();
         public static IMessageDialogService MessageDialogs => Provide<IMessageDialogService>();
         public static IProgressionDialogService ProgressionDialogs => Provide<IProgressionDialogService>();
@@ -47,16 +51,22 @@ namespace FramePFX.Core {
 
         public static Action<string> BroadcastShortcutChanged { get; set; }
 
-        public static void LoadServicesFromAttributes() {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
+        public static void LoadServicesFromAttributes()
+        {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (TypeInfo typeInfo in assembly.DefinedTypes)
+                {
                     ServiceImplementationAttribute implementationAttribute = typeInfo.GetCustomAttribute<ServiceImplementationAttribute>();
-                    if (implementationAttribute != null && implementationAttribute.Type != null) {
+                    if (implementationAttribute != null && implementationAttribute.Type != null)
+                    {
                         object instance;
-                        try {
+                        try
+                        {
                             instance = Activator.CreateInstance(typeInfo);
                         }
-                        catch (Exception e) {
+                        catch (Exception e)
+                        {
                             throw new Exception($"Failed to create implementation of {implementationAttribute.Type} as {typeInfo}", e);
                         }
 

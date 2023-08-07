@@ -1,13 +1,16 @@
 ﻿using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.Core.FFmpegWrapper {
-
-    public unsafe class SwResampler : FFObject {
+namespace FramePFX.Core.FFmpegWrapper
+{
+    public unsafe class SwResampler : FFObject
+    {
         private SwrContext* _ctx;
 
-        public SwrContext* Handle {
-            get {
+        public SwrContext* Handle
+        {
+            get
+            {
                 this.ValidateNotDisposed();
                 return this._ctx;
             }
@@ -21,7 +24,8 @@ namespace FramePFX.Core.FFmpegWrapper {
         /// </summary>
         public int BufferedSamples => (int) ffmpeg.swr_get_delay(this._ctx, this.OutputFormat.SampleRate);
 
-        public SwResampler(AudioFormat inFmt, AudioFormat outFmt) {
+        public SwResampler(AudioFormat inFmt, AudioFormat outFmt)
+        {
             this._ctx = ffmpeg.swr_alloc();
 
             AVChannelLayout tempLayout = inFmt.Layout;
@@ -45,21 +49,26 @@ namespace FramePFX.Core.FFmpegWrapper {
         /// <returns> The number of samples written to the dst buffer. </returns>
         public int Convert<TSrc, TDst>(ReadOnlySpan<TSrc> src, Span<TDst> dst)
             where TSrc : unmanaged
-            where TDst : unmanaged {
-            if (this.InputFormat.IsPlanar || this.OutputFormat.IsPlanar) {
+            where TDst : unmanaged
+        {
+            if (this.InputFormat.IsPlanar || this.OutputFormat.IsPlanar)
+            {
                 throw new InvalidOperationException("This overload does not support planar formats.");
             }
 
-            if (src.Length % this.InputFormat.NumChannels != 0 || dst.Length % this.OutputFormat.NumChannels != 0) {
+            if (src.Length % this.InputFormat.NumChannels != 0 || dst.Length % this.OutputFormat.NumChannels != 0)
+            {
                 throw new ArgumentException("Buffer sizes must be aligned to channel count.");
             }
 
-            if (this.InputFormat.BytesPerSample != sizeof(TSrc) || this.OutputFormat.BytesPerSample != sizeof(TDst)) {
+            if (this.InputFormat.BytesPerSample != sizeof(TSrc) || this.OutputFormat.BytesPerSample != sizeof(TDst))
+            {
                 throw new ArgumentException("Buffer types must match resampler format.");
             }
 
             fixed (TSrc* pSrc = src)
-                fixed (TDst* pDst = dst) {
+                fixed (TDst* pDst = dst)
+                {
                     TSrc** ppSrc = pSrc == null ? null : &pSrc;
                     return this.Convert((byte**) ppSrc, src.Length / this.InputFormat.NumChannels,
                         (byte**) &pDst, dst.Length / this.OutputFormat.NumChannels);
@@ -77,18 +86,22 @@ namespace FramePFX.Core.FFmpegWrapper {
         /// <param name="srcCount">Number of samples (per channel) in the src buffer.</param>
         /// <param name="dstCount">Capacity, in samples (per channel) of the dst buffer.</param>
         /// <returns>The number of samples written to the dst buffer.</returns>
-        public int Convert(byte** src, int srcCount, byte** dst, int dstCount) {
+        public int Convert(byte** src, int srcCount, byte** dst, int dstCount)
+        {
             int tempQualifier = ffmpeg.swr_convert(this.Handle, dst, dstCount, src, srcCount);
-            if (tempQualifier < 0 && tempQualifier != ffmpeg.EAGAIN && tempQualifier != ffmpeg.AVERROR_EOF) {
+            if (tempQualifier < 0 && tempQualifier != ffmpeg.EAGAIN && tempQualifier != ffmpeg.AVERROR_EOF)
+            {
                 throw FFUtils.GetException(tempQualifier);
             }
 
             return tempQualifier;
         }
 
-        public int Convert(AudioFrame src, AudioFrame dst) {
+        public int Convert(AudioFrame src, AudioFrame dst)
+        {
             int tempQualifier = ffmpeg.swr_convert_frame(this.Handle, dst.Handle, src == null ? null : src.Handle);
-            if (tempQualifier < 0 && tempQualifier != ffmpeg.EAGAIN && tempQualifier != ffmpeg.AVERROR_EOF) {
+            if (tempQualifier < 0 && tempQualifier != ffmpeg.EAGAIN && tempQualifier != ffmpeg.AVERROR_EOF)
+            {
                 throw FFUtils.GetException(tempQualifier);
             }
 
@@ -107,8 +120,10 @@ namespace FramePFX.Core.FFmpegWrapper {
         /// Setting <paramref name="source"/> to null will begin flushing, in which case Drain() may return true with partially filled frames on the last time.
         /// </summary>
         /// <exception cref="InvalidOperationException">If there's an activ</exception>
-        public void BeginConvert(AudioFrame source, AudioFrame dest) {
-            if (this._currentDest != null) {
+        public void BeginConvert(AudioFrame source, AudioFrame dest)
+        {
+            if (this._currentDest != null)
+            {
                 throw new InvalidOperationException("Cannot call BeginConvert() again until the current buffer is fully drained.");
             }
 
@@ -116,11 +131,13 @@ namespace FramePFX.Core.FFmpegWrapper {
             byte** inputData = null;
             int inputLen = 0;
 
-            if (source != null) {
+            if (source != null)
+            {
                 inputData = source.Data;
                 inputLen = source.Count;
             }
-            else {
+            else
+            {
                 this._flushing = true;
             }
 
@@ -129,10 +146,12 @@ namespace FramePFX.Core.FFmpegWrapper {
         }
 
         /// <summary> Drains converted samples to the current dest frame. See <see cref="BeginConvert(AudioFrame, AudioFrame)"/>. </summary>
-        public bool Drain() {
+        public bool Drain()
+        {
             AudioFrame dest = this._currentDest ?? throw new InvalidOperationException($"No bound destination frame. Try calling {nameof(this.BeginConvert)}() first.");
 
-            if (dest.Count >= dest.Capacity) {
+            if (dest.Count >= dest.Capacity)
+            {
                 dest.Count = 0;
             }
 
@@ -142,7 +161,8 @@ namespace FramePFX.Core.FFmpegWrapper {
             int numPlanes = dest.IsPlanar ? dest.NumChannels : 1;
             byte** outData = stackalloc byte*[numPlanes];
 
-            for (int i = 0; i < numPlanes; i++) {
+            for (int i = 0; i < numPlanes; i++)
+            {
                 outData[i] = &dest.Data[i][outOffset];
             }
 
@@ -151,7 +171,8 @@ namespace FramePFX.Core.FFmpegWrapper {
 
             dest.Count += actualOut;
 
-            if (dest.Count != dest.Capacity) {
+            if (dest.Count != dest.Capacity)
+            {
                 //No more buffered data, data must be feed via BeginConvert() again.
                 this._currentDest = null;
                 this._flushing = false;
@@ -169,20 +190,26 @@ namespace FramePFX.Core.FFmpegWrapper {
         /// (like further convert() calls) may change the number of samples this method returns
         /// for the same number of input samples.
         /// </summary>
-        public int GetOutputSamples(int inputSampleCount) {
+        public int GetOutputSamples(int inputSampleCount)
+        {
             return ffmpeg.swr_get_out_samples(this._ctx, inputSampleCount);
         }
 
-        protected override void Free() {
-            if (this._ctx != null) {
-                fixed (SwrContext** s = &this._ctx) {
+        protected override void Free()
+        {
+            if (this._ctx != null)
+            {
+                fixed (SwrContext** s = &this._ctx)
+                {
                     ffmpeg.swr_free(s);
                 }
             }
         }
 
-        private void ValidateNotDisposed() {
-            if (this._ctx == null) {
+        private void ValidateNotDisposed()
+        {
+            if (this._ctx == null)
+            {
                 throw new ObjectDisposedException(nameof(SwResampler));
             }
         }

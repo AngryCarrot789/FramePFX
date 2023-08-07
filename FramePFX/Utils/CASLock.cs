@@ -1,7 +1,9 @@
 using System.Threading;
 
-namespace FramePFX.Utils {
-    public sealed class CASLock {
+namespace FramePFX.Utils
+{
+    public sealed class CASLock
+    {
         private readonly object locker;
         private volatile int counter;
 
@@ -10,7 +12,8 @@ namespace FramePFX.Utils {
         /// </summary>
         public int Count => this.counter;
 
-        public CASLock() {
+        public CASLock()
+        {
             this.locker = new object();
         }
 
@@ -19,14 +22,18 @@ namespace FramePFX.Utils {
         /// </summary>
         /// <param name="force">Whether to force take the lock</param>
         /// <returns>True if the lock was successfully taken or already taken previously</returns>
-        public bool Lock(bool force) {
+        public bool Lock(bool force)
+        {
             bool lockTaken = false;
             Monitor.TryEnter(this.locker, ref lockTaken);
-            if (!lockTaken && !Monitor.IsEntered(this.locker)) {
-                if (force) {
+            if (!lockTaken && !Monitor.IsEntered(this.locker))
+            {
+                if (force)
+                {
                     Monitor.Enter(this.locker);
                 }
-                else {
+                else
+                {
                     return false;
                 }
             }
@@ -49,7 +56,8 @@ namespace FramePFX.Utils {
         /// <summary>
         /// Unlocks this <see cref="CASLock"/>. If this function is called before <see cref="Lock"/>, it may corrupt the state of this <see cref="CASLock"/>
         /// </summary>
-        public void Unlock() {
+        public void Unlock()
+        {
             Interlocked.Decrement(ref this.counter);
             Monitor.Exit(this.locker);
         }

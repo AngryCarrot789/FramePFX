@@ -18,10 +18,10 @@
                   ResizeMode="CanResize"
                   Style="{DynamicResource CustomWindowStyleEx}">
     <Window.Resources>
-        <converters:EmptyStringToVisibilityConverter x:Key="StringToVisibility"/>
+        <converters:EmptyStringToVisibilityConverter x:Key="StringToVisibility" />
         <!-- <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Visible"/>-->
         <!-- ShowUseNextResultForCurrentQueueOptionToVisibilityConverter -->
-        <converters:BoolConverterAND x:Key="BoolAND"/>
+        <converters:BoolConverterAND x:Key="BoolAND" />
         <!-- <message2:CurrentQueueCheckBoxConverter x:Key="NotSureWhatToNameThis"/> -->
     </Window.Resources>
     <DockPanel x:Name="WindowContentRoot">
@@ -29,7 +29,7 @@
             <DockPanel>
                 <ItemsControl DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,10,0" Padding="0,5">
                     <CheckBox IsEnabled="{Binding ShowAlwaysUseNextResultOption, Mode=OneWay}" IsChecked="{Binding IsAlwaysUseThisOptionChecked, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,2">
-                        <TextBlock TextWrapping="Wrap" Text="Always use this option" TextAlignment="Center"/>
+                        <TextBlock TextWrapping="Wrap" Text="Always use this option" TextAlignment="Center" />
                     </CheckBox>
                     <!--
                     <CheckBox.Visibility>
@@ -43,21 +43,21 @@
                     <CheckBox Content="Current queue only" IsChecked="{Binding IsAlwaysUseThisOptionForCurrentQueueChecked, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,0">
                         <CheckBox.IsEnabled>
                             <MultiBinding Converter="{StaticResource BoolAND}">
-                                <Binding Path="ShowAlwaysUseNextResultOption"/>
-                                <Binding Path="IsAlwaysUseThisOptionChecked"/>
-                                <Binding Path="CanShowAlwaysUseNextResultForCurrentQueueOption" Mode="OneWay"/>
+                                <Binding Path="ShowAlwaysUseNextResultOption" />
+                                <Binding Path="IsAlwaysUseThisOptionChecked" />
+                                <Binding Path="CanShowAlwaysUseNextResultForCurrentQueueOption" Mode="OneWay" />
                             </MultiBinding>
                         </CheckBox.IsEnabled>
                     </CheckBox>
                 </ItemsControl>
-                <ItemsControl DockPanel.Dock="Right" ItemsSource="{Binding Buttons, Mode=OneTime}" 
-                              VerticalAlignment="Center" HorizontalAlignment="Right" 
-                              VerticalContentAlignment="Stretch" 
+                <ItemsControl DockPanel.Dock="Right" ItemsSource="{Binding Buttons, Mode=OneTime}"
+                              VerticalAlignment="Center" HorizontalAlignment="Right"
+                              VerticalContentAlignment="Stretch"
                               Height="23" Margin="0,10"
                               x:Name="ButtonBarList">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
+                            <StackPanel Orientation="Horizontal" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.Resources>
@@ -71,7 +71,7 @@
                                     attached:CornerRadiusHelper.Value="2"
                                     Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                     BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
-                                    Focusable="True"/>
+                                    Focusable="True" />
                         </DataTemplate>
                     </ItemsControl.Resources>
                 </ItemsControl>
@@ -82,7 +82,7 @@
                       BorderThickness="0,1" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}">
             <ScrollViewer.Style>
                 <Style TargetType="{x:Type ScrollViewer}" BasedOn="{StaticResource {x:Type ScrollViewer}}">
-                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderThickness" Value="1" />
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ScrollViewer}">
@@ -104,16 +104,16 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <DataTrigger Binding="{Binding ComputedVerticalScrollBarVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ScrollViewer}}}" Value="{x:Static Visibility.Visible}">
-                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="BorderThickness" Value="1" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ComputedHorizontalScrollBarVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ScrollViewer}}}" Value="{x:Static Visibility.Visible}">
-                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="BorderThickness" Value="1" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ComputedVerticalScrollBarVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ScrollViewer}}}" Value="{x:Static Visibility.Collapsed}">
-                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="BorderThickness" Value="0" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ComputedHorizontalScrollBarVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ScrollViewer}}}" Value="{x:Static Visibility.Collapsed}">
-                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="BorderThickness" Value="0" />
                                     </DataTrigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -122,12 +122,12 @@
                 </Style>
             </ScrollViewer.Style>
             <ItemsControl Padding="8,10">
-                <TextBlock Text="{Binding Header}" Visibility="{Binding Header, Converter={StaticResource StringToVisibility}, Mode=OneWay}" VerticalAlignment="Top" Padding="0,0,0,5" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
+                <TextBlock Text="{Binding Header}" Visibility="{Binding Header, Converter={StaticResource StringToVisibility}, Mode=OneWay}" VerticalAlignment="Top" Padding="0,0,0,5" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}" />
                 <TextBox x:Name="PART_TextBox" Text="{Binding Message, Mode=OneWay}"
                          Background="Transparent" BorderBrush="Transparent"
                          BorderThickness="0"
                          IsReadOnly="True" IsReadOnlyCaretVisible="True"
-                         TextWrapping="Wrap" VerticalAlignment="Top" Padding="0"/>
+                         TextWrapping="Wrap" VerticalAlignment="Top" Padding="0" />
             </ItemsControl>
         </ScrollViewer>
     </DockPanel>

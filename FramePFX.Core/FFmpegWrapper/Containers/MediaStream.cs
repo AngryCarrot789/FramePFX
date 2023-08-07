@@ -1,9 +1,10 @@
 ﻿using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.Core.FFmpegWrapper.Containers {
-
-    public unsafe class MediaStream {
+namespace FramePFX.Core.FFmpegWrapper.Containers
+{
+    public unsafe class MediaStream
+    {
         public AVStream* Handle { get; }
 
         public int Index => this.Handle->index;
@@ -21,7 +22,8 @@ namespace FramePFX.Core.FFmpegWrapper.Containers {
 
         public double AvgFrameRate => ffmpeg.av_q2d(this.Handle->avg_frame_rate);
 
-        public MediaStream(AVStream* stream) {
+        public MediaStream(AVStream* stream)
+        {
             this.Handle = stream;
         }
 

@@ -3,18 +3,21 @@ using System.Numerics;
 using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Automation.Keys {
+namespace FramePFX.Core.Automation.Keys
+{
     /// <summary>
     /// The base class for a <see cref="AutomationKey"/> descriptor, which stores metadata about a key
     /// </summary>
-    public abstract class KeyDescriptor {
+    public abstract class KeyDescriptor
+    {
         /// <summary>
         /// The data type of this descriptor
         /// </summary>
         public abstract AutomationDataType DataType { get; }
     }
 
-    public class KeyDescriptorFloat : KeyDescriptor {
+    public class KeyDescriptorFloat : KeyDescriptor
+    {
         public float DefaultValue { get; }
         public float Minimum { get; }
         public float Maximum { get; }
@@ -27,7 +30,8 @@ namespace FramePFX.Core.Automation.Keys {
 
         public override AutomationDataType DataType => AutomationDataType.Float;
 
-        public KeyDescriptorFloat(float defaultValue, float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, int precision = -1, float step = float.NaN) {
+        public KeyDescriptorFloat(float defaultValue, float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, int precision = -1, float step = float.NaN)
+        {
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
             this.Maximum = maximum;
@@ -35,13 +39,15 @@ namespace FramePFX.Core.Automation.Keys {
             this.Step = step;
         }
 
-        public float Clamp(float value) {
+        public float Clamp(float value)
+        {
             value = Maths.Clamp(value, this.Minimum, this.Maximum);
             return this.Precision >= 0 ? (float) Math.Round(value, this.Precision) : value;
         }
     }
 
-    public class KeyDescriptorDouble : KeyDescriptor {
+    public class KeyDescriptorDouble : KeyDescriptor
+    {
         public double DefaultValue { get; }
         public double Minimum { get; }
         public double Maximum { get; }
@@ -54,7 +60,8 @@ namespace FramePFX.Core.Automation.Keys {
 
         public override AutomationDataType DataType => AutomationDataType.Double;
 
-        public KeyDescriptorDouble(double defaultValue, double minimum = double.NegativeInfinity, double maximum = double.PositiveInfinity, int precision = -1, double step = double.NaN) {
+        public KeyDescriptorDouble(double defaultValue, double minimum = double.NegativeInfinity, double maximum = double.PositiveInfinity, int precision = -1, double step = double.NaN)
+        {
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
             this.Maximum = maximum;
@@ -62,13 +69,15 @@ namespace FramePFX.Core.Automation.Keys {
             this.Step = step;
         }
 
-        public double Clamp(double value) {
+        public double Clamp(double value)
+        {
             value = Maths.Clamp(value, this.Minimum, this.Maximum);
             return this.Precision >= 0 ? Math.Round(value, this.Precision) : value;
         }
     }
 
-    public class KeyDescriptorLong : KeyDescriptor {
+    public class KeyDescriptorLong : KeyDescriptor
+    {
         public long DefaultValue { get; }
         public long Minimum { get; }
         public long Maximum { get; }
@@ -78,7 +87,8 @@ namespace FramePFX.Core.Automation.Keys {
 
         public override AutomationDataType DataType => AutomationDataType.Long;
 
-        public KeyDescriptorLong(long defaultValue, long minimum = long.MinValue, long maximum = long.MaxValue, long step = 1) {
+        public KeyDescriptorLong(long defaultValue, long minimum = long.MinValue, long maximum = long.MaxValue, long step = 1)
+        {
             if (step < 1)
                 throw new ArgumentOutOfRangeException(nameof(step), "Step must be greater than zero");
             if (defaultValue < minimum || defaultValue > maximum)
@@ -89,22 +99,27 @@ namespace FramePFX.Core.Automation.Keys {
             this.Step = step;
         }
 
-        public long Clamp(long value) { // TODO: implement round to nearest step using modulo maybe?
+        public long Clamp(long value)
+        {
+            // TODO: implement round to nearest step using modulo maybe?
             return Maths.Clamp(value, this.Minimum, this.Maximum);
         }
     }
 
-    public class KeyDescriptorBoolean : KeyDescriptor {
+    public class KeyDescriptorBoolean : KeyDescriptor
+    {
         public bool DefaultValue { get; }
 
         public override AutomationDataType DataType => AutomationDataType.Boolean;
 
-        public KeyDescriptorBoolean(bool defaultValue = false) {
+        public KeyDescriptorBoolean(bool defaultValue = false)
+        {
             this.DefaultValue = defaultValue;
         }
     }
 
-    public class KeyDescriptorVector2 : KeyDescriptor {
+    public class KeyDescriptorVector2 : KeyDescriptor
+    {
         public Vector2 DefaultValue { get; }
         public Vector2 Minimum { get; }
         public Vector2 Maximum { get; }
@@ -114,20 +129,23 @@ namespace FramePFX.Core.Automation.Keys {
 
         public override AutomationDataType DataType => AutomationDataType.Vector2;
 
-        public KeyDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum, int precision = -1) {
+        public KeyDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum, int precision = -1)
+        {
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
             this.Maximum = maximum;
             this.Precision = precision;
         }
 
-        public Vector2 Clamp(Vector2 value) {
+        public Vector2 Clamp(Vector2 value)
+        {
             value = value.Clamp(this.Minimum, this.Maximum);
             return this.Precision >= 0 ? value.Round(this.Precision) : value;
         }
     }
 
-    public class KeyDescriptorVector3 : KeyDescriptor {
+    public class KeyDescriptorVector3 : KeyDescriptor
+    {
         public Vector3 DefaultValue { get; }
         public Vector3 Minimum { get; }
         public Vector3 Maximum { get; }
@@ -137,14 +155,16 @@ namespace FramePFX.Core.Automation.Keys {
 
         public override AutomationDataType DataType => AutomationDataType.Vector3;
 
-        public KeyDescriptorVector3(Vector3 defaultValue, Vector3 minimum, Vector3 maximum, int precision = -1) {
+        public KeyDescriptorVector3(Vector3 defaultValue, Vector3 minimum, Vector3 maximum, int precision = -1)
+        {
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
             this.Maximum = maximum;
             this.Precision = precision;
         }
 
-        public Vector3 Clamp(Vector3 value) {
+        public Vector3 Clamp(Vector3 value)
+        {
             value = value.Clamp(this.Minimum, this.Maximum);
             return this.Precision >= 0 ? value.Round(this.Precision) : value;
         }

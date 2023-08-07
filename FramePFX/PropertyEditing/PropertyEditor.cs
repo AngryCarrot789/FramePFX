@@ -7,15 +7,19 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Core.PropertyEditing;
 
-namespace FramePFX.PropertyEditing {
-    public class PropertyEditor : Control {
+namespace FramePFX.PropertyEditing
+{
+    public class PropertyEditor : Control
+    {
         public static readonly DependencyProperty EditorRegistryProperty =
             DependencyProperty.Register(
                 "EditorRegistry",
                 typeof(PropertyEditorRegistry),
                 typeof(PropertyEditor),
-                new PropertyMetadata(null, (d, e) => {
-                    if (e.NewValue is PropertyEditorRegistry editor) {
+                new PropertyMetadata(null, (d, e) =>
+                {
+                    if (e.NewValue is PropertyEditorRegistry editor)
+                    {
                         ((PropertyEditor) d).ApplicableItems = editor.Root.PropertyObjects;
                     }
                 }));
@@ -39,20 +43,23 @@ namespace FramePFX.PropertyEditing {
         public static readonly DependencyProperty ColumnWidth1Property = DependencyProperty.Register("ColumnWidth1", typeof(GridLength), typeof(PropertyEditor), new PropertyMetadata(new GridLength(5)));
         public static readonly DependencyProperty ColumnWidth2Property = DependencyProperty.Register("ColumnWidth2", typeof(GridLength), typeof(PropertyEditor), new PropertyMetadata(Star));
 
-        public PropertyEditorRegistry EditorRegistry {
+        public PropertyEditorRegistry EditorRegistry
+        {
             get => (PropertyEditorRegistry) this.GetValue(EditorRegistryProperty);
             set => this.SetValue(EditorRegistryProperty, value);
         }
 
         // INPUT
-        public IEnumerable InputItems {
+        public IEnumerable InputItems
+        {
             get => (IEnumerable) this.GetValue(InputItemsProperty);
             set => this.SetValue(InputItemsProperty, value);
         }
 
         // OUTPUT
 
-        public IEnumerable ApplicableItems {
+        public IEnumerable ApplicableItems
+        {
             get => (IEnumerable) this.GetValue(ApplicableItemsProperty);
             set => this.SetValue(ApplicableItemsProperty, value);
         }
@@ -63,11 +70,13 @@ namespace FramePFX.PropertyEditing {
 
         private readonly bool isInDesigner;
 
-        public PropertyEditor() {
+        public PropertyEditor()
+        {
             this.isInDesigner = DesignerProperties.GetIsInDesignMode(this);
         }
 
-        private void OnDataSourceChanged(IEnumerable oldItems, IEnumerable newItems) {
+        private void OnDataSourceChanged(IEnumerable oldItems, IEnumerable newItems)
+        {
             if (oldItems is INotifyCollectionChanged)
                 ((INotifyCollectionChanged) oldItems).CollectionChanged -= this.OnDataSourceCollectionChanged;
             if (newItems is INotifyCollectionChanged)
@@ -75,12 +84,15 @@ namespace FramePFX.PropertyEditing {
             this.SetupObjects();
         }
 
-        private void OnDataSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        private void OnDataSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
             this.SetupObjects();
         }
 
-        private void SetupObjects() {
-            if (this.EditorRegistry is PropertyEditorRegistry registry) {
+        private void SetupObjects()
+        {
+            if (this.EditorRegistry is PropertyEditorRegistry registry)
+            {
                 IEnumerable items = this.InputItems;
                 List<object> list = items != null ? items.Cast<object>().ToList() : new List<object>();
                 registry.SetupObjects(list);

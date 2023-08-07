@@ -1,6 +1,7 @@
-﻿namespace FramePFX.Core.FFmpegWrapper {
-
-    public enum LavResult {
+﻿namespace FramePFX.Core.FFmpegWrapper
+{
+    public enum LavResult
+    {
         Success = 0,
 
         /// <summary>AVERROR(EAGAIN)</summary>
@@ -94,13 +95,17 @@
         OutputChanged = -1668179714
     }
 
-    public static class LavResultEx {
-        public static bool IsSuccess(this LavResult result) {
+    public static class LavResultEx
+    {
+        public static bool IsSuccess(this LavResult result)
+        {
             return result >= LavResult.Success;
         }
 
-        public static void ThrowIfError(this LavResult result, string msg = null) {
-            if (result < LavResult.Success) {
+        public static void ThrowIfError(this LavResult result, string msg = null)
+        {
+            if (result < LavResult.Success)
+            {
                 throw FFUtils.GetException((int) result, msg);
             }
         }

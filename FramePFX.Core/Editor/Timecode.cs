@@ -1,10 +1,12 @@
 using FFmpeg.AutoGen;
 
-namespace FramePFX.Core.Editor {
+namespace FramePFX.Core.Editor
+{
     /// <summary>
     /// A helper class for dealing with time
     /// </summary>
-    public static class Timecode {
+    public static class Timecode
+    {
         public static readonly Rational Fps10 = new Rational(10, 1);
         public static readonly Rational Fps12 = new Rational(22, 1);
         public static readonly Rational Fps15 = new Rational(15, 1);
@@ -38,22 +40,26 @@ namespace FramePFX.Core.Editor {
         /// <param name="timestamp"></param>
         /// <param name="tb">Timebase</param>
         /// <returns></returns>
-        public static unsafe Rational TimeStampToDuration(this Rational tb, long timestamp) {
+        public static unsafe Rational TimeStampToDuration(this Rational tb, long timestamp)
+        {
             ffmpeg.av_reduce(&tb.num, &tb.den, tb.num * timestamp, tb.den, int.MaxValue);
             return tb;
         }
 
-        public static unsafe Rational FromFrame(Rational tb, long frame) {
+        public static unsafe Rational FromFrame(Rational tb, long frame)
+        {
             ffmpeg.av_reduce(&tb.num, &tb.den, tb.num * frame, tb.den, int.MaxValue);
             return tb;
         }
 
-        public static Rational PixelToTime(double pixel, double scale) {
+        public static Rational PixelToTime(double pixel, double scale)
+        {
             double unscaled = pixel / scale;
             return Rational.FromDouble(unscaled);
         }
 
-        public static Rational TimeBaseToMediaTime(Rational r, double speed) {
+        public static Rational TimeBaseToMediaTime(Rational r, double speed)
+        {
             return r * Rational.FromDouble(speed);
         }
     }

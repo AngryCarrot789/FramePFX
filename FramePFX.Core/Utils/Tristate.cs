@@ -1,5 +1,7 @@
-namespace FramePFX.Core.Utils {
-    public enum Tristate : byte {
+namespace FramePFX.Core.Utils
+{
+    public enum Tristate : byte
+    {
         True,
         False,
         None,

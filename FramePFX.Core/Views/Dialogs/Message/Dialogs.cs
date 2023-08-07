@@ -1,8 +1,10 @@
-namespace FramePFX.Core.Views.Dialogs.Message {
+namespace FramePFX.Core.Views.Dialogs.Message
+{
     /// <summary>
     /// A static class that contains some of the general message dialogs
     /// </summary>
-    public static class Dialogs {
+    public static class Dialogs
+    {
         public static readonly MessageDialog OkDialog;
         public static readonly MessageDialog OkCancelDialog;
         public static readonly MessageDialog YesCancelDialog;
@@ -17,7 +19,8 @@ namespace FramePFX.Core.Views.Dialogs.Message {
         public static readonly MessageDialog InvalidPathDialog;
         public static readonly MessageDialog RemoveItemWhenDeletingDialog;
 
-        static Dialogs() {
+        static Dialogs()
+        {
             YesNoCancelDialog = new MessageDialog("yes");
             YesNoCancelDialog.AddButton("Yes", "yes");
             YesNoCancelDialog.AddButton("No", "no");

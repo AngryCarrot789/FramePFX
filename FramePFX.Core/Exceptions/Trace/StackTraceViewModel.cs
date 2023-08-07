@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace FramePFX.Core.Exceptions.Trace {
-    public class StackTraceViewModel : BaseViewModel {
+namespace FramePFX.Core.Exceptions.Trace
+{
+    public class StackTraceViewModel : BaseViewModel
+    {
         private readonly ObservableCollection<StackFrameViewModel> frames;
 
         public ReadOnlyObservableCollection<StackFrameViewModel> Frames { get; }
@@ -11,7 +13,8 @@ namespace FramePFX.Core.Exceptions.Trace {
 
         public StackTrace TheTrace { get; }
 
-        public StackTraceViewModel(ExceptionViewModel exception) {
+        public StackTraceViewModel(ExceptionViewModel exception)
+        {
             this.Exception = exception;
             this.TheTrace = new StackTrace(exception.TheException, 0, true);
             this.frames = new ObservableCollection<StackFrameViewModel>();
@@ -19,14 +22,17 @@ namespace FramePFX.Core.Exceptions.Trace {
             this.frames.Add(null);
         }
 
-        public void Load() {
+        public void Load()
+        {
             this.frames.Clear();
             StackFrame[] array = this.TheTrace.GetFrames();
-            if (array == null) {
+            if (array == null)
+            {
                 return;
             }
 
-            foreach (StackFrame frame in array) {
+            foreach (StackFrame frame in array)
+            {
                 this.frames.Add(new StackFrameViewModel(this, frame));
             }
         }

@@ -1,5 +1,6 @@
-namespace FramePFX.Editor.Resources {
-    public class ResourceItemControl : BaseResourceItemControl {
-
+namespace FramePFX.Editor.Resources
+{
+    public class ResourceItemControl : BaseResourceItemControl
+    {
     }
 }

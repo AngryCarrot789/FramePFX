@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 
-namespace FramePFX.Core.Editor {
-    public interface IAcceptResourceDrop {
+namespace FramePFX.Core.Editor
+{
+    public interface IAcceptResourceDrop
+    {
         bool CanDropResource(BaseResourceObjectViewModel resource);
 
         /// <summary>

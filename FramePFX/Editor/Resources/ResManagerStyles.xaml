@@ -30,13 +30,13 @@
                                     <TextBlock Text="{TemplateBinding HeaderText}"
                                                Padding="3" VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis"
-                                               ToolTip="{TemplateBinding HeaderText}"/>
+                                               ToolTip="{TemplateBinding HeaderText}" />
                                 </Grid>
                             </Border>
                             <Border Margin="0,0,0,24" Background="{TemplateBinding ContentBackground}" SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Border>
                         </Grid>
                     </Border>
@@ -54,7 +54,7 @@
                                 <Condition Property="IsSelected" Value="True" />
                             </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Background}" />
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="LightGreen"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="LightGreen" />
                             <!--
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Border}" />
                             -->
@@ -84,10 +84,10 @@
             <!--  -->
             <Style TargetType="{x:Type resources:ResourceItemControl}" BasedOn="{StaticResource {x:Type resources:BaseResourceItemControl}}"
                    d:DataContext="{d:DesignInstance vm1:ResourceItemViewModel}">
-                <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}"/>
+                <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                        <Setter Property="Background" Value="DarkRed"/>
+                        <Setter Property="Background" Value="DarkRed" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
@@ -96,49 +96,49 @@
             <!--  -->
             <Style TargetType="{x:Type resources:ResourceGroupControl}" BasedOn="{StaticResource {x:Type resources:BaseResourceItemControl}}"
                    d:DataContext="{d:DesignInstance vm1:ResourceGroupViewModel}">
-                <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}"/>
+                <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
             </Style>
         </resources:ResourceItemContainerStyleSelector.ResourceGroupStyle>
     </resources:ResourceItemContainerStyleSelector>
     <resources:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
         <resources:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
             <DataTemplate DataType="{x:Type vm1:ResourceItemViewModel}">
-                <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}"/>
+                <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}" />
             </DataTemplate>
         </resources:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
         <resources:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
             <DataTemplate DataType="{x:Type rc:ResourceColourViewModel}">
-                <Border Background="{Binding Colour, Converter={x:Static c:SKColorToBrushConverter.Instance}}"/>
+                <Border Background="{Binding Colour, Converter={x:Static c:SKColorToBrushConverter.Instance}}" />
             </DataTemplate>
         </resources:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
         <resources:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
             <DataTemplate DataType="{x:Type vm1:ResourceGroupViewModel}">
-                <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </DataTemplate>
         </resources:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
     </resources:ResourceItemContainerDataTemplateSelector>
 
     <ItemsPanelTemplate x:Key="ResourceListControlWrapPanelTemplate">
-        <WrapPanel Orientation="Horizontal"/>
+        <WrapPanel Orientation="Horizontal" />
     </ItemsPanelTemplate>
 
     <ItemsPanelTemplate x:Key="ResourceListControlStackPanelTemplate">
-        <StackPanel Orientation="Vertical"/>
+        <StackPanel Orientation="Vertical" />
     </ItemsPanelTemplate>
 
     <Style TargetType="resources:ResourceListControl">
-        <Setter Property="Background" Value="{DynamicResource ListBox.Static.Background}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Static.Border}"/>
-        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
-        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="ItemContainerStyleSelector" Value="{StaticResource ResourceItemContainerStyleSelector}"/>
-        <Setter Property="ItemTemplateSelector" Value="{StaticResource ResourceItemContainerDataTemplateSelector}"/>
-        <Setter Property="ItemsPanel" Value="{StaticResource ResourceListControlWrapPanelTemplate}"/>
+        <Setter Property="Background" Value="{DynamicResource ListBox.Static.Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Static.Border}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
+        <Setter Property="ScrollViewer.PanningMode" Value="Both" />
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="ItemContainerStyleSelector" Value="{StaticResource ResourceItemContainerStyleSelector}" />
+        <Setter Property="ItemTemplateSelector" Value="{StaticResource ResourceItemContainerDataTemplateSelector}" />
+        <Setter Property="ItemsPanel" Value="{StaticResource ResourceListControlWrapPanelTemplate}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type resources:ResourceListControl}">

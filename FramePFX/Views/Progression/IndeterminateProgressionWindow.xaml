@@ -21,11 +21,11 @@
     <DockPanel>
         <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" x:Name="ButtonBarBorder" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
             <Grid Height="43">
-                <Button Visibility="{Binding CanForceCompletion, Converter={x:Static converters:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" Command="{Binding ForceCompleteCommand, Mode=OneTime}" attached:CornerRadiusHelper.Value="2" Content="Force Completion" Margin="0,0,92,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
-                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerRadiusHelper.Value="2" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"/>
+                <Button Visibility="{Binding CanForceCompletion, Converter={x:Static converters:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" Command="{Binding ForceCompleteCommand, Mode=OneTime}" attached:CornerRadiusHelper.Value="2" Content="Force Completion" Margin="0,0,92,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
+                <Button Command="{Binding CancelCommand, Mode=OneTime}" attached:CornerRadiusHelper.Value="2" Content="Cancel" Margin="0,0,10,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
             </Grid>
         </Border>
-        <ProgressBar IsIndeterminate="True" DockPanel.Dock="Bottom" Margin="5,5" Height="24"/>
-        <TextBlock Margin="10,10,10,0" Padding="3" Text="{Binding Message, Mode=OneWay}" TextAlignment="Left"/>
+        <ProgressBar IsIndeterminate="True" DockPanel.Dock="Bottom" Margin="5,5" Height="24" />
+        <TextBlock Margin="10,10,10,0" Padding="3" Text="{Binding Message, Mode=OneWay}" TextAlignment="Left" />
     </DockPanel>
 </views:BaseWindow>

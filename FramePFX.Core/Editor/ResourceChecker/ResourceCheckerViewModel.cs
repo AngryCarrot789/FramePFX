@@ -8,19 +8,25 @@ using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 
-namespace FramePFX.Core.Editor.ResourceChecker {
-    public class ResourceCheckerViewModel : BaseViewModel {
+namespace FramePFX.Core.Editor.ResourceChecker
+{
+    public class ResourceCheckerViewModel : BaseViewModel
+    {
         private readonly ObservableCollectionEx<InvalidResourceViewModel> resources;
         public ReadOnlyObservableCollection<InvalidResourceViewModel> Resources { get; }
 
         private InvalidResourceViewModel currentItem;
-        public InvalidResourceViewModel CurrentItem {
+
+        public InvalidResourceViewModel CurrentItem
+        {
             get => this.currentItem;
             set => this.RaisePropertyChanged(ref this.currentItem, value);
         }
 
         private int currentIndex;
-        public int CurrentIndex {
+
+        public int CurrentIndex
+        {
             get => this.currentIndex;
             set => this.RaisePropertyChanged(ref this.currentIndex, value);
         }
@@ -31,7 +37,8 @@ namespace FramePFX.Core.Editor.ResourceChecker {
 
         public IDialog Dialog { get; set; }
 
-        public ResourceCheckerViewModel() {
+        public ResourceCheckerViewModel()
+        {
             this.resources = new ObservableCollectionEx<InvalidResourceViewModel>();
             this.Resources = new ReadOnlyObservableCollection<InvalidResourceViewModel>(this.resources);
             this.CancelCommand = new AsyncRelayCommand(this.CancelAction);
@@ -39,7 +46,8 @@ namespace FramePFX.Core.Editor.ResourceChecker {
             this.OfflineAllCommand = new AsyncRelayCommand(this.OfflineAllAction);
         }
 
-        public static Task<bool> LoadProjectResources(ProjectViewModel project, bool forceValidate) {
+        public static Task<bool> LoadProjectResources(ProjectViewModel project, bool forceValidate)
+        {
             return LoadResources(project.ResourceManager.Root.Items, forceValidate);
         }
 
@@ -52,62 +60,79 @@ namespace FramePFX.Core.Editor.ResourceChecker {
         /// <param name="resources"></param>
         /// <param name="ignoreUserOffline">If the resource was forced offline by the user, setting this to true will force it to be validated anyway</param>
         /// <returns>Whether the UI operation was successful or cancelled</returns>
-        public static async Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false) {
+        public static async Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false)
+        {
             ResourceCheckerViewModel checker = new ResourceCheckerViewModel();
-            using (ExceptionStack stack = new ExceptionStack(false)) {
-                foreach (BaseResourceObjectViewModel resourceObject in resources.ToList()) {
+            using (ExceptionStack stack = new ExceptionStack(false))
+            {
+                foreach (BaseResourceObjectViewModel resourceObject in resources.ToList())
+                {
                     await LoadResourcesRecursive(checker, resourceObject, stack, ignoreUserOffline);
                 }
 
-                if (stack.TryGetException(out Exception exception)) {
+                if (stack.TryGetException(out Exception exception))
+                {
                     await IoC.MessageDialogs.ShowMessageExAsync("Exceptions", "One or more exceptions occurred while checking the resource validation states. This can be ignored", exception.GetToString());
                 }
             }
 
-            if (checker.Resources.Count < 1) {
+            if (checker.Resources.Count < 1)
+            {
                 return true;
             }
 
             return await IoC.Provide<IResourceCheckerService>().ShowCheckerDialog(checker);
         }
 
-        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resourceObject, ExceptionStack stack, bool ignoreUserOffline = false) {
-            if (resourceObject is ResourceItemViewModel item) {
-                if (!item.Model.IsOnline && (ignoreUserOffline || !item.Model.IsOfflineByUser)) {
+        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resourceObject, ExceptionStack stack, bool ignoreUserOffline = false)
+        {
+            if (resourceObject is ResourceItemViewModel item)
+            {
+                if (!item.Model.IsOnline && (ignoreUserOffline || !item.Model.IsOfflineByUser))
+                {
                     bool isOnline = await item.LoadResource(checker, stack);
-                    if (isOnline != item.Model.IsOnline) {
+                    if (isOnline != item.Model.IsOnline)
+                    {
                         item.Model.IsOnline = isOnline;
                         item.Model.OnIsOnlineStateChanged();
                     }
                 }
             }
-            else if (resourceObject is ResourceGroupViewModel group) {
-                foreach (BaseResourceObjectViewModel obj in group.Items) {
+            else if (resourceObject is ResourceGroupViewModel group)
+            {
+                foreach (BaseResourceObjectViewModel obj in group.Items)
+                {
                     await LoadResourcesRecursive(checker, obj, stack, ignoreUserOffline);
                 }
             }
         }
 
-        private async Task CancelAction() {
+        private async Task CancelAction()
+        {
             await this.Dialog.CloseDialogAsync(false);
         }
 
-        private async Task OfflineCurrentAction() {
+        private async Task OfflineCurrentAction()
+        {
             int index = this.currentIndex;
-            if (index >= 0 && index < this.resources.Count) {
+            if (index >= 0 && index < this.resources.Count)
+            {
                 InvalidResourceViewModel resource = this.resources[index];
                 await resource.SetResourceOfflineAsync();
                 resource.Checker = null;
                 this.resources.RemoveAt(index);
             }
 
-            if (this.resources.Count < 1) {
+            if (this.resources.Count < 1)
+            {
                 await this.Dialog.CloseDialogAsync(true);
             }
         }
 
-        private async Task OfflineAllAction() {
-            foreach (InvalidResourceViewModel item in this.resources) {
+        private async Task OfflineAllAction()
+        {
+            foreach (InvalidResourceViewModel item in this.resources)
+            {
                 await item.SetResourceOfflineAsync();
                 item.Checker = null;
             }
@@ -116,22 +141,26 @@ namespace FramePFX.Core.Editor.ResourceChecker {
             await this.Dialog.CloseDialogAsync(true);
         }
 
-        public async Task<bool> RemoveItemAction(InvalidResourceViewModel item) {
+        public async Task<bool> RemoveItemAction(InvalidResourceViewModel item)
+        {
             int index = this.resources.IndexOf(item);
-            if (index < 0) {
+            if (index < 0)
+            {
                 return false;
             }
 
             item.Checker = null;
             this.resources.RemoveAt(index);
-            if (this.resources.Count < 1) {
+            if (this.resources.Count < 1)
+            {
                 await this.Dialog.CloseDialogAsync(true);
             }
 
             return true;
         }
 
-        public void Add(InvalidResourceViewModel item) {
+        public void Add(InvalidResourceViewModel item)
+        {
             item.Checker = this;
             this.resources.Add(item);
         }

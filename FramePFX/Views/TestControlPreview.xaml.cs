@@ -12,12 +12,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace FramePFX.Views {
+namespace FramePFX.Views
+{
     /// <summary>
     /// Interaction logic for TestControlPreview.xaml
     /// </summary>
-    public partial class TestControlPreview : WindowEx {
-        public TestControlPreview() {
+    public partial class TestControlPreview : WindowEx
+    {
+        public TestControlPreview()
+        {
             InitializeComponent();
         }
     }

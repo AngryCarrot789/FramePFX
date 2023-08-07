@@ -9,7 +9,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging.Resources {
-    public class ResourceOldMedia : ResourceItem {
+    public class ResourceAVMedia : ResourceItem {
         public string FilePath { get; set; }
 
         public MediaDemuxer Demuxer { get; private set; }
@@ -21,7 +21,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
         private FrameQueue frameQueue;
         private bool hasHardwareDecoder;
 
-        public ResourceOldMedia() {
+        public ResourceAVMedia() {
 
         }
 
@@ -137,6 +137,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources {
             if (this.stream == null) {
                 throw new Exception("Could not find a video stream for media");
             }
+
+            this.IsOnline = true;
         }
 
         public void OpenVideoDecoder() {

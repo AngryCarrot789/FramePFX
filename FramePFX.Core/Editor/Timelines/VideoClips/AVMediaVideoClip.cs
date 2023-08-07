@@ -8,7 +8,7 @@ using FramePFX.Core.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Core.Editor.Timelines.VideoClips {
-    public class OldMediaVideoClip : BaseResourceVideoClip<ResourceOldMedia> {
+    public class AVMediaVideoClip : BaseResourceVideoClip<ResourceAVMedia> {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         public unsafe SwsContext* scaler;
         private PictureFormat scalerInputFormat;
@@ -19,15 +19,15 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         // TODO: decoder thread
         // public override bool UseAsyncRendering => true;
 
-        public OldMediaVideoClip() {
+        public AVMediaVideoClip() {
         }
 
         public override Vector2? GetSize() {
-            return (Vector2?) (this.TryGetResource(out ResourceOldMedia resource) ? resource.GetResolution() : null);
+            return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
         }
 
         public override void Render(RenderContext rc, long frame) {
-            if (!this.TryGetResource(out ResourceOldMedia resource))
+            if (!this.TryGetResource(out ResourceAVMedia resource))
                 return;
 
             if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null) {
@@ -139,10 +139,10 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         }
 
         protected override Clip NewInstance() {
-            return new OldMediaVideoClip();
+            return new AVMediaVideoClip();
         }
 
-        protected override void OnResourceChanged(ResourceOldMedia oldItem, ResourceOldMedia newItem) {
+        protected override void OnResourceChanged(ResourceAVMedia oldItem, ResourceAVMedia newItem) {
             this.renderFrameRgb?.Dispose();
             this.renderFrameRgb = null;
             this.downloadedHwFrame?.Dispose();

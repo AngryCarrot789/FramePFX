@@ -17,7 +17,7 @@ namespace FramePFX.Core.Editor.Registries {
             this.Register<ImageVideoClip, ImageClipViewModel>("cv_img");
             this.Register<ShapeVideoClip, ShapeClipViewModel>("cv_square");
             this.Register<TextVideoClip, TextClipViewModel>("cv_txt");
-            this.Register<OldMediaVideoClip, OldMediaClipViewModel>("cv_old_media");
+            this.Register<AVMediaVideoClip, AVMediaClipViewModel>("cv_av_media");
             this.Register<MpegMediaVideoClip, MpegMediaVideoClipViewModel>("cv_media");
             #endregion
 

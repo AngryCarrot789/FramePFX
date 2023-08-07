@@ -138,24 +138,47 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
                     case ".mov":
                     case ".mkv":
                     case ".flv": {
-                        ResourceMpegMediaViewModel media = new ResourceMpegMediaViewModel(new ResourceMpegMedia() {FilePath = path});
+                        ResourceAVMedia media = new ResourceAVMedia() {
+                            FilePath = path
+                        };
+
+                        try {
+                            media.OpenMediaFromFile();
+                        }
+                        catch (Exception e) {
+                            await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
+                            return;
+                        }
+
+                        ResourceAVMediaViewModel vm = new ResourceAVMediaViewModel(media);
                         using (ExceptionStack stack = new ExceptionStack(false)) {
-                            await media.LoadResource(null, stack);
+                            await vm.LoadResource(null, stack);
                             if (stack.TryGetException(out Exception exception)) {
                                 await IoC.MessageDialogs.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
                                 return;
                             }
                         }
 
-                        FFmpegReader reader = media.Model.reader;
-                        if (reader != null && (reader.VideoStreamCount > 0 || reader.AudioStreamCount > 0)) {
-                            this.Manager.RegisterEntry(media.Model);
-                            this.CurrentGroup.AddItem(media, true);
-                        }
-                        else {
-                            ((BaseResourceObjectViewModel) media).Model.Dispose();
-                            await IoC.MessageDialogs.ShowMessageAsync("Empty media", "Media contains no video or audio streams");
-                        }
+                        this.Manager.RegisterEntry(vm.Model);
+                        this.CurrentGroup.AddItem(vm, true);
+
+                        // ResourceMpegMediaViewModel media = new ResourceMpegMediaViewModel(new ResourceMpegMedia() {FilePath = path});
+                        // using (ExceptionStack stack = new ExceptionStack(false)) {
+                        //     await media.LoadResource(null, stack);
+                        //     if (stack.TryGetException(out Exception exception)) {
+                        //         await IoC.MessageDialogs.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
+                        //         return;
+                        //     }
+                        // }
+                        // FFmpegReader reader = media.Model.reader;
+                        // if (reader != null && (reader.VideoStreamCount > 0 || reader.AudioStreamCount > 0)) {
+                        //     this.Manager.RegisterEntry(media.Model);
+                        //     this.CurrentGroup.AddItem(media, true);
+                        // }
+                        // else {
+                        //     ((BaseResourceObjectViewModel) media).Model.Dispose();
+                        //     await IoC.MessageDialogs.ShowMessageAsync("Empty media", "Media contains no video or audio streams");
+                        // }
 
                         break;
                     }

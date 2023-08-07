@@ -3,8 +3,8 @@ using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
-    public class ResourceOldMediaViewModel : ResourceItemViewModel {
-        public new ResourceOldMedia Model => (ResourceOldMedia) base.Model;
+    public class ResourceAVMediaViewModel : ResourceItemViewModel {
+        public new ResourceAVMedia Model => (ResourceAVMedia) base.Model;
 
         public string FilePath {
             get => this.Model.FilePath;
@@ -17,7 +17,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources {
 
         public AsyncRelayCommand OpenFileCommand { get; }
 
-        public ResourceOldMediaViewModel(ResourceOldMedia oldMedia) : base(oldMedia) {
+        public ResourceAVMediaViewModel(ResourceAVMedia oldMedia) : base(oldMedia) {
             this.OpenFileCommand = new AsyncRelayCommand(this.OpenFileAction);
         }
 

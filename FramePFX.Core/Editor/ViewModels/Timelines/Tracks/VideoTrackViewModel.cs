@@ -12,6 +12,7 @@ using FramePFX.Core.Editor.Timelines.Tracks;
 using FramePFX.Core.Editor.Timelines.VideoClips;
 using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Core.Editor.ViewModels.Timelines.Removals;
+using FramePFX.Core.FFmpeg;
 using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
@@ -126,7 +127,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {
-            return resource is ResourceOldMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel || resource is ResourceTextViewModel;
+            return resource is ResourceAVMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel ||
+                   resource is ResourceTextViewModel || resource is ResourceMpegMediaViewModel;
         }
 
         public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
@@ -139,7 +141,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
             long defaultDuration = (long) (fps * 5);
 
             Clip newClip = null;
-            if (resource.Model is ResourceOldMedia media) {
+            if (resource.Model is ResourceAVMedia media) {
                 media.OpenMediaFromFile();
                 TimeSpan span = media.GetDuration();
                 long dur = (long) Math.Floor(span.TotalSeconds * fps);
@@ -154,7 +156,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
                         this.Timeline.MaxDuration = newProjectDuration;
                     }
 
-                    OldMediaVideoClip clip = new OldMediaVideoClip() {
+                    AVMediaVideoClip clip = new AVMediaVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, dur),
                         DisplayName = "Media Clip"
                     };
@@ -167,6 +169,41 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
                     return;
                 }
             }
+            // else if (resource.Model is ResourceMpegMedia media2) {
+            //     try {
+            //         media2.LoadMedia(media2.FilePath);
+            //     }
+            //     catch (Exception e) {
+            //         await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
+            //         return;
+            //     }
+            //     foreach (VideoStream steam in media2.reader.GetVideoStreams()) {
+            //         if (!(steam.Stream.Duration is TimeSpan duration)) {
+            //             continue;
+            //         }
+            //         long dur = (long) Math.Floor(duration.TotalSeconds * fps);
+            //         if (dur < 2) { // image files are 1
+            //             dur = defaultDuration;
+            //         }
+            //         if (dur > 0) {
+            //             long newProjectDuration = frameBegin + dur + 600;
+            //             if (newProjectDuration > this.Timeline.MaxDuration) {
+            //                 this.Timeline.MaxDuration = newProjectDuration;
+            //             }
+            //             MpegMediaVideoClip mediaClip = new MpegMediaVideoClip();
+            //             MpegMediaVideoClipViewModel clip = new MpegMediaVideoClipViewModel(mediaClip) {
+            //                 FrameSpan = new FrameSpan(frameBegin, dur),
+            //                 DisplayName = "Media Clip"
+            //             };
+            //             clip.SetTargetResourceId(media2.UniqueId);
+            //             newClip = clip;
+            //         }
+            //         else {
+            //             await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+            //             return;
+            //         }
+            //     }
+            // }
             else {
                 if (resource.Model is ResourceColour argb) {
                     ShapeVideoClip clip = new ShapeVideoClip() {

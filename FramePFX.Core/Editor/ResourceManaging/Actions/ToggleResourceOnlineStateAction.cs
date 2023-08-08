@@ -44,7 +44,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions
         private static async Task SetOnlineState(IEnumerable<ResourceItemViewModel> items, bool? state)
         {
             List<ResourceItemViewModel> list = new List<ResourceItemViewModel>();
-            using (ExceptionStack stack = new ExceptionStack(false))
+            using (ErrorList stack = new ErrorList(false))
             {
                 foreach (ResourceItemViewModel item in items)
                 {

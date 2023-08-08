@@ -21,6 +21,7 @@
             xmlns:ctx="clr-namespace:FramePFX.Core.Editor.Timelines.Context;assembly=FramePFX.Core"
             xmlns:pe="clr-namespace:FramePFX.PropertyEditing"
             xmlns:cpe="clr-namespace:FramePFX.Core.PropertyEditing;assembly=FramePFX.Core"
+            xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -188,11 +189,37 @@
                         </TabControl.Style>
                         <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
                             <Grid sc:UIInputManager.FocusPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="175"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="24"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TreeView ItemsSource="{Binding Root.Items, Mode=OneTime}" DockPanel.Dock="Left" Width="175"
+                                          BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,1,0"
+                                          Grid.RowSpan="2"
+                                          Grid.Column="0">
+                                    <TreeView.Resources>
+                                        <DataTemplate DataType="{x:Type viewModels:ResourceItemViewModel}">
+                                            <TextBlock Text="{Binding DisplayName}"/>
+                                        </DataTemplate>
+                                        <HierarchicalDataTemplate DataType="{x:Type viewModels:ResourceGroupViewModel}" ItemsSource="{Binding Items, Mode=OneTime}">
+                                            <TextBlock Text="{Binding DisplayName}"/>
+                                        </HierarchicalDataTemplate>
+                                    </TreeView.Resources>
+                                </TreeView>
                                 <res:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
                                                          ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
                                                          ap:MultiSelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
                                                          HorizontalContentAlignment="Stretch"
-                                                         VerticalContentAlignment="Stretch" />
+                                                         VerticalContentAlignment="Stretch"
+                                                         Grid.Row="1"
+                                                         Grid.Column="1"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding DisplayPath, Mode=OneWay}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Left"
+                                           Padding="4,1"/>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Property Pages">

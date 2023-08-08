@@ -313,9 +313,6 @@ namespace FramePFX.Core.Utils
             this.OnCollectionChanged(EventArgsCache.ResetCollectionChanged);
         }
 
-        public IEnumerable<T> ReverseEnumerable()
-        {
-            return this.Items.Reverse();
-        }
+        public IEnumerable<T> ReverseEnumerable() => this.Items.Reverse();
     }
 }

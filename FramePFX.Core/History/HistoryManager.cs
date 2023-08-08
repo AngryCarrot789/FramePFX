@@ -82,7 +82,7 @@ namespace FramePFX.Core.History
             }
 
             int count = this.undoList.Count - maxUndo;
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 for (int i = 0; i < count; i++)
                 {
@@ -113,7 +113,7 @@ namespace FramePFX.Core.History
             }
 
             int count = this.redoList.Count - maxRedo;
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 for (int i = 0; i < count; i++)
                 {
@@ -186,7 +186,7 @@ namespace FramePFX.Core.History
             IHistoryAction action = this.undoList.Last.Value;
             this.undoList.RemoveLast();
 
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 try
                 {
@@ -238,7 +238,7 @@ namespace FramePFX.Core.History
             IHistoryAction action = this.redoList.Last.Value;
             this.redoList.RemoveLast();
 
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 try
                 {

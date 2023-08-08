@@ -77,7 +77,7 @@ namespace FramePFX.Controls
                 "PanToCursorOnUserZoom",
                 typeof(bool),
                 typeof(FreeMoveViewPortV2),
-                new PropertyMetadata(BoolBox.False));
+                new PropertyMetadata(BoolBox.True));
 
         #endregion
 
@@ -117,7 +117,7 @@ namespace FramePFX.Controls
         public bool PanToCursorOnUserZoom
         {
             get => (bool) this.GetValue(PanToCursorOnUserZoomProperty);
-            set => this.SetValue(PanToCursorOnUserZoomProperty, value);
+            set => this.SetValue(PanToCursorOnUserZoomProperty, value.Box());
         }
 
         protected override int VisualChildrenCount => 1;

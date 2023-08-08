@@ -51,7 +51,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources
             }
         }
 
-        public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ExceptionStack stack)
+        public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList stack)
         {
             if (string.IsNullOrEmpty(this.FilePath))
             {

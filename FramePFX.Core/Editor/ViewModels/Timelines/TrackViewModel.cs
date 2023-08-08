@@ -19,7 +19,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
     /// <summary>
     /// The base view model for a timeline track. This could be a video or audio track (or others...)
     /// </summary>
-    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel, IProjectViewModelBound, IRenameable
+    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel, IProjectViewModelBound, IRenameTarget
     {
         protected readonly HistoryBuffer<HistoryTrackDisplayName> displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
 
@@ -33,7 +33,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
             get => this.selectedClips;
             set
             {
-                this.RaisePropertyChanged(ref this.selectedClips, value);
+                this.RaisePropertyChanged(ref this.selectedClips, value ?? new List<ClipViewModel>());
                 this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
                 this.Timeline.Project.Editor?.View.UpdateClipSelection();
             }
@@ -245,7 +245,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
 
         public void DisposeAndRemoveItemsUnsafe(IList<ClipViewModel> list)
         {
-            using (ExceptionStack stack = new ExceptionStack("Exception disposing clips"))
+            using (ErrorList stack = new ErrorList("Exception disposing clips"))
             {
                 foreach (ClipViewModel clip in list)
                 {
@@ -275,7 +275,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
 
         public void Dispose()
         {
-            using (ExceptionStack stack = new ExceptionStack("Exception disposing track"))
+            using (ErrorList stack = new ErrorList("Exception disposing track"))
             {
                 try
                 {
@@ -288,9 +288,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
             }
         }
 
-        protected virtual void DisposeCore(ExceptionStack stack)
+        protected virtual void DisposeCore(ErrorList stack)
         {
-            using (ExceptionStack innerStack = new ExceptionStack("Exception disposing a clip", false))
+            using (ErrorList innerStack = new ErrorList("Exception disposing a clip", false))
             {
                 for (int i = this.clips.Count - 1; i >= 0; i--)
                 {

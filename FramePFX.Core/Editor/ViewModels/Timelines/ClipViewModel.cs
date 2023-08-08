@@ -19,7 +19,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IProjectViewModelBound, IDisposable, IRenameable
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IProjectViewModelBound, IDisposable, IRenameTarget
     {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
@@ -231,7 +231,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
 
         public void Dispose()
         {
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 try
                 {
@@ -244,7 +244,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
             }
         }
 
-        protected virtual void DisposeCore(ExceptionStack stack)
+        protected virtual void DisposeCore(ErrorList stack)
         {
             try
             {

@@ -38,6 +38,16 @@ namespace FramePFX.Core.Editor.ResourceManaging
         public virtual void SetParent(ResourceGroup group)
         {
             this.Parent = group;
+            this.OnParentChainChanged();
+        }
+
+        /// <summary>
+        /// Called when this resource's parent chain is modified, e.g., a resource group is moved into another resource group,
+        /// this method is called for every single child of the group that was moved (recursively)
+        /// </summary>
+        protected internal virtual void OnParentChainChanged()
+        {
+
         }
 
         /// <summary>
@@ -61,32 +71,28 @@ namespace FramePFX.Core.Editor.ResourceManaging
         }
 
         /// <summary>
-        /// Disposes this resource. This should NOT be called from the destructor/finalizer
+        /// Called when this resource object is about to be "deleted", as in, the user wanted to delete
+        /// the resource. This should close any open file handles, unregister any event handlers, etc
         /// </summary>
         public void Dispose()
         {
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList list = new ErrorList())
             {
-                try
-                {
-                    this.DisposeCore(stack);
-                }
-                catch (Exception e)
-                {
-                    stack.Add(new Exception($"Unexpected exception while invoking {nameof(this.DisposeCore)}", e));
-                }
+                this.DisposeCore(list);
             }
         }
 
         /// <summary>
-        /// Disposes this resource object's resources. Resources can be re-used after disposing, so this should
-        /// just clean up anything that the resource originally did not own or have allocated when created
+        /// Called by <see cref="Dispose"/> to dispose of any unmanaged resources, unregister event handlers, etc.
         /// <para>
-        /// This method should not throw, and instead, exceptions should be added to the given stack
+        /// This method should not throw, but instead, exceptions should be added to the given <see cref="ErrorList"/>
+        /// </para>
+        /// <para>
+        /// If this object is a <see cref="ResourceItem"/>, it will not be unregistered from the resource manager; that must be done manually
         /// </para>
         /// </summary>
-        /// <param name="stack">Stack to add exceptions to</param>
-        protected virtual void DisposeCore(ExceptionStack stack)
+        /// <param name="list">A list to add exceptions to</param>
+        protected virtual void DisposeCore(ErrorList list)
         {
         }
     }

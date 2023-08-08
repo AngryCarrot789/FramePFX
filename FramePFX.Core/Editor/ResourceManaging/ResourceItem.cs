@@ -65,20 +65,11 @@ namespace FramePFX.Core.Editor.ResourceManaging
 
         public bool IsRegistered()
         {
-            if (this.IsRegistered(out bool isReferenceValid))
-            {
-                if (!isReferenceValid)
-                {
-#if DEBUG
-                    System.Diagnostics.Debugger.Break();
-#endif
-                    throw new Exception("Registered resource is not reference-equal to the current instance");
-                }
-
-                return true;
-            }
-
-            return false;
+            if (!this.IsRegistered(out bool isReferenceValid))
+                return false;
+            if (!isReferenceValid)
+                throw new Exception("Registered resource is not reference-equal to the current instance");
+            return true;
         }
 
         /// <summary>
@@ -87,7 +78,7 @@ namespace FramePFX.Core.Editor.ResourceManaging
         /// <param name="stack"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public void Disable(ExceptionStack stack, bool user)
+        public void Disable(ErrorList stack, bool user)
         {
             this.OnDisableCore(stack, user);
             this.IsOnline = false;
@@ -95,7 +86,7 @@ namespace FramePFX.Core.Editor.ResourceManaging
             this.OnIsOnlineStateChanged();
         }
 
-        protected virtual void OnDisableCore(ExceptionStack stack, bool user)
+        protected virtual void OnDisableCore(ErrorList stack, bool user)
         {
         }
 
@@ -139,12 +130,12 @@ namespace FramePFX.Core.Editor.ResourceManaging
 
         /// <summary>
         /// The core method for disposing resources used by a resource. This method really should not throw,
-        /// and instead, exceptions should be added to the given <see cref="ExceptionStack"/>
+        /// and instead, exceptions should be added to the given <see cref="ErrorList"/>
         /// </summary>
-        /// <param name="stack">The exception stack in which exception should be added into when encountered during disposal</param>
-        protected override void DisposeCore(ExceptionStack stack)
+        /// <param name="list">The exception stack in which exception should be added into when encountered during disposal</param>
+        protected override void DisposeCore(ErrorList list)
         {
-            base.DisposeCore(stack);
+            base.DisposeCore(list);
         }
 
         public static void SetUniqueId(ResourceItem item, ulong id)

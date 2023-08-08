@@ -10,7 +10,7 @@ namespace FramePFX.Views.Exceptions
         // singleton to soon support IoC
         public static ExceptionViewerService Instance { get; } = new ExceptionViewerService();
 
-        public IWindow ShowExceptionStack(ExceptionStack stack)
+        public IWindow ShowExceptionStack(ErrorList stack)
         {
             ExceptionViewerWindow window = new ExceptionViewerWindow();
             ExceptionStackViewModel vm = new ExceptionStackViewModel(stack);
@@ -22,7 +22,7 @@ namespace FramePFX.Views.Exceptions
         public IWindow ShowException(Exception exception)
         {
             ExceptionViewerWindow window = new ExceptionViewerWindow();
-            using (ExceptionStack stack = new ExceptionStack(null, true, true))
+            using (ErrorList stack = new ErrorList(null, true, true))
             {
                 stack.Add(exception);
 

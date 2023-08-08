@@ -31,15 +31,15 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             this.FilePath = data.GetString(nameof(this.FilePath), null);
         }
 
-        protected override void OnDisableCore(ExceptionStack stack, bool user)
+        protected override void OnDisableCore(ErrorList stack, bool user)
         {
             base.OnDisableCore(stack, user);
             this.CloseReader();
         }
 
-        protected override void DisposeCore(ExceptionStack stack)
+        protected override void DisposeCore(ErrorList list)
         {
-            base.DisposeCore(stack);
+            base.DisposeCore(list);
             this.CloseReader();
         }
 

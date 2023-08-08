@@ -15,6 +15,8 @@ namespace FramePFX.Core.Editor.ResourceManaging
 
         public IEnumerable<BaseResourceObject> Items => this.items;
 
+        public BaseResourceObject this[int index] => this.items[index];
+
         public ResourceGroup()
         {
             this.items = new List<BaseResourceObject>();
@@ -23,6 +25,13 @@ namespace FramePFX.Core.Editor.ResourceManaging
         public ResourceGroup(string displayName) : this()
         {
             this.DisplayName = displayName;
+        }
+
+        protected internal override void OnParentChainChanged()
+        {
+            base.OnParentChainChanged();
+            foreach (BaseResourceObject obj in this.items)
+                obj.OnParentChainChanged();
         }
 
         public override void SetManager(ResourceManager manager)
@@ -37,7 +46,7 @@ namespace FramePFX.Core.Editor.ResourceManaging
         public override void WriteToRBE(RBEDictionary data)
         {
             base.WriteToRBE(data);
-            RBEList list = data.CreateList(nameof(this.items));
+            RBEList list = data.CreateList("Items");
             foreach (BaseResourceObject item in this.items)
             {
                 if (!(item.RegistryId is string registryId))
@@ -51,39 +60,25 @@ namespace FramePFX.Core.Editor.ResourceManaging
         public override void ReadFromRBE(RBEDictionary data)
         {
             base.ReadFromRBE(data);
-            RBEList list = data.GetList(nameof(this.items));
-            foreach (RBEBase item in list.List)
+            RBEList list = data.GetList("Items");
+            foreach (RBEDictionary dictionary in list.OfType<RBEDictionary>())
             {
-                if (!(item is RBEDictionary dictionary))
-                    throw new Exception("Expected item list to contain only dictionaries, not " + item);
                 string registryId = dictionary.GetString(nameof(this.RegistryId), null);
                 if (string.IsNullOrEmpty(registryId))
                     throw new Exception("Missing the registry ID for item");
-                RBEDictionary dataDictionary = dictionary.GetDictionary("Data");
+                RBEDictionary resdata = dictionary.GetDictionary("Data");
                 BaseResourceObject resource = ResourceTypeRegistry.Instance.CreateResourceItemModel(registryId);
-                resource.ReadFromRBE(dataDictionary);
+                resource.ReadFromRBE(resdata);
                 this.items.Add(resource);
             }
         }
 
-        public void AddItemToList(BaseResourceObject value, bool setManager = true)
+        public void AddItem(BaseResourceObject value, bool setManager = true)
         {
-            this.InsertItemIntoList(this.items.Count, value, setManager);
+            this.InsertItem(this.items.Count, value, setManager);
         }
 
-        /// <summary>
-        /// Helper function for calling <see cref="AddItemToList"/> and returning the parameter value
-        /// </summary>
-        /// <param name="item"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T Add<T>(T item) where T : BaseResourceObject
-        {
-            this.AddItemToList(item);
-            return item;
-        }
-
-        public void InsertItemIntoList(int index, BaseResourceObject value, bool setManager = true)
+        public void InsertItem(int index, BaseResourceObject value, bool setManager = true)
         {
             this.items.Insert(index, value);
             value.SetParent(this);
@@ -93,29 +88,24 @@ namespace FramePFX.Core.Editor.ResourceManaging
             }
         }
 
-        public BaseResourceObject GetItemAt(int index)
+        public bool RemoveItem(BaseResourceObject item)
         {
-            return this.items[index];
-        }
-
-        public bool RemoveItemFromList(BaseResourceObject value)
-        {
-            int index = this.items.IndexOf(value);
+            int index = this.items.IndexOf(item);
             if (index < 0)
             {
                 return false;
             }
 
-            this.RemoveItemFromListAt(index);
+            this.RemoveItemAt(index);
             return true;
         }
 
-        public void RemoveItemFromListAt(int index)
+        public void RemoveItemAt(int index)
         {
             BaseResourceObject value = this.items[index];
             this.items.RemoveAt(index);
-            value.SetManager(null);
             value.SetParent(null);
+            value.SetManager(null);
         }
 
         /// <summary>
@@ -123,35 +113,37 @@ namespace FramePFX.Core.Editor.ResourceManaging
         /// </summary>
         public void Clear()
         {
-            foreach (BaseResourceObject item in this.items)
+            for (int i = this.items.Count - 1; i >= 0; i--)
             {
-                item.SetManager(null);
-                item.SetParent(null);
+                this.RemoveItemAt(i);
             }
-
-            this.items.Clear();
         }
 
         /// <summary>
         /// Clears this group's items, without setting the items' parent group or manager to null
         /// </summary>
-        public void UnsafeClear()
-        {
-            this.items.Clear();
-        }
+        public void UnsafeClear() => this.items.Clear();
 
-        protected override void DisposeCore(ExceptionStack stack)
+        protected override void DisposeCore(ErrorList list)
         {
-            base.DisposeCore(stack);
-            foreach (BaseResourceObject resource in this.items)
+            base.DisposeCore(list);
+            using (ErrorList innerList = new ErrorList("Exception disposing child resources", false))
             {
-                try
+                foreach (BaseResourceObject resource in this.items)
                 {
-                    resource.Dispose();
+                    try
+                    {
+                        resource.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        innerList.Add(new Exception("Exception while disposing " + resource.GetType(), e));
+                    }
                 }
-                catch (Exception e)
+
+                if (innerList.TryGetException(out Exception exception))
                 {
-                    stack.Add(new Exception("Disposing resource", e));
+                    list.Add(exception);
                 }
             }
         }

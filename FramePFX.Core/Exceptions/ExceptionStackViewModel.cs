@@ -8,10 +8,10 @@ namespace FramePFX.Core.Exceptions
     {
         public ObservableCollection<ExceptionViewModel> Exceptions { get; }
 
-        public ExceptionStackViewModel(ExceptionStack stack)
+        public ExceptionStackViewModel(ErrorList stack)
         {
             this.Exceptions = new ObservableCollection<ExceptionViewModel>();
-            foreach (Exception exception in stack.Exceptions)
+            foreach (Exception exception in stack)
             {
                 this.Exceptions.Add(new ExceptionViewModel(null, exception, false));
             }

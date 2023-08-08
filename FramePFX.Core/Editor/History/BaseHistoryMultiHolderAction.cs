@@ -32,7 +32,7 @@ namespace FramePFX.Core.Editor.History
             }
 
             this.state = 1;
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 int index = 0;
                 foreach (T holder in this.holders)
@@ -63,7 +63,7 @@ namespace FramePFX.Core.Editor.History
             }
 
             this.state = 0;
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 int index = 0;
                 foreach (T holder in this.holders)

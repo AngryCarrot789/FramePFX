@@ -90,16 +90,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             }
         }
 
-        protected override void DisposeCore(ExceptionStack stack)
+        protected override void DisposeCore(ErrorList list)
         {
-            base.DisposeCore(stack);
+            base.DisposeCore(list);
             try
             {
                 this.bitmap?.Dispose();
             }
             catch (Exception e)
             {
-                stack.Add(new Exception("Failed to dispose bitmap", e));
+                list.Add(new Exception("Failed to dispose bitmap", e));
             }
 
             this.bitmap = null;
@@ -110,7 +110,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             }
             catch (Exception e)
             {
-                stack.Add(new Exception("Failed to dispose image", e));
+                list.Add(new Exception("Failed to dispose image", e));
             }
 
             this.image = null;

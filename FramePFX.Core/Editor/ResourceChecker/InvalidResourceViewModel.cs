@@ -30,7 +30,7 @@ namespace FramePFX.Core.Editor.ResourceChecker
         /// </summary>
         public virtual async Task SetResourceOfflineAsync()
         {
-            using (ExceptionStack stack = new ExceptionStack(false))
+            using (ErrorList stack = new ErrorList(false))
             {
                 this.Resource.Model.Disable(stack, true);
                 if (stack.TryGetException(out Exception exception))

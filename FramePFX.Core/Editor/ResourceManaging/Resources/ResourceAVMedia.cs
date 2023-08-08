@@ -27,7 +27,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
         {
         }
 
-        protected override void OnDisableCore(ExceptionStack stack, bool user)
+        protected override void OnDisableCore(ErrorList stack, bool user)
         {
             base.OnDisableCore(stack, user);
             this.DisposeCore(stack);
@@ -45,10 +45,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             this.FilePath = data.GetString(nameof(this.FilePath), null);
         }
 
-        public void OpenMediaFromFile()
-        {
-            this.OpenFileAndDemuxer();
-        }
+        public void OpenMediaFromFile() => this.OpenFileAndDemuxer();
 
         public unsafe Resolution? GetResolution()
         {
@@ -226,16 +223,16 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             this.Demuxer = null;
         }
 
-        protected override void DisposeCore(ExceptionStack stack)
+        protected override void DisposeCore(ErrorList list)
         {
-            base.DisposeCore(stack);
+            base.DisposeCore(list);
             try
             {
                 this.ReleaseDecoder();
             }
             catch (Exception e)
             {
-                stack.Add(new Exception("Failed to release decoder and frame queue", e));
+                list.Add(new Exception("Failed to release decoder and frame queue", e));
             }
 
             try
@@ -244,7 +241,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             }
             catch (Exception e)
             {
-                stack.Add(new Exception("Failed to dispose demuxer", e));
+                list.Add(new Exception("Failed to dispose demuxer", e));
             }
             finally
             {

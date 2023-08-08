@@ -370,7 +370,7 @@ namespace FramePFX.Core.Editor.ViewModels
 
         public void Dispose()
         {
-            using (ExceptionStack stack1 = new ExceptionStack())
+            using (ErrorList stack1 = new ErrorList())
             {
                 try
                 {

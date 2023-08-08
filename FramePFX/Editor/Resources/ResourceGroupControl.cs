@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -66,18 +68,30 @@ namespace FramePFX.Editor.Resources
 
             e.Handled = true;
             this.isProcessingAsyncDrop = true;
-            if (this.DataContext is IAcceptResourceDrop drop && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource)
+            if (this.DataContext is ResourceGroupViewModel group && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource)
             {
-                if (drop.CanDropResource(resource))
+                ResourceGroupViewModel t = group.Parent;
+                if (t != null && t == resource.Parent && t.SelectedItems.Contains(resource))
                 {
-                    this.HandleOnDropResource(drop, resource);
+                    this.HandleOnDropResources(group, t.SelectedItems.ToList());
+                }
+                else if (group.CanDropResource(resource))
+                {
+                    this.HandleOnDropResource(group, resource);
                 }
             }
         }
 
-        private async void HandleOnDropResource(IAcceptResourceDrop acceptResourceDrop, BaseResourceObjectViewModel resource)
+        private async void HandleOnDropResource(ResourceGroupViewModel group, BaseResourceObjectViewModel resource)
         {
-            await acceptResourceDrop.OnDropResource(resource);
+            await group.OnDropResource(resource);
+            this.ClearValue(IsDroppableTargetOverProperty);
+            this.isProcessingAsyncDrop = false;
+        }
+
+        private async void HandleOnDropResources(ResourceGroupViewModel group, IEnumerable<BaseResourceObjectViewModel> selection)
+        {
+            await group.OnDropResources(selection);
             this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }

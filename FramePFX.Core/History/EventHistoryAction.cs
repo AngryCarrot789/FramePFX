@@ -30,7 +30,7 @@ namespace FramePFX.Core.History
 
         public async Task UndoAsync()
         {
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 try
                 {
@@ -54,7 +54,7 @@ namespace FramePFX.Core.History
 
         public async Task RedoAsync()
         {
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 try
                 {
@@ -79,7 +79,7 @@ namespace FramePFX.Core.History
         public void OnRemoved()
         {
             this.IsRemoved = true;
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 try
                 {

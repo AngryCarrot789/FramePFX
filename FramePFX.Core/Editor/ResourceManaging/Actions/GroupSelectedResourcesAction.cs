@@ -10,7 +10,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Actions
         {
             if (e.DataContext.TryGetContext(out BaseResourceObjectViewModel item) && item.Manager != null)
             {
-                await item.Parent.GroupSelectionAction();
+                await item.Parent.GroupSelectionIntoNewGroupAction();
                 return true;
             }
             else

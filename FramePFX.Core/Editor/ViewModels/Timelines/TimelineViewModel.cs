@@ -330,7 +330,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
 
         public void Dispose()
         {
-            using (ExceptionStack stack = new ExceptionStack("Exception disposing timeline"))
+            using (ErrorList stack = new ErrorList("Exception disposing timeline"))
             {
                 try
                 {
@@ -343,9 +343,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines
             }
         }
 
-        protected virtual void DisposeCore(ExceptionStack stack)
+        protected virtual void DisposeCore(ErrorList stack)
         {
-            using (ExceptionStack innerStack = new ExceptionStack(false))
+            using (ErrorList innerStack = new ErrorList(false))
             {
                 foreach (TrackViewModel track in this.tracks)
                 {

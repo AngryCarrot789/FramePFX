@@ -283,14 +283,14 @@ namespace FramePFX
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             ResourceManager manager = project.ResourceManager;
-            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
-            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
-            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
+            ulong id_r = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
+            ulong id_g = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
+            ulong id_b = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
 
             ResourceGroup group = new ResourceGroup("Extra Colours");
-            manager.RootGroup.AddItemToList(group);
-            ulong id_w = manager.RegisterEntry(group.Add(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
-            ulong id_d = manager.RegisterEntry(group.Add(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
+            manager.RootGroup.AddItem(group);
+            ulong id_w = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
 
             {
                 VideoTrack track1 = new VideoTrack() {
@@ -371,14 +371,14 @@ namespace FramePFX
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             ResourceManager manager = project.ResourceManager;
-            ulong id_r = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
-            ulong id_g = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
-            ulong id_b = manager.RegisterEntry(manager.RootGroup.Add(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
+            ulong id_r = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
+            ulong id_g = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
+            ulong id_b = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
 
             ResourceGroup @group = new ResourceGroup("Extra Colours");
-            manager.RootGroup.AddItemToList(@group);
-            ulong id_w = manager.RegisterEntry(@group.Add(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
-            ulong id_d = manager.RegisterEntry(@group.Add(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
+            manager.RootGroup.AddItem(@group);
+            ulong id_w = manager.RegisterEntry(@group.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(@group.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
 
             {
                 VideoTrack track1 = new VideoTrack() {

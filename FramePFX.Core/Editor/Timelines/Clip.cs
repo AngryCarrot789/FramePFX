@@ -233,7 +233,7 @@ namespace FramePFX.Core.Editor.Timelines
         /// </summary>
         public void Dispose()
         {
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 this.OnBeginDispose();
                 try
@@ -250,7 +250,7 @@ namespace FramePFX.Core.Editor.Timelines
         }
 
         /// <summary>
-        /// Called just before <see cref="DisposeCore(ExceptionStack)"/>. This should not throw any exceptions
+        /// Called just before <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
         /// </summary>
         public virtual void OnBeginDispose()
         {
@@ -261,16 +261,16 @@ namespace FramePFX.Core.Editor.Timelines
         /// Disposes this clip's resources, if necessary. Shared resources (e.g. stored in <see cref="ResourceItem"/>
         /// instances) shouldn't be disposed as other clips may reference the same data
         /// <para>
-        /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ExceptionStack"/>
+        /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ErrorList"/>
         /// </para>
         /// </summary>
         /// <param name="stack">The exception stack in which to add any encountered exceptions during disposal</param>
-        protected virtual void DisposeCore(ExceptionStack stack)
+        protected virtual void DisposeCore(ErrorList stack)
         {
         }
 
         /// <summary>
-        /// Called just after <see cref="DisposeCore(ExceptionStack)"/>. This should not throw any exceptions
+        /// Called just after <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
         /// </summary>
         public virtual void OnEndDispose()
         {

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.Registries;
 using FramePFX.Core.Utils;
@@ -11,22 +13,22 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
 {
     public class ResourceGroupViewModel : BaseResourceObjectViewModel, IDisplayName, INavigatableResource, IAcceptResourceDrop
     {
-        public new ResourceGroup Model => (ResourceGroup) base.Model;
-
         internal readonly ObservableCollection<BaseResourceObjectViewModel> items;
-        public ReadOnlyObservableCollection<BaseResourceObjectViewModel> Items { get; }
-
         private List<BaseResourceObjectViewModel> selectedItems;
+
+        public ReadOnlyObservableCollection<BaseResourceObjectViewModel> Items { get; }
 
         public List<BaseResourceObjectViewModel> SelectedItems
         {
             get => this.selectedItems;
             set
             {
-                this.RaisePropertyChanged(ref this.selectedItems, value);
+                this.RaisePropertyChanged(ref this.selectedItems, value ?? new List<BaseResourceObjectViewModel>());
                 this.manager?.Project.Editor?.View.UpdateResourceSelection();
             }
         }
+
+        public new ResourceGroup Model => (ResourceGroup) base.Model;
 
         public ResourceGroupViewModel(ResourceGroup model) : base(model)
         {
@@ -43,6 +45,15 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
         }
 
+        protected internal override void OnParentChainChanged()
+        {
+            base.OnParentChainChanged();
+            foreach (BaseResourceObjectViewModel obj in this.items)
+            {
+                obj.OnParentChainChanged();
+            }
+        }
+
         public override void SetManager(ResourceManagerViewModel newManager)
         {
             base.SetManager(newManager);
@@ -52,40 +63,144 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
         }
 
-        public override async Task<bool> DeleteSelfAction()
+        public void AddItem(BaseResourceObjectViewModel item, bool addToModel = true)
         {
-            if (this.Parent == null)
+            this.InsertItem(this.items.Count, item, addToModel);
+        }
+
+        public void InsertItem(int index, BaseResourceObjectViewModel item, bool addToModel = true)
+        {
+            if (addToModel)
+                this.Model.InsertItem(index, item.Model);
+            this.items.Insert(index, item);
+            item.SetParent(this);
+            item.SetManager(this.Manager);
+        }
+
+        public bool RemoveItem(BaseResourceObjectViewModel item, bool removeFromModel = true, bool unregisterHierarcy = true)
+        {
+            int index = this.items.IndexOf(item);
+            if (index < 0)
             {
                 return false;
             }
 
-            int total = CountRecursive(this.items);
-            if (total > 0 && await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource group? It has {total} sub-item{Lang.S(total)}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
-            {
-                return false;
-            }
-
-            Exception e = null;
-            try
-            {
-                base.Model.Dispose();
-            }
-            catch (Exception ex)
-            {
-                e = ex;
-            }
-
-            this.Parent.RemoveItem(this, true, true);
-
-            if (e != null)
-            {
-#if DEBUG
-                System.Diagnostics.Debugger.Break();
-#endif
-                await IoC.MessageDialogs.ShowMessageExAsync("Error", "An exception occurred disposing this resource", e.GetToString());
-            }
-
+            this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
             return true;
+        }
+
+        public void RemoveItemAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true)
+        {
+            BaseResourceObjectViewModel item = this.items[index];
+            if (!ReferenceEquals(this, item.Parent))
+                throw new Exception("Item does not belong to this group, but it contained in the list");
+            if (!ReferenceEquals(item.Model, this.Model[index]))
+                throw new Exception("View model and model list de-synced");
+
+            if (unregisterHierarcy)
+            {
+                UnregisterHierarchy(item);
+            }
+
+            if (removeFromModel)
+                this.Model.RemoveItemAt(index);
+            this.items.RemoveAt(index);
+            item.SetParent(null);
+            item.SetManager(null);
+        }
+
+        /// <summary>
+        /// Removes a collection of items from this group
+        /// </summary>
+        /// <param name="enumerable"></param>
+        /// <param name="removeFromModel"></param>
+        /// <param name="unregisterHierarcy"></param>
+        /// <returns>The number of items actually removed. This is expected to equal the number of items in the enumerable parameter</returns>
+        public int RemoveRange(IEnumerable<BaseResourceObjectViewModel> enumerable, bool removeFromModel = true, bool dispose = true, bool unregisterHierarcy = true)
+        {
+            int count = 0;
+            using (ErrorList list = new ErrorList())
+            {
+                foreach (BaseResourceObjectViewModel obj in enumerable)
+                {
+                    int index = this.items.IndexOf(obj);
+                    if (index < 0)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        if (dispose)
+                        {
+                            this.DisposeAndRemoveItemAt(index, removeFromModel, unregisterHierarcy);
+                        }
+                        else
+                        {
+                            this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
+                        }
+
+                        count++;
+                    }
+                    catch (Exception e)
+                    {
+                        list.Add(e);
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        public void DisposeAndRemoveItemAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true)
+        {
+            BaseResourceObjectViewModel item = this.items[index];
+            using (ErrorList list = new ErrorList())
+            {
+                try
+                {
+                    item.Dispose();
+                }
+                catch (Exception e)
+                {
+                    list.Add(new Exception($"Failed to dispose of '{item}'", e));
+                }
+
+                try
+                {
+                    this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
+                }
+                catch (Exception e)
+                {
+                    list.Add(new Exception($"Failed to remove '{item}'", e));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Disposes all of this resource's child resources and clears the underlying collection
+        /// </summary>
+        public void DisposeChildrenAndClear()
+        {
+            if (this.SelectedItems.Count > 0)
+            {
+                this.SelectedItems = null;
+            }
+
+            using (ErrorList list = new ErrorList("Exception while disposing child items"))
+            {
+                for (int i = this.items.Count - 1; i >= 0; i--)
+                {
+                    try
+                    {
+                        this.DisposeAndRemoveItemAt(i);
+                    }
+                    catch (Exception e)
+                    {
+                        list.Add(e);
+                    }
+                }
+            }
         }
 
         public static int CountRecursive(IEnumerable<BaseResourceObjectViewModel> items)
@@ -95,9 +210,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             {
                 count++;
                 if (item is ResourceGroupViewModel g)
-                {
                     count += CountRecursive(g.items);
-                }
             }
 
             return count;
@@ -107,142 +220,23 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         // the only real options are to crash the app or corrupt the resource structure
         // `IsRegistered()` uses Debugger.Break() so I have a change to figure out slightly what went wrong, then throws
 
-        private void UnregisterAllAndClearRecursive()
+        public void UnregisterHierarchy()
         {
-            foreach (BaseResourceObjectViewModel item in this.items)
+            foreach (BaseResourceObjectViewModel t in this.items)
+                UnregisterHierarchy(t);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void UnregisterHierarchy(BaseResourceObjectViewModel item)
+        {
+            switch (item)
             {
-                if (item is ResourceGroupViewModel g)
-                {
-                    g.UnregisterAllAndClearRecursive();
-                }
-                else if (item is ResourceItemViewModel resource && resource.Model.IsRegistered())
-                {
+                case ResourceGroupViewModel g:
+                    g.UnregisterHierarchy();
+                    break;
+                case ResourceItemViewModel resource when resource.Model.IsRegistered():
                     resource.Model.Manager.DeleteEntryById(resource.Model.UniqueId);
-                }
-
-                item.SetManager(null);
-                item.SetParent(null);
-            }
-
-            this.items.Clear();
-            this.Model.UnsafeClear();
-        }
-
-        public async Task<bool> DeleteSelectionAction()
-        {
-            int sc = this.SelectedItems.Count;
-            if (sc < 1)
-            {
-                return true;
-            }
-
-            int count = CountRecursive(this.SelectedItems) - sc;
-            if (await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete {sc} item{Lang.S(sc)}? This group has {count} sub-item{Lang.S(count)} in total", MsgDialogType.OKCancel) != MsgDialogResult.OK)
-            {
-                return false;
-            }
-
-            using (ExceptionStack stack = new ExceptionStack())
-            {
-                foreach (BaseResourceObjectViewModel item in this.SelectedItems.ToList())
-                {
-                    try
-                    {
-                        item.Model.Dispose();
-                    }
-                    catch (Exception e)
-                    {
-                        stack.Add(new Exception("Failed to dispose resource", e));
-                    }
-
-                    if (item is ResourceGroupViewModel groupVm)
-                    {
-                        groupVm.UnregisterAllAndClearRecursive();
-                    }
-                    else if (item is ResourceItemViewModel resource && resource.Model.IsRegistered())
-                    {
-                        resource.Model.Manager.DeleteEntryById(resource.Model.UniqueId);
-                    }
-
-                    try
-                    {
-                        this.RemoveItem(item, true, true);
-                    }
-                    catch (Exception e)
-                    {
-                        stack.Add(e);
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public void AddItem(BaseResourceObjectViewModel item, bool addToModel)
-        {
-            if (addToModel)
-                this.Model.AddItemToList(item.Model, false);
-            this.items.Add(item);
-            item.SetParent(this);
-            item.SetManager(this.Manager);
-        }
-
-        public bool RemoveItem(BaseResourceObjectViewModel item, bool removeFromModel, bool unregisterHierarchy)
-        {
-            int index = this.items.IndexOf(item);
-            if (index == -1)
-            {
-                return false;
-            }
-
-            if (!ReferenceEquals(this, item.Parent))
-            {
-                throw new Exception("Item does not belong to this group, but it contained in the list");
-            }
-
-            if (removeFromModel)
-            {
-                if (!ReferenceEquals(item.Model, this.Model.GetItemAt(index)))
-                    throw new Exception("View model and model list de-synced");
-                this.Model.RemoveItemFromListAt(index);
-            }
-
-            if (unregisterHierarchy)
-            {
-                if (item is ResourceGroupViewModel group)
-                {
-                    group.UnregisterAllAndClearRecursive();
-                }
-                else if (item is ResourceItemViewModel resItem && resItem.Model.IsRegistered(out bool isRefValid))
-                {
-                    if (!isRefValid)
-                    {
-#if DEBUG
-                        System.Diagnostics.Debugger.Break();
-#endif
-                        throw new Exception("Expected registered resource item to be reference-valid");
-                    }
-
-                    resItem.Model.Manager.DeleteEntryById(resItem.Model.UniqueId);
-                }
-            }
-
-            item.SetParent(null);
-            item.SetManager(null);
-            this.items.RemoveAt(index);
-            return true;
-        }
-
-        private void DisposeRecursive()
-        {
-            foreach (BaseResourceObjectViewModel resource in this.items)
-            {
-                if (resource is ResourceGroupViewModel group)
-                {
-                    group.DisposeRecursive();
-                }
-
-                resource.Model.Dispose();
+                    break;
             }
         }
 
@@ -259,7 +253,21 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         public Task OnDropResource(BaseResourceObjectViewModel resource)
         {
             resource.Parent?.RemoveItem(resource, true, false);
-            this.AddItem(resource, true);
+            this.AddItem(resource);
+            return Task.CompletedTask;
+        }
+
+        public Task OnDropResources(IEnumerable<BaseResourceObjectViewModel> resources)
+        {
+            foreach (BaseResourceObjectViewModel resource in resources)
+            {
+                if (!this.CanDropResource(resource))
+                    continue;
+
+                resource.Parent?.RemoveItem(resource, true, false);
+                this.AddItem(resource);
+            }
+
             return Task.CompletedTask;
         }
 
@@ -267,18 +275,19 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         {
             foreach (BaseResourceObjectViewModel resource in this.items)
             {
-                if (resource is ResourceItemViewModel item)
+                switch (resource)
                 {
-                    await item.SetOfflineAsync(user);
-                }
-                else if (resource is ResourceGroupViewModel group)
-                {
-                    await group.OfflineRecursiveAsync(user);
+                    case ResourceGroupViewModel group:
+                        await group.OfflineRecursiveAsync(user);
+                        break;
+                    case ResourceItemViewModel item:
+                        await item.SetOfflineAsync(user);
+                        break;
                 }
             }
         }
 
-        public async Task<ResourceGroupViewModel> GroupSelectionAction()
+        public async Task<ResourceGroupViewModel> GroupSelectionIntoNewGroupAction()
         {
             if (this.SelectedItems.Count < 1)
             {
@@ -286,22 +295,22 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
 
             ResourceGroupViewModel group = new ResourceGroupViewModel(new ResourceGroup("New Group"));
-            if (!await group.RenameSelfAction())
+            if (!await group.RenameAsync())
             {
                 return null;
             }
 
             List<BaseResourceObjectViewModel> list = this.SelectedItems.ToList();
-            this.SelectedItems.Clear();
+            this.SelectedItems = null;
             foreach (BaseResourceObjectViewModel item in list)
             {
                 this.RemoveItem(item, true, false);
             }
 
-            this.AddItem(group, true);
+            this.AddItem(group);
             foreach (BaseResourceObjectViewModel item in list)
             {
-                group.AddItem(item, true);
+                group.AddItem(item);
             }
 
             return group;

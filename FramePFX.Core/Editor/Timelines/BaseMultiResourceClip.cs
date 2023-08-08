@@ -44,7 +44,7 @@ namespace FramePFX.Core.Editor.Timelines
         {
             base.OnTrackChanged(oldTrack, track);
             ResourceManager manager = track?.Timeline?.Project?.ResourceManager;
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 foreach (ResourcePathEntry entry in this.ResourceMap.Values)
                 {
@@ -122,7 +122,7 @@ namespace FramePFX.Core.Editor.Timelines
             return false;
         }
 
-        protected override void DisposeCore(ExceptionStack stack)
+        protected override void DisposeCore(ErrorList stack)
         {
             base.DisposeCore(stack);
             foreach (ResourcePathEntry entry in this.ResourceMap.Values)

@@ -35,7 +35,7 @@ namespace FramePFX.Core.Utils
 
         public static void ForEachThenClear<T>(this ICollection<T> list, Action<T> consumer)
         {
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 int i = 0;
                 foreach (T item in list)

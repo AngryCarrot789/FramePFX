@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
@@ -26,7 +27,32 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         public ResourceGroupViewModel CurrentGroup
         {
             get => this.currentGroup;
-            set => this.RaisePropertyChanged(ref this.currentGroup, value ?? this.Root);
+            set
+            {
+                this.RaisePropertyChanged(ref this.currentGroup, value ?? this.Root);
+                this.RaisePropertyChanged(nameof(this.DisplayPath));
+            }
+        }
+
+        public string DisplayPath
+        {
+            get
+            {
+                if (this.currentGroup == this.Root)
+                {
+                    return "Root";
+                }
+
+                List<string> names = new List<string>();
+                ResourceGroupViewModel group = this.currentGroup;
+                for (; group.Parent != null; group = group.Parent)
+                {
+                    names.Add(group.DisplayName);
+                }
+
+                names.Reverse();
+                return string.Join("/", names);
+            }
         }
 
         public AsyncRelayCommand<string> CreateResourceCommand { get; }
@@ -54,19 +80,13 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         public void NavigateToGroup(ResourceGroupViewModel group, bool pushHistory = true)
         {
             if (ReferenceEquals(this.CurrentGroup, group))
-            {
                 return;
-            }
 
             if (group != null && !ReferenceEquals(this, group.Manager))
-            {
                 throw new Exception("Target group's manager does not match the current instance");
-            }
 
             if (group == null)
-            {
                 group = this.Root;
-            }
 
             if (pushHistory)
             {
@@ -74,8 +94,8 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
                 this.undoGroup.AddLast(this.CurrentGroup);
             }
 
-            this.CurrentGroup.SelectedItems.Clear();
-            group.SelectedItems.Clear();
+            this.CurrentGroup.SelectedItems = null;
+            group.SelectedItems = null;
             this.CurrentGroup = group;
         }
 
@@ -138,7 +158,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             {
                 this.Manager.RegisterEntry(item.Model);
                 this.CurrentGroup.AddItem(item, true);
-                using (ExceptionStack stack = new ExceptionStack(false))
+                using (ErrorList stack = new ErrorList(false))
                 {
                     await item.LoadResource(null, stack);
                     if (stack.TryGetException(out Exception exception))
@@ -149,7 +169,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
             else if (resObj is ResourceGroupViewModel group)
             {
-                await group.RenameSelfAction();
+                await group.RenameAsync();
                 this.CurrentGroup.AddItem(group, true);
             }
         }
@@ -189,7 +209,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
                         }
 
                         ResourceAVMediaViewModel vm = new ResourceAVMediaViewModel(media);
-                        using (ExceptionStack stack = new ExceptionStack(false))
+                        using (ErrorList stack = new ErrorList(false))
                         {
                             await vm.LoadResource(null, stack);
                             if (stack.TryGetException(out Exception exception))
@@ -228,7 +248,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
                     case ".jpeg":
                     {
                         ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path});
-                        using (ExceptionStack stack = new ExceptionStack(false))
+                        using (ErrorList stack = new ErrorList(false))
                         {
                             await image.LoadResource(null, stack);
                             if (stack.TryGetException(out Exception exception))

@@ -270,7 +270,7 @@ namespace FramePFX.Core.Editor.ViewModels
 
         public void Dispose()
         {
-            using (ExceptionStack stack = new ExceptionStack("Exception occurred while disposing video editor"))
+            using (ErrorList stack = new ErrorList("Exception occurred while disposing video editor"))
             {
                 if (this.ActiveProject != null)
                 {

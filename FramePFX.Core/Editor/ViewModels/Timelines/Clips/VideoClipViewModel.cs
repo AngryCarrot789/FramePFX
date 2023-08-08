@@ -301,7 +301,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Clips
             this.Track?.Timeline.DoRender(schedule);
         }
 
-        protected override void DisposeCore(ExceptionStack stack)
+        protected override void DisposeCore(ErrorList stack)
         {
             base.DisposeCore(stack);
             this.Model.RenderInvalidated -= this.renderCallback;

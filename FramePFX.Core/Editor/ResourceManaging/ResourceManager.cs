@@ -258,7 +258,7 @@ namespace FramePFX.Core.Editor.ResourceManaging
 
         public void ClearEntries()
         {
-            using (ExceptionStack stack = new ExceptionStack())
+            using (ErrorList stack = new ErrorList())
             {
                 foreach (ResourceItem item in this.uuidToItem.Values)
                 {

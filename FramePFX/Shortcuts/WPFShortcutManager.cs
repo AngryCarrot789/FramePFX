@@ -9,10 +9,8 @@ using FramePFX.Core.Shortcuts.Inputs;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Shortcuts
-{
-    public class WPFShortcutManager : ShortcutManager
-    {
+namespace FramePFX.Shortcuts {
+    public class WPFShortcutManager : ShortcutManager {
         private static readonly MouseButtonEventHandler RootMouseDownHandlerPreview = (s, args) => HandleRootMouseDown(s, args, true);
         private static readonly MouseButtonEventHandler RootMouseDownHandlerNonPreview = (s, args) => HandleRootMouseDown(s, args, false);
         private static readonly MouseButtonEventHandler RootMouseUpHandlerPreview = (s, args) => HandleRootMouseUp(s, args, true);
@@ -35,12 +33,10 @@ namespace FramePFX.Shortcuts
         /// </summary>
         public static Dictionary<string, Dictionary<string, List<ActivationHandlerReference>>> InputBindingCallbackMap { get; }
 
-        static WPFShortcutManager()
-        {
+        static WPFShortcutManager() {
             InputBindingCallbackMap = new Dictionary<string, Dictionary<string, List<ActivationHandlerReference>>>();
             KeyStroke.KeyCodeToStringProvider = (x) => ((Key) x).ToString();
-            KeyStroke.ModifierToStringProvider = (x, s) =>
-            {
+            KeyStroke.ModifierToStringProvider = (x, s) => {
                 StringJoiner joiner = new StringJoiner(s ? " + " : "+");
                 ModifierKeys keys = (ModifierKeys) x;
                 if ((keys & ModifierKeys.Control) != 0)
@@ -54,10 +50,8 @@ namespace FramePFX.Shortcuts
                 return joiner.ToString();
             };
 
-            MouseStroke.MouseButtonToStringProvider = (x) =>
-            {
-                switch (x)
-                {
+            MouseStroke.MouseButtonToStringProvider = (x) => {
+                switch (x) {
                     case 0: return "LMB";
                     case 1: return "MMB";
                     case 2: return "RMB";
@@ -91,64 +85,52 @@ namespace FramePFX.Shortcuts
         //     }
         // }
 
-        public WPFShortcutManager()
-        {
+        public WPFShortcutManager() {
         }
 
-        public static void UnregisterHandler(string shortcutId, string usageId)
-        {
+        public static void UnregisterHandler(string shortcutId, string usageId) {
             ShortcutUtils.EnforceIdFormat(shortcutId, nameof(shortcutId));
             ShortcutUtils.EnforceIdFormat(usageId, nameof(usageId));
-            if (InputBindingCallbackMap.TryGetValue(shortcutId, out Dictionary<string, List<ActivationHandlerReference>> usageMap))
-            {
+            if (InputBindingCallbackMap.TryGetValue(shortcutId, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
                 usageMap.Remove(usageId);
             }
         }
 
-        public static void RegisterHandler(string shortcutId, string usageId, ShortcutActivateHandler handler, bool weak = true)
-        {
+        public static void RegisterHandler(string shortcutId, string usageId, ShortcutActivateHandler handler, bool weak = true) {
             ShortcutUtils.EnforceIdFormat(shortcutId, nameof(shortcutId));
             ShortcutUtils.EnforceIdFormat(usageId, nameof(usageId));
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            if (!InputBindingCallbackMap.TryGetValue(shortcutId, out Dictionary<string, List<ActivationHandlerReference>> usageMap))
-            {
+            if (!InputBindingCallbackMap.TryGetValue(shortcutId, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
                 InputBindingCallbackMap[shortcutId] = usageMap = new Dictionary<string, List<ActivationHandlerReference>>();
             }
 
-            if (!usageMap.TryGetValue(usageId, out List<ActivationHandlerReference> list))
-            {
+            if (!usageMap.TryGetValue(usageId, out List<ActivationHandlerReference> list)) {
                 usageMap[usageId] = list = new List<ActivationHandlerReference>();
             }
 
             list.Add(new ActivationHandlerReference(handler, weak));
         }
 
-        public static WPFShortcutProcessor GetShortcutProcessorForUIObject(object sender)
-        {
-            if (sender != null && (sender is Window window || sender is DependencyObject obj && (window = Window.GetWindow(obj)) != null))
-            {
+        public static WPFShortcutProcessor GetShortcutProcessorForUIObject(object sender) {
+            if (sender != null && (sender is Window window || sender is DependencyObject obj && (window = Window.GetWindow(obj)) != null)) {
                 return (WPFShortcutProcessor) window.GetValue(UIInputManager.ShortcutProcessorProperty.DependencyProperty);
             }
 
             return null;
         }
 
-        public static void OnIsGlobalShortcutFocusTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (!(d is Window window))
-            {
+        public static void OnIsGlobalShortcutFocusTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (!(d is Window window)) {
                 throw new Exception($"This property must be applied to objects of type {nameof(Window)} only, not " + d?.GetType());
             }
 
-            if (e.OldValue == e.NewValue)
-            {
+            if (e.OldValue == e.NewValue) {
                 return;
             }
 
-            if (!(Instance is WPFShortcutManager manager))
-            {
+            if (!(Instance is WPFShortcutManager manager)) {
                 Debug.WriteLine($"ShortcutManager Global Instance is not an instance of {nameof(WPFShortcutManager)}: {Instance?.GetType()}");
                 return;
             }
@@ -163,8 +145,7 @@ namespace FramePFX.Shortcuts
             window.PreviewKeyDown -= RootKeyDownHandlerPreview;
             window.PreviewKeyUp -= RootKeyUpHandlerPreview;
             window.PreviewMouseWheel -= RootWheelHandlerPreview;
-            if ((bool) e.NewValue)
-            {
+            if ((bool) e.NewValue) {
                 window.MouseDown += RootMouseDownHandlerNonPreview;
                 window.MouseUp += RootMouseUpHandlerNonPreview;
                 window.KeyDown += RootKeyDownHandlerNonPreview;
@@ -177,16 +158,13 @@ namespace FramePFX.Shortcuts
                 window.PreviewMouseWheel += RootWheelHandlerPreview;
                 window.SetValue(UIInputManager.ShortcutProcessorProperty, new WPFShortcutProcessor(manager));
             }
-            else
-            {
+            else {
                 window.ClearValue(UIInputManager.ShortcutProcessorProperty);
             }
         }
 
-        private static void HandleRootMouseDown(object sender, MouseButtonEventArgs e, bool isPreviewEvent)
-        {
-            if (isPreviewEvent && e.OriginalSource is DependencyObject hit)
-            {
+        private static void HandleRootMouseDown(object sender, MouseButtonEventArgs e, bool isPreviewEvent) {
+            if (isPreviewEvent && e.OriginalSource is DependencyObject hit) {
                 UIInputManager.ProcessFocusGroupChange(hit);
             }
 
@@ -194,10 +172,8 @@ namespace FramePFX.Shortcuts
             processor?.OnWindowMouseDown(sender, e, isPreviewEvent);
         }
 
-        private static void HandleRootMouseUp(object sender, MouseButtonEventArgs e, bool isPreviewEvent)
-        {
-            if (isPreviewEvent && e.OriginalSource is DependencyObject hit)
-            {
+        private static void HandleRootMouseUp(object sender, MouseButtonEventArgs e, bool isPreviewEvent) {
+            if (isPreviewEvent && e.OriginalSource is DependencyObject hit) {
                 UIInputManager.ProcessFocusGroupChange(hit);
             }
 
@@ -205,47 +181,37 @@ namespace FramePFX.Shortcuts
             processor?.OnWindowMouseUp(sender, e, isPreviewEvent);
         }
 
-        private static void HandleRootMouseWheel(object sender, MouseWheelEventArgs e, bool isPreviewEvent)
-        {
+        private static void HandleRootMouseWheel(object sender, MouseWheelEventArgs e, bool isPreviewEvent) {
             WPFShortcutProcessor processor = GetShortcutProcessorForUIObject(sender);
             processor?.OnWindowMouseWheel(sender, e, isPreviewEvent);
         }
 
-        private static void HandleRootKeyDown(object sender, KeyEventArgs e, bool isPreviewEvent)
-        {
+        private static void HandleRootKeyDown(object sender, KeyEventArgs e, bool isPreviewEvent) {
             OnKeyEvent(sender, e.OriginalSource as DependencyObject, e, false, isPreviewEvent);
         }
 
-        private static void HandleRootKeyUp(object sender, KeyEventArgs e, bool isPreviewEvent)
-        {
+        private static void HandleRootKeyUp(object sender, KeyEventArgs e, bool isPreviewEvent) {
             OnKeyEvent(sender, e.OriginalSource as DependencyObject, e, true, isPreviewEvent);
         }
 
-        public static void OnKeyEvent(object window, DependencyObject focused, KeyEventArgs e, bool isRelease, bool isPreviewEvent)
-        {
+        public static void OnKeyEvent(object window, DependencyObject focused, KeyEventArgs e, bool isRelease, bool isPreviewEvent) {
             WPFShortcutProcessor processor = GetShortcutProcessorForUIObject(window);
             processor?.OnKeyEvent(window, focused, e, isRelease, isPreviewEvent);
         }
 
-        public override ShortcutProcessor NewProcessor()
-        {
+        public override ShortcutProcessor NewProcessor() {
             return new WPFShortcutProcessor(this);
         }
 
-        public void SetRoot(ShortcutGroup @group)
-        {
+        public void SetRoot(ShortcutGroup @group) {
             this.Root = @group;
         }
 
-        public static void AccumulateContext(DataContext context, DependencyObject target, bool self, bool ic, bool window)
-        {
-            if (self)
-            {
-                if (target is FrameworkElement frameworkElement)
-                {
+        public static void AccumulateContext(DataContext context, DependencyObject target, bool self, bool ic, bool window) {
+            if (self) {
+                if (target is FrameworkElement frameworkElement) {
                     object dc = frameworkElement.DataContext;
-                    if (dc != null)
-                    {
+                    if (dc != null) {
                         context.AddContext(dc);
                     }
                 }
@@ -253,14 +219,11 @@ namespace FramePFX.Shortcuts
                 context.AddContext(target);
             }
 
-            if (ic)
-            {
+            if (ic) {
                 ItemsControl itemsControl = ItemsControl.ItemsControlFromItemContainer(target);
-                if (itemsControl != null && itemsControl.IsItemItsOwnContainer(target))
-                {
+                if (itemsControl != null && itemsControl.IsItemItsOwnContainer(target)) {
                     object dc = itemsControl.DataContext;
-                    if (dc != null)
-                    {
+                    if (dc != null) {
                         context.AddContext(dc);
                     }
 
@@ -268,13 +231,10 @@ namespace FramePFX.Shortcuts
                 }
             }
 
-            if (window)
-            {
-                if (Window.GetWindow(target) is Window win)
-                {
+            if (window) {
+                if (Window.GetWindow(target) is Window win) {
                     object dc = win.DataContext;
-                    if (dc != null)
-                    {
+                    if (dc != null) {
                         context.AddContext(dc);
                     }
 

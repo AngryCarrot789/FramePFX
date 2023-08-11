@@ -1,7 +1,5 @@
-namespace FramePFX.Core.Automation.ViewModels
-{
-    public interface IAutomatableViewModel
-    {
+namespace FramePFX.Core.Automation.ViewModels {
+    public interface IAutomatableViewModel {
         /// <summary>
         /// A reference to this automatable view model's backing model
         /// </summary>

@@ -1,10 +1,8 @@
 using System;
 
-namespace FramePFX.Core.Editor.ResourceManaging
-{
+namespace FramePFX.Core.Editor.ResourceManaging {
     [Flags]
-    public enum ResourceRemoveFlags
-    {
+    public enum ResourceRemoveFlags {
         None,
         RemoveFromModel = 1,
         UnregisterHierarchy = 2,

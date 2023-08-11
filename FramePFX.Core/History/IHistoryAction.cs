@@ -1,13 +1,11 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core.History
-{
+namespace FramePFX.Core.History {
     /// <summary>
     /// An action that can be undone and then also redone (but only after being undone)
     /// </summary>
-    public interface IHistoryAction
-    {
+    public interface IHistoryAction {
         /// <summary>
         /// Undoes the action. E.g. you created a file. Calling this will then delete that file
         /// </summary>

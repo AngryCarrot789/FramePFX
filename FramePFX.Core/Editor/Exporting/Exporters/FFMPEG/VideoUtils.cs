@@ -1,16 +1,12 @@
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG
-{
-    public static class VideoUtils
-    {
+namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
+    public static class VideoUtils {
         // "Resolve" function info can be found at:
         // https://ffmpeg.org/ffmpeg-utils.html#Time-duration
 
-        public static bool ResolveRate(string input, out Rational rational)
-        {
-            switch (input.ToLower())
-            {
+        public static bool ResolveRate(string input, out Rational rational) {
+            switch (input.ToLower()) {
                 case "ntsc-film":
                     rational = new Rational(24000, 1001);
                     break;
@@ -35,10 +31,8 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG
             return true;
         }
 
-        public static bool ResolveResolution(string input, out Resolution res)
-        {
-            switch (input.ToLower())
-            {
+        public static bool ResolveResolution(string input, out Resolution res) {
+            switch (input.ToLower()) {
                 case "ntsc":
                     res = new Resolution(720, 480);
                     break;

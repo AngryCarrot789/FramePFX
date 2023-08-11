@@ -3,16 +3,13 @@ using System.Threading.Tasks;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ResourceChecker.Resources
-{
-    public class InvalidVideoViewModel : InvalidResourceViewModel
-    {
+namespace FramePFX.Core.Editor.ResourceChecker.Resources {
+    public class InvalidVideoViewModel : InvalidResourceViewModel {
         public new ResourceMpegMediaViewModel Resource => (ResourceMpegMediaViewModel) base.Resource;
 
         private string filePath;
 
-        public string FilePath
-        {
+        public string FilePath {
             get => this.filePath;
             set => this.RaisePropertyChanged(ref this.filePath, value);
         }
@@ -21,31 +18,25 @@ namespace FramePFX.Core.Editor.ResourceChecker.Resources
 
         public AsyncRelayCommand SelectFileCommand { get; }
 
-        public InvalidVideoViewModel(ResourceMpegMediaViewModel resource) : base(resource)
-        {
+        public InvalidVideoViewModel(ResourceMpegMediaViewModel resource) : base(resource) {
             this.filePath = resource.FilePath;
             this.LoadFileCommand = new AsyncRelayCommand(this.LoadFileAction, () => !string.IsNullOrEmpty(this.FilePath));
             this.SelectFileCommand = new AsyncRelayCommand(this.SelectFileAction);
         }
 
-        private async Task LoadFileAction()
-        {
-            if (string.IsNullOrEmpty(this.FilePath))
-            {
+        private async Task LoadFileAction() {
+            if (string.IsNullOrEmpty(this.FilePath)) {
                 return;
             }
 
-            if (this.Resource.Model.reader != null)
-            {
+            if (this.Resource.Model.reader != null) {
                 this.Resource.Model.CloseReader();
             }
 
-            try
-            {
+            try {
                 this.Resource.Model.LoadMedia(this.FilePath);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Failed", "An exception occurred opening the media", e.GetToString());
                 return;
             }
@@ -53,11 +44,9 @@ namespace FramePFX.Core.Editor.ResourceChecker.Resources
             await this.RemoveFromCheckerAction();
         }
 
-        private async Task SelectFileAction()
-        {
+        private async Task SelectFileAction() {
             string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
-            if (file != null)
-            {
+            if (file != null) {
                 this.FilePath = file[0];
                 await this.LoadFileAction();
             }

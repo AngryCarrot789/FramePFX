@@ -9,25 +9,21 @@ using FramePFX.Core.Actions;
 using FramePFX.Utils;
 using FramePFX.Views.FilePicking;
 
-namespace FramePFX.Views
-{
+namespace FramePFX.Views {
     /// <summary>
     /// An extended window which adds support for a few of the things in the dark theme I made (e.g. Titlebar brush)
     /// </summary>
-    public class WindowEx : Window
-    {
+    public class WindowEx : Window {
         public static readonly DependencyProperty TitlebarBrushProperty = DependencyProperty.Register("TitlebarBrush", typeof(Brush), typeof(WindowEx));
         public static readonly DependencyProperty CanCloseWithEscapeKeyProperty = DependencyProperty.Register("CanCloseWithEscapeKey", typeof(bool), typeof(WindowEx), new PropertyMetadata(false));
 
         [Category("Brush")]
-        public Brush TitlebarBrush
-        {
+        public Brush TitlebarBrush {
             get => (Brush) this.GetValue(TitlebarBrushProperty);
             set => this.SetValue(TitlebarBrushProperty, value);
         }
 
-        public bool CanCloseWithEscapeKey
-        {
+        public bool CanCloseWithEscapeKey {
             get => (bool) this.GetValue(CanCloseWithEscapeKeyProperty);
             set => this.SetValue(CanCloseWithEscapeKeyProperty, value);
         }
@@ -39,36 +35,30 @@ namespace FramePFX.Views
         private readonly Action showAction;
         private readonly Func<bool?> showDialogAction;
 
-        public WindowEx() : base()
-        {
+        public WindowEx() : base() {
             this.showAction = this.Show;
             this.showDialogAction = this.ShowDialog;
         }
 
-        public void SetToCenterOfScreen()
-        {
+        public void SetToCenterOfScreen() {
             Window owner = FolderPicker.GetCurrentActiveWindow();
-            if (owner != this && owner.Owner != this)
-            {
+            if (owner != this && owner.Owner != this) {
                 this.Owner = owner;
             }
 
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         }
 
-        public Task ShowAsync()
-        {
+        public Task ShowAsync() {
             // Just in case this is called off the main thread
             return DispatcherUtils.InvokeAsync(this.Dispatcher, this.showAction);
         }
 
-        public Task<bool?> ShowDialogAsync()
-        {
+        public Task<bool?> ShowDialogAsync() {
             return DispatcherUtils.InvokeAsync(this.Dispatcher, this.showDialogAction);
         }
 
-        public override void OnApplyTemplate()
-        {
+        public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             WindowChrome chrome = new WindowChrome() {
                 CaptionHeight = 26,
@@ -92,36 +82,28 @@ namespace FramePFX.Views
             // </Setter>
         }
 
-        protected sealed override void OnClosing(CancelEventArgs e)
-        {
-            if (this.isHandlingSyncClosing || this.isHandlingAsyncClose)
-            {
+        protected sealed override void OnClosing(CancelEventArgs e) {
+            if (this.isHandlingSyncClosing || this.isHandlingAsyncClose) {
                 return;
             }
 
-            try
-            {
+            try {
                 this.isHandlingSyncClosing = true;
                 this.OnClosingInternal(e);
-                if (this.closeEventResult.HasValue)
-                {
-                    try
-                    {
+                if (this.closeEventResult.HasValue) {
+                    try {
                         // try finally juuust in case...
                         e.Cancel = !this.closeEventResult.Value; // true = close, false = do not close
                     }
-                    finally
-                    {
+                    finally {
                         this.closeEventResult = null;
                     }
                 }
-                else
-                {
+                else {
                     e.Cancel = true;
                 }
             }
-            finally
-            {
+            finally {
                 this.isHandlingSyncClosing = false;
             }
         }
@@ -143,11 +125,9 @@ namespace FramePFX.Views
 
 
          */
-        private async void OnClosingInternal(CancelEventArgs e)
-        {
+        private async void OnClosingInternal(CancelEventArgs e) {
             bool result = await this.CloseAsync();
-            if (this.isHandlingSyncClosing)
-            {
+            if (this.isHandlingSyncClosing) {
                 this.closeEventResult = result;
             }
         }
@@ -156,34 +136,27 @@ namespace FramePFX.Views
         /// Closes the window
         /// </summary>
         /// <returns>Whether the window was closed or not</returns>
-        public Task<bool> CloseAsync()
-        {
+        public Task<bool> CloseAsync() {
             // return await await Task.Run(async () => await DispatcherUtils.InvokeAsync(this.Dispatcher, this.CloseAsyncInternal));
             return DispatcherUtils.Invoke(this.Dispatcher, this.CloseAsyncInternal);
         }
 
-        private async Task<bool> CloseAsyncInternal()
-        {
-            if (await this.OnClosingAsync())
-            {
-                if (!this.isHandlingSyncClosing)
-                {
-                    try
-                    {
+        private async Task<bool> CloseAsyncInternal() {
+            if (await this.OnClosingAsync()) {
+                if (!this.isHandlingSyncClosing) {
+                    try {
                         this.isHandlingAsyncClose = true;
                         await DispatcherUtils.InvokeAsync(this.Dispatcher, this.Close);
                         return true;
                     }
-                    finally
-                    {
+                    finally {
                         this.isHandlingAsyncClose = false;
                     }
                 }
 
                 return true;
             }
-            else
-            {
+            else {
                 return false;
             }
         }
@@ -192,21 +165,17 @@ namespace FramePFX.Views
         /// Called when the window is trying to be closed
         /// </summary>
         /// <returns>True if the window can close, otherwise false to stop it from closing</returns>
-        protected virtual Task<bool> OnClosingAsync()
-        {
+        protected virtual Task<bool> OnClosingAsync() {
             return Task.FromResult(true);
         }
 
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
+        protected override void OnPreviewKeyDown(KeyEventArgs e) {
             base.OnPreviewKeyDown(e);
-            if (e.Handled)
-            {
+            if (e.Handled) {
                 return;
             }
 
-            if (e.Key == Key.Escape && this.CanCloseWithEscapeKey)
-            {
+            if (e.Key == Key.Escape && this.CanCloseWithEscapeKey) {
                 e.Handled = true;
                 this.Close();
             }
@@ -231,40 +200,31 @@ namespace FramePFX.Views
 
         // Binding a checkbox to the window's Topmost property is more effective and works both ways
         [ActionRegistration("actions.views.MakeWindowTopMost")]
-        private class MakeTopMostAction : ToggleAction
-        {
-            public MakeTopMostAction()
-            {
+        private class MakeTopMostAction : ToggleAction {
+            public MakeTopMostAction() {
             }
 
-            public override Task<bool> OnToggled(AnActionEventArgs e, bool isToggled)
-            {
-                if (e.DataContext.TryGetContext(out WindowEx window))
-                {
+            public override Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
+                if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = isToggled;
                     return Task.FromResult(true);
                 }
-                else
-                {
+                else {
                     return Task.FromResult(false);
                 }
             }
 
-            public override Task<bool> ExecuteNoToggle(AnActionEventArgs e)
-            {
-                if (e.DataContext.TryGetContext(out WindowEx window))
-                {
+            public override Task<bool> ExecuteNoToggle(AnActionEventArgs e) {
+                if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = !window.Topmost;
                     return Task.FromResult(true);
                 }
-                else
-                {
+                else {
                     return Task.FromResult(false);
                 }
             }
 
-            public override bool CanExecute(AnActionEventArgs e)
-            {
+            public override bool CanExecute(AnActionEventArgs e) {
                 return e.DataContext.TryGetContext<WindowEx>(out _);
             }
         }

@@ -8,10 +8,8 @@ using System.Windows.Documents;
 using FramePFX.Highlighting;
 using TextRange = FramePFX.Core.Utils.TextRange;
 
-namespace FramePFX.Controls
-{
-    public class HighlightableTextBlock : TextBlock
-    {
+namespace FramePFX.Controls {
+    public class HighlightableTextBlock : TextBlock {
         public static readonly DependencyProperty HighlightProperty =
             DependencyProperty.Register(
                 "Highlight",
@@ -33,20 +31,17 @@ namespace FramePFX.Controls
                 typeof(HighlightableTextBlock),
                 new PropertyMetadata(null, (d, e) => ((HighlightableTextBlock) d).RegenerateInlines()));
 
-        public Style NormalTextRunStyle
-        {
+        public Style NormalTextRunStyle {
             get => (Style) this.GetValue(NormalTextRunStyleProperty);
             set => this.SetValue(NormalTextRunStyleProperty, value);
         }
 
-        public Style HighlightTextRunStyle
-        {
+        public Style HighlightTextRunStyle {
             get => (Style) this.GetValue(HighlightTextRunStyleProperty);
             set => this.SetValue(HighlightTextRunStyleProperty, value);
         }
 
-        public IEnumerable<TextRange> Highlight
-        {
+        public IEnumerable<TextRange> Highlight {
             get { return (IEnumerable<TextRange>) this.GetValue(HighlightProperty); }
             set { this.SetValue(HighlightProperty, value); }
         }
@@ -54,55 +49,45 @@ namespace FramePFX.Controls
         private readonly Func<string, Run> normalRunFunc;
         private readonly Func<string, Run> highlightRunFunc;
 
-        public HighlightableTextBlock()
-        {
+        public HighlightableTextBlock() {
             this.normalRunFunc = this.CreateNormalRun;
             this.highlightRunFunc = this.CreateHighlightRun;
         }
 
-        private void OnHighlightChanged(DependencyPropertyChangedEventArgs e)
-        {
-            if (e.OldValue is ObservableCollection<TextRange> oldList)
-            {
+        private void OnHighlightChanged(DependencyPropertyChangedEventArgs e) {
+            if (e.OldValue is ObservableCollection<TextRange> oldList) {
                 oldList.CollectionChanged -= this.OnHighlightCollectionModified;
             }
 
-            if (e.NewValue is ObservableCollection<TextRange> newList)
-            {
+            if (e.NewValue is ObservableCollection<TextRange> newList) {
                 newList.CollectionChanged += this.OnHighlightCollectionModified;
             }
 
-            if (e.NewValue != null)
-            {
+            if (e.NewValue != null) {
                 this.RegenerateInlines();
             }
         }
 
-        public void RegenerateInlines()
-        {
+        public void RegenerateInlines() {
             this.Inlines.Clear();
             IEnumerable<TextRange> ranges = this.Highlight;
-            if (ranges != null)
-            {
+            if (ranges != null) {
                 this.Inlines.AddRange(InlineHelper.CreateHighlight(this.Text, ranges, this.normalRunFunc, this.highlightRunFunc));
             }
         }
 
-        private void OnHighlightCollectionModified(object sender, NotifyCollectionChangedEventArgs e)
-        {
+        private void OnHighlightCollectionModified(object sender, NotifyCollectionChangedEventArgs e) {
             this.RegenerateInlines();
         }
 
-        private Run CreateNormalRun(string text)
-        {
+        private Run CreateNormalRun(string text) {
             Style style = this.NormalTextRunStyle;
             Run run = style != null ? new Run() {Style = style} : new Run();
             run.Text = text;
             return run;
         }
 
-        private Run CreateHighlightRun(string text)
-        {
+        private Run CreateHighlightRun(string text) {
             Style style = this.HighlightTextRunStyle;
             Run run = style != null
                 ? new Run() {Style = style}

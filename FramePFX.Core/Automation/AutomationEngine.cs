@@ -3,16 +3,13 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Automation
-{
-    public class AutomationEngine
-    {
+namespace FramePFX.Core.Automation {
+    public class AutomationEngine {
         public const long FrameRate = 1000L;
 
         public Project Project { get; }
 
-        public AutomationEngine(Project project)
-        {
+        public AutomationEngine(Project project) {
             this.Project = project;
         }
 
@@ -24,72 +21,54 @@ namespace FramePFX.Core.Automation
         //     this.UpdateAt(frameTime.ToInt);
         // }
 
-        public void UpdateAt(long frame)
-        {
+        public void UpdateAt(long frame) {
             this.UpdateTimeline(this.Project.Timeline, frame);
         }
 
-        public void UpdateTimeline(Timeline timeline, long frame)
-        {
+        public void UpdateTimeline(Timeline timeline, long frame) {
             timeline.IsAutomationChangeInProgress = true;
-            try
-            {
-                foreach (AutomationSequence sequence in timeline.AutomationData.Sequences)
-                {
-                    if (sequence.IsAutomationInUse)
-                    {
+            try {
+                foreach (AutomationSequence sequence in timeline.AutomationData.Sequences) {
+                    if (sequence.IsAutomationInUse) {
                         sequence.DoUpdateValue(this, frame);
                     }
                 }
             }
-            finally
-            {
+            finally {
                 timeline.IsAutomationChangeInProgress = false;
             }
 
-            foreach (Track track in timeline.Tracks)
-            {
+            foreach (Track track in timeline.Tracks) {
                 this.UpdateTrack(track, frame);
             }
         }
 
-        public void UpdateTrack(Track track, long frame)
-        {
+        public void UpdateTrack(Track track, long frame) {
             track.IsAutomationChangeInProgress = true;
-            try
-            {
-                foreach (AutomationSequence sequence in track.AutomationData.Sequences)
-                {
-                    if (sequence.IsAutomationInUse)
-                    {
+            try {
+                foreach (AutomationSequence sequence in track.AutomationData.Sequences) {
+                    if (sequence.IsAutomationInUse) {
                         sequence.DoUpdateValue(this, frame);
                     }
                 }
             }
-            finally
-            {
+            finally {
                 track.IsAutomationChangeInProgress = false;
             }
 
-            foreach (Clip clip in track.Clips)
-            {
+            foreach (Clip clip in track.Clips) {
                 FrameSpan span = clip.FrameSpan;
                 long relative = frame - span.Begin;
-                if (relative >= 0 && relative < span.Duration)
-                {
-                    try
-                    {
+                if (relative >= 0 && relative < span.Duration) {
+                    try {
                         clip.IsAutomationChangeInProgress = true;
-                        foreach (AutomationSequence sequence in clip.AutomationData.Sequences)
-                        {
-                            if (sequence.IsAutomationInUse)
-                            {
+                        foreach (AutomationSequence sequence in clip.AutomationData.Sequences) {
+                            if (sequence.IsAutomationInUse) {
                                 sequence.DoUpdateValue(this, relative);
                             }
                         }
                     }
-                    finally
-                    {
+                    finally {
                         clip.IsAutomationChangeInProgress = false;
                     }
                 }

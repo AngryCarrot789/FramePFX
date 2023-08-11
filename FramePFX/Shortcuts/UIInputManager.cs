@@ -5,10 +5,8 @@ using FramePFX.Core.Utils;
 using FramePFX.Utils;
 using PSWMGRv2.Utils;
 
-namespace FramePFX.Shortcuts
-{
-    public static class UIInputManager
-    {
+namespace FramePFX.Shortcuts {
+    public static class UIInputManager {
         public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         public static readonly DependencyProperty IsInputSourceProperty = DependencyProperty.RegisterAttached("IsInputSource", typeof(bool), typeof(WPFShortcutManager), new PropertyMetadata(BoolBox.False, WPFShortcutManager.OnIsGlobalShortcutFocusTargetChanged));
         public static readonly DependencyProperty UsageIdProperty = DependencyProperty.RegisterAttached("UsageId", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(WPFShortcutManager.DEFAULT_USAGE_ID, FrameworkPropertyMetadataOptions.Inherits));
@@ -88,17 +86,14 @@ namespace FramePFX.Shortcuts
         public static void SetCanProcessTextBoxMouseStroke(DependencyObject element, bool value) => element.SetValue(CanProcessTextBoxMouseStrokeProperty, value.Box());
         public static bool GetCanProcessTextBoxMouseStroke(DependencyObject element) => (bool) element.GetValue(CanProcessTextBoxMouseStrokeProperty);
 
-        public static void RaiseFocusGroupPathChanged(string oldGroup, string newGroup)
-        {
+        public static void RaiseFocusGroupPathChanged(string oldGroup, string newGroup) {
             OnFocusedPathChanged?.Invoke(oldGroup, newGroup);
         }
 
-        public static void ProcessFocusGroupChange(DependencyObject obj)
-        {
+        public static void ProcessFocusGroupChange(DependencyObject obj) {
             string oldPath = FocusedPath;
             string newPath = GetFocusPath(obj);
-            if (oldPath != newPath)
-            {
+            if (oldPath != newPath) {
                 FocusedPath = newPath;
                 RaiseFocusGroupPathChanged(oldPath, newPath);
                 UpdateHasFocusGroup(obj);
@@ -111,10 +106,8 @@ namespace FramePFX.Shortcuts
         /// that element, and false for the last element that was focused
         /// </summary>
         /// <param name="eventObject">Target/focused element which now has focus</param>
-        public static void UpdateHasFocusGroup(DependencyObject eventObject)
-        {
-            if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused))
-            {
+        public static void UpdateHasFocusGroup(DependencyObject eventObject) {
+            if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused)) {
                 CurrentlyFocusedObject.SetTarget(null);
                 SetIsPathFocused(lastFocused, false);
             }
@@ -124,17 +117,14 @@ namespace FramePFX.Shortcuts
             //     root = VisualTreeUtils.FindInheritedPropertyDefinition(FocusGroupPathProperty, root);
             // } while (root != null && !GetHasAdvancedFocusVisual(root) && (root = VisualTreeHelper.GetParent(root)) != null);
 
-            if (root != null)
-            {
+            if (root != null) {
                 CurrentlyFocusedObject.SetTarget(root);
                 SetIsPathFocused(root, true);
-                if (root is UIElement element && element.Focusable && !element.IsFocused)
-                {
+                if (root is UIElement element && element.Focusable && !element.IsFocused) {
                     element.Focus();
                 }
             }
-            else
-            {
+            else {
                 Debug.WriteLine("Failed to find root control that owns the FocusGroupPathProperty of " + GetFocusPath(eventObject));
             }
         }

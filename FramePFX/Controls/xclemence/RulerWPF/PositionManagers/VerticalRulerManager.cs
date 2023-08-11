@@ -7,20 +7,16 @@
 using System.Windows;
 using System.Windows.Shapes;
 
-namespace FramePFX.Controls.xclemence.RulerWPF.PositionManagers
-{
-    public abstract class VerticalRulerManager : RulerPositionManager
-    {
+namespace FramePFX.Controls.xclemence.RulerWPF.PositionManagers {
+    public abstract class VerticalRulerManager : RulerPositionManager {
         protected VerticalRulerManager(RulerBase control) : base(control) { }
 
         public override double GetSize() => this.Control.ActualHeight;
         public override double GetHeight() => this.Control.ActualWidth;
         public override double GetMajorSize() => this.Control.MajorLineSize ?? (this.Control.ActualWidth / 2d);
 
-        public override bool OnUpdateMakerPosition(Line marker, Point position)
-        {
-            if (position.Y <= 0 || position.Y >= this.GetSize())
-            {
+        public override bool OnUpdateMakerPosition(Line marker, Point position) {
+            if (position.Y <= 0 || position.Y >= this.GetSize()) {
                 return false;
             }
 

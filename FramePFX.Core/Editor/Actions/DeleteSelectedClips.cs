@@ -7,17 +7,12 @@ using FramePFX.Core.Editor.ViewModels.Timelines;
 using FramePFX.Core.History.ViewModels;
 using FramePFX.Core.RBC;
 
-namespace FramePFX.Core.Editor.Actions
-{
-    public class DeleteSelectedClips : AnAction
-    {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
-        {
+namespace FramePFX.Core.Editor.Actions {
+    public class DeleteSelectedClips : AnAction {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
-            if (timeline == null)
-            {
-                if (e.IsUserInitiated)
-                {
+            if (timeline == null) {
+                if (e.IsUserInitiated) {
                     await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
                 }
 
@@ -27,14 +22,11 @@ namespace FramePFX.Core.Editor.Actions
             bool deleted = false;
             List<List<RBEDictionary>> historyList = new List<List<RBEDictionary>>();
             HistoryManagerViewModel history = timeline.Project.Editor.HistoryManager;
-            foreach (TrackViewModel track in timeline.Tracks.ToList())
-            {
+            foreach (TrackViewModel track in timeline.Tracks.ToList()) {
                 List<RBEDictionary> clips = new List<RBEDictionary>();
-                if (track.SelectedClips.Count > 0)
-                {
+                if (track.SelectedClips.Count > 0) {
                     List<ClipViewModel> selection = track.SelectedClips.ToList();
-                    foreach (ClipViewModel clip in selection)
-                    {
+                    foreach (ClipViewModel clip in selection) {
                         RBEDictionary dictionary = new RBEDictionary();
                         clip.Model.WriteToRBE(dictionary);
                         clips.Add(dictionary);
@@ -47,34 +39,27 @@ namespace FramePFX.Core.Editor.Actions
                 historyList.Add(clips);
             }
 
-            if (deleted)
-            {
+            if (deleted) {
                 history.AddAction(new HistoryClipDeletion(timeline, historyList));
             }
 
             return true;
         }
 
-        public override bool CanExecute(AnActionEventArgs e)
-        {
+        public override bool CanExecute(AnActionEventArgs e) {
             return EditorActionUtils.FindTimeline(e.DataContext) != null;
         }
 
-        public static async Task CutAllOnPlayHead(TimelineViewModel timeline)
-        {
+        public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {
             long frame = timeline.PlayHeadFrame;
             List<ClipViewModel> list = new List<ClipViewModel>();
-            foreach (TrackViewModel track in timeline.Tracks)
-            {
+            foreach (TrackViewModel track in timeline.Tracks) {
                 list.AddRange(track.Clips);
             }
 
-            if (list.Count > 0)
-            {
-                foreach (ClipViewModel clip in list)
-                {
-                    if (clip.IntersectsFrameAt(frame))
-                    {
+            if (list.Count > 0) {
+                foreach (ClipViewModel clip in list) {
+                    if (clip.IntersectsFrameAt(frame)) {
                         await clip.Track.SliceClipAction(clip, frame);
                     }
                 }

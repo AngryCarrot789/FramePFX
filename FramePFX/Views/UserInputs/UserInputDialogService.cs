@@ -3,13 +3,10 @@ using FramePFX.Core;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 using FramePFX.Utils;
 
-namespace FramePFX.Views.UserInputs
-{
+namespace FramePFX.Views.UserInputs {
     [ServiceImplementation(typeof(IUserInputDialogService))]
-    public class UserInputDialogService : IUserInputDialogService
-    {
-        public async Task<string> ShowSingleInputDialogAsync(string title = "Input a value", string message = "Input a new valid", string def = null, InputValidator validator = null)
-        {
+    public class UserInputDialogService : IUserInputDialogService {
+        public async Task<string> ShowSingleInputDialogAsync(string title = "Input a value", string message = "Input a new valid", string def = null, InputValidator validator = null) {
             SingleInputViewModel vm = new SingleInputViewModel() {
                 Title = title,
                 Message = message,
@@ -20,28 +17,24 @@ namespace FramePFX.Views.UserInputs
             return await this.ShowSingleInputDialogAsync(vm) ? vm.Input ?? "" : null;
         }
 
-        public bool ShowSingleInputDialog(SingleInputViewModel viewModel)
-        {
+        public bool ShowSingleInputDialog(SingleInputViewModel viewModel) {
             SingleUserInputWindow window = new SingleUserInputWindow {
                 DataContext = viewModel
             };
 
             viewModel.Dialog = window;
-            if (viewModel.ValidateInput != null && window.InputValidationRule != null)
-            {
+            if (viewModel.ValidateInput != null && window.InputValidationRule != null) {
                 window.InputValidationRule.Validator = viewModel.ValidateInput;
             }
 
             return window.ShowDialog() == true;
         }
 
-        public Task<bool> ShowSingleInputDialogAsync(SingleInputViewModel viewModel)
-        {
+        public Task<bool> ShowSingleInputDialogAsync(SingleInputViewModel viewModel) {
             return DispatcherUtils.InvokeAsync(() => this.ShowSingleInputDialog(viewModel));
         }
 
-        public bool ShowDoubleInputDialog(DoubleInputViewModel viewModel)
-        {
+        public bool ShowDoubleInputDialog(DoubleInputViewModel viewModel) {
             DoubleUserInputWindow window = new DoubleUserInputWindow {
                 DataContext = viewModel
             };
@@ -54,8 +47,7 @@ namespace FramePFX.Views.UserInputs
             return window.ShowDialog() == true;
         }
 
-        public Task<bool> ShowDoubleInputDialogAsync(DoubleInputViewModel viewModel)
-        {
+        public Task<bool> ShowDoubleInputDialogAsync(DoubleInputViewModel viewModel) {
             return DispatcherUtils.InvokeAsync(() => this.ShowDoubleInputDialog(viewModel));
         }
     }

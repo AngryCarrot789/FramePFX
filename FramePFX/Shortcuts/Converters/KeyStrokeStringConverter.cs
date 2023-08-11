@@ -6,34 +6,26 @@ using System.Windows.Input;
 using FramePFX.Core.Shortcuts.ViewModels;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Shortcuts.Converters
-{
-    public class KeyStrokeStringConverter : IMultiValueConverter
-    {
-        public static string ToStringFunction(KeyStrokeViewModel stroke)
-        {
+namespace FramePFX.Shortcuts.Converters {
+    public class KeyStrokeStringConverter : IMultiValueConverter {
+        public static string ToStringFunction(KeyStrokeViewModel stroke) {
             return ToStringFunction(stroke.KeyCode, stroke.Modifiers, stroke.IsKeyRelease, true, true);
         }
 
-        public static string ToStringFunction(int keyCode, int modifiers, bool release, bool appendKeyDown, bool appendKeyUp)
-        {
+        public static string ToStringFunction(int keyCode, int modifiers, bool release, bool appendKeyDown, bool appendKeyUp) {
             StringBuilder sb = new StringBuilder();
             string mods = ModsToString((ModifierKeys) modifiers);
-            if (mods.Length > 0)
-            {
+            if (mods.Length > 0) {
                 sb.Append(mods).Append('+');
             }
 
             sb.Append((Key) keyCode);
-            if (release)
-            {
-                if (appendKeyUp)
-                {
+            if (release) {
+                if (appendKeyUp) {
                     sb.Append(" (↑)");
                 }
             }
-            else if (appendKeyDown)
-            {
+            else if (appendKeyDown) {
                 sb.Append(" (↓)");
             }
 
@@ -43,10 +35,8 @@ namespace FramePFX.Shortcuts.Converters
         public bool AppendKeyDown { get; set; } = true;
         public bool AppendKeyUp { get; set; } = true;
 
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (values == null || values.Length != 3)
-            {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+            if (values == null || values.Length != 3) {
                 throw new Exception("This converter requires 3 elements; keycode, modifiers, isRelease");
             }
 
@@ -60,13 +50,11 @@ namespace FramePFX.Shortcuts.Converters
             return ToStringFunction(keyCode, modifiers, isRelease, this.AppendKeyDown, this.AppendKeyUp);
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
             throw new NotImplementedException();
         }
 
-        public static string ModsToString(ModifierKeys keys)
-        {
+        public static string ModsToString(ModifierKeys keys) {
             StringJoiner joiner = new StringJoiner("+");
             if ((keys & ModifierKeys.Control) != 0)
                 joiner.Append("Ctrl");

@@ -5,18 +5,15 @@ using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 using FramePFX.Core.Views.Dialogs.UserInputs;
 
-namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
-{
-    public abstract class BaseResourceObjectViewModel : BaseViewModel, IRenameTarget
-    {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
+    public abstract class BaseResourceObjectViewModel : BaseViewModel, IRenameTarget {
         internal ResourceManagerViewModel manager;
         internal ResourceGroupViewModel parent;
 
         /// <summary>
         /// The manager that this resource is currently associated with
         /// </summary>
-        public ResourceManagerViewModel Manager
-        {
+        public ResourceManagerViewModel Manager {
             get => this.manager;
             protected set => this.RaisePropertyChanged(ref this.manager, value);
         }
@@ -24,8 +21,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         /// <summary>
         /// This resource object's parent
         /// </summary>
-        public ResourceGroupViewModel Parent
-        {
+        public ResourceGroupViewModel Parent {
             get => this.parent;
             private set => this.RaisePropertyChanged(ref this.parent, value);
         }
@@ -35,11 +31,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         /// </summary>
         public BaseResourceObject Model { get; }
 
-        public string DisplayName
-        {
+        public string DisplayName {
             get => this.Model.DisplayName;
-            set
-            {
+            set {
                 this.Model.DisplayName = value;
                 this.RaisePropertyChanged();
             }
@@ -49,45 +43,36 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
 
         public AsyncRelayCommand DeleteCommand { get; }
 
-        protected BaseResourceObjectViewModel(BaseResourceObject model)
-        {
+        protected BaseResourceObjectViewModel(BaseResourceObject model) {
             this.Model = model;
             this.RenameCommand = new AsyncRelayCommand(this.RenameAsync, () => true);
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, () => this.Parent != null);
         }
 
-        public virtual void SetParent(ResourceGroupViewModel newParent)
-        {
+        public virtual void SetParent(ResourceGroupViewModel newParent) {
             this.Parent = newParent;
             this.OnParentChainChanged();
         }
 
-        protected internal virtual void OnParentChainChanged()
-        {
-
+        protected internal virtual void OnParentChainChanged() {
         }
 
-        public virtual void SetManager(ResourceManagerViewModel newManager)
-        {
+        public virtual void SetManager(ResourceManagerViewModel newManager) {
             this.Manager = newManager;
         }
 
-        public async virtual Task<bool> DeleteSelfAction()
-        {
+        public async virtual Task<bool> DeleteSelfAction() {
             int index;
-            if (this.Parent == null || (index = this.Parent.Items.IndexOf(this)) == -1)
-            {
+            if (this.Parent == null || (index = this.Parent.Items.IndexOf(this)) == -1) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid item", "This resource is not located anywhere...?");
                 return false;
             }
 
-            if (this is ResourceItemViewModel resource)
-            {
+            if (this is ResourceItemViewModel resource) {
                 if (await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource{(this.DisplayName != null ? $"'{this.DisplayName}'" : "")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
                     return false;
             }
-            else if (this is ResourceGroupViewModel group)
-            {
+            else if (this is ResourceGroupViewModel group) {
                 int total = ResourceGroupViewModel.CountRecursive(group.Items);
                 if (total > 0 && await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource group? It has {total} sub-item{Lang.S(total)}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
                     return false;
@@ -113,23 +98,18 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         /// Called when the model associated with this view model is disposed
         /// </summary>
         /// <param name="list"></param>
-        protected virtual void OnModelDisposed(ErrorList list)
-        {
+        protected virtual void OnModelDisposed(ErrorList list) {
         }
 
-        public async Task<bool> RenameAsync()
-        {
+        public async Task<bool> RenameAsync() {
             string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
-            if (string.IsNullOrWhiteSpace(result))
-            {
+            if (string.IsNullOrWhiteSpace(result)) {
                 return false;
             }
-            else if (this.Parent != null)
-            {
+            else if (this.Parent != null) {
                 this.DisplayName = TextIncrement.GetNextText(this.Parent.Items.OfType<ResourceGroupViewModel>().Select(x => x.DisplayName), result);
             }
-            else
-            {
+            else {
                 this.DisplayName = result;
             }
 
@@ -139,16 +119,12 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         /// <summary>
         /// Disposes the model, and then calls <see cref="OnModelDisposed"/>
         /// </summary>
-        public void Dispose()
-        {
-            using (ErrorList list = new ErrorList())
-            {
-                try
-                {
+        public void Dispose() {
+            using (ErrorList list = new ErrorList()) {
+                try {
                     this.Model.Dispose();
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     list.Add(new Exception("Failed to dispose model", e));
                 }
 

@@ -1,9 +1,7 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.Core.Actions
-{
-    public abstract class ToggleAction : AnAction
-    {
+namespace FramePFX.Core.Actions {
+    public abstract class ToggleAction : AnAction {
         public const string IsToggledKey = "toggled";
 
         /// <summary>
@@ -11,8 +9,7 @@ namespace FramePFX.Core.Actions
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>A nullable boolean that states the toggle state, or null if no toggle state is present</returns>
-        public virtual Task<bool?> GetIsToggledAsync(AnActionEventArgs e)
-        {
+        public virtual Task<bool?> GetIsToggledAsync(AnActionEventArgs e) {
             return Task.FromResult(this.GetIsToggled(e));
         }
 
@@ -23,20 +20,16 @@ namespace FramePFX.Core.Actions
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>A nullable boolean that states the toggle state, or null if no toggle state is present</returns>
-        public virtual bool? GetIsToggled(AnActionEventArgs e)
-        {
+        public virtual bool? GetIsToggled(AnActionEventArgs e) {
             return e.DataContext.TryGet(IsToggledKey, out bool value) ? (bool?) value : null;
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
-        {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             bool? result = await this.GetIsToggledAsync(e);
-            if (result.HasValue)
-            {
+            if (result.HasValue) {
                 return await this.OnToggled(e, result.Value);
             }
-            else
-            {
+            else {
                 return await this.ExecuteNoToggle(e);
             }
         }
@@ -57,19 +50,16 @@ namespace FramePFX.Core.Actions
         /// <returns>Whether the action was executed successfully</returns>
         public abstract Task<bool> ExecuteNoToggle(AnActionEventArgs e);
 
-        public override bool CanExecute(AnActionEventArgs e)
-        {
+        public override bool CanExecute(AnActionEventArgs e) {
             bool? result = this.GetIsToggled(e);
             return result.HasValue ? this.CanExecute(e, result.Value) : this.CanExecuteNoToggle(e);
         }
 
-        public virtual bool CanExecute(AnActionEventArgs e, bool isToggled)
-        {
+        public virtual bool CanExecute(AnActionEventArgs e, bool isToggled) {
             return true;
         }
 
-        public virtual bool CanExecuteNoToggle(AnActionEventArgs e)
-        {
+        public virtual bool CanExecuteNoToggle(AnActionEventArgs e) {
             return this.CanExecute(e, false);
         }
     }

@@ -1,54 +1,43 @@
 using System;
 
-namespace FramePFX.Core.Utils
-{
+namespace FramePFX.Core.Utils {
     /// <summary>
     /// A class for helping invoke a callback, or skipping if it has not been completed
     /// </summary>
-    public class RapidDispatchCallback
-    {
+    public class RapidDispatchCallback {
         private volatile bool isScheduled;
         private readonly Action action;
         private readonly Action<Action> callback;
 
         public bool InvokeLater { get; set; }
 
-        public RapidDispatchCallback()
-        {
-            this.callback = (x) =>
-            {
+        public RapidDispatchCallback() {
+            this.callback = (x) => {
                 x();
                 this.isScheduled = false;
             };
         }
 
-        public RapidDispatchCallback(Action action) : this()
-        {
+        public RapidDispatchCallback(Action action) : this() {
             this.action = action;
         }
 
-        public bool Invoke()
-        {
-            lock (this)
-            {
-                if (this.isScheduled)
-                {
+        public bool Invoke() {
+            lock (this) {
+                if (this.isScheduled) {
                     return false;
                 }
 
-                Action callback = () =>
-                {
+                Action callback = () => {
                     this.action();
                     this.isScheduled = false;
                 };
 
                 this.isScheduled = true;
-                if (this.InvokeLater)
-                {
+                if (this.InvokeLater) {
                     IoC.Dispatcher.InvokeLater(callback);
                 }
-                else
-                {
+                else {
                     IoC.Dispatcher.Invoke(callback);
                 }
 
@@ -56,28 +45,22 @@ namespace FramePFX.Core.Utils
             }
         }
 
-        public bool Invoke(Action action)
-        {
-            lock (this)
-            {
-                if (this.isScheduled)
-                {
+        public bool Invoke(Action action) {
+            lock (this) {
+                if (this.isScheduled) {
                     return false;
                 }
 
-                Action callback = () =>
-                {
+                Action callback = () => {
                     action();
                     this.isScheduled = false;
                 };
 
                 this.isScheduled = true;
-                if (this.InvokeLater)
-                {
+                if (this.InvokeLater) {
                     IoC.Dispatcher.InvokeLater(callback);
                 }
-                else
-                {
+                else {
                     IoC.Dispatcher.Invoke(callback);
                 }
 

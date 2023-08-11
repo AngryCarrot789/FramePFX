@@ -1,9 +1,7 @@
 using FramePFX.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage
-{
-    public interface IMouseShortcutUsage : IShortcutUsage
-    {
+namespace FramePFX.Core.Shortcuts.Usage {
+    public interface IMouseShortcutUsage : IShortcutUsage {
         /// <summary>
         /// A reference to the shortcut that created this instance
         /// </summary>

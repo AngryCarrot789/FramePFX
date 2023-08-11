@@ -9,10 +9,8 @@ using System.Windows.Threading;
 using FramePFX.Core.Utils;
 using Rect = System.Windows.Rect;
 
-namespace FramePFX.Controls
-{
-    public class FreeMoveViewPortV2 : Border
-    {
+namespace FramePFX.Controls {
+    public class FreeMoveViewPortV2 : Border {
         private static readonly object ZeroDoubleBoxed = 0d;
 
         #region Dependency Properties
@@ -81,32 +79,27 @@ namespace FramePFX.Controls
 
         #endregion
 
-        public double MinimumZoomScale
-        {
+        public double MinimumZoomScale {
             get => (double) this.GetValue(MinimumZoomScaleProperty);
             set => this.SetValue(MinimumZoomScaleProperty, value);
         }
 
-        public double MaximumZoomScale
-        {
+        public double MaximumZoomScale {
             get => (double) this.GetValue(MaximumZoomScaleProperty);
             set => this.SetValue(MaximumZoomScaleProperty, value);
         }
 
-        public double ZoomScale
-        {
+        public double ZoomScale {
             get => (double) this.GetValue(ZoomScaleProperty);
             set => this.SetValue(ZoomScaleProperty, value);
         }
 
-        public double HorizontalOffset
-        {
+        public double HorizontalOffset {
             get => (double) this.GetValue(HorizontalOffsetProperty);
             set => this.SetValue(HorizontalOffsetProperty, value);
         }
 
-        public double VerticalOffset
-        {
+        public double VerticalOffset {
             get => (double) this.GetValue(VerticalOffsetProperty);
             set => this.SetValue(VerticalOffsetProperty, value);
         }
@@ -114,8 +107,7 @@ namespace FramePFX.Controls
         /// <summary>
         /// Gets or sets a value which indicates whether this control should try to pan towards the user's cursor when they zoom in or out
         /// </summary>
-        public bool PanToCursorOnUserZoom
-        {
+        public bool PanToCursorOnUserZoom {
             get => (bool) this.GetValue(PanToCursorOnUserZoomProperty);
             set => this.SetValue(PanToCursorOnUserZoomProperty, value.Box());
         }
@@ -126,12 +118,9 @@ namespace FramePFX.Controls
 
         private ContainerVisual _internalVisual;
 
-        private ContainerVisual InternalVisual
-        {
-            get
-            {
-                if (this._internalVisual == null)
-                {
+        private ContainerVisual InternalVisual {
+            get {
+                if (this._internalVisual == null) {
                     this._internalVisual = new ContainerVisual();
                     this.AddVisualChild(this._internalVisual);
                 }
@@ -140,15 +129,12 @@ namespace FramePFX.Controls
             }
         }
 
-        private UIElement InternalChild
-        {
-            get
-            {
+        private UIElement InternalChild {
+            get {
                 VisualCollection children = this.InternalVisual.Children;
                 return children.Count != 0 ? children[0] as UIElement : null;
             }
-            set
-            {
+            set {
                 VisualCollection children = this.InternalVisual.Children;
                 if (children.Count != 0)
                     children.Clear();
@@ -156,17 +142,14 @@ namespace FramePFX.Controls
             }
         }
 
-        private Transform InternalTransform
-        {
+        private Transform InternalTransform {
             get => this.InternalVisual.Transform;
             set => this.InternalVisual.Transform = value;
         }
 
-        public override UIElement Child
-        {
+        public override UIElement Child {
             get => this.InternalChild;
-            set
-            {
+            set {
                 UIElement internalChild = this.InternalChild;
                 if (internalChild == value)
                     return;
@@ -178,43 +161,34 @@ namespace FramePFX.Controls
             }
         }
 
-        public FreeMoveViewPortV2()
-        {
+        public FreeMoveViewPortV2() {
             this.Loaded += this.OnLoaded;
             this.PreviewMouseWheel += this.OnPreviewMouseWheel;
             this.Background = Brushes.Transparent;
         }
 
-        private void OnMinimumZoomChanged(double oldValue, double newValue)
-        {
+        private void OnMinimumZoomChanged(double oldValue, double newValue) {
         }
 
-        private void OnMaximumZoomChanged(double oldValue, double newValue)
-        {
+        private void OnMaximumZoomChanged(double oldValue, double newValue) {
         }
 
-        private void OnZoomChanged(double oldValue, double newValue)
-        {
+        private void OnZoomChanged(double oldValue, double newValue) {
         }
 
-        private void OnHorizontalOffsetChanged(double oldValue, double newValue)
-        {
+        private void OnHorizontalOffsetChanged(double oldValue, double newValue) {
         }
 
-        private void OnVerticalOffsetChanged(double oldValue, double newValue)
-        {
+        private void OnVerticalOffsetChanged(double oldValue, double newValue) {
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
+        private void OnLoaded(object sender, RoutedEventArgs e) {
             this.FitContentToCenter();
         }
 
-        public void FitContentToCenter()
-        {
+        public void FitContentToCenter() {
             UIElement child = this.InternalChild;
-            if (child == null)
-            {
+            if (child == null) {
                 return;
             }
 
@@ -223,32 +197,26 @@ namespace FramePFX.Controls
             this.ZoomScale = 0;
 
             // Process new zoom after layout update which occurs just after render
-            this.Dispatcher.Invoke(() =>
-            {
+            this.Dispatcher.Invoke(() => {
                 Size childSize = child.DesiredSize;
                 double ratioW = this.ActualWidth / childSize.Width;
                 double ratioH = this.ActualHeight / childSize.Height;
-                if (ratioH < ratioW && childSize.Height > 0)
-                {
+                if (ratioH < ratioW && childSize.Height > 0) {
                     this.ZoomScale = this.ActualHeight / childSize.Height;
                 }
-                else if (childSize.Width > 0)
-                {
+                else if (childSize.Width > 0) {
                     this.ZoomScale = this.ActualWidth / childSize.Width;
                 }
             }, DispatcherPriority.Render);
         }
 
-        private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
+        private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e) {
             ModifierKeys modifiers = Keyboard.Modifiers;
-            if (!(e.Delta < 0d || e.Delta > 0d))
-            {
+            if (!(e.Delta < 0d || e.Delta > 0d)) {
                 return;
             }
 
-            if ((modifiers & (ModifierKeys.Alt | ModifierKeys.Control)) != 0)
-            {
+            if ((modifiers & (ModifierKeys.Alt | ModifierKeys.Control)) != 0) {
                 // zoom in or out
                 // I spent so much time trying to get this working myself but could never figure it out,
                 // but this post worked pretty much first try. Smh my head.
@@ -257,8 +225,7 @@ namespace FramePFX.Controls
                 double oldzoom = this.ZoomScale;
                 double newzoom = oldzoom * (e.Delta > 0 ? 1.1 : 0.9);
                 this.ZoomScale = newzoom;
-                if (this.PanToCursorOnUserZoom)
-                {
+                if (this.PanToCursorOnUserZoom) {
                     newzoom = this.ZoomScale;
                     Size size = new Size(this.ActualWidth, this.ActualHeight);
                     Point pos = e.GetPosition(this);
@@ -270,13 +237,11 @@ namespace FramePFX.Controls
                     this.VerticalOffset -= pixels_difference_h * side_ratio_h;
                 }
             }
-            else if ((modifiers & ModifierKeys.Shift) != 0)
-            {
+            else if ((modifiers & ModifierKeys.Shift) != 0) {
                 // horizontally offset
                 this.HorizontalOffset += (e.Delta / 120d) * (1d / this.ZoomScale) * 20d;
             }
-            else
-            {
+            else {
                 // vertically offset
                 this.VerticalOffset += (e.Delta / 120d) * (1d / this.ZoomScale) * 20d;
             }
@@ -286,20 +251,16 @@ namespace FramePFX.Controls
 
         private Point lastMousePoint = new Point();
 
-        protected override void OnMouseEnter(MouseEventArgs e)
-        {
+        protected override void OnMouseEnter(MouseEventArgs e) {
             base.OnMouseEnter(e);
             this.lastMousePoint = e.GetPosition(this);
         }
 
-        protected override void OnPreviewMouseMove(MouseEventArgs e)
-        {
+        protected override void OnPreviewMouseMove(MouseEventArgs e) {
             base.OnPreviewMouseMove(e);
             Point mousePoint = e.GetPosition(this);
-            if (e.MiddleButton == MouseButtonState.Pressed || (e.LeftButton == MouseButtonState.Pressed && (Keyboard.Modifiers & ModifierKeys.Alt) != 0))
-            {
-                if (!this.IsMouseCaptured)
-                {
+            if (e.MiddleButton == MouseButtonState.Pressed || (e.LeftButton == MouseButtonState.Pressed && (Keyboard.Modifiers & ModifierKeys.Alt) != 0)) {
+                if (!this.IsMouseCaptured) {
                     this.CaptureMouse();
                 }
 
@@ -307,8 +268,7 @@ namespace FramePFX.Controls
                 this.HorizontalOffset += change.X / this.ZoomScale;
                 this.VerticalOffset += change.Y / this.ZoomScale;
             }
-            else
-            {
+            else {
                 this.ReleaseMouseCapture();
             }
 
@@ -317,22 +277,18 @@ namespace FramePFX.Controls
 
         #region Measure and Arrangement
 
-        protected override Size MeasureOverride(Size constraint)
-        {
+        protected override Size MeasureOverride(Size constraint) {
             Size size = new Size();
-            if (this.InternalChild is UIElement child)
-            {
+            if (this.InternalChild is UIElement child) {
                 child.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             }
 
             return size;
         }
 
-        protected override Size ArrangeOverride(Size arrangeSize)
-        {
+        protected override Size ArrangeOverride(Size arrangeSize) {
             UIElement child = this.InternalChild;
-            if (child != null)
-            {
+            if (child != null) {
                 Size desired = child.DesiredSize;
                 double left = ((arrangeSize.Width - desired.Width) / 2) + this.HorizontalOffset;
                 double top = ((arrangeSize.Height - desired.Height) / 2) + this.VerticalOffset;
@@ -358,8 +314,7 @@ namespace FramePFX.Controls
 
         #region Visual children and stuff
 
-        protected override Visual GetVisualChild(int index)
-        {
+        protected override Visual GetVisualChild(int index) {
             if (index != 0)
                 throw new ArgumentOutOfRangeException(nameof(index), index, "index out of range: " + index);
             return this.InternalVisual;
@@ -369,13 +324,11 @@ namespace FramePFX.Controls
 
         #region Dependency property handlers
 
-        private static object CoerceMinimumZoom(DependencyObject port, object value)
-        {
+        private static object CoerceMinimumZoom(DependencyObject port, object value) {
             return value is double min ? (min < 0d ? ZeroDoubleBoxed : value) : ZeroDoubleBoxed;
         }
 
-        private static object CoerceMaximumZoom(DependencyObject port, object value)
-        {
+        private static object CoerceMaximumZoom(DependencyObject port, object value) {
             object minimum = port.GetValue(MinimumZoomScaleProperty);
             if (!(value is double max))
                 return ZeroDoubleBoxed;
@@ -384,8 +337,7 @@ namespace FramePFX.Controls
             return max < (double) minimum ? minimum : value;
         }
 
-        private static object CoerceZoom(DependencyObject port, object value)
-        {
+        private static object CoerceZoom(DependencyObject port, object value) {
             object min = port.GetValue(MinimumZoomScaleProperty);
             if (!(value is double scale) || scale < 0d || scale < (double) min)
                 return min;
@@ -393,41 +345,34 @@ namespace FramePFX.Controls
             return scale > (double) max ? max : value;
         }
 
-        private static object CoerceHorizontalOffset(DependencyObject port, object value)
-        {
+        private static object CoerceHorizontalOffset(DependencyObject port, object value) {
             return value;
         }
 
-        private static object CoerceVerticalOffset(DependencyObject port, object value)
-        {
+        private static object CoerceVerticalOffset(DependencyObject port, object value) {
             return value;
         }
 
-        private static void OnMinimumZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue)
-        {
+        private static void OnMinimumZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.CoerceValue(MaximumZoomScaleProperty);
             port.CoerceValue(ZoomScaleProperty);
             port.OnMinimumZoomChanged(oldValue, newValue);
         }
 
-        private static void OnMaximumZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue)
-        {
+        private static void OnMaximumZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.CoerceValue(ZoomScaleProperty);
             port.OnMaximumZoomChanged(oldValue, newValue);
         }
 
-        private static void OnZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue)
-        {
+        private static void OnZoomChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.OnZoomChanged(oldValue, newValue);
         }
 
-        private static void OnHorizontalOffsetChanged(FreeMoveViewPortV2 port, double oldValue, double newValue)
-        {
+        private static void OnHorizontalOffsetChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.OnHorizontalOffsetChanged(oldValue, newValue);
         }
 
-        private static void OnVerticalOffsetChanged(FreeMoveViewPortV2 port, double oldValue, double newValue)
-        {
+        private static void OnVerticalOffsetChanged(FreeMoveViewPortV2 port, double oldValue, double newValue) {
             port.OnVerticalOffsetChanged(oldValue, newValue);
         }
 

@@ -1,7 +1,5 @@
-namespace FramePFX.Core.History
-{
-    public interface IHistoryManager
-    {
+namespace FramePFX.Core.History {
+    public interface IHistoryManager {
         void AddAction(IHistoryAction action, string information = null);
     }
 }

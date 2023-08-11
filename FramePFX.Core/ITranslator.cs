@@ -1,10 +1,8 @@
-namespace FramePFX.Core
-{
+namespace FramePFX.Core {
     /// <summary>
     /// An interface for translating a key (and optionally, string format parameters) into a final string, based on the current language
     /// </summary>
-    public interface ITranslator
-    {
+    public interface ITranslator {
         /// <summary>
         /// Gets a string with the given key, or returns the key if no such key exists
         /// </summary>

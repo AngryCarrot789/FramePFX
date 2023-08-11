@@ -6,21 +6,17 @@ using FramePFX.Core.Editor.ResourceManaging.Events;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
-namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
-{
-    public abstract class ResourceItemViewModel : BaseResourceObjectViewModel
-    {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
+    public abstract class ResourceItemViewModel : BaseResourceObjectViewModel {
         private readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         public new ResourceItem Model => (ResourceItem) base.Model;
 
         public ulong UniqueId => this.Model.UniqueId;
 
-        public bool IsOnline
-        {
+        public bool IsOnline {
             get => this.Model.IsOnline;
-            private set
-            {
+            private set {
                 if (this.IsOnline == value)
                     return;
                 this.Model.IsOnline = value;
@@ -28,11 +24,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
         }
 
-        public bool IsOfflineByUser
-        {
+        public bool IsOfflineByUser {
             get => this.Model.IsOfflineByUser;
-            set
-            {
+            set {
                 if (this.IsOfflineByUser == value)
                     return;
                 this.Model.IsOfflineByUser = value;
@@ -44,29 +38,23 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
 
         public AsyncRelayCommand SetOnlineCommand { get; }
 
-        protected ResourceItemViewModel(ResourceItem model) : base(model)
-        {
-            this.onlineStateChangedHandler = (a, b) =>
-            {
+        protected ResourceItemViewModel(ResourceItem model) : base(model) {
+            this.onlineStateChangedHandler = (a, b) => {
                 this.RaisePropertyChanged(nameof(this.IsOnline));
                 this.RaisePropertyChanged(nameof(this.IsOfflineByUser));
             };
 
             model.OnlineStateChanged += this.onlineStateChangedHandler;
             this.SetOfflineCommand = new AsyncRelayCommand(() => this.SetOfflineAsync(true), () => this.IsOnline);
-            this.SetOnlineCommand = new AsyncRelayCommand(async () =>
-            {
+            this.SetOnlineCommand = new AsyncRelayCommand(async () => {
                 await ResourceCheckerViewModel.LoadResources(new List<ResourceItemViewModel>() {this}, true);
             }, () => !this.IsOnline);
         }
 
-        public virtual async Task SetOfflineAsync(bool user)
-        {
-            using (ErrorList stack = new ErrorList(false))
-            {
+        public virtual async Task SetOfflineAsync(bool user) {
+            using (ErrorList stack = new ErrorList(false)) {
                 this.Model.Disable(stack, user);
-                if (stack.TryGetException(out Exception exception))
-                {
+                if (stack.TryGetException(out Exception exception)) {
                     await IoC.MessageDialogs.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting resource to offline", exception.GetToString());
                 }
             }
@@ -89,13 +77,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         /// <param name="checker">[nullable] checker instance</param>
         /// <param name="stack">The stack of exceptions for user-presentable errors</param>
         /// <returns></returns>
-        public virtual Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList stack)
-        {
+        public virtual Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList stack) {
             return Task.FromResult(true);
         }
 
-        protected override void OnModelDisposed(ErrorList list)
-        {
+        protected override void OnModelDisposed(ErrorList list) {
             this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
         }
     }

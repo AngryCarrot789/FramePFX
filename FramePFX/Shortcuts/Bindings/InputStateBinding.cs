@@ -4,10 +4,8 @@ using System.Windows;
 using System.Windows.Input;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Shortcuts.Bindings
-{
-    public class InputStateBinding : Freezable
-    {
+namespace FramePFX.Shortcuts.Bindings {
+    public class InputStateBinding : Freezable {
         public static readonly DependencyProperty CommandProperty = InputBinding.CommandProperty.AddOwner(typeof(InputStateBinding));
         public static readonly DependencyProperty InputStatePathProperty = DependencyProperty.Register(nameof(InputStatePath), typeof(string), typeof(InputStateBinding));
 
@@ -27,8 +25,7 @@ namespace FramePFX.Shortcuts.Bindings
         /// </summary>
         [Localizability(LocalizationCategory.NeverLocalize)]
         [TypeConverter("System.Windows.Input.CommandConverter, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, Custom=null")]
-        public ICommand Command
-        {
+        public ICommand Command {
             get => (ICommand) this.GetValue(CommandProperty);
             set => this.SetValue(CommandProperty, value);
         }
@@ -36,8 +33,7 @@ namespace FramePFX.Shortcuts.Bindings
         /// <summary>
         /// The full path of the shortcut that must be activated in order for this binding's command to be executed
         /// </summary>
-        public string InputStatePath
-        {
+        public string InputStatePath {
             get => (string) this.GetValue(InputStatePathProperty);
             set => this.SetValue(InputStatePathProperty, value);
         }
@@ -45,18 +41,15 @@ namespace FramePFX.Shortcuts.Bindings
         /// <summary>
         /// Whether or not the input state binding (whose full path matches <see cref="InputStatePath"/>) is active or not
         /// </summary>
-        public bool IsActive
-        {
+        public bool IsActive {
             get => (bool) this.GetValue(IsActiveProperty);
             set => this.SetValue(IsActiveProperty, value.Box());
         }
 
-        public InputStateBinding()
-        {
+        public InputStateBinding() {
         }
 
-        public InputStateBinding(string inputStatePath, ICommand command)
-        {
+        public InputStateBinding(string inputStatePath, ICommand command) {
             if (string.IsNullOrWhiteSpace(inputStatePath))
                 throw new ArgumentException("Input state ID must not be null, empty or consist of only whitespaces", nameof(inputStatePath));
             this.InputStatePath = inputStatePath;

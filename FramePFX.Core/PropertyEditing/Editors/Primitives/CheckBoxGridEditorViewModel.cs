@@ -3,36 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace FramePFX.Core.PropertyEditing.Editors.Primitives
-{
-    public class CheckBoxGridEditorViewModel : BasePropertyEditorViewModel, IEnumerable<CheckBoxEditorViewModel>
-    {
+namespace FramePFX.Core.PropertyEditing.Editors.Primitives {
+    public class CheckBoxGridEditorViewModel : BasePropertyEditorViewModel, IEnumerable<CheckBoxEditorViewModel> {
         public ObservableCollection<CheckBoxEditorViewModel> Editors { get; }
 
-        public CheckBoxGridEditorViewModel(Type applicableType) : base(applicableType)
-        {
+        public CheckBoxGridEditorViewModel(Type applicableType) : base(applicableType) {
             this.Editors = new ObservableCollection<CheckBoxEditorViewModel>();
         }
 
-        public void Add(CheckBoxEditorViewModel editor)
-        {
+        public void Add(CheckBoxEditorViewModel editor) {
             this.Editors.Add(editor);
         }
 
-        protected override void OnHandlersLoaded()
-        {
+        protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
-            foreach (CheckBoxEditorViewModel editor in this.Editors)
-            {
+            foreach (CheckBoxEditorViewModel editor in this.Editors) {
                 editor.SetHandlers(this.Handlers);
             }
         }
 
-        protected override void OnClearHandlers()
-        {
+        protected override void OnClearHandlers() {
             base.OnClearHandlers();
-            foreach (CheckBoxEditorViewModel editor in this.Editors)
-            {
+            foreach (CheckBoxEditorViewModel editor in this.Editors) {
                 editor.ClearHandlers();
             }
         }

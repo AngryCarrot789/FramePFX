@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Core
-{
-    public class SimpleIoC : IServiceProvider
-    {
+namespace FramePFX.Core {
+    public class SimpleIoC : IServiceProvider {
         private readonly Dictionary<Type, object> services;
 
-        public SimpleIoC()
-        {
+        public SimpleIoC() {
             this.services = new Dictionary<Type, object>();
         }
 
@@ -19,12 +16,9 @@ namespace FramePFX.Core
         /// <returns>The instance of the service</returns>
         /// <exception cref="ServiceNotFoundException">Thrown if there isn't a ViewModel of that type</exception>
         /// <exception cref="InvalidCastException">Thrown if the target service type doesn't match the actual service type</exception>
-        public T GetService<T>()
-        {
-            if (this.services.TryGetValue(typeof(T), out object service))
-            {
-                if (service is T t)
-                {
+        public T GetService<T>() {
+            if (this.services.TryGetValue(typeof(T), out object service)) {
+                if (service is T t) {
                     return t;
                 }
 
@@ -44,10 +38,8 @@ namespace FramePFX.Core
         /// <returns>The instance of the service</returns>
         /// <exception cref="ServiceNotFoundException">Thrown if there isn't a ViewModel of that type</exception>
         /// <exception cref="InvalidCastException">Thrown if the target service type doesn't match the actual service type</exception>
-        public object GetService(Type type)
-        {
-            if (this.services.TryGetValue(type, out object service))
-            {
+        public object GetService(Type type) {
+            if (this.services.TryGetValue(type, out object service)) {
                 return service;
             }
 
@@ -63,8 +55,7 @@ namespace FramePFX.Core
         /// </summary>
         /// <typeparam name="T">The service type (typically an interface, for an API service)</typeparam>
         /// <param name="service"></param>
-        public void Register<T>(T service)
-        {
+        public void Register<T>(T service) {
             this.services[typeof(T)] = service;
         }
 
@@ -72,8 +63,7 @@ namespace FramePFX.Core
         /// Registers (or replaces) the given service of the given generic type
         /// </summary>
         /// <param name="service"></param>
-        public void Register(Type type, object service)
-        {
+        public void Register(Type type, object service) {
             if (!type.IsInstanceOfType(service))
                 throw new InvalidCastException($"The target service type '{type}' is incompatible with actual service type '{(service == null ? "NULL" : service.GetType().Name)}'");
             this.services[type] = service;
@@ -84,8 +74,7 @@ namespace FramePFX.Core
         /// </summary>
         /// <typeparam name="T">The service type</typeparam>
         /// <returns></returns>
-        public bool IsRegistered<T>()
-        {
+        public bool IsRegistered<T>() {
             return this.services.ContainsKey(typeof(T));
         }
 
@@ -93,8 +82,7 @@ namespace FramePFX.Core
         /// Returns whether this IoC manager contains a given service
         /// </summary>
         /// <returns></returns>
-        public bool IsRegistered(Type type)
-        {
+        public bool IsRegistered(Type type) {
             return this.services.ContainsKey(type);
         }
     }

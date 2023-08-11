@@ -1,10 +1,8 @@
 using System;
 
-namespace FramePFX.Core.Interactivity
-{
+namespace FramePFX.Core.Interactivity {
     [Flags]
-    public enum FileDropType
-    {
+    public enum FileDropType {
         None,
         Copy,
         Move,

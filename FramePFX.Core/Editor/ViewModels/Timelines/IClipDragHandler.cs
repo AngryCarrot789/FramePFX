@@ -1,7 +1,5 @@
-namespace FramePFX.Core.Editor.ViewModels.Timelines
-{
-    public interface IClipDragHandler
-    {
+namespace FramePFX.Core.Editor.ViewModels.Timelines {
+    public interface IClipDragHandler {
         /// <summary>
         /// Whether or not this clip's left thumb is being dragged
         /// </summary>

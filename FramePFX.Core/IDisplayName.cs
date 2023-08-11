@@ -1,10 +1,8 @@
-namespace FramePFX.Core
-{
+namespace FramePFX.Core {
     /// <summary>
     /// An interface applied to an object with a renamable display name
     /// </summary>
-    public interface IDisplayName
-    {
+    public interface IDisplayName {
         /// <summary>
         /// This object's readable display name
         /// </summary>

@@ -1,7 +1,5 @@
-namespace FramePFX.Editor.Timeline.Track.Clips
-{
-    public enum ClipType
-    {
+namespace FramePFX.Editor.Timeline.Track.Clips {
+    public enum ClipType {
         Video, Audio
     }
 }

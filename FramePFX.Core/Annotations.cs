@@ -32,8 +32,7 @@ using System;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
 
-namespace FramePFX.Core
-{
+namespace FramePFX.Core {
     /// <summary>
     /// Indicates that the value of the marked element could be <c>null</c> sometimes,
     /// so checking for <c>null</c> is required before its usage.
@@ -50,8 +49,7 @@ namespace FramePFX.Core
         AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
         AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event |
         AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.GenericParameter)]
-    public sealed class CanBeNullAttribute : Attribute
-    {
+    public sealed class CanBeNullAttribute : Attribute {
     }
 
     /// <summary>
@@ -66,8 +64,7 @@ namespace FramePFX.Core
         AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
         AttributeTargets.Delegate | AttributeTargets.Field | AttributeTargets.Event |
         AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.GenericParameter)]
-    public sealed class NotNullAttribute : Attribute
-    {
+    public sealed class NotNullAttribute : Attribute {
     }
 
     /// <summary>
@@ -87,8 +84,7 @@ namespace FramePFX.Core
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
         AttributeTargets.Delegate | AttributeTargets.Field)]
-    public sealed class ItemNotNullAttribute : Attribute
-    {
+    public sealed class ItemNotNullAttribute : Attribute {
     }
 
     /// <summary>
@@ -109,8 +105,7 @@ namespace FramePFX.Core
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property |
         AttributeTargets.Delegate | AttributeTargets.Field)]
-    public sealed class ItemCanBeNullAttribute : Attribute
-    {
+    public sealed class ItemCanBeNullAttribute : Attribute {
     }
 
     /// <summary>
@@ -129,13 +124,11 @@ namespace FramePFX.Core
     [AttributeUsage(
         AttributeTargets.Constructor | AttributeTargets.Method |
         AttributeTargets.Property | AttributeTargets.Delegate)]
-    public sealed class StringFormatMethodAttribute : Attribute
-    {
+    public sealed class StringFormatMethodAttribute : Attribute {
         /// <param name="formatParameterName">
         /// Specifies which parameter of an annotated method should be treated as the format string
         /// </param>
-        public StringFormatMethodAttribute([NotNull] string formatParameterName)
-        {
+        public StringFormatMethodAttribute([NotNull] string formatParameterName) {
             this.FormatParameterName = formatParameterName;
         }
 
@@ -172,10 +165,8 @@ namespace FramePFX.Core
     [AttributeUsage(
         AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field,
         AllowMultiple = true)]
-    public sealed class ValueProviderAttribute : Attribute
-    {
-        public ValueProviderAttribute([NotNull] string name)
-        {
+    public sealed class ValueProviderAttribute : Attribute {
+        public ValueProviderAttribute([NotNull] string name) {
             this.Name = name;
         }
 
@@ -198,30 +189,25 @@ namespace FramePFX.Core
         AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property |
         AttributeTargets.Method | AttributeTargets.Delegate,
         AllowMultiple = true)]
-    public sealed class ValueRangeAttribute : Attribute
-    {
+    public sealed class ValueRangeAttribute : Attribute {
         public object From { get; }
         public object To { get; }
 
-        public ValueRangeAttribute(long from, long to)
-        {
+        public ValueRangeAttribute(long from, long to) {
             this.From = from;
             this.To = to;
         }
 
-        public ValueRangeAttribute(ulong from, ulong to)
-        {
+        public ValueRangeAttribute(ulong from, ulong to) {
             this.From = from;
             this.To = to;
         }
 
-        public ValueRangeAttribute(long value)
-        {
+        public ValueRangeAttribute(long value) {
             this.From = this.To = value;
         }
 
-        public ValueRangeAttribute(ulong value)
-        {
+        public ValueRangeAttribute(ulong value) {
             this.From = this.To = value;
         }
     }
@@ -239,8 +225,7 @@ namespace FramePFX.Core
     [AttributeUsage(
         AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property |
         AttributeTargets.Method | AttributeTargets.Delegate)]
-    public sealed class NonNegativeValueAttribute : Attribute
-    {
+    public sealed class NonNegativeValueAttribute : Attribute {
     }
 
     /// <summary>
@@ -255,8 +240,7 @@ namespace FramePFX.Core
     /// }
     /// </code></example>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class InvokerParameterNameAttribute : Attribute
-    {
+    public sealed class InvokerParameterNameAttribute : Attribute {
     }
 
     /// <summary>
@@ -298,12 +282,10 @@ namespace FramePFX.Core
     /// </list>
     /// </example>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
-    {
+    public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute {
         public NotifyPropertyChangedInvocatorAttribute() { }
 
-        public NotifyPropertyChangedInvocatorAttribute([NotNull] string parameterName)
-        {
+        public NotifyPropertyChangedInvocatorAttribute([NotNull] string parameterName) {
             this.ParameterName = parameterName;
         }
 
@@ -355,15 +337,12 @@ namespace FramePFX.Core
     /// </code></item>
     /// </list></examples>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public sealed class ContractAnnotationAttribute : Attribute
-    {
+    public sealed class ContractAnnotationAttribute : Attribute {
         public ContractAnnotationAttribute([NotNull] string contract)
-            : this(contract, false)
-        {
+            : this(contract, false) {
         }
 
-        public ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates)
-        {
+        public ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates) {
             this.Contract = contract;
             this.ForceFullStates = forceFullStates;
         }
@@ -383,12 +362,10 @@ namespace FramePFX.Core
     /// }
     /// </code></example>
     [AttributeUsage(AttributeTargets.All)]
-    public sealed class LocalizationRequiredAttribute : Attribute
-    {
+    public sealed class LocalizationRequiredAttribute : Attribute {
         public LocalizationRequiredAttribute() : this(true) { }
 
-        public LocalizationRequiredAttribute(bool required)
-        {
+        public LocalizationRequiredAttribute(bool required) {
             this.Required = required;
         }
 
@@ -416,8 +393,7 @@ namespace FramePFX.Core
     /// }
     /// </code></example>
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
-    public sealed class CannotApplyEqualityOperatorAttribute : Attribute
-    {
+    public sealed class CannotApplyEqualityOperatorAttribute : Attribute {
     }
 
     /// <summary>
@@ -433,10 +409,8 @@ namespace FramePFX.Core
     /// </code></example>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     [BaseTypeRequired(typeof(Attribute))]
-    public sealed class BaseTypeRequiredAttribute : Attribute
-    {
-        public BaseTypeRequiredAttribute([NotNull] Type baseType)
-        {
+    public sealed class BaseTypeRequiredAttribute : Attribute {
+        public BaseTypeRequiredAttribute([NotNull] Type baseType) {
             this.BaseType = baseType;
         }
 
@@ -448,25 +422,20 @@ namespace FramePFX.Core
     /// so this symbol will not be reported as unused (as well as by other usage inspections).
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
-    public sealed class UsedImplicitlyAttribute : Attribute
-    {
+    public sealed class UsedImplicitlyAttribute : Attribute {
         public UsedImplicitlyAttribute()
-            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default)
-        {
+            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) {
         }
 
         public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags)
-            : this(useKindFlags, ImplicitUseTargetFlags.Default)
-        {
+            : this(useKindFlags, ImplicitUseTargetFlags.Default) {
         }
 
         public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
-            : this(ImplicitUseKindFlags.Default, targetFlags)
-        {
+            : this(ImplicitUseKindFlags.Default, targetFlags) {
         }
 
-        public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
-        {
+        public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags) {
             this.UseKindFlags = useKindFlags;
             this.TargetFlags = targetFlags;
         }
@@ -483,25 +452,20 @@ namespace FramePFX.Core
     /// is used implicitly.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.GenericParameter | AttributeTargets.Parameter)]
-    public sealed class MeansImplicitUseAttribute : Attribute
-    {
+    public sealed class MeansImplicitUseAttribute : Attribute {
         public MeansImplicitUseAttribute()
-            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default)
-        {
+            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) {
         }
 
         public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags)
-            : this(useKindFlags, ImplicitUseTargetFlags.Default)
-        {
+            : this(useKindFlags, ImplicitUseTargetFlags.Default) {
         }
 
         public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags)
-            : this(ImplicitUseKindFlags.Default, targetFlags)
-        {
+            : this(ImplicitUseKindFlags.Default, targetFlags) {
         }
 
-        public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
-        {
+        public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags) {
             this.UseKindFlags = useKindFlags;
             this.TargetFlags = targetFlags;
         }
@@ -516,8 +480,7 @@ namespace FramePFX.Core
     /// with <see cref="MeansImplicitUseAttribute"/> or <see cref="UsedImplicitlyAttribute"/>.
     /// </summary>
     [Flags]
-    public enum ImplicitUseKindFlags
-    {
+    public enum ImplicitUseKindFlags {
         Default = Access | Assign | InstantiatedWithFixedConstructorSignature,
 
         /// <summary>Only entity marked with attribute considered used.</summary>
@@ -541,8 +504,7 @@ namespace FramePFX.Core
     /// with <see cref="MeansImplicitUseAttribute"/> or <see cref="UsedImplicitlyAttribute"/>.
     /// </summary>
     [Flags]
-    public enum ImplicitUseTargetFlags
-    {
+    public enum ImplicitUseTargetFlags {
         Default = Itself,
         Itself = 1,
 
@@ -562,12 +524,10 @@ namespace FramePFX.Core
     /// </summary>
     [MeansImplicitUse(ImplicitUseTargetFlags.WithMembers)]
     [AttributeUsage(AttributeTargets.All, Inherited = false)]
-    public sealed class PublicAPIAttribute : Attribute
-    {
+    public sealed class PublicAPIAttribute : Attribute {
         public PublicAPIAttribute() { }
 
-        public PublicAPIAttribute([NotNull] string comment)
-        {
+        public PublicAPIAttribute([NotNull] string comment) {
             this.Comment = comment;
         }
 
@@ -580,8 +540,7 @@ namespace FramePFX.Core
     /// If the parameter is an enumerable, indicates that it is enumerated while the method is executed.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class InstantHandleAttribute : Attribute
-    {
+    public sealed class InstantHandleAttribute : Attribute {
     }
 
     /// <summary>
@@ -596,8 +555,7 @@ namespace FramePFX.Core
     /// }
     /// </code></example>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class PureAttribute : Attribute
-    {
+    public sealed class PureAttribute : Attribute {
     }
 
     /// <summary>
@@ -612,12 +570,10 @@ namespace FramePFX.Core
     /// <code>[MustUseReturnValue("Use the return value to...")]</code>.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class MustUseReturnValueAttribute : Attribute
-    {
+    public sealed class MustUseReturnValueAttribute : Attribute {
         public MustUseReturnValueAttribute() { }
 
-        public MustUseReturnValueAttribute([NotNull] string justification)
-        {
+        public MustUseReturnValueAttribute([NotNull] string justification) {
             this.Justification = justification;
         }
 
@@ -642,8 +598,7 @@ namespace FramePFX.Core
     [AttributeUsage(
         AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Method |
         AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct | AttributeTargets.GenericParameter)]
-    public sealed class ProvidesContextAttribute : Attribute
-    {
+    public sealed class ProvidesContextAttribute : Attribute {
     }
 
     /// <summary>
@@ -651,12 +606,10 @@ namespace FramePFX.Core
     /// Path can be relative or absolute, starting from web root (~).
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class PathReferenceAttribute : Attribute
-    {
+    public sealed class PathReferenceAttribute : Attribute {
         public PathReferenceAttribute() { }
 
-        public PathReferenceAttribute([NotNull, PathReference] string basePath)
-        {
+        public PathReferenceAttribute([NotNull, PathReference] string basePath) {
             this.BasePath = basePath;
         }
 
@@ -687,8 +640,7 @@ namespace FramePFX.Core
     /// </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class SourceTemplateAttribute : Attribute
-    {
+    public sealed class SourceTemplateAttribute : Attribute {
     }
 
     /// <summary>
@@ -720,8 +672,7 @@ namespace FramePFX.Core
     /// </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method, AllowMultiple = true)]
-    public sealed class MacroAttribute : Attribute
-    {
+    public sealed class MacroAttribute : Attribute {
         /// <summary>
         /// Allows specifying a macro that will be executed for a <see cref="SourceTemplateAttribute">source template</see>
         /// parameter when the template is expanded.
@@ -748,10 +699,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class AspMvcAreaMasterLocationFormatAttribute : Attribute
-    {
-        public AspMvcAreaMasterLocationFormatAttribute([NotNull] string format)
-        {
+    public sealed class AspMvcAreaMasterLocationFormatAttribute : Attribute {
+        public AspMvcAreaMasterLocationFormatAttribute([NotNull] string format) {
             this.Format = format;
         }
 
@@ -759,10 +708,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class AspMvcAreaPartialViewLocationFormatAttribute : Attribute
-    {
-        public AspMvcAreaPartialViewLocationFormatAttribute([NotNull] string format)
-        {
+    public sealed class AspMvcAreaPartialViewLocationFormatAttribute : Attribute {
+        public AspMvcAreaPartialViewLocationFormatAttribute([NotNull] string format) {
             this.Format = format;
         }
 
@@ -770,10 +717,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class AspMvcAreaViewLocationFormatAttribute : Attribute
-    {
-        public AspMvcAreaViewLocationFormatAttribute([NotNull] string format)
-        {
+    public sealed class AspMvcAreaViewLocationFormatAttribute : Attribute {
+        public AspMvcAreaViewLocationFormatAttribute([NotNull] string format) {
             this.Format = format;
         }
 
@@ -781,10 +726,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class AspMvcMasterLocationFormatAttribute : Attribute
-    {
-        public AspMvcMasterLocationFormatAttribute([NotNull] string format)
-        {
+    public sealed class AspMvcMasterLocationFormatAttribute : Attribute {
+        public AspMvcMasterLocationFormatAttribute([NotNull] string format) {
             this.Format = format;
         }
 
@@ -792,10 +735,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class AspMvcPartialViewLocationFormatAttribute : Attribute
-    {
-        public AspMvcPartialViewLocationFormatAttribute([NotNull] string format)
-        {
+    public sealed class AspMvcPartialViewLocationFormatAttribute : Attribute {
+        public AspMvcPartialViewLocationFormatAttribute([NotNull] string format) {
             this.Format = format;
         }
 
@@ -803,10 +744,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class AspMvcViewLocationFormatAttribute : Attribute
-    {
-        public AspMvcViewLocationFormatAttribute([NotNull] string format)
-        {
+    public sealed class AspMvcViewLocationFormatAttribute : Attribute {
+        public AspMvcViewLocationFormatAttribute([NotNull] string format) {
             this.Format = format;
         }
 
@@ -820,12 +759,10 @@ namespace FramePFX.Core
     /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcActionAttribute : Attribute
-    {
+    public sealed class AspMvcActionAttribute : Attribute {
         public AspMvcActionAttribute() { }
 
-        public AspMvcActionAttribute([NotNull] string anonymousProperty)
-        {
+        public AspMvcActionAttribute([NotNull] string anonymousProperty) {
             this.AnonymousProperty = anonymousProperty;
         }
 
@@ -838,12 +775,10 @@ namespace FramePFX.Core
     /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcAreaAttribute : Attribute
-    {
+    public sealed class AspMvcAreaAttribute : Attribute {
         public AspMvcAreaAttribute() { }
 
-        public AspMvcAreaAttribute([NotNull] string anonymousProperty)
-        {
+        public AspMvcAreaAttribute([NotNull] string anonymousProperty) {
             this.AnonymousProperty = anonymousProperty;
         }
 
@@ -857,12 +792,10 @@ namespace FramePFX.Core
     /// <c>System.Web.Mvc.Html.ChildActionExtensions.RenderAction(HtmlHelper, String, String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcControllerAttribute : Attribute
-    {
+    public sealed class AspMvcControllerAttribute : Attribute {
         public AspMvcControllerAttribute() { }
 
-        public AspMvcControllerAttribute([NotNull] string anonymousProperty)
-        {
+        public AspMvcControllerAttribute([NotNull] string anonymousProperty) {
             this.AnonymousProperty = anonymousProperty;
         }
 
@@ -874,8 +807,7 @@ namespace FramePFX.Core
     /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcMasterAttribute : Attribute
-    {
+    public sealed class AspMvcMasterAttribute : Attribute {
     }
 
     /// <summary>
@@ -883,8 +815,7 @@ namespace FramePFX.Core
     /// for custom wrappers similar to <c>System.Web.Mvc.Controller.View(String, Object)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class AspMvcModelTypeAttribute : Attribute
-    {
+    public sealed class AspMvcModelTypeAttribute : Attribute {
     }
 
     /// <summary>
@@ -894,16 +825,14 @@ namespace FramePFX.Core
     /// <c>System.Web.Mvc.Html.RenderPartialExtensions.RenderPartial(HtmlHelper, String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcPartialViewAttribute : Attribute
-    {
+    public sealed class AspMvcPartialViewAttribute : Attribute {
     }
 
     /// <summary>
     /// ASP.NET MVC attribute. Allows disabling inspections for MVC views within a class or a method.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public sealed class AspMvcSuppressViewErrorAttribute : Attribute
-    {
+    public sealed class AspMvcSuppressViewErrorAttribute : Attribute {
     }
 
     /// <summary>
@@ -912,8 +841,7 @@ namespace FramePFX.Core
     /// <c>System.Web.Mvc.Html.DisplayExtensions.DisplayForModel(HtmlHelper, String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcDisplayTemplateAttribute : Attribute
-    {
+    public sealed class AspMvcDisplayTemplateAttribute : Attribute {
     }
 
     /// <summary>
@@ -922,8 +850,7 @@ namespace FramePFX.Core
     /// <c>System.Web.Mvc.Html.EditorExtensions.EditorForModel(HtmlHelper, String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcEditorTemplateAttribute : Attribute
-    {
+    public sealed class AspMvcEditorTemplateAttribute : Attribute {
     }
 
     /// <summary>
@@ -932,8 +859,7 @@ namespace FramePFX.Core
     /// <c>System.ComponentModel.DataAnnotations.UIHintAttribute(System.String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcTemplateAttribute : Attribute
-    {
+    public sealed class AspMvcTemplateAttribute : Attribute {
     }
 
     /// <summary>
@@ -943,8 +869,7 @@ namespace FramePFX.Core
     /// <c>System.Web.Mvc.Controller.View(Object)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcViewAttribute : Attribute
-    {
+    public sealed class AspMvcViewAttribute : Attribute {
     }
 
     /// <summary>
@@ -952,8 +877,7 @@ namespace FramePFX.Core
     /// is an MVC view component name.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcViewComponentAttribute : Attribute
-    {
+    public sealed class AspMvcViewComponentAttribute : Attribute {
     }
 
     /// <summary>
@@ -961,8 +885,7 @@ namespace FramePFX.Core
     /// is an MVC view component view. If applied to a method, the MVC view component view name is default.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class AspMvcViewComponentViewAttribute : Attribute
-    {
+    public sealed class AspMvcViewComponentViewAttribute : Attribute {
     }
 
     /// <summary>
@@ -977,17 +900,14 @@ namespace FramePFX.Core
     /// }
     /// </code></example>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-    public sealed class AspMvcActionSelectorAttribute : Attribute
-    {
+    public sealed class AspMvcActionSelectorAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field)]
-    public sealed class HtmlElementAttributesAttribute : Attribute
-    {
+    public sealed class HtmlElementAttributesAttribute : Attribute {
         public HtmlElementAttributesAttribute() { }
 
-        public HtmlElementAttributesAttribute([NotNull] string name)
-        {
+        public HtmlElementAttributesAttribute([NotNull] string name) {
             this.Name = name;
         }
 
@@ -995,10 +915,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class HtmlAttributeValueAttribute : Attribute
-    {
-        public HtmlAttributeValueAttribute([NotNull] string name)
-        {
+    public sealed class HtmlAttributeValueAttribute : Attribute {
+        public HtmlAttributeValueAttribute([NotNull] string name) {
             this.Name = name;
         }
 
@@ -1011,8 +929,7 @@ namespace FramePFX.Core
     /// <c>System.Web.WebPages.WebPageBase.RenderSection(String)</c>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
-    public sealed class RazorSectionAttribute : Attribute
-    {
+    public sealed class RazorSectionAttribute : Attribute {
     }
 
     /// <summary>
@@ -1043,10 +960,8 @@ namespace FramePFX.Core
     /// }
     /// </code></example>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property)]
-    public sealed class CollectionAccessAttribute : Attribute
-    {
-        public CollectionAccessAttribute(CollectionAccessType collectionAccessType)
-        {
+    public sealed class CollectionAccessAttribute : Attribute {
+        public CollectionAccessAttribute(CollectionAccessType collectionAccessType) {
             this.CollectionAccessType = collectionAccessType;
         }
 
@@ -1058,8 +973,7 @@ namespace FramePFX.Core
     /// how the collection method invocation affects the contents of the collection.
     /// </summary>
     [Flags]
-    public enum CollectionAccessType
-    {
+    public enum CollectionAccessType {
         /// <summary>Method does not use or modify content of the collection.</summary>
         None = 0,
 
@@ -1079,8 +993,7 @@ namespace FramePFX.Core
     /// <see cref="AssertionConditionAttribute"/> attribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class AssertionMethodAttribute : Attribute
-    {
+    public sealed class AssertionMethodAttribute : Attribute {
     }
 
     /// <summary>
@@ -1089,10 +1002,8 @@ namespace FramePFX.Core
     /// the attribute is the assertion type.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class AssertionConditionAttribute : Attribute
-    {
-        public AssertionConditionAttribute(AssertionConditionType conditionType)
-        {
+    public sealed class AssertionConditionAttribute : Attribute {
+        public AssertionConditionAttribute(AssertionConditionType conditionType) {
             this.ConditionType = conditionType;
         }
 
@@ -1103,8 +1014,7 @@ namespace FramePFX.Core
     /// Specifies assertion type. If the assertion method argument satisfies the condition,
     /// then the execution continues. Otherwise, execution is assumed to be halted.
     /// </summary>
-    public enum AssertionConditionType
-    {
+    public enum AssertionConditionType {
         /// <summary>Marked parameter should be evaluated to true.</summary>
         IS_TRUE = 0,
 
@@ -1124,8 +1034,7 @@ namespace FramePFX.Core
     /// </summary>
     [Obsolete("Use [ContractAnnotation('=> halt')] instead")]
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class TerminatesProgramAttribute : Attribute
-    {
+    public sealed class TerminatesProgramAttribute : Attribute {
     }
 
     /// <summary>
@@ -1134,8 +1043,7 @@ namespace FramePFX.Core
     /// of delegate type by analyzing LINQ method chains.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class LinqTunnelAttribute : Attribute
-    {
+    public sealed class LinqTunnelAttribute : Attribute {
     }
 
     /// <summary>
@@ -1155,16 +1063,14 @@ namespace FramePFX.Core
     /// }
     /// </code></example>
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class NoEnumerationAttribute : Attribute
-    {
+    public sealed class NoEnumerationAttribute : Attribute {
     }
 
     /// <summary>
     /// Indicates that the marked parameter is a regular expression pattern.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class RegexPatternAttribute : Attribute
-    {
+    public sealed class RegexPatternAttribute : Attribute {
     }
 
     /// <summary>
@@ -1175,8 +1081,7 @@ namespace FramePFX.Core
     /// </remarks>
     [AttributeUsage(
         AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct | AttributeTargets.Enum)]
-    public sealed class NoReorderAttribute : Attribute
-    {
+    public sealed class NoReorderAttribute : Attribute {
     }
 
     /// <summary>
@@ -1184,8 +1089,7 @@ namespace FramePFX.Core
     /// as <c>ItemsControl</c>-derived type, to enable inner items <c>DataContext</c> type resolve.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class XamlItemsControlAttribute : Attribute
-    {
+    public sealed class XamlItemsControlAttribute : Attribute {
     }
 
     /// <summary>
@@ -1198,8 +1102,7 @@ namespace FramePFX.Core
     /// marked with the <see cref="XamlItemsControlAttribute"/> attribute.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class XamlItemBindingOfItemsControlAttribute : Attribute
-    {
+    public sealed class XamlItemBindingOfItemsControlAttribute : Attribute {
     }
 
     /// <summary>
@@ -1212,15 +1115,12 @@ namespace FramePFX.Core
     /// marked with the <see cref="XamlItemsControlAttribute"/> attribute.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class XamlItemStyleOfItemsControlAttribute : Attribute
-    {
+    public sealed class XamlItemStyleOfItemsControlAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public sealed class AspChildControlTypeAttribute : Attribute
-    {
-        public AspChildControlTypeAttribute([NotNull] string tagName, [NotNull] Type controlType)
-        {
+    public sealed class AspChildControlTypeAttribute : Attribute {
+        public AspChildControlTypeAttribute([NotNull] string tagName, [NotNull] Type controlType) {
             this.TagName = tagName;
             this.ControlType = controlType;
         }
@@ -1231,25 +1131,20 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
-    public sealed class AspDataFieldAttribute : Attribute
-    {
+    public sealed class AspDataFieldAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
-    public sealed class AspDataFieldsAttribute : Attribute
-    {
+    public sealed class AspDataFieldsAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class AspMethodPropertyAttribute : Attribute
-    {
+    public sealed class AspMethodPropertyAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public sealed class AspRequiredAttributeAttribute : Attribute
-    {
-        public AspRequiredAttributeAttribute([NotNull] string attribute)
-        {
+    public sealed class AspRequiredAttributeAttribute : Attribute {
+        public AspRequiredAttributeAttribute([NotNull] string attribute) {
             this.Attribute = attribute;
         }
 
@@ -1257,21 +1152,17 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class AspTypePropertyAttribute : Attribute
-    {
+    public sealed class AspTypePropertyAttribute : Attribute {
         public bool CreateConstructorReferences { get; }
 
-        public AspTypePropertyAttribute(bool createConstructorReferences)
-        {
+        public AspTypePropertyAttribute(bool createConstructorReferences) {
             this.CreateConstructorReferences = createConstructorReferences;
         }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public sealed class RazorImportNamespaceAttribute : Attribute
-    {
-        public RazorImportNamespaceAttribute([NotNull] string name)
-        {
+    public sealed class RazorImportNamespaceAttribute : Attribute {
+        public RazorImportNamespaceAttribute([NotNull] string name) {
             this.Name = name;
         }
 
@@ -1279,10 +1170,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public sealed class RazorInjectionAttribute : Attribute
-    {
-        public RazorInjectionAttribute([NotNull] string type, [NotNull] string fieldName)
-        {
+    public sealed class RazorInjectionAttribute : Attribute {
+        public RazorInjectionAttribute([NotNull] string type, [NotNull] string fieldName) {
             this.Type = type;
             this.FieldName = fieldName;
         }
@@ -1293,10 +1182,8 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public sealed class RazorDirectiveAttribute : Attribute
-    {
-        public RazorDirectiveAttribute([NotNull] string directive)
-        {
+    public sealed class RazorDirectiveAttribute : Attribute {
+        public RazorDirectiveAttribute([NotNull] string directive) {
             this.Directive = directive;
         }
 
@@ -1304,15 +1191,12 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public sealed class RazorPageBaseTypeAttribute : Attribute
-    {
-        public RazorPageBaseTypeAttribute([NotNull] string baseType)
-        {
+    public sealed class RazorPageBaseTypeAttribute : Attribute {
+        public RazorPageBaseTypeAttribute([NotNull] string baseType) {
             this.BaseType = baseType;
         }
 
-        public RazorPageBaseTypeAttribute([NotNull] string baseType, string pageName)
-        {
+        public RazorPageBaseTypeAttribute([NotNull] string baseType, string pageName) {
             this.BaseType = baseType;
             this.PageName = pageName;
         }
@@ -1322,27 +1206,22 @@ namespace FramePFX.Core
     }
 
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class RazorHelperCommonAttribute : Attribute
-    {
+    public sealed class RazorHelperCommonAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class RazorLayoutAttribute : Attribute
-    {
+    public sealed class RazorLayoutAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class RazorWriteLiteralMethodAttribute : Attribute
-    {
+    public sealed class RazorWriteLiteralMethodAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class RazorWriteMethodAttribute : Attribute
-    {
+    public sealed class RazorWriteMethodAttribute : Attribute {
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class RazorWriteMethodParameterAttribute : Attribute
-    {
+    public sealed class RazorWriteMethodParameterAttribute : Attribute {
     }
 }

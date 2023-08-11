@@ -5,14 +5,12 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using FramePFX.Core.Actions.Contexts;
 
-namespace FramePFX.Core.Actions.Helpers
-{
+namespace FramePFX.Core.Actions.Helpers {
     /// <summary>
     /// Creates a new action which invokes an <see cref="ICommand"/>
     /// </summary>
     /// <typeparam name="T">The type which contains the target command</typeparam>
-    public class CommandAction<T> : AnAction
-    {
+    public class CommandAction<T> : AnAction {
         /// <summary>
         /// The function that gets the <see cref="ICommand"/> instance from an object.
         /// The function will not be null, but invoking it may return a null value
@@ -33,13 +31,11 @@ namespace FramePFX.Core.Actions.Helpers
         /// <param name="propertyName">The name of the <see cref="ICommand"/> property in <see cref="T"/></param>
         /// <exception cref="ArgumentNullException">Null property name</exception>
         /// <exception cref="Exception">No such property in <see cref="T"/> named by <see cref="propertyName"/></exception>
-        public CommandAction(string propertyName) : base()
-        {
+        public CommandAction(string propertyName) : base() {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));
             PropertyInfo propertyInfo = typeof(T).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-            if (propertyInfo == null)
-            {
+            if (propertyInfo == null) {
                 throw new Exception($"No such property: {typeof(T)}.{propertyName}");
             }
 
@@ -51,61 +47,49 @@ namespace FramePFX.Core.Actions.Helpers
         /// </summary>
         /// <param name="accessor">The command getter function</param>
         /// <exception cref="ArgumentNullException">Null function</exception>
-        public CommandAction(Func<T, ICommand> accessor) : base()
-        {
+        public CommandAction(Func<T, ICommand> accessor) : base() {
             this.CommandAccessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
         }
 
-        public static CommandActionBuilder Builder()
-        {
+        public static CommandActionBuilder Builder() {
             return new CommandActionBuilder();
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
-        {
-            if (!e.DataContext.TryGetContext(out T instance))
-            {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+            if (!e.DataContext.TryGetContext(out T instance)) {
                 return false;
             }
 
             ICommand cmd = this.CommandAccessor(instance);
-            if (cmd == null)
-            {
+            if (cmd == null) {
                 return this.ResultWhenNullCommand;
             }
 
-            if (!cmd.CanExecute(null))
-            {
+            if (!cmd.CanExecute(null)) {
                 return this.ResultWhenCannotExecute;
             }
 
-            if (cmd is BaseAsyncRelayCommand asyncCmd)
-            {
+            if (cmd is BaseAsyncRelayCommand asyncCmd) {
                 await asyncCmd.ExecuteAsync(null);
             }
-            else
-            {
+            else {
                 cmd.Execute(null);
             }
 
             return this.ResultWhenExecuteSuccess;
         }
 
-        public override bool CanExecute(AnActionEventArgs e)
-        {
-            if (!e.DataContext.TryGetContext(out T instance))
-            {
+        public override bool CanExecute(AnActionEventArgs e) {
+            if (!e.DataContext.TryGetContext(out T instance)) {
                 return false;
             }
 
             ICommand cmd = this.CommandAccessor(instance);
-            if (cmd == null)
-            {
+            if (cmd == null) {
                 return this.PresentationWhenNullCommand;
             }
 
-            if (cmd.CanExecute(null))
-            {
+            if (cmd.CanExecute(null)) {
                 return this.PresentationWhenCanExecute;
             }
 
@@ -113,75 +97,59 @@ namespace FramePFX.Core.Actions.Helpers
         }
     }
 
-    public class CommandActionBuilder
-    {
+    public class CommandActionBuilder {
         private readonly Dictionary<Type, Func<object, ICommand>> accessors;
 
-        public CommandActionBuilder()
-        {
+        public CommandActionBuilder() {
             this.accessors = new Dictionary<Type, Func<object, ICommand>>();
         }
 
-        public static CommandActionBuilder Of()
-        {
+        public static CommandActionBuilder Of() {
             return new CommandActionBuilder();
         }
 
-        public CommandActionBuilder ForType<T>(Func<T, ICommand> function)
-        {
+        public CommandActionBuilder ForType<T>(Func<T, ICommand> function) {
             this.accessors[typeof(T)] = x => function((T) x);
             return this;
         }
 
-        public AnAction ToAction()
-        {
+        public AnAction ToAction() {
             return new CommandActionExImpl(this.accessors);
         }
 
-        private class CommandActionExImpl : AnAction
-        {
+        private class CommandActionExImpl : AnAction {
             private readonly Dictionary<Type, Func<object, ICommand>> accessors;
 
-            public CommandActionExImpl(Dictionary<Type, Func<object, ICommand>> accessors)
-            {
+            public CommandActionExImpl(Dictionary<Type, Func<object, ICommand>> accessors) {
                 this.accessors = accessors;
             }
 
-            public override bool CanExecute(AnActionEventArgs e)
-            {
+            public override bool CanExecute(AnActionEventArgs e) {
                 return this.GetCommand(e.DataContext) != null;
             }
 
-            public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
-            {
-                foreach (object obj in e.DataContext.Context)
-                {
-                    if (obj == null)
-                    {
+            public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+                foreach (object obj in e.DataContext.Context) {
+                    if (obj == null) {
                         continue;
                     }
 
                     ICommand command;
                     Type type = obj.GetType();
                     Func<object, ICommand> func = null;
-                    while (type != null && !this.accessors.TryGetValue(type, out func))
-                    {
+                    while (type != null && !this.accessors.TryGetValue(type, out func)) {
                         type = type.BaseType;
                     }
 
-                    if (func == null || (command = func(obj)) == null)
-                    {
+                    if (func == null || (command = func(obj)) == null) {
                         continue;
                     }
 
-                    if (command.CanExecute(e))
-                    {
-                        if (command is BaseAsyncRelayCommand asyncCmd)
-                        {
+                    if (command.CanExecute(e)) {
+                        if (command is BaseAsyncRelayCommand asyncCmd) {
                             await asyncCmd.ExecuteAsync(e);
                         }
-                        else
-                        {
+                        else {
                             command.Execute(e);
                         }
 
@@ -194,25 +162,20 @@ namespace FramePFX.Core.Actions.Helpers
                 return false;
             }
 
-            public ICommand GetCommand(IDataContext context)
-            {
-                foreach (object obj in context.Context)
-                {
-                    if (obj == null)
-                    {
+            public ICommand GetCommand(IDataContext context) {
+                foreach (object obj in context.Context) {
+                    if (obj == null) {
                         continue;
                     }
 
                     ICommand command;
                     Type type = obj.GetType();
                     Func<object, ICommand> func = null;
-                    while (type != null && !this.accessors.TryGetValue(type, out func))
-                    {
+                    while (type != null && !this.accessors.TryGetValue(type, out func)) {
                         type = type.BaseType;
                     }
 
-                    if (func == null || (command = func(obj)) == null)
-                    {
+                    if (func == null || (command = func(obj)) == null) {
                         continue;
                     }
 

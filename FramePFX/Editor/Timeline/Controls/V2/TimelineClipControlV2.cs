@@ -1,10 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.Editor.Timeline.Controls.V2
-{
-    public class TimelineClipControlV2 : Control
-    {
+namespace FramePFX.Editor.Timeline.Controls.V2 {
+    public class TimelineClipControlV2 : Control {
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
                 "FrameBegin",
@@ -19,24 +17,20 @@ namespace FramePFX.Editor.Timeline.Controls.V2
                 typeof(TimelineClipControlV2),
                 new PropertyMetadata(0L));
 
-        public long FrameBegin
-        {
+        public long FrameBegin {
             get => (long) this.GetValue(FrameBeginProperty);
             set => this.SetValue(FrameBeginProperty, value);
         }
 
-        public long FrameDuration
-        {
+        public long FrameDuration {
             get => (long) this.GetValue(FrameDurationProperty);
             set => this.SetValue(FrameDurationProperty, value);
         }
 
-        public TimelineClipControlV2()
-        {
+        public TimelineClipControlV2() {
         }
 
-        protected override Size MeasureOverride(Size constraint)
-        {
+        protected override Size MeasureOverride(Size constraint) {
             Size size = base.MeasureOverride(constraint);
             return new Size(this.FrameDuration, size.Height);
         }

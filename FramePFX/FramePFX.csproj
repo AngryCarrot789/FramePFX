@@ -361,9 +361,11 @@
     <Compile Include="Themes\ThemeType.cs" />
     <Compile Include="Themes\ToneGenerator.cs" />
     <Compile Include="Utils\CASLock.cs" />
+    <Compile Include="Utils\ConditionMonitor.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherDelegate.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
+    <Compile Include="Utils\DynamicCodeConverter.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\KBUtils.cs" />
     <Compile Include="Utils\KeyUtils.cs" />

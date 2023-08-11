@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FramePFX.Core.PropertyEditing
-{
+namespace FramePFX.Core.PropertyEditing {
     /// <summary>
     /// The base property editor view model class for handling a single (or multiple) properties, and updating a collection of handlers
     /// </summary>
-    public abstract class BasePropertyEditorViewModel : BasePropertyObjectViewModel
-    {
+    public abstract class BasePropertyEditorViewModel : BasePropertyObjectViewModel {
         private static readonly List<object> EmptyList = new List<object>();
 
         private readonly Dictionary<object, PropertyHandler> handlerToDataMap;
@@ -40,8 +38,7 @@ namespace FramePFX.Core.PropertyEditing
         /// </summary>
         public bool IsMultiSelection => this.Handlers.Count > 1;
 
-        protected BasePropertyEditorViewModel(Type applicableType) : base(applicableType)
-        {
+        protected BasePropertyEditorViewModel(Type applicableType) : base(applicableType) {
             this.handlerToDataMap = new Dictionary<object, PropertyHandler>();
             this.Handlers = EmptyList;
         }
@@ -56,23 +53,18 @@ namespace FramePFX.Core.PropertyEditing
         /// </param>
         /// <typeparam name="T">Type of object to get</typeparam>
         /// <returns>True if there is 1 object, or more than 1 and they have the same value, otherwise false</returns>
-        public static bool GetEqualValue<T>(IReadOnlyList<object> objects, Func<object, T> getter, out T equal)
-        {
+        public static bool GetEqualValue<T>(IReadOnlyList<object> objects, Func<object, T> getter, out T equal) {
             int count;
-            if (objects == null || (count = objects.Count) < 1)
-            {
+            if (objects == null || (count = objects.Count) < 1) {
                 equal = default;
                 return false;
             }
 
             equal = getter(objects[0]);
-            if (count > 1)
-            {
+            if (count > 1) {
                 EqualityComparer<T> comparator = EqualityComparer<T>.Default;
-                for (int i = 1; i < count; i++)
-                {
-                    if (!comparator.Equals(getter(objects[i]), equal))
-                    {
+                for (int i = 1; i < count; i++) {
+                    if (!comparator.Equals(getter(objects[i]), equal)) {
                         return false;
                     }
                 }
@@ -87,10 +79,8 @@ namespace FramePFX.Core.PropertyEditing
         /// If there are no handlers currently loaded, then this function does nothing
         /// </para>
         /// </summary>
-        public void ClearHandlers()
-        {
-            if (this.Handlers.Count < 1)
-            {
+        public void ClearHandlers() {
+            if (this.Handlers.Count < 1) {
                 return;
             }
 
@@ -110,21 +100,17 @@ namespace FramePFX.Core.PropertyEditing
         /// <param name="targets">A reference to the handler list, which will be stored in this editor</param>
         /// <exception cref="InvalidOperationException"><see cref="ClearHandlers"/> was not called, and there were handlers already loaded</exception>
         /// <exception cref="ArgumentException">An invalid number of objects were provided in relation to <see cref="BasePropertyObjectViewModel.HandlerCountMode"/></exception>
-        public void SetHandlers(IReadOnlyList<object> targets)
-        {
-            if (this.Handlers.Count > 0)
-            {
+        public void SetHandlers(IReadOnlyList<object> targets) {
+            if (this.Handlers.Count > 0) {
                 throw new InvalidOperationException("Editor was not cleared before handlers were set again");
             }
 
-            switch (this.HandlerCountMode)
-            {
+            switch (this.HandlerCountMode) {
                 case HandlerCountMode.Single when targets.Count != 1: throw new ArgumentException($"Expected list to contain only 1 handler, as {nameof(this.HandlerCountMode)} is {nameof(HandlerCountMode.Single)}");
                 case HandlerCountMode.Multi when targets.Count < 2: throw new ArgumentException($"Expected list to contain more than 1 handler, as {nameof(this.HandlerCountMode)} is {nameof(HandlerCountMode.Multi)}");
             }
 
-            foreach (object entry in targets)
-            {
+            foreach (object entry in targets) {
                 this.handlerToDataMap[entry] = null;
             }
 
@@ -138,15 +124,13 @@ namespace FramePFX.Core.PropertyEditing
         /// <summary>
         /// Called just before the handlers are cleared. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
-        protected virtual void OnClearHandlers()
-        {
+        protected virtual void OnClearHandlers() {
         }
 
         /// <summary>
         /// Called just after all handlers are fulled loaded. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
-        protected virtual void OnHandlersLoaded()
-        {
+        protected virtual void OnHandlersLoaded() {
         }
 
         /// <summary>
@@ -157,8 +141,7 @@ namespace FramePFX.Core.PropertyEditing
         /// <returns></returns>
         protected virtual PropertyHandler NewHandler(object target) => new PropertyHandler(target);
 
-        protected PropertyHandler GetHandlerData(object target)
-        {
+        protected PropertyHandler GetHandlerData(object target) {
             PropertyHandler data = this.handlerToDataMap[target];
             if (data == null)
                 this.handlerToDataMap[target] = data = this.NewHandler(target);
@@ -177,10 +160,8 @@ namespace FramePFX.Core.PropertyEditing
         /// There are very few reason to use this
         /// </para>
         /// </summary>
-        protected void PreallocateHandlerData()
-        {
-            foreach (object obj in this.Handlers)
-            {
+        protected void PreallocateHandlerData() {
+            foreach (object obj in this.Handlers) {
                 this.handlerToDataMap[obj] = this.NewHandler(obj);
             }
         }

@@ -7,10 +7,8 @@ using FramePFX.Core.Editor.Timelines;
 using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor
-{
-    public class Project : IRBESerialisable
-    {
+namespace FramePFX.Core.Editor {
+    public class Project : IRBESerialisable {
         public volatile bool IsSaving;
 
         public ProjectSettings Settings { get; }
@@ -41,8 +39,7 @@ namespace FramePFX.Core.Editor
 
         public string TempDataFolder;
 
-        public Project()
-        {
+        public Project() {
             this.Settings = new ProjectSettings() {
                 Resolution = new Resolution(1920, 1080)
             };
@@ -55,8 +52,7 @@ namespace FramePFX.Core.Editor
             };
         }
 
-        public void WriteToRBE(RBEDictionary data)
-        {
+        public void WriteToRBE(RBEDictionary data) {
             this.DataFolder = data.GetString(nameof(this.DataFolder), null);
             if (string.IsNullOrEmpty(this.DataFolder))
                 this.TempDataFolder = data.GetString(nameof(this.TempDataFolder), null);
@@ -65,14 +61,11 @@ namespace FramePFX.Core.Editor
             this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
         }
 
-        public void ReadFromRBE(RBEDictionary data)
-        {
-            if (!string.IsNullOrEmpty(this.DataFolder))
-            {
+        public void ReadFromRBE(RBEDictionary data) {
+            if (!string.IsNullOrEmpty(this.DataFolder)) {
                 data.SetString(nameof(this.DataFolder), this.DataFolder);
             }
-            else if (!string.IsNullOrEmpty(this.TempDataFolder))
-            {
+            else if (!string.IsNullOrEmpty(this.TempDataFolder)) {
                 data.SetString(nameof(this.TempDataFolder), this.TempDataFolder);
             }
 
@@ -87,40 +80,32 @@ namespace FramePFX.Core.Editor
         /// <param name="file">Input relative path</param>
         /// <returns>Output absolute filepath that may exist on the system</returns>
         /// <exception cref="ArgumentException">Input file name/path is null or empty</exception>
-        public string GetAbsolutePath(string file)
-        {
-            if (string.IsNullOrEmpty(file))
-            {
+        public string GetAbsolutePath(string file) {
+            if (string.IsNullOrEmpty(file)) {
                 throw new ArgumentException("File path cannot be null or empty", nameof(file));
             }
 
             return Path.Combine(this.GetDirectoryPath(out _), file);
         }
 
-        public string GetDirectoryPath(out bool isTemp)
-        {
-            if (string.IsNullOrEmpty(this.DataFolder))
-            {
+        public string GetDirectoryPath(out bool isTemp) {
+            if (string.IsNullOrEmpty(this.DataFolder)) {
                 isTemp = true;
-                if (string.IsNullOrEmpty(this.TempDataFolder))
-                {
+                if (string.IsNullOrEmpty(this.TempDataFolder)) {
                     string path = RandomUtils.RandomStringWhere(Path.GetTempPath(), 32, x => !Directory.Exists(x));
                     return this.TempDataFolder = path;
                 }
-                else
-                {
+                else {
                     return this.TempDataFolder;
                 }
             }
-            else
-            {
+            else {
                 isTemp = false;
                 return this.DataFolder;
             }
         }
 
-        public DirectoryInfo CreateDir(out bool isTemp)
-        {
+        public DirectoryInfo CreateDir(out bool isTemp) {
             // Cleaner and also faster than manual existence check (exists() ? new DirectoryInfo(dir) : create())
             return Directory.CreateDirectory(this.GetDirectoryPath(out isTemp));
         }

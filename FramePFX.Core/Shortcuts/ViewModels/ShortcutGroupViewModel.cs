@@ -4,10 +4,8 @@ using System.Linq;
 using FramePFX.Core.Shortcuts.Managing;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Shortcuts.ViewModels
-{
-    public class ShortcutGroupViewModel : BaseShortcutItemViewModel
-    {
+namespace FramePFX.Core.Shortcuts.ViewModels {
+    public class ShortcutGroupViewModel : BaseShortcutItemViewModel {
         private readonly ObservableCollectionEx<BaseShortcutItemViewModel> children;
 
         public ShortcutGroup TheGroup { get; set; }
@@ -24,8 +22,7 @@ namespace FramePFX.Core.Shortcuts.ViewModels
 
         public ReadOnlyObservableCollection<BaseShortcutItemViewModel> Children { get; }
 
-        public ShortcutGroupViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, ShortcutGroup reference) : base(manager, parent)
-        {
+        public ShortcutGroupViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, ShortcutGroup reference) : base(manager, parent) {
             this.TheGroup = reference;
             this.IsGlobal = reference.IsGlobal;
             this.InheritFromParent = reference.Inherit;
@@ -36,27 +33,22 @@ namespace FramePFX.Core.Shortcuts.ViewModels
             this.Children = new ReadOnlyObservableCollection<BaseShortcutItemViewModel>(this.children);
         }
 
-        public static ShortcutGroupViewModel CreateFrom(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, ShortcutGroup reference)
-        {
+        public static ShortcutGroupViewModel CreateFrom(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, ShortcutGroup reference) {
             ShortcutGroupViewModel group = new ShortcutGroupViewModel(manager, parent, reference);
             group.AddItems(reference.Groups.Select(x => CreateFrom(manager, group, x)));
             group.AddItems(reference.Shortcuts.Select(x => new ShortcutViewModel(manager, group, x)));
             return group;
         }
 
-        public ShortcutGroup SaveToRealGroup()
-        {
+        public ShortcutGroup SaveToRealGroup() {
             ShortcutGroup group = new ShortcutGroup(this.Parent?.TheGroup, this.FullPath, this.IsGlobal, this.InheritFromParent);
-            foreach (ShortcutGroupViewModel innerGroup in this.children.OfType<ShortcutGroupViewModel>())
-            {
+            foreach (ShortcutGroupViewModel innerGroup in this.children.OfType<ShortcutGroupViewModel>()) {
                 group.AddGroup(innerGroup.SaveToRealGroup());
             }
 
-            foreach (ShortcutViewModel shortcut in this.children.OfType<ShortcutViewModel>())
-            {
+            foreach (ShortcutViewModel shortcut in this.children.OfType<ShortcutViewModel>()) {
                 IShortcut realShortcut = shortcut.SaveToRealShortcut();
-                if (realShortcut != null)
-                {
+                if (realShortcut != null) {
                     GroupedShortcut managed = group.AddShortcut(shortcut.Name, realShortcut, shortcut.IsGlobal);
                     managed.RepeatMode = shortcut.RepeatMode;
                     managed.IsInherited = shortcut.Inherit;
@@ -67,23 +59,19 @@ namespace FramePFX.Core.Shortcuts.ViewModels
             return group;
         }
 
-        private void AddItem(ShortcutViewModel shortcut)
-        {
+        private void AddItem(ShortcutViewModel shortcut) {
             this.children.Add(shortcut);
         }
 
-        private void AddItems(IEnumerable<ShortcutViewModel> shortcut)
-        {
+        private void AddItems(IEnumerable<ShortcutViewModel> shortcut) {
             this.children.AddRange(shortcut);
         }
 
-        private void AddItem(ShortcutGroupViewModel group)
-        {
+        private void AddItem(ShortcutGroupViewModel group) {
             this.children.Add(group);
         }
 
-        private void AddItems(IEnumerable<ShortcutGroupViewModel> group)
-        {
+        private void AddItems(IEnumerable<ShortcutGroupViewModel> group) {
             this.children.AddRange(group);
         }
     }

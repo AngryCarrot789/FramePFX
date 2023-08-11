@@ -6,10 +6,8 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.FFmpegWrapper;
 using FramePFX.Core.FFmpegWrapper.Containers;
 
-namespace FramePFX.Core.FFmpeg
-{
-    public unsafe class FFmpegReader
-    {
+namespace FramePFX.Core.FFmpeg {
+    public unsafe class FFmpegReader {
         private volatile bool isOpen;
         private bool tryUseHardwareDecode;
         private string filePath;
@@ -48,8 +46,7 @@ namespace FramePFX.Core.FFmpeg
 
         public bool IsOpen => this.isOpen;
 
-        public FFmpegReader()
-        {
+        public FFmpegReader() {
             this.getFrameMutex = new object();
         }
 
@@ -59,12 +56,9 @@ namespace FramePFX.Core.FFmpeg
         /// Opens the reader using the given file path. Does not open any decoders
         /// </summary>
         /// <exception cref="Exception"></exception>
-        public void Open(string file, bool tryUseHwDecode = false)
-        {
-            lock (this.getFrameMutex)
-            {
-                if (this.isOpen)
-                {
+        public void Open(string file, bool tryUseHwDecode = false) {
+            lock (this.getFrameMutex) {
+                if (this.isOpen) {
 #if DEBUG
                     throw new InvalidOperationException("Reader is already open. Close it first");
 #else
@@ -77,50 +71,42 @@ namespace FramePFX.Core.FFmpeg
 
                 AVFormatContext* ctx;
                 int err = ffmpeg.avformat_open_input(&ctx, file, null, null);
-                if (FFUtils.GetException(err, "Could not open file", out Exception e))
-                {
+                if (FFUtils.GetException(err, "Could not open file", out Exception e)) {
                     if (ctx != null)
                         ffmpeg.avformat_free_context(ctx);
                     throw e;
                 }
 
                 err = ffmpeg.avformat_find_stream_info(ctx, null);
-                if (FFUtils.GetException(err, "File did not contain any streams", out e))
-                {
+                if (FFUtils.GetException(err, "File did not contain any streams", out e)) {
                     if (ctx != null)
                         ffmpeg.avformat_free_context(ctx);
                     throw e;
                 }
 
                 this.fmtCtx = ctx;
-                try
-                {
+                try {
                     // load stream wrappers, and cache useful stream indices
                     uint count = ctx->nb_streams;
                     this.streams = new MediaStream[count];
                     List<int> vsIdx = new List<int>(2), asIdx = new List<int>(2), stIdx = new List<int>();
                     List<VideoStream> vsLs = new List<VideoStream>(2);
                     List<AudioStream> asLs = new List<AudioStream>(2);
-                    for (int i = 0; i < count; i++)
-                    {
+                    for (int i = 0; i < count; i++) {
                         MediaStream stream = new MediaStream(ctx->streams[i]);
                         this.streams[i] = stream;
-                        switch (stream.Type)
-                        {
-                            case AVMediaType.AVMEDIA_TYPE_VIDEO:
-                            {
+                        switch (stream.Type) {
+                            case AVMediaType.AVMEDIA_TYPE_VIDEO: {
                                 vsLs.Add(new VideoStream(stream));
                                 vsIdx.Add(i);
                                 break;
                             }
-                            case AVMediaType.AVMEDIA_TYPE_AUDIO:
-                            {
+                            case AVMediaType.AVMEDIA_TYPE_AUDIO: {
                                 asLs.Add(new AudioStream(stream));
                                 asIdx.Add(i);
                                 break;
                             }
-                            case AVMediaType.AVMEDIA_TYPE_SUBTITLE:
-                            {
+                            case AVMediaType.AVMEDIA_TYPE_SUBTITLE: {
                                 stIdx.Add(i);
                                 break;
                             }
@@ -133,8 +119,7 @@ namespace FramePFX.Core.FFmpeg
                     this.videoStreams = vsLs.ToArray();
                     this.audioStreams = asLs.ToArray();
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     if (ctx != null)
                         ffmpeg.avformat_close_input(&ctx);
                     this.fmtCtx = null;
@@ -143,8 +128,7 @@ namespace FramePFX.Core.FFmpeg
 
                 this.metadata = new Dictionary<string, string>();
                 AVDictionaryEntry* tag = null;
-                while ((tag = ffmpeg.av_dict_get(ctx->metadata, "", tag, ffmpeg.AV_DICT_IGNORE_SUFFIX)) != null)
-                {
+                while ((tag = ffmpeg.av_dict_get(ctx->metadata, "", tag, ffmpeg.AV_DICT_IGNORE_SUFFIX)) != null) {
                     string key = Marshal.PtrToStringAnsi((IntPtr) tag->key);
                     string val = Marshal.PtrToStringAnsi((IntPtr) tag->value);
                     if (!string.IsNullOrEmpty(key))
@@ -155,12 +139,9 @@ namespace FramePFX.Core.FFmpeg
             }
         }
 
-        public void Close()
-        {
-            lock (this.getFrameMutex)
-            {
-                if (!this.isOpen)
-                {
+        public void Close() {
+            lock (this.getFrameMutex) {
+                if (!this.isOpen) {
 #if DEBUG
                     throw new InvalidOperationException("Reader is not open. Open it first");
 #else
@@ -188,8 +169,7 @@ namespace FramePFX.Core.FFmpeg
                 this.videoStreams = null;
                 this.audioStreams = null;
                 this.metadata = null;
-                if (this.fmtCtx != null)
-                {
+                if (this.fmtCtx != null) {
                     // avoids using fixed statement
                     AVFormatContext* ptr = this.fmtCtx;
                     ffmpeg.avformat_close_input(&ptr);
@@ -202,17 +182,14 @@ namespace FramePFX.Core.FFmpeg
 
         #endregion
 
-        public static Rational GetAspectRatio(MediaStream stream, int width, int height)
-        {
+        public static Rational GetAspectRatio(MediaStream stream, int width, int height) {
             int pr_num = 1, pr_den = 1;
             AVRational sar = stream.Handle->sample_aspect_ratio;
-            if (sar.num != 0)
-            {
+            if (sar.num != 0) {
                 pr_num = sar.num;
                 pr_den = sar.den;
             }
-            else if ((sar = stream.Handle->codecpar->sample_aspect_ratio).num != 0)
-            {
+            else if ((sar = stream.Handle->codecpar->sample_aspect_ratio).num != 0) {
                 pr_num = sar.num;
                 pr_den = sar.den;
             }
@@ -228,23 +205,19 @@ namespace FramePFX.Core.FFmpeg
         public AudioStream GetAudioStream(int index) => this.audioStreams[index];
         public MediaStream GetSubtitleStream(int index) => this.GetStream(this.subtitleStreamIdx[index]);
 
-        public IEnumerable<MediaStream> GetStreams()
-        {
+        public IEnumerable<MediaStream> GetStreams() {
             return this.streams;
         }
 
-        public IEnumerable<VideoStream> GetVideoStreams()
-        {
+        public IEnumerable<VideoStream> GetVideoStreams() {
             return this.videoStreams;
         }
 
-        public IEnumerable<AudioStream> GetAudioStreams()
-        {
+        public IEnumerable<AudioStream> GetAudioStreams() {
             return this.audioStreams;
         }
 
-        public IEnumerable<MediaStream> GetSubtitleStreams()
-        {
+        public IEnumerable<MediaStream> GetSubtitleStreams() {
             foreach (int index in this.subtitleStreamIdx)
                 yield return this.streams[index];
         }

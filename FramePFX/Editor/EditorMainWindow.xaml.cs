@@ -29,13 +29,11 @@ using PSWMGRv2.Utils;
 using SkiaSharp;
 using Time = FramePFX.Core.Utils.Time;
 
-namespace FramePFX.Editor
-{
+namespace FramePFX.Editor {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class EditorMainWindow : WindowEx, IVideoEditor, INotificationHandler
-    {
+    public partial class EditorMainWindow : WindowEx, IVideoEditor, INotificationHandler {
         public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
 
         private readonly Action renderCallback;
@@ -50,13 +48,11 @@ namespace FramePFX.Editor
 
         public NotificationPanelViewModel NotificationPanel { get; }
 
-        public EditorMainWindow()
-        {
+        public EditorMainWindow() {
             BindingErrorListener.Listen();
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
-            IoC.BroadcastShortcutActivity = (x) =>
-            {
+            IoC.BroadcastShortcutActivity = (x) => {
                 this.NotificationBarTextBlock.Text = x;
             };
 
@@ -65,8 +61,7 @@ namespace FramePFX.Editor
             this.DataContext = new VideoEditorViewModel(this);
             IoC.App.Editor = (VideoEditorViewModel) this.DataContext;
             this.renderCallback = this.DoRenderCore;
-            this.renderAsyncCallback = async () =>
-            {
+            this.renderAsyncCallback = async () => {
                 await this.DoRenderCoreAsync();
             };
 
@@ -78,29 +73,23 @@ namespace FramePFX.Editor
             this.Width = 1257;
         }
 
-        public void OnNotificationPushed(NotificationViewModel notification)
-        {
+        public void OnNotificationPushed(NotificationViewModel notification) {
         }
 
-        public void OnNotificationRemoved(NotificationViewModel notification)
-        {
+        public void OnNotificationRemoved(NotificationViewModel notification) {
         }
 
-        public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null)
-        {
+        public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null) {
             BaseViewModel.ClearInternalData(notification, "AnimationCompleted");
             int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
-            if (index == -1)
-            {
+            if (index == -1) {
                 BaseViewModel.SetInternalData(notification, "AnimationCompleted", BoolBox.True);
                 return;
             }
 
-            if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control)
-            {
+            if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control) {
                 DoubleAnimation animation = new DoubleAnimation(1d, 0d, TimeSpan.FromSeconds(2), FillBehavior.Stop);
-                animation.Completed += (sender, args) =>
-                {
+                animation.Completed += (sender, args) => {
                     onCompleteCallback?.Invoke(notification, BaseViewModel.GetInternalData<bool>(notification, "AnimationCompleted"));
                 };
 
@@ -108,22 +97,18 @@ namespace FramePFX.Editor
             }
         }
 
-        public void CancelNotificationFadeOutAnimation(NotificationViewModel notification)
-        {
-            if (BaseViewModel.GetInternalData<bool>(notification, "AnimationCompleted"))
-            {
+        public void CancelNotificationFadeOutAnimation(NotificationViewModel notification) {
+            if (BaseViewModel.GetInternalData<bool>(notification, "AnimationCompleted")) {
                 return;
             }
 
             BaseViewModel.SetInternalData(notification, "AnimationCompleted", BoolBox.True);
             int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
-            if (index == -1)
-            {
+            if (index == -1) {
                 return;
             }
 
-            if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control)
-            {
+            if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control) {
                 control.BeginAnimation(OpacityProperty, null);
             }
         }
@@ -148,47 +133,37 @@ namespace FramePFX.Editor
         //     this.lastRefreshTime = Time.GetSystemMillis();
         // }
 
-        public void UpdateClipSelection()
-        {
-            if (this.Editor.ActiveProject is ProjectViewModel project)
-            {
+        public void UpdateClipSelection() {
+            if (this.Editor.ActiveProject is ProjectViewModel project) {
                 // TODO: maybe move this to a view model?
                 this.PFXPropertyEditor.InputItems = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
             }
         }
 
-        public void UpdateResourceSelection()
-        {
+        public void UpdateResourceSelection() {
             // TODO: maybe move this to a view model?
             ResourceGroupViewModel group;
-            if (this.Editor.ActiveProject is ProjectViewModel project && (group = project.ResourceManager.CurrentGroup) != null)
-            {
+            if (this.Editor.ActiveProject is ProjectViewModel project && (group = project.ResourceManager.CurrentGroup) != null) {
                 this.PFXPropertyEditor.InputItems = group.SelectedItems.ToList();
             }
         }
 
-        public void PushNotificationMessage(string message)
-        {
+        public void PushNotificationMessage(string message) {
             this.NotificationBarTextBlock.Text = message;
         }
 
-        public async Task Render(bool scheduleRender)
-        {
-            if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0)
-            {
+        public async Task Render(bool scheduleRender) {
+            if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
-            else if (scheduleRender)
-            {
+            else if (scheduleRender) {
                 // await this.Dispatcher.InvokeAsync(this.renderCallback);
                 await this.Dispatcher.InvokeAsync(this.renderAsyncCallback);
             }
-            else if (this.Dispatcher.CheckAccess())
-            {
+            else if (this.Dispatcher.CheckAccess()) {
                 await this.DoRenderCoreAsync();
             }
-            else
-            {
+            else {
                 // this.Dispatcher.Invoke(this.renderCallback);
                 await await this.Dispatcher.InvokeAsync(this.renderAsyncCallbackFunc);
             }
@@ -196,28 +171,24 @@ namespace FramePFX.Editor
             this.isRenderScheduled = 0;
         }
 
-        private void DoRenderCore()
-        {
+        private void DoRenderCore() {
             // this.ViewPortElement.InvalidateVisual();
             VideoEditorViewModel editor = this.Editor;
             ProjectViewModel project = editor.ActiveProject;
-            if (project == null || project.Model.IsSaving)
-            {
+            if (project == null || project.Model.IsSaving) {
                 this.isRenderScheduled = 0;
                 return;
             }
 
             long frame = project.Timeline.PlayHeadFrame;
-            if (this.ViewPortElement.BeginRender(out SKSurface surface))
-            {
+            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                 RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                 context.Canvas.Clear(SKColors.Black);
                 // project.Model.AutomationEngine.TickProjectAtFrame(frame);
                 project.Model.Timeline.Render(context, frame);
 
                 Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
-                if (dictionary.Count > 0)
-                {
+                if (dictionary.Count > 0) {
                     this.PrintRenderErrors(dictionary);
                     dictionary.Clear();
                 }
@@ -228,26 +199,22 @@ namespace FramePFX.Editor
             this.isRenderScheduled = 0;
         }
 
-        private async Task DoRenderCoreAsync()
-        {
+        private async Task DoRenderCoreAsync() {
             VideoEditorViewModel editor = this.Editor;
             ProjectViewModel project = editor.ActiveProject;
-            if (project == null || project.Model.IsSaving)
-            {
+            if (project == null || project.Model.IsSaving) {
                 this.isRenderScheduled = 0;
                 return;
             }
 
             long frame = project.Timeline.PlayHeadFrame;
-            if (this.ViewPortElement.BeginRender(out SKSurface surface))
-            {
+            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                 RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                 context.Canvas.Clear(SKColors.Black);
                 await project.Model.Timeline.RenderAsync(context, frame);
 
                 Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
-                if (dictionary.Count > 0)
-                {
+                if (dictionary.Count > 0) {
                     this.PrintRenderErrors(dictionary);
                     dictionary.Clear();
                 }
@@ -258,10 +225,8 @@ namespace FramePFX.Editor
             this.isRenderScheduled = 0;
         }
 
-        private async void PrintRenderErrors(Dictionary<Clip, Exception> dictionary)
-        {
-            if (this.isPrintingErrors)
-            {
+        private async void PrintRenderErrors(Dictionary<Clip, Exception> dictionary) {
+            if (this.isPrintingErrors) {
                 return;
             }
 
@@ -269,8 +234,7 @@ namespace FramePFX.Editor
 
             this.isPrintingErrors = true;
             StringBuilder sb = new StringBuilder(2048);
-            foreach (KeyValuePair<Clip, Exception> entry in dictionary)
-            {
+            foreach (KeyValuePair<Clip, Exception> entry in dictionary) {
                 sb.Append($"{entry.Key.DisplayName ?? entry.Key.ToString()}: {entry.Value.GetToString()}\n");
             }
 
@@ -278,26 +242,20 @@ namespace FramePFX.Editor
             this.isPrintingErrors = false;
         }
 
-        protected override async Task<bool> OnClosingAsync()
-        {
-            try
-            {
-                if (!await this.Editor.PromptSaveAndCloseProjectAction())
-                {
+        protected override async Task<bool> OnClosingAsync() {
+            try {
+                if (!await this.Editor.PromptSaveAndCloseProjectAction()) {
                     return false;
                 }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "Exception while closing project", e.GetToString());
             }
 
-            try
-            {
+            try {
                 this.Editor.Dispose();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Failed to dispose", "Exception while disposing editor", e.GetToString());
             }
 
@@ -327,36 +285,29 @@ namespace FramePFX.Editor
         //     }
         // }
 
-        private void OnBottomThumbDrag(object sender, DragDeltaEventArgs e)
-        {
-            if ((sender as Thumb)?.DataContext is TrackViewModel track)
-            {
+        private void OnBottomThumbDrag(object sender, DragDeltaEventArgs e) {
+            if ((sender as Thumb)?.DataContext is TrackViewModel track) {
                 track.Height = Maths.Clamp(track.Height + e.VerticalChange, track.MinHeight, track.MaxHeight);
             }
         }
 
-        private void OnFitContentToWindowClick(object sender, RoutedEventArgs e)
-        {
+        private void OnFitContentToWindowClick(object sender, RoutedEventArgs e) {
             this.VPViewBox.FitContentToCenter();
         }
 
         private int number;
 
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e) {
             this.NotificationPanel.PushNotification(new MessageNotification("Header!!!", $"Some message here ({++this.number})", TimeSpan.FromSeconds(5)));
         }
 
-        private void ShowLogsClick(object sender, RoutedEventArgs e)
-        {
+        private void ShowLogsClick(object sender, RoutedEventArgs e) {
             new AppLoggerWindow().Show();
         }
 
-        private void SetThemeClick(object sender, RoutedEventArgs e)
-        {
+        private void SetThemeClick(object sender, RoutedEventArgs e) {
             ThemeType type;
-            switch (((MenuItem) sender).Uid)
-            {
+            switch (((MenuItem) sender).Uid) {
                 case "0":
                     type = ThemeType.DeepDark;
                     break;

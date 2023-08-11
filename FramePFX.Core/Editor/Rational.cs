@@ -2,13 +2,11 @@ using System;
 using System.Runtime.CompilerServices;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.Core.Editor
-{
+namespace FramePFX.Core.Editor {
     /// <summary>
     /// A rational number consisting of a numerator and denominator, as well as some helper functions (comparison, reduction, addition, etc)
     /// </summary>
-    public readonly struct Rational : IComparable, IComparable<Rational>, IEquatable<Rational>
-    {
+    public readonly struct Rational : IComparable, IComparable<Rational>, IEquatable<Rational> {
         /// <summary>
         /// A rational with a numerator and denominator of 0, which is typically an invalid rational (representing zero time)
         /// </summary>
@@ -41,10 +39,8 @@ namespace FramePFX.Core.Editor
         /// </summary>
         public Rational Inverse => new Rational(this.den, this.num);
 
-        public Rational Reduced
-        {
-            get
-            {
+        public Rational Reduced {
+            get {
                 Reduce(out Rational r, this.num, this.den);
                 return r;
             }
@@ -54,8 +50,7 @@ namespace FramePFX.Core.Editor
         /// Creates a new rational number, with the given numerator and a denominator of 1
         /// </summary>
         /// <param name="numerator">The numerator value</param>
-        public Rational(int numerator)
-        {
+        public Rational(int numerator) {
             this.num = numerator;
             this.den = 1;
         }
@@ -65,8 +60,7 @@ namespace FramePFX.Core.Editor
         /// </summary>
         /// <param name="numerator">The numerator value</param>
         /// <param name="denominator">The denominator value</param>
-        public Rational(int numerator, int denominator)
-        {
+        public Rational(int numerator, int denominator) {
             this.num = numerator;
             this.den = denominator;
         }
@@ -77,8 +71,7 @@ namespace FramePFX.Core.Editor
         /// <param name="d">The double number</param>
         /// <param name="max">The maximum allowed numerator and denominator</param>
         /// <returns></returns>
-        public static Rational FromDouble(double d, int max = int.MaxValue)
-        {
+        public static Rational FromDouble(double d, int max = int.MaxValue) {
 #if false // The actual implementation but in C# code. Native is probably faster, even with the P/Invoke overhead
             Rational r; // a 2nd hidden local Rational variable is still created...
             const double LOG2 = 0.69314718055994530941723212145817656807550013436025;
@@ -100,8 +93,7 @@ namespace FramePFX.Core.Editor
 #endif
         }
 
-        public static unsafe bool Reduce(out int dst_num, out int dst_den, long num, long den, long max)
-        {
+        public static unsafe bool Reduce(out int dst_num, out int dst_den, long num, long den, long max) {
             int n, d, ret = ffmpeg.av_reduce(&n, &d, num, den, max);
             dst_num = n;
             dst_den = d;
@@ -109,38 +101,32 @@ namespace FramePFX.Core.Editor
         }
 
         [Obsolete("Completely untested - may not work at all")]
-        public static bool Reduce_SAFE(out int dst_num, out int dst_den, long num, long den, long max)
-        {
+        public static bool Reduce_SAFE(out int dst_num, out int dst_den, long num, long den, long max) {
             long a0n = 0, a0d = 1, a1n = 1, a1d = 0;
             bool sign = (num < 0) ^ (den < 0);
             long gcd = ffmpeg.av_gcd(Math.Abs(num), Math.Abs(den));
-            if (gcd != 0)
-            {
+            if (gcd != 0) {
                 num = Math.Abs(num) / gcd;
                 den = Math.Abs(den) / gcd;
             }
 
-            if (num <= max && den <= max)
-            {
+            if (num <= max && den <= max) {
                 a1n = num;
                 a1d = den;
                 den = 0;
             }
 
-            while (den != 0)
-            {
+            while (den != 0) {
                 long x = num / den;
                 long next_den = num - den * x;
                 long a2n = x * a1n + a0n;
                 long a2d = x * a1d + a0d;
-                if (a2n > max || a2d > max)
-                {
+                if (a2n > max || a2d > max) {
                     if (a1n != 0)
                         x = (max - a0n) / a1n;
                     if (a1d != 0)
                         x = Math.Min(x, (max - a0d) / a1d);
-                    if (den * (2L * x * a1d + a0d) > num * a1d)
-                    {
+                    if (den * (2L * x * a1d + a0d) > num * a1d) {
                         a1n = x * a1n + a0n;
                         a1d = x * a1d + a0d;
                     }
@@ -169,18 +155,15 @@ namespace FramePFX.Core.Editor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) => obj is Rational o && Compare(this, o) == 0;
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return unchecked((this.num * 397) ^ this.den);
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return $"{this.num}/{this.den}({Math.Round(this.ToDouble, 4)})";
         }
 
-        public int CompareTo(object value)
-        {
+        public int CompareTo(object value) {
             if (value == null)
                 return 1;
             return value is Rational r ? this.CompareTo(r) : throw new ArgumentException($"Value is not an instance of {nameof(Rational)}");
@@ -190,8 +173,7 @@ namespace FramePFX.Core.Editor
 
         public int CompareTo(int o) => Compare(this.num, this.den, o, 1);
 
-        public void Deconstruct(out int num, out int den)
-        {
+        public void Deconstruct(out int num, out int den) {
             num = this.num;
             den = this.den;
         }
@@ -207,14 +189,12 @@ namespace FramePFX.Core.Editor
         public static bool operator <(Rational a, Rational b) => Compare(a, b) == -1;
         public static bool operator <(Rational a, int b) => Compare(a.num, a.den, b, 1) == -1;
 
-        public static bool operator <=(Rational a, Rational b)
-        {
+        public static bool operator <=(Rational a, Rational b) {
             int cmp = Compare(a, b); // compare can return int.MinValue when a or b is NaN, so <= 0 cannot be used
             return cmp == -1 || cmp == 0;
         }
 
-        public static bool operator <=(Rational a, int b)
-        {
+        public static bool operator <=(Rational a, int b) {
             int cmp = Compare(a.num, a.den, b, 1);
             return cmp == -1 || cmp == 0;
         }
@@ -256,34 +236,27 @@ namespace FramePFX.Core.Editor
         /// <param name="numB">B's numerator</param>
         /// <param name="denB">B's denominator</param>
         /// <returns>-1 when A &lt; B, 1 when A &gt; B, 0 when A == B, or <see cref="int.MinValue"/> when A or B is <see cref="NaN"/> (0 / 0)</returns>
-        public static int Compare(int numA, int denA, int numB, int denB)
-        {
+        public static int Compare(int numA, int denA, int numB, int denB) {
             long tmp = numA * (long) denB - numB * (long) denA;
-            if (tmp != 0)
-            {
+            if (tmp != 0) {
                 return (int) ((tmp ^ denA ^ denB) >> 63) | 1;
             }
-            else if (denB != 0 && denA != 0)
-            {
+            else if (denB != 0 && denA != 0) {
                 return 0;
             }
-            else if (numA != 0 && numB != 0)
-            {
+            else if (numA != 0 && numB != 0) {
                 return (numA >> 31) - (numB >> 31);
             }
-            else
-            {
+            else {
                 return int.MinValue;
             }
         }
 
-        public static unsafe bool Reduce(Rational* r, long num, long den, long max = int.MaxValue)
-        {
+        public static unsafe bool Reduce(Rational* r, long num, long den, long max = int.MaxValue) {
             return ffmpeg.av_reduce(&r->num, &r->den, num, den, max) == 1;
         }
 
-        public static unsafe bool Reduce(out Rational r, long num, long den, long max = int.MaxValue)
-        {
+        public static unsafe bool Reduce(out Rational r, long num, long den, long max = int.MaxValue) {
             Rational val;
             int ret = ffmpeg.av_reduce(&val.num, &val.den, num, den, max);
             r = val;
@@ -300,8 +273,7 @@ namespace FramePFX.Core.Editor
         /// <param name="tA">Input timebase</param>
         /// <param name="tB">Output timebase</param>
         /// <returns>The input time but in the B timebase</returns>
-        public static unsafe Rational Transform(Rational time, Rational tA, Rational tB)
-        {
+        public static unsafe Rational Transform(Rational time, Rational tA, Rational tB) {
             // return time * (new Rational(1) / tA) * tB;
             int num, den;
             ffmpeg.av_reduce(&num, &den, tA.den, tA.num, int.MaxValue);
@@ -310,14 +282,12 @@ namespace FramePFX.Core.Editor
             return new Rational(num, den);
         }
 
-        public static unsafe Rational MulInternal(Rational b, Rational c)
-        {
+        public static unsafe Rational MulInternal(Rational b, Rational c) {
             ffmpeg.av_reduce(&b.num, &b.den, b.num * (long) c.num, b.den * (long) c.den, int.MaxValue);
             return b;
         }
 
-        public static unsafe Rational AddInternal(Rational b, Rational c)
-        {
+        public static unsafe Rational AddInternal(Rational b, Rational c) {
             ffmpeg.av_reduce(&b.num, &b.den, b.num * (long) c.den + c.num * (long) b.den, b.den * (long) c.den, int.MaxValue);
             return b;
         }

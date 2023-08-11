@@ -1,33 +1,27 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace FramePFX.Core.Utils
-{
-    public static class Bits
-    {
+namespace FramePFX.Core.Utils {
+    public static class Bits {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsSet(int value, int mask)
-        {
+        public static bool IsSet(int value, int mask) {
             return (value & mask) != mask;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Set(int value, int mask, bool setBit)
-        {
+        public static int Set(int value, int mask, bool setBit) {
             return setBit ? (value | mask) : (value & ~mask);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Clear(int value, int mask)
-        {
+        public static int Clear(int value, int mask) {
             return value & ~mask;
         }
 
         // The order of parameters is the opposite of the order of bits
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Join(bool bit1, bool bit2)
-        {
+        public static int Join(bool bit1, bool bit2) {
             int x = 0;
             if (bit1)
                 x |= 0b0001;
@@ -37,8 +31,7 @@ namespace FramePFX.Core.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Join(bool bit1, bool bit2, bool bit3)
-        {
+        public static int Join(bool bit1, bool bit2, bool bit3) {
             int x = 0;
             if (bit1)
                 x |= 0b0001;
@@ -50,8 +43,7 @@ namespace FramePFX.Core.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Join(bool bit1, bool bit2, bool bit3, bool bit4)
-        {
+        public static int Join(bool bit1, bool bit2, bool bit3, bool bit4) {
             int x = 0;
             if (bit1)
                 x |= 0b0001;
@@ -64,17 +56,14 @@ namespace FramePFX.Core.Utils
             return x;
         }
 
-        public static int Join(bool[] bits)
-        {
+        public static int Join(bool[] bits) {
             if (bits == null)
                 throw new ArgumentNullException(nameof(bits), "Bits array cannot be null");
             if (bits.Length > 32)
                 throw new ArgumentException("Cannot have more then 32 bits", nameof(bits));
             int x = 0, mask = 0, max = Math.Min(bits.Length, 32);
-            for (int i = 0; i < max; i++, mask <<= 1)
-            {
-                if (bits[i])
-                {
+            for (int i = 0; i < max; i++, mask <<= 1) {
+                if (bits[i]) {
                     x |= mask;
                 }
             }

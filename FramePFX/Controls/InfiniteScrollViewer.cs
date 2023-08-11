@@ -2,79 +2,63 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace FramePFX.Controls
-{
-    public class InfiniteScrollViewer : ScrollViewer
-    {
+namespace FramePFX.Controls {
+    public class InfiniteScrollViewer : ScrollViewer {
         private double offsetY;
 
-        public InfiniteScrollViewer()
-        {
+        public InfiniteScrollViewer() {
             this.CanContentScroll = true;
             this.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
             this.VerticalContentAlignment = VerticalAlignment.Top;
         }
 
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
-        {
+        protected override void OnMouseWheel(MouseWheelEventArgs e) {
             base.OnMouseWheel(e);
 
             // MouseWheelDown = -delta
             // MouseWheelUp   = +delta
 
-            if (this.Content is FrameworkElement element)
-            {
-                if (e.Delta < 0)
-                {
+            if (this.Content is FrameworkElement element) {
+                if (e.Delta < 0) {
                     // down
                     this.offsetY += 24;
                 }
-                else if (e.Delta > 0)
-                {
+                else if (e.Delta > 0) {
                     // up
                     this.offsetY -= 24;
                 }
-                else
-                {
+                else {
                     return;
                 }
 
-                if (this.VerticalOffset >= this.ScrollableHeight)
-                {
+                if (this.VerticalOffset >= this.ScrollableHeight) {
                     Thickness thickness = element.Margin;
-                    if (this.offsetY > 0)
-                    {
+                    if (this.offsetY > 0) {
                         thickness.Bottom = this.offsetY;
                         thickness.Top = 0;
                     }
-                    else if (this.offsetY < 0)
-                    {
+                    else if (this.offsetY < 0) {
                         thickness.Bottom = 0;
                         thickness.Top = -this.offsetY;
                     }
-                    else
-                    {
+                    else {
                         thickness.Bottom = 0;
                         thickness.Top = 0;
                     }
 
                     element.Margin = thickness;
                 }
-                else if (this.offsetY != 0)
-                {
+                else if (this.offsetY != 0) {
                     Thickness thickness = element.Margin;
-                    if (this.offsetY > 0)
-                    {
+                    if (this.offsetY > 0) {
                         thickness.Bottom = this.offsetY;
                         thickness.Top = 0;
                     }
-                    else if (this.offsetY < 0)
-                    {
+                    else if (this.offsetY < 0) {
                         thickness.Bottom = 0;
                         thickness.Top = -this.offsetY;
                     }
-                    else
-                    {
+                    else {
                         thickness.Bottom = 0;
                         thickness.Top = 0;
                     }
@@ -84,8 +68,7 @@ namespace FramePFX.Controls
             }
         }
 
-        protected override void OnScrollChanged(ScrollChangedEventArgs e)
-        {
+        protected override void OnScrollChanged(ScrollChangedEventArgs e) {
             base.OnScrollChanged(e);
         }
     }

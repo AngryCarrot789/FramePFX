@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using FramePFX.Core.Shortcuts.Inputs;
 
-namespace FramePFX.Core.Shortcuts.Usage
-{
-    public class MouseShortcutUsage : IMouseShortcutUsage
-    {
+namespace FramePFX.Core.Shortcuts.Usage {
+    public class MouseShortcutUsage : IMouseShortcutUsage {
         private LinkedListNode<MouseStroke> currentStroke;
         // private int clickCounter;
 
@@ -14,8 +12,7 @@ namespace FramePFX.Core.Shortcuts.Usage
 
         public MouseStroke CurrentMouseStroke => this.currentStroke?.Value ?? default;
 
-        public IShortcut Shortcut
-        {
+        public IShortcut Shortcut {
             get => this.MouseShortcut;
         }
 
@@ -25,13 +22,10 @@ namespace FramePFX.Core.Shortcuts.Usage
 
         public IInputStroke CurrentStroke => this.currentStroke?.Value;
 
-        public IEnumerable<IInputStroke> RemainingStrokes
-        {
-            get
-            {
+        public IEnumerable<IInputStroke> RemainingStrokes {
+            get {
                 LinkedListNode<MouseStroke> stroke = this.currentStroke;
-                while (stroke != null)
-                {
+                while (stroke != null) {
                     yield return stroke.Value;
                     stroke = stroke.Next;
                 }
@@ -42,41 +36,34 @@ namespace FramePFX.Core.Shortcuts.Usage
 
         public bool IsCurrentStrokeKeyBased => false;
 
-        public MouseShortcutUsage(IMouseShortcut shortcut)
-        {
+        public MouseShortcutUsage(IMouseShortcut shortcut) {
             this.MouseShortcut = shortcut;
             this.Strokes = new LinkedList<MouseStroke>(shortcut.MouseStrokes);
             this.currentStroke = this.Strokes.First.Next;
             this.PreviousStroke = this.Strokes.First.Value;
         }
 
-        public bool OnMouseStroke(in MouseStroke stroke)
-        {
-            if (this.currentStroke == null)
-            {
+        public bool OnMouseStroke(in MouseStroke stroke) {
+            if (this.currentStroke == null) {
                 return true;
             }
 
-            if (this.currentStroke.Value.Equals(stroke))
-            {
+            if (this.currentStroke.Value.Equals(stroke)) {
                 this.PreviousStroke = stroke;
                 this.currentStroke = this.currentStroke.Next;
                 return true;
             }
-            else if (this.currentStroke.Value.EqualsWithoutClick(stroke))
-            {
+            else if (this.currentStroke.Value.EqualsWithoutClick(stroke)) {
                 // this allows double or triple clicking
                 // this.clickCounter++;
                 return true;
             }
-            else
-            {
+            else {
                 return false;
             }
         }
 
-        public bool OnInputStroke(IInputStroke stroke)
-        {
+        public bool OnInputStroke(IInputStroke stroke) {
             return stroke is MouseStroke keyStroke && this.OnMouseStroke(keyStroke);
         }
     }

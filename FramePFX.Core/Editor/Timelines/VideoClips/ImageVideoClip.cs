@@ -2,18 +2,13 @@ using System.Numerics;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.Rendering;
 
-namespace FramePFX.Core.Editor.Timelines.VideoClips
-{
-    public class ImageVideoClip : BaseResourceVideoClip<ResourceImage>
-    {
-        public ImageVideoClip()
-        {
+namespace FramePFX.Core.Editor.Timelines.VideoClips {
+    public class ImageVideoClip : BaseResourceVideoClip<ResourceImage> {
+        public ImageVideoClip() {
         }
 
-        protected override void OnResourceDataModified(string property)
-        {
-            switch (property)
-            {
+        protected override void OnResourceDataModified(string property) {
+            switch (property) {
                 case nameof(ResourceImage.FilePath):
                 case nameof(ResourceImage.IsRawBitmapMode):
                     this.InvalidateRender();
@@ -21,18 +16,15 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips
             }
         }
 
-        public override Vector2? GetSize()
-        {
-            if (this.ResourcePath == null || !this.ResourcePath.TryGetResource(out ResourceImage r) || r.image == null)
-            {
+        public override Vector2? GetSize() {
+            if (this.ResourcePath == null || !this.ResourcePath.TryGetResource(out ResourceImage r) || r.image == null) {
                 return null;
             }
 
             return new Vector2(r.image.Width, r.image.Height);
         }
 
-        public override void Render(RenderContext rc, long frame)
-        {
+        public override void Render(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceImage resource))
                 return;
             if (resource.image == null)
@@ -42,8 +34,7 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips
             rc.Canvas.DrawImage(resource.image, 0, 0);
         }
 
-        protected override Clip NewInstance()
-        {
+        protected override Clip NewInstance() {
             return new ImageVideoClip();
         }
     }

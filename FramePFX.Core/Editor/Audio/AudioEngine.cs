@@ -8,10 +8,8 @@ using NAudio;
 using NAudio.Utils;
 using NAudio.Wave;
 
-namespace FramePFX.Core.Editor.Audio
-{
-    public class AudioEngine
-    {
+namespace FramePFX.Core.Editor.Audio {
+    public class AudioEngine {
         // public const int TicksPerBar = 192;
         // public const int StepsPerBar = 16;
         // public const int BeatsPerBar = TicksPerBar / StepsPerBar; // 12
@@ -47,14 +45,12 @@ namespace FramePFX.Core.Editor.Audio
 
         public AudioEngineWaveBuffer[] Buffers => this.buffers;
 
-        public float Volume
-        {
+        public float Volume {
             get => WaveOutUtils.GetWaveOutVolume(this.hWaveOut, this.waveOutLock);
             set => WaveOutUtils.SetWaveOutVolume(value, this.hWaveOut, this.waveOutLock);
         }
 
-        public AudioEngine()
-        {
+        public AudioEngine() {
             this.sampleRate = 44100;
             this.DesiredLatency = 100;
             this.NumberOfBuffers = 2;
@@ -63,8 +59,7 @@ namespace FramePFX.Core.Editor.Audio
 
         ~AudioEngine() => this.Dispose(false);
 
-        public void UpdateFPS(double fps)
-        {
+        public void UpdateFPS(double fps) {
             this.rawSamplesPerTick = (this.sampleRate / fps);
             this.samplesPerTick = Maths.Ceil((long) Math.Ceiling(this.rawSamplesPerTick), 256);
         }
@@ -79,10 +74,8 @@ namespace FramePFX.Core.Editor.Audio
         /// </summary>
         /// <param name="timeline"></param>
         /// <param name="frame"></param>
-        public unsafe void ProcessNext(Timeline timeline, long frame)
-        {
-            if ((frame - 1) != this.lastFrame)
-            {
+        public unsafe void ProcessNext(Timeline timeline, long frame) {
+            if ((frame - 1) != this.lastFrame) {
                 // frame seeked
                 this.currentSample = (long) Math.Ceiling(this.lastFrame * this.rawSamplesPerTick);
             }
@@ -90,8 +83,7 @@ namespace FramePFX.Core.Editor.Audio
             // long currSample = (long) Math.Ceiling(frame * this.rawSamplesPerTick);
             // int samples = checked((int) Math.Abs(currSample - this.currentSample));
             int samples = checked((int) (this.sampleRate * (1000 / this.DesiredLatency)));
-            if (samples == 0)
-            {
+            if (samples == 0) {
                 return;
             }
 
@@ -111,8 +103,7 @@ namespace FramePFX.Core.Editor.Audio
             ptr_out[0] = ptr_out_l;
             ptr_out[1] = ptr_out_r;
 
-            try
-            {
+            try {
                 AudioBusBuffers buffer_l = new AudioBusBuffers {
                     numChannels = 2,
                     channelBuffers64 = &ptr_out_l
@@ -132,10 +123,8 @@ namespace FramePFX.Core.Editor.Audio
                     outputs = &buffer_r
                 };
 
-                foreach (Track track in timeline.Tracks)
-                {
-                    if (!(track is AudioTrack audioTrack) || audioTrack.IsMuted || audioTrack.Volume < 0.0001f)
-                    {
+                foreach (Track track in timeline.Tracks) {
+                    if (!(track is AudioTrack audioTrack) || audioTrack.IsMuted || audioTrack.Volume < 0.0001f) {
                         continue;
                     }
 
@@ -161,8 +150,7 @@ namespace FramePFX.Core.Editor.Audio
 
                 this.lastFrame = frame;
             }
-            finally
-            {
+            finally {
                 Marshal.FreeHGlobal((IntPtr) ptr_in_l);
                 Marshal.FreeHGlobal((IntPtr) ptr_in_r);
                 Marshal.FreeHGlobal((IntPtr) ptr_out_l);
@@ -170,28 +158,24 @@ namespace FramePFX.Core.Editor.Audio
             }
         }
 
-        public static unsafe void SmoothSamples(byte* data, int count)
-        {
+        public static unsafe void SmoothSamples(byte* data, int count) {
             const int smoothing = 500;
             double value = 0.0d;
             int max = Math.Min(smoothing, count);
             double incr = 1d / max;
-            for (int i = 0; i < max; i++)
-            {
+            for (int i = 0; i < max; i++) {
                 data[i] = (byte) (data[i] * value);
                 value += incr;
             }
 
             value = 0d;
-            for (int i = count - 1, begin = count - max; i >= begin; i--)
-            {
+            for (int i = count - 1, begin = count - max; i >= begin; i--) {
                 data[i] = (byte) (data[i] * value);
                 value += incr;
             }
         }
 
-        public void Stop(bool disposeBuffers = true)
-        {
+        public void Stop(bool disposeBuffers = true) {
             if (this.playbackState == PlaybackState.Stopped)
                 return;
             this.playbackState = PlaybackState.Stopped;
@@ -201,19 +185,16 @@ namespace FramePFX.Core.Editor.Audio
             if (result != MmResult.NoError)
                 throw new MmException(result, "waveOutReset");
             this.callbackEvent.Set();
-            if (disposeBuffers && this.hWaveOut != IntPtr.Zero)
-            {
+            if (disposeBuffers && this.hWaveOut != IntPtr.Zero) {
                 this.DisposeBuffers();
                 this.CloseWaveOut();
             }
         }
 
-        public void Start(WaveFormat format)
-        {
+        public void Start(WaveFormat format) {
             if (this.playbackState != PlaybackState.Stopped)
                 throw new InvalidOperationException("Can't re-initialize during playback");
-            if (this.hWaveOut != IntPtr.Zero)
-            {
+            if (this.hWaveOut != IntPtr.Zero) {
                 this.DisposeBuffers();
                 this.CloseWaveOut();
             }
@@ -222,15 +203,13 @@ namespace FramePFX.Core.Editor.Audio
             this.callbackEvent = new AutoResetEvent(false);
             int byteSize = format.ConvertLatencyToByteSize((this.DesiredLatency + this.NumberOfBuffers - 1) / this.NumberOfBuffers);
             MmResult result;
-            lock (this.waveOutLock)
-            {
+            lock (this.waveOutLock) {
                 result = WaveInterop.waveOutOpenWindow(out this.hWaveOut, (IntPtr) this.DeviceNumber, this.WaveStream.WaveFormat, this.callbackEvent.SafeWaitHandle.DangerousGetHandle(), IntPtr.Zero, WaveInterop.WaveInOutOpenFlags.CallbackEvent);
             }
 
             MmException.Try(result, "waveOutOpen");
             this.buffers = new AudioEngineWaveBuffer[this.NumberOfBuffers];
-            for (int index = 0; index < this.NumberOfBuffers; ++index)
-            {
+            for (int index = 0; index < this.NumberOfBuffers; ++index) {
                 this.buffers[index] = new AudioEngineWaveBuffer(this.hWaveOut, byteSize, this.WaveStream, this.waveOutLock);
             }
 
@@ -239,41 +218,32 @@ namespace FramePFX.Core.Editor.Audio
             ThreadPool.QueueUserWorkItem(state => this.PlaybackThread(), null);
         }
 
-        private void PlaybackThread()
-        {
+        private void PlaybackThread() {
             Exception e = null;
-            try
-            {
-                while (this.playbackState != PlaybackState.Stopped)
-                {
-                    if (!this.callbackEvent.WaitOne(this.DesiredLatency))
-                    {
+            try {
+                while (this.playbackState != PlaybackState.Stopped) {
+                    if (!this.callbackEvent.WaitOne(this.DesiredLatency)) {
                         int playbackState1 = (int) this.playbackState;
                     }
 
-                    if (this.playbackState == PlaybackState.Playing)
-                    {
+                    if (this.playbackState == PlaybackState.Playing) {
                         int num = 0;
-                        foreach (AudioEngineWaveBuffer buffer in this.buffers)
-                        {
+                        foreach (AudioEngineWaveBuffer buffer in this.buffers) {
                             if (buffer.InQueue || buffer.WriteBuffer())
                                 ++num;
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 e = ex;
             }
-            finally
-            {
+            finally {
                 this.playbackState = PlaybackState.Stopped;
             }
         }
 
-        public void Pause()
-        {
+        public void Pause() {
             if (this.playbackState != PlaybackState.Playing)
                 return;
             this.playbackState = PlaybackState.Paused;
@@ -284,8 +254,7 @@ namespace FramePFX.Core.Editor.Audio
                 throw new MmException(result, "waveOutPause");
         }
 
-        private void Resume()
-        {
+        private void Resume() {
             if (this.playbackState != PlaybackState.Paused)
                 return;
             MmResult result;
@@ -298,30 +267,25 @@ namespace FramePFX.Core.Editor.Audio
 
         public long GetPosition() => WaveOutUtils.GetPositionBytes(this.hWaveOut, this.waveOutLock);
 
-        public void Dispose()
-        {
+        public void Dispose() {
             GC.SuppressFinalize(this);
             this.Dispose(true);
         }
 
-        protected void Dispose(bool disposing)
-        {
+        protected void Dispose(bool disposing) {
             this.Stop(false);
             if (disposing)
                 this.DisposeBuffers();
             this.CloseWaveOut();
         }
 
-        private void CloseWaveOut()
-        {
-            if (this.callbackEvent != null)
-            {
+        private void CloseWaveOut() {
+            if (this.callbackEvent != null) {
                 this.callbackEvent.Close();
                 this.callbackEvent = null;
             }
 
-            lock (this.waveOutLock)
-            {
+            lock (this.waveOutLock) {
                 if (!(this.hWaveOut != IntPtr.Zero))
                     return;
                 int num = (int) WaveInterop.waveOutClose(this.hWaveOut);
@@ -329,8 +293,7 @@ namespace FramePFX.Core.Editor.Audio
             }
         }
 
-        private void DisposeBuffers()
-        {
+        private void DisposeBuffers() {
             if (this.buffers == null)
                 return;
             foreach (AudioEngineWaveBuffer buffer in this.buffers)

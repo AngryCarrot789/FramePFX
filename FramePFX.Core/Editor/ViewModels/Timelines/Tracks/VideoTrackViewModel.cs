@@ -17,18 +17,15 @@ using FramePFX.Core.History;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs.Message;
 
-namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
-{
-    public class VideoTrackViewModel : TrackViewModel
-    {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks {
+    public class VideoTrackViewModel : TrackViewModel {
         public const string OpacityHistoryKey = "video-track.Opacity";
 
         private HistoryTrackOpacity opacityHistory;
 
         private static readonly MessageDialog SliceCloneTextResourceDialog;
 
-        static VideoTrackViewModel()
-        {
+        static VideoTrackViewModel() {
             SliceCloneTextResourceDialog = new MessageDialog("reference") {
                 ShowAlwaysUseNextResultOption = true,
                 Header = "Reference or copy text resource?",
@@ -41,42 +38,33 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
 
         public new VideoTrack Model => (VideoTrack) base.Model;
 
-        public double Opacity
-        {
+        public double Opacity {
             get => this.Model.Opacity;
-            set
-            {
-                if (this.IsAutomationRefreshInProgress || this.Model.IsAutomationChangeInProgress)
-                {
+            set {
+                if (this.IsAutomationRefreshInProgress || this.Model.IsAutomationChangeInProgress) {
                     Debugger.Break();
                     return;
                 }
 
-                if (!this.IsHistoryChanging)
-                {
-                    if (FrontEndHistoryHelper.ActiveDragId == OpacityHistoryKey)
-                    {
+                if (!this.IsHistoryChanging) {
+                    if (FrontEndHistoryHelper.ActiveDragId == OpacityHistoryKey) {
                         if (this.opacityHistory == null)
                             this.opacityHistory = new HistoryTrackOpacity(this);
                         this.opacityHistory.Opacity.SetCurrent(value);
-                        FrontEndHistoryHelper.OnDragEnd = FrontEndHistoryHelper.OnDragEnd ?? ((s, cancel) =>
-                        {
-                            if (cancel)
-                            {
+                        FrontEndHistoryHelper.OnDragEnd = FrontEndHistoryHelper.OnDragEnd ?? ((s, cancel) => {
+                            if (cancel) {
                                 this.IsHistoryChanging = true;
                                 this.Opacity = this.opacityHistory.Opacity.Original;
                                 this.IsHistoryChanging = false;
                             }
-                            else
-                            {
+                            else {
                                 this.HistoryManager.AddAction(this.opacityHistory, "Edit opacity");
                             }
 
                             this.opacityHistory = null;
                         });
                     }
-                    else
-                    {
+                    else {
                         HistoryTrackOpacity action = new HistoryTrackOpacity(this);
                         action.Opacity.SetCurrent(value);
                         this.HistoryManager.AddAction(action, "Edit opacity");
@@ -84,82 +72,67 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey))
-                {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey)) {
                     this.AutomationData[VideoTrack.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
                 }
-                else
-                {
+                else {
                     this.AutomationData[VideoTrack.OpacityKey].GetOverride().SetDoubleValue(value);
                     this.AutomationData[VideoTrack.OpacityKey].RaiseOverrideValueChanged();
                 }
             }
         }
 
-        public bool IsVisible
-        {
+        public bool IsVisible {
             get => this.Model.IsVisible;
-            set
-            {
-                if (this.IsVisible == value)
-                {
+            set {
+                if (this.IsVisible == value) {
                     return;
                 }
 
-                if (this.IsAutomationRefreshInProgress || this.Model.IsAutomationChangeInProgress)
-                {
+                if (this.IsAutomationRefreshInProgress || this.Model.IsAutomationChangeInProgress) {
                     Debugger.Break();
                     return;
                 }
 
-                if (!this.IsHistoryChanging)
-                {
+                if (!this.IsHistoryChanging) {
                     this.HistoryManager.AddAction(new HistoryTrackIsVisible(this, value), "Edit IsVisible");
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.IsVisibleKey))
-                {
+                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.IsVisibleKey)) {
                     this.AutomationData[VideoTrack.IsVisibleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
                 }
-                else
-                {
+                else {
                     this.AutomationData[VideoTrack.IsVisibleKey].GetOverride().SetBooleanValue(value);
                     this.AutomationData[VideoTrack.IsVisibleKey].RaiseOverrideValueChanged();
                 }
             }
         }
 
-        private static readonly RefreshAutomationValueEventHandler RefreshOpacityHandler = (s, e) =>
-        {
+        private static readonly RefreshAutomationValueEventHandler RefreshOpacityHandler = (s, e) => {
             VideoTrackViewModel track = (VideoTrackViewModel) s.AutomationData.Owner;
             track.RaisePropertyChanged(nameof(track.Opacity));
             track.InvalidateRenderForAutomationRefresh(in e);
         };
 
-        private static readonly RefreshAutomationValueEventHandler RefreshIsVisibleHandler = (s, e) =>
-        {
+        private static readonly RefreshAutomationValueEventHandler RefreshIsVisibleHandler = (s, e) => {
             VideoTrackViewModel track = (VideoTrackViewModel) s.AutomationData.Owner;
             track.RaisePropertyChanged(nameof(track.IsVisible));
             track.InvalidateRenderForAutomationRefresh(in e);
         };
 
-        public VideoTrackViewModel(VideoTrack model) : base(model)
-        {
+        public VideoTrackViewModel(VideoTrack model) : base(model) {
             this.AutomationData.AssignRefreshHandler(VideoTrack.OpacityKey, RefreshOpacityHandler);
             this.AutomationData.AssignRefreshHandler(VideoTrack.IsVisibleKey, RefreshIsVisibleHandler);
         }
 
-        public override bool CanDropResource(ResourceItemViewModel resource)
-        {
+        public override bool CanDropResource(ResourceItemViewModel resource) {
             return resource is ResourceAVMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel ||
                    resource is ResourceTextViewModel || resource is ResourceMpegMediaViewModel;
         }
 
-        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin)
-        {
-            if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered())
-            {
+        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
+            if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
                 return;
             }
@@ -168,22 +141,18 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
             long defaultDuration = (long) (fps * 5);
 
             Clip newClip = null;
-            if (resource.Model is ResourceAVMedia media)
-            {
+            if (resource.Model is ResourceAVMedia media) {
                 media.OpenMediaFromFile();
                 TimeSpan span = media.GetDuration();
                 long dur = (long) Math.Floor(span.TotalSeconds * fps);
-                if (dur < 2)
-                {
+                if (dur < 2) {
                     // image files are 1
                     dur = defaultDuration;
                 }
 
-                if (dur > 0)
-                {
+                if (dur > 0) {
                     long newProjectDuration = frameBegin + dur + 600;
-                    if (newProjectDuration > this.Timeline.MaxDuration)
-                    {
+                    if (newProjectDuration > this.Timeline.MaxDuration) {
                         this.Timeline.MaxDuration = newProjectDuration;
                     }
 
@@ -195,8 +164,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
                     clip.SetTargetResourceId(media.UniqueId);
                     newClip = clip;
                 }
-                else
-                {
+                else {
                     await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
                     return;
                 }
@@ -236,10 +204,8 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
             //         }
             //     }
             // }
-            else
-            {
-                if (resource.Model is ResourceColour argb)
-                {
+            else {
+                if (resource.Model is ResourceColour argb) {
                     ShapeVideoClip clip = new ShapeVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         Width = 200, Height = 200,
@@ -249,8 +215,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
                     clip.SetTargetResourceId(argb.UniqueId);
                     newClip = clip;
                 }
-                else if (resource.Model is ResourceImage img)
-                {
+                else if (resource.Model is ResourceImage img) {
                     ImageVideoClip clip = new ImageVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = "Image Clip"
@@ -259,8 +224,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
                     clip.SetTargetResourceId(img.UniqueId);
                     newClip = clip;
                 }
-                else if (resource.Model is ResourceText text)
-                {
+                else if (resource.Model is ResourceText text) {
                     TextVideoClip clip = new TextVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = "Text Clip"
@@ -269,70 +233,56 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
                     clip.SetTargetResourceId(text.UniqueId);
                     newClip = clip;
                 }
-                else
-                {
+                else {
                     return;
                 }
             }
 
             this.CreateClip(newClip);
-            if (newClip is VideoClip videoClipModel)
-            {
+            if (newClip is VideoClip videoClipModel) {
                 videoClipModel.InvalidateRender();
             }
         }
 
-        public VideoClipRangeRemoval GetRangeRemoval(long spanBegin, long spanDuration)
-        {
+        public VideoClipRangeRemoval GetRangeRemoval(long spanBegin, long spanDuration) {
             if (spanDuration < 0)
                 throw new ArgumentOutOfRangeException(nameof(spanDuration), "Span duration cannot be negative");
             long spanEnd = spanBegin + spanDuration;
             VideoClipRangeRemoval range = new VideoClipRangeRemoval();
-            foreach (ClipViewModel clipViewModel in this.Clips)
-            {
-                if (clipViewModel is VideoClipViewModel clip)
-                {
+            foreach (ClipViewModel clipViewModel in this.Clips) {
+                if (clipViewModel is VideoClipViewModel clip) {
                     long clipBegin = clip.FrameBegin;
                     long clipDuration = clip.FrameDuration;
                     long clipEnd = clipBegin + clipDuration;
-                    if (clipEnd <= spanBegin && clipBegin >= spanEnd)
-                    {
+                    if (clipEnd <= spanBegin && clipBegin >= spanEnd) {
                         continue; // not intersecting
                     }
 
-                    if (spanBegin <= clipBegin)
-                    {
+                    if (spanBegin <= clipBegin) {
                         // cut the left part away
-                        if (spanEnd >= clipEnd)
-                        {
+                        if (spanEnd >= clipEnd) {
                             // remove clip entirely
                             range.AddRemovedClip(clip);
                         }
-                        else if (spanEnd <= clipBegin)
-                        {
+                        else if (spanEnd <= clipBegin) {
                             // not intersecting
                             continue;
                         }
-                        else
-                        {
+                        else {
                             range.AddSplitClip(clip, null, FrameSpan.FromIndex(spanEnd, clipEnd));
                         }
                     }
-                    else if (spanEnd >= clipEnd)
-                    {
+                    else if (spanEnd >= clipEnd) {
                         // cut the right part away
-                        if (spanBegin >= clipEnd)
-                        {
+                        if (spanBegin >= clipEnd) {
                             // not intersecting
                             continue;
                         }
-                        else
-                        {
+                        else {
                             range.AddSplitClip(clip, FrameSpan.FromIndex(clipBegin, spanBegin), null);
                         }
                     }
-                    else
-                    {
+                    else {
                         // fully intersecting; double split
                         range.AddSplitClip(clip, FrameSpan.FromIndex(clipBegin, spanBegin), FrameSpan.FromIndex(spanEnd, clipEnd));
                     }
@@ -342,11 +292,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Tracks
             return range;
         }
 
-        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e)
-        {
+        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             VideoEditorViewModel editor; // slight performance helper
-            if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying)
-            {
+            if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.DoRender(true);
             }
         }

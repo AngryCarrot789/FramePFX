@@ -3,10 +3,8 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Utils;
 using FramePFX.Core.Views.Dialogs;
 
-namespace FramePFX.Editor.Project.EditorDialogs
-{
-    public class ProjectSettingsEditorViewModel : BaseConfirmableDialogViewModel
-    {
+namespace FramePFX.Editor.Project.EditorDialogs {
+    public class ProjectSettingsEditorViewModel : BaseConfirmableDialogViewModel {
         private static readonly ObservableCollection<string> ActualFrameRates;
         public static readonly ReadOnlyObservableCollection<string> FrameRates;
 
@@ -33,8 +31,7 @@ namespace FramePFX.Editor.Project.EditorDialogs
             Timecode.Fps240_00
         };
 
-        static ProjectSettingsEditorViewModel()
-        {
+        static ProjectSettingsEditorViewModel() {
             FrameRates = new ReadOnlyObservableCollection<string>(ActualFrameRates = new ObservableCollection<string>() {
                 "10.00", "12.00", "15.00", "18.00", "23.976", "24.00",
                 "25.00", "29.97", "30.00", "50.00", "59.94", "60.00",
@@ -45,11 +42,9 @@ namespace FramePFX.Editor.Project.EditorDialogs
 
         private int selectedIndex;
 
-        public int SelectedIndex
-        {
+        public int SelectedIndex {
             get => this.selectedIndex;
-            set
-            {
+            set {
                 this.RaisePropertyChanged(ref this.selectedIndex, value);
                 this.RaisePropertyChanged(nameof(this.SelectedRational));
             }
@@ -105,44 +100,37 @@ namespace FramePFX.Editor.Project.EditorDialogs
 
         private int width;
 
-        public int Width
-        {
+        public int Width {
             get => this.width;
             set => this.RaisePropertyChanged(ref this.width, value);
         }
 
         private int height;
 
-        public int Height
-        {
+        public int Height {
             get => this.height;
             set => this.RaisePropertyChanged(ref this.height, value);
         }
 
         // public AsyncLock FrameRateModificationLock { get; } = new AsyncLock();
 
-        public ProjectSettingsEditorViewModel(IDialog dialog) : base(dialog)
-        {
+        public ProjectSettingsEditorViewModel(IDialog dialog) : base(dialog) {
         }
 
-        public ProjectSettings ToSettings()
-        {
+        public ProjectSettings ToSettings() {
             return new ProjectSettings() {
                 Resolution = new Resolution(this.width, this.height),
                 TimeBase = this.SelectedRational
             };
         }
 
-        public void SetSettings(ProjectSettings settings)
-        {
+        public void SetSettings(ProjectSettings settings) {
             this.Width = settings.Resolution.Width;
             this.Height = settings.Resolution.Height;
 
             Rational fps = settings.TimeBase;
-            for (int i = 0; i < rationals.Length; i++)
-            {
-                if (fps <= rationals[i])
-                {
+            for (int i = 0; i < rationals.Length; i++) {
+                if (fps <= rationals[i]) {
                     this.SelectedIndex = i;
                     return;
                     //goto end;

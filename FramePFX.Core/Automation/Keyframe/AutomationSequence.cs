@@ -4,13 +4,11 @@ using System.Numerics;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.RBC;
 
-namespace FramePFX.Core.Automation.Keyframe
-{
+namespace FramePFX.Core.Automation.Keyframe {
     /// <summary>
     /// Contains all of the key frames for a specific <see cref="AutomationKey"/>
     /// </summary>
-    public sealed class AutomationSequence : IRBESerialisable
-    {
+    public sealed class AutomationSequence : IRBESerialisable {
         private readonly List<KeyFrame> keyFrameList;
 
         /// <summary>
@@ -53,8 +51,7 @@ namespace FramePFX.Core.Automation.Keyframe
         /// </summary>
         public UpdateAutomationValueEventHandler UpdateValue;
 
-        public AutomationSequence(AutomationData automationData, AutomationKey key)
-        {
+        public AutomationSequence(AutomationData automationData, AutomationKey key) {
             this.AutomationData = automationData;
             this.Key = key;
             this.keyFrameList = new List<KeyFrame>();
@@ -63,10 +60,8 @@ namespace FramePFX.Core.Automation.Keyframe
             this.OverrideKeyFrame.sequence = this;
         }
 
-        public void Clear()
-        {
-            foreach (KeyFrame keyFrame in this.keyFrameList)
-            {
+        public void Clear() {
+            foreach (KeyFrame keyFrame in this.keyFrameList) {
                 keyFrame.sequence = null;
             }
 
@@ -78,8 +73,7 @@ namespace FramePFX.Core.Automation.Keyframe
         /// </summary>
         /// <param name="engine">The engine that caused this update</param>
         /// <param name="frame">The frame</param>
-        public void DoUpdateValue(AutomationEngine engine, long frame)
-        {
+        public void DoUpdateValue(AutomationEngine engine, long frame) {
             this.UpdateValue?.Invoke(this, frame);
         }
 
@@ -98,44 +92,36 @@ namespace FramePFX.Core.Automation.Keyframe
         private static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
         private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVec2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
 
-        public float GetFloatValue(long time, bool ignoreOverrideState = false)
-        {
+        public float GetFloatValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Float, this.DataType);
             return this.GetValueInternal(time, FuncGetFloat, FuncCalcFloat, ignoreOverrideState);
         }
 
-        public double GetDoubleValue(long time, bool ignoreOverrideState = false)
-        {
+        public double GetDoubleValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Double, this.DataType);
             return this.GetValueInternal(time, FuncGetDouble, FuncCalcDouble, ignoreOverrideState);
         }
 
-        public long GetLongValue(long time, bool ignoreOverrideState = false)
-        {
+        public long GetLongValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Long, this.DataType);
             return this.GetValueInternal(time, FuncGetLong, FuncCalcLong, ignoreOverrideState);
         }
 
-        public bool GetBooleanValue(long time, bool ignoreOverrideState = false)
-        {
+        public bool GetBooleanValue(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Boolean, this.DataType);
             return this.GetValueInternal(time, FuncGetBool, FuncCalcBool, ignoreOverrideState);
         }
 
-        public Vector2 GetVector2Value(long time, bool ignoreOverrideState = false)
-        {
+        public Vector2 GetVector2Value(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Vector2, this.DataType);
             return this.GetValueInternal(time, FuncGetVect2, FuncCalcVec2, ignoreOverrideState);
         }
 
-        private T GetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, bool ignoreOverride = false)
-        {
-            if ((ignoreOverride || !this.IsOverrideEnabled) && this.GetIndicesForFrame(time, out int a, out int b))
-            {
+        private T GetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, bool ignoreOverride = false) {
+            if ((ignoreOverride || !this.IsOverrideEnabled) && this.GetIndicesForFrame(time, out int a, out int b)) {
                 return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(time, this.keyFrameList[a], this.keyFrameList[b]);
             }
-            else
-            {
+            else {
                 return toValue(this.OverrideKeyFrame);
             }
         }
@@ -158,10 +144,8 @@ namespace FramePFX.Core.Automation.Keyframe
         /// <param name="a">The first (or only available) key frame</param>
         /// <param name="b">The second key frame, may be null under certain conditions, in which case use a's value directly</param>
         /// <returns>False if there are no key frames, otherwise true</returns>
-        public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b, out int i)
-        {
-            if (this.GetIndicesForFrame(frame, out i, out int j))
-            {
+        public bool GetKeyFramesForFrame(long frame, out KeyFrame a, out KeyFrame b, out int i) {
+            if (this.GetIndicesForFrame(frame, out i, out int j)) {
                 a = this.keyFrameList[i];
                 b = j == -1 ? null : this.keyFrameList[j];
                 return true;
@@ -187,31 +171,25 @@ namespace FramePFX.Core.Automation.Keyframe
         /// <param name="a">The first or only index available</param>
         /// <param name="b">The second key frame index, may be -1 under certain conditions, in which case use a</param>
         /// <returns>False if there are no key frames, otherwise true</returns>
-        public bool GetIndicesForFrame(long frame, out int a, out int b)
-        {
+        public bool GetIndicesForFrame(long frame, out int a, out int b) {
             List<KeyFrame> list = this.keyFrameList;
             int count = list.Count;
-            if (count < 1)
-            {
+            if (count < 1) {
                 a = b = -1;
                 return false;
             }
 
             int lhs = 0, rhs = count - 1;
-            while (lhs <= rhs)
-            {
+            while (lhs <= rhs) {
                 int mid = (lhs + rhs) / 2;
                 KeyFrame value = list[mid];
-                if (frame > value.time)
-                {
+                if (frame > value.time) {
                     lhs = mid + 1;
                 }
-                else if (frame < value.time)
-                {
+                else if (frame < value.time) {
                     rhs = mid - 1;
                 }
-                else
-                {
+                else {
                     // find last matching timestamp
                     int j = mid + 1;
                     while (j < count && list[j].time == frame)
@@ -223,18 +201,15 @@ namespace FramePFX.Core.Automation.Keyframe
             }
 
             // no intersecting key frame found... figure out interpolation
-            if (rhs < 0)
-            {
+            if (rhs < 0) {
                 a = 0;
                 b = -1;
             }
-            else if (lhs >= count)
-            {
+            else if (lhs >= count) {
                 a = count - 1;
                 b = -1;
             }
-            else
-            {
+            else {
                 a = rhs;
                 b = lhs;
             }
@@ -248,28 +223,23 @@ namespace FramePFX.Core.Automation.Keyframe
         /// </summary>
         /// <param name="frame">Target frame</param>
         /// <returns>The last key frame at the given frame, or null, if there are no key frames at the given frame</returns>
-        public int GetLastFrameExactlyAt(long frame)
-        {
+        public int GetLastFrameExactlyAt(long frame) {
             // Do binary search until a matching timestamp, then do a linear search
             // towards the end of the list to find the last matching timestamp
             List<KeyFrame> list = this.keyFrameList;
             int lhs = 0, rhs, k = rhs = list.Count - 1;
-            while (lhs <= rhs)
-            {
+            while (lhs <= rhs) {
                 int i = lhs + (rhs - lhs) / 2;
                 KeyFrame keyFrame = list[i];
-                if (keyFrame.time == frame)
-                {
+                if (keyFrame.time == frame) {
                     while (i < k && list[i + 1].time == frame)
                         i++;
                     return i;
                 }
-                else if (keyFrame.time < frame)
-                {
+                else if (keyFrame.time < frame) {
                     lhs = i + 1;
                 }
-                else
-                {
+                else {
                     rhs = i - 1;
                 }
             }
@@ -283,8 +253,7 @@ namespace FramePFX.Core.Automation.Keyframe
         /// <param name="keyFrame">The key frame to add</param>
         /// <returns>The index of the key frame</returns>
         /// <exception cref="ArgumentException">Timestamp is negative or the data type is invalid</exception>
-        public int AddKeyFrame(KeyFrame keyFrame)
-        {
+        public int AddKeyFrame(KeyFrame keyFrame) {
             long timeStamp = keyFrame.time;
             if (timeStamp < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(keyFrame));
@@ -292,10 +261,8 @@ namespace FramePFX.Core.Automation.Keyframe
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {keyFrame.DataType}", nameof(keyFrame));
             keyFrame.sequence = this;
             List<KeyFrame> list = this.keyFrameList;
-            for (int i = list.Count - 1; i >= 0; i--)
-            {
-                if (timeStamp >= list[i].time)
-                {
+            for (int i = list.Count - 1; i >= 0; i--) {
+                if (timeStamp >= list[i].time) {
                     list.Insert(i + 1, keyFrame);
                     return i + 1;
                 }
@@ -308,8 +275,7 @@ namespace FramePFX.Core.Automation.Keyframe
         /// <summary>
         /// Unsafely inserts the key frame at the given index, ignoring order. Do not use!
         /// </summary>
-        public void InsertKeyFrame(int index, KeyFrame keyFrame)
-        {
+        public void InsertKeyFrame(int index, KeyFrame keyFrame) {
             if (keyFrame.time < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + keyFrame.time, nameof(keyFrame));
             if (keyFrame.DataType != this.DataType)
@@ -321,8 +287,7 @@ namespace FramePFX.Core.Automation.Keyframe
         /// <summary>
         /// Unsafely removes the key frame at the given index
         /// </summary>
-        public void RemoveKeyFrame(int index)
-        {
+        public void RemoveKeyFrame(int index) {
             this.keyFrameList[index].sequence = null;
             this.keyFrameList.RemoveAt(index);
         }
@@ -330,32 +295,27 @@ namespace FramePFX.Core.Automation.Keyframe
         /// <summary>
         /// Gets the key frame at the given index
         /// </summary>
-        public KeyFrame GetKeyFrameAtIndex(int index)
-        {
+        public KeyFrame GetKeyFrameAtIndex(int index) {
             return this.keyFrameList[index];
         }
 
         // read/write operations are used for cloning as well as reading from disk
 
-        public void WriteToRBE(RBEDictionary data)
-        {
+        public void WriteToRBE(RBEDictionary data) {
             data.SetByte(nameof(this.DataType), (byte) this.DataType);
             data.SetBool(nameof(this.IsOverrideEnabled), this.IsOverrideEnabled);
             this.OverrideKeyFrame.WriteToRBE(data.CreateDictionary(nameof(this.OverrideKeyFrame)));
 
             RBEList list = data.CreateList(nameof(this.KeyFrames));
-            foreach (KeyFrame keyFrame in this.keyFrameList)
-            {
+            foreach (KeyFrame keyFrame in this.keyFrameList) {
                 // when reading, use key's DataType to create new key frames and hope the types are correct
                 keyFrame.WriteToRBE(list.AddDictionary());
             }
         }
 
-        public void ReadFromRBE(RBEDictionary data)
-        {
+        public void ReadFromRBE(RBEDictionary data) {
             AutomationDataType type = (AutomationDataType) data.GetByte(nameof(this.DataType));
-            if (type != this.DataType)
-            {
+            if (type != this.DataType) {
                 throw new Exception($"Data and current instance data type mis-match: {type} != {this.DataType}");
             }
 
@@ -364,8 +324,7 @@ namespace FramePFX.Core.Automation.Keyframe
 
             List<KeyFrame> frames = new List<KeyFrame>();
             RBEList list = data.GetList(nameof(this.KeyFrames));
-            foreach (RBEDictionary rbe in list.OfType<RBEDictionary>())
-            {
+            foreach (RBEDictionary rbe in list.OfType<RBEDictionary>()) {
                 KeyFrame keyFrame = this.Key.CreateKeyFrame();
                 keyFrame.ReadFromRBE(rbe);
                 frames.Add(keyFrame);
@@ -374,17 +333,14 @@ namespace FramePFX.Core.Automation.Keyframe
             // just in case they somehow end up unordered
             frames.Sort((a, b) => a.time.CompareTo(b.time));
             this.Clear();
-            foreach (KeyFrame frame in frames)
-            {
+            foreach (KeyFrame frame in frames) {
                 frame.sequence = this;
                 this.keyFrameList.Add(frame);
             }
         }
 
-        public static void LoadDataIntoClone(AutomationSequence src, AutomationSequence dst)
-        {
-            if (src.Key != dst.Key)
-            {
+        public static void LoadDataIntoClone(AutomationSequence src, AutomationSequence dst) {
+            if (src.Key != dst.Key) {
                 throw new Exception($"Key mis-match: {src.Key} != {dst.Key}");
             }
 
@@ -394,16 +350,13 @@ namespace FramePFX.Core.Automation.Keyframe
             dst.ReadFromRBE(dictionary);
         }
 
-        public static void ValidateType(AutomationDataType expected, AutomationDataType actual)
-        {
-            if (expected != actual)
-            {
+        public static void ValidateType(AutomationDataType expected, AutomationDataType actual) {
+            if (expected != actual) {
                 throw new ArgumentException($"Invalid data type. Expected {expected}, got {actual}");
             }
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return $"{nameof(AutomationSequence)}({this.DataType} -> {this.Key.FullId} [{this.keyFrameList.Count} keyframes])";
         }
     }

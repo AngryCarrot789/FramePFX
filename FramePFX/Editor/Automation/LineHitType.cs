@@ -1,7 +1,5 @@
-namespace FramePFX.Editor.Automation
-{
-    public enum LineHitType
-    {
+namespace FramePFX.Editor.Automation {
+    public enum LineHitType {
         None,
         Normal,
         Head,

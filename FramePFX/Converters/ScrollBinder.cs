@@ -2,10 +2,8 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.Converters
-{
-    public static class ScrollBinder
-    {
+namespace FramePFX.Converters {
+    public static class ScrollBinder {
         public static readonly DependencyProperty VerticalBindGroupProperty =
             DependencyProperty.RegisterAttached(
                 "VerticalBindGroup",
@@ -29,24 +27,18 @@ namespace FramePFX.Converters
         private static bool IsUpdatingScroll;
         private static readonly Dictionary<string, List<ScrollViewer>> RegisteredScrollers = new Dictionary<string, List<ScrollViewer>>();
 
-        private static void OnVerticalBindGroupPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is ScrollViewer scroller)
-            {
-                if (e.OldValue is string oldGroup)
-                {
-                    if (RegisteredScrollers.TryGetValue(oldGroup, out var list))
-                    {
+        private static void OnVerticalBindGroupPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (d is ScrollViewer scroller) {
+                if (e.OldValue is string oldGroup) {
+                    if (RegisteredScrollers.TryGetValue(oldGroup, out var list)) {
                         list.Remove(scroller);
                     }
                 }
 
                 scroller.ScrollChanged -= OnVerticalScrollChanged;
-                if (e.NewValue is string newGroup)
-                {
+                if (e.NewValue is string newGroup) {
                     scroller.ScrollChanged += OnVerticalScrollChanged;
-                    if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer> list))
-                    {
+                    if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer> list)) {
                         RegisteredScrollers[newGroup] = list = new List<ScrollViewer>();
                     }
 
@@ -55,58 +47,44 @@ namespace FramePFX.Converters
             }
         }
 
-        private static void OnVerticalScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (IsUpdatingScroll)
-            {
+        private static void OnVerticalScrollChanged(object sender, ScrollChangedEventArgs e) {
+            if (IsUpdatingScroll) {
                 return;
             }
 
             ScrollViewer viewer = (ScrollViewer) sender;
             string group = GetVerticalBindGroup(viewer);
-            if (group == null)
-            {
+            if (group == null) {
                 return;
             }
 
-            if (RegisteredScrollers.TryGetValue(group, out var list))
-            {
+            if (RegisteredScrollers.TryGetValue(group, out var list)) {
                 IsUpdatingScroll = true;
-                try
-                {
-                    foreach (ScrollViewer scrollViewer in list)
-                    {
-                        if (scrollViewer != viewer)
-                        {
+                try {
+                    foreach (ScrollViewer scrollViewer in list) {
+                        if (scrollViewer != viewer) {
                             scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
                         }
                     }
                 }
-                finally
-                {
+                finally {
                     IsUpdatingScroll = false;
                 }
             }
         }
 
-        private static void OnHorizontalBindGroupPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is ScrollViewer scroller)
-            {
-                if (e.OldValue is string oldGroup)
-                {
-                    if (RegisteredScrollers.TryGetValue(oldGroup, out var list))
-                    {
+        private static void OnHorizontalBindGroupPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (d is ScrollViewer scroller) {
+                if (e.OldValue is string oldGroup) {
+                    if (RegisteredScrollers.TryGetValue(oldGroup, out var list)) {
                         list.Remove(scroller);
                     }
                 }
 
                 scroller.ScrollChanged -= OnHorizontalScrollChanged;
-                if (e.NewValue is string newGroup)
-                {
+                if (e.NewValue is string newGroup) {
                     scroller.ScrollChanged += OnHorizontalScrollChanged;
-                    if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer> list))
-                    {
+                    if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer> list)) {
                         RegisteredScrollers[newGroup] = list = new List<ScrollViewer>();
                     }
 
@@ -115,35 +93,27 @@ namespace FramePFX.Converters
             }
         }
 
-        private static void OnHorizontalScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (IsUpdatingScroll)
-            {
+        private static void OnHorizontalScrollChanged(object sender, ScrollChangedEventArgs e) {
+            if (IsUpdatingScroll) {
                 return;
             }
 
             ScrollViewer viewer = (ScrollViewer) sender;
             string group = GetHorizontalBindGroup(viewer);
-            if (group == null)
-            {
+            if (group == null) {
                 return;
             }
 
-            if (RegisteredScrollers.TryGetValue(group, out var list))
-            {
+            if (RegisteredScrollers.TryGetValue(group, out var list)) {
                 IsUpdatingScroll = true;
-                try
-                {
-                    foreach (ScrollViewer scrollViewer in list)
-                    {
-                        if (scrollViewer != viewer)
-                        {
+                try {
+                    foreach (ScrollViewer scrollViewer in list) {
+                        if (scrollViewer != viewer) {
                             scrollViewer.ScrollToHorizontalOffset(e.HorizontalOffset);
                         }
                     }
                 }
-                finally
-                {
+                finally {
                     IsUpdatingScroll = false;
                 }
             }

@@ -1,9 +1,7 @@
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.Timelines
-{
-    public readonly struct SelectionRect
-    {
+namespace FramePFX.Core.Editor.Timelines {
+    public readonly struct SelectionRect {
         public static readonly SelectionRect Empty = default;
 
         public readonly FrameSpan Span;
@@ -12,16 +10,14 @@ namespace FramePFX.Core.Editor.Timelines
 
         public bool IsEmpty => this.Span.Duration > 0 && this.TrackCount > 0;
 
-        public SelectionRect(FrameSpan span, int trackIndex, int trackCount)
-        {
+        public SelectionRect(FrameSpan span, int trackIndex, int trackCount) {
             this.Span = span;
             this.TrackIndex = trackIndex;
             this.TrackCount = trackCount;
         }
     }
 
-    public readonly struct TrackInfo
-    {
+    public readonly struct TrackInfo {
         public readonly int Index;
         public readonly double Height;
     }

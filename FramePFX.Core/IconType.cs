@@ -1,7 +1,5 @@
-namespace FramePFX.Core
-{
-    public enum IconType
-    {
+namespace FramePFX.Core {
+    public enum IconType {
         None
     }
 }

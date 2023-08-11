@@ -1,12 +1,9 @@
-﻿namespace FramePFX.Views.Modal
-{
+﻿namespace FramePFX.Views.Modal {
     /// <summary>
     /// Interaction logic for BaseDialogEx.xaml
     /// </summary>
-    public partial class BaseDialogEx : BaseDialog
-    {
-        public BaseDialogEx()
-        {
+    public partial class BaseDialogEx : BaseDialog {
+        public BaseDialogEx() {
             this.InitializeComponent();
         }
     }

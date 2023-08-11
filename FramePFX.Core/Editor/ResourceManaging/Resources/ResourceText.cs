@@ -1,10 +1,8 @@
 using FramePFX.Core.RBC;
 using SkiaSharp;
 
-namespace FramePFX.Core.Editor.ResourceManaging.Resources
-{
-    public class ResourceText : ResourceItem
-    {
+namespace FramePFX.Core.Editor.ResourceManaging.Resources {
+    public class ResourceText : ResourceItem {
         public string Text { get; set; }
 
         public double FontSize { get; set; }
@@ -21,8 +19,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
 
         public bool IsAntiAliased { get; set; }
 
-        public ResourceText()
-        {
+        public ResourceText() {
             this.FontSize = 40;
             this.FontFamily = "Consolas";
             this.Text = "Text Here";
@@ -33,8 +30,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             this.IsAntiAliased = true;
         }
 
-        public override void WriteToRBE(RBEDictionary data)
-        {
+        public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             data.SetString(nameof(this.Text), this.Text);
             data.SetDouble(nameof(this.FontSize), this.FontSize);
@@ -46,8 +42,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.Resources
             data.SetBool(nameof(this.IsAntiAliased), this.IsAntiAliased);
         }
 
-        public override void ReadFromRBE(RBEDictionary data)
-        {
+        public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             this.Text = data.GetString(nameof(this.Text), null);
             this.FontSize = data.GetDouble(nameof(this.FontSize));

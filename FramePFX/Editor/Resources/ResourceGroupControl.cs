@@ -7,14 +7,11 @@ using FramePFX.Core.Editor;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Editor.Resources
-{
-    public class ResourceGroupControl : BaseResourceItemControl
-    {
+namespace FramePFX.Editor.Resources {
+    public class ResourceGroupControl : BaseResourceItemControl {
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceGroupControl), new PropertyMetadata(BoolBox.False));
 
-        public bool IsDroppableTargetOver
-        {
+        public bool IsDroppableTargetOver {
             get => (bool) this.GetValue(IsDroppableTargetOverProperty);
             set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
         }
@@ -23,18 +20,14 @@ namespace FramePFX.Editor.Resources
 
         private bool isProcessingAsyncDrop;
 
-        public ResourceGroupControl()
-        {
+        public ResourceGroupControl() {
             this.AllowDrop = true;
         }
 
-        protected override void OnDragOver(DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel)))
-            {
+        protected override void OnDragOver(DragEventArgs e) {
+            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
                 object obj = e.Data.GetData(nameof(BaseResourceObjectViewModel));
-                if (obj is BaseResourceObjectViewModel resource && this.DataContext is IAcceptResourceDrop drop && drop.CanDropResource(resource))
-                {
+                if (obj is BaseResourceObjectViewModel resource && this.DataContext is IAcceptResourceDrop drop && drop.CanDropResource(resource)) {
                     this.IsDroppableTargetOver = true;
                     e.Effects = DragDropEffects.Move;
                     e.Handled = true;
@@ -50,57 +43,46 @@ namespace FramePFX.Editor.Resources
             base.OnDragOver(e);
         }
 
-        protected override void OnDragLeave(DragEventArgs e)
-        {
+        protected override void OnDragLeave(DragEventArgs e) {
             base.OnDragLeave(e);
-            this.Dispatcher.Invoke(() =>
-            {
+            this.Dispatcher.Invoke(() => {
                 this.ClearValue(IsDroppableTargetOverProperty);
             }, DispatcherPriority.Loaded);
         }
 
-        protected override void OnDrop(DragEventArgs e)
-        {
-            if (this.isProcessingAsyncDrop)
-            {
+        protected override void OnDrop(DragEventArgs e) {
+            if (this.isProcessingAsyncDrop) {
                 return;
             }
 
             e.Handled = true;
             this.isProcessingAsyncDrop = true;
-            if (this.DataContext is ResourceGroupViewModel group && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource)
-            {
+            if (this.DataContext is ResourceGroupViewModel group && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource) {
                 ResourceGroupViewModel t = group.Parent;
-                if (t != null && t == resource.Parent && t.SelectedItems.Contains(resource))
-                {
+                if (t != null && t == resource.Parent && t.SelectedItems.Contains(resource)) {
                     this.HandleOnDropResources(group, t.SelectedItems.ToList());
                 }
-                else if (group.CanDropResource(resource))
-                {
+                else if (group.CanDropResource(resource)) {
                     this.HandleOnDropResource(group, resource);
                 }
             }
         }
 
-        private async void HandleOnDropResource(ResourceGroupViewModel group, BaseResourceObjectViewModel resource)
-        {
+        private async void HandleOnDropResource(ResourceGroupViewModel group, BaseResourceObjectViewModel resource) {
             await group.OnDropResource(resource);
             this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }
 
-        private async void HandleOnDropResources(ResourceGroupViewModel group, IEnumerable<BaseResourceObjectViewModel> selection)
-        {
+        private async void HandleOnDropResources(ResourceGroupViewModel group, IEnumerable<BaseResourceObjectViewModel> selection) {
             await group.OnDropResources(selection);
             this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
-        {
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
             base.OnMouseDoubleClick(e);
-            if (e.ChangedButton != MouseButton.Left)
-            {
+            if (e.ChangedButton != MouseButton.Left) {
                 return;
             }
 

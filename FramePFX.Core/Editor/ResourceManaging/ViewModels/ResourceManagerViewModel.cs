@@ -10,10 +10,8 @@ using FramePFX.Core.FFmpeg;
 using FramePFX.Core.Interactivity;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
-{
-    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation
-    {
+namespace FramePFX.Core.Editor.ResourceManaging.ViewModels {
+    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation {
         private ResourceGroupViewModel currentGroup;
 
         /// <summary>
@@ -24,29 +22,23 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         /// <summary>
         /// The group that the UI is currently exploring in
         /// </summary>
-        public ResourceGroupViewModel CurrentGroup
-        {
+        public ResourceGroupViewModel CurrentGroup {
             get => this.currentGroup;
-            set
-            {
+            set {
                 this.RaisePropertyChanged(ref this.currentGroup, value ?? this.Root);
                 this.RaisePropertyChanged(nameof(this.DisplayPath));
             }
         }
 
-        public string DisplayPath
-        {
-            get
-            {
-                if (this.currentGroup == this.Root)
-                {
+        public string DisplayPath {
+            get {
+                if (this.currentGroup == this.Root) {
                     return "Root";
                 }
 
                 List<string> names = new List<string>();
                 ResourceGroupViewModel group = this.currentGroup;
-                for (; group.Parent != null; group = group.Parent)
-                {
+                for (; group.Parent != null; group = group.Parent) {
                     names.Add(group.DisplayName);
                 }
 
@@ -64,8 +56,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
         private readonly LinkedList<ResourceGroupViewModel> undoGroup;
         private readonly LinkedList<ResourceGroupViewModel> redoGroup;
 
-        public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager)
-        {
+        public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
             this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Root = new ResourceGroupViewModel(manager.RootGroup);
@@ -77,8 +68,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             this.redoGroup = new LinkedList<ResourceGroupViewModel>();
         }
 
-        public void NavigateToGroup(ResourceGroupViewModel group, bool pushHistory = true)
-        {
+        public void NavigateToGroup(ResourceGroupViewModel group, bool pushHistory = true) {
             if (ReferenceEquals(this.CurrentGroup, group))
                 return;
 
@@ -88,8 +78,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             if (group == null)
                 group = this.Root;
 
-            if (pushHistory)
-            {
+            if (pushHistory) {
                 this.redoGroup.Clear();
                 this.undoGroup.AddLast(this.CurrentGroup);
             }
@@ -99,14 +88,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             this.CurrentGroup = group;
         }
 
-        public void GoBackward()
-        {
-            while (this.undoGroup.Count > 0)
-            {
+        public void GoBackward() {
+            while (this.undoGroup.Count > 0) {
                 ResourceGroupViewModel last = this.undoGroup.Last.Value;
                 this.undoGroup.RemoveLast();
-                if (ReferenceEquals(last.manager, this))
-                {
+                if (ReferenceEquals(last.manager, this)) {
                     this.redoGroup.AddLast(this.CurrentGroup);
                     this.NavigateToGroup(last, false);
                     return;
@@ -114,14 +100,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
         }
 
-        public void GoForward()
-        {
-            while (this.redoGroup.Count > 0)
-            {
+        public void GoForward() {
+            while (this.redoGroup.Count > 0) {
                 ResourceGroupViewModel last = this.redoGroup.Last.Value;
                 this.redoGroup.RemoveLast();
-                if (ReferenceEquals(last.manager, this))
-                {
+                if (ReferenceEquals(last.manager, this)) {
                     this.undoGroup.AddLast(this.CurrentGroup);
                     this.NavigateToGroup(last, false);
                     return;
@@ -129,11 +112,9 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
         }
 
-        private async Task CreateResourceAction(string type)
-        {
+        private async Task CreateResourceAction(string type) {
             BaseResourceObjectViewModel resObj;
-            switch (type)
-            {
+            switch (type) {
                 case nameof(ResourceColour):
                     resObj = new ResourceColourViewModel(new ResourceColour());
                     break;
@@ -154,66 +135,53 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
                     return;
             }
 
-            if (resObj is ResourceItemViewModel item)
-            {
+            if (resObj is ResourceItemViewModel item) {
                 this.Manager.RegisterEntry(item.Model);
                 this.CurrentGroup.AddItem(item, true);
-                using (ErrorList stack = new ErrorList(false))
-                {
+                using (ErrorList stack = new ErrorList(false)) {
                     await item.LoadResource(null, stack);
-                    if (stack.TryGetException(out Exception exception))
-                    {
+                    if (stack.TryGetException(out Exception exception)) {
                         await IoC.MessageDialogs.ShowMessageExAsync("Exception", "An exception occurred while loading/enabling resource", exception.GetToString());
                     }
                 }
             }
-            else if (resObj is ResourceGroupViewModel group)
-            {
+            else if (resObj is ResourceGroupViewModel group) {
                 await group.RenameAsync();
                 this.CurrentGroup.AddItem(group, true);
             }
         }
 
-        public Task<bool> CanDrop(string[] paths, ref FileDropType type)
-        {
+        public Task<bool> CanDrop(string[] paths, ref FileDropType type) {
             type = FileDropType.Copy;
             return Task.FromResult(true);
         }
 
-        public async Task OnFilesDropped(string[] paths)
-        {
-            foreach (string path in paths)
-            {
-                switch (Path.GetExtension(path).ToLower())
-                {
+        public async Task OnFilesDropped(string[] paths) {
+            foreach (string path in paths) {
+                switch (Path.GetExtension(path).ToLower()) {
                     case ".mp3":
                     case ".wav":
                     case ".ogg":
                     case ".mp4":
                     case ".mov":
                     case ".mkv":
-                    case ".flv":
-                    {
+                    case ".flv": {
                         ResourceAVMedia media = new ResourceAVMedia() {
                             FilePath = path
                         };
 
-                        try
-                        {
+                        try {
                             media.OpenMediaFromFile();
                         }
-                        catch (Exception e)
-                        {
+                        catch (Exception e) {
                             await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
                             return;
                         }
 
                         ResourceAVMediaViewModel vm = new ResourceAVMediaViewModel(media);
-                        using (ErrorList stack = new ErrorList(false))
-                        {
+                        using (ErrorList stack = new ErrorList(false)) {
                             await vm.LoadResource(null, stack);
-                            if (stack.TryGetException(out Exception exception))
-                            {
+                            if (stack.TryGetException(out Exception exception)) {
                                 await IoC.MessageDialogs.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
                                 return;
                             }
@@ -245,14 +213,11 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
                     case ".png":
                     case ".bmp":
                     case ".jpg":
-                    case ".jpeg":
-                    {
+                    case ".jpeg": {
                         ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path});
-                        using (ErrorList stack = new ErrorList(false))
-                        {
+                        using (ErrorList stack = new ErrorList(false)) {
                             await image.LoadResource(null, stack);
-                            if (stack.TryGetException(out Exception exception))
-                            {
+                            if (stack.TryGetException(out Exception exception)) {
                                 ((BaseResourceObjectViewModel) image).Model.Dispose();
                                 await IoC.MessageDialogs.ShowMessageExAsync("Error opening image", "Failed to open image file", exception.GetToString());
                                 return;
@@ -276,8 +241,7 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
                     case ".h":
                     case ".c":
                     case ".hpp":
-                    case ".cpp":
-                    {
+                    case ".cpp": {
                         ResourceTextFileViewModel file = new ResourceTextFileViewModel(new ResourceTextFile() {
                             Path = new ProjectPath(path, EnumPathFlags.AbsoluteFilePath),
                             IsOnline = true
@@ -291,14 +255,12 @@ namespace FramePFX.Core.Editor.ResourceManaging.ViewModels
             }
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             ((BaseResourceObjectViewModel) this.Root).Model.Dispose();
             this.Manager.ClearEntries();
         }
 
-        public async Task OfflineAllAsync(bool user)
-        {
+        public async Task OfflineAllAsync(bool user) {
             await this.Root.OfflineRecursiveAsync(user);
         }
     }

@@ -1,7 +1,5 @@
-namespace FramePFX.Core.Automation
-{
-    public readonly struct RefreshAutomationValueEventArgs
-    {
+namespace FramePFX.Core.Automation {
+    public readonly struct RefreshAutomationValueEventArgs {
         /// <summary>
         /// The frame where the play head is
         /// </summary>
@@ -17,8 +15,7 @@ namespace FramePFX.Core.Automation
         /// </summary>
         public readonly bool IsPlaybackTick;
 
-        public RefreshAutomationValueEventArgs(long frame, bool isDuringPlayback, bool isPlaybackTick)
-        {
+        public RefreshAutomationValueEventArgs(long frame, bool isDuringPlayback, bool isPlaybackTick) {
             this.Frame = frame;
             this.IsDuringPlayback = isDuringPlayback;
             this.IsPlaybackTick = isPlaybackTick;

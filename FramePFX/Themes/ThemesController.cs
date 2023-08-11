@@ -2,36 +2,29 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace FramePFX.Themes
-{
-    public static class ThemesController
-    {
+namespace FramePFX.Themes {
+    public static class ThemesController {
         public static ThemeType CurrentTheme { get; set; }
 
-        public static ResourceDictionary ThemeDictionary
-        {
+        public static ResourceDictionary ThemeDictionary {
             get => Application.Current.Resources.MergedDictionaries[0];
             set => Application.Current.Resources.MergedDictionaries[0] = value;
         }
 
-        public static ResourceDictionary ControlColours
-        {
+        public static ResourceDictionary ControlColours {
             get => Application.Current.Resources.MergedDictionaries[1];
             set => Application.Current.Resources.MergedDictionaries[1] = value;
         }
 
-        public static void RefreshControls()
-        {
+        public static void RefreshControls() {
             ResourceDictionary resource = Application.Current.Resources.MergedDictionaries[2];
             Application.Current.Resources.MergedDictionaries.RemoveAt(2);
             Application.Current.Resources.MergedDictionaries.Insert(2, resource);
         }
 
-        public static void SetTheme(ThemeType theme)
-        {
+        public static void SetTheme(ThemeType theme) {
             string themeName = theme.GetName();
-            if (string.IsNullOrEmpty(themeName))
-            {
+            if (string.IsNullOrEmpty(themeName)) {
                 return;
             }
 

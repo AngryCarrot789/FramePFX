@@ -3,10 +3,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core.Notifications
-{
-    public abstract class NotificationViewModel : BaseViewModel
-    {
+namespace FramePFX.Core.Notifications {
+    public abstract class NotificationViewModel : BaseViewModel {
         private long expiryTime;
         private TimeSpan timeout;
         private Task autoHideTask;
@@ -16,11 +14,9 @@ namespace FramePFX.Core.Notifications
         /// Gets or sets amount of time until this notification becomes hidden. An empty timespan (0 seconds)
         /// has an infinite timeout, and must be manually closed by the user
         /// </summary>
-        public TimeSpan Timeout
-        {
+        public TimeSpan Timeout {
             get => this.timeout;
-            set
-            {
+            set {
                 this.timeout = value;
                 this.expiryTime = value.Ticks;
             }
@@ -28,16 +24,14 @@ namespace FramePFX.Core.Notifications
 
         private bool isHidden;
 
-        public bool IsHidden
-        {
+        public bool IsHidden {
             get => this.isHidden;
             set => this.RaisePropertyChanged(ref this.isHidden, value);
         }
 
         private NotificationPanelViewModel panel;
 
-        public NotificationPanelViewModel Panel
-        {
+        public NotificationPanelViewModel Panel {
             get => this.panel;
             set => this.RaisePropertyChanged(ref this.panel, value);
         }
@@ -47,70 +41,55 @@ namespace FramePFX.Core.Notifications
         /// </summary>
         public AsyncRelayCommand HideCommand { get; }
 
-        protected NotificationViewModel()
-        {
+        protected NotificationViewModel() {
             this.HideCommand = new AsyncRelayCommand(this.HideAction, () => !this.IsHidden);
         }
 
-        public void IncreaseTimeUntilExpiry(TimeSpan span)
-        {
+        public void IncreaseTimeUntilExpiry(TimeSpan span) {
             this.expiryTime += span.Ticks;
         }
 
-        public void StartAutoHideTask()
-        {
+        public void StartAutoHideTask() {
             this.StartAutoHideTask(this.Timeout);
         }
 
-        public virtual void StartAutoHideTask(TimeSpan span)
-        {
-            if (this.autoHideTask != null && !this.autoHideTask.IsCompleted)
-            {
+        public virtual void StartAutoHideTask(TimeSpan span) {
+            if (this.autoHideTask != null && !this.autoHideTask.IsCompleted) {
                 return;
             }
 
-            if (span.Ticks > 0)
-            {
+            if (span.Ticks > 0) {
                 this.expiryTime = span.Ticks;
                 this.cancellation = new CancellationTokenSource();
                 this.autoHideTask = Task.Run(() => this.HideTaskMain(this.cancellation.Token));
             }
         }
 
-        public void CancelAutoHideTask()
-        {
+        public void CancelAutoHideTask() {
             this.Panel.Handler.CancelNotificationFadeOutAnimation(this);
-            if (this.cancellation == null || this.autoHideTask == null)
-            {
+            if (this.cancellation == null || this.autoHideTask == null) {
                 return;
             }
 
-            try
-            {
+            try {
                 this.cancellation?.Cancel();
             }
-            catch
-            {
+            catch {
                 /* ignored */
             }
-            finally
-            {
+            finally {
                 this.cancellation = null;
                 this.autoHideTask = null;
             }
         }
 
-        private async Task HideTaskMain(CancellationToken cancel)
-        {
+        private async Task HideTaskMain(CancellationToken cancel) {
             long oldTicks = this.expiryTime;
-            while (oldTicks > 0)
-            {
-                try
-                {
+            while (oldTicks > 0) {
+                try {
                     await Task.Delay(new TimeSpan(oldTicks), cancel);
                 }
-                catch (TaskCanceledException)
-                {
+                catch (TaskCanceledException) {
                     return;
                 }
 
@@ -118,35 +97,29 @@ namespace FramePFX.Core.Notifications
                 oldTicks = this.expiryTime;
             }
 
-            if (!cancel.IsCancellationRequested)
-            {
+            if (!cancel.IsCancellationRequested) {
                 await IoC.Dispatcher.InvokeAsync(this.AutoHideAction);
             }
         }
 
-        public virtual Task HideAction()
-        {
+        public virtual Task HideAction() {
             this.CancelAutoHideTask();
             this.Panel.RemoveNotification(this);
             this.IsHidden = true;
             return Task.CompletedTask;
         }
 
-        private void AutoHideAction()
-        {
-            if (!this.IsHidden && this.panel.IsNotificationPresent(this))
-            {
+        private void AutoHideAction() {
+            if (!this.IsHidden && this.panel.IsNotificationPresent(this)) {
                 this.cancellation = null;
                 this.autoHideTask = null;
                 this.Panel.Handler.BeginNotificationFadeOutAnimation(this, this.OnNotificationNoLongerVisible);
             }
         }
 
-        private void OnNotificationNoLongerVisible(NotificationViewModel obj, bool cancelled)
-        {
+        private void OnNotificationNoLongerVisible(NotificationViewModel obj, bool cancelled) {
             Debug.Assert(ReferenceEquals(obj, this), "Callback parameter does not match the current instance");
-            if (cancelled)
-            {
+            if (cancelled) {
                 return;
             }
 

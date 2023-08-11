@@ -2,24 +2,20 @@ using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace FramePFX.Core.Views.Dialogs.Modal
-{
+namespace FramePFX.Core.Views.Dialogs.Modal {
     /// <summary>
     /// A base dialog for dynamic dialogs that can save their
     /// </summary>
-    public abstract class BaseProcessDialogViewModel : BaseDynamicDialogViewModel
-    {
+    public abstract class BaseProcessDialogViewModel : BaseDynamicDialogViewModel {
         protected string automaticResult;
         protected bool showAlwaysUseNextResultOption;
         protected bool isAlwaysUseThisOptionChecked;
         protected bool canShowAlwaysUseNextResultForCurrentQueueOption;
         protected bool isAlwaysUseThisOptionForCurrentQueueChecked;
 
-        public string AutomaticResult
-        {
+        public string AutomaticResult {
             get => this.automaticResult;
-            set
-            {
+            set {
                 this.EnsureNotReadOnly();
                 this.RaisePropertyChanged(ref this.automaticResult, value);
             }
@@ -28,16 +24,13 @@ namespace FramePFX.Core.Views.Dialogs.Modal
         /// <summary>
         /// Whether or not to show the "always use next result option" in the GUI
         /// </summary>
-        public bool ShowAlwaysUseNextResultOption
-        {
+        public bool ShowAlwaysUseNextResultOption {
             // dialog will show "Always use this option"
             get => this.showAlwaysUseNextResultOption;
-            set
-            {
+            set {
                 this.EnsureNotReadOnly();
                 this.RaisePropertyChanged(ref this.showAlwaysUseNextResultOption, value);
-                if (!value && this.IsAlwaysUseThisOptionChecked)
-                {
+                if (!value && this.IsAlwaysUseThisOptionChecked) {
                     this.IsAlwaysUseThisOptionChecked = false;
                 }
             }
@@ -47,16 +40,13 @@ namespace FramePFX.Core.Views.Dialogs.Modal
         /// Whether or not the GUI option to use the next outcome as an automatic result is checked
         /// </summary>
         [Bindable(true)]
-        public bool IsAlwaysUseThisOptionChecked
-        {
+        public bool IsAlwaysUseThisOptionChecked {
             get => this.isAlwaysUseThisOptionChecked;
-            set
-            {
+            set {
                 this.EnsureNotReadOnly();
                 this.isAlwaysUseThisOptionChecked = value && this.ShowAlwaysUseNextResultOption;
                 this.RaisePropertyChanged();
-                if (!this.isAlwaysUseThisOptionChecked && this.IsAlwaysUseThisOptionForCurrentQueueChecked)
-                {
+                if (!this.isAlwaysUseThisOptionChecked && this.IsAlwaysUseThisOptionForCurrentQueueChecked) {
                     this.IsAlwaysUseThisOptionForCurrentQueueChecked = false;
                 }
 
@@ -64,15 +54,12 @@ namespace FramePFX.Core.Views.Dialogs.Modal
             }
         }
 
-        public bool CanShowAlwaysUseNextResultForCurrentQueueOption
-        {
+        public bool CanShowAlwaysUseNextResultForCurrentQueueOption {
             get => this.canShowAlwaysUseNextResultForCurrentQueueOption;
-            set
-            {
+            set {
                 this.EnsureNotReadOnly();
                 this.RaisePropertyChanged(ref this.canShowAlwaysUseNextResultForCurrentQueueOption, value);
-                if (!value && this.IsAlwaysUseThisOptionForCurrentQueueChecked)
-                {
+                if (!value && this.IsAlwaysUseThisOptionForCurrentQueueChecked) {
                     this.IsAlwaysUseThisOptionForCurrentQueueChecked = false;
                 }
             }
@@ -82,62 +69,49 @@ namespace FramePFX.Core.Views.Dialogs.Modal
         /// Whether or not the GUI option to use the next outcome as an automatic result, but only for the current queue/usage, is checked
         /// </summary>
         [Bindable(true)]
-        public bool IsAlwaysUseThisOptionForCurrentQueueChecked
-        {
+        public bool IsAlwaysUseThisOptionForCurrentQueueChecked {
             get => this.isAlwaysUseThisOptionForCurrentQueueChecked;
-            set
-            {
+            set {
                 this.EnsureNotReadOnly();
                 this.RaisePropertyChanged(ref this.isAlwaysUseThisOptionForCurrentQueueChecked, value && this.CanShowAlwaysUseNextResultForCurrentQueueOption);
                 this.UpdateButtons();
             }
         }
 
-        protected BaseProcessDialogViewModel(string primaryResult = null, string defaultResult = null) : base(primaryResult, defaultResult)
-        {
+        protected BaseProcessDialogViewModel(string primaryResult = null, string defaultResult = null) : base(primaryResult, defaultResult) {
         }
 
-        public override Task<string> ShowAsync()
-        {
-            if (this.AutomaticResult != null)
-            {
+        public override Task<string> ShowAsync() {
+            if (this.AutomaticResult != null) {
                 return Task.FromResult(this.AutomaticResult);
             }
 
             return base.ShowAsync();
         }
 
-        public override string GetResult(bool? result, DialogButton button)
-        {
+        public override string GetResult(bool? result, DialogButton button) {
             string output;
-            if (result == true)
-            {
-                if (button == null)
-                {
+            if (result == true) {
+                if (button == null) {
                     output = this.PrimaryResult;
                 }
-                else
-                {
+                else {
                     output = button.ActionType;
-                    if (output != null && this.IsAlwaysUseThisOptionChecked)
-                    {
+                    if (output != null && this.IsAlwaysUseThisOptionChecked) {
                         // (output != null || this.AllowNullButtonActionForAutoResult)
                         this.AutomaticResult = output;
                     }
                 }
             }
-            else
-            {
+            else {
                 output = this.DefaultResult;
             }
 
             return output;
         }
 
-        public override void MarkReadOnly()
-        {
-            if (this.ShowAlwaysUseNextResultOption)
-            {
+        public override void MarkReadOnly() {
+            if (this.ShowAlwaysUseNextResultOption) {
                 throw new InvalidOperationException($"Cannot set read-only when {nameof(this.ShowAlwaysUseNextResultOption)}");
             }
 

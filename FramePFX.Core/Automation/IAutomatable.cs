@@ -1,10 +1,8 @@
-namespace FramePFX.Core.Automation
-{
+namespace FramePFX.Core.Automation {
     /// <summary>
     /// An interface applied to an object which contains parameters which can be automated
     /// </summary>
-    public interface IAutomatable
-    {
+    public interface IAutomatable {
         /// <summary>
         /// The automation data for this instance, which stores a collection of automation sequences for storing the key frames for each type of automate-able parameters
         /// </summary>

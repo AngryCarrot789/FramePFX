@@ -3,10 +3,8 @@ using System.Windows.Controls;
 using FramePFX.Core.Editor;
 using FramePFX.Editor.Timeline.Utils;
 
-namespace FramePFX.Editor.Timeline.Controls
-{
-    public class TimelinePreviewPlayHeadControl : Control, IPlayHead
-    {
+namespace FramePFX.Editor.Timeline.Controls {
+    public class TimelinePreviewPlayHeadControl : Control, IPlayHead {
         public static readonly DependencyProperty FrameIndexProperty =
             DependencyProperty.Register(
                 "FrameIndex",
@@ -16,19 +14,15 @@ namespace FramePFX.Editor.Timeline.Controls
                     0L,
                     FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelinePreviewPlayHeadControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
-                    (d, v) =>
-                    {
+                    (d, v) => {
                         long value = (long) v;
-                        if (value < 0)
-                        {
+                        if (value < 0) {
                             return TimelineUtils.ZeroLongBox;
                         }
-                        else if (((TimelinePreviewPlayHeadControl) d).Timeline is TimelineControl timeline && value >= timeline.MaxDuration)
-                        {
+                        else if (((TimelinePreviewPlayHeadControl) d).Timeline is TimelineControl timeline && value >= timeline.MaxDuration) {
                             return timeline.MaxDuration - 1;
                         }
-                        else
-                        {
+                        else {
                             return v;
                         }
                     }));
@@ -43,20 +37,17 @@ namespace FramePFX.Editor.Timeline.Controls
         /// <summary>
         /// The zero-based frame index where this play head begins
         /// </summary>
-        public long FrameIndex
-        {
+        public long FrameIndex {
             get => (long) this.GetValue(FrameIndexProperty);
             set => this.SetValue(FrameIndexProperty, value);
         }
 
-        public long PlayHeadFrame
-        {
+        public long PlayHeadFrame {
             get => this.FrameIndex;
             set => this.FrameIndex = value;
         }
 
-        public TimelineControl Timeline
-        {
+        public TimelineControl Timeline {
             get => (TimelineControl) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }
@@ -64,11 +55,9 @@ namespace FramePFX.Editor.Timeline.Controls
         /// <summary>
         /// The rendered X position of this element
         /// </summary>
-        public double RealPixelX
-        {
+        public double RealPixelX {
             get => this.Margin.Left; // Canvas.GetLeft(this)
-            set
-            {
+            set {
                 // Canvas.SetLeft(this, value);
                 Thickness margin = this.Margin;
                 margin.Left = value;
@@ -78,12 +67,10 @@ namespace FramePFX.Editor.Timeline.Controls
 
         private bool isUpdatingFrameBegin;
 
-        public TimelinePreviewPlayHeadControl()
-        {
+        public TimelinePreviewPlayHeadControl() {
         }
 
-        private void OnFrameBeginChanged(long oldStart, long newStart)
-        {
+        private void OnFrameBeginChanged(long oldStart, long newStart) {
             if (this.isUpdatingFrameBegin || oldStart == newStart)
                 return;
             this.isUpdatingFrameBegin = true;

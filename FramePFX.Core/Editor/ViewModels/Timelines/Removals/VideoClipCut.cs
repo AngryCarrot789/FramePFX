@@ -1,10 +1,8 @@
 using FramePFX.Core.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Core.Utils;
 
-namespace FramePFX.Core.Editor.ViewModels.Timelines.Removals
-{
-    public readonly struct VideoClipCut
-    {
+namespace FramePFX.Core.Editor.ViewModels.Timelines.Removals {
+    public readonly struct VideoClipCut {
         /// <summary>
         /// The clip's old span
         /// </summary>
@@ -24,12 +22,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Removals
 
         public VideoClipViewModel Clip { get; }
 
-        public bool IsClipRemoved
-        {
-            get
-            {
-                if (this.CutLeft.HasValue && this.CutRight.HasValue)
-                {
+        public bool IsClipRemoved {
+            get {
+                if (this.CutLeft.HasValue && this.CutRight.HasValue) {
                     return this.CutLeft.Value.Duration == 0 && this.CutRight.Value.Duration == 0;
                 }
 
@@ -41,12 +36,9 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Removals
         /// In the event that this is a double-split, where span left and right have non-empty values, this returns the original width of
         /// the split. Will be 0 for a clip slice, non-negative for a duration cut, and will be -1 when span left or right are empty
         /// </summary>
-        public long SplitWidth
-        {
-            get
-            {
-                if (this.CutLeft.HasValue && this.CutRight.HasValue)
-                {
+        public long SplitWidth {
+            get {
+                if (this.CutLeft.HasValue && this.CutRight.HasValue) {
                     return this.CutRight.Value.Begin - this.CutLeft.Value.Begin;
                 }
 
@@ -54,8 +46,7 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines.Removals
             }
         }
 
-        public VideoClipCut(FrameSpan oldSpan, FrameSpan? cutLeft, FrameSpan? cutRight, VideoClipViewModel clip)
-        {
+        public VideoClipCut(FrameSpan oldSpan, FrameSpan? cutLeft, FrameSpan? cutRight, VideoClipViewModel clip) {
             this.OldSpan = oldSpan;
             this.CutLeft = cutLeft;
             this.CutRight = cutRight;

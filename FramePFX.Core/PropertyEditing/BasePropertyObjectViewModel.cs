@@ -1,20 +1,17 @@
 using System;
 
-namespace FramePFX.Core.PropertyEditing
-{
+namespace FramePFX.Core.PropertyEditing {
     /// <summary>
     /// The base class for property groups and editors
     /// </summary>
-    public class BasePropertyObjectViewModel : BaseViewModel
-    {
+    public class BasePropertyObjectViewModel : BaseViewModel {
         private bool isCurrentlyApplicable;
 
         /// <summary>
         /// Whether or not this item should be visible to the end user or not.
         /// Not taking this into account and showing it anyway may result a crashing
         /// </summary>
-        public bool IsCurrentlyApplicable
-        {
+        public bool IsCurrentlyApplicable {
             get => this.isCurrentlyApplicable;
             set => this.RaisePropertyChanged(ref this.isCurrentlyApplicable, value);
         }
@@ -30,8 +27,7 @@ namespace FramePFX.Core.PropertyEditing
         /// </summary>
         public virtual HandlerCountMode HandlerCountMode => HandlerCountMode.Any;
 
-        public BasePropertyObjectViewModel(Type applicableType)
-        {
+        public BasePropertyObjectViewModel(Type applicableType) {
             this.ApplicableType = applicableType;
         }
 
@@ -47,10 +43,8 @@ namespace FramePFX.Core.PropertyEditing
         /// </summary>
         /// <param name="count">The number of handlers that are available</param>
         /// <returns>This property is applicable for the given number of handlers</returns>
-        public bool IsHandlerCountAcceptable(int count)
-        {
-            switch (this.HandlerCountMode)
-            {
+        public bool IsHandlerCountAcceptable(int count) {
+            switch (this.HandlerCountMode) {
                 case HandlerCountMode.Any: return true;
                 case HandlerCountMode.Single: return count == 1;
                 case HandlerCountMode.Multi: return count > 1;

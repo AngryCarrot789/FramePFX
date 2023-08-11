@@ -21,7 +21,8 @@
             xmlns:ctx="clr-namespace:FramePFX.Core.Editor.Timelines.Context;assembly=FramePFX.Core"
             xmlns:pe="clr-namespace:FramePFX.PropertyEditing"
             xmlns:cpe="clr-namespace:FramePFX.Core.PropertyEditing;assembly=FramePFX.Core"
-            xmlns:viewModels="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core"
+            xmlns:vms="clr-namespace:FramePFX.Core.Editor.ResourceManaging.ViewModels;assembly=FramePFX.Core"
+            xmlns:utils="clr-namespace:FramePFX.Utils"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="792"
@@ -30,7 +31,8 @@
             BorderBrush="{DynamicResource PanelBorderBrush}"
             TitlebarBrush="{DynamicResource ABrush.Tone6.Background.Static}"
             sc:UIInputManager.IsInputSource="True"
-            sc:UIInputManager.FocusPath="Application/Editor">
+            sc:UIInputManager.FocusPath="Application/Editor"
+            x:Name="Self">
     <Window.Resources>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v0.1.171)" />
         <c:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True" />
@@ -121,92 +123,27 @@
                     -->
                     <TabControl Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0"
-                                ItemContainerStyle="{StaticResource NoOffsetTabItem}" SelectedIndex="1">
-                        <TabControl.Style>
-                            <Style TargetType="{x:Type TabControl}">
-                                <Setter Property="Padding" Value="0" />
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Setter Property="Background" Value="{DynamicResource TabItem.Selected.Background}" />
-                                <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Selected.Border}" />
-                                <Setter Property="BorderThickness" Value="1" />
-                                <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type TabControl}">
-                                            <Grid x:Name="templateRoot" ClipToBounds="true" SnapsToDevicePixels="true" KeyboardNavigation.TabNavigation="Local">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition x:Name="ColumnDefinition0" />
-                                                    <ColumnDefinition x:Name="ColumnDefinition1" Width="0" />
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition x:Name="RowDefinition0" Height="Auto" />
-                                                    <RowDefinition x:Name="RowDefinition1" Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TabPanel x:Name="headerPanel" Background="Transparent" Grid.Column="0" IsItemsHost="true" Margin="0" Grid.Row="0" KeyboardNavigation.TabIndex="1" Panel.ZIndex="1" />
-                                                <Border x:Name="contentPanel" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="0" KeyboardNavigation.DirectionalNavigation="Contained" Grid.Row="1" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
-                                                    <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                                </Border>
-                                            </Grid>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="TabStripPlacement" Value="Bottom">
-                                                    <Setter Property="Grid.Row" TargetName="headerPanel" Value="1" />
-                                                    <Setter Property="Grid.Row" TargetName="contentPanel" Value="0" />
-                                                    <Setter Property="Height" TargetName="RowDefinition0" Value="*" />
-                                                    <Setter Property="Height" TargetName="RowDefinition1" Value="Auto" />
-                                                    <Setter Property="Margin" TargetName="headerPanel" Value="2,0,2,2" />
-                                                </Trigger>
-                                                <Trigger Property="TabStripPlacement" Value="Left">
-                                                    <Setter Property="Grid.Row" TargetName="headerPanel" Value="0" />
-                                                    <Setter Property="Grid.Row" TargetName="contentPanel" Value="0" />
-                                                    <Setter Property="Grid.Column" TargetName="headerPanel" Value="0" />
-                                                    <Setter Property="Grid.Column" TargetName="contentPanel" Value="1" />
-                                                    <Setter Property="Width" TargetName="ColumnDefinition0" Value="Auto" />
-                                                    <Setter Property="Width" TargetName="ColumnDefinition1" Value="*" />
-                                                    <Setter Property="Height" TargetName="RowDefinition0" Value="*" />
-                                                    <Setter Property="Height" TargetName="RowDefinition1" Value="0" />
-                                                    <Setter Property="Margin" TargetName="headerPanel" Value="2,2,0,2" />
-                                                </Trigger>
-                                                <Trigger Property="TabStripPlacement" Value="Right">
-                                                    <Setter Property="Grid.Row" TargetName="headerPanel" Value="0" />
-                                                    <Setter Property="Grid.Row" TargetName="contentPanel" Value="0" />
-                                                    <Setter Property="Grid.Column" TargetName="headerPanel" Value="1" />
-                                                    <Setter Property="Grid.Column" TargetName="contentPanel" Value="0" />
-                                                    <Setter Property="Width" TargetName="ColumnDefinition0" Value="*" />
-                                                    <Setter Property="Width" TargetName="ColumnDefinition1" Value="Auto" />
-                                                    <Setter Property="Height" TargetName="RowDefinition0" Value="*" />
-                                                    <Setter Property="Height" TargetName="RowDefinition1" Value="0" />
-                                                    <Setter Property="Margin" TargetName="headerPanel" Value="0,2,2,2" />
-                                                </Trigger>
-                                                <Trigger Property="IsEnabled" Value="false">
-                                                    <Setter Property="TextElement.Foreground" TargetName="templateRoot" Value="{DynamicResource ABrush.Foreground.Disabled}" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TabControl.Style>
+                                SelectedIndex="1" Style="{StaticResource NoOffsetTabControl}">
                         <TabItem Header="Files and Resources" DataContext="{Binding ActiveProject.ResourceManager}">
                             <Grid sc:UIInputManager.FocusPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="175"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="175" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="24" />
+                                    <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <TreeView ItemsSource="{Binding Root.Items, Mode=OneTime}" DockPanel.Dock="Left" Width="175"
                                           BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,1,0"
                                           Grid.RowSpan="2"
                                           Grid.Column="0">
                                     <TreeView.Resources>
-                                        <DataTemplate DataType="{x:Type viewModels:ResourceItemViewModel}">
-                                            <TextBlock Text="{Binding DisplayName}"/>
+                                        <DataTemplate DataType="{x:Type vms:ResourceItemViewModel}">
+                                            <TextBlock Text="{Binding DisplayName}" />
                                         </DataTemplate>
-                                        <HierarchicalDataTemplate DataType="{x:Type viewModels:ResourceGroupViewModel}" ItemsSource="{Binding Items, Mode=OneTime}">
-                                            <TextBlock Text="{Binding DisplayName}"/>
+                                        <HierarchicalDataTemplate DataType="{x:Type vms:ResourceGroupViewModel}" ItemsSource="{Binding Items, Mode=OneTime}">
+                                            <TextBlock Text="{Binding DisplayName}" />
                                         </HierarchicalDataTemplate>
                                     </TreeView.Resources>
                                 </TreeView>
@@ -216,10 +153,15 @@
                                                          HorizontalContentAlignment="Stretch"
                                                          VerticalContentAlignment="Stretch"
                                                          Grid.Row="1"
-                                                         Grid.Column="1"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding DisplayPath, Mode=OneWay}"
-                                           VerticalAlignment="Center" HorizontalAlignment="Left"
-                                           Padding="4,1"/>
+                                                         Grid.Column="1" />
+                                <Border Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-1,0,0,0"
+                                        Background="{DynamicResource ABrush.Tone4.Background.Static}"
+                                        BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding DisplayPath, Mode=OneWay}"
+                                               VerticalAlignment="Center" HorizontalAlignment="Left"
+                                               Padding="4,1" />
+                                </Border>
+
                             </Grid>
                         </TabItem>
                         <TabItem Header="Property Pages">

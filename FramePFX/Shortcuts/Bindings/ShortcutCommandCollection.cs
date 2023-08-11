@@ -1,12 +1,10 @@
 using System.Windows;
 
-namespace FramePFX.Shortcuts.Bindings
-{
+namespace FramePFX.Shortcuts.Bindings {
     /// <summary>
     /// A collection of <see cref="ShortcutCommandBinding"/>
     /// </summary>
-    public class ShortcutCommandCollection : FreezableCollection<ShortcutCommandBinding>
-    {
+    public class ShortcutCommandCollection : FreezableCollection<ShortcutCommandBinding> {
         public static readonly DependencyProperty CollectionProperty =
             DependencyProperty.RegisterAttached(
                 "Collection",
@@ -14,8 +12,7 @@ namespace FramePFX.Shortcuts.Bindings
                 typeof(ShortcutCommandCollection),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
 
-        public ShortcutCommandCollection()
-        {
+        public ShortcutCommandCollection() {
             // ((INotifyCollectionChanged) this).CollectionChanged += this.OnCollectionChanged;
         }
 

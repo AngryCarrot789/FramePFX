@@ -1,21 +1,18 @@
 # FramePFX
-A small (non-linear) video editor, writting in C#, using WPF/MVVM
+A small (non-linear) video editor, written in C# using WPF/MVVM
 
 I mainly started this as a learning tool into the world of video/audio processing (all I really knew before this was basic OpenGL drawing), but also because other editors like vegas, premiere pro, hitfilm, etc, just seem to run so slowly and some of them just lack basic features (e.g zoom in the view port with CTRL + MouseWheel)
 
 I doubt this will ever even come close to those editors, but hopefully it will at least support some basic editing
 
 # Preview
-
-![](FramePFX_2023-06-27_06.20.54.png)
-
-## 3 primary themes! Dark, Red/Black and Grey
-![](themes1.png)
+There are 6 themes. This is the `Soft Dark` theme. But there's also `Deep dark`, `Dark Grey`, `Grey`, `Red and Black` and a really bad `Light Theme` that makes discord's light theme look good
+![](FramePFX_2023-08-27_20.23.42.png)
 
 ### Automation/animation
 Always found automating parameters in the popular editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
 - Each clip has it's own keyframe/envelope editor that stretches the entirety of the clip. 
-- Tracks would have the same, but it stretches the entire timeline. 
+- Tracks have the same, but it stretches the entire timeline. 
 - Automating project settings, or anything else really, will soon be do-able on a timeline automation specific track (allowing for more than just video/audio tracks)
 
 #### Demo of video track opacity automation
@@ -32,15 +29,16 @@ Click "Export" in the file menu at the top left, and you can specify some render
 
 # Backend stuff
 
-## ViewModels/Models 
-I tried to wrap all models with view models so that the app can still function even if it had no view models or even UI, similar to how OBS can run without the front-end entirely, not that you'd want to... 
+### ViewModels/Models 
+I tried to wrap all models with view models so that the app can still function even if it had no view models or even UI, 
+similar to how OBS can run without the front-end entirely, not that you'd want to...
 
-View models still take a good few big responsibilities of the models though, such as firing the model events when view model properties change in order to force a re-render. And this idea also opens up the possibility for ViewModel-Model desynchronisation (especially when it comes to synchronising collections) which hopefully won't happen
+View models still take a good few big responsibilities of the models though, such as firing the model events when view model properties change in order to force a re-render
 
-## Rendering
+### Rendering
 Rendering the main view port is done with SkiaSharp. Originally was done with OpenGL (using OpenTK) but SkiaSharp is much simpler to use (easy image/texture loading, text drawing, etc.)
 
-## Resource list
+### Resource list
 `ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)
 
 The resources are shareable between clips so that clips can obviously share similar details (e.g. same text or font/font size), or same image
@@ -49,18 +47,22 @@ To drag videos, images, etc., into the editor: drag and drop the file to the top
 
 Oh and uh... don't drag drop something like your C:\ drive or a folder which contains 100,000s of files in the hierarchy into the ResourceListControl, otherwise the app will probably freeze as it recursively loads all of those files
 
-## Compiling
-To run this, you just need to download this repo and also the ffmpeg's shared x64 libraries (https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest, specifically https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip). 
+### Audio
+I don't know how to implement audio playback yet, so that's a TODO thing
 
-You build the project (debug, release, or whatever), then place all of the FFmpeg files in the bin folder (except the ffmpeg exes) and then you should be able to run it or debug it if you want. 
+# Compiling
+FFmpeg's shared x64 libraries are the only external library (at the moment...). They can be found here: 
+https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip
+
+You build the project (debug or release), then place all of the FFmpeg DLL files in the WPF project's bin folder, and then you should be able to run the editor, and debug it if you want. 
 
 The front-end uses .NET Framework 4.7.2, and the back-end uses .NET Standard 2.0
 
 ## Cross platform
-Currently there's only a WPF implementation, but I hope to switch to avalonia at some point or MAUI. Most, if not all, of the important classes are located in the .NET Standard project, so it's relatively easy to port the app over to different platforms. However there's also SkiaSharp, FFmpeg, and soon NAudio (or some other audio processor library) dependencies too...
+Currently there's only a WPF implementation, but I hope to switch to Avalonia at some point or MAUI. Most, if not all, of the important classes are located in the .NET Standard project, so it's relatively easy to port the app over to different platforms. However there's also SkiaSharp, FFmpeg, and soon NAudio (or some other audio processor library) dependencies too...
 
-## BUGS ono
-- Fixed the bug where dragging a clip across tracks crashes the app. However, importing certain video files can still crash (some sort of "found invalid data while decoding" error)
+## BUGS
+- Importing certain video files can crash (some sort of "found invalid data while decoding" error)
 
 ## Licence
-Project is licenced under MIT. I'm not a laywer but, AFAIK, FFmpeg and FFmpeg.AutoGen being licenced primarily under GNU Lesser General Public License allows MIT to be used as long as the FFmpeg source code is not modified (which in this project, it isn't)
+Project is licenced under MIT. I'm not a lawyer but, AFAIK, FFmpeg and FFmpeg.AutoGen being licenced primarily under GNU Lesser General Public License allows MIT to be used as long as the FFmpeg source code is not modified (which in this project, it isn't)

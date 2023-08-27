@@ -218,6 +218,7 @@
     <Compile Include="Controls\IconTextPair.cs" />
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
     <Compile Include="Controls\SelectionAdorder.cs" />
+    <Compile Include="Controls\TreeExtension.cs" />
     <Compile Include="Controls\VerticalIncrement.cs" />
     <Compile Include="Controls\ViewBoxClone.cs" />
     <Compile Include="Controls\xclemence\RulerWPF\PositionManagers\HorizontalRulerManager.cs" />

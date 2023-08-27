@@ -193,7 +193,12 @@ namespace FramePFX {
             }
 
             await this.SetActivity("Loading FFmpeg...");
-            ffmpeg.avdevice_register_all();
+            try {
+                ffmpeg.avdevice_register_all();
+            }
+            catch (Exception e) {
+                throw new Exception("FFmpeg Unavailable. Copy FFmpeg DLLs into the same folder as the app's .exe", e);
+            }
         }
 
         private async void Application_Startup(object sender, StartupEventArgs e) {

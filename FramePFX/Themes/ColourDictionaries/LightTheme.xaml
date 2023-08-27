@@ -22,11 +22,11 @@
     <Color x:Key="AColour.AccentTone2.Border.Static" R="208" G="125" B="55" A="255" />
     <Color x:Key="AColour.AccentTone3.Background.Static" R="210" G="130" B="40" A="255" />
     <Color x:Key="AColour.AccentTone3.Border.Static" R="205" G="120" B="55" A="255" />
-    <Color x:Key="AColour.Tone1.Background.Static" R="231" G="231" B="231" A="255" />
+    <Color x:Key="AColour.Tone1.Background.Static" R="232" G="232" B="232" A="255" />
     <Color x:Key="AColour.Tone1.Border.Static" R="221" G="221" B="221" A="255" />
-    <Color x:Key="AColour.Tone2.Background.Static" R="227" G="227" B="227" A="255" />
+    <Color x:Key="AColour.Tone2.Background.Static" R="241" G="241" B="241" A="255" />
     <Color x:Key="AColour.Tone2.Border.Static" R="217" G="217" B="217" A="255" />
-    <Color x:Key="AColour.Tone3.Background.Static" R="222" G="222" B="222" A="255" />
+    <Color x:Key="AColour.Tone3.Background.Static" R="252" G="252" B="252" A="255" />
     <Color x:Key="AColour.Tone3.Border.Static" R="202" G="202" B="202" A="255" />
     <Color x:Key="AColour.Tone4.Background.Static" R="219" G="219" B="219" A="255" />
     <Color x:Key="AColour.Tone4.Border.Static" R="212" G="212" B="212" A="255" />

@@ -9,33 +9,141 @@ using System.Windows.Input;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Controls.Dragger {
+    [TemplatePart(Name = "PART_HintTextBlock", Type = typeof(TextBlock))]
     [TemplatePart(Name = "PART_TextBlock", Type = typeof(TextBlock))]
     [TemplatePart(Name = "PART_TextBox", Type = typeof(TextBox))]
     public class NumberDragger : RangeBase {
         #region Dependency Properties
 
-        public static readonly DependencyProperty TinyChangeProperty = DependencyProperty.Register("TinyChange", typeof(double), typeof(NumberDragger), new PropertyMetadata(0.001d));
-        public static readonly DependencyProperty MassiveChangeProperty = DependencyProperty.Register("MassiveChange", typeof(double), typeof(NumberDragger), new PropertyMetadata(5d));
-        private static readonly DependencyPropertyKey IsDraggingPropertyKey = DependencyProperty.RegisterReadOnly("IsDragging", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.False, (d, e) => ((NumberDragger) d).OnIsDraggingChanged((bool) e.OldValue, (bool) e.NewValue)));
-        public static readonly DependencyProperty CompleteEditOnTextBoxLostFocusProperty = DependencyProperty.Register("CompleteEditOnTextBoxLostFocus", typeof(bool?), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
-        public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register("Orientation", typeof(Orientation), typeof(NumberDragger), new PropertyMetadata(Orientation.Horizontal, (d, e) => ((NumberDragger) d).OnOrientationChanged((Orientation) e.OldValue, (Orientation) e.NewValue)));
-        public static readonly DependencyProperty HorizontalIncrementProperty = DependencyProperty.Register("HorizontalIncrement", typeof(HorizontalIncrement), typeof(NumberDragger), new PropertyMetadata(HorizontalIncrement.LeftDecrRightIncr));
-        public static readonly DependencyProperty VerticalIncrementProperty = DependencyProperty.Register("VerticalIncrement", typeof(VerticalIncrement), typeof(NumberDragger), new PropertyMetadata(VerticalIncrement.UpDecrDownIncr));
-        public static readonly DependencyPropertyKey IsEditingTextBoxPropertyKey = DependencyProperty.RegisterReadOnly("IsEditingTextBox", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.False, (d, e) => ((NumberDragger) d).OnIsEditingTextBoxChanged((bool) e.OldValue, (bool) e.NewValue), (d, v) => ((NumberDragger) d).OnCoerceIsEditingTextBox(v)));
-        public static readonly DependencyProperty RoundedPlacesProperty = DependencyProperty.Register("RoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
-        public static readonly DependencyProperty PreviewRoundedPlacesProperty = DependencyProperty.Register("PreviewRoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
-        public static readonly DependencyProperty LockCursorWhileDraggingProperty = DependencyProperty.Register("LockCursorWhileDragging", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
-        public static readonly DependencyProperty DisplayTextOverrideProperty = DependencyProperty.Register("DisplayTextOverride", typeof(string), typeof(NumberDragger), new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
-        public static readonly DependencyProperty ForcedReadOnlyStateProperty = DependencyProperty.Register("ForcedReadOnlyState", typeof(bool?), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty RestoreValueOnCancelProperty = DependencyProperty.Register("RestoreValueOnCancel", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
-        public static readonly DependencyProperty ChangeMapperProperty = DependencyProperty.Register("ChangeMapper", typeof(IChangeMapper), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty ValuePreProcessorProperty = DependencyProperty.Register("ValuePreProcessor", typeof(IValuePreProcessor), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty ValueFormatterProperty = DependencyProperty.Register("ValueFormatter", typeof(IValueFormatter), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty EditStartedCommandProperty = DependencyProperty.Register("EditStartedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty EditCompletedCommandProperty = DependencyProperty.Register("EditCompletedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty TinyChangeProperty =
+            DependencyProperty.Register(
+                "TinyChange",
+                typeof(double),
+                typeof(NumberDragger),
+                new PropertyMetadata(0.001d));
+
+        public static readonly DependencyProperty MassiveChangeProperty =
+            DependencyProperty.Register(
+                "MassiveChange",
+                typeof(double),
+                typeof(NumberDragger),
+                new PropertyMetadata(5d));
+
+        protected static readonly DependencyPropertyKey IsDraggingPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                "IsDragging",
+                typeof(bool),
+                typeof(NumberDragger),
+                new PropertyMetadata(BoolBox.False,
+                    (d, e) => ((NumberDragger) d).OnIsDraggingChanged((bool) e.OldValue, (bool) e.NewValue)));
 
         public static readonly DependencyProperty IsDraggingProperty = IsDraggingPropertyKey.DependencyProperty;
+
+        public static readonly DependencyProperty CompleteEditOnTextBoxLostFocusProperty =
+            DependencyProperty.Register(
+                "CompleteEditOnTextBoxLostFocus",
+                typeof(bool?),
+                typeof(NumberDragger),
+                new PropertyMetadata(BoolBox.True));
+
+        public static readonly DependencyProperty OrientationProperty =
+            DependencyProperty.Register(
+                "Orientation",
+                typeof(Orientation),
+                typeof(NumberDragger),
+                new PropertyMetadata(Orientation.Horizontal,
+                    (d, e) => ((NumberDragger) d).OnOrientationChanged((Orientation) e.OldValue, (Orientation) e.NewValue)));
+
+        public static readonly DependencyProperty HorizontalIncrementProperty =
+            DependencyProperty.Register(
+                "HorizontalIncrement",
+                typeof(HorizontalIncrement),
+                typeof(NumberDragger),
+                new PropertyMetadata(HorizontalIncrement.LeftDecrRightIncr));
+
+        public static readonly DependencyProperty VerticalIncrementProperty =
+            DependencyProperty.Register(
+                "VerticalIncrement",
+                typeof(VerticalIncrement),
+                typeof(NumberDragger),
+                new PropertyMetadata(VerticalIncrement.UpDecrDownIncr));
+
+        public static readonly DependencyPropertyKey IsEditingTextBoxPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                "IsEditingTextBox",
+                typeof(bool),
+                typeof(NumberDragger),
+                new PropertyMetadata(BoolBox.False,
+                    (d, e) => ((NumberDragger) d).OnIsEditingTextBoxChanged((bool) e.OldValue, (bool) e.NewValue),
+                    (d, v) => ((NumberDragger) d).OnCoerceIsEditingTextBox(v)));
+
         public static readonly DependencyProperty IsEditingTextBoxProperty = IsEditingTextBoxPropertyKey.DependencyProperty;
+
+        public static readonly DependencyProperty RoundedPlacesProperty =
+            DependencyProperty.Register(
+                "RoundedPlaces",
+                typeof(int?),
+                typeof(NumberDragger),
+                new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
+
+        public static readonly DependencyProperty PreviewRoundedPlacesProperty =
+            DependencyProperty.Register(
+                "PreviewRoundedPlaces",
+                typeof(int?),
+                typeof(NumberDragger),
+                new PropertyMetadata((int?) 4, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
+
+        public static readonly DependencyProperty LockCursorWhileDraggingProperty =
+            DependencyProperty.Register(
+                "LockCursorWhileDragging",
+                typeof(bool),
+                typeof(NumberDragger),
+                new PropertyMetadata(BoolBox.True));
+
+        public static readonly DependencyProperty DisplayTextOverrideProperty =
+            DependencyProperty.Register(
+                "DisplayTextOverride",
+                typeof(string),
+                typeof(NumberDragger),
+                new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
+
+        public static readonly DependencyProperty EditingHintProperty =
+            DependencyProperty.Register(
+                "EditingHint",
+                typeof(string),
+                typeof(NumberDragger),
+                new PropertyMetadata(null));
+
+        public static readonly DependencyProperty ForcedReadOnlyStateProperty =
+            DependencyProperty.Register(
+                "ForcedReadOnlyState",
+                typeof(bool?),
+                typeof(NumberDragger),
+                new PropertyMetadata(null));
+
+        public static readonly DependencyProperty RestoreValueOnCancelProperty =
+            DependencyProperty.Register(
+                "RestoreValueOnCancel",
+                typeof(bool),
+                typeof(NumberDragger),
+                new PropertyMetadata(BoolBox.True));
+
+        public static readonly DependencyProperty ChangeMapperProperty =
+            DependencyProperty.Register(
+                "ChangeMapper",
+                typeof(IChangeMapper),
+                typeof(NumberDragger),
+                new PropertyMetadata(null));
+
+        public static readonly DependencyProperty ValuePreProcessorProperty =
+            DependencyProperty.Register(
+                "ValuePreProcessor",
+                typeof(IValuePreProcessor),
+                typeof(NumberDragger),
+                new PropertyMetadata(null));
+
+        public static readonly DependencyProperty EditStartedCommandProperty = DependencyProperty.Register("EditStartedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty EditCompletedCommandProperty = DependencyProperty.Register("EditCompletedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
 
         #endregion
 
@@ -59,6 +167,7 @@ namespace FramePFX.Controls.Dragger {
 
         public bool IsDragging {
             get => (bool) this.GetValue(IsDraggingProperty);
+            protected set => this.SetValue(IsDraggingPropertyKey, value.Box());
         }
 
         public bool? CompleteEditOnTextBoxLostFocus {
@@ -87,7 +196,14 @@ namespace FramePFX.Controls.Dragger {
         }
 
         /// <summary>
-        /// The number of digits to round the actual value to. Set to null to disable rounding
+        /// The number of digits to round the actual value to. Set to null to disable rounding.
+        /// <para>
+        /// When <see cref="RangeBase.ValueProperty"/> is bound to non floating point, this value should be ignored
+        /// </para>
+        /// <para>
+        /// However when binding to floating point numbers, this value should ideally be 6 or 7. For doubles,
+        /// this should be 14 or 15. This is to combat floating point rounding issues, causing the the
+        /// </para>
         /// </summary>
         public int? RoundedPlaces {
             get => (int?) this.GetValue(RoundedPlacesProperty);
@@ -95,7 +211,14 @@ namespace FramePFX.Controls.Dragger {
         }
 
         /// <summary>
-        /// The number of digits to round the text preview of the value (not the actual value). Set to null to disable
+        /// The number of digits to round the preview value to. Set to null to disable rounding.
+        /// <para>
+        /// When <see cref="RangeBase.ValueProperty"/> is bound to non floating point, this value should be ignored
+        /// </para>
+        /// <para>
+        /// However when binding to floating point numbers, this value should ideally be 6 or 7. For doubles,
+        /// this should be 14 or 15. This is to combat floating point rounding issues, causing the the
+        /// </para>
         /// </summary>
         public int? PreviewRoundedPlaces {
             get => (int?) this.GetValue(PreviewRoundedPlacesProperty);
@@ -117,6 +240,15 @@ namespace FramePFX.Controls.Dragger {
         public string DisplayTextOverride {
             get => (string) this.GetValue(DisplayTextOverrideProperty);
             set => this.SetValue(DisplayTextOverrideProperty, value);
+        }
+
+        /// <summary>
+        /// A piece of text to display overtop of the editor text box when manually editing
+        /// the value, and there is no text in the text box
+        /// </summary>
+        public string EditingHint {
+            get => (string) this.GetValue(EditingHintProperty);
+            set => this.SetValue(EditingHintProperty, value);
         }
 
         public bool? ForcedReadOnlyState {
@@ -143,14 +275,6 @@ namespace FramePFX.Controls.Dragger {
         }
 
         /// <summary>
-        /// An interface used to convert the value into a string in any form
-        /// </summary>
-        public IValueFormatter ValueFormatter {
-            get => (IValueFormatter) this.GetValue(ValueFormatterProperty);
-            set => this.SetValue(ValueFormatterProperty, value);
-        }
-
-        /// <summary>
         /// Gets or sets a command executed when an edit begins
         /// </summary>
         public ICommand EditStartedCommand {
@@ -173,10 +297,15 @@ namespace FramePFX.Controls.Dragger {
 
                 Binding binding;
                 BindingExpression expression = this.GetBindingExpression(ValueProperty);
-                if (expression == null || (binding = expression.ParentBinding) == null || binding.Mode == BindingMode.Default)
+                if (expression == null || (binding = expression.ParentBinding) == null)
                     return false;
 
-                return binding.Mode == BindingMode.OneWay || binding.Mode == BindingMode.OneTime;
+                switch (binding.Mode) {
+                    case BindingMode.OneWay:
+                    case BindingMode.OneTime:
+                        return true;
+                    default: return false;
+                }
             }
         }
 
@@ -197,6 +326,7 @@ namespace FramePFX.Controls.Dragger {
             remove => this.RemoveHandler(EditCompletedEvent, value);
         }
 
+        private TextBlock PART_HintTextBlock;
         private TextBlock PART_TextBlock;
         private TextBox PART_TextBox;
         private Point? lastClickPoint;
@@ -205,6 +335,7 @@ namespace FramePFX.Controls.Dragger {
         private double? previousValue;
         private bool ignoreMouseMove;
         private bool isUpdatingExternalMouse;
+        private bool ignoreLostFocus;
 
         public NumberDragger() {
             this.Loaded += (s, e) => {
@@ -213,34 +344,31 @@ namespace FramePFX.Controls.Dragger {
                 this.UpdateCursor();
                 this.RequeryChangeMapper(this.Value);
             };
+
+            object isChecked = this.GetValue(Window.TitleProperty);
         }
 
         static NumberDragger() {
             ValueProperty.OverrideMetadata(typeof(NumberDragger), new FrameworkPropertyMetadata(null, (o, value) => ((NumberDragger) o).OnCoerceValue(value)));
-            MaximumProperty.OverrideMetadata(typeof(NumberDragger), new FrameworkPropertyMetadata(100d));
         }
 
         private object OnCoerceValue(object value) {
-            double val = Maths.Clamp(this.GetRoundedValue((double) value), this.Minimum, this.Maximum);
+            double src = (double) value;
+            double dst = Maths.Clamp(this.GetRoundedValue(src, false, out _), this.Minimum, this.Maximum);
             if (this.ValuePreProcessor is IValuePreProcessor processor) {
-                return processor.Process(val, this.Minimum, this.Maximum);
+                dst = processor.Process(dst, this.Minimum, this.Maximum);
             }
 
-            return val;
+            return Maths.Equals(dst, src, 0.00000000001d) ? dst : value;
         }
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.PART_TextBlock = this.GetTemplateChild("PART_TextBlock") as TextBlock ?? throw new Exception("Missing template part: " + nameof(this.PART_TextBlock));
             this.PART_TextBox = this.GetTemplateChild("PART_TextBox") as TextBox ?? throw new Exception("Missing template part: " + nameof(this.PART_TextBox));
+            this.PART_HintTextBlock = this.GetTemplateChild("PART_HintTextBlock") as TextBlock;
             this.PART_TextBox.Focusable = true;
             this.PART_TextBox.KeyDown += this.OnTextBoxKeyDown;
-            this.PART_TextBox.GotFocus += (s, e) => {
-                if (this.PART_TextBox.IsFocused || this.PART_TextBox.IsMouseCaptured) {
-                    this.IsEditingTextBox = true;
-                }
-            };
-
             this.PART_TextBox.LostFocus += (s, e) => {
                 if (this.IsEditingTextBox && this.CompleteEditOnTextBoxLostFocus is bool complete) {
                     if (!complete || !this.TryCompleteEdit()) {
@@ -251,17 +379,30 @@ namespace FramePFX.Controls.Dragger {
                 this.IsEditingTextBox = false;
             };
 
+            this.PART_TextBox.TextChanged += (sender, e) => this.UpdateHintVisibility();
+
             this.CoerceValue(IsEditingTextBoxProperty);
         }
 
-        public double GetRoundedValue(double value) {
-            int? digits = this.RoundedPlaces;
-            if (digits.HasValue)
-                value = Math.Round(value, digits.Value);
+        public double GetRoundedValue(double value, bool isPreview, out int? places) {
+            places = this.RoundedPlaces;
+            if (places.HasValue) {
+                value = Math.Round(value, places.Value);
+            }
+
+            if (isPreview) {
+                int? preview = this.PreviewRoundedPlaces;
+                if (preview.HasValue) {
+                    value = Math.Round(value, preview.Value);
+                    places = preview;
+                }
+            }
+
             return value;
         }
 
         protected virtual void OnIsDraggingChanged(bool oldValue, bool newValue) {
+
         }
 
         protected virtual void OnOrientationChanged(Orientation oldValue, Orientation newValue) {
@@ -277,13 +418,21 @@ namespace FramePFX.Controls.Dragger {
                 this.CancelDrag();
             }
 
+            this.UpdatePreviewVisibilities();
             this.UpdateText();
             if (oldValue != newValue) {
-                this.PART_TextBox.Focus();
-                this.PART_TextBox.SelectAll();
+                this.ignoreLostFocus = true;
+                try {
+                    this.PART_TextBox.Focus();
+                    this.PART_TextBox.SelectAll();
+                }
+                finally {
+                    this.ignoreLostFocus = false;
+                }
             }
 
             this.UpdateCursor();
+            this.UpdateHintVisibility();
         }
 
         private object OnCoerceIsEditingTextBox(object isEditing) {
@@ -291,7 +440,23 @@ namespace FramePFX.Controls.Dragger {
                 return isEditing;
             }
 
-            if ((bool) isEditing) {
+            this.UpdatePreviewVisibilities();
+            return isEditing;
+        }
+
+        private void UpdateHintVisibility() {
+            if (this.PART_HintTextBlock != null && this.PART_TextBox != null) {
+                if (string.IsNullOrWhiteSpace(this.PART_TextBox.Text) && this.IsEditingTextBox && !string.IsNullOrEmpty(this.EditingHint)) {
+                    this.PART_HintTextBlock.Visibility = Visibility.Visible;
+                }
+                else {
+                    this.PART_HintTextBlock.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void UpdatePreviewVisibilities() {
+            if (this.IsEditingTextBox) {
                 this.PART_TextBox.Visibility = Visibility.Visible;
                 this.PART_TextBlock.Visibility = Visibility.Hidden;
             }
@@ -301,7 +466,6 @@ namespace FramePFX.Controls.Dragger {
             }
 
             this.PART_TextBox.IsReadOnly = this.IsValueReadOnly;
-            return isEditing;
         }
 
         public void UpdateCursor() {
@@ -362,15 +526,13 @@ namespace FramePFX.Controls.Dragger {
         }
 
         protected virtual void OnRoundedPlacesChanged(int? oldValue, int? newValue) {
-            if (newValue != null) {
+            if (newValue != null)
                 this.UpdateText();
-            }
         }
 
         protected virtual void OnPreviewRoundedPlacesChanged(int? oldValue, int? newValue) {
-            if (newValue != null) {
+            if (newValue != null)
                 this.UpdateText();
-            }
         }
 
         protected override void OnValueChanged(double oldValue, double newValue) {
@@ -393,40 +555,36 @@ namespace FramePFX.Controls.Dragger {
             }
         }
 
-        private string GetPreviewText(out double value) {
-            double val = this.Value;
-            int? digits = this.RoundedPlaces, b = this.PreviewRoundedPlaces;
-            if (digits.HasValue)
-                val = Math.Round(val, digits.Value);
-
-            if (b.HasValue) {
-                val = Math.Round(val, b.Value);
-                digits = b;
-            }
-
-            value = val;
-            if (this.ValueFormatter is IValueFormatter formatter)
-                return formatter.ToString(val, digits);
-
-            return digits.HasValue ? val.ToString("F" + digits.Value.ToString()) : val.ToString();
-        }
-
         protected void UpdateText() {
             if (this.PART_TextBox == null && this.PART_TextBlock == null) {
                 return;
             }
 
             if (this.IsEditingTextBox) {
+                if (this.PART_TextBlock != null)
+                    this.PART_TextBlock.Text = "";
+
                 if (this.PART_TextBox == null)
                     return;
-                this.PART_TextBox.Text = this.GetPreviewText(out _);
+                // don't use preview for text box; only round to RoundedPlaces, if possible
+                double value = this.GetRoundedValue(this.Value, false, out int? places);
+                this.PART_TextBox.Text = (places.HasValue ? Math.Round(value, places.Value) : value).ToString();
             }
             else {
+                // prevents problems where the text box could be very large due
+                // to an un-rounded value, affecting the entire control size
+                // 0.300000011920929 for example when it should be 0.3
+                if (this.PART_TextBox != null)
+                    this.PART_TextBox.Text = "";
+
                 if (this.PART_TextBlock == null)
                     return;
                 string text = this.DisplayTextOverride;
-                if (string.IsNullOrEmpty(text))
-                    text = this.GetPreviewText(out _);
+                if (string.IsNullOrEmpty(text)) {
+                    double value = this.GetRoundedValue(this.Value, true, out int? places);
+                    text = places.HasValue ? value.ToString("F" + places.Value.ToString()) : value.ToString();
+                }
+
                 this.PART_TextBlock.Text = text;
             }
         }
@@ -609,8 +767,8 @@ namespace FramePFX.Controls.Dragger {
                 newValue = this.Value - change;
             }
 
-            double roundedValue = Maths.Clamp(this.GetRoundedValue(newValue), this.Minimum, this.Maximum);
-            if (Maths.Equals(this.GetRoundedValue(this.Value), roundedValue)) {
+            double roundedValue = Maths.Clamp(this.GetRoundedValue(newValue, false, out _), this.Minimum, this.Maximum);
+            if (Maths.Equals(this.GetRoundedValue(this.Value, false, out _), roundedValue)) {
                 return;
             }
 
@@ -620,17 +778,35 @@ namespace FramePFX.Controls.Dragger {
 
         protected override void OnKeyDown(KeyEventArgs e) {
             base.OnKeyDown(e);
-            if (e.Handled || !this.IsDragging || e.Key != Key.Escape) {
-                return;
-            }
+            if (!e.Handled) {
+                if (this.IsDragging) {
+                    if (e.Key == Key.Escape) {
+                        e.Handled = true;
+                        this.CancelInputEdit();
+                        if (this.IsDragging) {
+                            this.CancelDrag();
+                        }
 
-            e.Handled = true;
-            this.CancelInputEdit();
-            if (this.IsDragging) {
-                this.CancelDrag();
-            }
+                        this.IsEditingTextBox = false;
+                    }
+                }
+                // If the user previously edited another NumberDragger, then once they complete/cancel an edit, WPF
+                // auto-focused that number dragger. Then they can press tab to navigate nearby draggers, and they can
+                // edit them by just clicking a key. Massive convenience feature, saves having to use the mouse as much
+                else if (this.CanEnableAutoEdit(e.Key) && !this.IsValueReadOnly && (this.HasEffectiveKeyboardFocus || this.IsFocused)) {
+                    if (this.IsMouseCaptured) {
+                        Debug.WriteLine("Unexpected mouse capture for KeyDown event");
+                        this.ReleaseMouseCapture();
+                    }
 
-            this.IsEditingTextBox = false;
+                    this.IsEditingTextBox = true;
+                    this.UpdateCursor();
+                }
+            }
+        }
+
+        private bool CanEnableAutoEdit(Key k) {
+            return k >= Key.D0 && k <= Key.D9 || k == Key.Enter;
         }
 
         private void OnTextBoxKeyDown(object sender, KeyEventArgs e) {
@@ -647,11 +823,13 @@ namespace FramePFX.Controls.Dragger {
 
         protected override void OnLostFocus(RoutedEventArgs e) {
             base.OnLostFocus(e);
-            if (this.IsDragging) {
-                this.CancelDrag();
-            }
+            if (!this.ignoreLostFocus) {
+                if (this.IsDragging) {
+                    this.CancelDrag();
+                }
 
-            this.IsEditingTextBox = false;
+                this.IsEditingTextBox = false;
+            }
         }
 
         public bool TryCompleteEdit() {
@@ -679,7 +857,7 @@ namespace FramePFX.Controls.Dragger {
             this.previousValue = this.Value;
             this.Focus();
             this.CaptureMouse();
-            this.SetValue(IsDraggingPropertyKey, BoolBox.True);
+            this.IsDragging = true;
             this.UpdateCursor();
 
             bool fail = true;

@@ -9,26 +9,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FramePFX.Core", "FramePFX.C
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
-		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Debug|x64.ActiveCfg = Debug|x64
 		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Debug|x64.Build.0 = Debug|x64
-		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Release|Any CPU.ActiveCfg = Release|x64
 		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Release|x64.ActiveCfg = Release|x64
 		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Release|x64.Build.0 = Release|x64
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|x64.Build.0 = Debug|Any CPU
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.ActiveCfg = Release|Any CPU
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.Build.0 = Release|Any CPU
+		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|x64.ActiveCfg = Debug|x64
+		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|x64.Build.0 = Debug|x64
+		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.ActiveCfg = Release|x64
+		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -41,8 +41,8 @@ namespace FramePFX {
             }
 
             SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
-            SKSizeI size2 = this.IgnorePixelScaling ? unscaledSize : pixelSize;
-            this.CanvasSize = size2;
+            SKSizeI size = this.IgnorePixelScaling ? unscaledSize : pixelSize;
+            this.CanvasSize = size;
             if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
                 surface = null;
                 return false;

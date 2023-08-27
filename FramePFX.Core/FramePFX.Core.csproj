@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Automation\Actions" />
-    <Folder Include="Editor\Exporting\Exporters\Services" />
+    <Folder Include="Automation\Actions\" />
+    <Folder Include="Editor\Exporting\Exporters\Services\" />
   </ItemGroup>
 </Project>

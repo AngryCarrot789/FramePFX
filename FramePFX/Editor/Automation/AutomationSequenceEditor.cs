@@ -694,8 +694,8 @@ namespace FramePFX.Editor.Automation {
             KeyFramePoint prev = this.captured.Prev;
             KeyFramePoint next = this.captured.Next;
 
-            long min = prev?.keyFrame.Timestamp ?? (this.FrameBegin);
-            long max = next?.keyFrame.Timestamp ?? (this.FrameBegin + this.FrameDuration - 1);
+            long min = prev?.keyFrame.Time ?? this.FrameBegin;
+            long max = next?.keyFrame.Time ?? (this.FrameBegin + this.FrameDuration - 1);
 
             if (this.isCaptureInitialised) {
                 this.lastMousePoint = mPos;
@@ -743,12 +743,12 @@ namespace FramePFX.Editor.Automation {
             else {
                 if (mode == DragMode.FullKeyFrame || mode == DragMode.HorizontalKeyFrame) {
                     long newTime = Math.Max(0, (long) Math.Round(mPos.X / this.UnitZoom));
-                    long oldTime = this.captured.keyFrame.Timestamp;
+                    long oldTime = this.captured.keyFrame.Time;
                     if ((oldTime + newTime) < 0) {
                         newTime = -oldTime;
                     }
 
-                    this.captured.keyFrame.Timestamp = Maths.Clamp(newTime, min, max);
+                    this.captured.keyFrame.Time = Maths.Clamp(newTime, min, max);
                 }
 
                 if (mode == DragMode.FullKeyFrame || mode == DragMode.VerticalKeyFrame) {

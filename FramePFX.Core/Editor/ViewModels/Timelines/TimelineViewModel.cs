@@ -61,6 +61,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             }
         }
 
+        public Rational FPS => this.Project.Settings.FrameRate;
+
+        public Rational PlayheadRational => new Rational((int) this.PlayHeadFrame, this.FPS.den);
+
         public long MaxDuration {
             get => this.Model.MaxDuration;
             set {

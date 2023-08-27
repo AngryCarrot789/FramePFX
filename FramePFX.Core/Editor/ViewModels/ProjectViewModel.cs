@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Security;
 using System.Threading.Tasks;
+using FramePFX.Core.Automation;
 using FramePFX.Core.Automation.ViewModels;
+using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Editor.ResourceChecker;
 using FramePFX.Core.Editor.ResourceManaging.ViewModels;
 using FramePFX.Core.Editor.ViewModels.Timelines;
@@ -94,8 +96,37 @@ namespace FramePFX.Core.Editor.ViewModels {
             ProjectSettings result = await IoC.Provide<IProjectSettingsEditor>().EditSettingsAsync(this.Settings.Model);
             if (result != null) {
                 this.Settings.Resolution = result.Resolution;
+
+                Rational oldFps = this.Settings.FrameRate;
                 this.Settings.FrameRate = result.TimeBase;
                 playback.SetTimerFrameRate(result.TimeBase);
+
+                if (oldFps != this.Settings.FrameRate) {
+                    if (await IoC.MessageDialogs.ShowYesNoDialogAsync("Convert Framerate", "Do you want to convert clip and automation to match the new FPS?")) {
+                        this.ConvertProjectFrameRate(oldFps, this.Settings.FrameRate);
+                    }
+                }
+            }
+        }
+
+        private void ConvertProjectFrameRate(Rational oldFps, Rational newFps) {
+            double ratio = newFps.ToDouble / oldFps.ToDouble;
+            foreach (TrackViewModel track in this.Timeline.Tracks) {
+                ConvertTimeRatios(track.AutomationData, ratio);
+                foreach (ClipViewModel clip in track.Clips) {
+                    ConvertTimeRatios(clip.AutomationData, ratio);
+                    FrameSpan span = clip.FrameSpan;
+                    clip.FrameSpan = new FrameSpan((long) Math.Round(ratio * span.Begin), (long) Math.Round(ratio * span.Duration));
+                }
+            }
+        }
+
+        private static void ConvertTimeRatios(AutomationDataViewModel data, double ratio) {
+            foreach (AutomationSequenceViewModel sequence in data.Sequences) {
+                for (int i = sequence.KeyFrames.Count - 1; i >= 0; i--) {
+                    KeyFrameViewModel keyFrame = sequence.KeyFrames[i];
+                    keyFrame.Time = (long) Math.Round(ratio * keyFrame.Time);
+                }
             }
         }
 

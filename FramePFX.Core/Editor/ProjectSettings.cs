@@ -5,24 +5,21 @@ namespace FramePFX.Core.Editor {
     public class ProjectSettings : IRBESerialisable {
         #region Video
 
-        public Resolution Resolution { get; set; }
+        public Resolution Resolution;
 
         /// <summary>
         /// This project's time base, which is the rate at which everything is synchronised to. This could be 30 fps, 60 fps, etc
         /// </summary>
-        public Rational TimeBase { get; set; }
+        public Rational TimeBase;
 
         #endregion
 
         #region Audio
 
-        public string ChannelFormat { get; set; }
-
-        public int SampleRate { get; set; }
-
-        public int BitRate { get; set; }
-
-        public int Channels { get; set; }
+        public string ChannelFormat;
+        public int SampleRate;
+        public int BitRate;
+        public int Channels;
 
         #endregion
 

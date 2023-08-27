@@ -142,7 +142,7 @@ namespace FramePFX.Core.Editor.ViewModels {
                 await this.CloseProjectAction();
             }
 
-            await this.SetProject(project, true);
+            await this.SetProject(project);
             this.ActiveProject.SetHasUnsavedChanges(false);
         }
 
@@ -198,40 +198,35 @@ namespace FramePFX.Core.Editor.ViewModels {
                 this.ActiveProject = null;
             }
 
-            await this.SetProject(pvm, true);
-            this.ActiveProject.SetHasUnsavedChanges(false);
+            await this.SetProject(pvm);
             pvm.HasSavedOnce = true;
+
+            if (!await ResourceCheckerViewModel.LoadProjectResources(pvm, true)) {
+#if DEBUG
+                pvm.Dispose();
+#else
+                try {
+                    pvm.Dispose();
+                }
+                catch (Exception e) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "...", e.GetToString());
+                }
+#endif
+
+                await this.Playback.OnProjectChanging(null);
+                this.ActiveProject = null;
+                await this.Playback.OnProjectChanged(null);
+                return;
+            }
+
+            this.ActiveProject.SetHasUnsavedChanges(false);
         }
 
-        public async Task SetProject(ProjectViewModel project, bool loadResources = false) {
+        public async Task SetProject(ProjectViewModel project) {
             await this.HistoryManager.ResetAsync();
             await this.Playback.OnProjectChanging(project);
             this.ActiveProject = project;
             await this.Playback.OnProjectChanged(project);
-
-            if (loadResources) {
-                if (project == null) {
-                    throw new Exception("Cannot load resources for null project");
-                }
-
-                if (!await ResourceCheckerViewModel.LoadProjectResources(project, true)) {
-#if !DEBUG
-                    project.Dispose();
-#else
-                    try {
-                        project.Dispose();
-                    }
-                    catch (Exception e) {
-                        await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "...", e.GetToString());
-                    }
-#endif
-
-                    await this.Playback.OnProjectChanging(null);
-                    this.ActiveProject = null;
-                    await this.Playback.OnProjectChanged(null);
-                    return;
-                }
-            }
         }
 
         public void Dispose() {

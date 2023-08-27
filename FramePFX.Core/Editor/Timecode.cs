@@ -1,4 +1,6 @@
+using System;
 using FFmpeg.AutoGen;
+using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
     /// <summary>
@@ -55,6 +57,25 @@ namespace FramePFX.Core.Editor {
 
         public static Rational TimeBaseToMediaTime(Rational r, double speed) {
             return r * Rational.FromDouble(speed);
+        }
+
+        // Inlined version of Maths.Map. Equivalent code is round(Maths.Map(frame, 0, fpsIn, 0, fpsOut))
+
+        /// <summary>
+        /// Maps a frame from a source frame rate to a target frame rate
+        /// </summary>
+        /// <param name="frame">Source frame</param>
+        /// <param name="fpsIn">Source frame rate</param>
+        /// <param name="fpsOut">Output frame rate</param>
+        /// <returns>Output frame</returns>
+        public static long MapFrame(long frame, long fpsIn, long fpsOut) => MapFrame(frame, (double) fpsIn, fpsOut);
+
+        public static long MapFrame(long frame, Rational src, Rational dst) => MapFrame(frame, src.ToDouble, dst.ToDouble);
+
+        // Using double instead of the av_reduce functions because it's probably faster and just as
+        // precise, as long as fpsIn and fpsOut are somewhat close (e.g.  60 / 30 = 2)
+        public static long MapFrame(double frame, double fpsIn, double fpsOut) {
+            return (long) Math.Round(fpsOut / fpsIn * frame);
         }
     }
 }

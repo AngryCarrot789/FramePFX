@@ -31,7 +31,7 @@ namespace FramePFX.Utils {
                 this.lastScript = null;
             }
 
-            string klass = "Script_" + RandomUtils.RandomStringWhere(16, x => !UsedClassNames.Contains(x));
+            string klass = RandomUtils.RandomStringWhere("Script_", 16, x => !UsedClassNames.Contains(x));
             UsedClassNames.Add(klass);
             string[] code = {
                 "using System;" +

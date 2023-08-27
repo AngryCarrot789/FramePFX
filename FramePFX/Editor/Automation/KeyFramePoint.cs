@@ -1,14 +1,17 @@
 using System;
 using System.Windows;
 using System.Windows.Media;
+using FramePFX.Core.Automation.Keyframe;
 using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
+using FramePFX.Core.Editor.ViewModels;
 using FramePFX.Core.Utils;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Editor.Automation {
     public class KeyFramePoint {
         private readonly AutomationSequenceEditor editor;
+        private readonly ProjectViewModel project;
         public readonly KeyFrameViewModel keyFrame;
         private Point? renderPoint;
 
@@ -39,6 +42,7 @@ namespace FramePFX.Editor.Automation {
         protected KeyFramePoint(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {
             this.editor = editor;
             this.keyFrame = keyFrame;
+            this.project = keyFrame.OwnerSequence.AutomationData.Owner.AutomationEngine.Project;
         }
 
         public static KeyFramePoint ForKeyFrame(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {
@@ -55,7 +59,7 @@ namespace FramePFX.Editor.Automation {
             }
 
             double height = this.editor.ActualHeight;
-            double px = this.keyFrame.Timestamp * this.editor.UnitZoom;
+            double px = this.keyFrame.Time * this.editor.UnitZoom;
             double offset_y = KeyPointUtils.GetY(this.keyFrame, height);
             this.renderPoint = point = new Point(px, height - offset_y);
             return point;

@@ -19,7 +19,7 @@ namespace FramePFX.Core.Automation.ViewModels.Keyframe {
             set => this.RaisePropertyChanged(ref this.ownerSequence, value);
         }
 
-        public long Timestamp {
+        public long Time {
             get => this.Model.time;
             set {
                 this.Model.time = value;

@@ -9,13 +9,12 @@ using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Automation.Keyframe {
     public abstract class KeyFrame : IRBESerialisable {
-        // TODO: move from frame time to frame-independent time, using this as a timebase
-        // targetTime *
-
-        public static Rational DELTA = new Rational(1, 1000);
-
         public AutomationSequence sequence;
+
+        // The key frame time, relative to the project FPS. Converted when the project FPS changes
         public long time;
+
+        // A 'bend' in the interpolation. could add something more complicated?
         public double curveBend = 0D; // -1d to +1d
 
         /// <summary>
@@ -24,7 +23,14 @@ namespace FramePFX.Core.Automation.Keyframe {
         public abstract AutomationDataType DataType { get; }
 
         protected KeyFrame() {
+
         }
+
+        // Was going to use this to map timeline frames to keyframe times (which would have a const fps of 1000)
+        public static long FrameTL2KF(long frame, Rational fps) => FrameTL2KF((double) frame, fps);
+        public static long FrameTL2KF(double frame, Rational fps) => (long) Math.Round(1000 / fps.ToDouble * frame);
+        public static long FrameKF2TL(long frame, Rational fps) => FrameKF2TL((double) frame, fps);
+        public static long FrameKF2TL(double frame, Rational fps) => (long) Math.Round(fps.ToDouble / 1000 * frame);
 
         #region Getter functions
 
@@ -100,7 +106,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         /// <param name="data"></param>
         public virtual void WriteToRBE(RBEDictionary data) {
-            data.SetULong(nameof(this.time), (ulong) this.time);
+            data.SetULong("Time", (ulong) this.time);
         }
 
         /// <summary>
@@ -108,7 +114,7 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         /// <param name="data"></param>
         public virtual void ReadFromRBE(RBEDictionary data) {
-            this.time = (long) data.GetULong(nameof(this.time));
+            this.time = (long) data.GetULong("Time");
         }
 
         #region Factory Methods
@@ -134,20 +140,20 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// Creates a new instance of the given automation data type, and sets the key frame's value to the actual value at a specific frame
         /// </summary>
         /// <param name="type">Type of key frame to create</param>
-        /// <param name="frame">The frame at which the returned key frame will be at</param>
+        /// <param name="time">The frame at which the returned key frame will be at</param>
         /// <param name="sequence">The sequence, in order to access to actual value at the given frame</param>
         /// <returns>A new key frame instance</returns>
         /// <exception cref="ArgumentOutOfRangeException">Unknown automation data type</exception>
-        public static KeyFrame CreateInstance(AutomationSequence sequence, long frame) {
+        public static KeyFrame CreateInstance(AutomationSequence sequence, long time) {
             KeyFrame keyFrame = CreateInstance(sequence.DataType); // same as sequence.Key.CreateKeyFrame()
-            keyFrame.time = frame;
-            keyFrame.AssignCurrentValue(frame, sequence);
+            keyFrame.time = time;
+            keyFrame.AssignCurrentValue(time, sequence);
             return keyFrame;
         }
 
-        public static KeyFrame CreateDefault(AutomationKey key, long frame = 0L) {
+        public static KeyFrame CreateDefault(AutomationKey key, long time = 0L) {
             KeyFrame keyFrame = CreateInstance(key.DataType);
-            keyFrame.time = frame;
+            keyFrame.time = time;
             keyFrame.AssignDefaultValue(key.Descriptor);
             return keyFrame;
         }
@@ -182,9 +188,9 @@ namespace FramePFX.Core.Automation.Keyframe {
             double blend = (time - timeA) / (double) range;
             if (curve != 0d) {
                 blend = Math.Pow(blend, 1d / Math.Abs(curve));
-                if (curve < 0d) {
-                    blend = 1d - blend;
-                }
+                // if (curve < 0d) {
+                //     blend = 1d - blend;
+                // }
             }
 
             return blend;
@@ -199,18 +205,18 @@ namespace FramePFX.Core.Automation.Keyframe {
         /// </summary>
         /// <param name="targetTime">Target timestamp. Must be greater than or equal to the current instance's timestamp, otherwise undefined behaviour may occur</param>
         /// <returns>A blend multiplier</returns>
-        public double GetInterpolationMultiplier(long timestamp, long targetTime) {
-            return GetInterpolationLerp(timestamp, this.time, targetTime, this.curveBend);
+        public double GetInterpolationMultiplier(long frame, long targetTime) {
+            return GetInterpolationLerp(frame, this.time, targetTime, this.curveBend);
         }
 
         /// <summary>
         /// <inheritdoc cref="GetInterpolationMultiplier(long,long)"/>
         /// </summary>
-        /// <param name="timestamp">The timestamp, which is between the current instance's timestamp, and <see cref="nextFrame"/>'s timestamp</param>
+        /// <param name="frame">The timestamp, which is between the current instance's timestamp, and <see cref="nextFrame"/>'s timestamp</param>
         /// <param name="nextFrame">Target frame. Its timestamp must be greater than or equal to the current instance's timestamp, otherwise undefined behaviour may occur</param>
         /// <returns>A blend multiplier</returns>
-        public double GetInterpolationMultiplier(long timestamp, KeyFrame nextFrame) {
-            return this.GetInterpolationMultiplier(timestamp, nextFrame.time);
+        public double GetInterpolationMultiplier(long frame, KeyFrame nextFrame) {
+            return this.GetInterpolationMultiplier(frame, nextFrame.time);
         }
 
         #endregion

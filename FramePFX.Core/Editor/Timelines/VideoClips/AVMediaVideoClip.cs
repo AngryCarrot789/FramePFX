@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.Core.Editor.ResourceManaging.Resources;
 using FramePFX.Core.FFmpegWrapper;
@@ -155,6 +156,61 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
             }
 
             base.OnResourceChanged(oldItem, newItem);
+        }
+
+        // Help from https://github.com/Golim4r/OpenGL-Video-Player
+        public unsafe class DecoderThread {
+            private readonly Thread thread;
+            public volatile bool isPaused;
+            public volatile bool isRunning;
+
+            public AVFormatContext* pFormatCtx;
+            public int videoStream;
+            public AVCodecContext* pCodecCtx;
+            public AVFrame* pFrame;
+            public AVFrame* pFrameRGB;
+            public SwsContext* sws_ctx;
+
+            public DecoderThread() {
+                this.thread = new Thread(this.ThreadMain);
+                this.isRunning = true;
+                this.isPaused = true;
+                this.thread.Start();
+            }
+
+            private void ThreadMain() {
+                while (this.isRunning) {
+                    while (this.isPaused) {
+                        Thread.Sleep(10);
+                    }
+
+                    this.ReadFrame();
+                }
+            }
+
+            public void ReadFrame() {
+                AVPacket packet;
+                if (ffmpeg.av_read_frame(this.pFormatCtx, &packet) < 0) {
+                    this.isPaused = true;
+                    return;
+                }
+
+                // Is this a packet from the video stream?
+                if (packet.stream_index == this.videoStream) {
+                    LavResult result = (LavResult) ffmpeg.avcodec_receive_frame(this.pCodecCtx, this.pFrame);
+                    if (result != LavResult.Success && result != LavResult.EndOfFile) {
+                        this.isPaused = true;
+                        return;
+                    }
+
+                    // Convert the image from its native format to RGB
+                    ffmpeg.sws_scale(this.sws_ctx, this.pFrame->data, this.pFrame->linesize, 0, this.pCodecCtx->height, this.pFrameRGB->data, this.pFrameRGB->linesize);
+                }
+
+                // Free the packet that was allocated by ffmpeg.av_read_frame
+                AVPacket* pkt = &packet;
+                ffmpeg.av_packet_free(&pkt);
+            }
         }
     }
 }

@@ -89,8 +89,9 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
             c->height = frameInfo.Height;
             c->time_base = frameRate.Inverse;
             st->time_base = c->time_base;
-            c->gop_size = this.GopValue; /* emit one intra frame every ten frames */
+            c->gop_size = this.GopValue;
             c->max_b_frames = 1;
+            // c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
             c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
             c->codec_id = codec_id;
             if (codec_id == AVCodecID.AV_CODEC_ID_H264) {

@@ -8,7 +8,7 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor {
-    public class Project : IRBESerialisable {
+    public class Project {
         public volatile bool IsSaving;
 
         public ProjectSettings Settings { get; }

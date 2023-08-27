@@ -270,16 +270,33 @@ namespace FramePFX.Core.Editor {
         /// </example>
         /// </summary>
         /// <param name="time">Input time</param>
-        /// <param name="tA">Input timebase</param>
-        /// <param name="tB">Output timebase</param>
+        /// <param name="src">Input timebase</param>
+        /// <param name="dst">Output timebase</param>
         /// <returns>The input time but in the B timebase</returns>
-        public static unsafe Rational Transform(Rational time, Rational tA, Rational tB) {
+        public static unsafe Rational Transform(Rational time, Rational src, Rational dst) {
             // return time * (new Rational(1) / tA) * tB;
             int num, den;
-            ffmpeg.av_reduce(&num, &den, tA.den, tA.num, int.MaxValue);
+            ffmpeg.av_reduce(&num, &den, src.den, src.num, int.MaxValue);
             ffmpeg.av_reduce(&num, &den, time.num * (long) num, time.den * (long) den, int.MaxValue);
-            ffmpeg.av_reduce(&num, &den, num * (long) tB.num, den * (long) tB.den, int.MaxValue);
+            ffmpeg.av_reduce(&num, &den, num * (long) dst.num, den * (long) dst.den, int.MaxValue);
             return new Rational(num, den);
+        }
+        /// <summary>
+        /// Transforms an input time from timebase A to timebase B
+        /// <example>
+        /// Transform(90, new Rational(30), new Rational(1000)) == 3000
+        /// </example>
+        /// </summary>
+        /// <param name="time">Input time</param>
+        /// <param name="src">Input timebase</param>
+        /// <param name="dst">Output timebase</param>
+        /// <returns>The input time but in the B timebase</returns>
+        public static unsafe long Transform(long time, Rational src, Rational dst) {
+            int num, den;
+            ffmpeg.av_reduce(&num, &den, src.den, src.num, int.MaxValue);
+            ffmpeg.av_reduce(&num, &den, time * num, den, int.MaxValue);
+            ffmpeg.av_reduce(&num, &den, num * (long) dst.num, den * (long) dst.den, int.MaxValue);
+            return (long) Math.Round((double) num / den);
         }
 
         public static unsafe Rational MulInternal(Rational b, Rational c) {

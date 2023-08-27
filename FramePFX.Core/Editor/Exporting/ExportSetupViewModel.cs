@@ -96,27 +96,17 @@ namespace FramePFX.Core.Editor.Exporting {
             ExportProgressViewModel export = new ExportProgressViewModel(properties);
             IWindow window = IoC.Provide<IExportViewService>().ShowExportWindow(export);
 
-            // await IoC.MessageDialogs.ShowMessageExAsync("Export failed", "Failed to export video", e.GetToString())
-#if DEBUG
-            await Task.Run(() => {
-                exporter.Exporter.Export(this.Project, export, properties);
-            });
-
-            await window.CloseWindowAsync();
-            await this.Dialog.CloseDialogAsync(true);
-#else
             try {
                 await Task.Run(() => {
                     exporter.Exporter.Export(this.Project, export, new ExportProperties(this.RenderSpan, this.FilePath));
                 });
-                await window.CloseWindowAsync();
             }
             catch (Exception e) {
-                await window.CloseWindowAsync();
                 await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "Failed to export:", e.GetToString());
             }
+
+            await window.CloseWindowAsync();
             await this.Dialog.CloseDialogAsync(true);
-#endif
         }
     }
 }

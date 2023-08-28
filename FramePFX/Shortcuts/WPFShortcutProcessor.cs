@@ -13,7 +13,6 @@ using FramePFX.Core.Shortcuts.Usage;
 using FramePFX.Core.Utils;
 using FramePFX.Shortcuts.Bindings;
 using FramePFX.Utils;
-using PSWMGRv2.Utils;
 
 namespace FramePFX.Shortcuts {
     public class WPFShortcutProcessor : ShortcutProcessor {

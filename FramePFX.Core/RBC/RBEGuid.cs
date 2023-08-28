@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace FramePFX.Core.RBC {
     public class RBEGuid : RBEBase {
@@ -14,12 +15,14 @@ namespace FramePFX.Core.RBC {
             this.Value = value;
         }
 
+        // These are probably ultra slow but oh well
+
         protected override void Read(BinaryReader reader) {
-            this.Value = reader.ReadStruct<Guid>();
+            this.Value = new Guid(reader.ReadBytes(16));
         }
 
         protected override void Write(BinaryWriter writer) {
-            writer.WriteStruct(this.Value);
+            writer.Write(this.Value.ToByteArray());
         }
 
         public override RBEBase Clone() => this.CloneCore();

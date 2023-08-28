@@ -6,6 +6,8 @@ using FramePFX.Core.RBC;
 using FramePFX.Core.Utils;
 
 namespace FramePFX.Core.Editor.Timelines {
+    // TODO: Maybe use composition/components instead of inheritance, because what about BaseResourceAudioClip?
+
     /// <summary>
     /// A base video clip that references a single resource
     /// </summary>

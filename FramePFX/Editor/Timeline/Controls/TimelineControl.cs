@@ -12,7 +12,6 @@ using FramePFX.Core.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Core.Utils;
 using FramePFX.Editor.Timeline.Utils;
 using FramePFX.Utils;
-using PSWMGRv2.Utils;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Editor.Timeline.Controls {

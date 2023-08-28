@@ -234,13 +234,15 @@ namespace FramePFX {
             await this.SetActivity("Loading FramePFX main window...");
             EditorMainWindow window = new EditorMainWindow();
 
-
             this.splash.Close();
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Show();
             await this.Dispatcher.Invoke(async () => {
                 await this.OnVideoEditorLoaded(window.Editor);
+                // new EditorWindow2() {
+                //     DataContext = window.Editor
+                // }.Show();
             }, DispatcherPriority.Loaded);
 #endif
         }

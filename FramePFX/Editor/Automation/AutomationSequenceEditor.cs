@@ -15,7 +15,6 @@ using FramePFX.Core.Automation.Keys;
 using FramePFX.Core.Automation.ViewModels.Keyframe;
 using FramePFX.Core.Utils;
 using FramePFX.Utils;
-using PSWMGRv2.Utils;
 using Rect = System.Windows.Rect;
 using Vector = System.Windows.Vector;
 

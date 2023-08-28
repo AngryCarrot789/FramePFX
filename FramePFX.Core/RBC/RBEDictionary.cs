@@ -11,13 +11,6 @@ namespace FramePFX.Core.RBC {
 
         public override RBEType Type => RBEType.Dictionary;
 
-        public RBEDictionary() : this(new Dictionary<string, RBEBase>()) {
-        }
-
-        public RBEDictionary(Dictionary<string, RBEBase> map) {
-            this.Map = map ?? throw new ArgumentNullException(nameof(map), "Map cannot be null");
-        }
-
         public RBEBase this[string key] {
             get => this.Map.TryGetValue(ValidateKey(key), out RBEBase value) ? value : null;
             set {
@@ -30,6 +23,15 @@ namespace FramePFX.Core.RBC {
                 }
             }
         }
+
+        public RBEDictionary() : this(new Dictionary<string, RBEBase>()) {
+        }
+
+        public RBEDictionary(Dictionary<string, RBEBase> map) {
+            this.Map = map ?? throw new ArgumentNullException(nameof(map), "Map cannot be null");
+        }
+
+        #region Getters And Setters (and similar util functions)
 
         public T GetElement<T>(string key) where T : RBEBase {
             if (this.TryGetElement(key, out T value)) {
@@ -230,6 +232,8 @@ namespace FramePFX.Core.RBC {
         public void SetStructArray<T>(string key, T[] array) where T : unmanaged => this[key] = RBEStructArray.ForValues(array);
         public void SetGuid(string key, Guid value) => this[key] = new RBEGuid(value);
 
+        #endregion
+
         protected override void Read(BinaryReader reader) {
             int length = reader.ReadUInt16();
             this.Map = new Dictionary<string, RBEBase>(length);
@@ -240,14 +244,14 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
+        protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> packData) {
             int length = reader.ReadUInt16();
             this.Map = new Dictionary<string, RBEBase>(length);
             for (int i = 0; i < length; i++) {
                 int index = reader.ReadInt32();
-                if (!dictionary.TryGetValue(index, out string key))
+                if (!packData.TryGetValue(index, out string key))
                     throw new Exception($"No such key for index: {index}");
-                RBEBase element = ReadIdAndElementPacked(reader, dictionary);
+                RBEBase element = ReadIdAndElementPacked(reader, packData);
                 this.Map[key] = element;
             }
         }

@@ -247,11 +247,11 @@ namespace FramePFX.Core.RBC {
             }
         }
 
-        protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
+        protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> packData) {
             int length = reader.ReadUInt16();
             this.List = new List<RBEBase>(length);
             for (int i = 0; i < length; i++) {
-                this.List.Add(ReadIdAndElementPacked(reader, dictionary));
+                this.List.Add(ReadIdAndElementPacked(reader, packData));
             }
         }
 

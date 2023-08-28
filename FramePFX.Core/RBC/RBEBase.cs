@@ -66,10 +66,10 @@ namespace FramePFX.Core.RBC {
         /// Collection based elements are the only ones that need to override this, as they form a recursive read operation
         /// </summary>
         /// <param name="reader">The reader (data source)</param>
-        /// <param name="dictionary">
+        /// <param name="packData">
         /// The dictionary which maps a key index to the actual string key (used by dictionary based elements, like <see cref="RBEDictionary"/>)
         /// </param>
-        protected virtual void ReadPacked(BinaryReader reader, Dictionary<int, string> dictionary) {
+        protected virtual void ReadPacked(BinaryReader reader, Dictionary<int, string> packData) {
             this.Read(reader);
         }
 
@@ -105,6 +105,11 @@ namespace FramePFX.Core.RBC {
             return TryGetIdByType(this.GetType(), out RBEType type) ? type.ToString() : this.GetType().ToString();
         }
 
+        /// <summary>
+        /// Reads an RBE object from the given binary reader
+        /// </summary>
+        /// <param name="reader">Binary data source</param>
+        /// <returns></returns>
         public static RBEBase ReadIdAndElement(BinaryReader reader) {
             byte id = reader.ReadByte();
             RBEBase element = CreateById((RBEType) id);

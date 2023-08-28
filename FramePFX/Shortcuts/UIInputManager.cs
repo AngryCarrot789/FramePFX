@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Windows;
 using FramePFX.Core.Utils;
 using FramePFX.Utils;
-using PSWMGRv2.Utils;
 
 namespace FramePFX.Shortcuts {
     public static class UIInputManager {

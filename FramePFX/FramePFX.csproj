@@ -38,6 +38,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AvalonDock, Version=4.72.1.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dirkster.AvalonDock.4.72.1\lib\net40\AvalonDock.dll</HintPath>
+    </Reference>
     <Reference Include="FFmpeg.AutoGen, Version=6.0.0.2, Culture=neutral, PublicKeyToken=9b7632533a381715">
       <HintPath>..\packages\FFmpeg.AutoGen.6.0.0.2\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
       <Private>True</Private>
@@ -250,10 +253,16 @@
     <Compile Include="Editor\Automation\KeyFramePoint.cs" />
     <Compile Include="Editor\Automation\KeyPointUtils.cs" />
     <Compile Include="Editor\Automation\LineHitType.cs" />
+    <Compile Include="Editor\Controls\ResourcesPanelControl.xaml.cs">
+      <DependentUpon>ResourcesPanelControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editor\EditorMainWindow.xaml.cs">
       <DependentUpon>EditorMainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
+    <Compile Include="Editor\EditorWindow2.xaml.cs">
+      <DependentUpon>EditorWindow2.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editor\Exporting\Converters\BitRateConverters.cs" />
     <Compile Include="Editor\Exporting\Converters\BitRateToMbConverter.cs" />
     <Compile Include="Editor\Exporting\ExportPageRegistry.cs" />
@@ -355,6 +364,9 @@
     <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
     <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
     <Compile Include="Themes\Attached\TextHinting.cs" />
+    <Compile Include="Themes\AvalonDock\GeneralDockTheme.cs" />
+    <Compile Include="Themes\AvalonDock\Themes\Menu\MenuKeys.cs" />
+    <Compile Include="Themes\AvalonDock\Themes\ResourceKeys.cs" />
     <Compile Include="Themes\ColourKeys.cs" />
     <Compile Include="Themes\Controls.xaml.cs">
       <DependentUpon>Controls.xaml</DependentUpon>
@@ -511,9 +523,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Editor\Controls\ResourcesPanelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Editor\EditorMainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\EditorWindow2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Exporting\ExportSetupWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -572,6 +592,30 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Shortcuts\Views\ShortcutEditorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\AvalonDock\DarkBrushes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\AvalonDock\GeneralDockTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\AvalonDock\Themes\Icons\IconGeometry.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\AvalonDock\Themes\Menu\DarkBrushes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\AvalonDock\Themes\Menu\MenuItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\AvalonDock\Themes\OverlayButtons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

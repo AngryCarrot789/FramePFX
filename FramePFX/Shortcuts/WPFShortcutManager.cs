@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -123,6 +124,9 @@ namespace FramePFX.Shortcuts {
 
         public static void OnIsGlobalShortcutFocusTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             if (!(d is Window window)) {
+                if (DesignerProperties.GetIsInDesignMode(d))
+                    return;
+
                 throw new Exception($"This property must be applied to objects of type {nameof(Window)} only, not " + d?.GetType());
             }
 

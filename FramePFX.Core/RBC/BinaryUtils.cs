@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace FramePFX.Core.RBC {
     public static class BinaryUtils {
@@ -150,29 +152,13 @@ namespace FramePFX.Core.RBC {
                 case 2: { ushort v = reader.ReadUInt16(); return Unsafe.As<ushort, T>(ref v); }
                 case 4: { uint v = reader.ReadUInt32();   return Unsafe.As<uint, T>(ref v); }
                 case 8: { ulong v = reader.ReadUInt64();  return Unsafe.As<ulong, T>(ref v); }
-                case 12: {
-                    ulong a = reader.ReadUInt64();
-                    uint b = reader.ReadUInt32();
-                    Block12 blk = new Block12(a, b);
-                    return Unsafe.As<Block12, T>(ref blk);
-                }
                 case 16: {
                     ulong a = reader.ReadUInt64();
                     ulong b = reader.ReadUInt64();
                     Block16 blk = new Block16(a, b);
                     return Unsafe.As<Block16, T>(ref blk);
                 }
-                default: throw new ArgumentException($"sizeof({typeof(T)}) must be >= 0 && <= 16");
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private readonly struct Block12 {
-            public readonly ulong a;
-            public readonly uint b;
-            public Block12(ulong a, uint b) {
-                this.a = a;
-                this.b = b;
+                default: throw new ArgumentException($"sizeof({typeof(T)}) must be a power of 2 and a maximum of 16 bytes wide");
             }
         }
 

@@ -112,12 +112,11 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
         }
 
         /// <summary>
-        /// Gets the size of this video clip's media, which is used in the scale phase of the
-        /// <see cref="Transform(FramePFX.Core.Rendering.RenderContext,out System.Nullable{System.Numerics.Vector2},out SkiaSharp.SKMatrix)"/> call.
+        /// Gets the amount of space this clip takes up on screen (unaffected by <see cref="MediaPosition"/> or <see cref="MediaScale"/>).
         /// If the value is unavailable, then the render viewport's width and height are used as a fallback
         /// </summary>
-        /// <returns></returns>
-        public abstract Vector2? GetSize();
+        /// <returns>A nullable vector (null indicating to use the current view port size)</returns>
+        public virtual Vector2? GetSize() => null;
 
         public void Transform(RenderContext rc, out Vector2? size, out SKMatrix oldMatrix) {
             oldMatrix = rc.Canvas.TotalMatrix;
@@ -126,17 +125,20 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
 
         public void Transform(RenderContext rc, out Vector2? size) {
             Vector2 pos = this.MediaPosition, scale = this.MediaScale, origin = this.MediaScaleOrigin;
-
             rc.Canvas.Translate(pos.X, pos.Y);
+            Vector2 sz;
             size = this.GetSize();
+            if (size.HasValue) {
+                sz = size.Value;
+            }
+            else {
+                size = sz = new Vector2(rc.FrameInfo.Width, rc.FrameInfo.Height);
+            }
+
             if (this.UseAbsoluteScaleOrigin) {
                 rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
             }
             else {
-                if (!(size is Vector2 sz)) {
-                    sz = new Vector2(rc.FrameInfo.Width, rc.FrameInfo.Height);
-                }
-
                 rc.Canvas.Scale(scale.X, scale.Y, sz.X * origin.X, sz.Y * origin.Y);
             }
         }

@@ -2,14 +2,18 @@ using System.Numerics;
 
 namespace FramePFX.Core.Utils {
     public readonly struct Rect {
-        public float X1 { get; }
-        public float Y1 { get; }
-        public float Width { get; }
-        public float Height { get; }
+        public static readonly Rect Empty = new Rect();
+
+        public readonly float X1;
+        public readonly float Y1;
+        public readonly float Width;
+        public readonly float Height;
 
         public float X2 => this.X1 + this.Width;
 
         public float Y2 => this.Y1 + this.Height;
+
+        public Vector2 Size => new Vector2(this.Width, this.Height);
 
         public Rect(float x1, float y1, float width, float height) {
             this.X1 = x1;
@@ -23,6 +27,13 @@ namespace FramePFX.Core.Utils {
             this.Y1 = pos.Y;
             this.Width = width;
             this.Height = height;
+        }
+
+        public Rect(float x, float y, Vector2 size) {
+            this.X1 = x;
+            this.Y1 = y;
+            this.Width = size.X;
+            this.Height = size.Y;
         }
 
         public Rect(Vector2 pos, Vector2 size) {

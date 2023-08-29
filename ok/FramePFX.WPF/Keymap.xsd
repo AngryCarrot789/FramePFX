@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="KeyType" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="None" />
+            <xs:enumeration value="Cancel" />
+            <xs:enumeration value="Back" />
+            <xs:enumeration value="Tab" />
+            <xs:enumeration value="LineFeed" />
+            <xs:enumeration value="Clear" />
+            <xs:enumeration value="Enter" />
+            <xs:enumeration value="Return" />
+            <xs:enumeration value="Pause" />
+            <xs:enumeration value="Capital" />
+            <xs:enumeration value="CapsLock" />
+            <xs:enumeration value="HangulMode" />
+            <xs:enumeration value="KanaMode" />
+            <xs:enumeration value="JunjaMode" />
+            <xs:enumeration value="FinalMode" />
+            <xs:enumeration value="HanjaMode" />
+            <xs:enumeration value="KanjiMode" />
+            <xs:enumeration value="Escape" />
+            <xs:enumeration value="ImeConvert" />
+            <xs:enumeration value="ImeNonConvert" />
+            <xs:enumeration value="ImeAccept" />
+            <xs:enumeration value="ImeModeChange" />
+            <xs:enumeration value="Space" />
+            <xs:enumeration value="PageUp" />
+            <xs:enumeration value="Prior" />
+            <xs:enumeration value="Next" />
+            <xs:enumeration value="PageDown" />
+            <xs:enumeration value="End" />
+            <xs:enumeration value="Home" />
+            <xs:enumeration value="Left" />
+            <xs:enumeration value="Up" />
+            <xs:enumeration value="Right" />
+            <xs:enumeration value="Down" />
+            <xs:enumeration value="Select" />
+            <xs:enumeration value="Print" />
+            <xs:enumeration value="Execute" />
+            <xs:enumeration value="PrintScreen" />
+            <xs:enumeration value="Snapshot" />
+            <xs:enumeration value="Insert" />
+            <xs:enumeration value="Delete" />
+            <xs:enumeration value="Help" />
+            <xs:enumeration value="D0" />
+            <xs:enumeration value="D1" />
+            <xs:enumeration value="D2" />
+            <xs:enumeration value="D3" />
+            <xs:enumeration value="D4" />
+            <xs:enumeration value="D5" />
+            <xs:enumeration value="D6" />
+            <xs:enumeration value="D7" />
+            <xs:enumeration value="D8" />
+            <xs:enumeration value="D9" />
+            <xs:enumeration value="A" />
+            <xs:enumeration value="B" />
+            <xs:enumeration value="C" />
+            <xs:enumeration value="D" />
+            <xs:enumeration value="E" />
+            <xs:enumeration value="F" />
+            <xs:enumeration value="G" />
+            <xs:enumeration value="H" />
+            <xs:enumeration value="I" />
+            <xs:enumeration value="J" />
+            <xs:enumeration value="K" />
+            <xs:enumeration value="L" />
+            <xs:enumeration value="M" />
+            <xs:enumeration value="N" />
+            <xs:enumeration value="O" />
+            <xs:enumeration value="P" />
+            <xs:enumeration value="Q" />
+            <xs:enumeration value="R" />
+            <xs:enumeration value="S" />
+            <xs:enumeration value="T" />
+            <xs:enumeration value="U" />
+            <xs:enumeration value="V" />
+            <xs:enumeration value="W" />
+            <xs:enumeration value="X" />
+            <xs:enumeration value="Y" />
+            <xs:enumeration value="Z" />
+            <xs:enumeration value="LWin" />
+            <xs:enumeration value="RWin" />
+            <xs:enumeration value="Apps" />
+            <xs:enumeration value="Sleep" />
+            <xs:enumeration value="NumPad0" />
+            <xs:enumeration value="NumPad1" />
+            <xs:enumeration value="NumPad2" />
+            <xs:enumeration value="NumPad3" />
+            <xs:enumeration value="NumPad4" />
+            <xs:enumeration value="NumPad5" />
+            <xs:enumeration value="NumPad6" />
+            <xs:enumeration value="NumPad7" />
+            <xs:enumeration value="NumPad8" />
+            <xs:enumeration value="NumPad9" />
+            <xs:enumeration value="Multiply" />
+            <xs:enumeration value="Add" />
+            <xs:enumeration value="Separator" />
+            <xs:enumeration value="Subtract" />
+            <xs:enumeration value="Decimal" />
+            <xs:enumeration value="Divide" />
+            <xs:enumeration value="F1" />
+            <xs:enumeration value="F2" />
+            <xs:enumeration value="F3" />
+            <xs:enumeration value="F4" />
+            <xs:enumeration value="F5" />
+            <xs:enumeration value="F6" />
+            <xs:enumeration value="F7" />
+            <xs:enumeration value="F8" />
+            <xs:enumeration value="F9" />
+            <xs:enumeration value="F10" />
+            <xs:enumeration value="F11" />
+            <xs:enumeration value="F12" />
+            <xs:enumeration value="F13" />
+            <xs:enumeration value="F14" />
+            <xs:enumeration value="F15" />
+            <xs:enumeration value="F16" />
+            <xs:enumeration value="F17" />
+            <xs:enumeration value="F18" />
+            <xs:enumeration value="F19" />
+            <xs:enumeration value="F20" />
+            <xs:enumeration value="F21" />
+            <xs:enumeration value="F22" />
+            <xs:enumeration value="F23" />
+            <xs:enumeration value="F24" />
+            <xs:enumeration value="NumLock" />
+            <xs:enumeration value="Scroll" />
+            <xs:enumeration value="LeftShift" />
+            <xs:enumeration value="RightShift" />
+            <xs:enumeration value="LeftCtrl" />
+            <xs:enumeration value="RightCtrl" />
+            <xs:enumeration value="LeftAlt" />
+            <xs:enumeration value="RightAlt" />
+            <xs:enumeration value="BrowserBack" />
+            <xs:enumeration value="BrowserForward" />
+            <xs:enumeration value="BrowserRefresh" />
+            <xs:enumeration value="BrowserStop" />
+            <xs:enumeration value="BrowserSearch" />
+            <xs:enumeration value="BrowserFavorites" />
+            <xs:enumeration value="BrowserHome" />
+            <xs:enumeration value="VolumeMute" />
+            <xs:enumeration value="VolumeDown" />
+            <xs:enumeration value="VolumeUp" />
+            <xs:enumeration value="MediaNextTrack" />
+            <xs:enumeration value="MediaPreviousTrack" />
+            <xs:enumeration value="MediaStop" />
+            <xs:enumeration value="MediaPlayPause" />
+            <xs:enumeration value="LaunchMail" />
+            <xs:enumeration value="SelectMedia" />
+            <xs:enumeration value="LaunchApplication1" />
+            <xs:enumeration value="LaunchApplication2" />
+            <xs:enumeration value="Oem1" />
+            <xs:enumeration value="OemSemicolon" />
+            <xs:enumeration value="OemPlus" />
+            <xs:enumeration value="OemComma" />
+            <xs:enumeration value="OemMinus" />
+            <xs:enumeration value="OemPeriod" />
+            <xs:enumeration value="Oem2" />
+            <xs:enumeration value="OemQuestion" />
+            <xs:enumeration value="Oem3" />
+            <xs:enumeration value="OemTilde" />
+            <xs:enumeration value="AbntC1" />
+            <xs:enumeration value="AbntC2" />
+            <xs:enumeration value="Oem4" />
+            <xs:enumeration value="OemOpenBrackets" />
+            <xs:enumeration value="Oem5" />
+            <xs:enumeration value="OemPipe" />
+            <xs:enumeration value="Oem6" />
+            <xs:enumeration value="OemCloseBrackets" />
+            <xs:enumeration value="Oem7" />
+            <xs:enumeration value="OemQuotes" />
+            <xs:enumeration value="Oem8" />
+            <xs:enumeration value="Oem102" />
+            <xs:enumeration value="OemBackslash" />
+            <xs:enumeration value="ImeProcessed" />
+            <xs:enumeration value="System" />
+            <xs:enumeration value="DbeAlphanumeric" />
+            <xs:enumeration value="OemAttn" />
+            <xs:enumeration value="DbeKatakana" />
+            <xs:enumeration value="OemFinish" />
+            <xs:enumeration value="DbeHiragana" />
+            <xs:enumeration value="OemCopy" />
+            <xs:enumeration value="DbeSbcsChar" />
+            <xs:enumeration value="OemAuto" />
+            <xs:enumeration value="DbeDbcsChar" />
+            <xs:enumeration value="OemEnlw" />
+            <xs:enumeration value="DbeRoman" />
+            <xs:enumeration value="OemBackTab" />
+            <xs:enumeration value="Attn" />
+            <xs:enumeration value="DbeNoRoman" />
+            <xs:enumeration value="CrSel" />
+            <xs:enumeration value="DbeEnterWordRegisterMode" />
+            <xs:enumeration value="DbeEnterImeConfigureMode" />
+            <xs:enumeration value="ExSel" />
+            <xs:enumeration value="DbeFlushString" />
+            <xs:enumeration value="EraseEof" />
+            <xs:enumeration value="DbeCodeInput" />
+            <xs:enumeration value="Play" />
+            <xs:enumeration value="DbeNoCodeInput" />
+            <xs:enumeration value="Zoom" />
+            <xs:enumeration value="DbeDetermineString" />
+            <xs:enumeration value="NoName" />
+            <xs:enumeration value="DbeEnterDialogConversionMode" />
+            <xs:enumeration value="Pa1" />
+            <xs:enumeration value="OemClear" />
+            <xs:enumeration value="DeadCharProcessed" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ModifierKeyType" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="(CTRL|SHIFT|ALT|WIN)(\+(CTRL|SHIFT|ALT|WIN))*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="MouseButtonType" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Left" />
+            <xs:enumeration value="Middle" />
+            <xs:enumeration value="Right" />
+            <xs:enumeration value="X1" />
+            <xs:enumeration value="X2" />
+            <xs:enumeration value="WheelUp" />
+            <xs:enumeration value="WheelDown" />
+            <xs:pattern value="[0-9]*" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="RepeatModeType" final="restriction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Ignored" />
+            <xs:enumeration value="NonRepeat" />
+            <xs:enumeration value="RepeatOnly" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="KeyMap" type="KeyMapType" />
+    <xs:complexType name="KeyStrokeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:int" name="KeyCode" />
+                <xs:attribute type="xs:boolean" name="IsRelease" />
+                <xs:attribute type="ModifierKeyType" name="Mods" />
+                <xs:attribute type="KeyType" name="Key" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="MouseStrokeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="ModifierKeyType" name="Mods" />
+                <xs:attribute type="MouseButtonType" name="Button" />
+                <xs:attribute type="xs:int" name="ClickCount" />
+                <xs:attribute type="xs:int" name="WheelDelta" />
+                <xs:attribute type="xs:int" name="CustomParam" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="ShortcutType">
+        <xs:choice>
+            <xs:element type="Shortcut.ContextType" name="Shortcut.Context" minOccurs="0" />
+            <xs:element type="KeyStrokeType" name="KeyStroke" minOccurs="0" />
+            <xs:element type="MouseStrokeType" name="MouseStroke" minOccurs="0" />
+        </xs:choice>
+        <xs:attribute type="xs:string" name="Name" />
+        <xs:attribute type="xs:string" name="ActionId" />
+        <xs:attribute type="xs:boolean" name="Global" />
+        <xs:attribute type="xs:boolean" name="Inherit" />
+        <xs:attribute type="xs:string" name="Description" />
+        <xs:attribute type="xs:string" name="DisplayName" />
+        <xs:attribute type="RepeatModeType" name="RepeatMode" />
+    </xs:complexType>
+    <xs:complexType name="GroupType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="GroupType" name="Group" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element type="ShortcutType" name="Shortcut" maxOccurs="unbounded" minOccurs="0" />
+        </xs:choice>
+        <xs:attribute type="xs:string" name="Name" />
+        <xs:attribute type="xs:boolean" name="Global" />
+        <xs:attribute type="xs:boolean" name="Inherit" />
+        <xs:attribute type="xs:string" name="Description" />
+        <xs:attribute type="xs:string" name="DisplayName" />
+    </xs:complexType>
+    <xs:complexType name="Shortcut.ContextType">
+        <xs:choice>
+            <xs:element type="FlagType" name="Flag" />
+            <xs:element type="FlagsType" name="Flags" />
+            <xs:element type="EntryType" name="Entry" />
+            <xs:element type="FloatEntryType" name="FloatEntry" />
+            <xs:element type="IntEntryType" name="IntEntry" />
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="FlagType">
+        <xs:simpleContent>
+            <xs:extension base="xs:boolean">
+                <xs:attribute type="xs:string" name="Key" />
+                <xs:attribute type="xs:boolean" name="Value" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="FlagsType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string" />
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="EntryType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="Key" />
+                <xs:attribute type="xs:string" name="Value" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="FloatEntryType">
+        <xs:simpleContent>
+            <xs:extension base="xs:double">
+                <xs:attribute type="xs:string" name="Key" />
+                <xs:attribute type="xs:double" name="Value" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="IntEntryType">
+        <xs:simpleContent>
+            <xs:extension base="xs:long">
+                <xs:attribute type="xs:string" name="Key" />
+                <xs:attribute type="xs:long" name="Value" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="KeyMapType">
+        <xs:choice>
+            <xs:element type="GroupType" name="Group" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element type="ShortcutType" name="Shortcut" maxOccurs="unbounded" minOccurs="0" />
+        </xs:choice>
+    </xs:complexType>
+</xs:schema>

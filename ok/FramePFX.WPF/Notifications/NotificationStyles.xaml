@@ -1,0 +1,105 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:history="clr-namespace:FramePFX.History;assembly=FramePFX"
+                    xmlns:edn="clr-namespace:FramePFX.Editor.Notifications;assembly=FramePFX"
+                    xmlns:types="clr-namespace:FramePFX.Notifications.Types;assembly=FramePFX"
+                    xmlns:notifications="clr-namespace:FramePFX.WPF.Notifications"
+                    xmlns:sp="clr-namespace:FramePFX.WPF.Editor.Notifications.SavingProject">
+    <SolidColorBrush x:Key="NotificationHeaderBackground" Color="{DynamicResource AColour.Tone7.Background.Static}" />
+    <SolidColorBrush x:Key="NotificationBackground" Color="{DynamicResource AColour.Tone6.Background.Static}" />
+
+    <notifications:NotificationDataTemplateSelector x:Key="NotificationTemplateSelector">
+        <notifications:NotificationDataTemplateSelector.MessageNotificationTemplate>
+            <DataTemplate DataType="{x:Type types:MessageNotification}">
+                <Grid>
+                    <Grid.InputBindings>
+                        <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}" />
+                    </Grid.InputBindings>
+                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground}">
+                        <Grid>
+                            <Label Content="{Binding Header, Mode=OneWay}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0" />
+                            <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse" />
+                        </Grid>
+                    </Border>
+                    <Label Content="{Binding Message, Mode=OneWay}" Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top" />
+                </Grid>
+            </DataTemplate>
+        </notifications:NotificationDataTemplateSelector.MessageNotificationTemplate>
+        <notifications:NotificationDataTemplateSelector.HistoryNotificationTemplate>
+            <DataTemplate DataType="{x:Type history:HistoryNotification}">
+                <Grid>
+                    <Grid.InputBindings>
+                        <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}" />
+                    </Grid.InputBindings>
+                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground}">
+                        <Grid>
+                            <Label Content="History" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0" />
+                            <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse" />
+                        </Grid>
+                    </Border>
+                    <Label Content="{Binding Message, Mode=OneWay}" Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top" />
+                </Grid>
+            </DataTemplate>
+        </notifications:NotificationDataTemplateSelector.HistoryNotificationTemplate>
+        <notifications:NotificationDataTemplateSelector.SavingProjectNotificationTemplate>
+            <DataTemplate DataType="{x:Type edn:SavingProjectNotification}">
+                <Grid>
+                    <Grid.InputBindings>
+                        <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}" />
+                    </Grid.InputBindings>
+                    <Border VerticalAlignment="Top" Height="24" Background="{DynamicResource NotificationHeaderBackground}">
+                        <Grid>
+                            <Label Content="Save Project" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,0,24,0" />
+                            <Button Command="{Binding HideCommand, Mode=OneTime}" Background="Transparent" BorderBrush="Transparent" Content="X" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="24" ToolTip="Close this notification. Alternatively, press the middle-mouse" />
+                        </Grid>
+                    </Border>
+                    <Label Margin="0,24,0,0" VerticalContentAlignment="Top" VerticalAlignment="Top">
+                        <Label.Content>
+                            <MultiBinding Converter="{x:Static sp:SavingProjectMessageConverter.Instance}">
+                                <Binding Path="IsSaving" />
+                                <Binding Path="IsSuccess" />
+                                <Binding Path="ErrorMessage" />
+                            </MultiBinding>
+                        </Label.Content>
+                    </Label>
+                </Grid>
+            </DataTemplate>
+        </notifications:NotificationDataTemplateSelector.SavingProjectNotificationTemplate>
+    </notifications:NotificationDataTemplateSelector>
+    <Style TargetType="{x:Type notifications:NotificationList}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type notifications:NotificationControl}">
+                    <Setter Property="Margin" Value="0,0,5,5" />
+                    <Setter Property="Background" Value="{DynamicResource NotificationBackground}" />
+                    <Setter Property="BorderThickness" Value="1" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type notifications:NotificationControl}">
+                                <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                        Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsMouseOver" Value="True" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.Tone8.Border.Static}" />
+                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1" />
+                                    </MultiTrigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

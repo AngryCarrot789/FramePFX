@@ -1,0 +1,19 @@
+﻿<Window x:Class="FramePFX.WPF.Views.AppSplashScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="AppSplashScreen" Height="400" Width="650"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        Background="{DynamicResource ABrush.Tone5.Background.Static}"
+        BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"
+        BorderThickness="3">
+    <Grid>
+        <TextBlock Text="FramePFX v0.1.0" FontSize="64" FontFamily="Consolas" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12" />
+        <TextBlock x:Name="CurrentActivityTextBlock" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Padding="10" FontSize="12" />
+    </Grid>
+</Window>

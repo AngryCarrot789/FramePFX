@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="FramePFX.WPF.Editor.Exporting.Pages.FFmpegExportPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:e="clr-namespace:FramePFX.Editor.Exporting.Exporters;assembly=FramePFX"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
+             xmlns:converters="clr-namespace:FramePFX.WPF.Editor.Exporting.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="250"
+             d:DataContext="{d:DesignInstance e:FFmpegExportViewModel}">
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="75" SharedSizeGroup="SharedLeftColumn" />
+                <ColumnDefinition Width="*" SharedSizeGroup="SharedRightColumn" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Padding="5" Text="Bitrate" VerticalAlignment="Center" />
+            <dragger:NumberDragger Minimum="10" Maximum="10000000000" Value="{Binding BitRate, Mode=TwoWay}"
+                              DisplayTextOverride="{Binding BitRate, Converter={x:Static converters:BitRateToAltSizeConverter.Instance}}"
+                              ChangeMapper="{x:Static converters:BitRateChangeMapper.Instance}"
+                              Grid.Row="0" Grid.Column="1" Padding="4,3" Margin="0,0,0,0" Height="25"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="75" SharedSizeGroup="SharedLeftColumn" />
+                <ColumnDefinition Width="*" SharedSizeGroup="SharedRightColumn" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Padding="5" Text="GOP" VerticalAlignment="Center" />
+            <dragger:NumberDragger Minimum="0" Maximum="100" Value="{Binding GopValue, Mode=TwoWay}"
+                              TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="3"
+                              Grid.Row="0" Grid.Column="1" Padding="4,3" Margin="0,0,0,0" Height="25"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+        </Grid>
+    </StackPanel>
+</UserControl>

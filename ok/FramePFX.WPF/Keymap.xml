@@ -1,0 +1,86 @@
+﻿<?xml version="1.0"?>
+
+<KeyMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
+    <Group Name="Application">
+        <Shortcut Name="RenameItem" ActionId="actions.general.RenameItem" Description="Rename the thing">
+            <KeyStroke Key="F2" />
+        </Shortcut>
+        <Shortcut Name="RenameItem2" ActionId="actions.general.RenameItem" Description="Rename the thing">
+            <KeyStroke Mods="CTRL" Key="R" />
+        </Shortcut>
+        <Group Name="Editor">
+            <Shortcut Name="SaveProject" ActionId="actions.project.Save">
+                <KeyStroke Mods="CTRL" Key="S" />
+            </Shortcut>
+            <Shortcut Name="SaveProjectAs" ActionId="actions.project.SaveAs">
+                <KeyStroke Mods="CTRL+SHIFT" Key="S" />
+            </Shortcut>
+            <Shortcut Name="OpenProject" ActionId="actions.project.Open">
+                <KeyStroke Mods="CTRL" Key="O" />
+            </Shortcut>
+            <Shortcut Name="UndoShortcut" ActionId="actions.project.history.Undo">
+                <KeyStroke Mods="CTRL" Key="Z" />
+            </Shortcut>
+            <Shortcut Name="RedoShortcut1" ActionId="actions.project.history.Redo">
+                <KeyStroke Mods="CTRL+SHIFT" Key="Z" />
+            </Shortcut>
+            <Shortcut Name="RedoShortcut2" ActionId="actions.project.history.Redo">
+                <KeyStroke Mods="CTRL" Key="Y" />
+            </Shortcut>
+
+            <!-- ################################## Automation helper shortcuts #################################### -->
+            <Shortcut Name="EnableAutomation" ActionId="actions.app.EnableAutomationShortcuts">
+                <KeyStroke Mods="CTRL" Key="NumPad0" />
+            </Shortcut>
+            <Shortcut Name="SelectPrevParameter" ActionId="actions.automation.SelectPreviousParameterAction">
+                <KeyStroke Mods="CTRL" Key="NumPad2" />
+            </Shortcut>
+            <Shortcut Name="SelectNextParameter" ActionId="actions.automation.SelectNextParameterAction">
+                <KeyStroke Mods="CTRL" Key="NumPad8" />
+            </Shortcut>
+            <!-- ################################################################################################### -->
+
+            <Group Name="Resources">
+                <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
+                    <KeyStroke Key="Delete" />
+                </Shortcut>
+                <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupSelection" Description="Puts the selected items into their own group">
+                    <KeyStroke Mods="CTRL" Key="G" />
+                </Shortcut>
+            </Group>
+            <Group Name="Timeline">
+                <Group Name="Surface">
+                    <Shortcut Name="DeleteSelectedClips" ActionId="actions.editor.timeline.DeleteSelectedClips" Description="Deletes all of the selected clips">
+                        <KeyStroke Key="Delete" />
+                    </Shortcut>
+                    <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
+                        <KeyStroke Key="S" />
+                    </Shortcut>
+                </Group>
+                <Group Name="TrackControllers">
+                    <Shortcut Name="DeleteSelectedTrack" Description="Deletes the selected clip">
+                        <KeyStroke Key="Delete" />
+                    </Shortcut>
+                </Group>
+                <Shortcut Name="NewVideoTrack" ActionId="actions.editor.NewVideoTrack" Description="Creates a new video clip">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="Q" />
+                </Shortcut>
+                <Shortcut Name="NewAudioTrack" ActionId="actions.editor.NewAudioTrack" Description="Creates a new audio clip">
+                    <KeyStroke Mods="CTRL" Key="Q" />
+                </Shortcut>
+                <Shortcut Name="MoveSelectedTrackUp">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="NumPad8" />
+                </Shortcut>
+                <Shortcut Name="MoveSelectedTrackDown">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="NumPad2" />
+                </Shortcut>
+                <Shortcut Name="TogglePlayPause" ActionId="actions.editor.timeline.TogglePlayPause" Description="Causes the timeline to play or pause">
+                    <KeyStroke Key="Space" />
+                </Shortcut>
+                <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
+                    <KeyStroke Key="K" />
+                </Shortcut>
+            </Group>
+        </Group>
+    </Group>
+</KeyMap>

@@ -1,0 +1,44 @@
+﻿<views:BaseDialog x:Class="FramePFX.WPF.Editor.Project.EditorDialogs.ProjectSettingsEditorWindow"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:views="clr-namespace:FramePFX.WPF.Views"
+                  xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
+                  xmlns:ed="clr-namespace:FramePFX.WPF.Editor.Project.EditorDialogs"
+                  xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
+                  mc:Ignorable="d"
+                  Title="Project Settings" Height="243" Width="297"
+                  Style="{StaticResource CustomWindowStyleEx}"
+                  d:DataContext="{d:DesignInstance ed:ProjectSettingsEditorViewModel}"
+                  WindowStyle="ToolWindow">
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding ConfirmCommand, Mode=OneTime}" />
+        <KeyBinding Key="Esc" Command="{Binding CancelCommand, Mode=OneTime}" />
+    </Window.InputBindings>
+    <Grid>
+        <TextBlock Text="Width: " Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5" />
+        <TextBlock Text="Height:" Margin="10,41,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5" />
+        <TextBlock Text="FPS" Margin="10,72,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Padding="5" />
+        <dragger:NumberDragger Minimum="8" Maximum="16384" Value="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="60,10,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top" />
+        <dragger:NumberDragger Minimum="8" Maximum="16384" Value="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="60,41,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top" />
+        <!--
+        Text="{Binding UserInputText, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+        IsEnabled="{Binding FrameRateModificationLock.CanExecute}"
+                  IsEditable="True"
+        -->
+        <ComboBox ItemsSource="{x:Static ed:ProjectSettingsEditorViewModel.FrameRates}"
+                  SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}"
+                  Margin="60,72,10,0" VerticalContentAlignment="Center" Padding="3" Height="26" VerticalAlignment="Top" />
+        <Button Command="{Binding ConfirmCommand, Mode=OneTime}"
+                Content="OK" Margin="0,0,87,10"
+                VerticalAlignment="Bottom" Height="24"
+                HorizontalAlignment="Right" Width="72"
+                attached:CornerRadiusHelper.Value="2" />
+        <Button Command="{Binding CancelCommand, Mode=OneTime}"
+                Content="Cancel" Margin="0,0,10,10"
+                VerticalAlignment="Bottom" Height="24"
+                HorizontalAlignment="Right" Width="72"
+                attached:CornerRadiusHelper.Value="2" />
+    </Grid>
+</views:BaseDialog>

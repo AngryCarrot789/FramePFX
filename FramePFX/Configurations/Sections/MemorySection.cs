@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FramePFX.Utils;
 
 namespace FramePFX.Configurations.Sections {
     public class MemorySection : ISection {

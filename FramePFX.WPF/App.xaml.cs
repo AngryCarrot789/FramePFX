@@ -2,9 +2,36 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
+using FFmpeg.AutoGen;
+using FramePFX.Actions;
+using FramePFX.Automation.Keyframe;
+using FramePFX.Editor;
+using FramePFX.Editor.Actions;
+using FramePFX.Editor.ResourceChecker;
+using FramePFX.Editor.ResourceManaging;
+using FramePFX.Editor.ResourceManaging.Actions;
+using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.Timelines.Tracks;
+using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Editor.ViewModels;
+using FramePFX.History.Actions;
+using FramePFX.Shortcuts.Managing;
+using FramePFX.Shortcuts.ViewModels;
+using FramePFX.Utils;
+using FramePFX.WPF.Editor;
+using FramePFX.WPF.Resources.I18N;
+using FramePFX.WPF.Shortcuts;
+using FramePFX.WPF.Shortcuts.Converters;
+using FramePFX.WPF.Themes;
+using FramePFX.WPF.Utils;
+using FramePFX.WPF.Views;
 
 namespace FramePFX.WPF {
     public partial class App : Application {

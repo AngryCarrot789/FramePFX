@@ -63,7 +63,7 @@ namespace FramePFX.WPF.Resources {
         }
 
         private static string GetResourcePath(string fileInResources) {
-            return $"/FramePFX;component/Resources/{fileInResources}";
+            return $"/FramePFX.WPF;component/Resources/{fileInResources}";
         }
 
         private static Uri GetUri(string fileInResources) {

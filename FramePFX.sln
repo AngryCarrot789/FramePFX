@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34018.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.WPF", "FramePFX.WPF\FramePFX.WPF.csproj", "{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FramePFX.Core", "FramePFX.Core\FramePFX.Core.csproj", "{0FA0334E-B33D-4BA5-9699-455A52B6E175}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{70A8C2EB-8E04-4708-8752-0BE03930CEEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Debug|x64.ActiveCfg = Debug|x64
-		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Debug|x64.Build.0 = Debug|x64
-		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Release|x64.ActiveCfg = Release|x64
-		{07F59C6F-AF2C-42CC-87B1-6CB256A976EB}.Release|x64.Build.0 = Release|x64
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|x64.ActiveCfg = Debug|x64
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Debug|x64.Build.0 = Debug|x64
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.ActiveCfg = Release|x64
-		{0FA0334E-B33D-4BA5-9699-455A52B6E175}.Release|x64.Build.0 = Release|x64
+		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|x64.ActiveCfg = Debug|x64
+		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|x64.Build.0 = Debug|x64
+		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|x64.ActiveCfg = Release|x64
+		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|x64.Build.0 = Release|x64
+		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|x64.ActiveCfg = Debug|x64
+		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|x64.Build.0 = Debug|x64
+		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|x64.ActiveCfg = Release|x64
+		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

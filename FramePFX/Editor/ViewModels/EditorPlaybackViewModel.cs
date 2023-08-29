@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using NAudio.Wave;
 
 namespace FramePFX.Editor.ViewModels {
     /// <summary>
@@ -125,7 +124,6 @@ namespace FramePFX.Editor.ViewModels {
 
         public async Task OnProjectChanging(ProjectViewModel project) {
             if (this.Project != null) {
-                this.Project.Model.AudioEngine.Stop();
             }
 
             if (this.IsPlaying) {
@@ -143,7 +141,6 @@ namespace FramePFX.Editor.ViewModels {
             if (project != null) {
                 this.SetTimerFrameRate(project.Settings.FrameRate);
                 ProjectSettings settings = project.Settings.Model;
-                project.Model.AudioEngine.Start(new WaveFormat(settings.SampleRate, settings.BitRate, settings.Channels));
             }
 
             this.UpdatePlaybackCommands();

@@ -6,7 +6,7 @@ namespace FramePFX.WPF.Themes.AvalonDock {
     public class GeneralDockTheme : Theme {
         /// <inheritdoc/>
         public override Uri GetResourceUri() {
-            return new Uri("/FramePFX;component/Themes/AvalonDock/GeneralDockTheme.xaml", UriKind.Relative);
+            return new Uri("/FramePFX.WPF;component/Themes/AvalonDock/GeneralDockTheme.xaml", UriKind.Relative);
         }
     }
 }

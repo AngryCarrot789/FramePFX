@@ -1,7 +1,23 @@
+using System.IO;
 using System.Text;
 
 namespace FramePFX.Utils {
     public static class FileUtils {
+        public static string ChangeFileName(string path, string fileName) {
+            string parent = Path.GetDirectoryName(path);
+            return string.IsNullOrEmpty(parent) ? fileName : Path.Combine(parent, fileName);
+        }
+
+        public static string ChangeActualFileName(string path, string fileName) {
+            string parent = Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(parent)) {
+                return fileName;
+            }
+
+            string extension = Path.GetExtension(path);
+            return Path.Combine(parent, fileName + extension);
+        }
+
         public static Encoding ParseEncoding(byte[] data, out int offset, out string encoding) {
             if (data[0] == 0x2b && data[1] == 0x2f && data[2] == 0x76) {
                 offset = 3;

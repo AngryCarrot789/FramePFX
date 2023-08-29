@@ -61,7 +61,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.Manager = newManager;
         }
 
-        public async virtual Task<bool> DeleteSelfAction() {
+        public virtual async Task<bool> DeleteSelfAction() {
             int index;
             if (this.Parent == null || (index = this.Parent.Items.IndexOf(this)) == -1) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid item", "This resource is not located anywhere...?");

@@ -52,7 +52,7 @@ namespace FramePFX.Editor.Timelines.Tracks {
                 buffer[i] = (byte) (sample * 255d);
             }
 
-            engine.WaveStream.AddSamples(buffer, 0, count);
+            // engine.WaveStream.AddSamples(buffer, 0, count);
             // this.Timeline.Project.AudioEngine.AddSamples(buffer, 0, count);
         }
 

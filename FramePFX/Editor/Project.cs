@@ -30,8 +30,6 @@ namespace FramePFX.Editor {
         /// </summary>
         public AutomationEngine AutomationEngine { get; }
 
-        public AudioEngine AudioEngine { get; }
-
         /// <summary>
         /// This project's data folder, which is where file-based data is stored (that isn't stored using an absolute path)
         /// </summary>
@@ -46,7 +44,6 @@ namespace FramePFX.Editor {
 
             this.ResourceManager = new ResourceManager(this);
             this.AutomationEngine = new AutomationEngine(this);
-            this.AudioEngine = new AudioEngine();
             this.Timeline = new Timeline(this) {
                 MaxDuration = 10000L
             };

@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,6 +12,16 @@
     <Folder Include="Editor\Exporting\Exporters\Services\" />
     <Folder Include="Editor\Timelines\Effects\Audio\" />
     <Folder Include="Plugins\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FFmpeg.AutoGen" Version="6.0.0.2" />
+    <PackageReference Include="OpenTK" Version="3.3.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.5" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
 
 </Project>

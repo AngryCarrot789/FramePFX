@@ -1,87 +1,41 @@
-using System;
-using System.Windows.Input;
-using FramePFX.Core.Shortcuts.Inputs;
+using System.Text;
 
 namespace FramePFX.Shortcuts {
     public static class ShortcutUtils {
-        public static void SplitValue(string input, out string shortcutId, out string usageId) {
-            if (string.IsNullOrWhiteSpace(input)) {
-                shortcutId = null;
-                usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
-                return;
+        public static string[] ToFull(string parent, params string[] children) {
+            string[] array = new string[children.Length];
+            for (int i = 0; i < children.Length; i++)
+                array[i] = Join(parent, children[i]);
+            return array;
+        }
+
+        public static string[] ToFull(string parent, string childA, string childB) {
+            return new string[] {
+                Join(parent, childA),
+                Join(parent, childB),
+            };
+        }
+
+        public static string Join(string a, string b) {
+            if (a == null || b == null) {
+                return a ?? b;
             }
 
-            int split = input.LastIndexOf(':');
-            if (split == -1) {
-                shortcutId = input;
-                usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
+            int lenA = a.Length, lenB = b.Length;
+            if (lenA < 1) {
+                return lenB < 1 ? null : b;
+            }
+            else if (lenB < 1) {
+                return a;
+            }
+            else if (a[lenA - 1] == '/') {
+                return b[0] == '/' ? (a + b.Substring(1)) : (a + b);
+            }
+            else if (b[0] == '/') {
+                return a + b;
             }
             else {
-                shortcutId = input.Substring(0, split);
-                if (string.IsNullOrWhiteSpace(shortcutId)) {
-                    shortcutId = null;
-                }
-
-                usageId = input.Substring(split + 1);
-                if (string.IsNullOrWhiteSpace(usageId)) {
-                    usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
-                }
-            }
-        }
-
-        public static bool GetKeyStrokeForEvent(KeyEventArgs e, out KeyStroke stroke, bool isRelease) {
-            Key key = e.Key == Key.System ? e.SystemKey : e.Key;
-            if (IsModifierKey(key) || key == Key.DeadCharProcessed) {
-                stroke = default;
-                return false;
-            }
-
-            stroke = new KeyStroke((int) key, (int) Keyboard.Modifiers, isRelease);
-            return true;
-        }
-
-        public static MouseStroke GetMouseStrokeForEvent(MouseButtonEventArgs e) {
-            return new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, e.ButtonState == MouseButtonState.Released, e.ClickCount);
-        }
-
-        public static bool GetMouseStrokeForEvent(MouseWheelEventArgs e, out MouseStroke stroke) {
-            int button;
-            if (e.Delta < 0) {
-                button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
-            }
-            else if (e.Delta > 0) {
-                button = WPFShortcutManager.BUTTON_WHEEL_UP;
-            }
-            else {
-                stroke = default;
-                return false;
-            }
-
-            stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
-            return true;
-        }
-
-        public static void EnforceIdFormat(string id, string paramName) {
-            if (string.IsNullOrWhiteSpace(id)) {
-                throw new Exception($"{paramName} cannot be null/empty or consist of whitespaces only");
-            }
-        }
-
-        public static bool IsModifierKey(Key key) {
-            switch (key) {
-                case Key.LeftCtrl:
-                case Key.RightCtrl:
-                case Key.LeftAlt:
-                case Key.RightAlt:
-                case Key.LeftShift:
-                case Key.RightShift:
-                case Key.LWin:
-                case Key.RWin:
-                case Key.Clear:
-                case Key.OemClear:
-                case Key.Apps:
-                    return true;
-                default: return false;
+                return new StringBuilder(lenA + lenB + 1).Append(a).Append('/').Append(b).ToString();
             }
         }
     }

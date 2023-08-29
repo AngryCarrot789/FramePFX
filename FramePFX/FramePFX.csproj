@@ -12,6 +12,7 @@
     <Folder Include="Editor\Exporting\Exporters\Services\" />
     <Folder Include="Editor\Timelines\Effects\Audio\" />
     <Folder Include="Plugins\" />
+    <Folder Include="Plugins\Demo" />
   </ItemGroup>
 
   <ItemGroup>

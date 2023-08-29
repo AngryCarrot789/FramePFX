@@ -19,5 +19,6 @@
   <ItemGroup>
     <Folder Include="Automation\Actions\" />
     <Folder Include="Editor\Exporting\Exporters\Services\" />
+    <Folder Include="Editor\Timelines\Effects\Audio" />
   </ItemGroup>
 </Project>

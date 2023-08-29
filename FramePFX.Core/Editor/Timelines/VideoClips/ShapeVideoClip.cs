@@ -73,22 +73,6 @@ namespace FramePFX.Core.Editor.Timelines.VideoClips {
             // }
         }
 
-        private long ff;
-
-        public override void BeginRender(long frame) {
-            Task.Run(async () => {
-                await Task.Delay(2000);
-                this.IsAsyncRenderReady = true;
-            });
-
-            this.ff = frame;
-        }
-
-        public override void EndRender(RenderContext rc) {
-            base.EndRender(rc);
-            this.Render(rc, this.ff);
-        }
-
         protected override Clip NewInstance() {
             return new ShapeVideoClip();
         }

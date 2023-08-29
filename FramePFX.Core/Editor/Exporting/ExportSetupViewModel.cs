@@ -97,9 +97,10 @@ namespace FramePFX.Core.Editor.Exporting {
             IWindow window = IoC.Provide<IExportViewService>().ShowExportWindow(export);
 
             try {
-                await Task.Run(() => {
-                    exporter.Exporter.Export(this.Project, export, new ExportProperties(this.RenderSpan, this.FilePath));
-                });
+                // Export will most likely be using unsafe code, meaning async won't work
+                await Task.Factory.StartNew(
+                    () => exporter.Exporter.Export(this.Project, export, new ExportProperties(this.RenderSpan, this.FilePath)),
+                    TaskCreationOptions.LongRunning);
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "Failed to export:", e.GetToString());

@@ -261,7 +261,10 @@ namespace FramePFX.Core.Editor.ViewModels.Timelines {
             this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
         }
 
-        public void OnStepFrameCallback() => IoC.Dispatcher.Invoke(this.CachedDoRenderAndScheduleUpdatePlayHead);
+        public void OnStepFrameCallback() {
+            this.CachedDoRenderAndScheduleUpdatePlayHead();
+            // IoC.Dispatcher.Invoke(this.CachedDoRenderAndScheduleUpdatePlayHead);
+        }
 
         private void DoFullRenderAndScheduleUIUpdate() {
             VideoEditorViewModel editor = this.Project.Editor;

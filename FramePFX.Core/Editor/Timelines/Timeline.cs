@@ -232,153 +232,39 @@ namespace FramePFX.Core.Editor.Timelines {
         public void RenderAudio(long frame) {
         }
 
-        public void Render(RenderContext render, long frame) {
-            List<Track> tracks = this.Tracks;
-            SKPaint trackPaint = null, clipPaint = null;
-            List<VideoClip> bufferList = new List<VideoClip>();
-            int i, c;
-            for (i = tracks.Count - 1; i >= 0; i--) {
-                if (tracks[i] is VideoTrack track && track.IsActuallyVisible) {
-                    VideoClip clip = (VideoClip) track.GetClipAtFrame(frame);
-                    if (clip == null) {
-                        continue;
-                    }
-
-#if DEBUG
-                    try {
-#endif
-                        int trackSaveCount, clipSaveCount;
-                        if (clip.UseAsyncRendering) {
-                            clip.IsAsyncRenderReady = false;
-                            clip.BeginRender(frame);
-                            if (bufferList.Count < 1 && clip.IsAsyncRenderReady) {
-                                trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
-                                clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                                try {
-                                    clip.EndRender(render);
-                                }
-                                finally {
-                                    EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                                    EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                                    clip.IsAsyncRenderReady = false;
-                                }
-                            }
-                            else {
-                                bufferList.Add(clip);
-                            }
-                        }
-                        else if (bufferList.Count < 1) {
-                            trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
-                            clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                            try {
-                                clip.Render(render, frame);
-                                if (clip.UsesOpenGL) {
-                                    GLUtils.CleanGL();
-                                }
-                            }
-                            finally {
-                                EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                                EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                            }
-                        }
-                        else {
-                            bufferList.Add(clip);
-                        }
-#if DEBUG
-                    }
-                    catch (Exception e) {
-                        this.ExceptionsLastRender[clip] = e;
-                    }
-#endif
-                }
-            }
-
-            for (i = 0, c = bufferList.Count; i < c; i++) {
-                VideoClip clip = bufferList[i];
-                if (clip.UseAsyncRendering) {
-                    while (!clip.IsAsyncRenderReady) {
-                        Thread.Sleep(1);
-                    }
-
-                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
-                        clip.EndRender(render);
-                    }
-                    finally {
-                        clip.IsAsyncRenderReady = false;
-                        EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                        EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                    }
-                }
-                else {
-                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
-                        clip.Render(render, frame);
-                        if (clip.UsesOpenGL) {
-                            GLUtils.CleanGL();
-                        }
-                    }
-                    finally {
-                        EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                        EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                    }
-                }
-            }
+        public Task RenderAsync(RenderContext render, long frame) {
+            CancellationTokenSource source = new CancellationTokenSource(1000);
+            return this.RenderAsync(render, frame, source.Token);
         }
 
-        public async Task RenderAsync(RenderContext render, long frame) {
+        public Task RenderAsync(RenderContext render, long frame, CancellationToken token) {
             List<Track> tracks = this.Tracks;
             SKPaint trackPaint = null, clipPaint = null;
-            List<VideoClip> bufferList = new List<VideoClip>();
-            for (int i = tracks.Count - 1; i >= 0; i--) {
+            int i = tracks.Count - 1;
+            for (; i >= 0; i--) {
+                if (token.IsCancellationRequested) {
+                    return Task.FromCanceled(token);
+                }
+
                 if (tracks[i] is VideoTrack track && track.IsActuallyVisible) {
                     VideoClip clip = (VideoClip) track.GetClipAtFrame(frame);
                     if (clip == null) {
                         continue;
                     }
 
-#if DEBUG
+#if !DEBUG
                     try {
 #endif
-                        if (clip.UseAsyncRendering) {
-                            clip.IsAsyncRenderReady = false;
-                            clip.BeginRender(frame);
-                            if (bufferList.Count < 1 && clip.IsAsyncRenderReady) {
-                                int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
-                                int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                                try {
-                                    clip.EndRender(render);
-                                }
-                                finally {
-                                    EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                                    EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                                    clip.IsAsyncRenderReady = false;
-                                }
-                            }
-                            else {
-                                bufferList.Add(clip);
-                            }
-                        }
-                        else if (bufferList.Count < 1) {
-                            int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
-                            int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                            try {
-                                clip.Render(render, frame);
-                                if (clip.UsesOpenGL) {
-                                    GLUtils.CleanGL();
-                                }
-                            }
-                            finally {
-                                EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                                EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                            }
-                        }
-                        else {
-                            bufferList.Add(clip);
-                        }
-#if DEBUG
+                    int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
+                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
+                    try {
+                        clip.Render(render, frame);
+                    }
+                    finally {
+                        EndOpacityLayer(render, clipSaveCount, ref clipPaint);
+                        EndOpacityLayer(render, trackSaveCount, ref trackPaint);
+                    }
+#if !DEBUG
                     }
                     catch (Exception e) {
                         this.ExceptionsLastRender[clip] = e;
@@ -387,38 +273,7 @@ namespace FramePFX.Core.Editor.Timelines {
                 }
             }
 
-            foreach (VideoClip clip in bufferList) {
-                if (clip.UseAsyncRendering) {
-                    while (!clip.IsAsyncRenderReady) {
-                        await Task.Delay(1);
-                    }
-
-                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
-                        clip.EndRender(render);
-                    }
-                    finally {
-                        clip.IsAsyncRenderReady = false;
-                        EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                        EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                    }
-                }
-                else {
-                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    try {
-                        clip.Render(render, frame);
-                        if (clip.UsesOpenGL) {
-                            GLUtils.CleanGL();
-                        }
-                    }
-                    finally {
-                        EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                        EndOpacityLayer(render, trackSaveCount, ref trackPaint);
-                    }
-                }
-            }
+            return Task.CompletedTask;
         }
     }
 }

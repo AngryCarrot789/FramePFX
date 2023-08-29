@@ -35,10 +35,6 @@ namespace FramePFX.Editor {
     public partial class EditorMainWindow : WindowEx, IVideoEditor, INotificationHandler {
         public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
 
-        private readonly Action renderCallback;
-        private readonly Action renderAsyncCallback;
-        private readonly Func<Task> renderAsyncCallbackFunc;
-
         private const long RefreshInterval = 5000;
         private long lastRefreshTime;
         private bool isRefreshing;
@@ -59,13 +55,6 @@ namespace FramePFX.Editor {
 
             this.DataContext = new VideoEditorViewModel(this);
             IoC.App.Editor = (VideoEditorViewModel) this.DataContext;
-            this.renderCallback = this.DoRenderCore;
-            this.renderAsyncCallback = async () => {
-                await this.DoRenderCoreAsync();
-            };
-
-            this.renderAsyncCallbackFunc = this.DoRenderCoreAsync;
-
             this.lastRefreshTime = Time.GetSystemMillis();
 
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
@@ -151,54 +140,44 @@ namespace FramePFX.Editor {
             this.NotificationBarTextBlock.Text = message;
         }
 
+        private Task lastRenderTask = Task.CompletedTask;
+
         public async Task Render(bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
-            else if (scheduleRender) {
-                // await this.Dispatcher.InvokeAsync(this.renderCallback);
-                await this.Dispatcher.InvokeAsync(this.renderAsyncCallback);
+
+            if (scheduleRender) {
+                if (this.lastRenderTask != null) {
+                    await this.lastRenderTask;
+                    this.lastRenderTask = null;
+                }
+
+                this.lastRenderTask = this.Dispatcher.InvokeAsync(this.DoRenderCoreAsync).Task;
             }
             else if (this.Dispatcher.CheckAccess()) {
                 await this.DoRenderCoreAsync();
             }
             else {
                 // this.Dispatcher.Invoke(this.renderCallback);
-                await await this.Dispatcher.InvokeAsync(this.renderAsyncCallbackFunc);
+                await await this.Dispatcher.InvokeAsync(this.DoRenderCoreAsync);
             }
-
-            this.isRenderScheduled = 0;
-        }
-
-        private void DoRenderCore() {
-            // this.ViewPortElement.InvalidateVisual();
-            VideoEditorViewModel editor = this.Editor;
-            ProjectViewModel project = editor.ActiveProject;
-            if (project == null || project.Model.IsSaving) {
-                this.isRenderScheduled = 0;
-                return;
-            }
-
-            long frame = project.Timeline.PlayHeadFrame;
-            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
-                RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
-                context.Canvas.Clear(SKColors.Black);
-                // project.Model.AutomationEngine.TickProjectAtFrame(frame);
-                project.Model.Timeline.Render(context, frame);
-
-                Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
-                if (dictionary.Count > 0) {
-                    this.PrintRenderErrors(dictionary);
-                    dictionary.Clear();
-                }
-
-                this.ViewPortElement.EndRender();
-            }
-
-            this.isRenderScheduled = 0;
         }
 
         private async Task DoRenderCoreAsync() {
+            CancellationTokenSource source = new CancellationTokenSource(1000);
+            try {
+                await this.DoRenderCoreAsync(source.Token);
+            }
+            catch (TaskCanceledException) {
+                AppLogger.WriteLine("Render at " + nameof(this.DoRenderCoreAsync) + " took longer than 1 second. Cancelling render");
+            }
+            finally {
+                this.isRenderScheduled = 0;
+            }
+        }
+
+        private async Task DoRenderCoreAsync(CancellationToken token) {
             VideoEditorViewModel editor = this.Editor;
             ProjectViewModel project = editor.ActiveProject;
             if (project == null || project.Model.IsSaving) {
@@ -210,7 +189,7 @@ namespace FramePFX.Editor {
             if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                 RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                 context.Canvas.Clear(SKColors.Black);
-                await project.Model.Timeline.RenderAsync(context, frame);
+                await project.Model.Timeline.RenderAsync(context, frame, token);
 
                 Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
                 if (dictionary.Count > 0) {

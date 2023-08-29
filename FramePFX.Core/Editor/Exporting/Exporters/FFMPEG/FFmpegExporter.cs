@@ -1,5 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FramePFX.Core.Rendering;
 using FramePFX.Core.Utils;
@@ -176,11 +178,18 @@ namespace FramePFX.Core.Editor.Exporting.Exporters.FFMPEG {
                     throw new Exception("Failed to create SKSurface");
                 }
 
-                RenderContext render_context = new RenderContext(surface, surface.Canvas, frameInfo);
+                Task renderTask = Task.CompletedTask;
+                RenderContext rc = new RenderContext(surface, surface.Canvas, frameInfo);
+
+                CancellationTokenSource source = new CancellationTokenSource(); // infinite timeout
                 for (long fidx = duration.Begin, end = duration.EndIndex; fidx < end; fidx++) {
-                    render_context.Canvas.Clear(SKColors.Black);
+                    while (!renderTask.IsCompleted) {
+                        Thread.SpinWait(32);
+                    }
+
+                    rc.Canvas.Clear(SKColors.Black);
                     project.AutomationEngine.UpdateAt(fidx);
-                    project.Timeline.Render(render_context, fidx);
+                    renderTask = project.Timeline.RenderAsync(rc, fidx, source.Token);
                     surface.Flush();
 
                     // is it even possible to hardware accelerate this?

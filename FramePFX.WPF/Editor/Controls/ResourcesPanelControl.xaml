@@ -36,7 +36,7 @@
         </TreeView>
         <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
                                 ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
-                                attachedProperties:MultiSelectorHelper.SelectedItems="{Binding CurrentGroup.SelectedItems}"
+                                attachedProperties:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}"
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch"
                                 Grid.Row="1"

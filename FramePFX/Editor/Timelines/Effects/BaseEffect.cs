@@ -1,11 +1,12 @@
 using FramePFX.Automation;
+using FramePFX.RBC;
 
 namespace FramePFX.Editor.Timelines.Effects {
     /// <summary>
     /// The base class for all types of effects (audio, video, etc.)
     /// </summary>
     public abstract class BaseEffect : IAutomatable {
-        public bool CanRemove { get; protected set; }
+        public bool IsRemoveable { get; protected set; }
 
         /// <summary>
         /// This clip's factory ID, used for creating a new instance dynamically via reflection
@@ -25,6 +26,15 @@ namespace FramePFX.Editor.Timelines.Effects {
 
         protected BaseEffect() {
             this.AutomationData = new AutomationData(this);
+        }
+
+        public virtual void WriteToRBE(RBEDictionary data) {
+            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
+        }
+
+        public virtual void ReadFromRBE(RBEDictionary data) {
+            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+            this.AutomationData.UpdateBackingStorage();
         }
     }
 }

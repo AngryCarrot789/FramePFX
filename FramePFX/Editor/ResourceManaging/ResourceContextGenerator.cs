@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
@@ -15,7 +17,7 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public void Generate(List<IContextEntry> list, IDataContext context) {
             if (context.TryGetContext(out BaseResourceObjectViewModel resItem)) {
-                List<BaseResourceObjectViewModel> selected = resItem.Parent.SelectedItems;
+                ObservableCollection<BaseResourceObjectViewModel> selected = resItem.Manager.SelectedItems;
                 if (selected.Count > 0 && selected.Contains(resItem)) {
                     if (selected.Count == 1) {
                         list.Add(new ActionContextEntry(resItem.Manager, "actions.general.RenameItem", "Rename"));
@@ -59,7 +61,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 }
             }
 
-            if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.manager) != null)) {
+            if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null)) {
                 List<IContextEntry> newList = new List<IContextEntry>();
                 newList.Add(new CommandContextEntry("Text", manager.CreateResourceCommand, nameof(ResourceText)));
                 newList.Add(new CommandContextEntry("ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));

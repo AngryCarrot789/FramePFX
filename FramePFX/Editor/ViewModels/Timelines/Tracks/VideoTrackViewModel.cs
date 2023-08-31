@@ -71,7 +71,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey)) {
+                if (AutomationUtils.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey)) {
                     this.AutomationData[VideoTrack.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
                 }
                 else {
@@ -98,7 +98,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
 
                 TimelineViewModel timeline = this.Timeline;
-                if (TimelineUtilCore.CanAddKeyFrame(timeline, this, VideoTrack.IsVisibleKey)) {
+                if (AutomationUtils.CanAddKeyFrame(timeline, this, VideoTrack.IsVisibleKey)) {
                     this.AutomationData[VideoTrack.IsVisibleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
                 }
                 else {

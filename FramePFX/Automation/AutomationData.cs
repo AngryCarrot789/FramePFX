@@ -10,7 +10,7 @@ namespace FramePFX.Automation {
     /// Contains a collection of <see cref="AutomationSequence"/>s mapped by an <see cref="AutomationKey"/>. The sequences are designed to
     /// be immutable; initialised once during the creation of an automatable object, and never modified again
     /// </summary>
-    public class AutomationData : IRBESerialisable {
+    public class AutomationData {
         private readonly Dictionary<AutomationKey, AutomationSequence> map;
         private readonly List<AutomationSequence> sequences;
 
@@ -105,6 +105,17 @@ namespace FramePFX.Automation {
             clone.ActiveKeyFullId = this.ActiveKeyFullId;
             for (int i = 0, c = this.sequences.Count; i < c; i++) {
                 AutomationSequence.LoadDataIntoClone(this.sequences[i], clone.sequences[i]);
+            }
+        }
+
+        /// <summary>
+        /// Fires the <see cref="AutomationSequence.UpdateValue"/> event for each sequence stored in this data, and
+        /// updates it with a frame of -1, indicating that the <see cref="AutomationSequence.OverrideKeyFrame"/> should
+        /// be used to query the value instead of any actual key frame. Useful just after reading the state of an automation owner's data
+        /// </summary>
+        public void UpdateBackingStorage() {
+            foreach (AutomationSequence sequence in this.sequences) {
+                sequence.DoUpdateValue(-1);
             }
         }
     }

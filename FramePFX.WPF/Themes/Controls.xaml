@@ -930,7 +930,8 @@
         <Setter Property="HorizontalOffset" Value="15"/>
         <Setter Property="TextBlock.TextWrapping" Value="Wrap"/>
         <Setter Property="VerticalOffset" Value="15"/>
-        <Setter Property="ToolTipService.ShowDuration" Value="15000"/>
+        <Setter Property="ToolTipService.ShowDuration" Value="30000"/>
+        <Setter Property="ToolTipService.InitialShowDelay" Value="500"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
@@ -4979,7 +4980,7 @@
                 <!-- In order to have a window shadow, GlassFrameThickness needs to be non-zero which is annoying -->
                 <!-- because the glass frame causes this weird flickering white border when resizing :( -->
                 <!-- Seems like it's the best idea to just put Top to 1 and the rest on 0, because you'll probably notice it less -->
-                <WindowChrome CaptionHeight="26" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0"
+                <WindowChrome CaptionHeight="26" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0" 
                               NonClientFrameEdges="None" UseAeroCaptionButtons="False"/>
             </Setter.Value>
         </Setter>

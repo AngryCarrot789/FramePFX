@@ -43,7 +43,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
 
         public MotionEffect(VideoClip clip) {
             this.OwnerClip = clip;
-            this.CanRemove = false;
+            this.IsRemoveable = false;
 
             this.MediaPosition = MediaPositionKey.Descriptor.DefaultValue;
             this.MediaScale = MediaScaleKey.Descriptor.DefaultValue;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Utils;
@@ -84,11 +85,31 @@ namespace FramePFX.Automation.ViewModels {
                         finally {
                             clip.IsAutomationRefreshInProgress = false;
                         }
+
+                        this.UpdateClipEffects(clip, relativeFrame);
                     }
                 }
             }
             finally {
                 track.IsAutomationRefreshInProgress = false;
+            }
+        }
+
+        private void UpdateClipEffects(ClipViewModel clip, long frame) {
+            foreach (BaseEffectViewModel effect in clip.Effects) {
+                try {
+                    ReadOnlyObservableCollection<AutomationSequenceViewModel> seq = effect.AutomationData.Sequences;
+                    effect.IsAutomationRefreshInProgress = true;
+                    for (int j = 0, k = seq.Count; j < k; j++) {
+                        AutomationSequenceViewModel sequence = seq[j];
+                        if (sequence.IsAutomationInUse) {
+                            sequence.DoRefreshValue(this, frame, true, true);
+                        }
+                    }
+                }
+                finally {
+                    effect.IsAutomationRefreshInProgress = false;
+                }
             }
         }
 
@@ -103,7 +124,7 @@ namespace FramePFX.Automation.ViewModels {
                 sequence.OverrideKeyFrame.Model.AssignCurrentValue(frame, sequence.Model);
             }
 
-            sequence.Model.DoUpdateValue(this.Model, frame);
+            sequence.Model.DoUpdateValue(frame);
             sequence.DoRefreshValue(this, frame, this.IsPlayback, false);
         }
 
@@ -114,7 +135,7 @@ namespace FramePFX.Automation.ViewModels {
                 frame = Maths.Clamp(frame - span.Begin, 0, span.Duration - 1);
             }
 
-            sequence.Model.DoUpdateValue(this.Model, frame);
+            sequence.Model.DoUpdateValue(frame);
             sequence.DoRefreshValue(this, frame, this.IsPlayback, false);
         }
     }

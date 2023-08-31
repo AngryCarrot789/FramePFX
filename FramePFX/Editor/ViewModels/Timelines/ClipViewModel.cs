@@ -8,6 +8,8 @@ using FramePFX.Automation.ViewModels;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Effects;
+using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
@@ -147,6 +149,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public ObservableCollection<ClipGroupViewModel> ConnectedGroups { get; }
 
+        public ObservableCollection<BaseEffectViewModel> Effects { get; }
+
         private ClipDragData drag;
 
         protected ClipViewModel(Clip model) {
@@ -154,6 +158,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             model.viewModel = this;
 
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
+
+            this.Effects = new ObservableCollection<BaseEffectViewModel>();
+            foreach (BaseEffect effect in model.Effects) {
+                BaseEffectViewModel vm = EffectRegistry.Instance.CreateViewModelFromModel(effect);
+                vm.OwnerClip = this;
+                this.Effects.Add(vm);
+            }
+
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
                 string name = await IoC.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
                 if (name != null) {
@@ -165,7 +177,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.Track?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
             });
 
-            this.ConnectedGroups = new ObservableCollection<ClipGroupViewModel>();
+            // this.ConnectedGroups = new ObservableCollection<ClipGroupViewModel>();
         }
 
         public bool GetHistoryManager(out HistoryManagerViewModel manager) {

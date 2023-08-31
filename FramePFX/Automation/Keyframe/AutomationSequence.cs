@@ -71,9 +71,8 @@ namespace FramePFX.Automation.Keyframe {
         /// <summary>
         /// Invokes the <see cref="UpdateValue"/> event, allowing any listeners to re-query their actual value at the given frame
         /// </summary>
-        /// <param name="engine">The engine that caused this update</param>
         /// <param name="frame">The frame</param>
-        public void DoUpdateValue(AutomationEngine engine, long frame) {
+        public void DoUpdateValue(long frame) {
             this.UpdateValue?.Invoke(this, frame);
         }
 
@@ -85,7 +84,7 @@ namespace FramePFX.Automation.Keyframe {
         private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
         private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
         private static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBoolean) k).Value;
-        private static readonly Func<KeyFrame, Vector2> FuncGetVect2 = k => ((KeyFrameVector2) k).Value;
+        private static readonly Func<KeyFrame, Vector2> FuncGetVec2 = k => ((KeyFrameVector2) k).Value;
         private static readonly Func<long, KeyFrame, KeyFrame, float> FuncCalcFloat = (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
         private static readonly Func<long, KeyFrame, KeyFrame, double> FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
         private static readonly Func<long, KeyFrame, KeyFrame, long> FuncCalcLong = (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
@@ -114,7 +113,7 @@ namespace FramePFX.Automation.Keyframe {
 
         public Vector2 GetVector2Value(long time, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Vector2, this.DataType);
-            return this.GetValueInternal(time, FuncGetVect2, FuncCalcVec2, ignoreOverrideState);
+            return this.GetValueInternal(time, FuncGetVec2, FuncCalcVec2, ignoreOverrideState);
         }
 
         private T GetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, bool ignoreOverride = false) {
@@ -172,9 +171,9 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="b">The second key frame index, may be -1 under certain conditions, in which case use a</param>
         /// <returns>False if there are no key frames, otherwise true</returns>
         public bool GetIndicesForFrame(long frame, out int a, out int b) {
-            List<KeyFrame> list = this.keyFrameList;
-            int count = list.Count;
-            if (count < 1) {
+            List<KeyFrame> list;
+            int count;
+            if (frame < 0 || (count = (list = this.keyFrameList).Count) < 1) {
                 a = b = -1;
                 return false;
             }

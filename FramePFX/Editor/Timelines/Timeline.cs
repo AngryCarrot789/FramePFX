@@ -122,6 +122,7 @@ namespace FramePFX.Editor.Timelines {
             this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+            this.AutomationData.UpdateBackingStorage();
             HashSet<long> usedIds = new HashSet<long>();
             foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).OfType<RBEDictionary>()) {
                 string registryId = dictionary.GetString(nameof(Track.RegistryId));

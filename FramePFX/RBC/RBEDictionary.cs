@@ -151,6 +151,29 @@ namespace FramePFX.RBC {
         public string GetString(string key, string def) => this.TryGetElement(key, out RBEString rbe) ? rbe.Value : def;
         public bool TryGetString(string key, out string value) => this.TryGetElementValue<RBEString, string>(key, e => e.Value, out value);
 
+        // public string GetLongString(string key) => GetString(this.GetElement<RBEList>(key).List);
+        // public string GetLongString(string key, string def) => this.TryGetElement(key, out RBEList rbe) ? GetString(rbe.List) : def;
+        // public bool TryGetLongString(string key, out string value) => this.TryGetElementValue<RBEList, string>(key, e => GetString(e.List), out value);
+
+        // private static string GetString(List<RBEBase> list) {
+        //     StringBuilder sb = new StringBuilder(ushort.MaxValue * 2);
+        //     foreach (RBEBase rbe in list) {
+        //         if (!(rbe is RBEString))
+        //             throw new Exception("Expected list to contain only string elements");
+        //         sb.Append(((RBEString) rbe).Value);
+        //     }
+        //     return sb.ToString();
+        // }
+
+        // private static void SetString(RBEList list, string value) {
+        //     int i = 0, j, c = value.Length;
+        //     do {
+        //         j = i;
+        //         i += ushort.MaxValue;
+        //         list.Add(new RBEString(value.JSubstring(j, Math.Min(i, c))));
+        //     } while (i < c);
+        // }
+
         public T GetStruct<T>(string key) where T : unmanaged => this.GetElement<RBEStruct>(key).GetValue<T>();
         public T GetStruct<T>(string key, T def) where T : unmanaged => this.TryGetElement(key, out RBEStruct rbe) ? rbe.GetValue<T>() : def;
 

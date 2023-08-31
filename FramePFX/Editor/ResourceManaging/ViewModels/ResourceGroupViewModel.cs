@@ -10,24 +10,14 @@ using FramePFX.Utils;
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
     public class ResourceGroupViewModel : BaseResourceObjectViewModel, IDisplayName, INavigatableResource, IAcceptResourceDrop {
         internal readonly ObservableCollection<BaseResourceObjectViewModel> items;
-        private List<BaseResourceObjectViewModel> selectedItems;
 
         public ReadOnlyObservableCollection<BaseResourceObjectViewModel> Items { get; }
-
-        public List<BaseResourceObjectViewModel> SelectedItems {
-            get => this.selectedItems;
-            set {
-                this.RaisePropertyChanged(ref this.selectedItems, value ?? new List<BaseResourceObjectViewModel>());
-                this.manager?.Project.Editor?.View.UpdateResourceSelection();
-            }
-        }
 
         public new ResourceGroup Model => (ResourceGroup) base.Model;
 
         public ResourceGroupViewModel(ResourceGroup model) : base(model) {
             this.items = new ObservableCollection<BaseResourceObjectViewModel>();
             this.Items = new ReadOnlyObservableCollection<BaseResourceObjectViewModel>(this.items);
-            this.selectedItems = new List<BaseResourceObjectViewModel>();
             foreach (BaseResourceObject item in model.Items) {
                 BaseResourceObjectViewModel viewModel = ResourceTypeRegistry.Instance.CreateItemViewModelFromModel(item);
                 this.items.Add(viewModel);
@@ -149,10 +139,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// Disposes all of this resource's child resources and clears the underlying collection
         /// </summary>
         public void DisposeChildrenAndClear() {
-            if (this.SelectedItems.Count > 0) {
-                this.SelectedItems = null;
-            }
-
             using (ErrorList list = new ErrorList("Exception while disposing child items")) {
                 for (int i = this.items.Count - 1; i >= 0; i--) {
                     try {
@@ -237,17 +223,13 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         public async Task<ResourceGroupViewModel> GroupSelectionIntoNewGroupAction() {
-            if (this.SelectedItems.Count < 1) {
-                return null;
-            }
-
             ResourceGroupViewModel group = new ResourceGroupViewModel(new ResourceGroup("New Group"));
             if (!await group.RenameAsync()) {
                 return null;
             }
 
-            List<BaseResourceObjectViewModel> list = this.SelectedItems.ToList();
-            this.SelectedItems = null;
+            List<BaseResourceObjectViewModel> list = this.Manager.SelectedItems.Where(x => x != this && x.Parent == this).ToList();
+            this.Manager.SelectedItems.Clear();
             foreach (BaseResourceObjectViewModel item in list) {
                 this.RemoveItem(item, true, false);
             }

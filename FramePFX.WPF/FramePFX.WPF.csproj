@@ -163,8 +163,9 @@
     <Compile Include="AttachedProperties\TopmostFocus.cs" />
     <Compile Include="AttributeProcessor.cs" />
     <Compile Include="BindingErrorListener.cs" />
+    <Compile Include="PropertyEditing\Converters\PropertyItemToolTipConverter.cs" />
     <Compile Include="PropertyEditing\PropertyEditor.cs" />
-    <Compile Include="PropertyEditing\PropertyEditorItemContainer.cs" />
+    <Compile Include="PropertyEditing\PropertyEditorItem.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemsControl.cs" />
     <Compile Include="Resources\I18N\LangType.cs" />
     <Compile Include="Resources\I18N\LocalizationController.cs" />
@@ -313,10 +314,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Editor\EditorWindow2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Editor\Exporting\ExportSetupWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -333,10 +330,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Editor\Properties\PropertyPageStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Editor\ResourceChecker\ResourceCheckerDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -346,10 +339,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Editor\Timeline\TimelineStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -414,9 +403,6 @@
       <DependentUpon>EditorMainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
-    <Compile Include="Editor\EditorWindow2.xaml.cs">
-      <DependentUpon>EditorWindow2.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Editor\Exporting\Converters\BitRateConverters.cs" />
     <Compile Include="Editor\Exporting\Converters\BitRateToMbConverter.cs" />
     <Compile Include="Editor\Exporting\ExportPageRegistry.cs" />
@@ -472,10 +458,6 @@
     <Compile Include="Highlighting\HighlightableString.cs" />
     <Compile Include="Highlighting\InlineHelper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Page Include="Notifications\NotificationStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -664,6 +646,7 @@
     <Resource Include="Themes\OldDragablzStyles.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Editor\Properties\" />
     <Folder Include="Editor\Timeline\Actions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

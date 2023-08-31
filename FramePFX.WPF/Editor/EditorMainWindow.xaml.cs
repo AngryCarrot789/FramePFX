@@ -11,10 +11,12 @@ using System.Windows.Media.Animation;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
+using FramePFX.PropertyEditing;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using FramePFX.WPF.Notifications;
@@ -119,15 +121,20 @@ namespace FramePFX.WPF.Editor {
         public void UpdateClipSelection() {
             if (this.Editor.ActiveProject is ProjectViewModel project) {
                 // TODO: maybe move this to a view model?
-                this.PFXPropertyEditor.InputItems = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
+                List<ClipViewModel> clips = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
+                List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
+                PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
+                PFXPropertyEditorRegistry.Instance.ClipInfo.SetupHierarchyState(clips);
+                PFXPropertyEditorRegistry.Instance.EffectInfo.SetupHierarchyState(effects);
             }
         }
 
         public void UpdateResourceSelection() {
             // TODO: maybe move this to a view model?
-            ResourceGroupViewModel group;
-            if (this.Editor.ActiveProject is ProjectViewModel project && (group = project.ResourceManager.CurrentGroup) != null) {
-                this.PFXPropertyEditor.InputItems = group.SelectedItems.ToList();
+            ResourceManagerViewModel manager;
+            if (this.Editor.ActiveProject is ProjectViewModel project && (manager = project.ResourceManager) != null) {
+                PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
+                PFXPropertyEditorRegistry.Instance.ResourceInfo.SetupHierarchyState(manager.SelectedItems.ToList());
             }
         }
 

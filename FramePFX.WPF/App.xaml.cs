@@ -18,6 +18,7 @@ using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Actions;
 using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
@@ -294,7 +295,7 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip colour_red"
                 };
 
-                clip1.MediaPosition = new Vector2(0, 0);
+                clip1.Motion.MediaPosition = new Vector2(0, 0);
                 clip1.SetTargetResourceId(id_r);
                 track1.AddClip(clip1);
 
@@ -303,7 +304,7 @@ namespace FramePFX.WPF {
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
-                clip2.MediaPosition = new Vector2(200, 200);
+                clip2.Motion.MediaPosition = new Vector2(200, 200);
                 clip2.SetTargetResourceId(id_g);
                 track1.AddClip(clip2);
             }
@@ -319,7 +320,7 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip colour_blue"
                 };
 
-                clip1.MediaPosition = new Vector2(200, 200);
+                clip1.Motion.MediaPosition = new Vector2(200, 200);
                 clip1.SetTargetResourceId(id_b);
                 track2.AddClip(clip1);
                 ShapeVideoClip clip2 = new ShapeVideoClip {
@@ -328,13 +329,13 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip blueish"
                 };
 
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
-                clip2.AutomationData[VideoClip.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
-                clip2.AutomationData.ActiveKeyFullId = VideoClip.MediaPositionKey.FullId;
+                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip2.Motion.AutomationData.ActiveKeyFullId = MotionEffect.MediaPositionKey.FullId;
 
-                clip2.MediaPosition = new Vector2(400, 400);
+                clip2.Motion.MediaPosition = new Vector2(400, 400);
                 clip2.SetTargetResourceId(id_d);
                 track2.AddClip(clip2);
             }

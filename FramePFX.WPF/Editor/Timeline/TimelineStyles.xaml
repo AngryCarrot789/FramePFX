@@ -154,7 +154,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Focusable" Value="True" />
         <Setter Property="SelectedItem" Value="{Binding PrimarySelectedClip}" />
-        <Setter Property="ap:MultiSelectorHelper.SelectedItems" Value="{Binding SelectedClips}" />
+        <Setter Property="ap:MultiSelectorHelper.SelectedItems" Value="{Binding SelectedClips, Mode=TwoWay}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineTrackControl}">

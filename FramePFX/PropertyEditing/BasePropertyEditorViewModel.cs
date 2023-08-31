@@ -85,8 +85,8 @@ namespace FramePFX.PropertyEditing {
             }
 
             this.OnClearHandlers();
-            this.Handlers = EmptyList;
             this.handlerToDataMap.Clear();
+            this.Handlers = EmptyList;
             this.IsCurrentlyApplicable = false;
             this.RaisePropertyChanged(nameof(this.HasHandlers));
             this.RaisePropertyChanged(nameof(this.IsEmpty));
@@ -94,22 +94,24 @@ namespace FramePFX.PropertyEditing {
         }
 
         /// <summary>
-        /// Sets this editor's handler list, and calls <see cref="OnHandlersLoaded"/>. If there are currently
-        /// handlers loaded, then <see cref="ClearHandlers"/> must be called before this function
+        /// Clears the handler list and then sets up the new handlers for the given list. If the
+        /// <see cref="BasePropertyObjectViewModel.HandlerCountMode"/> for this group is unacceptable,
+        /// then nothing else happens. If all of the input objects are not applicable, then nothing happens. Otherwise,
+        /// <see cref="BasePropertyObjectViewModel.IsCurrentlyApplicable"/> is set to true and the handlers are loaded
         /// </summary>
-        /// <param name="targets">A reference to the handler list, which will be stored in this editor</param>
-        /// <exception cref="InvalidOperationException"><see cref="ClearHandlers"/> was not called, and there were handlers already loaded</exception>
-        /// <exception cref="ArgumentException">An invalid number of objects were provided in relation to <see cref="BasePropertyObjectViewModel.HandlerCountMode"/></exception>
+        /// <param name="input">Input list of objects</param>
         public void SetHandlers(IReadOnlyList<object> targets) {
-            if (this.Handlers.Count > 0) {
-                throw new InvalidOperationException("Editor was not cleared before handlers were set again");
+            this.ClearHandlers();
+            if (!this.IsHandlerCountAcceptable(targets.Count)) {
+                return;
             }
 
-            switch (this.HandlerCountMode) {
-                case HandlerCountMode.Single when targets.Count != 1: throw new ArgumentException($"Expected list to contain only 1 handler, as {nameof(this.HandlerCountMode)} is {nameof(HandlerCountMode.Single)}");
-                case HandlerCountMode.Multi when targets.Count < 2: throw new ArgumentException($"Expected list to contain more than 1 handler, as {nameof(this.HandlerCountMode)} is {nameof(HandlerCountMode.Multi)}");
+            // TODO: maybe only load handlers for applicable objects, and ignore the other ones?
+            if (!PropertyGroupViewModel.AreAllApplicable(this, targets)) {
+                return;
             }
 
+            this.IsCurrentlyApplicable = true;
             foreach (object entry in targets) {
                 this.handlerToDataMap[entry] = null;
             }

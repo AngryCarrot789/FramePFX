@@ -2,7 +2,7 @@ using System;
 using FramePFX.History;
 using FramePFX.History.ViewModels;
 
-namespace FramePFX.PropertyEditing.Editors {
+namespace FramePFX.PropertyEditing.Editor {
     public abstract class HistoryAwarePropertyEditorViewModel : BasePropertyEditorViewModel {
         protected HistoryManagerViewModel HistoryManager;
 

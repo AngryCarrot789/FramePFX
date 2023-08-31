@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using FramePFX.Automation;
-using FramePFX.Editor.Audio;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines;
 using FramePFX.RBC;

@@ -7,9 +7,14 @@ using FramePFX.Utils;
 namespace FramePFX.Plugins {
     public class PluginLoader {
         private readonly List<Plugin> plugins;
+        private List<Type> internalPlugins;
 
         public PluginLoader() {
             this.plugins = new List<Plugin>();
+        }
+
+        public void RegisterInternalPlugin<T>() where T : Plugin {
+            (this.internalPlugins ?? (this.internalPlugins = new List<Type>())).Add(typeof(T));
         }
 
         public void LoadPlugins(string folder) {
@@ -33,7 +38,7 @@ namespace FramePFX.Plugins {
                 }
             }
 
-            List<(RegistrationOrderAttribute order, Type type)> types = new List<(RegistrationOrderAttribute, Type)>();
+            List<(int order, Type type)> types = new List<(int, Type)>();
             foreach (string path in dlls) {
                 Assembly assembly;
 #if !DEBUG
@@ -50,24 +55,24 @@ namespace FramePFX.Plugins {
 
                 foreach (Type type in assembly.GetTypes()) {
                     if (typeof(Plugin).IsAssignableFrom(type) && type.GetCustomAttribute<IgnoredPluginAttribute>() == null) {
-                        types.Add((type.GetCustomAttribute<RegistrationOrderAttribute>(), type));
+                        types.Add((type.GetCustomAttribute<RegistrationOrderAttribute>()?.Order ?? 0, type));
                     }
                 }
             }
 
-            types.Sort((a, b) => {
-                if (a.order == null) {
-                    return b.order?.Order ?? 0;
+            if (this.internalPlugins != null) {
+                foreach (Type type in this.internalPlugins) {
+                    if (type.GetCustomAttribute<IgnoredPluginAttribute>() == null) {
+                        types.Add((type.GetCustomAttribute<RegistrationOrderAttribute>()?.Order ?? 0, type));
+                    }
                 }
-                else if (b.order == null) {
-                    return a.order.Order;
-                }
-                else {
-                    return a.order.Order.CompareTo(b.order.Order);
-                }
-            });
 
-            foreach ((RegistrationOrderAttribute order, Type type) in types) {
+                this.internalPlugins = null;
+            }
+
+            types.Sort((a, b) => a.order.CompareTo(b.order));
+
+            foreach ((int order, Type type) in types) {
 #if DEBUG
                 try {
 #endif

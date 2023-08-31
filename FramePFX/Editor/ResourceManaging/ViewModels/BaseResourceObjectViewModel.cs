@@ -7,8 +7,8 @@ using FramePFX.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
     public abstract class BaseResourceObjectViewModel : BaseViewModel, IRenameTarget {
-        internal ResourceManagerViewModel manager;
-        internal ResourceGroupViewModel parent;
+        private ResourceManagerViewModel manager;
+        private ResourceGroupViewModel parent;
 
         /// <summary>
         /// The manager that this resource is currently associated with

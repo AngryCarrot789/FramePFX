@@ -1,6 +1,7 @@
 using FramePFX.Automation.Keyframe;
 using FramePFX.Editor;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Utils;
 
 namespace FramePFX.Automation {
@@ -30,7 +31,7 @@ namespace FramePFX.Automation {
             try {
                 foreach (AutomationSequence sequence in timeline.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoUpdateValue(this, frame);
+                        sequence.DoUpdateValue(frame);
                     }
                 }
             }
@@ -48,7 +49,7 @@ namespace FramePFX.Automation {
             try {
                 foreach (AutomationSequence sequence in track.AutomationData.Sequences) {
                     if (sequence.IsAutomationInUse) {
-                        sequence.DoUpdateValue(this, frame);
+                        sequence.DoUpdateValue(frame);
                     }
                 }
             }
@@ -64,13 +65,31 @@ namespace FramePFX.Automation {
                         clip.IsAutomationChangeInProgress = true;
                         foreach (AutomationSequence sequence in clip.AutomationData.Sequences) {
                             if (sequence.IsAutomationInUse) {
-                                sequence.DoUpdateValue(this, relative);
+                                sequence.DoUpdateValue(relative);
                             }
                         }
                     }
                     finally {
                         clip.IsAutomationChangeInProgress = false;
                     }
+
+                    UpdateClipEffects(clip, relative);
+                }
+            }
+        }
+
+        private static void UpdateClipEffects(Clip clip, long frame) {
+            foreach (BaseEffect effect in clip.Effects) {
+                try {
+                    effect.IsAutomationChangeInProgress = true;
+                    foreach (AutomationSequence sequence in effect.AutomationData.Sequences) {
+                        if (sequence.IsAutomationInUse) {
+                            sequence.DoUpdateValue(frame);
+                        }
+                    }
+                }
+                finally {
+                    effect.IsAutomationChangeInProgress = false;
                 }
             }
         }

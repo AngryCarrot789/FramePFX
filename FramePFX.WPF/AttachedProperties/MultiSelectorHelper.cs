@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -23,53 +24,52 @@ namespace FramePFX.WPF.AttachedProperties {
                 "SelectedItems",
                 typeof(IList),
                 typeof(MultiSelectorHelper),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedItemsChanged));
+                new FrameworkPropertyMetadata(null, OnSelectedItemsChanged));
 
-        public static readonly DependencyProperty UpdateSelectedItemsOnChangeProperty =
+        public static readonly DependencyProperty UpdatePropertyOnSelectionChangedProperty =
             DependencyProperty.RegisterAttached(
-                "UpdateSelectedItemsOnChange",
+                "UpdatePropertyOnSelectionChanged",
                 typeof(bool),
                 typeof(MultiSelectorHelper),
-                new PropertyMetadata(BoolBox.True, OnUpdateSelectedItemsOnChangeChanged));
+                new PropertyMetadata(BoolBox.True, (d, e) => AutoRegisterSelectionChangedHandler(d)));
 
-        private static readonly DependencyPropertyKey IsUpdatingSelectionProperty =
+        private static readonly DependencyPropertyKey UpdatingSelectionProperty =
             DependencyProperty.RegisterAttachedReadOnly(
-                "IsUpdatingSelection",
+                "UpdatingSelection",
                 typeof(bool),
                 typeof(MultiSelectorHelper),
                 new PropertyMetadata(BoolBox.False));
 
-        public static IList GetSelectedItems(DependencyObject obj) {
-            return (IList) obj.GetValue(SelectedItemsProperty);
-        }
+        private static readonly DependencyProperty IsSelectionChangedRegisteredProperty =
+            DependencyProperty.RegisterAttached(
+                "IsSelectionChangedRegistered",
+                typeof(bool),
+                typeof(MultiSelectorHelper),
+                new PropertyMetadata(BoolBox.False));
 
-        public static void SetSelectedItems(DependencyObject obj, IList value) {
-            obj.SetValue(SelectedItemsProperty, value);
-        }
+        public static IList GetSelectedItems(DependencyObject obj) => (IList) obj.GetValue(SelectedItemsProperty);
 
-        public static bool GetUpdateSelectedItemsOnChange(DependencyObject obj) {
-            return (bool) obj.GetValue(UpdateSelectedItemsOnChangeProperty);
-        }
+        public static void SetSelectedItems(DependencyObject obj, IList value) => obj.SetValue(SelectedItemsProperty, value);
 
-        public static void SetUpdateSelectedItemsOnChange(DependencyObject obj, bool value) {
-            obj.SetValue(UpdateSelectedItemsOnChangeProperty, value.Box());
-        }
+        public static bool GetUpdatePropertyOnSelectionChanged(DependencyObject obj) => (bool) obj.GetValue(UpdatePropertyOnSelectionChangedProperty);
 
-        private static void SetIsUpdatingSelection(DependencyObject element, bool value) {
-            element.SetValue(IsUpdatingSelectionProperty, value.Box());
-        }
+        public static void SetUpdatePropertyOnSelectionChanged(DependencyObject obj, bool value) => obj.SetValue(UpdatePropertyOnSelectionChangedProperty, value.Box());
 
-        private static bool GetIsUpdatingSelection(DependencyObject element) {
-            return (bool) element.GetValue(IsUpdatingSelectionProperty.DependencyProperty);
-        }
+        private static void SetUpdatingSelection(DependencyObject element, bool value) => element.SetValue(UpdatingSelectionProperty, value.Box());
+        private static bool IsUpdatingSelection(DependencyObject element) => (bool) element.GetValue(UpdatingSelectionProperty.DependencyProperty);
+
+        private static void SetIsSelectionChangedRegistered(DependencyObject element, bool value) => element.SetValue(IsSelectionChangedRegisteredProperty, value);
+
+        private static bool GetIsSelectionChangedRegistered(DependencyObject element) => (bool) element.GetValue(IsSelectionChangedRegisteredProperty);
 
         private static void OnSelectedItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (GetIsUpdatingSelection(d)) {
+            if (IsUpdatingSelection(d)) {
                 return;
             }
 
             if (d is Selector) {
-                SetIsUpdatingSelection(d, true);
+                IList newList = (IList) e.NewValue;
+                SetUpdatingSelection(d, true);
                 try {
                     IList list;
                     if (d is ListBox box) {
@@ -84,35 +84,32 @@ namespace FramePFX.WPF.AttachedProperties {
 
                     if (list != null) {
                         list.Clear();
-                        if (e.NewValue is IList selectedItems) {
-                            foreach (object item in selectedItems) {
+                        if (newList != null && newList.Count > 0) {
+                            foreach (object item in newList) {
                                 list.Add(item);
                             }
                         }
                     }
                 }
                 finally {
-                    SetIsUpdatingSelection(d, false);
+                    SetUpdatingSelection(d, false);
                 }
             }
 
-            TryRegisterEvents(d);
+            AutoRegisterSelectionChangedHandler(d);
         }
 
-        private static void TryRegisterEvents(DependencyObject obj) {
-            if (GetUpdateSelectedItemsOnChange(obj)) {
-                if (obj is Selector selector) {
-                    selector.SelectionChanged -= OnSelectionChanged;
-                    selector.SelectionChanged += OnSelectionChanged;
+        private static void AutoRegisterSelectionChangedHandler(DependencyObject d) {
+            if (d is Selector s) {
+                if (GetIsSelectionChangedRegistered(d)) {
+                    if (!GetUpdatePropertyOnSelectionChanged(d)) {
+                        SetIsSelectionChangedRegistered(d, false);
+                        s.SelectionChanged -= OnUISelectionChanged;
+                    }
                 }
-            }
-        }
-
-        private static void OnUpdateSelectedItemsOnChangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (d is Selector selector) {
-                selector.SelectionChanged -= OnSelectionChanged;
-                if ((bool) e.NewValue) {
-                    selector.SelectionChanged += OnSelectionChanged;
+                else if (GetUpdatePropertyOnSelectionChanged(d)) {
+                    SetIsSelectionChangedRegistered(d, true);
+                    s.SelectionChanged += OnUISelectionChanged;
                 }
             }
         }
@@ -132,63 +129,73 @@ namespace FramePFX.WPF.AttachedProperties {
             return true;
         }
 
-        private static void OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
+        private static void OnUISelectionChanged(object sender, SelectionChangedEventArgs e) {
             if (sender is Selector selector) {
-                if (GetIsUpdatingSelection(selector)) {
+                if (IsUpdatingSelection(selector))
                     return;
-                }
 
-                IList selectedItems = GetSelectedItems(selector);
-                if (selectedItems == null) {
+                IList dstList = GetSelectedItems(selector);
+                if (dstList == null)
                     return;
-                }
 
+                bool update = false;
                 try {
-                    IList src;
+                    IList srcList;
                     switch (selector) {
                         case ListBox lb:
-                            src = lb.SelectedItems;
+                            srcList = lb.SelectedItems;
                             break;
                         case MultiSelector ms:
-                            src = ms.SelectedItems;
+                            srcList = ms.SelectedItems;
                             break;
                         default:
-                            src = null;
+                            srcList = null;
                             break;
                     }
 
-                    if (src != null) {
+                    if (srcList != null) {
                         // Can massively improve performance for property pages
-                        if (ListEquals(src, selectedItems)) {
+                        if (ListEquals(srcList, dstList)) {
                             return;
                         }
 
-                        SetIsUpdatingSelection(selector, true);
-
-                        selectedItems.Clear();
-                        foreach (object item in src)
-                            selectedItems.Add(item);
+                        SetUpdatingSelection(selector, update = true);
+                        if (srcList.Count < 2) {
+                            // most likely more efficient to clear and add a possible single selection
+                            dstList.Clear();
+                            foreach (object item in srcList)
+                                dstList.Add(item);
+                        }
+                        else {
+                            int expected = dstList.Count - e.RemovedItems.Count + e.AddedItems.Count;
+                            if (expected == srcList.Count) {
+                                foreach (object o in e.RemovedItems)
+                                    dstList.Remove(o);
+                                foreach (object o in e.AddedItems)
+                                    dstList.Add(o);
+                            }
+                            else {
+                                Debug.WriteLine($"Selection discrepancy: Expected {expected} selected items in the source list, but got {srcList.Count}");
+                                dstList.Clear();
+                                foreach (object item in srcList)
+                                    dstList.Add(item);
+                            }
+                        }
                     }
                     else {
-                        SetIsUpdatingSelection(selector, true);
-                        if (e.RemovedItems != null) {
-                            foreach (object value in e.RemovedItems) {
-                                selectedItems.Remove(value);
-                            }
-                        }
-
-                        if (e.AddedItems != null) {
-                            foreach (object value in e.AddedItems) {
-                                selectedItems.Add(value);
-                            }
-                        }
+                        SetUpdatingSelection(selector, update = true);
+                        foreach (object o in e.RemovedItems)
+                            dstList.Remove(o);
+                        foreach (object o in e.AddedItems)
+                            dstList.Add(o);
                     }
 
-                    if (!(selectedItems is INotifyCollectionChanged))
-                        SetSelectedItems(selector, selectedItems);
+                    if (!(dstList is INotifyCollectionChanged))
+                        SetSelectedItems(selector, dstList);
                 }
                 finally {
-                    SetIsUpdatingSelection(selector, false);
+                    if (update)
+                        SetUpdatingSelection(selector, false);
                 }
             }
         }

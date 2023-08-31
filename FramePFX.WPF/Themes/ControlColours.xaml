@@ -6,6 +6,7 @@
     <!-- The letter A is in front of the colours themselves, because it's annoying having to scroll down in visual studio's designer to "Colour" or "Brush" -->
 
     <!-- If you fancy going the JetBrains GUI way, where the main UI is just crammed with a single 1px border, then you can use these -->
+
     <SolidColorBrush x:Key="PanelBorderBrush" Color="{DynamicResource AColour.Tone1.Border.Static}" />
     <SolidColorBrush x:Key="PanelBackground1" Color="{DynamicResource AColour.Tone1.Background.Static}" />
     <SolidColorBrush x:Key="PanelBackground2" Color="{DynamicResource AColour.Tone2.Background.Static}" />

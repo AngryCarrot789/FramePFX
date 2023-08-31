@@ -212,6 +212,7 @@ namespace FramePFX.Editor.Timelines {
             if (data.TryGetLong(nameof(this.UniqueTrackId), out long tId) && tId >= 0)
                 this.internalTrackId = tId;
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+            this.AutomationData.UpdateBackingStorage();
             HashSet<long> usedIds = new HashSet<long>();
             foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))

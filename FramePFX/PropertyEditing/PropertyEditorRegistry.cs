@@ -27,11 +27,6 @@ namespace FramePFX.PropertyEditing {
         /// Sets up this registry for the given collection of data sources
         /// </summary>
         /// <param name="dataSources">A input list of data sources</param>
-        public void SetupObjects(IReadOnlyList<object> dataSources) {
-            this.Root.ClearHandlersRecursive();
-            if (dataSources.Count > 0) {
-                this.Root.SetupHierarchyState(dataSources);
-            }
-        }
+        public void SetupObjects(IReadOnlyList<object> dataSources) => this.Root.SetupHierarchyState(dataSources);
     }
 }

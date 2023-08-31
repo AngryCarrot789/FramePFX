@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging;
+using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.RBC;
 using FramePFX.Utils;
@@ -102,11 +104,14 @@ namespace FramePFX.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
+        public List<BaseEffect> Effects { get; }
+
         // this feels like such bad design...
         internal ClipViewModel viewModel;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
+            this.Effects = new List<BaseEffect>();
         }
 
         public static void SetTrack(Clip clip, Track track) {
@@ -156,6 +161,14 @@ namespace FramePFX.Editor.Timelines {
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
+            RBEList list = data.CreateList("Effects");
+            foreach (BaseEffect effect in this.Effects) {
+                if (!(effect.FactoryId is string id))
+                    throw new Exception("Unknown clip type: " + effect.GetType());
+                RBEDictionary dictionary = list.AddDictionary();
+                dictionary.SetString(nameof(BaseEffect.FactoryId), id);
+                effect.WriteToRBE(dictionary.CreateDictionary("Data"));
+            }
         }
 
         /// <summary>
@@ -169,6 +182,16 @@ namespace FramePFX.Editor.Timelines {
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+            this.AutomationData.UpdateBackingStorage();
+            foreach (RBEBase entry in data.GetList("Effects").List) {
+                if (!(entry is RBEDictionary dictionary))
+                    throw new Exception($"Effect resource dictionary contained a non dictionary child: {entry.Type}");
+                string factoryId = dictionary.GetString(nameof(BaseEffect.FactoryId));
+                BaseEffect effect = EffectRegistry.Instance.CreateModel(factoryId);
+                effect.ReadFromRBE(dictionary.GetDictionary("Data"));
+                effect.OwnerClip = this;
+                this.Effects.Add(effect);
+            }
         }
 
         /// <summary>

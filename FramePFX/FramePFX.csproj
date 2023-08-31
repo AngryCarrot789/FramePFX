@@ -13,6 +13,7 @@
     <Folder Include="Editor\Timelines\Effects\Audio\" />
     <Folder Include="Plugins\" />
     <Folder Include="Plugins\Demo" />
+    <Folder Include="PropertyEditing\Editor\Clips" />
   </ItemGroup>
 
   <ItemGroup>

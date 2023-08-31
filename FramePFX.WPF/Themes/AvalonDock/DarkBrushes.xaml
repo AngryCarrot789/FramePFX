@@ -132,7 +132,7 @@
 
     <!--  Floating Tool Window  -->
     <SolidColorBrush x:Key="{x:Static rk:ResourceKeys.FloatingToolWindowBackground}" options:Freeze="true" Color="{DynamicResource AColour.Tone4.Background.Static}" />
-    <SolidColorBrush x:Key="{x:Static rk:ResourceKeys.FloatingToolWindowBorder}" options:Freeze="true" Color="#3F3F46" />
+    <SolidColorBrush x:Key="{x:Static rk:ResourceKeys.FloatingToolWindowBorder}" options:Freeze="true" Color="{DynamicResource AColour.Tone1.Border.Static}" />
 
     <!--  Navigator Window  -->
     <SolidColorBrush x:Key="{x:Static rk:ResourceKeys.NavigatorWindowBackground}" options:Freeze="true" Color="{DynamicResource AColour.Tone3.Background.Static}" />

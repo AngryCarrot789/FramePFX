@@ -27,6 +27,13 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public virtual HandlerCountMode HandlerCountMode => HandlerCountMode.Any;
 
+        /// <summary>
+        /// How deep the current property is within its parent hierarchy
+        /// </summary>
+        public int HierarchyDepth { get; private set; } = -1;
+
+        public PropertyGroupViewModel Parent { get; internal set; }
+
         public BasePropertyObjectViewModel(Type applicableType) {
             this.ApplicableType = applicableType;
         }
@@ -45,11 +52,23 @@ namespace FramePFX.PropertyEditing {
         /// <returns>This property is applicable for the given number of handlers</returns>
         public bool IsHandlerCountAcceptable(int count) {
             switch (this.HandlerCountMode) {
-                case HandlerCountMode.Any: return true;
+                case HandlerCountMode.Any: return count > 0;
                 case HandlerCountMode.Single: return count == 1;
                 case HandlerCountMode.Multi: return count > 1;
                 default: throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public virtual void RecalculateHierarchyDepth() {
+            PropertyGroupViewModel parent = this.Parent;
+            this.HierarchyDepth = parent == null ? -1 : (parent.HierarchyDepth + 1);
+        }
+
+        protected int GetHierarchyDepth() {
+            int count = -1;
+            for (PropertyGroupViewModel parent = this.Parent; parent != null; parent = parent.Parent)
+                count++;
+            return count;
         }
     }
 }

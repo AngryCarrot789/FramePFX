@@ -1,6 +1,6 @@
 using System;
 
-namespace FramePFX.PropertyEditing.Editors.Primitives {
+namespace FramePFX.PropertyEditing.Editor.Primitives {
     public class CheckBoxEditorViewModel : BasePropertyEditorViewModel {
         private bool? isChecked;
 

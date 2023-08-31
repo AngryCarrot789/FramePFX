@@ -22,12 +22,11 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             if (!(resItem is BaseResourceObjectViewModel item))
                 return false;
 
-            ResourceGroupViewModel parent = item.Parent;
-            if (parent == null || parent.SelectedItems.Count < 1)
+            if (item.Manager.SelectedItems.Count < 1 || item.Parent == null)
                 return true;
 
             try {
-                parent.RemoveRange(parent.SelectedItems.ToList());
+                item.Parent.RemoveRange(item.Manager.SelectedItems.ToList());
             }
             catch (Exception ex) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());

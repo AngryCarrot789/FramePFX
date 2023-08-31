@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
@@ -23,6 +24,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         public ResourceGroupViewModel CurrentGroup {
             get => this.currentGroup;
             set {
+                this.SelectedItems.Clear();
                 this.RaisePropertyChanged(ref this.currentGroup, value ?? this.Root);
                 this.RaisePropertyChanged(nameof(this.DisplayPath));
             }
@@ -54,14 +56,23 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         private readonly LinkedList<ResourceGroupViewModel> undoGroup;
         private readonly LinkedList<ResourceGroupViewModel> redoGroup;
 
+        /// <summary>
+        /// The selected items for <see cref="CurrentGroup"/>. Automatically cleared when the group changes
+        /// </summary>
+        public ObservableCollection<BaseResourceObjectViewModel> SelectedItems { get; }
+
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
             this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Root = new ResourceGroupViewModel(manager.RootGroup);
             this.Root.SetManager(this);
             this.currentGroup = this.Root;
-            this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);
+            this.SelectedItems = new ObservableCollection<BaseResourceObjectViewModel>();
+            this.SelectedItems.CollectionChanged += (sender, args) => {
+                this.Project?.Editor?.View?.UpdateResourceSelection();
+            };
 
+            this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);
             this.undoGroup = new LinkedList<ResourceGroupViewModel>();
             this.redoGroup = new LinkedList<ResourceGroupViewModel>();
         }
@@ -81,8 +92,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 this.undoGroup.AddLast(this.CurrentGroup);
             }
 
-            this.CurrentGroup.SelectedItems = null;
-            group.SelectedItems = null;
+            this.SelectedItems.Clear();
             this.CurrentGroup = group;
         }
 
@@ -90,7 +100,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             while (this.undoGroup.Count > 0) {
                 ResourceGroupViewModel last = this.undoGroup.Last.Value;
                 this.undoGroup.RemoveLast();
-                if (ReferenceEquals(last.manager, this)) {
+                if (ReferenceEquals(last.Manager, this)) {
                     this.redoGroup.AddLast(this.CurrentGroup);
                     this.NavigateToGroup(last, false);
                     return;
@@ -102,7 +112,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             while (this.redoGroup.Count > 0) {
                 ResourceGroupViewModel last = this.redoGroup.Last.Value;
                 this.redoGroup.RemoveLast();
-                if (ReferenceEquals(last.manager, this)) {
+                if (ReferenceEquals(last.Manager, this)) {
                     this.undoGroup.AddLast(this.CurrentGroup);
                     this.NavigateToGroup(last, false);
                     return;

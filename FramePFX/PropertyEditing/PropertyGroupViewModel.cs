@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using OpenTK.Input;
 
 namespace FramePFX.PropertyEditing {
     /// <summary>
     /// A class which contains a collection of child groups and editors
     /// </summary>
-    public class PropertyGroupViewModel : BasePropertyObjectViewModel {
+    public sealed class PropertyGroupViewModel : BasePropertyObjectViewModel {
         private readonly Dictionary<string, PropertyGroupViewModel> idToGroupMap;
         private readonly Dictionary<string, BasePropertyEditorViewModel> idToEditorMap;
         private readonly List<BasePropertyObjectViewModel> propertyObjectList;
@@ -23,11 +24,23 @@ namespace FramePFX.PropertyEditing {
             set => this.RaisePropertyChanged(ref this.isExpanded, value);
         }
 
+        /// <summary>
+        /// Whether or not the current group is the root property group object. Only one root group should exist per instance of <see cref="PropertyEditorRegistry"/>
+        /// </summary>
+        public bool IsRoot => this.Parent == null;
+
         public PropertyGroupViewModel(Type applicableType, string id) : base(applicableType) {
             this.Id = id;
             this.propertyObjectList = new List<BasePropertyObjectViewModel>();
             this.idToGroupMap = new Dictionary<string, PropertyGroupViewModel>();
             this.idToEditorMap = new Dictionary<string, BasePropertyEditorViewModel>();
+        }
+
+        public override void RecalculateHierarchyDepth() {
+            base.RecalculateHierarchyDepth();
+            foreach (BasePropertyObjectViewModel obj in this.propertyObjectList) {
+                obj.RecalculateHierarchyDepth();
+            }
         }
 
         /// <summary>
@@ -38,8 +51,7 @@ namespace FramePFX.PropertyEditing {
         /// <param name="isExpandedByDefault"></param>
         /// <returns></returns>
         public PropertyGroupViewModel CreateSubGroup(Type applicableType, string id, bool isExpandedByDefault = true) {
-            //                                  i think this is the right way around...
-            if (this.ApplicableType != null && !applicableType.IsAssignableFrom(this.ApplicableType)) {
+            if (this.ApplicableType != null && !this.ApplicableType.IsAssignableFrom(applicableType)) {
                 throw new Exception($"The target type is not assignable to the current applicable type: {applicableType} # {this.ApplicableType}");
             }
 
@@ -50,8 +62,10 @@ namespace FramePFX.PropertyEditing {
                 isExpanded = isExpandedByDefault
             };
 
+            group.Parent = this;
+            group.RecalculateHierarchyDepth();
             this.idToGroupMap[id] = group;
-            this.propertyObjectList.Add(@group);
+            this.propertyObjectList.Add(group);
             return group;
         }
 
@@ -67,18 +81,27 @@ namespace FramePFX.PropertyEditing {
             if (this.idToEditorMap.ContainsKey(id))
                 throw new Exception($"Editor already exists with the name: {id}");
 
+            editor.Parent = this;
+            editor.RecalculateHierarchyDepth();
             this.idToEditorMap[id] = editor;
             this.propertyObjectList.Add(editor);
         }
 
-        public void ClearHandlersRecursive() {
+        /// <summary>
+        /// Recursively clears the state of all groups and editors
+        /// </summary>
+        public void ClearHierarchyState() {
+            if (!this.IsCurrentlyApplicable) {
+                return;
+            }
+
             foreach (BasePropertyObjectViewModel obj in this.propertyObjectList) {
                 switch (obj) {
                     case BasePropertyEditorViewModel editor:
                         editor.ClearHandlers();
                         break;
                     case PropertyGroupViewModel group:
-                        group.ClearHandlersRecursive();
+                        group.ClearHierarchyState();
                         break;
                 }
             }
@@ -86,11 +109,24 @@ namespace FramePFX.PropertyEditing {
             this.IsCurrentlyApplicable = false;
         }
 
+        /// <summary>
+        /// Clears the hierarchy and then sets up this group's hierarchy for the given input list. If
+        /// the <see cref="BasePropertyObjectViewModel.HandlerCountMode"/> for this group is unacceptable,
+        /// then nothing else happens. If none of the input objects are applicable, then nothing happens. Otherwise,
+        /// <see cref="BasePropertyObjectViewModel.IsCurrentlyApplicable"/> is set to true and the hierarchy is loaded
+        /// </summary>
+        /// <param name="input">Input list of objects</param>
         public void SetupHierarchyState(IReadOnlyList<object> input) {
-            if (input.Count < 1) {
-                throw new Exception("Cannot setup hierarchy with an empty list");
+            this.ClearHierarchyState();
+            if (!this.IsHandlerCountAcceptable(input.Count)) {
+                return;
             }
 
+            if (!AreAnyApplicable(this, input)) {
+                return;
+            }
+
+            this.IsCurrentlyApplicable = true;
             // TODO: maybe calculate every possible type from the given input (scanning each object's hierarchy
             // and adding each type to a HashSet), and then using that to check for applicability.
             // It would probably be slower for single selections, which is most likely what will be used...
@@ -98,26 +134,13 @@ namespace FramePFX.PropertyEditing {
 
             List<BasePropertyObjectViewModel> list = this.propertyObjectList;
             foreach (BasePropertyObjectViewModel obj in list) {
-                if (!obj.IsHandlerCountAcceptable(input.Count)) {
-                    continue;
-                }
-
                 switch (obj) {
                     case PropertyGroupViewModel group: {
-                        group.IsCurrentlyApplicable = AreAnyApplicable(group, input);
-                        if (group.IsCurrentlyApplicable) {
-                            group.SetupHierarchyState(input);
-                        }
-
+                        group.SetupHierarchyState(input);
                         break;
                     }
                     case BasePropertyEditorViewModel editor: {
-                        // TODO: maybe only load handlers for applicable objects, and ignore the other ones?
-                        editor.IsCurrentlyApplicable = AreAllApplicable(editor, input);
-                        if (editor.IsCurrentlyApplicable) {
-                            editor.SetHandlers(input);
-                        }
-
+                        editor.SetHandlers(input);
                         break;
                     }
                 }
@@ -134,7 +157,7 @@ namespace FramePFX.PropertyEditing {
             return false;
         }
 
-        private static bool AreAllApplicable(BasePropertyObjectViewModel editor, IReadOnlyList<object> sources) {
+        internal static bool AreAllApplicable(BasePropertyObjectViewModel editor, IReadOnlyList<object> sources) {
             // return sources.All(x => editor.IsApplicable(x));
             for (int i = 0, c = sources.Count; i < c; i++)
                 if (!editor.IsApplicable(sources[i]))

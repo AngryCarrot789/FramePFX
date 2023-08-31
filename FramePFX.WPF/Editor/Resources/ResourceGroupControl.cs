@@ -59,8 +59,8 @@ namespace FramePFX.WPF.Editor.Resources {
             this.isProcessingAsyncDrop = true;
             if (this.DataContext is ResourceGroupViewModel group && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource) {
                 ResourceGroupViewModel t = group.Parent;
-                if (t != null && t == resource.Parent && t.SelectedItems.Contains(resource)) {
-                    this.HandleOnDropResources(group, t.SelectedItems.ToList());
+                if (t != null && t == resource.Parent && t.Manager.SelectedItems.Contains(resource)) {
+                    this.HandleOnDropResources(group, t.Manager.SelectedItems.ToList());
                 }
                 else if (group.CanDropResource(resource)) {
                     this.HandleOnDropResource(group, resource);

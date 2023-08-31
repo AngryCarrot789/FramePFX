@@ -1,13 +1,10 @@
 using System.ComponentModel;
 using FramePFX.Editor.ViewModels.Timelines.Clips;
 
-namespace FramePFX.PropertyEditing.Editors.Editor {
+namespace FramePFX.PropertyEditing.Editor.Editor {
     public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
 
-        public RelayCommand InsertMediaPositionKeyFrameCommand => this.Clip?.InsertMediaPositionKeyFrameCommand;
-        public RelayCommand InsertMediaScaleKeyFrameCommand => this.Clip?.InsertMediaScaleKeyFrameCommand;
-        public RelayCommand InsertMediaScaleOriginKeyFrameCommand => this.Clip?.InsertMediaScaleOriginKeyFrameCommand;
         public RelayCommand InsertOpacityKeyFrameCommand => this.Clip?.InsertOpacityKeyFrameCommand;
 
         public long MediaFrameOffset => this.Clip.MediaFrameOffset;
@@ -20,9 +17,6 @@ namespace FramePFX.PropertyEditing.Editors.Editor {
             this.Clip.PropertyChanged += this.OnClipPropertyChanged;
 
             // not really sure if this is necessary...
-            this.RaisePropertyChanged(nameof(this.InsertMediaPositionKeyFrameCommand));
-            this.RaisePropertyChanged(nameof(this.InsertMediaScaleKeyFrameCommand));
-            this.RaisePropertyChanged(nameof(this.InsertMediaScaleOriginKeyFrameCommand));
             this.RaisePropertyChanged(nameof(this.InsertOpacityKeyFrameCommand));
         }
 

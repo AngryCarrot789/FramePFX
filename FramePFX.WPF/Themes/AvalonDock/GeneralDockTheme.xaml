@@ -1026,60 +1026,60 @@
         </Setter>
     </Style>
     <Style x:Key="{x:Type ctrl:LayoutAnchorableFloatingWindowControl}" TargetType="{x:Type ctrl:LayoutAnchorableFloatingWindowControl}">
-        <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="Background" Value="{DynamicResource {x:Static rk:ResourceKeys.FloatingToolWindowBackground}}" />
         <Setter Property="BorderBrush" Value="{DynamicResource {x:Static rk:ResourceKeys.FloatingToolWindowBorder}}" />
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="WindowStyle" Value="SingleBorderWindow"/>
         <Setter Property="shell:WindowChrome.WindowChrome">
             <Setter.Value>
-                <shell:WindowChrome CaptionHeight="24" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="10" />
+                <!-- In order to have a window shadow, GlassFrameThickness needs to be non-zero which is annoying -->
+                <!-- because the glass frame causes this weird flickering white border when resizing :( -->
+                <!-- Seems like it's the best idea to just put Top to 1 and the rest on 0, because you'll probably notice it less -->
+                <shell:WindowChrome CaptionHeight="24" CornerRadius="0" GlassFrameThickness="1,0,0,0" ResizeBorderThickness="11" />
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ctrl:LayoutAnchorableFloatingWindowControl}">
-                    <Grid>
-                        <Border x:Name="WindowBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" MinHeight="24" />
-                                    <!-- https://github.com/xceedsoftware/wpftoolkit/issues/1203 -->
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <Border x:Name="Header" Padding="2,0,2,0" Background="{DynamicResource {x:Static rk:ResourceKeys.ToolWindowCaptionInactiveBackground}}" TextElement.Foreground="{DynamicResource {x:Static rk:ResourceKeys.ToolWindowCaptionInactiveText}}">
-                                    <Grid UseLayoutRounding="True">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Visibility="{Binding Path=Model.IsSinglePane, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:BoolToVisibilityConverter}}">
-                                            <ctrl:DropDownControlArea DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu, RelativeSource={RelativeSource TemplatedParent}}" DropDownContextMenuDataContext="{Binding Path=SingleContentLayoutItem, RelativeSource={RelativeSource TemplatedParent}}" Style="{DynamicResource DropDownControlArea}">
-                                                <ContentPresenter Content="{Binding Model.SinglePane.SelectedContent, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding Model.Root.Manager.AnchorableTitleTemplate, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplateSelector="{Binding Model.Root.Manager.AnchorableTitleTemplateSelector, RelativeSource={RelativeSource TemplatedParent}}" />
-                                            </ctrl:DropDownControlArea>
-                                        </Border>
-                                        <ctrl:DropDownButton x:Name="SinglePaneContextMenu" Grid.Column="1" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu, RelativeSource={RelativeSource TemplatedParent}}" DropDownContextMenuDataContext="{Binding Path=SingleContentLayoutItem, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeToolButtonStyle}" ToolTip="{x:Static adp:Resources.Anchorable_CxMenu_Hint}" Visibility="{Binding Path=Model.IsSinglePane, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:BoolToVisibilityConverter}}">
-                                            <Path x:Name="PART_ImgPinMenu" Width="11" Height="11" Data="{DynamicResource PinMenu}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
-                                        </ctrl:DropDownButton>
-                                        <Button x:Name="PART_PinMaximize" Grid.Column="2" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{x:Static shell:SystemCommands.MaximizeWindowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeButtonStyle}" ToolTip="{x:Static adp:Resources.Window_Maximize}" Visibility="{Binding IsMaximized, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:InverseBoolToVisibilityConverter}}">
-                                            <Path x:Name="PART_ImgPinMaximize" Width="11" Height="11" VerticalAlignment="Center" Data="{DynamicResource PinMaximize}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
-                                        </Button>
-                                        <Button x:Name="PART_PinRestore" Grid.Column="2" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeButtonStyle}" ToolTip="{x:Static adp:Resources.Window_Restore}" Visibility="{Binding IsMaximized, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:BoolToVisibilityConverter}}">
-                                            <Path x:Name="PART_ImgPinRestore" Width="11" Height="11" VerticalAlignment="Center" Data="{DynamicResource PinRestore}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
-                                        </Button>
-                                        <Button x:Name="PART_PinClose" Grid.Column="3" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{Binding HideWindowCommand, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeButtonStyle}" ToolTip="{x:Static adp:Resources.Anchorable_BtnClose_Hint}" Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={adc:BoolToVisibilityConverter}}">
-                                            <Path x:Name="PART_ImgPinClose" Width="11" Height="11" VerticalAlignment="Center" Data="{DynamicResource PinClose}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                                <ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" />
-                            </Grid>
-                        </Border>
-                    </Grid>
+                    <Border x:Name="WindowBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" MinHeight="24" />
+                                <!-- https://github.com/xceedsoftware/wpftoolkit/issues/1203 -->
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border x:Name="Header" Padding="2,0,2,0" Background="{DynamicResource {x:Static rk:ResourceKeys.ToolWindowCaptionInactiveBackground}}" TextElement.Foreground="{DynamicResource {x:Static rk:ResourceKeys.ToolWindowCaptionInactiveText}}">
+                                <Grid UseLayoutRounding="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Visibility="{Binding Path=Model.IsSinglePane, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:BoolToVisibilityConverter}}">
+                                        <ctrl:DropDownControlArea DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu, RelativeSource={RelativeSource TemplatedParent}}" DropDownContextMenuDataContext="{Binding Path=SingleContentLayoutItem, RelativeSource={RelativeSource TemplatedParent}}" Style="{DynamicResource DropDownControlArea}">
+                                            <ContentPresenter Content="{Binding Model.SinglePane.SelectedContent, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding Model.Root.Manager.AnchorableTitleTemplate, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplateSelector="{Binding Model.Root.Manager.AnchorableTitleTemplateSelector, RelativeSource={RelativeSource TemplatedParent}}" />
+                                        </ctrl:DropDownControlArea>
+                                    </Border>
+                                    <ctrl:DropDownButton x:Name="SinglePaneContextMenu" Grid.Column="1" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu, RelativeSource={RelativeSource TemplatedParent}}" DropDownContextMenuDataContext="{Binding Path=SingleContentLayoutItem, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeToolButtonStyle}" ToolTip="{x:Static adp:Resources.Anchorable_CxMenu_Hint}" Visibility="{Binding Path=Model.IsSinglePane, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:BoolToVisibilityConverter}}">
+                                        <Path x:Name="PART_ImgPinMenu" Width="11" Height="11" Data="{DynamicResource PinMenu}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
+                                    </ctrl:DropDownButton>
+                                    <Button x:Name="PART_PinMaximize" Grid.Column="2" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{x:Static shell:SystemCommands.MaximizeWindowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeButtonStyle}" ToolTip="{x:Static adp:Resources.Window_Maximize}" Visibility="{Binding IsMaximized, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:InverseBoolToVisibilityConverter}}">
+                                        <Path x:Name="PART_ImgPinMaximize" Width="11" Height="11" VerticalAlignment="Center" Data="{DynamicResource PinMaximize}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
+                                    </Button>
+                                    <Button x:Name="PART_PinRestore" Grid.Column="2" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{x:Static shell:SystemCommands.RestoreWindowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeButtonStyle}" ToolTip="{x:Static adp:Resources.Window_Restore}" Visibility="{Binding IsMaximized, RelativeSource={RelativeSource TemplatedParent}, Converter={adc:BoolToVisibilityConverter}}">
+                                        <Path x:Name="PART_ImgPinRestore" Width="11" Height="11" VerticalAlignment="Center" Data="{DynamicResource PinRestore}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
+                                    </Button>
+                                    <Button x:Name="PART_PinClose" Grid.Column="3" Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True" Command="{Binding HideWindowCommand, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Style="{StaticResource FramePFXDockThemeButtonStyle}" ToolTip="{x:Static adp:Resources.Anchorable_BtnClose_Hint}" Visibility="{Binding Path=IsEnabled, RelativeSource={RelativeSource Self}, Mode=OneWay, Converter={adc:BoolToVisibilityConverter}}">
+                                        <Path x:Name="PART_ImgPinClose" Width="11" Height="11" VerticalAlignment="Center" Data="{DynamicResource PinClose}" Fill="{DynamicResource {x:Static rk:ResourceKeys.DocumentWellTabButtonSelectedInactiveGlyph}}" Stretch="Uniform" />
+                                    </Button>
+                                </Grid>
+                            </Border>
+                            <ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" />
+                        </Grid>
+                    </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="WindowState" Value="Maximized">
-                            <Setter TargetName="WindowBorder" Property="Padding" Value="3" />
-                        </Trigger>
                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="True">
                             <Setter TargetName="Header" Property="Background" Value="{DynamicResource {x:Static rk:ResourceKeys.ToolWindowCaptionActiveBackground}}" />
                             <Setter TargetName="Header" Property="TextElement.Foreground" Value="{DynamicResource {x:Static rk:ResourceKeys.ToolWindowCaptionActiveText}}" />
@@ -1256,6 +1256,14 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="WindowState" Value="Maximized">
+                <Setter Property="BorderThickness" Value="8"/>
+            </Trigger>
+            <Trigger Property="WindowState" Value="Normal">
+                <Setter Property="BorderThickness" Value="1"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="{x:Type ctrl:LayoutAutoHideWindowControl}" TargetType="{x:Type ctrl:LayoutAutoHideWindowControl}">
         <Setter Property="Background" Value="{DynamicResource {x:Static rk:ResourceKeys.TabBackground}}" />

@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Rendering;
 
@@ -24,14 +25,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(r.image.Width, r.image.Height);
         }
 
-        public override void Render(RenderContext rc, long frame) {
+        public override Task EndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceImage resource))
-                return;
+                return Task.CompletedTask;
             if (resource.image == null)
-                return;
+                return Task.CompletedTask;
 
             this.Transform(rc);
             rc.Canvas.DrawImage(resource.image, 0, 0);
+            return Task.CompletedTask;
         }
 
         protected override Clip NewInstance() {

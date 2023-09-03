@@ -430,7 +430,7 @@
         <ItemsControl ItemsSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Children}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel MinWidth="3" MinHeight="3" Orientation="{Binding Path=Model.Side, RelativeSource={RelativeSource AncestorType={x:Type ctrl:LayoutAnchorSideControl}, Mode=FindAncestor}, Converter={adc:AnchorSideToOrientationConverter}}" />
+                    <StackPanel MinWidth="0" MinHeight="0" Orientation="{Binding Path=Model.Side, RelativeSource={RelativeSource AncestorType={x:Type ctrl:LayoutAnchorSideControl}, Mode=FindAncestor}, Converter={adc:AnchorSideToOrientationConverter}}" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>

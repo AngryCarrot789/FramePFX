@@ -35,7 +35,7 @@ namespace FramePFX.Editor.Timelines {
             this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
         }
 
-        public override void OnTrackChanged(Track oldTrack, Track track) {
+        protected override void OnTrackChanged(Track oldTrack, Track track) {
             base.OnTrackChanged(oldTrack, track);
             ResourceManager manager = track?.Timeline?.Project?.ResourceManager;
             using (ErrorList stack = new ErrorList()) {
@@ -81,10 +81,9 @@ namespace FramePFX.Editor.Timelines {
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             if (data.TryGetElement(nameof(this.ResourceMap), out RBEDictionary resourceMapDictionary)) {
-                ResourceManager manager = this.ResourceManager;
                 foreach (KeyValuePair<string, RBEBase> pair in resourceMapDictionary.Map) {
                     if (this.ResourceMap.TryGetValue(pair.Key, out ResourcePathEntry entry) && pair.Value is RBEDictionary dictionary) {
-                        ResourcePathEntry.ReadFromRBE(entry, dictionary, manager);
+                        ResourcePathEntry.ReadFromRBE(entry, dictionary);
                     }
                 }
             }
@@ -167,21 +166,18 @@ namespace FramePFX.Editor.Timelines {
             }
 
             public static void WriteToRBE(ResourcePathEntry entry, RBEDictionary resourceMapDictionary) {
-                if (entry.path == null) {
+                if (entry.path == null)
                     return;
-                }
-
-                RBEDictionary dictionary = resourceMapDictionary.CreateDictionary(entry.entryKey);
-                ResourcePath.WriteToRBE(entry.path, dictionary);
+                ResourcePath.WriteToRBE(entry.path, resourceMapDictionary.CreateDictionary(entry.entryKey));
             }
 
-            public static void ReadFromRBE(ResourcePathEntry entry, RBEDictionary dictionary, ResourceManager manager) {
+            public static void ReadFromRBE(ResourcePathEntry entry, RBEDictionary dictionary) {
                 if (entry.path != null && entry.path.CanDispose) {
                     // handle this, just in case...
                     entry.DisposePath();
                 }
 
-                entry.path = ResourcePath.ReadFromRBE(manager, dictionary);
+                entry.path = ResourcePath.ReadFromRBE(dictionary);
             }
 
             public void DisposePath() {

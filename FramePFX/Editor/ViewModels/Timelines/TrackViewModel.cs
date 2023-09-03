@@ -162,10 +162,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public bool RemoveClipFromTrack(ClipViewModel clip) {
             int index = this.clips.IndexOf(clip);
-            if (index < 0) {
+            if (index < 0)
                 return false;
-            }
-
             this.RemoveClipFromTrack(index);
             return true;
         }

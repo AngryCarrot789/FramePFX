@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.Timelines.Effects;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
@@ -146,28 +148,42 @@ namespace FramePFX.Editor.Timelines {
         public void AddTrack(Track track) => this.InsertTrack(this.Tracks.Count, track);
 
         public void InsertTrack(int index, Track track) {
+            if (this.Tracks.Contains(track))
+                throw new Exception("Track already stored in timeline");
             this.Tracks.Insert(index, track);
             Track.SetTimeline(track, this);
         }
 
         public bool RemoveTrack(Track track) {
             int index = this.Tracks.IndexOf(track);
-            if (index < 0) {
+            if (index < 0)
                 return false;
-            }
-
             this.RemoveTrack(index);
             return true;
         }
 
         public void RemoveTrack(int index) {
             Track track = this.Tracks[index];
-            if (!ReferenceEquals(track.Timeline, this)) {
-                throw new Exception("Expected track's timeline and the current timeline instance to be equal");
-            }
-
+            Debug.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
             this.Tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
+        }
+
+        public void MoveTrackToTimeline(Track track, Timeline timeline) {
+            int index = this.Tracks.IndexOf(track);
+            if (index == -1)
+                throw new Exception("Track is not stored in the current instance");
+            this.MoveTrackToTimeline(index, timeline);
+        }
+
+        public void MoveTrackToTimeline(int index, Timeline timeline) {
+            Track track = this.Tracks[index];
+            Debug.Assert(track.Timeline == this, "Track is stored in current timeline, but its parent timeline does not match");
+            if (timeline.Tracks.Contains(track))
+                throw new Exception("Target timeline already contains the track");
+            this.Tracks.RemoveAt(index);
+            timeline.Tracks.Insert(index, track);
+            Track.SetTimeline(track, timeline);
         }
 
         public void ClearTracks() {
@@ -238,13 +254,16 @@ namespace FramePFX.Editor.Timelines {
             return this.RenderAsync(render, frame, source.Token);
         }
 
-        public Task RenderAsync(RenderContext render, long frame, CancellationToken token) {
+        private readonly List<VideoClip> RenderList = new List<VideoClip>();
+
+        public async Task RenderAsync(RenderContext render, long frame, CancellationToken token) {
             List<Track> tracks = this.Tracks;
             SKPaint trackPaint = null, clipPaint = null;
             int i = tracks.Count - 1;
             for (; i >= 0; i--) {
                 if (token.IsCancellationRequested) {
-                    return Task.FromCanceled(token);
+                    this.RenderList.Clear();
+                    throw new TaskCanceledException();
                 }
 
                 if (tracks[i] is VideoTrack track && track.IsActuallyVisible) {
@@ -253,28 +272,42 @@ namespace FramePFX.Editor.Timelines {
                         continue;
                     }
 
-#if !DEBUG
-                    try {
-#endif
-                    int trackSaveCount = BeginTrackOpacityLayer(render, track, ref trackPaint);
+                    clip.BeginRender(frame);
+                    this.RenderList.Add(clip);
+                }
+            }
+
+            try {
+                foreach (VideoClip clip in this.RenderList) {
+                    if (token.IsCancellationRequested) {
+                        this.RenderList.Clear();
+                        throw new TaskCanceledException();
+                    }
+
+                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     try {
-                        clip.Render(render, frame);
+                        await clip.EndRender(render, frame);
+                    }
+                    catch (TaskCanceledException) {
+                        // do nothing
                     }
                     finally {
                         EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                         EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                     }
-#if !DEBUG
+
+                    foreach (BaseEffect effect in clip.Effects) {
+                        if (effect is VideoEffect) {
+                            ((VideoEffect) effect).ProcessFrame(render);
+                        }
                     }
-                    catch (Exception e) {
-                        this.ExceptionsLastRender[clip] = e;
-                    }
-#endif
+
                 }
             }
-
-            return Task.CompletedTask;
+            finally {
+                this.RenderList.Clear();
+            }
         }
     }
 }

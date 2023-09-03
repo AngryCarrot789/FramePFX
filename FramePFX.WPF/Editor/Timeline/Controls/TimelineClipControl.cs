@@ -24,14 +24,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 new FrameworkPropertyMetadata(
                     BoolBox.False,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
-                    (d, e) => {
-                        if ((bool) e.NewValue) {
-                            ((TimelineClipControl) d).OnSelected(new RoutedEventArgs(SelectedEvent, d));
-                        }
-                        else {
-                            ((TimelineClipControl) d).OnUnselected(new RoutedEventArgs(SelectedEvent, d));
-                        }
-                    }));
+                    (d, e) => ((TimelineClipControl) d).OnSelectionChanged((bool)e.NewValue)));
 
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
@@ -40,8 +33,13 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     LongZeroObject,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.AffectsArrange,
+                    (d, e) => {
+                        if ((long) e.OldValue != (long) e.NewValue) {
+                            TimelineClipControl control = ((TimelineClipControl) d);
+                            Canvas.SetLeft(control, control.PixelStart);
+                        }
+                    },
                     (d, v) => (long) v < 0 ? LongZeroObject : v));
 
         public static readonly DependencyProperty FrameDurationProperty =
@@ -51,9 +49,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 typeof(TimelineClipControl),
                 new FrameworkPropertyMetadata(
                     LongZeroObject,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => ((TimelineClipControl) d).OnFrameDurationChanged((long) e.OldValue, (long) e.NewValue),
-                    (d, v) => (long) v < 0 ? LongZeroObject : v));
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.AffectsMeasure,
+                    null, (d, v) => (long) v < 0 ? LongZeroObject : v));
 
         public static readonly DependencyProperty IsDroppableTargetOverProperty =
             DependencyProperty.Register(
@@ -142,8 +139,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public TimelineControl Timeline => this.Track?.Timeline;
 
-        public IClipDragHandler DragHandler => this.DataContext as IClipDragHandler;
-
         public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
         public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
 
@@ -154,8 +149,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         private bool isProcessingLeftThumbDrag;
         private bool isProcessingRightThumbDrag;
         private bool isProcessingMouseMove;
-        private bool isUpdatingFrameBegin;
-        private bool isUpdatingFrameDuration;
         private bool isProcessingAsyncDrop;
         private bool isClipDragRunning;
 
@@ -171,7 +164,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            if (this.DragHandler is IClipDragHandler handler) {
+            if (this.DataContext is ClipViewModel handler) {
+                this.CoerceValue(IsSelectedProperty);
                 if (handler.IsDraggingClip) {
                     this.isLoadedWithActiveDrag = true;
                     this.Focus();
@@ -201,14 +195,14 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             Size size = new Size(this.FrameDuration * this.UnitZoom, constraint.Height);
             if (this.VisualChildrenCount > 0) {
                 UIElement visualChild = (UIElement) this.GetVisualChild(0);
-                visualChild?.Measure(size);
+                visualChild?.Measure(size); // shouldn't be null due to the VisualChildrenCount logic
             }
 
             return size;
         }
 
         private void OnLeftThumbDragStart(object sender, DragStartedEventArgs e) {
-            if (this.DragHandler is IClipDragHandler handler && !handler.IsDraggingLeftThumb) {
+            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingLeftThumb) {
                 this.Focus();
                 handler.OnLeftThumbDragStart();
             }
@@ -218,7 +212,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             if (this.isProcessingLeftThumbDrag)
                 return;
             long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
-            if (change == 0 || !(this.DragHandler is IClipDragHandler handler))
+            if (change == 0 || !(this.DataContext is ClipViewModel handler))
                 return;
             if (!handler.IsDraggingLeftThumb)
                 return;
@@ -232,13 +226,13 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnLeftThumbDragComplete(object sender, DragCompletedEventArgs e) {
-            if (this.DragHandler is IClipDragHandler handler && handler.IsDraggingLeftThumb) {
+            if (this.DataContext is ClipViewModel handler && handler.IsDraggingLeftThumb) {
                 handler.OnLeftThumbDragStop(e.Canceled);
             }
         }
 
         private void OnRightThumbDragStart(object sender, DragStartedEventArgs e) {
-            if (this.DragHandler is IClipDragHandler handler && !handler.IsDraggingRightThumb) {
+            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingRightThumb) {
                 this.Focus();
                 handler.OnRightThumbDragStart();
             }
@@ -248,7 +242,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             if (this.isProcessingRightThumbDrag)
                 return;
             long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
-            if (change == 0 || !(this.DragHandler is IClipDragHandler handler))
+            if (change == 0 || !(this.DataContext is ClipViewModel handler))
                 return;
             if (!handler.IsDraggingRightThumb)
                 return;
@@ -262,7 +256,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnRightThumbDragComplete(object sender, DragCompletedEventArgs e) {
-            if (this.DragHandler is IClipDragHandler handler && handler.IsDraggingRightThumb) {
+            if (this.DataContext is ClipViewModel handler && handler.IsDraggingRightThumb) {
                 handler.OnRightThumbDragStop(e.Canceled);
             }
         }
@@ -279,7 +273,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
             }
 
-            if (this.DragHandler is IClipDragHandler handler && !handler.IsDraggingClip) {
+            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingClip) {
                 if (this.IsFocused || this.Focus()) {
                     if (!this.IsMouseCaptured) {
                         this.CaptureMouse();
@@ -311,7 +305,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.lastLeftClickPoint = null;
             this.isClipDragRunning = false;
             bool? wasDragging = null;
-            if (this.DragHandler is IClipDragHandler handler && this.IsMouseCaptured && handler.IsDraggingClip) {
+            if (this.DataContext is ClipViewModel handler && this.IsMouseCaptured && handler.IsDraggingClip) {
                 wasDragging = true;
                 handler.OnDragStop(false);
                 this.ReleaseMouseCapture();
@@ -331,15 +325,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
             }
 
-            if (!(this.DragHandler is IClipDragHandler handler)) {
-                return;
-            }
-
             bool didJustDragTrack = false;
             if (this.isLoadedWithActiveDrag) {
                 this.isLoadedWithActiveDrag = false;
                 didJustDragTrack = true;
-                if (handler.IsDraggingClip) {
+                if (clip.IsDraggingClip) {
                     this.lastLeftClickPoint = this.Timeline.ClipMousePosForTrackTransition;
                     this.isClipDragRunning = true;
                 }
@@ -350,8 +340,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     this.ReleaseMouseCapture();
                 this.isClipDragRunning = false;
                 this.lastLeftClickPoint = null;
-                if (handler.IsDraggingClip) {
-                    handler.OnDragStop(false);
+                if (clip.IsDraggingClip) {
+                    clip.OnDragStop(false);
                 }
             }
             else {
@@ -366,22 +356,22 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                         return;
                     }
 
-                    if (handler.IsDraggingClip) {
+                    if (clip.IsDraggingClip) {
                         throw new Exception("Did not expect handler IsDraggingClip to be true");
                     }
-                    else if (handler.IsDraggingRightThumb) {
+                    else if (clip.IsDraggingRightThumb) {
                         throw new Exception("Did not expect handler IsDraggingRightThumb to be true");
                     }
-                    else if (handler.IsDraggingLeftThumb) {
+                    else if (clip.IsDraggingLeftThumb) {
                         throw new Exception("Did not expect handler IsDraggingLeftThumb to be true");
                     }
                     else {
                         this.isClipDragRunning = true;
-                        handler.OnDragStart();
+                        clip.OnDragStart();
                     }
                 }
 
-                if (!handler.IsDraggingClip) {
+                if (!clip.IsDraggingClip) {
                     return;
                 }
 
@@ -401,7 +391,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                         if (offset != 0) {
                             try {
                                 this.isProcessingMouseMove = true;
-                                handler.OnDragDelta(offset);
+                                clip.OnDragDelta(offset);
                             }
                             finally {
                                 this.isProcessingMouseMove = false;
@@ -426,7 +416,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
                     if (index < tracks.Count) {
                         this.Timeline.ClipMousePosForTrackTransition = lastClickPoint;
-                        handler.OnDragToTrack(index);
+                        clip.OnDragToTrack(index);
                     }
                 }
             }
@@ -445,41 +435,30 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 this.ReleaseMouseCapture();
             this.isClipDragRunning = false;
             this.lastLeftClickPoint = null;
-            if (this.DragHandler is IClipDragHandler handler && handler.IsDraggingClip) {
+            if (this.DataContext is ClipViewModel handler && handler.IsDraggingClip) {
                 handler.OnDragStop(true);
             }
         }
 
-        public void OnSelected(RoutedEventArgs e) {
+        private void OnSelected(RoutedEventArgs e) {
             this.RaiseEvent(e);
         }
 
-        public void OnUnselected(RoutedEventArgs e) {
+        private void OnUnselected(RoutedEventArgs e) {
             this.RaiseEvent(e);
         }
 
         private void OnFrameBeginChanged(long oldStart, long newStart) {
-            if (this.isUpdatingFrameBegin)
-                return;
-
             TimelineUtils.ValidateNonNegative(newStart);
             if (oldStart != newStart) {
-                this.isUpdatingFrameBegin = true;
                 this.UpdatePosition();
-                this.isUpdatingFrameBegin = false;
             }
         }
 
         private void OnFrameDurationChanged(long oldDuration, long newDuration) {
-            if (this.isUpdatingFrameDuration) {
-                return;
-            }
-
             TimelineUtils.ValidateNonNegative(newDuration);
             if (oldDuration != newDuration) {
-                this.isUpdatingFrameDuration = true;
                 this.UpdateSize();
-                this.isUpdatingFrameDuration = false;
             }
         }
 
@@ -492,30 +471,17 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             try {
                 this.isUpdatingUnitZoom = true;
-                this.UpdatePositionAndSize();
+                this.UpdatePosition();
+                this.UpdateSize();
             }
             finally {
                 this.isUpdatingUnitZoom = false;
             }
         }
 
-        public void UpdatePositionAndSize() {
-            this.UpdatePosition();
-            this.UpdateSize();
-        }
+        public void UpdatePosition() => Canvas.SetLeft(this, this.PixelStart);
 
-        public void UpdatePosition() {
-            Canvas.SetLeft(this, this.PixelStart);
-            // Thickness margin = this.Margin;
-            // margin.Left = this.PixelStart;
-            // this.Margin = margin;
-            // this.InvalidateArrange();
-        }
-
-        public void UpdateSize() {
-            // this.Width = this.PixelWidth;
-            this.InvalidateMeasure();
-        }
+        public void UpdateSize() => this.InvalidateMeasure();
 
         #endregion
 
@@ -571,6 +537,15 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         protected T GetTemplateElement<T>(string name) where T : DependencyObject {
             return this.GetTemplateChild(name) is T value ? value : throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
+        }
+
+        private void OnSelectionChanged(bool isSelected) {
+            if (isSelected) {
+                this.OnSelected(new RoutedEventArgs(SelectedEvent, this));
+            }
+            else {
+                this.OnUnselected(new RoutedEventArgs(UnselectedEvent, this));
+            }
         }
     }
 }

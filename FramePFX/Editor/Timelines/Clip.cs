@@ -22,16 +22,6 @@ namespace FramePFX.Editor.Timelines {
         public Track Track { get; private set; }
 
         /// <summary>
-        /// Returns the timeline associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
-        /// </summary>
-        public Timeline Timeline => this.Track?.Timeline;
-
-        /// <summary>
-        /// Returns the project associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
-        /// </summary>
-        public Project Project => this.Track?.Timeline.Project;
-
-        /// <summary>
         /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
         /// </summary>
         public ResourceManager ResourceManager => this.Track?.Timeline.Project.ResourceManager;
@@ -58,9 +48,7 @@ namespace FramePFX.Editor.Timelines {
             get {
                 if (this.internalClipId >= 0)
                     return this.internalClipId;
-                if (this.Timeline == null)
-                    throw new Exception("No timeline assigned");
-                return this.internalClipId = this.Timeline.GetNextClipId(this);
+                return this.internalClipId = this.Track.Timeline.GetNextClipId(this);
             }
             set => this.internalClipId = value;
         }
@@ -114,31 +102,27 @@ namespace FramePFX.Editor.Timelines {
             this.Effects = new List<BaseEffect>();
         }
 
-        public static void SetTrack(Clip clip, Track track) {
-            Track oldTrack = clip.Track;
-            if (ReferenceEquals(oldTrack, track)) {
-                Debug.WriteLine("Attempted to set the track to the same instance");
-            }
-            else {
-                clip.Track = track;
-                clip.OnTrackChanged(oldTrack, track);
-            }
-        }
-
         /// <summary>
         /// Called when this clip is added to or removed from a track, or moved between tracks
         /// </summary>
         /// <param name="oldTrack">The track this clip was originally in (not in by the time this method is called)</param>
         /// <param name="track">The track that this clip now exists in</param>
-        public virtual void OnTrackChanged(Track oldTrack, Track track) {
+        protected virtual void OnTrackChanged(Track oldTrack, Track track) {
+
         }
 
         /// <summary>
-        /// Called when this clip's track's timeline is changed (e.g. a track is moved into another timeline)
+        /// Called only when this clip's track's timeline changes. This is called after
+        /// <see cref="Tracks.Track.OnTimelineChanging"/> but before <see cref="Tracks.Track.OnTimelineChanged"/>
+        /// <para>
+        /// This is only called when the owning track's timeline changes, not when not when this clip is moved
+        /// between tracks with differing timelines; that should be handled in <see cref="OnTrackChanged"/>
+        /// </para>
         /// </summary>
-        /// <param name="oldTimeline">The timeline this clip was originally in (not in by the time this method is called)</param>
-        /// <param name="timeline">The timeline that this clip now exists in</param>
-        public virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+        /// <param name="oldTimeline">Previous timeline</param>
+        /// <param name="newTimeline">The new timeline, associated with our track</param>
+        protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+
         }
 
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
@@ -278,5 +262,17 @@ namespace FramePFX.Editor.Timelines {
         }
 
         #endregion
+
+        public static void SetTrack(Clip clip, Track track) {
+            Track oldTrack = clip.Track;
+            if (!ReferenceEquals(oldTrack, track)) {
+                clip.Track = track;
+                clip.OnTrackChanged(oldTrack, track);
+            }
+        }
+
+        public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
+            clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
+        }
     }
 }

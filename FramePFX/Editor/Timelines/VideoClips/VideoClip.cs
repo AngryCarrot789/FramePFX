@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.Effects.Video;
@@ -99,17 +100,21 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         /// <summary>
-        /// Directly renders this clip, using the render context
+        /// Setup a new render for this clip at the given frame. This is called before anything is drawn
         /// </summary>
-        /// <param name="rc">The rendering context</param>
-        /// <param name="frame">The frame being rendered. May be drastically different from the last render (frame seeked)</param>
-        /// <exception cref="NotImplementedException">The clip does not support direct rendering (does not throw if <see cref="UseAsyncRendering"/> is false)</exception>
-        public virtual void Render(RenderContext rc, long frame) {
-            for (int i = 0, c = this.Effects.Count; i < c; i++) {
-                if (this.Effects[i] is VideoEffect effect) {
-                    effect.ProcessFrame(rc);
-                }
-            }
+        /// <param name="frame">The frame being rendered</param>
+        public virtual void BeginRender(long frame) {
+
+        }
+
+        /// <summary>
+        /// Actually draw this video clip into the render context. <see cref="BeginRender"/> is always called before this method call
+        /// </summary>
+        /// <param name="rc">The rendering/drawing context</param>
+        /// <param name="frame">The frame being rendered</param>
+        /// <returns>A task to await for the render to complete</returns>
+        public virtual Task EndRender(RenderContext rc, long frame) {
+            return Task.CompletedTask;
         }
 
         protected override void LoadDataIntoClone(Clip clone) {

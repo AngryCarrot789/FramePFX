@@ -86,19 +86,32 @@ namespace FramePFX.Editor.Timelines {
 
         public static void SetTimeline(Track track, Timeline timeline) {
             Timeline oldTimeline = track.Timeline;
-            if (ReferenceEquals(oldTimeline, timeline)) {
-                Debug.WriteLine("Attempted to set the timeline to the same value");
-            }
-            else {
+            if (!ReferenceEquals(oldTimeline, timeline)) {
+                track.OnTimelineChanging(timeline);
                 track.Timeline = timeline;
-                track.OnTimelineChanged(oldTimeline, timeline);
+                foreach (Clip clip in track.Clips) {
+                    Clip.OnTrackTimelineChanged(clip, oldTimeline, timeline);
+                }
+
+                track.OnTimelineChanged(oldTimeline);
             }
         }
 
-        public virtual void OnTimelineChanged(Timeline oldTimeline, Timeline timeline) {
-            foreach (Clip clip in this.Clips) {
-                clip.OnTrackTimelineChanged(oldTimeline, timeline);
-            }
+        /// <summary>
+        /// Called when this track is about to be moved to a new timeline. <see cref="Timeline"/> is
+        /// the previous timeline, and <see cref="newTimeline"/> is the new one
+        /// </summary>
+        /// <param name="newTimeline">The new timeline. May be null, meaning this track is being removed</param>
+        protected virtual void OnTimelineChanging(Timeline newTimeline) {
+
+        }
+
+        /// <summary>
+        /// Called when this track is moved from one timeline to another
+        /// </summary>
+        /// <param name="oldTimeline">The previous timeline. May be null, meaning this track was added to a timeline</param>
+        public virtual void OnTimelineChanged(Timeline oldTimeline) {
+
         }
 
         public void GetClipsAtFrame(long frame, List<Clip> list) {

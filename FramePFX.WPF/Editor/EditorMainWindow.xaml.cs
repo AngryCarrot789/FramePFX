@@ -167,7 +167,7 @@ namespace FramePFX.WPF.Editor {
         }
 
         private async Task DoRenderCoreAsync() {
-            CancellationTokenSource source = new CancellationTokenSource(1000);
+            CancellationTokenSource source = new CancellationTokenSource(2000);
             try {
                 await this.DoRenderCoreAsync(source.Token);
             }
@@ -191,7 +191,12 @@ namespace FramePFX.WPF.Editor {
             if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                 RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                 context.Canvas.Clear(SKColors.Black);
-                await project.Model.Timeline.RenderAsync(context, frame, token);
+                try {
+                    await project.Model.Timeline.RenderAsync(context, frame, token);
+                }
+                catch (TaskCanceledException) {
+                    // do nothing
+                }
 
                 Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
                 if (dictionary.Count > 0) {

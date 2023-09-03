@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Numerics;
+using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.RBC;
 using FramePFX.Rendering;
@@ -126,9 +127,9 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(w, h);
         }
 
-        public override void Render(RenderContext rc, long frame) {
+        public override Task EndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceText r)) {
-                return;
+                return Task.CompletedTask;
             }
 
             if (this.cachedFont == null) {
@@ -148,7 +149,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             if (this.cachedBlobs == null) {
                 string text = this.ULText ? this.lt.Text : r.Text;
                 if (string.IsNullOrEmpty(text)) {
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 string[] lines = text.Split('\n');
@@ -165,13 +166,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                     // rc.Canvas.DrawText(blob, 0, (size?.Y ?? 0) * this.MediaScaleOrigin.Y, this.cachedPaint);
                 }
             }
-            // using (SKPaint paint = new SKPaint(this.font)) {
-            //     paint.StrokeWidth = (float) r.BorderThickness;
-            //     paint.Color = RenderUtils.BlendAlpha(r.Foreground, this.Opacity);
-            //     paint.TextAlign = SKTextAlign.Left;
-            //     paint.IsAntialias = r.IsAntiAliased;
-            //     render.Canvas.DrawText(this.blob, 0, this.blob.Bounds.Height / 2, paint);
-            // }
+
+            return Task.CompletedTask;
         }
 
         public void InvalidateTextCache() {

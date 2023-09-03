@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using FramePFX.Editor.History;
 using FramePFX.History.ViewModels;
 using FramePFX.Utils;
@@ -117,7 +118,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            foreach (DragHandle handle in this.handles) {
+            for (int i = this.handles.Count - 1; i >= 0; i--) {
+                DragHandle handle = this.handles[i];
                 handle.history.track.SetCurrent(targetTrack.Model.UniqueTrackId);
                 this.timeline.MoveClip(handle.clip, track, targetTrack);
             }

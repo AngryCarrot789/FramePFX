@@ -341,11 +341,11 @@ namespace FramePFX.Editor.ResourceManaging {
             data.SetULong(nameof(resource.ResourceId), resource.ResourceId);
         }
 
-        public static ResourcePath ReadFromRBE(ResourceManager manager, RBEDictionary data) {
+        public static ResourcePath ReadFromRBE(RBEDictionary data) {
             ulong id = data.GetULong(nameof(ResourceId));
             if (id == ResourceManager.EmptyId)
                 throw new ArgumentException("Resource ID from the data was 0 (null)");
-            return new ResourcePath(manager, id);
+            return new ResourcePath(null, id);
         }
     }
 

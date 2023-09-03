@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Threading;
+using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.FFmpegWrapper;
@@ -27,7 +28,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
         }
 
-        public override void Render(RenderContext rc, long frame) {
+        public override async Task EndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceAVMedia resource))
                 return;
 
@@ -41,10 +42,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                     }
                 }
 
-                double timeScale = this.Project.Settings.TimeBase.ToDouble;
+                double timeScale = this.Track.Timeline.Project.Settings.TimeBase.ToDouble;
                 TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
                 // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
-                this.readyFrame = resource.GetFrameAt(timestamp);
+                this.readyFrame = await Task.Run(() => resource.GetFrameAt(timestamp));
                 this.currentFrame = frame;
             }
 

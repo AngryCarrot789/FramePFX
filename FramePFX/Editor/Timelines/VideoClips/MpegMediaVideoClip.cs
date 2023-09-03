@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Rendering;
 
@@ -7,10 +8,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public int StreamIndex { get; set; }
 
         public MpegMediaVideoClip() {
-        }
-
-        public override void Render(RenderContext rc, long frame) {
-            base.Render(rc, frame);
         }
 
         protected override Clip NewInstance() {

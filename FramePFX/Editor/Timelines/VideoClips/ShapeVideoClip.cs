@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.RBC;
 using FramePFX.Rendering;
@@ -44,9 +45,9 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(this.Width, this.Height);
         }
 
-        public override void Render(RenderContext rc, long frame) {
+        public override Task EndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceColour r)) {
-                return;
+                return Task.CompletedTask;
             }
 
             this.Transform(rc);
@@ -54,6 +55,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             using (SKPaint paint = new SKPaint() {Color = colour}) {
                 rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
             }
+
+            return Task.CompletedTask;
         }
 
         public void RenderGL(long frame) {

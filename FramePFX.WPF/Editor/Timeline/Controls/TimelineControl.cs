@@ -41,10 +41,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     (d, e) => ((TimelineControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
-        public static readonly DependencyProperty PreviewPlayHeadFrameProperty = DependencyProperty.Register("PreviewPlayHeadFrame", typeof(long), typeof(TimelineControl), new PropertyMetadata(0L));
         public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineControl), new PropertyMetadata(0L));
-        public static readonly DependencyProperty IsPreviewPlayHeadVisibleProperty = DependencyProperty.Register("IsPreviewPlayHeadVisible", typeof(bool), typeof(TimelineControl), new PropertyMetadata(BoolBox.False));
-
         public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRect?), typeof(TimelineControl), new PropertyMetadata((SelectionRect?) null));
 
         /// <summary>
@@ -61,19 +58,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             set => this.SetValue(MaxDurationProperty, value);
         }
 
-        public long PreviewPlayHeadFrame {
-            get => (long) this.GetValue(PreviewPlayHeadFrameProperty);
-            set => this.SetValue(PreviewPlayHeadFrameProperty, value);
-        }
-
         public long PlayHeadFrame {
             get => (long) this.GetValue(PlayHeadFrameProperty);
             set => this.SetValue(PlayHeadFrameProperty, value);
-        }
-
-        public bool IsPreviewPlayHeadVisible {
-            get => (bool) this.GetValue(IsPreviewPlayHeadVisibleProperty);
-            set => this.SetValue(IsPreviewPlayHeadVisibleProperty, value);
         }
 
         public SelectionRect? SelectionRectangle {
@@ -193,34 +180,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.isSelectionActive = false;
         }
 
-        public void UpdatePreviewPlayHead() {
-            this.PreviewPlayHeadFrame = TimelineUtils.PixelToFrame(Mouse.GetPosition((IInputElement) this.PART_ItemsPresenter ?? this).X, this.UnitZoom);
-            this.IsPreviewPlayHeadVisible = this.IsMouseOver;
-        }
-
-        protected override void OnMouseEnter(MouseEventArgs e) {
-            base.OnMouseEnter(e);
-            this.UpdatePreviewPlayHead();
-        }
-
-        protected override void OnMouseLeave(MouseEventArgs e) {
-            base.OnMouseLeave(e);
-            this.IsPreviewPlayHeadVisible = false;
-        }
-
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-
-            if (this.IsMouseOver) {
-                this.PreviewPlayHeadFrame = TimelineUtils.PixelToFrame(e.GetPosition((IInputElement) this.PART_ItemsPresenter ?? this).X, this.UnitZoom);
-                if (!this.IsPreviewPlayHeadVisible) {
-                    this.IsPreviewPlayHeadVisible = true;
-                }
-            }
-            else if (this.IsPreviewPlayHeadVisible) {
-                this.IsPreviewPlayHeadVisible = false;
-            }
-
             if (!this.isLMBDownForSelection)
                 return;
             if (e.LeftButton != MouseButtonState.Pressed) {
@@ -410,7 +371,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
 
             this.PART_PlayHead?.UpdatePosition();
-            this.UpdatePreviewPlayHead();
         }
 
         private T GetTemplateElement<T>(string name) where T : DependencyObject {

@@ -46,7 +46,7 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        public override void OnTrackChanged(Track oldTrack, Track track) {
+        protected override void OnTrackChanged(Track oldTrack, Track track) {
             base.OnTrackChanged(oldTrack, track);
             if (this.ResourcePath == null)
                 return;
@@ -56,7 +56,7 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        public override void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+        protected override void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
             base.OnTrackTimelineChanged(oldTimeline, timeline);
             if (this.ResourcePath == null)
                 return;

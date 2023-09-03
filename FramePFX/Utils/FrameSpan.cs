@@ -1,6 +1,12 @@
 using System;
 
 namespace FramePFX.Utils {
+    /// <summary>
+    /// Represents an immutable slice of time in frames (similar to <see cref="TimeSpan"/>) and some utility functions.
+    /// <para>
+    /// This structure is 16 bytes; <see cref="Begin"/> and <see cref="Duration"/> fields
+    /// </para>
+    /// </summary>
     public readonly struct FrameSpan : IEquatable<FrameSpan> {
         public static readonly FrameSpan Empty = new FrameSpan(0, 0);
 
@@ -66,22 +72,64 @@ namespace FramePFX.Utils {
             return new FrameSpan(this.Begin, newDuration);
         }
 
-        public FrameSpan WithEndIndex(long newEndIndex) {
-            if (newEndIndex < this.Begin) {
-                throw new ArgumentOutOfRangeException(nameof(newEndIndex), $"Value cannot be smaller than the begin index ({newEndIndex} < {this.Begin})");
+        // The clamped versions of the below 4 functions are useful for resizing clips by dragging the left and right handles
+
+        /// <summary>
+        /// Returns a new frame span, where the <see cref="Begin"/> is locked in place, and the <see cref="EndIndex"/> is modified
+        /// </summary>
+        /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
+        /// <returns>A new frame span</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Input value is less than the begin value</exception>
+        public FrameSpan WithEndIndex(long value) {
+            if (value < this.Begin) {
+                throw new ArgumentOutOfRangeException(nameof(value), $"Value cannot be smaller than the begin index ({value} < {this.Begin})");
             }
 
-            return new FrameSpan(this.Begin, newEndIndex - this.Begin);
+            return new FrameSpan(this.Begin, value - this.Begin);
         }
 
-        public FrameSpan WithBeginIndex(long newBeginIndex) {
-            long begin = this.Begin, dur = this.Duration, end = begin + dur;
-
-            if (newBeginIndex > end) {
-                throw new ArgumentOutOfRangeException(nameof(newBeginIndex), $"Value cannot be greater than the end index ({newBeginIndex} > {end})");
+        /// <summary>
+        /// Same as <see cref="WithEndIndex"/>, but instead of throwing, the span is clamped to empty
+        /// </summary>
+        /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
+        /// <param name="upperLimit">The upper limit for the end index. By default, this is <see cref="long.MaxValue"/> meaning effectively no upper limit</param>
+        /// <returns>A new frame span, or empty when the value is less than or equal to the begin value</returns>
+        public FrameSpan WithEndIndexClamped(long value, long upperLimit = long.MaxValue) {
+            if (value > this.Begin) {
+                if (value > upperLimit)
+                    value = upperLimit;
+                return new FrameSpan(this.Begin, value - this.Begin);
             }
 
-            return new FrameSpan(newBeginIndex, dur - (newBeginIndex - begin));
+            return Empty;
+        }
+
+        /// <summary>
+        /// Returns a new frame span, where the <see cref="EndIndex"/> is locked in place, and the <see cref="Begin"/> is modified
+        /// </summary>
+        /// <param name="value">The new begin 'index'. This value is trusted to be non-negative</param>
+        /// <returns>A new frame span</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Input value is greater than the end index</exception>
+        public FrameSpan WithBeginIndex(long value) {
+            long endIndex = this.Begin + this.Duration;
+            if (value > endIndex) {
+                throw new ArgumentOutOfRangeException(nameof(value), $"New begin value cannot exceed the end index ({value} > {endIndex})");
+            }
+
+            return new FrameSpan(value, this.Duration - (value - this.Begin));
+        }
+
+        /// <summary>
+        /// Same as <see cref="WithBeginIndex"/>, but instead of throwing, the span is clamped to empty
+        /// </summary>
+        /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
+        /// <param name="lowerLimit">The lower limit for the begin 'index'. By default, this is 0</param>
+        /// <returns>A new frame span, or empty when the value is greater than or equal to the end index value</returns>
+        public FrameSpan WithBeginIndexClamped(long value, long lowerLimit = 0L) {
+            long endIndex = this.Begin + this.Duration;
+            if (value < lowerLimit)
+                value = lowerLimit;
+            return value < endIndex ? new FrameSpan(value, this.Duration - (value - this.Begin)) : Empty;
         }
 
         /// <summary>
@@ -113,11 +161,11 @@ namespace FramePFX.Utils {
             return frame >= this.Begin && frame < this.EndIndex;
         }
 
-        public bool Intersects(in FrameSpan span) {
+        public bool Intersects(FrameSpan span) {
             return Intersects(this, span);
         }
 
-        public static bool Intersects(in FrameSpan a, in FrameSpan b) {
+        public static bool Intersects(FrameSpan a, FrameSpan b) {
             // no idea if this works both ways... CBA to test lolol
             return a.Begin < b.EndIndex && a.EndIndex > b.Begin;
         }

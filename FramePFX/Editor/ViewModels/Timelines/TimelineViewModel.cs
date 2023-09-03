@@ -17,6 +17,7 @@ using FramePFX.Views.Dialogs.UserInputs;
 namespace FramePFX.Editor.ViewModels.Timelines {
     public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound, IDisposable {
         public static readonly MessageDialog DeleteTracksDialog;
+        private volatile bool isRendering;
 
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
@@ -42,22 +43,12 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public long PlayHeadFrame {
             get => this.Model.PlayHeadFrame;
             set {
-                long oldValue = this.Model.PlayHeadFrame;
-                if (oldValue == value) {
+                if (this.isRendering) {
+                    this.RaisePropertyChanged();
                     return;
                 }
 
-                if (value >= this.MaxDuration) {
-                    value = this.MaxDuration - 1;
-                }
-
-                if (value < 0) {
-                    value = 0;
-                }
-
-                this.Model.PlayHeadFrame = value;
-                this.RaisePropertyChanged();
-                this.OnUserSeekedPlayHead(oldValue, value, true);
+                this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, value, true);
             }
         }
 
@@ -136,7 +127,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.OnProjectModified();
         }
 
-        public void OnUserSeekedPlayHead(long oldFrame, long newFrame, bool? schedule) {
+        public async void OnUserSeekedPlayHead(long oldFrame, long newFrame, bool? schedule) {
+            if (newFrame >= this.MaxDuration) {
+                newFrame = this.MaxDuration - 1;
+            }
+
+            if (newFrame < 0) {
+                newFrame = 0;
+            }
+
             if (oldFrame == newFrame || !(schedule is bool b)) {
                 return;
             }
@@ -145,8 +144,18 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 track.OnUserSeekedFrame(oldFrame, newFrame);
             }
 
+            this.isRendering = true;
             this.Project.AutomationEngine.UpdateAndRefreshAt(true, newFrame);
-            this.Project.Editor.View.Render(b);
+            try {
+                await this.Project.Editor.View.Render(b);
+            }
+            catch (TaskCanceledException) {
+                // do nothing
+            }
+
+            this.Model.PlayHeadFrame = newFrame;
+            this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+            this.isRendering = false;
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline

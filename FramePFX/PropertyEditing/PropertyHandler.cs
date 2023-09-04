@@ -1,5 +1,3 @@
-using System;
-
 namespace FramePFX.PropertyEditing {
     /// <summary>
     /// A class for storing data about a specific handler

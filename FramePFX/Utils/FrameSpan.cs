@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace FramePFX.Utils {
     /// <summary>
@@ -23,7 +25,15 @@ namespace FramePFX.Utils {
         /// <summary>
         /// A calculated end-index (exclusive) for this span. This value may be negative (which isn't a valid span value, but is allowed anyway)
         /// </summary>
-        public long EndIndex => this.Begin + this.Duration;
+        public long EndIndex {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.Begin + this.Duration;
+        }
+
+        /// <summary>
+        /// Whether or not this frame span's duration is zero
+        /// </summary>
+        public bool IsEmpty => this.Duration == 0;
 
         public FrameSpan(long begin, long duration) {
             this.Begin = begin;
@@ -101,7 +111,7 @@ namespace FramePFX.Utils {
                 return new FrameSpan(this.Begin, value - this.Begin);
             }
 
-            return Empty;
+            return new FrameSpan(this.Begin, 0);
         }
 
         /// <summary>
@@ -129,7 +139,23 @@ namespace FramePFX.Utils {
             long endIndex = this.Begin + this.Duration;
             if (value < lowerLimit)
                 value = lowerLimit;
-            return value < endIndex ? new FrameSpan(value, this.Duration - (value - this.Begin)) : Empty;
+            return value < endIndex ? new FrameSpan(value, this.Duration - (value - this.Begin)) : new FrameSpan(endIndex, 0);
+        }
+
+        public FrameSpan AddEndIndex(long value) {
+            return this.WithEndIndex(this.EndIndex + value);
+        }
+
+        public FrameSpan AddEndIndexClamped(long value, long upperLimit = long.MaxValue) {
+            return this.WithEndIndexClamped(this.EndIndex + value, upperLimit);
+        }
+
+        public FrameSpan AddBeginIndex(long value) {
+            return this.WithBeginIndex(this.Begin + value);
+        }
+
+        public FrameSpan AddBeginIndexClamped(long value, long lowerLimit = 0L) {
+            return this.WithBeginIndexClamped(this.Begin + value, lowerLimit);
         }
 
         /// <summary>
@@ -147,14 +173,24 @@ namespace FramePFX.Utils {
         }
 
         /// <summary>
-        /// Returns a new span where the smallest <see cref="Begin"/> and largest <see cref="EndIndex"/> are returned
+        /// Returns a new span which contains the smallest <see cref="Begin"/> and the largest <see cref="EndIndex"/> value
+        /// of the current instance and <see cref="other"/>. This is used by <see cref="UnionAll"/>
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public FrameSpan MinMax(FrameSpan other) {
-            long minBegin = Math.Min(this.Begin, other.Begin);
-            long maxEnd = Math.Max(this.Begin + this.Duration, other.Begin + other.Duration);
-            return new FrameSpan(minBegin, maxEnd - minBegin);
+        /// <param name="other">Input span</param>
+        /// <returns>Output span</returns>
+        public FrameSpan Union(FrameSpan other) {
+            long begin = Math.Min(this.Begin, other.Begin);
+            long endIndex = Math.Max(this.EndIndex, other.EndIndex);
+            return new FrameSpan(begin, endIndex - begin);
+        }
+
+        /// <summary>
+        /// Returns a new span containing the largest <see cref="Begin"/> and the smallest <see cref="EndIndex"/>
+        /// </summary>
+        /// <param name="clamp">Input span limit</param>
+        /// <returns>A clamped frame span</returns>
+        public FrameSpan Clamp(FrameSpan clamp) {
+            return FromIndex(Math.Max(clamp.Begin, this.Begin), Math.Min(clamp.EndIndex, this.EndIndex));
         }
 
         public bool Intersects(long frame) {
@@ -194,6 +230,47 @@ namespace FramePFX.Utils {
             unchecked {
                 return (this.Begin.GetHashCode() * 397) ^ this.Duration.GetHashCode();
             }
+        }
+
+        /// <summary>
+        /// Returns a new span which contains the smallest <see cref="Begin"/> and the largest <see cref="EndIndex"/> value
+        /// </summary>
+        /// <param name="a">Span A</param>
+        /// <param name="b">Span B</param>
+        /// <returns>Output span</returns>
+        public static FrameSpan Union(FrameSpan a, FrameSpan b) => a.Union(b);
+
+        /// <summary>
+        /// Gets the total range coverage of all spans. This calculates the smallest <see cref="Begin"/> value and
+        /// largest <see cref="EndIndex"/> value across all the spans, and returns a new frame span with those 2 values
+        /// </summary>
+        /// <param name="spans">Input span enumerable</param>
+        /// <returns>The span range, or empty, if the enumerable is empty</returns>
+        public static FrameSpan UnionAll(IEnumerable<FrameSpan> spans) {
+            using (IEnumerator<FrameSpan> enumerator = spans.GetEnumerator()) {
+                return enumerator.MoveNext() ? UnionAllInternal(enumerator) : Empty;
+            }
+        }
+
+        public static bool TryUnionAll(IEnumerable<FrameSpan> spans, out FrameSpan span) {
+            using (IEnumerator<FrameSpan> enumerator = spans.GetEnumerator()) {
+                if (!enumerator.MoveNext()) {
+                    span = default;
+                    return false;
+                }
+
+                span = UnionAllInternal(enumerator);
+                return true;
+            }
+        }
+
+        private static FrameSpan UnionAllInternal(IEnumerator<FrameSpan> enumerator) {
+            FrameSpan range = enumerator.Current;
+            while (enumerator.MoveNext()) {
+                range = range.Union(enumerator.Current);
+            }
+
+            return range;
         }
     }
 }

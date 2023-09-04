@@ -2,9 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.PropertyEditing;
-using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.WPF.PropertyEditing.Converters {
     public class PropertyItemToolTipConverter : IMultiValueConverter {

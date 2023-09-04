@@ -14,7 +14,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         public unsafe SwsContext* scaler;
         private PictureFormat scalerInputFormat;
-        private PictureFormat scalerOutputFormat;
         private VideoFrame readyFrame;
         private long currentFrame = -1;
 
@@ -26,6 +25,12 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override Vector2? GetSize() {
             return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
+        }
+
+        public override bool BeginRender(long frame) {
+            if (!this.TryGetResource(out ResourceAVMedia resource))
+                return false;
+            return resource.stream != null && resource.Demuxer != null;
         }
 
         public override async Task EndRender(RenderContext rc, long frame) {
@@ -54,10 +59,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                 // a project preview resolution so that decoding is lightning fast for low resolution?
 
-                if (this.renderFrameRgb == null) {
-                    return;
-                }
-
                 this.Transform(rc);
                 if (ready.IsHardwareFrame) {
                     // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
@@ -68,18 +69,9 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 }
 
                 unsafe {
-                    if (this.scaler == null) {
-                        PictureFormat srcfmt = ready.Format;
-                        PictureFormat dstfmt = this.renderFrameRgb.Format;
-                        this.scalerInputFormat = srcfmt;
-                        this.scalerOutputFormat = dstfmt;
-                        this.scaler = ffmpeg.sws_getContext(srcfmt.Width, srcfmt.Height, srcfmt.PixelFormat, dstfmt.Width, dstfmt.Height, dstfmt.PixelFormat, ffmpeg.SWS_BICUBIC, null, null, null);
-                    }
+                    this.ScaleFrame(ready);
 
-                    AVFrame* src = ready.Handle;
-                    AVFrame* dst = this.renderFrameRgb.Handle;
-                    ffmpeg.sws_scale(this.scaler, src->data, src->linesize, 0, this.scalerInputFormat.Height, dst->data, dst->linesize);
-
+                    // TODO: Maybe cache the SKPixmap, because renderFrameRgb lasts a long time, where the size remains unmodified probably
                     byte* ptr;
                     GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
                     SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
@@ -88,6 +80,20 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                     }
                 }
             }
+        }
+
+        private unsafe void ScaleFrame(VideoFrame ready) {
+            if (this.scaler == null) {
+                PictureFormat srcfmt = ready.Format;
+                PictureFormat dstfmt = this.renderFrameRgb.Format;
+                this.scalerInputFormat = srcfmt;
+                this.scaler = ffmpeg.sws_getContext(srcfmt.Width, srcfmt.Height, srcfmt.PixelFormat, dstfmt.Width, dstfmt.Height, dstfmt.PixelFormat, ffmpeg.SWS_BICUBIC, null, null, null);
+            }
+
+            AVFrame* src = ready.Handle;
+            AVFrame* dst = this.renderFrameRgb.Handle;
+            ffmpeg.sws_scale(this.scaler, src->data, src->linesize, 0, this.scalerInputFormat.Height, dst->data, dst->linesize);
+
         }
 
         public static unsafe (int, int) GetPlaneSize(VideoFrame frame, int plane) {

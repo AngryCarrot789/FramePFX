@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using FramePFX.Editor.History;
 using FramePFX.History.ViewModels;
 using FramePFX.Utils;

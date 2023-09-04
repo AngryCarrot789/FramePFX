@@ -74,7 +74,7 @@
 
     <sys:Double x:Key="LayerHeight">20</sys:Double>
 
-    <Style TargetType="{x:Type tc:TimelineClipControl}">
+    <Style TargetType="{x:Type tc:TimelineClipControl}" d:DataContext="{d:DesignInstance ctl:ClipViewModel}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
         <Setter Property="HeaderBrush" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
@@ -87,6 +87,7 @@
         <Setter Property="MinHeight" Value="{Binding Track.MinHeight, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="MaxHeight" Value="{Binding Track.MaxHeight, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="Height" Value="{Binding Track.Height, UpdateSourceTrigger=PropertyChanged}"/>
+        <Setter Property="IsSelected" Value="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"/>
         <Setter Property="acs:AdvancedContextMenu.ContextGenerator" Value="{x:Static cx:ClipContextGenerator.Instance}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -147,7 +148,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="SelectedItem" Value="{Binding PrimarySelectedClip}"/>
-        <Setter Property="ap2:MultiSelectorHelper.SelectedItems" Value="{Binding SelectedClips, Mode=TwoWay}"/>
+        <Setter Property="ap2:MultiSelectorHelper.SelectedItems" Value="{Binding SelectedClips}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineTrackControl}">

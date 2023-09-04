@@ -10,8 +10,6 @@ namespace FramePFX.Editor.History {
 
         public List<List<RBEDictionary>> SerialisedClips { get; }
 
-        private List<ClipViewModel> reversed;
-
         public HistoryClipDeletion(TimelineViewModel timeline, List<List<RBEDictionary>> serialisedClips) {
             this.Timeline = timeline;
             this.SerialisedClips = serialisedClips;

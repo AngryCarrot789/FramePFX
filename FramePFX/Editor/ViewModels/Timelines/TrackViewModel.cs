@@ -24,16 +24,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         private readonly ObservableCollectionEx<ClipViewModel> clips;
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
-        private List<ClipViewModel> selectedClips;
-
-        public List<ClipViewModel> SelectedClips {
-            get => this.selectedClips;
-            set {
-                this.RaisePropertyChanged(ref this.selectedClips, value ?? new List<ClipViewModel>());
-                this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
-                this.Timeline.Project.Editor?.View.UpdateClipSelection();
-            }
-        }
+        public ObservableCollection<ClipViewModel> SelectedClips { get; }
 
         private ClipViewModel primarySelectedClip;
 
@@ -120,7 +111,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
-            this.selectedClips = new List<ClipViewModel>();
+            this.SelectedClips = new ObservableCollection<ClipViewModel>();
+            this.SelectedClips.CollectionChanged += (sender, args) => {
+                this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
+                this.Timeline.Project.Editor?.View.UpdateClipSelection();
+            };
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
             this.RenameTrackCommand = new AsyncRelayCommand(this.RenameAsync);
 
@@ -219,13 +214,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     Validate.Exception(index < this.Model.Clips.Count, "Model-ViewModel list desynchronized");
                     Validate.Exception(ReferenceEquals(clip.Model, this.Model.Clips[index]), "Model-ViewModel list desynchronized");
                     this.RemoveClipFromTrack(index);
-                    if (clip is IDisposable disposable) {
-                        try {
-                            disposable.Dispose();
-                        }
-                        catch (Exception e) {
-                            stack.Add(new Exception($"Failed to dispose {clip.GetType()} properly", e));
-                        }
+                    try {
+                        clip.Dispose();
+                    }
+                    catch (Exception e) {
+                        stack.Add(new Exception($"Failed to dispose {clip.GetType()} properly", e));
                     }
                 }
             }
@@ -352,6 +345,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
 
             return false;
+        }
+
+        public void AddSelected(ClipViewModel clip) {
+            if (clip.Track != this) {
+                throw new Exception("Clip is not placed in this track");
+            }
+
+            if (!clip.IsSelected)
+                clip.IsSelected = true;
         }
     }
 }

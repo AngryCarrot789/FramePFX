@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ViewModels.Timelines;
@@ -131,8 +131,7 @@ namespace FramePFX.Editor.Timelines {
             while (i < c) {
                 Clip clip = src[i++];
                 long begin = clip.FrameBegin;
-                long duration = clip.FrameDuration;
-                if (frame >= begin && frame < (begin + duration))
+                if (frame >= begin && frame < begin + clip.FrameDuration)
                     return clip;
             }
 
@@ -208,11 +207,7 @@ namespace FramePFX.Editor.Timelines {
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Clips));
             foreach (Clip clip in this.Clips) {
-                if (!(clip.FactoryId is string id))
-                    throw new Exception("Unknown clip type: " + clip.GetType());
-                RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(Clip.FactoryId), id);
-                clip.WriteToRBE(dictionary.CreateDictionary("Data"));
+                Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
             }
         }
 
@@ -230,9 +225,7 @@ namespace FramePFX.Editor.Timelines {
             foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
-                string id = dictionary.GetString(nameof(Clip.FactoryId));
-                Clip clip = ClipRegistry.Instance.CreateModel(id);
-                clip.ReadFromRBE(dictionary.GetDictionary("Data"));
+                Clip clip = Clip.ReadSerialisedWithId(dictionary);
 
                 // check for duplicate track ids, caused by external modification or corruption
                 if (clip.internalClipId >= 0) {
@@ -262,17 +255,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public bool GetUsedFrameSpan(out FrameSpan span) {
-            using (var enumerator = this.Clips.GetEnumerator()) {
-                if (enumerator.MoveNext()) {
-                    span = enumerator.Current.FrameSpan;
-                    while (enumerator.MoveNext())
-                        span = span.MinMax(enumerator.Current.FrameSpan);
-                    return true;
-                }
-            }
-
-            span = default;
-            return false;
+            return FrameSpan.TryUnionAll(this.Clips.Select(x => x.FrameSpan), out span);
         }
 
         public void GetUsedFrameSpan(ref long begin, ref long endIndex) {

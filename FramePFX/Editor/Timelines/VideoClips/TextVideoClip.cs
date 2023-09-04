@@ -127,6 +127,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(w, h);
         }
 
+        public override bool BeginRender(long frame) {
+            return this.TryGetResource(out ResourceText _);
+        }
+
         public override Task EndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceText r)) {
                 return Task.CompletedTask;
@@ -172,11 +176,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public void InvalidateTextCache() {
             if (this.cachedBlobs != null) {
-                for (int i = 0; i < this.cachedBlobs.Length; i++) {
-                    if (this.cachedBlobs[i] != null) {
-                        this.cachedBlobs[i].Dispose();
-                        this.cachedBlobs[i] = null;
-                    }
+                foreach (SKTextBlob t in this.cachedBlobs) {
+                    t?.Dispose();
                 }
 
                 this.cachedBlobs = null;

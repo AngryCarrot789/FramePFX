@@ -25,6 +25,12 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(r.image.Width, r.image.Height);
         }
 
+        public override bool BeginRender(long frame) {
+            if (!this.TryGetResource(out ResourceImage resource))
+                return false;
+            return resource.image != null;
+        }
+
         public override Task EndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceImage resource))
                 return Task.CompletedTask;

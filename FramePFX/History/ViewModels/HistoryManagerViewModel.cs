@@ -40,7 +40,7 @@ namespace FramePFX.History.ViewModels {
         public NotificationPanelViewModel NotificationPanel { get; }
 
         private readonly List<IHistoryAction> mergeList;
-        private int mergeListCount;
+        private int mergeSemaphore; // semaphore probably not the best name but meh
 
         public HistoryManagerViewModel(NotificationPanelViewModel panel, HistoryManager model) {
             this.manager = model ?? throw new ArgumentNullException(nameof(model));
@@ -59,7 +59,7 @@ namespace FramePFX.History.ViewModels {
 
             public MergeContext(HistoryManagerViewModel manager) {
                 this.manager = manager;
-                this.manager.mergeListCount++;
+                this.manager.mergeSemaphore++;
             }
 
             public void Dispose() {
@@ -68,7 +68,7 @@ namespace FramePFX.History.ViewModels {
                 }
 
                 this.isDisposed = true;
-                if (--this.manager.mergeListCount == 0) {
+                if (--this.manager.mergeSemaphore == 0) {
                     int count = this.manager.mergeList.Count;
                     if (count > 1) {
                         this.manager.AddAction(new MultiHistoryAction(new List<IHistoryAction>(this.manager.mergeList)), "Multi action");
@@ -111,7 +111,7 @@ namespace FramePFX.History.ViewModels {
         }
 
         public void AddAction(IHistoryAction action, string information = null) {
-            if (this.mergeListCount == 0) {
+            if (this.mergeSemaphore == 0) {
                 this.manager.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
             }
             else {

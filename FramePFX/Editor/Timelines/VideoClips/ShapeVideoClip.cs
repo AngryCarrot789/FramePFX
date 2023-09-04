@@ -45,6 +45,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(this.Width, this.Height);
         }
 
+        public override bool BeginRender(long frame) {
+            return this.TryGetResource(out ResourceColour _);
+        }
+
         public override Task EndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceColour r)) {
                 return Task.CompletedTask;

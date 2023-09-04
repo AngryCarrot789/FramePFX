@@ -37,5 +37,9 @@ namespace FramePFX.WPF.Controls {
                 ((Thumb) sender).CancelDrag();
             }
         }
+
+        public CancellableThumb() {
+            SetCanCancel(this, true);
+        }
     }
 }

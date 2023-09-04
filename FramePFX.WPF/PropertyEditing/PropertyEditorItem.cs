@@ -1,7 +1,5 @@
-using System;
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.PropertyEditing;
 
 namespace FramePFX.WPF.PropertyEditing {
     public class PropertyEditorItem : ContentPresenter {

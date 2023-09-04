@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging;
@@ -100,6 +99,26 @@ namespace FramePFX.Editor.Timelines {
         protected Clip() {
             this.AutomationData = new AutomationData(this);
             this.Effects = new List<BaseEffect>();
+        }
+
+        public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
+            string id = dictionary.GetString(nameof(FactoryId));
+            Clip clip = ClipRegistry.Instance.CreateModel(id);
+            clip.ReadFromRBE(dictionary.GetDictionary("Data"));
+            return clip;
+        }
+
+        public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip) {
+            if (!(clip.FactoryId is string id))
+                throw new Exception("Unknown clip type: " + clip.GetType());
+            dictionary.SetString(nameof(FactoryId), id);
+            clip.WriteToRBE(dictionary.CreateDictionary("Data"));
+        }
+
+        public static RBEDictionary WriteSerialisedWithId(Clip clip) {
+            RBEDictionary dictionary = new RBEDictionary();
+            WriteSerialisedWithId(dictionary, clip);
+            return dictionary;
         }
 
         /// <summary>
@@ -213,25 +232,20 @@ namespace FramePFX.Editor.Timelines {
         #region Dispose
 
         /// <summary>
-        /// Disposes this clip, releasing any resources it is using. This is called when a clip is about to no longer reachable
+        /// Disposes this clip, releasing any resources it is using. This is called when a clip is about to be no longer reachable (e.g. when the user deletes it).
         /// <para>
-        /// When clips are removed from the timeline, they are serialised and stored in the history manager, and then deserialised when
-        /// a user undoes the clip deletion. This means that, dispose is called just after a clip is serialised
+        /// When clips are removed from the timeline, they are serialised (and stored in the history manager) then disposed.
+        /// When the user undoes that, they're deserialised and a new instance is created. This means that the original reference
+        /// of the deleted clip is not reused for simplicity sakes.
         /// </para>
         /// <para>
-        /// Dispose only throws an exception in truely exceptional cases
+        /// Dispose only throws an exception in truly exceptional cases that should result in the app crashing
         /// </para>
         /// </summary>
         public void Dispose() {
             using (ErrorList stack = new ErrorList()) {
                 this.OnBeginDispose();
-                try {
-                    this.DisposeCore(stack);
-                }
-                catch (Exception e) {
-                    stack.Add(new Exception($"{nameof(this.DisposeCore)} threw an unexpected exception", e));
-                }
-
+                this.DisposeCore(stack);
                 this.OnEndDispose();
             }
         }
@@ -250,8 +264,12 @@ namespace FramePFX.Editor.Timelines {
         /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ErrorList"/>
         /// </para>
         /// </summary>
-        /// <param name="stack">The exception stack in which to add any encountered exceptions during disposal</param>
+        /// <param name="stack">
+        /// The exception stack in which to add any encountered exceptions during disposal.
+        /// Any exceptions added to this may result in the app crashing and showing a crash report screen
+        /// </param>
         protected virtual void DisposeCore(ErrorList stack) {
+
         }
 
         /// <summary>

@@ -219,25 +219,6 @@ namespace FramePFX.Editor.Timelines {
         public void OnClipRemoved(Track track, Clip clip) {
         }
 
-        // SaveLayer requires a temporary drawing bitmap, which can slightly
-        // decrease performance, so only SaveLayer when absolutely necessary
-        private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
-            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
-        }
-
-        private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint) {
-            if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d)) {
-                return render.Canvas.Save();
-            }
-            else {
-                return SaveLayerForOpacity(render.Canvas, clip.Opacity, ref paint);
-            }
-        }
-
-        private static int BeginTrackOpacityLayer(RenderContext render, VideoTrack track, ref SKPaint paint) {
-            return !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref paint) : render.Canvas.Save();
-        }
-
         private static void EndOpacityLayer(RenderContext render, int count, ref SKPaint paint) {
             render.Canvas.RestoreToCount(count);
             if (paint != null) {
@@ -272,8 +253,9 @@ namespace FramePFX.Editor.Timelines {
                         continue;
                     }
 
-                    clip.BeginRender(frame);
-                    this.RenderList.Add(clip);
+                    if (clip.BeginRender(frame)) {
+                        this.RenderList.Add(clip);
+                    }
                 }
             }
 
@@ -302,12 +284,30 @@ namespace FramePFX.Editor.Timelines {
                             ((VideoEffect) effect).ProcessFrame(render);
                         }
                     }
-
                 }
             }
             finally {
                 this.RenderList.Clear();
             }
+        }
+
+        // SaveLayer requires a temporary drawing bitmap, which can slightly
+        // decrease performance, so only SaveLayer when absolutely necessary
+        private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
+            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
+        }
+
+        private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint) {
+            if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d)) {
+                return render.Canvas.Save();
+            }
+            else {
+                return SaveLayerForOpacity(render.Canvas, clip.Opacity, ref paint);
+            }
+        }
+
+        private static int BeginTrackOpacityLayer(RenderContext render, VideoTrack track, ref SKPaint paint) {
+            return !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref paint) : render.Canvas.Save();
         }
     }
 }

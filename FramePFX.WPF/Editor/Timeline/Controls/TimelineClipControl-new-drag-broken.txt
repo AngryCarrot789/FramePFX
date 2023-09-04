@@ -13,6 +13,7 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
+using OpenTK.Graphics.ES30;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
     public sealed class TimelineClipControl : Control {
@@ -148,11 +149,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         private Thumb PART_ThumbLeft;
         private Thumb PART_ThumbRight;
-        private bool isProcessingLeftThumbDrag;
-        private bool isProcessingRightThumbDrag;
-        private bool isProcessingMouseMove;
-        private bool isClipDragRunning;
-        private bool isLoadedWithActiveDrag;
+        private bool isLoadedWhileDraggingBody;
 
         public TimelineClipControl() {
             this.HorizontalAlignment = HorizontalAlignment.Left;
@@ -164,13 +161,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            if (this.DataContext is ClipViewModel handler) {
-                this.CoerceValue(IsSelectedProperty);
-                if (handler.IsDraggingClip) {
-                    this.isLoadedWithActiveDrag = true;
+            if (this.DataContext is ClipViewModel clip) {
+                if (clip.dragInfo != null && clip.dragInfo.IsDraggingBody) {
+                    this.isLoadedWhileDraggingBody = true;
+                    this.IsSelected = true;
                     this.Focus();
                     this.CaptureMouse();
-                    this.IsSelected = true;
                 }
             }
 
@@ -183,12 +179,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.PART_ThumbLeft = this.GetTemplateElement<Thumb>("PART_ThumbLeft");
             this.PART_ThumbRight = this.GetTemplateElement<Thumb>("PART_ThumbRight");
-            this.PART_ThumbLeft.DragStarted += this.OnLeftThumbDragStart;
-            this.PART_ThumbLeft.DragDelta += this.OnLeftThumbDragDelta;
-            this.PART_ThumbLeft.DragCompleted += this.OnLeftThumbDragComplete;
-            this.PART_ThumbRight.DragStarted += this.OnRightThumbDragStart;
-            this.PART_ThumbRight.DragDelta += this.OnRightThumbDragDelta;
-            this.PART_ThumbRight.DragCompleted += this.OnRightThumbDragComplete;
+            this.PART_ThumbLeft.DragStarted += (s, e) => this.OnDragStart_ThumbLeft();
+            this.PART_ThumbLeft.DragDelta += (s, e) => this.OnDragDelta_ThumbLeft();
+            this.PART_ThumbLeft.DragCompleted += (s, e) => this.OnDragComplete_ThumbLeft(e.Canceled);
+            this.PART_ThumbRight.DragStarted += (s, e) => this.OnDragStart_ThumbRight();
+            this.PART_ThumbRight.DragDelta += (s, e) => this.OnDragDelta_ThumbRight();
+            this.PART_ThumbRight.DragCompleted += (s, e) => this.OnDragComplete_ThumbRight(e.Canceled);
         }
 
         protected override Size MeasureOverride(Size constraint) {
@@ -201,69 +197,184 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             return size;
         }
 
-        private void OnLeftThumbDragStart(object sender, DragStartedEventArgs e) {
-            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingLeftThumb) {
-                this.Focus();
-                handler.OnLeftThumbDragStart();
+        private void OnDragStart_ThumbLeft() {
+            if (!(this.DataContext is ClipViewModel handler))
+                return;
+            if (handler.dragInfo != null)
+                throw new Exception("Already dragging");
+            this.lastMousePoint_ThumbLeft = Mouse.GetPosition(Window.GetWindow(this));
+            handler.dragInfo = ClipDragInfo.FromClip(handler);
+            handler.dragInfo.IsDraggingLeft = true;
+            foreach (ClipDragInfoData info in handler.dragInfo.clips) {
+                info.clip.Track.AddSelected(info.clip);
             }
         }
 
-        private void OnLeftThumbDragDelta(object sender, DragDeltaEventArgs e) {
-            if (this.isProcessingLeftThumbDrag)
+        private Point lastMousePoint_ThumbLeft;
+        private double accumulatedChange_ThumbLeft;
+
+        private void OnDragDelta_ThumbLeft() {
+            if (!(this.DataContext is ClipViewModel handler) || handler.dragInfo == null)
                 return;
-            long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
-            if (change == 0 || !(this.DataContext is ClipViewModel handler))
-                return;
-            if (!handler.IsDraggingLeftThumb)
-                return;
-            try {
-                this.isProcessingLeftThumbDrag = true;
-                handler.OnLeftThumbDelta(change);
-            }
-            finally {
-                this.isProcessingLeftThumbDrag = false;
+            // an accumulator is required, because some weird exponential thing happens when
+            // this.lastMousePoint_ThumbLeft is set inside the if (change != 0) block and
+            // the long change is calculated directly from PixelToFrame.
+            // Not sure if it's floating point precision loss or because of how modifying FrameSpan changes the clip
+            // size, therefore the location of the thumb that triggers this event, etc. etc.
+            Point point = Mouse.GetPosition(Window.GetWindow(this));
+            this.accumulatedChange_ThumbLeft += (point.X - this.lastMousePoint_ThumbLeft.X) / this.UnitZoom;
+            this.lastMousePoint_ThumbLeft = point;
+
+            long change = (long) this.accumulatedChange_ThumbLeft;
+            if (change != 0) {
+                this.accumulatedChange_ThumbLeft -= change;
+                foreach (ClipDragInfoData info in handler.dragInfo.clips) {
+                    FrameSpan last = info.DragLeft;
+
+                    long begin = last.Begin + change + info.excess;
+                    long endIndex = last.Begin + last.Duration;
+                    if (begin < 0) {
+                        info.excess += -(last.EndIndex - begin);
+                        begin = 0;
+                    }
+
+                    FrameSpan span;
+                    if (begin < endIndex) {
+                        span = new FrameSpan(begin, last.Duration - (begin - last.Begin));
+                    }
+                    else {
+                        info.excess = -(last.EndIndex - begin);
+                        span = new FrameSpan(endIndex, 0);
+                    }
+
+                    info.clip.FrameSpan = info.DragLeft = span;
+                    // long begin = last.Begin + change + info.excess;
+                    // info.excess = 0;
+                    // if (begin <= last.EndIndex) {
+                    //     if (begin < 0) {
+                    //         info.excess = -begin;
+                    //         begin = 0;
+                    //     }
+                    //     info.clip.FrameSpan = info.DragLeft = last.AddBeginIndexClamped(begin);
+                    // }
+                    // else {
+                    //     info.excess = -(last.EndIndex - begin);
+                    //     info.clip.FrameSpan = info.DragLeft = new FrameSpan(last.EndIndex, 0);
+                    // }
+                }
             }
         }
 
-        private void OnLeftThumbDragComplete(object sender, DragCompletedEventArgs e) {
-            if (this.DataContext is ClipViewModel handler && handler.IsDraggingLeftThumb) {
-                handler.OnLeftThumbDragStop(e.Canceled);
+        private void OnDragComplete_ThumbLeft(bool isCancelled) {
+            if (!(this.DataContext is ClipViewModel handler) || handler.dragInfo == null)
+                return;
+
+            if (!handler.dragInfo.IsDraggingLeft)
+                throw new Exception("Expected to be dragging Left thumb");
+
+            foreach (ClipDragInfoData info in handler.dragInfo.clips) {
+                if (isCancelled) {
+                    info.clip.FrameSpan = info.OriginalSpan;
+                }
+                else {
+                    if (info.clip.FrameSpan.IsEmpty)
+                        info.clip.Track.RemoveClipFromTrack(info.clip);
+                }
+            }
+
+            handler.dragInfo = null;
+        }
+
+        private void OnDragStart_ThumbRight() {
+            if (!(this.DataContext is ClipViewModel handler))
+                return;
+            if (handler.dragInfo != null)
+                throw new Exception("Already dragging");
+            this.lastMousePoint_ThumbRight = Mouse.GetPosition(Window.GetWindow(this));
+            handler.dragInfo = ClipDragInfo.FromClip(handler);
+            handler.dragInfo.IsDraggingRight = true;
+            foreach (ClipDragInfoData info in handler.dragInfo.clips) {
+                info.clip.Track.AddSelected(info.clip);
             }
         }
 
-        private void OnRightThumbDragStart(object sender, DragStartedEventArgs e) {
-            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingRightThumb) {
-                this.Focus();
-                handler.OnRightThumbDragStart();
+        private Point lastMousePoint_ThumbRight;
+        private double accumulatedChange_ThumbRight;
+
+        private void OnDragDelta_ThumbRight() {
+            if (!(this.DataContext is ClipViewModel handler) || handler.dragInfo == null)
+                return;
+            // an accumulator is required, because some weird exponential thing happens when
+            // this.lastMousePoint_ThumbRight is set inside the if (change != 0) block and
+            // the long change is calculated directly from PixelToFrame.
+            // Not sure if it's floating point precision loss or because of how modifying FrameSpan changes the clip
+            // size, therefore the location of the thumb that triggers this event, etc. etc.
+            Point point = Mouse.GetPosition(Window.GetWindow(this));
+            this.accumulatedChange_ThumbRight += (point.X - this.lastMousePoint_ThumbRight.X) / this.UnitZoom;
+            this.lastMousePoint_ThumbRight = point;
+
+            long change = (long) this.accumulatedChange_ThumbRight;
+            if (change != 0) {
+                this.accumulatedChange_ThumbRight -= change;
+                long max = handler.Timeline.MaxDuration;
+                foreach (ClipDragInfoData info in handler.dragInfo.clips) {
+                    FrameSpan last = info.DragRight;
+                    long endIndex = last.EndIndex + change + info.excess;
+                    info.excess = 0;
+                    if (endIndex <= last.Begin) {
+                        info.excess = -(last.Begin - endIndex);
+                        info.clip.FrameSpan = info.DragRight = new FrameSpan(last.Begin, 0);
+                    }
+                    else {
+                        if (endIndex > max) {
+                            max += Maths.Ceil(change, 250);
+                            handler.Timeline.MaxDuration = max;
+                            // info.excess = endIndex - max;
+                            // endIndex = max;
+                        }
+
+                        long duration = endIndex - last.Begin;
+                        info.clip.FrameSpan = info.DragRight = new FrameSpan(last.Begin, duration);
+                    }
+                }
             }
         }
 
-        private void OnRightThumbDragDelta(object sender, DragDeltaEventArgs e) {
-            if (this.isProcessingRightThumbDrag)
+        private void OnDragComplete_ThumbRight(bool isCancelled) {
+            if (!(this.DataContext is ClipViewModel handler) || handler.dragInfo == null)
                 return;
-            long change = TimelineUtils.PixelToFrame(e.HorizontalChange, this.UnitZoom);
-            if (change == 0 || !(this.DataContext is ClipViewModel handler))
-                return;
-            if (!handler.IsDraggingRightThumb)
-                return;
-            try {
-                this.isProcessingRightThumbDrag = true;
-                handler.OnRightThumbDelta(change);
-            }
-            finally {
-                this.isProcessingRightThumbDrag = false;
-            }
-        }
 
-        private void OnRightThumbDragComplete(object sender, DragCompletedEventArgs e) {
-            if (this.DataContext is ClipViewModel handler && handler.IsDraggingRightThumb) {
-                handler.OnRightThumbDragStop(e.Canceled);
+            if (!handler.dragInfo.IsDraggingRight)
+                throw new Exception("Expected to be dragging right thumb");
+
+            foreach (ClipDragInfoData info in handler.dragInfo.clips) {
+                if (isCancelled) {
+                    info.clip.FrameSpan = info.OriginalSpan;
+                }
+                else {
+                    if (info.clip.FrameSpan.IsEmpty)
+                        info.clip.Track.RemoveClipFromTrack(info.clip);
+                }
             }
+
+            handler.dragInfo = null;
         }
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
             this.Track?.MakeTopElement(this);
+            // double width = this.ActualWidth;
+            // double areaLeft = 8;
+            // double areaRight = width - areaLeft + 1;
+            // Point pos = e.GetPosition(this);
+            // if (pos.X < areaLeft) {
+            //     // this.OnDragStart_ThumbLeft();
+            // }
+            // else if (pos.X > areaRight) {
+            //     this.OnDragStart_ThumbRight();
+            // }
+
+            // this.lastLeftClickPoint = e.GetPosition(this);
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
@@ -272,7 +383,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
             }
 
-            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingClip) {
+            if (this.DataContext is ClipViewModel handler && (handler.dragInfo == null || !handler.dragInfo.IsDraggingBody)) {
                 if (this.IsFocused || this.Focus()) {
                     if (!this.IsMouseCaptured) {
                         this.CaptureMouse();
@@ -302,16 +413,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
             this.lastLeftClickPoint = null;
-            this.isClipDragRunning = false;
-            bool? wasDragging = null;
-            if (this.DataContext is ClipViewModel handler && this.IsMouseCaptured && handler.IsDraggingClip) {
-                wasDragging = true;
-                handler.OnDragStop(false);
-                this.ReleaseMouseCapture();
-                e.Handled = true;
-            }
-
-            if (wasDragging != true && this.IsSelected && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Control) && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
+            if (this.IsSelected && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Control) && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
                 this.Track.Timeline.SetPrimarySelection(this);
             }
 
@@ -320,28 +422,14 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (!(this.DataContext is ClipViewModel clip) || this.isProcessingMouseMove || (this.PART_ThumbLeft?.IsDragging ?? true) || (this.PART_ThumbRight?.IsDragging ?? true)) {
+            if (!(this.DataContext is ClipViewModel clip)) {
                 return;
-            }
-
-            bool didJustDragTrack = false;
-            if (this.isLoadedWithActiveDrag) {
-                this.isLoadedWithActiveDrag = false;
-                didJustDragTrack = true;
-                if (clip.IsDraggingClip) {
-                    this.lastLeftClickPoint = this.Timeline.ClipMousePosForTrackTransition;
-                    this.isClipDragRunning = true;
-                }
             }
 
             if (e.MouseDevice.LeftButton != MouseButtonState.Pressed) {
                 if (ReferenceEquals(e.MouseDevice.Captured, this))
                     this.ReleaseMouseCapture();
-                this.isClipDragRunning = false;
                 this.lastLeftClickPoint = null;
-                if (clip.IsDraggingClip) {
-                    clip.OnDragStop(false);
-                }
             }
             else {
                 Point mousePoint = e.GetPosition(this);
@@ -349,73 +437,30 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     return;
                 }
 
-                if (!this.isClipDragRunning) {
-                    const double range = 8d;
-                    if (Math.Abs(lastClickPoint.X - mousePoint.X) < range && Math.Abs(lastClickPoint.Y - mousePoint.Y) < range) {
-                        return;
-                    }
-
-                    if (clip.IsDraggingClip) {
-                        throw new Exception("Did not expect handler IsDraggingClip to be true");
-                    }
-                    else if (clip.IsDraggingRightThumb) {
-                        throw new Exception("Did not expect handler IsDraggingRightThumb to be true");
-                    }
-                    else if (clip.IsDraggingLeftThumb) {
-                        throw new Exception("Did not expect handler IsDraggingLeftThumb to be true");
-                    }
-                    else {
-                        this.isClipDragRunning = true;
-                        clip.OnDragStart();
-                    }
-                }
-
-                if (!clip.IsDraggingClip) {
+                const double range = 8d;
+                if (Math.Abs(lastClickPoint.X - mousePoint.X) < range && Math.Abs(lastClickPoint.Y - mousePoint.Y) < range) {
                     return;
                 }
 
-                double diffX = mousePoint.X - lastClickPoint.X;
-                double diffY = mousePoint.Y - lastClickPoint.Y;
-
-                if (Math.Abs(diffX) >= 1.0d) {
-                    long offset = (long) (diffX / this.UnitZoom);
-                    if (offset != 0) {
-                        long begin = this.FrameBegin;
-                        if ((begin + offset) < 0) {
-                            offset = -begin;
-                        }
-
-                        if (offset != 0) {
-                            try {
-                                this.isProcessingMouseMove = true;
-                                clip.OnDragDelta(offset);
-                            }
-                            finally {
-                                this.isProcessingMouseMove = false;
-                            }
-                        }
-                    }
-                }
-
-                if (!didJustDragTrack && Math.Abs(diffY) >= 1.0d) {
-                    int index = 0;
-                    List<TimelineTrackControl> tracks = this.Timeline.GetTrackContainers().ToList();
-                    foreach (TimelineTrackControl track in tracks) {
-                        if (!(track.DataContext is TrackViewModel vm))
-                            continue;
-
-                        // IsMouseOver does not work
-                        Point mpos = e.GetPosition(track);
-                        if (mpos.Y >= 0 && mpos.Y < track.ActualHeight && vm.IsClipTypeAcceptable(clip))
-                            break;
-                        index++;
-                    }
-
-                    if (index < tracks.Count) {
-                        this.Timeline.ClipMousePosForTrackTransition = lastClickPoint;
-                        clip.OnDragToTrack(index);
-                    }
-                }
+                // double diffX = mousePoint.X - lastClickPoint.X;
+                // double diffY = mousePoint.Y - lastClickPoint.Y;
+                // if (!didJustDragTrack && Math.Abs(diffY) >= 1.0d) {
+                //     int index = 0;
+                //     List<TimelineTrackControl> tracks = this.Timeline.GetTrackContainers().ToList();
+                //     foreach (TimelineTrackControl track in tracks) {
+                //         if (!(track.DataContext is TrackViewModel vm))
+                //             continue;
+                //         // IsMouseOver does not work
+                //         Point mpos = e.GetPosition(track);
+                //         if (mpos.Y >= 0 && mpos.Y < track.ActualHeight && vm.IsClipTypeAcceptable(clip))
+                //             break;
+                //         index++;
+                //     }
+                //     if (index < tracks.Count) {
+                //         this.Timeline.ClipMousePosForTrackTransition = lastClickPoint;
+                //         clip.OnDragToTrack(index);
+                //     }
+                // }
             }
         }
 
@@ -423,17 +468,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             base.OnKeyDown(e);
             if (!e.Handled && e.Key == Key.Escape) {
                 e.Handled = true;
-                this.CancelDrag();
-            }
-        }
-
-        public void CancelDrag() {
-            if (this.IsMouseCaptured)
-                this.ReleaseMouseCapture();
-            this.isClipDragRunning = false;
-            this.lastLeftClickPoint = null;
-            if (this.DataContext is ClipViewModel handler && handler.IsDraggingClip) {
-                handler.OnDragStop(true);
             }
         }
 

@@ -20,9 +20,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IClipDragHandler, IProjectViewModelBound, IDisposable, IRenameTarget {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IProjectViewModelBound, IDisposable, IRenameTarget {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         protected HistoryVideoClipPosition lastDragHistoryAction;
+        private bool isSelected;
 
         public long LastSeekedFrame { get; set; }
 
@@ -38,9 +39,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// </summary>
         public bool IsAutomationRefreshInProgress { get; set; }
 
-        public bool IsDraggingLeftThumb { get; private set; }
-        public bool IsDraggingRightThumb { get; private set; }
-        public bool IsDraggingClip { get; private set; }
+        public bool IsDraggingLeftThumb { get; set; }
+        public bool IsDraggingRightThumb { get; set; }
+        public bool IsDraggingClip { get; set; }
 
         public bool IsDraggingAny => this.IsDraggingLeftThumb || this.IsDraggingRightThumb || this.IsDraggingClip;
 
@@ -129,6 +130,17 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
+        /// <summary>
+        /// Whether or not this clip is selected in the UI
+        /// </summary>
+        public bool IsSelected {
+            get => this.isSelected;
+            set => this.RaisePropertyChanged(ref this.isSelected, value);
+        }
+
+        /// <summary>
+        /// The timeline associated with this clip. Clips should not really be modified when not inside a track
+        /// </summary>
         public TimelineViewModel Timeline => this.Track?.Timeline;
 
         public ProjectViewModel Project => this.Track?.Timeline?.Project;
@@ -147,11 +159,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
-        public ObservableCollection<ClipGroupViewModel> ConnectedGroups { get; }
-
         public ObservableCollection<BaseEffectViewModel> Effects { get; }
 
-        private ClipDragData drag;
+        // public ClipDragInfo dragInfo { get; set; }
+        public ClipDragData drag;
 
         protected ClipViewModel(Clip model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -176,8 +187,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.RemoveClipCommand = new RelayCommand(() => {
                 this.Track?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
             });
-
-            // this.ConnectedGroups = new ObservableCollection<ClipGroupViewModel>();
         }
 
         public bool GetHistoryManager(out HistoryManagerViewModel manager) {

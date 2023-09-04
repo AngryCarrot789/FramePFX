@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using FramePFX.Automation;
@@ -100,11 +99,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         /// <summary>
-        /// Setup a new render for this clip at the given frame. This is called before anything is drawn
+        /// Setup a new render for this clip at the given frame. This is called before anything is drawn.
+        /// <para>
+        /// This function may get called multiple times before <see cref="EndRender"/> if, for example, a render gets cancelled
+        /// </para>
         /// </summary>
         /// <param name="frame">The frame being rendered</param>
-        public virtual void BeginRender(long frame) {
-
+        /// <returns>Whether or not this clip can be rendered. False means <see cref="EndRender"/> will not be called</returns>
+        public virtual bool BeginRender(long frame) {
+            return false;
         }
 
         /// <summary>

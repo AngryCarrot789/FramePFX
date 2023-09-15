@@ -5,16 +5,16 @@ using FramePFX.Editor.History;
 using FramePFX.History.ViewModels;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ViewModels.Timelines {
+namespace FramePFX.Editor.ViewModels.Timelines.Dragging {
     public class ClipDragData {
         public readonly TimelineViewModel timeline;
-        public readonly List<DragHandle> handles;
+        public readonly List<ClipDragInfo> clips;
         public HistoryClipDrag history;
 
         public HistoryManagerViewModel HistoryManager => this.timeline.Project.Editor.HistoryManager;
 
         public ClipDragData(TimelineViewModel timeline, IReadOnlyCollection<ClipViewModel> clips) {
-            this.handles = clips.Select(x => new DragHandle(x)).ToList();
+            this.clips = clips.Select(x => new ClipDragInfo(x)).ToList();
             this.timeline = timeline;
         }
 
@@ -23,7 +23,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 throw new Exception("This instance cannot be used when already finished finished");
             }
 
-            this.history = new HistoryClipDrag(this.timeline, this.handles.Select(x => x.history).ToArray());
+            this.history = new HistoryClipDrag(this.timeline, this.clips.Select(x => x.history).ToArray());
         }
 
         public virtual void OnFinished(bool cancelled) {
@@ -40,7 +40,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            foreach (DragHandle handle in this.handles) {
+            foreach (ClipDragInfo handle in this.clips) {
                 long newFrameBegin = handle.clip.FrameBegin + offset;
                 if (newFrameBegin < 0) {
                     offset += -newFrameBegin;
@@ -67,7 +67,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            foreach (DragHandle handle in this.handles) {
+            foreach (ClipDragInfo handle in this.clips) {
                 FrameSpan span = handle.clip.FrameSpan;
                 long newEndIndex = Math.Max(span.EndIndex + offset, span.Begin + 1);
                 if (newEndIndex > this.timeline.MaxDuration) {
@@ -84,7 +84,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            foreach (DragHandle handle in this.handles) {
+            foreach (ClipDragInfo handle in this.clips) {
                 FrameSpan span = handle.clip.FrameSpan;
                 long begin = (span.Begin + offset) - handle.accumulator;
                 handle.accumulator = 0L;
@@ -106,35 +106,22 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public virtual void OnDragToTrack(int index) {
-            TrackViewModel track = this.handles[0].clip.Track;
+            TrackViewModel track = this.clips[0].clip.Track;
             int target = Maths.Clamp(index, 0, this.timeline.Tracks.Count - 1);
             TrackViewModel targetTrack = this.timeline.Tracks[target];
-            if (targetTrack == track || !targetTrack.IsClipTypeAcceptable(this.handles[0].clip)) {
+            if (targetTrack == track || !targetTrack.IsClipTypeAcceptable(this.clips[0].clip)) {
                 return;
             }
 
-            if (this.handles.Count != 1 && this.handles.Any(x => x.clip.Track != track)) {
+            if (this.clips.Count != 1 && this.clips.Any(x => x.clip.Track != track)) {
                 return;
             }
 
-            for (int i = this.handles.Count - 1; i >= 0; i--) {
-                DragHandle handle = this.handles[i];
-                handle.history.track.SetCurrent(targetTrack.Model.UniqueTrackId);
-                this.timeline.MoveClip(handle.clip, track, targetTrack);
+            for (int i = this.clips.Count - 1; i >= 0; i--) {
+                ClipDragInfo info = this.clips[i];
+                info.history.track.SetCurrent(targetTrack.Model.UniqueTrackId);
+                this.timeline.MoveClip(info.clip, track, targetTrack);
             }
-        }
-    }
-
-    public class DragHandle {
-        public readonly ClipViewModel clip;
-        public readonly ClipDragHistoryData history;
-
-        // Used to store excessive drag frames when trying to drag below 0
-        public long accumulator;
-
-        public DragHandle(ClipViewModel clip) {
-            this.clip = clip;
-            this.history = new ClipDragHistoryData(clip);
         }
     }
 }

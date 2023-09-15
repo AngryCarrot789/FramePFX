@@ -18,6 +18,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
     public sealed class TimelineClipControl : Control {
         private static readonly object LongZeroObject = 0L;
 
+        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
+        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
+
         public static readonly DependencyProperty IsSelectedProperty =
             Selector.IsSelectedProperty.AddOwner(
                 typeof(TimelineClipControl),
@@ -138,9 +141,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public TimelineTrackControl Track => ItemsControl.ItemsControlFromItemContainer(this) as TimelineTrackControl;
 
         public TimelineControl Timeline => this.Track?.Timeline;
-
-        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
-        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
 
         private bool isProcessingAsyncDrop;
         private bool isUpdatingUnitZoom;
@@ -279,7 +279,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     }
 
                     this.lastLeftClickPoint = e.GetPosition(this);
-
                     if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
                         this.Track.SetItemSelectedProperty(this, true);
                     }
@@ -538,10 +537,10 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         private void OnSelectionChanged(bool isSelected) {
             if (isSelected) {
-                this.OnSelected(new RoutedEventArgs(SelectedEvent, this));
+                this.OnSelected(new RoutedEventArgs(Selector.SelectedEvent, this));
             }
             else {
-                this.OnUnselected(new RoutedEventArgs(UnselectedEvent, this));
+                this.OnUnselected(new RoutedEventArgs(Selector.UnselectedEvent, this));
             }
         }
     }

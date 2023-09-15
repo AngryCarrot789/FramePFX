@@ -85,8 +85,6 @@ namespace FramePFX.Editor.ViewModels {
 
         public AsyncRelayCommand NewProjectCommand { get; }
 
-        public HistoryManagerViewModel HistoryManager { get; }
-
         public AsyncRelayCommand OpenProjectCommand { get; }
 
         public AsyncRelayCommand ExportCommand { get; }
@@ -96,7 +94,6 @@ namespace FramePFX.Editor.ViewModels {
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditor();
-            this.HistoryManager = new HistoryManagerViewModel(view.NotificationPanel, new HistoryManager());
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
             this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameCallback();
@@ -223,7 +220,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task SetProject(ProjectViewModel project) {
-            await this.HistoryManager.ResetAsync();
+            await HistoryManagerViewModel.Instance.ResetAsync();
             await this.Playback.OnProjectChanging(project);
             this.ActiveProject = project;
             await this.Playback.OnProjectChanged(project);

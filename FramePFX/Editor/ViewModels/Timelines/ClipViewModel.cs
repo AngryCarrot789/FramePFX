@@ -10,6 +10,7 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Effects.ViewModels;
+using FramePFX.Editor.ViewModels.Timelines.Dragging;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
@@ -31,8 +32,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// Whether or not this clip's history is being changed, and therefore, no changes should be pushed to the history manager
         /// </summary>
         public bool IsHistoryChanging { get; set; }
-
-        public HistoryManagerViewModel HistoryManager => this.Editor?.HistoryManager;
 
         /// <summary>
         /// Whether or not this clip's parameter properties are being refreshed
@@ -71,8 +70,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
-                    if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action) && this.GetHistoryManager(out HistoryManagerViewModel m))
-                        this.clipPositionHistory.PushAction(m, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                    if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
+                        this.clipPositionHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.Span.SetCurrent(value);
                 }
 
@@ -104,9 +103,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     return;
                 }
 
-                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
+                if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
                     if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
-                        this.clipPositionHistory.PushAction(m, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                        this.clipPositionHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.MediaFrameOffset.SetCurrent(value);
                 }
 
@@ -162,7 +161,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public ObservableCollection<BaseEffectViewModel> Effects { get; }
 
         // public ClipDragInfo dragInfo { get; set; }
-        public ClipDragData drag;
+        public ClipDragOperation drag;
 
         protected ClipViewModel(Clip model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -190,7 +189,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public bool GetHistoryManager(out HistoryManagerViewModel manager) {
-            return (manager = this.Editor?.HistoryManager) != null;
+            manager = HistoryManagerViewModel.Instance;
+            return true;
         }
 
         public virtual void OnFrameSpanChanged(FrameSpan oldSpan) {
@@ -310,7 +310,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 throw new Exception("Drag already in progress");
             if (this.Timeline == null)
                 throw new Exception("No timeline available");
-            this.drag = new ClipDragData(this.Timeline, this.GetSelectedIncludingThis());
+            this.drag = ClipDragOperation.ForClip(this);
             this.drag.OnBegin();
             this.IsDraggingClip = true;
         }
@@ -335,15 +335,76 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public void OnLeftThumbDelta(long offset) {
-            this.drag?.OnLeftThumbDelta(offset);
+            ClipDragOperation operation = this.drag;
+            if (operation == null || offset == 0) {
+                return;
+            }
+
+            foreach (ClipDragHandleInfo handle in operation.clips) {
+                long newFrameBegin = handle.clip.FrameBegin + offset;
+                if (newFrameBegin < 0) {
+                    offset += -newFrameBegin;
+                    newFrameBegin = 0;
+                }
+
+                long duration = handle.clip.FrameDuration - offset;
+                if (duration < 1) {
+                    newFrameBegin += (duration - 1);
+                    duration = 1;
+                    if (newFrameBegin < 0) {
+                        continue;
+                    }
+                }
+
+                handle.clip.MediaFrameOffset += (newFrameBegin - handle.clip.FrameBegin);
+                handle.clip.FrameSpan = new FrameSpan(newFrameBegin, duration);
+                handle.history.position.SetCurrent(handle.clip.FrameSpan);
+            }
         }
 
         public void OnRightThumbDelta(long offset) {
-            this.drag?.OnRightThumbDelta(offset);
+            ClipDragOperation operation = this.drag;
+            if (operation == null || offset == 0) {
+                return;
+            }
+
+            foreach (ClipDragHandleInfo handle in operation.clips) {
+                FrameSpan span = handle.clip.FrameSpan;
+                long newEndIndex = Math.Max(span.EndIndex + offset, span.Begin + 1);
+                if (newEndIndex > operation.timeline.MaxDuration) {
+                    operation.timeline.MaxDuration = newEndIndex + 300;
+                }
+
+                handle.clip.FrameSpan = span.WithEndIndex(newEndIndex);
+                handle.history.position.SetCurrent(handle.clip.FrameSpan);
+            }
         }
 
         public void OnDragDelta(long offset) {
-            this.drag?.OnDragDelta(offset);
+            ClipDragOperation operation = this.drag;
+            if (operation == null || offset == 0) {
+                return;
+            }
+
+            foreach (ClipDragHandleInfo handle in operation.clips) {
+                FrameSpan span = handle.clip.FrameSpan;
+                long begin = (span.Begin + offset) - handle.accumulator;
+                handle.accumulator = 0L;
+                if (begin < 0) {
+                    handle.accumulator = -begin;
+                    begin = 0;
+                }
+
+                long endIndex = begin + span.Duration;
+                if (operation.timeline != null) {
+                    if (endIndex > operation.timeline.MaxDuration) {
+                        operation.timeline.MaxDuration = endIndex + 300;
+                    }
+                }
+
+                handle.clip.FrameSpan = new FrameSpan(begin, span.Duration);
+                handle.history.position.SetCurrent(handle.clip.FrameSpan);
+            }
         }
 
         public void OnDragToTrack(int index) {

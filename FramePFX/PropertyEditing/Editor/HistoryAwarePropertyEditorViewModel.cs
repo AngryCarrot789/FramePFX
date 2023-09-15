@@ -10,17 +10,13 @@ namespace FramePFX.PropertyEditing.Editor {
         }
 
         protected override void OnHandlersLoaded() {
+            this.HistoryManager = HistoryManagerViewModel.Instance;
             base.OnHandlersLoaded();
-            foreach (IHistoryHolder holder in this.Handlers) {
-                if ((this.HistoryManager = holder.HistoryManager) != null) {
-                    return;
-                }
-            }
         }
 
         protected override void OnClearHandlers() {
-            base.OnClearHandlers();
             this.HistoryManager = null;
+            base.OnClearHandlers();
         }
 
         public bool IsChangingAny() {

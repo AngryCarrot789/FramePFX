@@ -1,4 +1,4 @@
-namespace FramePFX {
+namespace FramePFX.Localisation {
     public struct LocalisedString {
 
     }

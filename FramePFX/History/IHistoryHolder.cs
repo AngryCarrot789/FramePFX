@@ -9,10 +9,5 @@ namespace FramePFX.History {
         /// Whether or not a property is being modified by a history undo or redo action
         /// </summary>
         bool IsHistoryChanging { get; set; }
-
-        /// <summary>
-        /// Gets the history manager
-        /// </summary>
-        HistoryManagerViewModel HistoryManager { get; }
     }
 }

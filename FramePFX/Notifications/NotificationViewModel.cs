@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace FramePFX.Notifications {
     public abstract class NotificationViewModel : BaseViewModel {
+        private NotificationPanelViewModel panel;
         private long expiryTime;
         private TimeSpan timeout;
         private Task autoHideTask;
+        private bool isHidden;
         private CancellationTokenSource cancellation;
 
         /// <summary>
@@ -22,14 +24,10 @@ namespace FramePFX.Notifications {
             }
         }
 
-        private bool isHidden;
-
         public bool IsHidden {
             get => this.isHidden;
             set => this.RaisePropertyChanged(ref this.isHidden, value);
         }
-
-        private NotificationPanelViewModel panel;
 
         public NotificationPanelViewModel Panel {
             get => this.panel;

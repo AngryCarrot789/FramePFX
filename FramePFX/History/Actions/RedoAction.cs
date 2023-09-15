@@ -1,22 +1,20 @@
 using System.Threading.Tasks;
 using FramePFX.Actions;
+using FramePFX.History.ViewModels;
+using FramePFX.Notifications.Types;
 
 namespace FramePFX.History.Actions {
     public class RedoAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (UndoAction.TryGetHistoryManager(e.DataContext, out var manager, out var editor)) {
-                if (manager.CanRedo) {
-                    await manager.RedoAction();
-                }
-                else {
-                    editor.View.PushNotificationMessage("Nothing to redo!");
-                }
+            HistoryManagerViewModel manager = HistoryManagerViewModel.Instance;
+            if (manager.HasRedoActions) {
+                await manager.RedoAction();
+            }
+            else if (manager.NotificationPanel != null) {
+                manager.NotificationPanel.PushNotification(new MessageNotification("Cannot redo", "There is nothing to redo!"));
+            }
 
-                return true;
-            }
-            else {
-                return false;
-            }
+            return true;
         }
     }
 }

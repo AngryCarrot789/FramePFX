@@ -5,6 +5,7 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.History;
+using FramePFX.History.ViewModels;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
@@ -30,14 +31,14 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                                 this.IsHistoryChanging = false;
                             }
                             else {
-                                this.HistoryManager.AddAction(this.volumeHistory, "Edit volume");
+                                HistoryManagerViewModel.Instance.AddAction(this.volumeHistory, "Edit volume");
                             }
 
                             this.volumeHistory = null;
                         });
                     }
                     else {
-                        this.HistoryManager.AddAction(new HistoryAudioTrackVolume(this, value), "Edit volume");
+                        HistoryManagerViewModel.Instance.AddAction(new HistoryAudioTrackVolume(this, value), "Edit volume");
                     }
                 }
 
@@ -65,7 +66,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
 
                 if (!this.IsHistoryChanging) {
-                    this.HistoryManager.AddAction(new HistoryAudioTrackIsMuted(this, value), "Switch IsMuted");
+                    HistoryManagerViewModel.Instance.AddAction(new HistoryAudioTrackIsMuted(this, value), "Switch IsMuted");
                 }
 
                 TimelineViewModel timeline = this.Timeline;

@@ -7,11 +7,15 @@ using FramePFX.Views.Dialogs.UserInputs;
 
 namespace FramePFX.History.ViewModels {
     public class HistoryManagerViewModel : BaseViewModel, IHistoryManager {
+        public static HistoryManagerViewModel Instance { get; } = new HistoryManagerViewModel(new HistoryManager());
+
         // Despite the fact there is a separation between history manager and the view model,
         // the history manager itself really should not be modified outside of the view model's control,
         // as is the case with most viewmodel-model combos. This is to maintain the state of the view model (obviously)
 
         private readonly HistoryManager manager;
+        private NotificationPanelViewModel notificationPanel;
+        private HistoryNotification notification;
 
         public AsyncRelayCommand UndoCommand { get; }
         public AsyncRelayCommand RedoCommand { get; }
@@ -21,33 +25,38 @@ namespace FramePFX.History.ViewModels {
 
         public int MaxUndo => this.manager.MaxUndo;
         public int MaxRedo => this.manager.MaxRedo;
-        public bool CanUndo => this.manager.CanUndo;
-        public bool CanRedo => this.manager.CanRedo;
-
-        private HistoryNotification notification;
+        public bool HasUndoActions => this.manager.HasUndoActions;
+        public bool HasRedoActions => this.manager.HasRedoActions;
 
         private HistoryNotification Notification {
             get {
+                if (this.notificationPanel == null)
+                    return null;
                 if (this.notification != null && !this.notification.IsHidden)
                     return this.notification;
                 if (this.notification == null)
                     this.notification = new HistoryNotification();
-                this.NotificationPanel.PushNotification(this.notification, false);
+                this.notificationPanel.PushNotification(this.notification, false);
                 return this.notification;
             }
         }
 
-        public NotificationPanelViewModel NotificationPanel { get; }
+        /// <summary>
+        /// An optional notification panel that can be used to push history notifications
+        /// </summary>
+        public NotificationPanelViewModel NotificationPanel {
+            get => this.notificationPanel;
+            set => this.RaisePropertyChanged(ref this.notificationPanel, value);
+        }
 
         private readonly List<IHistoryAction> mergeList;
         private int mergeSemaphore; // semaphore probably not the best name but meh
 
-        public HistoryManagerViewModel(NotificationPanelViewModel panel, HistoryManager model) {
+        public HistoryManagerViewModel(HistoryManager model) {
             this.manager = model ?? throw new ArgumentNullException(nameof(model));
-            this.NotificationPanel = panel ?? throw new ArgumentNullException(nameof(panel));
-            this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.manager.IsActionActive && this.manager.CanUndo);
-            this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.manager.IsActionActive && this.manager.CanRedo);
-            this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsActionActive && (this.manager.CanRedo || this.manager.CanUndo));
+            this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.manager.IsActionActive && this.manager.HasUndoActions);
+            this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.manager.IsActionActive && this.manager.HasRedoActions);
+            this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsActionActive && (this.manager.HasRedoActions || this.manager.HasUndoActions));
             this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.manager.IsActionActive);
             this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.manager.IsActionActive);
             this.mergeList = new List<IHistoryAction>();
@@ -124,10 +133,10 @@ namespace FramePFX.History.ViewModels {
                 return;
             }
 
-            if (this.CanUndo) {
+            if (this.HasUndoActions) {
                 await this.manager.OnUndoAsync();
-                this.RaisePropertyChanged(nameof(this.CanUndo));
-                this.RaisePropertyChanged(nameof(this.CanRedo));
+                this.RaisePropertyChanged(nameof(this.HasUndoActions));
+                this.RaisePropertyChanged(nameof(this.HasRedoActions));
                 this.Notification.OnUndo();
             }
         }
@@ -137,10 +146,10 @@ namespace FramePFX.History.ViewModels {
                 return;
             }
 
-            if (this.CanRedo) {
+            if (this.HasRedoActions) {
                 await this.manager.OnRedoAsync();
-                this.RaisePropertyChanged(nameof(this.CanUndo));
-                this.RaisePropertyChanged(nameof(this.CanRedo));
+                this.RaisePropertyChanged(nameof(this.HasUndoActions));
+                this.RaisePropertyChanged(nameof(this.HasRedoActions));
                 this.Notification.OnRedo();
             }
         }
@@ -156,10 +165,10 @@ namespace FramePFX.History.ViewModels {
 
         private async Task<bool> IsActionActive(string message) {
             if (this.manager.IsUndoing) {
-                await IoC.MessageDialogs.ShowMessageAsync("Undo active", message + ". Undo is in progress");
+                await IoC.MessageDialogs.ShowMessageAsync("Undo already active", message + ". An undo operation is already in progress");
             }
             else if (this.manager.IsRedoing) {
-                await IoC.MessageDialogs.ShowMessageAsync("Redo active", message + ". Redo is in progress");
+                await IoC.MessageDialogs.ShowMessageAsync("Redo already active", message + ". A redo operation is already in progress");
             }
             else {
                 return false;
@@ -215,8 +224,8 @@ namespace FramePFX.History.ViewModels {
             end:
             this.RaisePropertyChanged(nameof(this.MaxUndo));
             this.RaisePropertyChanged(nameof(this.MaxRedo));
-            this.RaisePropertyChanged(nameof(this.CanUndo));
-            this.RaisePropertyChanged(nameof(this.CanRedo));
+            this.RaisePropertyChanged(nameof(this.HasUndoActions));
+            this.RaisePropertyChanged(nameof(this.HasRedoActions));
         }
     }
 }

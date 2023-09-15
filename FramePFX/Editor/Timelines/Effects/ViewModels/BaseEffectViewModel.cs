@@ -23,8 +23,6 @@ namespace FramePFX.Editor.Timelines.Effects.ViewModels {
 
         public ProjectViewModel Project => this.OwnerClip.Project;
 
-        public HistoryManagerViewModel HistoryManager => this.OwnerClip.HistoryManager;
-
         public bool IsHistoryChanging { get; set; }
 
         public bool IsAutomationRefreshInProgress { get; set; }

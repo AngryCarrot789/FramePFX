@@ -13,6 +13,7 @@ using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Editor.ViewModels.Timelines.Removals;
 using FramePFX.History;
+using FramePFX.History.ViewModels;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 
@@ -57,7 +58,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                                 this.IsHistoryChanging = false;
                             }
                             else {
-                                this.HistoryManager.AddAction(this.opacityHistory, "Edit opacity");
+                                HistoryManagerViewModel.Instance.AddAction(this.opacityHistory, "Edit opacity");
                             }
 
                             this.opacityHistory = null;
@@ -66,7 +67,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     else {
                         HistoryTrackOpacity action = new HistoryTrackOpacity(this);
                         action.Opacity.SetCurrent(value);
-                        this.HistoryManager.AddAction(action, "Edit opacity");
+                        HistoryManagerViewModel.Instance.AddAction(action, "Edit opacity");
                     }
                 }
 
@@ -94,7 +95,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
 
                 if (!this.IsHistoryChanging) {
-                    this.HistoryManager.AddAction(new HistoryTrackIsVisible(this, value), "Edit IsVisible");
+                    HistoryManagerViewModel.Instance.AddAction(new HistoryTrackIsVisible(this, value), "Edit IsVisible");
                 }
 
                 TimelineViewModel timeline = this.Timeline;

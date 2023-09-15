@@ -14,6 +14,8 @@ using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.History;
+using FramePFX.History.ViewModels;
 using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
 using FramePFX.PropertyEditing;
@@ -49,13 +51,17 @@ namespace FramePFX.WPF.Editor {
             };
 
             this.NotificationPanel = new NotificationPanelViewModel(this);
-
             this.DataContext = new VideoEditorViewModel(this);
             IoC.App.Editor = (VideoEditorViewModel) this.DataContext;
             this.lastRefreshTime = Time.GetSystemMillis();
 
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
             this.Width = 1257;
+        }
+
+        protected override void OnActivated(EventArgs e) {
+            base.OnActivated(e);
+            HistoryManagerViewModel.Instance.NotificationPanel = this.NotificationPanel;
         }
 
         public void OnNotificationPushed(NotificationViewModel notification) {

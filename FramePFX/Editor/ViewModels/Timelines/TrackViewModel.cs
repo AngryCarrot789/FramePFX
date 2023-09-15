@@ -38,7 +38,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             set {
                 if (!this.IsHistoryChanging) {
                     if (!this.displayNameHistory.TryGetAction(out HistoryTrackDisplayName action))
-                        this.displayNameHistory.PushAction(this.HistoryManager, action = new HistoryTrackDisplayName(this), "Edit media duration");
+                        this.displayNameHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryTrackDisplayName(this), "Edit media duration");
                     action.DisplayName.SetCurrent(value);
                 }
 
@@ -93,8 +93,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public ProjectViewModel Project => this.Timeline?.Project;
 
         public VideoEditorViewModel Editor => this.Project?.Editor;
-
-        public HistoryManagerViewModel HistoryManager => this.Project?.Editor.HistoryManager;
 
         public AutomationDataViewModel AutomationData { get; }
 
@@ -196,7 +194,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public async Task DisposeAndRemoveItemsAction(IEnumerable<ClipViewModel> list) {
             try {
-                this.DisposeAndRemoveItemsUnsafe(list.ToList());
+                this.DisposeAndRemoveItemsUnsafe(list as List<ClipViewModel> ?? list.ToList());
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Error", "An error occurred while removing clips", e.GetToString());
@@ -333,7 +331,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             track.RaisePropertyChanged(nameof(Timeline));
             track.RaisePropertyChanged(nameof(Project));
             track.RaisePropertyChanged(nameof(Editor));
-            track.RaisePropertyChanged(nameof(HistoryManager));
             track.RaisePropertyChanged(nameof(AutomationEngine));
         }
 

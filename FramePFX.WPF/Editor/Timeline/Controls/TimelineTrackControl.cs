@@ -12,6 +12,7 @@ using FramePFX.WPF.Editor.Timeline.Track;
 using FramePFX.WPF.Editor.Timeline.Utils;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
+    [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof (TimelineClipControl))]
     public sealed class TimelineTrackControl : MultiSelector {
         /// <summary>
         /// The timeline that contains this track

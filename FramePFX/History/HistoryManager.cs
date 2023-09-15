@@ -16,8 +16,8 @@ namespace FramePFX.History {
         /// </summary>
         public bool IsActionActive => this.IsUndoing || this.IsRedoing;
 
-        public bool CanUndo => this.undoList.Count > 0;
-        public bool CanRedo => this.redoList.Count > 0;
+        public bool HasUndoActions => this.undoList.Count > 0;
+        public bool HasRedoActions => this.redoList.Count > 0;
 
         public int MaxUndo { get; private set; }
         public int MaxRedo { get; private set; }
@@ -42,6 +42,9 @@ namespace FramePFX.History {
             this.MaxRedo = maxRedo < 1 ? throw new ArgumentOutOfRangeException(nameof(maxRedo), "maxRedo must be greater than 0") : maxRedo;
         }
 
+        /// <summary>
+        /// (Very unsafely) clears this history manager, ignoring the fact that there may be an undo or redo operation in progress
+        /// </summary>
         public void Reset() {
             this.IsUndoing = false;
             this.IsRedoing = false;
@@ -129,6 +132,10 @@ namespace FramePFX.History {
             }
         }
 
+        /// <summary>
+        /// Clears all undo-able and redo-able actions in this manager
+        /// </summary>
+        /// <exception cref="Exception">An undo or redo operation is currently in progress</exception>
         public void Clear() {
             if (this.IsUndoing)
                 throw new Exception("Undo is in progress");

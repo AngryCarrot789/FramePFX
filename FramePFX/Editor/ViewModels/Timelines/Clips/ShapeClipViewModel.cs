@@ -15,9 +15,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.Clips {
         public float Width {
             get => this.Model.Width;
             set {
-                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
+                if (!this.IsHistoryChanging && this.Track != null) {
                     if (!this.sizeHistory.TryGetAction(out HistoryShapeSize action))
-                        this.sizeHistory.PushAction(m, action = new HistoryShapeSize(this), "Edit shape size");
+                        this.sizeHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryShapeSize(this), "Edit shape size");
                     action.Width.SetCurrent(value);
                 }
 
@@ -30,9 +30,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.Clips {
         public float Height {
             get => this.Model.Height;
             set {
-                if (!this.IsHistoryChanging && this.Track != null && this.GetHistoryManager(out HistoryManagerViewModel m)) {
+                if (!this.IsHistoryChanging && this.Track != null) {
                     if (!this.sizeHistory.TryGetAction(out HistoryShapeSize action))
-                        this.sizeHistory.PushAction(m, action = new HistoryShapeSize(this), "Edit shape size");
+                        this.sizeHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryShapeSize(this), "Edit shape size");
                     action.Height.SetCurrent(value);
                 }
 

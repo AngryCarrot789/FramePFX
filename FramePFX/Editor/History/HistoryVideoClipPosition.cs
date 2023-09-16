@@ -4,7 +4,7 @@ using FramePFX.History;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.History {
-    public class HistoryVideoClipPosition : IHistoryAction {
+    public class HistoryVideoClipPosition : HistoryAction {
         public ClipViewModel Clip { get; }
         public Transaction<FrameSpan> Span { get; }
         public Transaction<long> MediaFrameOffset { get; }
@@ -26,11 +26,11 @@ namespace FramePFX.Editor.History {
             }
         }
 
-        public async Task UndoAsync() {
+        protected override async Task UndoAsyncCore() {
             this.Undo();
         }
 
-        public async Task RedoAsync() {
+        protected override async Task RedoAsyncCore() {
             this.Clip.IsHistoryChanging = true;
             try {
                 this.Clip.FrameSpan = this.Span.Current;
@@ -41,7 +41,7 @@ namespace FramePFX.Editor.History {
             }
         }
 
-        public void OnRemoved() {
+        public override void OnRemoved() {
         }
     }
 }

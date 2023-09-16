@@ -1,10 +1,10 @@
 using System.Numerics;
 using System.Threading.Tasks;
+using OpenTK.Graphics.OpenGL;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
-using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
@@ -15,8 +15,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public float Height { get; set; }
 
         public override bool UseCustomOpacityCalculation => true;
-
-        // public override bool UseAsyncRendering => true;
 
         public ShapeVideoClip() {
         }
@@ -54,7 +52,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 return Task.CompletedTask;
             }
 
-            this.Transform(rc);
+            // this.ApplyTransformation(rc);
             SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
             using (SKPaint paint = new SKPaint() {Color = colour}) {
                 rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);

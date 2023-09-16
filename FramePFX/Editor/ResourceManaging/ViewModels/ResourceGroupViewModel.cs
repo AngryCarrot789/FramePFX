@@ -19,7 +19,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.items = new ObservableCollection<BaseResourceObjectViewModel>();
             this.Items = new ReadOnlyObservableCollection<BaseResourceObjectViewModel>(this.items);
             foreach (BaseResourceObject item in model.Items) {
-                BaseResourceObjectViewModel viewModel = ResourceTypeRegistry.Instance.CreateItemViewModelFromModel(item);
+                BaseResourceObjectViewModel viewModel = ResourceTypeRegistry.Instance.CreateViewModelFromModel(item);
                 this.items.Add(viewModel);
 
                 // no need to set manager to ours because it will be null as we are in the ctor
@@ -67,7 +67,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             BaseResourceObjectViewModel item = this.items[index];
             if (!ReferenceEquals(this, item.Parent))
                 throw new Exception("Item does not belong to this group, but it contained in the list");
-            if (!ReferenceEquals(item.Model, this.Model[index]))
+            if (!ReferenceEquals(item.Model, this.Model.Items[index]))
                 throw new Exception("View model and model list de-synced");
 
             if (unregisterHierarcy) {

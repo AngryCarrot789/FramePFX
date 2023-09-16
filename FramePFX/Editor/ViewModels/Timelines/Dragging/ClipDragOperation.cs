@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Editor.History;
-using FramePFX.History.ViewModels;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ViewModels.Timelines.Dragging {
@@ -13,7 +11,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Dragging {
         public readonly TimelineViewModel timeline; // timeline associated
         public readonly List<ClipDragHandleInfo> clips; // all clips including original clip
         public readonly ClipDragHandleInfo source;
-        public HistoryClipDrag history;
 
         private ClipDragOperation(TimelineViewModel timeline, ClipViewModel source, IEnumerable<ClipViewModel> selectionWithoutSource) {
             this.timeline = timeline;
@@ -36,20 +33,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.Dragging {
         }
 
         public void OnBegin() {
-            if (this.history != null) {
-                throw new Exception("This instance cannot be used when already finished finished");
-            }
-
-            this.history = new HistoryClipDrag(this.timeline, this.clips.Select(x => x.history).ToArray());
         }
 
         public void OnFinished(bool cancelled) {
-            if (cancelled) {
-                this.history.Apply(true);
-            }
-            else {
-                HistoryManagerViewModel.Instance.AddAction(this.history);
-            }
         }
 
         public void OnDragToTrack(int index) {
@@ -66,7 +52,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Dragging {
 
             for (int i = this.clips.Count - 1; i >= 0; i--) {
                 ClipDragHandleInfo info = this.clips[i];
-                info.history.track.SetCurrent(targetTrack.Model.UniqueTrackId);
                 this.timeline.MoveClip(info.clip, track, targetTrack);
             }
         }

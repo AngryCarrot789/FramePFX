@@ -31,7 +31,7 @@ namespace FramePFX.Actions {
         /// </para>
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
-        /// <returns>Whether the action was executed successfully</returns>
+        /// <returns>Whether the action execution was handled</returns>
         public abstract Task<bool> ExecuteAsync(AnActionEventArgs e);
 
         /// <summary>

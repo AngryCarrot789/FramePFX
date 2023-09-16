@@ -14,7 +14,7 @@ namespace FramePFX.RBC {
             this.Value = value;
         }
 
-        // These are probably ultra slow but oh well
+        // These are probably ultra slow but faster than writing/reading strings
 
         protected override void Read(BinaryReader reader) {
             this.Value = new Guid(reader.ReadBytes(16));

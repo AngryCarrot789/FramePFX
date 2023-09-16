@@ -8,7 +8,7 @@ using FramePFX.Utils;
 namespace FramePFX.WPF.AttachedProperties {
     public static class ActionControl {
         public static readonly DependencyProperty TargetActionIdProperty = DependencyProperty.RegisterAttached("TargetActionId", typeof(string), typeof(ActionControl), new PropertyMetadata(null, PropertyChangedCallback));
-        private static readonly DependencyPropertyKey PresentationUpdateHandlerPropertyKey = DependencyProperty.RegisterAttachedReadOnly("PresentationUpdateHandler", typeof(UpdateHandler), typeof(ActionControl), new PropertyMetadata(default(GlobalPresentationUpdateHandler)));
+        private static readonly DependencyPropertyKey PresentationUpdateHandlerPropertyKey = DependencyProperty.RegisterAttachedReadOnly("PresentationUpdateHandler", typeof(UpdateHandler), typeof(ActionControl), new PropertyMetadata(default(CanExecuteChangedEventHandler)));
 
         public static void SetTargetActionId(DependencyObject element, string value) => element.SetValue(TargetActionIdProperty, value);
         public static string GetTargetActionId(DependencyObject element) => (string) element.GetValue(TargetActionIdProperty);
@@ -97,9 +97,9 @@ namespace FramePFX.WPF.AttachedProperties {
         private class UpdateHandler {
             public string ActionId { get; }
 
-            public GlobalPresentationUpdateHandler Handler { get; }
+            public CanExecuteChangedEventHandler Handler { get; }
 
-            public UpdateHandler(string actionId, GlobalPresentationUpdateHandler handler) {
+            public UpdateHandler(string actionId, CanExecuteChangedEventHandler handler) {
                 this.ActionId = actionId;
                 this.Handler = handler;
             }

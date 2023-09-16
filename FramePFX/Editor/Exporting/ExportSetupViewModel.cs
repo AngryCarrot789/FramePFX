@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Editor.Exporting.Exporters;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs;

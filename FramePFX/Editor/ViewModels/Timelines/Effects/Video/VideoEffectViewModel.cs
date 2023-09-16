@@ -1,8 +1,9 @@
-using PFXEditor.Automation;
-using PFXEditor.Editor.Timelines.Effects.Video;
-using PFXEditor.Editor.ViewModels.Timelines.VideoClips;
+using FramePFX.Automation;
+using FramePFX.Automation.Events;
+using FramePFX.Editor.Timelines.Effects.Video;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 
-namespace PFXEditor.Editor.ViewModels.Timelines.Effects.Video {
+namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
     public class VideoEffectViewModel : BaseEffectViewModel {
         public new VideoEffect Model => (VideoEffect) base.Model;
 

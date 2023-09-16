@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Notifications;
 using FramePFX.Views.Dialogs.Progression;
 using FramePFX.Views.Dialogs.UserInputs;
@@ -49,8 +51,7 @@ namespace FramePFX.History.ViewModels {
             set => this.RaisePropertyChanged(ref this.notificationPanel, value);
         }
 
-        private readonly List<IHistoryAction> mergeList;
-        private int mergeSemaphore; // semaphore probably not the best name but meh
+        private readonly Stack<List<HistoryAction>> mergeList;
 
         public HistoryManagerViewModel(HistoryManager model) {
             this.manager = model ?? throw new ArgumentNullException(nameof(model));
@@ -59,7 +60,7 @@ namespace FramePFX.History.ViewModels {
             this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsActionActive && (this.manager.HasRedoActions || this.manager.HasUndoActions));
             this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.manager.IsActionActive);
             this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.manager.IsActionActive);
-            this.mergeList = new List<IHistoryAction>();
+            this.mergeList = new Stack<List<HistoryAction>>();
         }
 
         private class MergeContext : IDisposable {
@@ -68,25 +69,18 @@ namespace FramePFX.History.ViewModels {
 
             public MergeContext(HistoryManagerViewModel manager) {
                 this.manager = manager;
-                this.manager.mergeSemaphore++;
+                manager.mergeList.Push(new List<HistoryAction>());
             }
 
             public void Dispose() {
                 if (this.isDisposed) {
-                    throw new ObjectDisposedException(nameof(IDisposable));
+                    return;
                 }
 
                 this.isDisposed = true;
-                if (--this.manager.mergeSemaphore == 0) {
-                    int count = this.manager.mergeList.Count;
-                    if (count > 1) {
-                        this.manager.AddAction(new MultiHistoryAction(new List<IHistoryAction>(this.manager.mergeList)), "Multi action");
-                    }
-                    else if (count == 1) {
-                        this.manager.AddAction(this.manager.mergeList[0], "Multi action");
-                    }
-
-                    this.manager.mergeList.Clear();
+                List<HistoryAction> myList = this.manager.mergeList.Pop();
+                if (myList.Count > 0) {
+                    this.manager.AddAction(myList.Count == 1 ? myList[0] : new MultiHistoryAction(myList.ToList()), "Multi action");
                 }
             }
         }
@@ -94,8 +88,11 @@ namespace FramePFX.History.ViewModels {
         /// <summary>
         /// Sets up the history manager for merging multiple actions into a single action
         /// </summary>
-        /// <returns></returns>
-        public IDisposable OpenMerge() => new MergeContext(this);
+        /// <returns>
+        /// A disposable object which, when disposes, combines all actions (added after
+        /// the call to this method) into a single <see cref="MultiHistoryAction"/>
+        /// </returns>
+        public IDisposable PushMergeContext() => new MergeContext(this);
 
         public async Task SetMaxUndoAction() {
             if (await this.IsActionActive("Cannot set maximum undo count")) {
@@ -119,12 +116,12 @@ namespace FramePFX.History.ViewModels {
             }
         }
 
-        public void AddAction(IHistoryAction action, string information = null) {
-            if (this.mergeSemaphore == 0) {
+        public void AddAction(HistoryAction action, string information = null) {
+            if (this.mergeList.Count < 1) { // no more lists in stack; add history to manager
                 this.manager.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
             }
             else {
-                this.mergeList.Add(action);
+                this.mergeList.Peek().Add(action);
             }
         }
 

@@ -2,9 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:vm1="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels;assembly=FramePFX"
-                    xmlns:rc="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels.Resources;assembly=FramePFX"
                     xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
+                    xmlns:viewModels="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels;assembly=FramePFX"
+                    xmlns:rc="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels.Resources;assembly=FramePFX"
                     xmlns:c="clr-namespace:FramePFX.WPF.Converters"
                     mc:Ignorable="d">
 
@@ -83,7 +83,7 @@
         <resources:ResourceItemContainerStyleSelector.ResourceItemStyle>
             <!--  -->
             <Style TargetType="{x:Type resources:ResourceItemControl}" BasedOn="{StaticResource {x:Type resources:BaseResourceItemControl}}"
-                   d:DataContext="{d:DesignInstance vm1:ResourceItemViewModel}">
+                   d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsOnline}" Value="False">
@@ -95,15 +95,15 @@
         <resources:ResourceItemContainerStyleSelector.ResourceGroupStyle>
             <!--  -->
             <Style TargetType="{x:Type resources:ResourceGroupControl}" BasedOn="{StaticResource {x:Type resources:BaseResourceItemControl}}"
-                   d:DataContext="{d:DesignInstance vm1:ResourceGroupViewModel}">
+                   d:DataContext="{d:DesignInstance viewModels:ResourceGroupViewModel}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
             </Style>
         </resources:ResourceItemContainerStyleSelector.ResourceGroupStyle>
     </resources:ResourceItemContainerStyleSelector>
     <resources:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
         <resources:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
-            <DataTemplate DataType="{x:Type vm1:ResourceItemViewModel}">
-                <TextBlock Text="{Binding Path=UniqueId, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}" />
+            <DataTemplate DataType="{x:Type viewModels:ResourceItemViewModel}">
+                <TextBlock Text="{Binding Path=DisplayName, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}" />
             </DataTemplate>
         </resources:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
         <resources:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
@@ -112,7 +112,7 @@
             </DataTemplate>
         </resources:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
         <resources:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
-            <DataTemplate DataType="{x:Type vm1:ResourceGroupViewModel}">
+            <DataTemplate DataType="{x:Type viewModels:ResourceGroupViewModel}">
                 <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </DataTemplate>
         </resources:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>

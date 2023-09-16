@@ -18,7 +18,7 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
         /// The command to execute when the shortcut is activated
         /// </summary>
         [Localizability(LocalizationCategory.NeverLocalize)]
-        [TypeConverter("System.Windows.Input.CommandConverter, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, Custom=null")]
+        [TypeConverter(typeof(CommandConverter))]
         public ICommand Command {
             get => (ICommand) this.GetValue(CommandProperty);
             set => this.SetValue(CommandProperty, value);
@@ -61,5 +61,11 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
         }
 
         protected override Freezable CreateInstanceCore() => new ShortcutCommandBinding();
+
+        public void OnElementLoaded(DependencyObject element) {
+        }
+
+        public void OnElementUnloaded(DependencyObject element) {
+        }
     }
 }

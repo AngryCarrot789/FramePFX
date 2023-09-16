@@ -72,18 +72,24 @@ namespace FramePFX.Shortcuts.Inputs {
         public override bool Equals(object obj) => obj is MouseStroke other && this.Equals(other);
 
         public bool Equals(MouseStroke other) {
-            return this.MouseButton == other.MouseButton &&
-                   this.Modifiers == other.Modifiers &&
-                   (this.ClickCount == -1 || other.ClickCount == -1 || this.ClickCount == other.ClickCount) &&
-                   this.WheelDelta == other.WheelDelta && this.IsRelease == other.IsRelease;
+            return this.EqualsExceptRelease(other) && this.IsRelease == other.IsRelease;
         }
 
-        public bool EqualsWithoutClick(MouseStroke other) {
+        public bool EqualsWithoutClickOrRelease(MouseStroke other) {
             return this.MouseButton == other.MouseButton && this.Modifiers == other.Modifiers && this.WheelDelta == other.WheelDelta;
         }
 
-        public bool EqualsWithRelease(MouseStroke stroke) {
-            return this.Equals(stroke);
+        /// <summary>
+        /// Whether or not the current and other mouse strokes are equal (same button, mods,
+        /// click count and wheel delta) while ignoring the pressed/release value
+        /// </summary>
+        /// <param name="stroke">Other stroke to compare</param>
+        /// <returns>True or false... see above</returns>
+        public bool EqualsExceptRelease(MouseStroke stroke) {
+            return this.MouseButton == stroke.MouseButton &&
+                   this.Modifiers == stroke.Modifiers &&
+                   (this.ClickCount == -1 || stroke.ClickCount == -1 || this.ClickCount == stroke.ClickCount) &&
+                   this.WheelDelta == stroke.WheelDelta;
         }
 
         public override int GetHashCode() {

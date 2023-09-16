@@ -41,9 +41,8 @@ namespace FramePFX.WPF.Views.Message {
                     this.Height = Math.Min((this.Height - this.PART_ScrollViewer.ActualHeight) + this.PART_ScrollViewer.ExtentHeight + 8, this.MaxHeight);
                 }
 
-                if (DODGY_PRIMARY_SELECTION != null && this.DataContext is MessageDialog dialog) {
-                    DialogButton button = dialog.GetButtonById(DODGY_PRIMARY_SELECTION);
-                    DODGY_PRIMARY_SELECTION = null;
+                if (Helper.Exchange(ref DODGY_PRIMARY_SELECTION, null, out string id) && this.DataContext is MessageDialog dialog) {
+                    DialogButton button = dialog.GetButtonById(id);
                     if (button != null && this.ButtonBarList.ItemContainerGenerator.ContainerFromItem(button) is UIElement element) {
                         Button btn = null;
                         if (element is ContentPresenter presenter && VisualTreeHelper.GetChildrenCount(presenter) == 1) {

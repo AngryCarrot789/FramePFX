@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.RBC;
 
@@ -31,7 +32,7 @@ namespace FramePFX.Automation.Keyframe {
 
         /// <summary>
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key
-        /// frames present, meaning the automation sequence can operate normally
+        /// frames present, meaning the automation engine can operate upon this sequence normally
         /// </summary>
         public bool IsAutomationInUse => !this.IsOverrideEnabled && this.HasKeyFrames;
 

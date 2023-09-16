@@ -21,7 +21,7 @@ namespace FramePFX.Editor {
             this.Flags = flags;
         }
 
-        public string Resolve(Project project) => project.GetAbsolutePath(this.FilePath);
+        public string Resolve(Project project) => project.GetAbsolutePath(this);
 
         public static ProjectPath Read(RBEDictionary dictionary) {
             EnumPathFlags flags = (EnumPathFlags) dictionary.GetInt(nameof(Flags));

@@ -3,7 +3,7 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History;
 
 namespace FramePFX.Editor.History {
-    public class HistoryTrackDisplayName : IHistoryAction {
+    public class HistoryTrackDisplayName : HistoryAction {
         public TrackViewModel Track { get; }
         public Transaction<string> DisplayName { get; }
 
@@ -12,7 +12,7 @@ namespace FramePFX.Editor.History {
             this.DisplayName = Transactions.ImmutableType(track.DisplayName);
         }
 
-        public async Task UndoAsync() {
+        protected override async Task UndoAsyncCore() {
             try {
                 this.Track.IsHistoryChanging = true;
                 this.Track.DisplayName = this.DisplayName.Original;
@@ -22,7 +22,7 @@ namespace FramePFX.Editor.History {
             }
         }
 
-        public async Task RedoAsync() {
+        protected override async Task RedoAsyncCore() {
             try {
                 this.Track.IsHistoryChanging = true;
                 this.Track.DisplayName = this.DisplayName.Current;
@@ -32,7 +32,7 @@ namespace FramePFX.Editor.History {
             }
         }
 
-        public void OnRemoved() {
+        public override void OnRemoved() {
         }
     }
 }

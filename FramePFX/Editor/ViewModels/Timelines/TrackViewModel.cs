@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Automation.ViewModels;
+using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.ViewModels;
@@ -104,9 +105,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         protected TrackViewModel(Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            model.viewModel = this;
-
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
+            this.AutomationData.SetActiveSequenceFromModelDeserialisation();
             this.clips = new ObservableCollectionEx<ClipViewModel>();
             this.Clips = new ReadOnlyObservableCollection<ClipViewModel>(this.clips);
             this.SelectedClips = new ObservableCollection<ClipViewModel>();
@@ -141,6 +141,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 throw new IndexOutOfRangeException($"Index < 0 || Index > Count. Index = {index}, Count = {this.clips.Count}");
             if (ReferenceEquals(this, clip.Track))
                 throw new InvalidOperationException("Attempted to add clip to a track it was already in");
+            if (clip.Track != null)
+                throw new InvalidOperationException("Clip was already added to another track");
             if (!this.IsClipTypeAcceptable(clip))
                 throw new Exception("Invalid clip for this layer");
 
@@ -254,7 +256,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 this.clips.Clear();
-                this.Model.Clips.Clear();
+                this.Model.Clear();
                 if (innerStack.TryGetException(out Exception ex)) {
                     stack.Add(ex);
                 }
@@ -272,7 +274,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            this.Model.Clips.MoveItem(index, endIndex);
+            this.Model.MoveClipIndex(index, endIndex);
             this.clips.Move(index, endIndex);
         }
 

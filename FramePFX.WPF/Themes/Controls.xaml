@@ -5,7 +5,7 @@
                     xmlns:ap="clr-namespace:FramePFX.WPF.Themes.Attached"
                     xmlns:attachedProperties="clr-namespace:FramePFX.WPF.AttachedProperties"
                     xmlns:views="clr-namespace:FramePFX.WPF.Views"
-                    xmlns:controls="clr-namespace:FramePFX.WPF.Controls">
+                    xmlns:c="clr-namespace:FramePFX.WPF.Controls">
 <BorderGapMaskConverter x:Key="BorderGapMaskConverter"/>
     <Style x:Key="FocusVisual">
         <Setter Property="Control.Template">
@@ -4376,7 +4376,7 @@
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="HasItems" Value="False"/>
-                                <Condition Property="controls:TreeExtension.IsInitiallyExpandable" Value="False"/>
+                                <Condition Property="c:TreeExtension.IsInitiallyExpandable" Value="False"/>
                             </MultiTrigger.Conditions>
                             <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
                             <Setter Property="Visibility" TargetName="HorLn" Value="Visible"/>

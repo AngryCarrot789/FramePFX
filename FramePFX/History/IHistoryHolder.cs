@@ -1,8 +1,6 @@
-using FramePFX.History.ViewModels;
-
 namespace FramePFX.History {
     /// <summary>
-    /// An interface applied to a view model whose properties can be modified by an <see cref="IHistoryAction"/>
+    /// An interface applied to a view model whose properties can be modified by an <see cref="HistoryAction"/>
     /// </summary>
     public interface IHistoryHolder {
         /// <summary>

@@ -164,10 +164,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 }
             }
 
-            this.Transform(rc, out Vector2? size);
             foreach (SKTextBlob blob in this.cachedBlobs) {
                 if (blob != null) {
-                    // rc.Canvas.DrawText(blob, 0, (size?.Y ?? 0) * this.MediaScaleOrigin.Y, this.cachedPaint);
+                    // rc.Canvas.DrawText(blob, 0, size.Y * this.MediaScaleOrigin.Y, this.cachedPaint);
+                    rc.Canvas.DrawText(blob, 0, 0, this.cachedPaint);
                 }
             }
 

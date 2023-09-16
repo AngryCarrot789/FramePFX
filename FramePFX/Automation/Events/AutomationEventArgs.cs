@@ -1,7 +1,7 @@
 using System;
 using FramePFX.Automation.Keys;
 
-namespace FramePFX.Automation {
+namespace FramePFX.Automation.Events {
     public class AutomationEventArgs : EventArgs {
         public AutomationKey Key { get; }
 

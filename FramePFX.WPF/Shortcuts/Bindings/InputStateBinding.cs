@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -18,13 +17,20 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
                     BoolBox.False,
                     // OneWayToSource or TwoWay is required for binding to work on this property. But
                     // since OneWayToSource isn't available by default, TwoWay will work
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PropertyChangedCallback, CoerceValueCallback));
+
+        private static object CoerceValueCallback(DependencyObject d, object basevalue) {
+            return basevalue;
+        }
+
+        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        }
 
         /// <summary>
         /// The command to execute when the input state is either activated or deactivated, passing the activation state as a parameter
         /// </summary>
         [Localizability(LocalizationCategory.NeverLocalize)]
-        [TypeConverter("System.Windows.Input.CommandConverter, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, Custom=null")]
+        [TypeConverter(typeof(CommandConverter))]
         public ICommand Command {
             get => (ICommand) this.GetValue(CommandProperty);
             set => this.SetValue(CommandProperty, value);
@@ -47,13 +53,6 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
         }
 
         public InputStateBinding() {
-        }
-
-        public InputStateBinding(string inputStatePath, ICommand command) {
-            if (string.IsNullOrWhiteSpace(inputStatePath))
-                throw new ArgumentException("Input state ID must not be null, empty or consist of only whitespaces", nameof(inputStatePath));
-            this.InputStatePath = inputStatePath;
-            this.Command = command;
         }
 
         protected override Freezable CreateInstanceCore() => new InputStateBinding();

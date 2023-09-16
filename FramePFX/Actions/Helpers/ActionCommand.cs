@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using FramePFX.Commands;
 
 namespace FramePFX.Actions.Helpers {
     public class ActionCommand<T> : AnAction {

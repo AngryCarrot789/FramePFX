@@ -1,9 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
 using FramePFX.Automation.ViewModels.Keyframe;
-using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Utils;
 
 namespace FramePFX.Automation.ViewModels {

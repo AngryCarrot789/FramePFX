@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using FramePFX.Automation;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Audio;
 using FramePFX.Editor.Timelines.AudioClips;

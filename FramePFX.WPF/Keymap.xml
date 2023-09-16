@@ -9,7 +9,21 @@
             <KeyStroke Mods="CTRL" Key="R" />
         </Shortcut>
         <Group Name="Editor">
-            <Shortcut Name="SaveProject" ActionId="actions.project.Save">
+			<!-- ################################## things #################################### -->
+			<InputState Name="UseStateAss1" UseGroupAsManager="true" CanToggle="true">
+				<InputState.ActivationKeyStroke Key="D1"/>
+			</InputState>
+            <InputState Name="UseStateAss2" UseGroupAsManager="true">
+                <InputState.ActivationKeyStroke Key="D2"/>
+            </InputState>
+            <InputState Name="UseStateAss3" UseGroupAsManager="true">
+                <InputState.ActivationKeyStroke Key="D3"/>
+            </InputState>
+            <InputState Name="UseStateAss4" UseGroupAsManager="true">
+                <InputState.ActivationKeyStroke Key="D4"/>
+            </InputState>
+
+			<Shortcut Name="SaveProject" ActionId="actions.project.Save">
                 <KeyStroke Mods="CTRL" Key="S" />
             </Shortcut>
             <Shortcut Name="SaveProjectAs" ActionId="actions.project.SaveAs">

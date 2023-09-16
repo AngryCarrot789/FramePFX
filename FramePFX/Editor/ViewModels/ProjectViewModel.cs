@@ -6,6 +6,7 @@ using System.Security;
 using System.Threading.Tasks;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Commands;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;

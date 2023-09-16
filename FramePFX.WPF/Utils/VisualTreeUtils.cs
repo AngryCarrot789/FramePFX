@@ -93,5 +93,18 @@ namespace FramePFX.WPF.Utils {
                 return null;
             }
         }
+
+        public static bool GetDataContext(DependencyObject value, out object context, bool includeNullContext = false) {
+            if (value is FrameworkElement) {
+                return (context = ((FrameworkElement) value).DataContext) != null || includeNullContext;
+            }
+            else if (value is FrameworkContentElement) {
+                return (context = ((FrameworkContentElement) value).DataContext) != null || includeNullContext;
+            }
+            else {
+                context = null;
+                return false;
+            }
+        }
     }
 }

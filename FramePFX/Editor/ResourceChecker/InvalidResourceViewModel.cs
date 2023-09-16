@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Utils;
 

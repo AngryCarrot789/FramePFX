@@ -4,16 +4,17 @@ using FramePFX.Utils;
 
 namespace FramePFX.History {
     /// <summary>
-    /// A history action that fires an event when it is undone, redone or removed. The methods are delegated to the other action
+    /// A history action that fires an event when it is undone, redone or removed.
+    /// The respective methods are delegated to the action passed to the constructor
     /// </summary>
-    public class EventHistoryAction : IHistoryAction {
+    public class EventHistoryAction : HistoryAction {
         public delegate void UndoEventHandler(EventHistoryAction action);
 
         public delegate void RedoEventHandler(EventHistoryAction action);
 
         public delegate void RemovedEventHandler(EventHistoryAction action);
 
-        public IHistoryAction Action { get; }
+        public HistoryAction Action { get; }
 
         public bool IsRemoved { get; set; }
 
@@ -21,11 +22,11 @@ namespace FramePFX.History {
         public event RedoEventHandler Redo;
         public event RemovedEventHandler Removed;
 
-        public EventHistoryAction(IHistoryAction action) {
-            this.Action = action;
+        public EventHistoryAction(HistoryAction action) {
+            this.Action = action ?? throw new ArgumentNullException(nameof(action));
         }
 
-        public async Task UndoAsync() {
+        protected override async Task UndoAsyncCore() {
             using (ErrorList stack = new ErrorList()) {
                 try {
                     await this.Action.UndoAsync();
@@ -43,7 +44,7 @@ namespace FramePFX.History {
             }
         }
 
-        public async Task RedoAsync() {
+        protected override async Task RedoAsyncCore() {
             using (ErrorList stack = new ErrorList()) {
                 try {
                     await this.Action.RedoAsync();
@@ -61,7 +62,7 @@ namespace FramePFX.History {
             }
         }
 
-        public void OnRemoved() {
+        public override void OnRemoved() {
             this.IsRemoved = true;
             using (ErrorList stack = new ErrorList()) {
                 try {

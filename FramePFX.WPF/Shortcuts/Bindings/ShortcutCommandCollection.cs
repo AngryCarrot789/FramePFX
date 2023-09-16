@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Windows;
+using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.Shortcuts.Bindings {
     /// <summary>
@@ -10,15 +14,65 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
                 "Collection",
                 typeof(ShortcutCommandCollection),
                 typeof(ShortcutCommandCollection),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+                new FrameworkPropertyMetadata(null, PropertyChangedCallback));
 
-        public ShortcutCommandCollection() {
-            // ((INotifyCollectionChanged) this).CollectionChanged += this.OnCollectionChanged;
+        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (ReferenceEquals(e.OldValue, e.NewValue)) {
+                return;
+            }
+
+            if (e.NewValue == null) {
+                if (e.OldValue == null)
+                    throw new Exception("Impossible condition");
+                OnCollectionRemoved(d, (ShortcutCommandCollection) e.OldValue);
+            }
         }
 
-        // private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-        // 
-        // }
+        public ShortcutCommandCollection() {
+            ((INotifyCollectionChanged) this).CollectionChanged += this.OnCollectionChanged;
+        }
+
+        private static void OnCollectionRemoved(DependencyObject obj, ShortcutCommandCollection collection) {
+            if (obj is FrameworkElement element) {
+                element.Loaded -= OnElementLoaded;
+                element.Unloaded -= OnElementUnloaded;
+            }
+        }
+
+        private static void OnCollectionSet(DependencyObject obj, ShortcutCommandCollection collection) {
+            if (obj is FrameworkElement element) {
+                element.Loaded += OnElementLoaded;
+                element.Unloaded += OnElementUnloaded;
+            }
+        }
+
+        private static void OnElementLoaded(object sender, RoutedEventArgs e) {
+            DependencyObject element = (DependencyObject) sender;
+            ShortcutCommandCollection collection = GetCollection(element);
+            if (collection == null || collection.Count < 1) {
+                return;
+            }
+
+            foreach (ShortcutCommandBinding binding in collection) {
+                binding.OnElementLoaded(element);
+            }
+        }
+
+        private static void OnElementUnloaded(object sender, RoutedEventArgs e) {
+            DependencyObject element = (DependencyObject) sender;
+            ShortcutCommandCollection collection = GetCollection(element);
+            if (collection == null || collection.Count < 1) {
+                return;
+            }
+
+            foreach (ShortcutCommandBinding binding in collection) {
+                binding.OnElementUnloaded(element);
+            }
+        }
+
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+
+        }
 
         /// <summary>
         /// Sets the attached <see cref="ShortcutCommandCollection"/> for an element
@@ -33,5 +87,16 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
         /// <param name="element"></param>
         /// <returns></returns>
         public static ShortcutCommandCollection GetCollection(DependencyObject element) => (ShortcutCommandCollection) element.GetValue(CollectionProperty);
+
+        public static List<ShortcutCommandBinding> GetCommandBindingHierarchy(DependencyObject source) {
+            List<ShortcutCommandBinding> list = new List<ShortcutCommandBinding>();
+            do {
+                object localValue = source.ReadLocalValue(CollectionProperty);
+                if (localValue != DependencyProperty.UnsetValue && localValue is ShortcutCommandCollection collection && collection.Count > 0) {
+                    list.AddRange(collection);
+                }
+            } while ((source = VisualTreeUtils.GetParent(source)) != null);
+            return list;
+        }
     }
 }

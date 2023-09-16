@@ -7,26 +7,21 @@ namespace FramePFX.Shortcuts.Managing {
     /// <summary>
     /// A collection of shortcuts
     /// </summary>
-    public sealed class ShortcutGroup {
+    public sealed class ShortcutGroup : IGroupedObject {
         public const char SeparatorChar = '/';
-        public const string SeparatorCharString = "/";
 
         private readonly List<ShortcutGroup> groups;
         private readonly List<GroupedShortcut> shortcuts;
         private readonly List<GroupedInputState> inputStates;
         private readonly Dictionary<string, object> mapToItem;
+        private InputStateManager localStateManager;
+
+        public ShortcutManager Manager { get; }
 
         public ShortcutGroup Parent { get; }
 
-        /// <summary>
-        /// This group's full path (containing the parent's path and this group's name into one). It will either be
-        /// null (meaning we are a root group), or a non-empty string; it will never consist of only whitespaces
-        /// </summary>
         public string FullPath { get; }
 
-        /// <summary>
-        /// This group's name. It will either be null (meaning no parent), or a non-empty string (and also never consisting of only whitespaces)
-        /// </summary>
         public string Name { get; }
 
         /// <summary>
@@ -52,21 +47,22 @@ namespace FramePFX.Shortcuts.Managing {
         /// <summary>
         /// All shortcuts in this focus group
         /// </summary>
-        public IEnumerable<GroupedShortcut> Shortcuts => this.shortcuts;
+        public IReadOnlyList<GroupedShortcut> Shortcuts => this.shortcuts;
 
         /// <summary>
         /// All input states in this focus group
         /// </summary>
-        public IEnumerable<GroupedInputState> InputStates => this.inputStates;
+        public IReadOnlyList<GroupedInputState> InputStates => this.inputStates;
 
         /// <summary>
         /// All child-groups in this focus group
         /// </summary>
-        public IEnumerable<ShortcutGroup> Groups => this.groups;
+        public IReadOnlyList<ShortcutGroup> Groups => this.groups;
 
-        public ShortcutGroup(ShortcutGroup parent, string name, bool isGlobal = false, bool inherit = false) {
+        public ShortcutGroup(ShortcutManager manager, ShortcutGroup parent, string name, bool isGlobal = false, bool inherit = false) {
             if (name != null && string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name must be null or a non-empty string that does not consist of only whitespaces");
+            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Name = name;
             this.FullPath = parent != null && name != null ? parent.GetPathForName(name) : name;
             this.Inherit = inherit;
@@ -78,8 +74,8 @@ namespace FramePFX.Shortcuts.Managing {
             this.mapToItem = new Dictionary<string, object>();
         }
 
-        public static ShortcutGroup CreateRoot(bool isGlobal = true, bool inherit = false) {
-            return new ShortcutGroup(null, null, isGlobal, inherit);
+        public static ShortcutGroup CreateRoot(ShortcutManager manager, bool isGlobal = true, bool inherit = false) {
+            return new ShortcutGroup(manager, null, null, isGlobal, inherit);
         }
 
         public string GetPathForName(string name) {
@@ -90,7 +86,7 @@ namespace FramePFX.Shortcuts.Managing {
         public ShortcutGroup CreateGroupByName(string name, bool isGlobal = false, bool inherit = false) {
             ValidateName(name, "Group name cannot be null or consist of only whitespaces");
             this.ValidateNameNotInUse(name);
-            ShortcutGroup group = new ShortcutGroup(this, name, isGlobal, inherit);
+            ShortcutGroup group = new ShortcutGroup(this.Manager, this, name, isGlobal, inherit);
             this.mapToItem[group.Name] = group;
             this.groups.Add(group);
             return group;
@@ -132,7 +128,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// <summary>
         /// Old name: CollectShortcutsWithPrimaryStroke
         /// </summary>
-        public void DoEvaulateShortcutsAndInputStates(ref GroupEvaulationArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
+        public void EvaulateShortcutsAndInputStates(ref GroupEvaulationArgs args, string focus, bool allowDuplicateInheritedShortcuts = false) {
             this.CollectShortcutsInternal(ref args, string.IsNullOrWhiteSpace(focus) ? null : focus, allowDuplicateInheritedShortcuts);
         }
 
@@ -176,12 +172,15 @@ namespace FramePFX.Shortcuts.Managing {
                 }
             }
 
-            foreach (GroupedInputState state in this.inputStates) {
-                if (state.ActivationStroke.Equals(args.stroke)) {
-                    args.inputStates.Add((state, true));
-                }
-                else if (state.DeactivationStroke.Equals(args.stroke)) {
-                    args.inputStates.Add((state, false));
+            if (args.canProcessInputStates) {
+                foreach (GroupedInputState state in this.inputStates) {
+                    if (state.ActivationStroke.Equals(args.stroke)) {
+                        // IsUsingToggleBehaviour ? !state.IsActive : true
+                        args.inputStates.Add((state, !state.IsUsingToggleBehaviour || !state.IsActive));
+                    }
+                    else if (state.DeactivationStroke.Equals(args.stroke)) {
+                        args.inputStates.Add((state, false));
+                    }
                 }
             }
         }
@@ -300,6 +299,10 @@ namespace FramePFX.Shortcuts.Managing {
 
         public override string ToString() {
             return $"{nameof(ShortcutGroup)} ({this.FullPath ?? "<root>"}{(!string.IsNullOrWhiteSpace(this.DisplayName) ? $" \"{this.DisplayName}\"" : "")})";
+        }
+
+        public InputStateManager GetInputStateManager() {
+            return this.localStateManager ?? (this.localStateManager = this.Manager.GetInputStateManager(this.FullPath));
         }
     }
 }

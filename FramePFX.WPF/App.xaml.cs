@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FFmpeg.AutoGen;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using FFmpeg.AutoGen;
 using FramePFX.Actions;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Editor;
@@ -31,6 +31,7 @@ using FramePFX.WPF.Shortcuts.Converters;
 using FramePFX.WPF.Themes;
 using FramePFX.WPF.Utils;
 using FramePFX.WPF.Views;
+using SoundIOSharp;
 
 namespace FramePFX.WPF {
     public partial class App : Application {
@@ -52,7 +53,6 @@ namespace FramePFX.WPF {
         }
 
         private AppSplashScreen splash;
-
         private readonly InputDrivenTaskExecutor monitor;
         private DateTime lastInput;
 
@@ -81,6 +81,7 @@ namespace FramePFX.WPF {
         public void RegisterActions() {
             // ActionManager.SearchAndRegisterActions(ActionManager.Instance);
             // TODO: Maybe use an XML file to store this, similar to how intellij registers actions?
+            ActionManager.Instance.Register("actions.general.RenameItem", new RenameAction());
             ActionManager.Instance.Register("actions.project.Open", new OpenProjectAction());
             ActionManager.Instance.Register("actions.project.Save", new SaveProjectAction());
             ActionManager.Instance.Register("actions.project.SaveAs", new SaveProjectAsAction());
@@ -110,7 +111,7 @@ namespace FramePFX.WPF {
                 Directory.SetCurrentDirectory(dir);
             }
 
-            IoC.Dispatcher = new DispatcherDelegate(this.Dispatcher);
+            IoC.Application = new ApplicationDelegate(this);
             IoC.OnShortcutModified = (x) => {
                 if (!string.IsNullOrWhiteSpace(x)) {
                     ShortcutManager.Instance.InvalidateShortcutCache();
@@ -118,25 +119,25 @@ namespace FramePFX.WPF {
                 }
             };
 
-            List<(TypeInfo, ServiceImplementationAttribute)> serviceAttributes = new List<(TypeInfo, ServiceImplementationAttribute)>();
-            List<(TypeInfo, ActionRegistrationAttribute)> attributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
+            List<(TypeInfo, ServiceImplementationAttribute)> list_serviceAttributes = new List<(TypeInfo, ServiceImplementationAttribute)>();
+            List<(TypeInfo, ActionRegistrationAttribute)> list_actionAttributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
 
             // Process all attributes in a single scan, instead of multiple scans for services, actions, etc
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
                 foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
                     ServiceImplementationAttribute serviceAttribute = typeInfo.GetCustomAttribute<ServiceImplementationAttribute>();
                     if (serviceAttribute?.Type != null) {
-                        serviceAttributes.Add((typeInfo, serviceAttribute));
+                        list_serviceAttributes.Add((typeInfo, serviceAttribute));
                     }
 
                     ActionRegistrationAttribute actionAttribute = typeInfo.GetCustomAttribute<ActionRegistrationAttribute>();
                     if (actionAttribute != null) {
-                        attributes.Add((typeInfo, actionAttribute));
+                        list_actionAttributes.Add((typeInfo, actionAttribute));
                     }
                 }
             }
 
-            foreach ((TypeInfo, ServiceImplementationAttribute) tuple in serviceAttributes) {
+            foreach ((TypeInfo, ServiceImplementationAttribute) tuple in list_serviceAttributes) {
                 object instance;
                 try {
                     instance = Activator.CreateInstance(tuple.Item1);
@@ -157,7 +158,7 @@ namespace FramePFX.WPF {
             InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
             InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
 
-            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in attributes.OrderBy(x => x.Item2.RegistrationOrder)) {
+            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in list_actionAttributes.OrderBy(x => x.Item2.RegistrationOrder)) {
                 AnAction action;
                 try {
                     action = (AnAction)Activator.CreateInstance(type, true);
@@ -179,8 +180,7 @@ namespace FramePFX.WPF {
             string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
             if (File.Exists(keymapFilePath)) {
                 using (FileStream stream = File.OpenRead(keymapFilePath)) {
-                    ShortcutGroup group = WPFKeyMapSerialiser.Instance.Deserialise(stream);
-                    WPFShortcutManager.WPFInstance.SetRoot(group);
+                    WPFShortcutManager.WPFInstance.DeserialiseRoot(stream);
                 }
             }
             else {
@@ -192,6 +192,7 @@ namespace FramePFX.WPF {
                 ffmpeg.avdevice_register_all();
             }
             catch (Exception e) {
+                await IoC.MessageDialogs.ShowMessageAsync("FFmpeg not found", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the project's build folder, e.g. FramePFX/FramePFX.WPF/bin/Debug");
                 throw new Exception("FFmpeg Unavailable. Copy FFmpeg DLLs into the same folder as the app's .exe", e);
             }
         }
@@ -200,11 +201,6 @@ namespace FramePFX.WPF {
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
 
-#if false
-            this.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            this.MainWindow = new PropertyPageDemoWindow();
-            this.MainWindow.Show();
-#else
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.MainWindow = this.splash = new AppSplashScreen();
             this.splash.Show();
@@ -227,6 +223,7 @@ namespace FramePFX.WPF {
             }
 
             await this.SetActivity("Loading FramePFX main window...");
+            BindingErrorListener.Listen();
             EditorMainWindow window = new EditorMainWindow();
 
             this.splash.Close();
@@ -239,22 +236,136 @@ namespace FramePFX.WPF {
                 //     DataContext = window.Editor
                 // }.Show();
             }, DispatcherPriority.Loaded);
-#endif
         }
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
-#if !DEBUG
-            await editor.SetProject(new ProjectViewModel(CreateDebugProject()));
-#else
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
-#endif
-
             await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
             ((EditorMainWindow)this.MainWindow)?.VPViewBox.FitContentToCenter();
             editor.ActiveProject.AutomationEngine.UpdateAndRefresh(true);
             await editor.View.Render();
+        }
 
-            // new TestControlPreview().Show();
+        public static void PlaySineWave() {
+            SoundIO api = new SoundIO();
+            api.ConnectBackend(SoundIOBackend.Wasapi);
+            api.FlushEvents();
+
+            SoundIODevice device = api.GetOutputDevice(api.DefaultOutputDeviceIndex);
+            if (device == null) {
+                return;
+            }
+
+            if (device.ProbeError != 0) {
+                return;
+            }
+
+            SoundIOOutStream outstream = device.CreateOutStream();
+            outstream.WriteCallback = (min, max) => write_callback(outstream, min, max);
+            outstream.UnderflowCallback = () => underflow_callback(outstream);
+            outstream.SampleRate = 4096;
+            if (device.SupportsFormat(SoundIODevice.Float32NE)) {
+                outstream.Format = SoundIODevice.Float32NE;
+                write_sample = write_sample_float32ne;
+            }
+            else if (device.SupportsFormat(SoundIODevice.Float64NE)) {
+                outstream.Format = SoundIODevice.Float64NE;
+                write_sample = write_sample_float64ne;
+            }
+            else if (device.SupportsFormat(SoundIODevice.S32NE)) {
+                outstream.Format = SoundIODevice.S32NE;
+                write_sample = write_sample_s32ne;
+            }
+            else if (device.SupportsFormat(SoundIODevice.S16NE)) {
+                outstream.Format = SoundIODevice.S16NE;
+                write_sample = write_sample_s16ne;
+            }
+            else {
+                return;
+            }
+
+            outstream.Open();
+
+            outstream.Start();
+
+            for (; ; ) {
+                api.FlushEvents();
+            }
+
+            outstream.Dispose();
+            device.RemoveReference();
+            api.Dispose();
+        }
+
+        private static Action<IntPtr, double> write_sample;
+        private static double seconds_offset = 0.0;
+        private static volatile bool want_pause = false;
+
+        private static void write_callback(SoundIOOutStream outstream, int frame_count_min, int frame_count_max) {
+            double dSampleRate = outstream.SampleRate;
+            double dSecondsPerFrame = 1.0 / dSampleRate;
+
+            int framesLeft = frame_count_max;
+            for (; ; ) {
+                int frameCount = framesLeft;
+                SoundIOChannelAreas results = outstream.BeginWrite(ref frameCount);
+
+                if (frameCount == 0)
+                    break;
+
+                SoundIOChannelLayout layout = outstream.Layout;
+
+                double pitch = 440.0;
+                double radians_per_second = pitch * 2.0 * Math.PI;
+                for (int frame = 0; frame < frameCount; frame += 1) {
+                    double sample = Math.Sin((seconds_offset + frame * dSecondsPerFrame) * radians_per_second);
+                    for (int channel = 0; channel < layout.ChannelCount; channel += 1) {
+                        SoundIOChannelArea area = results.GetArea(channel);
+                        write_sample(area.Pointer, sample);
+                        area.Pointer += area.Step;
+                    }
+                }
+
+                seconds_offset = Math.IEEERemainder(seconds_offset + dSecondsPerFrame * frameCount, 1.0);
+
+                outstream.EndWrite();
+
+                framesLeft -= frameCount;
+                if (framesLeft <= 0)
+                    break;
+            }
+
+            outstream.Pause(want_pause);
+        }
+
+        private static int underflow_callback_count = 0;
+
+        private static void underflow_callback(SoundIOOutStream outstream) {
+            Console.Error.WriteLine("underflow {0}", underflow_callback_count++);
+        }
+
+        private static unsafe void write_sample_s16ne(IntPtr ptr, double sample) {
+            short* buf = (short*)ptr;
+            double range = (double)short.MaxValue - (double)short.MinValue;
+            double val = sample * range / 2.0;
+            *buf = (short)val;
+        }
+
+        private static unsafe void write_sample_s32ne(IntPtr ptr, double sample) {
+            int* buf = (int*)ptr;
+            double range = (double)int.MaxValue - (double)int.MinValue;
+            double val = sample * range / 2.0;
+            *buf = (int)val;
+        }
+
+        private static unsafe void write_sample_float32ne(IntPtr ptr, double sample) {
+            float* buf = (float*)ptr;
+            *buf = (float)sample;
+        }
+
+        private static unsafe void write_sample_float64ne(IntPtr ptr, double sample) {
+            double* buf = (double*)ptr;
+            *buf = sample;
         }
 
         protected override void OnExit(ExitEventArgs e) {
@@ -262,6 +373,8 @@ namespace FramePFX.WPF {
         }
 
         public static Project CreateDemoProject() {
+            BinaryReader reader;
+
             // Demo project -- projects can be created as entirely models
             Project project = new Project();
             project.Settings.Resolution = new Resolution(1920, 1080);
@@ -276,6 +389,7 @@ namespace FramePFX.WPF {
             ulong id_w = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(220, 220, 220) { DisplayName = "white colour" }));
             ulong id_d = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(50, 100, 220) { DisplayName = "idek" }));
 
+            MotionEffect motion;
             {
                 VideoTrack track1 = new VideoTrack() {
                     DisplayName = "Track 1 with stuff"
@@ -293,7 +407,10 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip colour_red"
                 };
 
-                clip1.Motion.MediaPosition = new Vector2(0, 0);
+                motion = new MotionEffect();
+                clip1.AddEffect(motion);
+                motion.MediaPosition = new Vector2(0, 0);
+
                 clip1.SetTargetResourceId(id_r);
                 track1.AddClip(clip1);
 
@@ -302,7 +419,11 @@ namespace FramePFX.WPF {
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
-                clip2.Motion.MediaPosition = new Vector2(200, 200);
+
+                motion = new MotionEffect();
+                clip2.AddEffect(motion);
+                motion.MediaPosition = new Vector2(200, 200);
+
                 clip2.SetTargetResourceId(id_g);
                 track1.AddClip(clip2);
             }
@@ -318,7 +439,10 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip colour_blue"
                 };
 
-                clip1.Motion.MediaPosition = new Vector2(200, 200);
+                motion = new MotionEffect();
+                clip1.AddEffect(motion);
+                motion.MediaPosition = new Vector2(200, 200);
+
                 clip1.SetTargetResourceId(id_b);
                 track2.AddClip(clip1);
                 ShapeVideoClip clip2 = new ShapeVideoClip {
@@ -327,13 +451,14 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip blueish"
                 };
 
-                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
-                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
-                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
-                clip2.Motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
-                clip2.Motion.AutomationData.ActiveKeyFullId = MotionEffect.MediaPositionKey.FullId;
-
-                clip2.Motion.MediaPosition = new Vector2(400, 400);
+                motion = new MotionEffect();
+                clip2.AddEffect(motion);
+                motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                motion.AutomationData.ActiveKeyFullId = MotionEffect.MediaPositionKey.FullId;
+                motion.MediaPosition = new Vector2(400, 400);
                 clip2.SetTargetResourceId(id_d);
                 track2.AddClip(clip2);
             }
@@ -344,6 +469,7 @@ namespace FramePFX.WPF {
                 project.Timeline.AddTrack(track1);
             }
 
+            project.Timeline.DoUpdateBackingStorageForTimeline();
             return project;
         }
     }

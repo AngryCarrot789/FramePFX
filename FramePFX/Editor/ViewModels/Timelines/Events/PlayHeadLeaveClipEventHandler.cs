@@ -1,5 +1,3 @@
 namespace FramePFX.Editor.ViewModels.Timelines.Events {
-    public class PlayHeadLeaveClipEventHandler {
-        
-    }
+    public delegate void PlayHeadLeaveClipEventHandler(ClipViewModel clip, bool isCausedByPlayHeadMovement);
 }

@@ -1,19 +1,14 @@
 using System.Numerics;
 using System.Threading.Tasks;
-using FramePFX.Automation;
 using FramePFX.Automation.Keys;
-using FramePFX.Editor.Timelines.Effects.Video;
+using FramePFX.Editor.Timelines.Events;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
-using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public abstract class VideoClip : Clip {
         public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
-
-        // saves using closure allocation for each clip
-        private static readonly UpdateAutomationValueEventHandler UpdateOpacity = (s, f) => ((VideoClip) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f);
 
         /// <summary>
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
@@ -34,12 +29,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// </summary>
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
-        public MotionEffect Motion => (MotionEffect) this.Effects[0];
-
         protected VideoClip() {
-            this.Effects.Add(new MotionEffect(this));
+            // using `(VideoClip) s.AutomationData.Owner` instead of `this` saves closure allocation
+            this.AutomationData.AssignKey(OpacityKey, (s, f) => ((VideoClip) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f));
             this.Opacity = OpacityKey.Descriptor.DefaultValue;
-            this.AutomationData.AssignKey(OpacityKey, UpdateOpacity);
         }
 
         /// <summary>
@@ -57,6 +50,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
+            this.Effects.Clear();
             base.ReadFromRBE(data);
             this.Opacity = data.GetDouble(nameof(this.Opacity));
         }
@@ -68,46 +62,25 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// <returns>A nullable vector (null indicating to use the current view port size)</returns>
         public virtual Vector2? GetSize() => null;
 
-        public void Transform(RenderContext rc, out Vector2? size, out SKMatrix oldMatrix) {
-            oldMatrix = rc.Canvas.TotalMatrix;
-            this.Transform(rc, out size);
-        }
-
-        public void Transform(RenderContext rc, out Vector2? size) {
-            MotionEffect motion = this.Motion;
-            Vector2 pos = motion.MediaPosition, scale = motion.MediaScale, origin = motion.MediaScaleOrigin;
-            rc.Canvas.Translate(pos.X, pos.Y);
-            Vector2 sz;
-            size = this.GetSize();
-            if (size.HasValue) {
-                sz = size.Value;
-            }
-            else {
-                size = sz = new Vector2(rc.FrameInfo.Width, rc.FrameInfo.Height);
-            }
-
-            if (motion.UseAbsoluteScaleOrigin) {
-                rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
-            }
-            else {
-                rc.Canvas.Scale(scale.X, scale.Y, sz.X * origin.X, sz.Y * origin.Y);
-            }
-        }
-
-        public void Transform(RenderContext rc) {
-            this.Transform(rc, out _);
-        }
-
         /// <summary>
-        /// Setup a new render for this clip at the given frame. This is called before anything is drawn.
+        /// Prepares this clip for being rendered at the given frame. This is called before anything is drawn.
         /// <para>
-        /// This function may get called multiple times before <see cref="EndRender"/> if, for example, a render gets cancelled
+        /// This function may get called multiple times before <see cref="EndRender"/> if, for
+        /// example, a render gets cancelled during the preparation phase
         /// </para>
         /// </summary>
         /// <param name="frame">The frame being rendered</param>
         /// <returns>Whether or not this clip can be rendered. False means <see cref="EndRender"/> will not be called</returns>
         public virtual bool BeginRender(long frame) {
             return false;
+        }
+
+        /// <summary>
+        /// Called when an async render is cancelled (only called if <see cref="BeginRender"/> was invoked but <see cref="EndRender"/> was not)
+        /// </summary>
+        /// <param name="frame">The frame being rendered</param>
+        public virtual void OnRenderCancelled(long frame) {
+
         }
 
         /// <summary>
@@ -118,10 +91,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// <returns>A task to await for the render to complete</returns>
         public virtual Task EndRender(RenderContext rc, long frame) {
             return Task.CompletedTask;
-        }
-
-        protected override void LoadDataIntoClone(Clip clone) {
-            base.LoadDataIntoClone(clone);
         }
     }
 }

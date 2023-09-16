@@ -111,7 +111,7 @@ namespace FramePFX.WPF.Editor.Resources {
                 if (this.IsSelected) {
                     if (!ResourceListControl.AreModifiersPressed(ModifierKeys.Shift)) {
                         if (!ResourceListControl.AreModifiersPressed(ModifierKeys.Control)) {
-                            list.MakePrimarySelection(this);
+                            // list.MakePrimarySelection(this);
                         }
                         else {
                             list.SetItemSelectedProperty(this, false);

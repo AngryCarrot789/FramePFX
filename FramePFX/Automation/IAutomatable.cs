@@ -18,6 +18,9 @@ namespace FramePFX.Automation {
         /// <para>
         /// This is typically modified by the automation engine itself, before setting the actual value
         /// </para>
+        /// <para>
+        /// This is only really used for debugging, but it may be useful at some point
+        /// </para>
         /// </summary>
         bool IsAutomationChangeInProgress { get; set; }
     }

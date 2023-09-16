@@ -37,7 +37,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             if (resource.image == null)
                 return Task.CompletedTask;
 
-            this.Transform(rc);
+            // this.ApplyTransformation(rc);
             rc.Canvas.DrawImage(resource.image, 0, 0);
             return Task.CompletedTask;
         }

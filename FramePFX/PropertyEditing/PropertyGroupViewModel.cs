@@ -155,13 +155,5 @@ namespace FramePFX.PropertyEditing {
                     return true;
             return false;
         }
-
-        internal static bool AreAllApplicable(BasePropertyObjectViewModel editor, IReadOnlyList<object> sources) {
-            // return sources.All(x => editor.IsApplicable(x));
-            for (int i = 0, c = sources.Count; i < c; i++)
-                if (!editor.IsApplicable(sources[i]))
-                    return false;
-            return true;
-        }
     }
 }

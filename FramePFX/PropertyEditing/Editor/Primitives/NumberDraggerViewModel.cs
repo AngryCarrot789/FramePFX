@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Input;
+using FramePFX.Commands;
 
 namespace FramePFX.PropertyEditing.Editor.Primitives {
     public class NumberDraggerViewModel : BasePropertyEditorViewModel {

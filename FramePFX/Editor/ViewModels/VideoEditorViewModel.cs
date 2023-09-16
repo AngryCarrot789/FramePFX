@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Editor.Exporting;
 using FramePFX.Editor.Notifications;
 using FramePFX.Editor.ResourceChecker;
-using FramePFX.History;
 using FramePFX.History.ViewModels;
 using FramePFX.RBC;
 using FramePFX.Utils;
@@ -107,10 +107,9 @@ namespace FramePFX.Editor.ViewModels {
                 return;
             }
 
-            long begin = 0L, endIndex = 0L;
-            this.ActiveProject.Timeline.Model.GetUsedFrameSpan(ref begin, ref endIndex);
+            FrameSpan span = this.ActiveProject.Timeline.Model.GetUsedFrameSpan();
             ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject.Model) {
-                RenderSpan = new FrameSpan(0, endIndex)
+                RenderSpan = span.WithBegin(0)
             };
 
             this.IsExporting = true;

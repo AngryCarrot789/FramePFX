@@ -1,9 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.History;
-using FramePFX.History.Exceptions;
 using FramePFX.RBC;
 
 namespace FramePFX.Automation.History {
@@ -24,9 +24,9 @@ namespace FramePFX.Automation.History {
             this.SerialisedData = list;
         }
 
-        protected override Task UndoAsyncCore() {
+        protected override Task UndoAsyncForHolder() {
             if (this.undoList != null) {
-                throw new NotRedoneException();
+                throw new Exception("Impossible condition; undo invoked twice in a row");
             }
 
             this.undoList = new List<KeyFrameViewModel>();
@@ -41,9 +41,9 @@ namespace FramePFX.Automation.History {
             return Task.CompletedTask;
         }
 
-        protected override Task RedoAsyncCore() {
+        protected override Task RedoAsyncForHolder() {
             if (this.undoList == null) {
-                throw new NotUndoneException();
+                throw new Exception("Impossible condition; undo never invoked or redo invoked twice in a row");
             }
 
             foreach (KeyFrameViewModel keyFrame in this.undoList) {

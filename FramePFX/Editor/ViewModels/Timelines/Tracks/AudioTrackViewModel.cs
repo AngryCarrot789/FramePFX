@@ -1,6 +1,8 @@
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Automation;
+using FramePFX.Automation.Events;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines.Tracks;
@@ -15,31 +17,31 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
         public new AudioTrack Model => (AudioTrack) base.Model;
 
+        private bool isEditingVolume;
+        public bool IsEditingVolume {
+            get => this.isEditingVolume;
+            set {
+                if (value == this.isEditingVolume)
+                    return;
+                this.isEditingVolume = value;
+                if (value) {
+                    this.volumeHistory = new HistoryAudioTrackVolume(this, this.Volume);
+                }
+                else if (this.volumeHistory != null && this.volumeHistory.Volume.HasChanged((a, b) => Maths.Equals(a, b))) {
+                    HistoryManagerViewModel.Instance.AddAction(this.volumeHistory, "Edit volume");
+                    this.volumeHistory = null;
+                }
+            }
+        }
+
         public float Volume {
             get => this.Model.Volume;
             set {
-                if (!this.IsHistoryChanging) {
-                    if (FrontEndHistoryHelper.ActiveDragId == VolumeHistoryKey) {
-                        if (this.volumeHistory == null) {
-                            this.volumeHistory = new HistoryAudioTrackVolume(this, value);
-                        }
+                if (this.IsHistoryChanging)
+                    throw new Exception("Cannot set volume property while history is changing");
 
-                        FrontEndHistoryHelper.OnDragEnd = FrontEndHistoryHelper.OnDragEnd ?? ((s, cancel) => {
-                            if (cancel) {
-                                this.IsHistoryChanging = true;
-                                this.Volume = this.volumeHistory.Volume.Original;
-                                this.IsHistoryChanging = false;
-                            }
-                            else {
-                                HistoryManagerViewModel.Instance.AddAction(this.volumeHistory, "Edit volume");
-                            }
-
-                            this.volumeHistory = null;
-                        });
-                    }
-                    else {
-                        HistoryManagerViewModel.Instance.AddAction(new HistoryAudioTrackVolume(this, value), "Edit volume");
-                    }
+                if (this.volumeHistory != null) {
+                    this.volumeHistory.Volume.Current = value;
                 }
 
                 TimelineViewModel timeline = this.Timeline;
@@ -110,12 +112,12 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 this.IsMuted = new Transaction<bool>(holder.IsMuted, newValue);
             }
 
-            protected override Task UndoAsyncCore() {
+            protected override Task UndoAsyncForHolder() {
                 this.Holder.IsMuted = this.IsMuted.Original;
                 return Task.CompletedTask;
             }
 
-            protected override Task RedoAsyncCore() {
+            protected override Task RedoAsyncForHolder() {
                 this.Holder.IsMuted = this.IsMuted.Current;
                 return Task.CompletedTask;
             }
@@ -128,12 +130,12 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 this.Volume = new Transaction<float>(holder.Volume, newValue);
             }
 
-            protected override Task UndoAsyncCore() {
+            protected override Task UndoAsyncForHolder() {
                 this.Holder.Volume = this.Volume.Original;
                 return Task.CompletedTask;
             }
 
-            protected override Task RedoAsyncCore() {
+            protected override Task RedoAsyncForHolder() {
                 this.Holder.Volume = this.Volume.Current;
                 return Task.CompletedTask;
             }

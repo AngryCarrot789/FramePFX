@@ -1,3 +1,4 @@
+using System.Numerics;
 using SkiaSharp;
 
 namespace FramePFX.Rendering {
@@ -17,10 +18,16 @@ namespace FramePFX.Rendering {
         /// </summary>
         public SKImageInfo FrameInfo { get; }
 
+        /// <summary>
+        /// The size of the rendering canvas, e.g. 1920,1080
+        /// </summary>
+        public Vector2 FrameSize { get; }
+
         public RenderContext(SKSurface surface, SKCanvas canvas, SKImageInfo frameInfo) {
             this.Surface = surface;
             this.Canvas = canvas;
             this.FrameInfo = frameInfo;
+            this.FrameSize = new Vector2(frameInfo.Width, frameInfo.Height);
         }
     }
 }

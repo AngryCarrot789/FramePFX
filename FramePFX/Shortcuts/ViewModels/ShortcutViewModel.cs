@@ -3,38 +3,52 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using FramePFX.AdvancedContextService;
+using FramePFX.Commands;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 
 namespace FramePFX.Shortcuts.ViewModels {
     public class ShortcutViewModel : BaseShortcutItemViewModel, IContextProvider {
-        public GroupedShortcut TheShortcut { get; }
+        private bool isGlobal;
+        private bool inherit;
+        private RepeatMode repeatMode;
 
+        /// <summary>
+        /// The actual shortcut model
+        /// </summary>
+        public GroupedShortcut Shortcut { get; }
+
+        /// <summary>
+        /// A collection of input strokes
+        /// </summary>
         public ObservableCollection<InputStrokeViewModel> InputStrokes { get; }
 
+        /// <summary>
+        /// The name of this shortcut
+        /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        /// A display name for this shortcut
+        /// </summary>
         public string DisplayName { get; }
 
+        /// <summary>
+        /// This shortcut's full path
+        /// </summary>
         public string Path { get; }
 
         public string Description { get; }
-
-        private bool isGlobal;
 
         public bool IsGlobal {
             get => this.isGlobal;
             set => this.RaisePropertyChanged(ref this.isGlobal, value);
         }
 
-        private bool inherit;
-
         public bool Inherit {
             get => this.inherit;
             set => this.RaisePropertyChanged(ref this.inherit, value);
         }
-
-        private RepeatMode repeatMode;
 
         public RepeatMode RepeatMode {
             get => this.repeatMode;
@@ -48,7 +62,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         public RelayCommand<InputStrokeViewModel> RemoveStrokeCommand { get; }
 
         public ShortcutViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, GroupedShortcut reference) : base(manager, parent) {
-            this.TheShortcut = reference;
+            this.Shortcut = reference;
             this.Name = reference.Name;
             this.DisplayName = reference.DisplayName ?? reference.Name;
             this.Path = reference.FullPath;
@@ -93,8 +107,8 @@ namespace FramePFX.Shortcuts.ViewModels {
         }
 
         public void UpdateShortcutReference() {
-            IShortcut shortcut = this.TheShortcut.Shortcut;
-            this.TheShortcut.Shortcut = this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut;
+            IShortcut shortcut = this.Shortcut.Shortcut;
+            this.Shortcut.Shortcut = this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut;
             this.Manager.OnShortcutModified(this, shortcut);
         }
 

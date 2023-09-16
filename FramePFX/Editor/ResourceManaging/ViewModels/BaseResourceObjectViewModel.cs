@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.UserInputs;
@@ -102,7 +103,12 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         public async Task<bool> RenameAsync() {
-            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
+            // testing that the UI functions can be called from other threads
+            string result = null;
+            await Task.Run(async () => {
+                result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
+            });
+
             if (string.IsNullOrWhiteSpace(result)) {
                 return false;
             }

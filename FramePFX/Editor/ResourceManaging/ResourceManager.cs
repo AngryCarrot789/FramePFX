@@ -174,12 +174,9 @@ namespace FramePFX.Editor.ResourceManaging {
                 throw new ArgumentException("Item ID cannot be zero (null)", nameof(item));
             if (!this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
                 return false;
-#if DEBUG
-            if (!ReferenceEquals(oldItem, item)) {
-                System.Diagnostics.Debugger.Break();
+            if (!ReferenceEquals(oldItem, item))
                 throw new Exception("Existing resource does not reference equal the given resource; Corrupted application?");
-            }
-#endif
+
             this.uuidToItem.Remove(item.UniqueId);
             this.ResourceRemoved?.Invoke(this, item);
             return true;

@@ -82,8 +82,6 @@ namespace FramePFX.Utils {
             return new FrameSpan(this.Begin, newDuration);
         }
 
-        // The clamped versions of the below 4 functions are useful for resizing clips by dragging the left and right handles
-
         /// <summary>
         /// Returns a new frame span, where the <see cref="Begin"/> is locked in place, and the <see cref="EndIndex"/> is modified
         /// </summary>

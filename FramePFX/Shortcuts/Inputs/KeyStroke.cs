@@ -5,7 +5,8 @@ namespace FramePFX.Shortcuts.Inputs {
     /// <summary>
     /// Represents a key stroke, as in, a key press or release which may have modifier keys present
     /// <para>
-    /// KeyStrokes typically do not represent modifier key strokes, meaning <see cref="KeyCode"/> would not equal the key code for SHIFT, CTRL, ALT, etc
+    /// KeyStrokes can represent modifier key strokes too, meaning <see cref="KeyCode"/> could equal the key
+    /// code for SHIFT, CTRL, ALT, etc. In this case, <see cref="Modifiers"/> will always be 0
     /// </para>
     /// </summary>
     public readonly struct KeyStroke : IInputStroke {
@@ -25,7 +26,7 @@ namespace FramePFX.Shortcuts.Inputs {
         public int KeyCode { get; }
 
         /// <summary>
-        /// The modifier keys that were pressed during the key stroke
+        /// The modifier keys (bitflags) that were pressed during the key stroke, or 0, if <see cref="KeyCode"/> represents a modifier key
         /// </summary>
         public int Modifiers { get; }
 

@@ -136,25 +136,25 @@ namespace FramePFX.RBC {
 
         public static RBEBase CreateById(RBEType id) {
             switch (id) {
-                case RBEType.Dictionary: return new RBEDictionary();
-                case RBEType.List: return new RBEList();
-                case RBEType.Byte: return new RBEByte();
-                case RBEType.Short: return new RBEShort();
-                case RBEType.Int: return new RBEInt();
-                case RBEType.Long: return new RBELong();
-                case RBEType.Float: return new RBEFloat();
-                case RBEType.Double: return new RBEDouble();
-                case RBEType.String: return new RBEString();
-                case RBEType.Struct: return new RBEStruct();
-                case RBEType.ByteArray: return new RBEByteArray();
-                case RBEType.ShortArray: return new RBEShortArray();
-                case RBEType.IntArray: return new RBEIntArray();
-                case RBEType.LongArray: return new RBELongArray();
-                case RBEType.FloatArray: return new RBEFloatArray();
+                case RBEType.Dictionary:  return new RBEDictionary();
+                case RBEType.List:        return new RBEList();
+                case RBEType.Byte:        return new RBEByte();
+                case RBEType.Short:       return new RBEShort();
+                case RBEType.Int:         return new RBEInt();
+                case RBEType.Long:        return new RBELong();
+                case RBEType.Float:       return new RBEFloat();
+                case RBEType.Double:      return new RBEDouble();
+                case RBEType.String:      return new RBEString();
+                case RBEType.Struct:      return new RBEStruct();
+                case RBEType.ByteArray:   return new RBEByteArray();
+                case RBEType.ShortArray:  return new RBEShortArray();
+                case RBEType.IntArray:    return new RBEIntArray();
+                case RBEType.LongArray:   return new RBELongArray();
+                case RBEType.FloatArray:  return new RBEFloatArray();
                 case RBEType.DoubleArray: return new RBEDoubleArray();
                 case RBEType.StringArray: return new RBEStringArray();
                 case RBEType.StructArray: return new RBEStructArray();
-                case RBEType.Guid: return new RBEGuid();
+                case RBEType.Guid:        return new RBEGuid();
                 default: throw new ArgumentOutOfRangeException(nameof(id), id, "Unknown RBEType: " + id);
             }
         }

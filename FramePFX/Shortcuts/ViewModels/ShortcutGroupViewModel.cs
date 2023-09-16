@@ -41,7 +41,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         }
 
         public ShortcutGroup SaveToRealGroup() {
-            ShortcutGroup group = new ShortcutGroup(this.Parent?.TheGroup, this.FullPath, this.IsGlobal, this.InheritFromParent);
+            ShortcutGroup group = new ShortcutGroup(this.Manager.Manager, this.Parent?.TheGroup, this.FullPath, this.IsGlobal, this.InheritFromParent);
             foreach (ShortcutGroupViewModel innerGroup in this.children.OfType<ShortcutGroupViewModel>()) {
                 group.AddGroup(innerGroup.SaveToRealGroup());
             }

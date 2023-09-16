@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Commands;
 
 namespace FramePFX.Automation.ViewModels {
     /// <summary>
@@ -28,21 +30,33 @@ namespace FramePFX.Automation.ViewModels {
         public AutomationSequenceViewModel ActiveSequence {
             get => this.activeSequence;
             set {
-                if (this.activeSequence != null) {
-                    this.activeSequence.IsActive = false;
+                AutomationSequenceViewModel oldSequence = this.activeSequence;
+                if (ReferenceEquals(oldSequence, value)) {
+                    return;
                 }
 
-                this.Model.ActiveKeyFullId = value?.Key.FullId;
-                this.RaisePropertyChanged(ref this.activeSequence, value);
-                if (value != null) {
-                    value.IsActive = true;
+                if (oldSequence != null) {
+                    oldSequence.RaisePropertyChanged(ref oldSequence.isActive, false, nameof(oldSequence.IsActive));
                 }
 
+                if (value == null) {
+                    this.activeSequence = null;
+                    this.Model.ActiveKeyFullId = null;
+                }
+                else {
+                    this.activeSequence = value;
+                    this.Model.ActiveKeyFullId = value.Key.FullId;
+                    value.RaisePropertyChanged(ref value.isActive, true, nameof(this.activeSequence.IsActive));
+                }
+
+                this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.ActiveSequenceKey));
                 this.RaisePropertyChanged(nameof(this.IsSequenceEditorVisible));
 
                 this.DeselectSequenceCommand.RaiseCanExecuteChanged();
                 this.ToggleOverrideCommand.RaiseCanExecuteChanged();
+
+                this.ActiveSequenceChanged?.Invoke(this, new ActiveSequenceChangedEventArgs(oldSequence, value));
             }
         }
 
@@ -78,6 +92,7 @@ namespace FramePFX.Automation.ViewModels {
         public IAutomatableViewModel Owner { get; }
 
         public event EventHandler OverrideStateChanged;
+        public event ActiveSequenceChangedEventHandler ActiveSequenceChanged;
 
         public AutomationDataViewModel(IAutomatableViewModel owner, AutomationData model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -92,12 +107,26 @@ namespace FramePFX.Automation.ViewModels {
                 this.dataMap[sequence.Key] = vm;
                 this.sequences.Add(vm);
             }
+        }
 
-            string activeId = model.ActiveKeyFullId;
+        /// <summary>
+        /// Accesses the model's <see cref="AutomationData.ActiveKeyFullId"/> value (which is used
+        /// during serialisation) and tries to set our active sequence to it, if it exists
+        /// <para>
+        /// This is not called during to constructor and must be called manually, so
+        /// that any <see cref="ActiveSequenceChanged"/> handlers can be registered first
+        /// </para>
+        /// </summary>
+        /// <returns></returns>
+        public bool SetActiveSequenceFromModelDeserialisation() {
+            string activeId = this.Model.ActiveKeyFullId;
             AutomationSequenceViewModel foundSequence;
             if (activeId != null && (foundSequence = this.sequences.FirstOrDefault(x => x.Key.FullId == activeId)) != null) {
                 this.ActiveSequence = foundSequence;
+                return true;
             }
+
+            return false;
         }
 
         public void AssignRefreshHandler(AutomationKey key, RefreshAutomationValueEventHandler handler) {

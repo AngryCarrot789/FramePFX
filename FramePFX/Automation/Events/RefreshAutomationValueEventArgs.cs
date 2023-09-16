@@ -1,4 +1,4 @@
-namespace FramePFX.Automation {
+namespace FramePFX.Automation.Events {
     public readonly struct RefreshAutomationValueEventArgs {
         /// <summary>
         /// The frame where the play head is

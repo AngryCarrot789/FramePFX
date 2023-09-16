@@ -1,9 +1,9 @@
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
-using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Editor.ViewModels.Timelines.Effects;
 
 namespace FramePFX.Utils {
     public static class AutomationUtils {
@@ -23,7 +23,7 @@ namespace FramePFX.Utils {
                 }
             }
             else if (automatable is BaseEffectViewModel effect) {
-                if (effect.OwnerClip != null && !effect.OwnerClip.Model.GetRelativeFrame(timeline.PlayHeadFrame, out long _)) {
+                if (effect.OwnerClip == null || !effect.OwnerClip.Model.GetRelativeFrame(timeline.PlayHeadFrame, out long _)) {
                     return false;
                 }
             }

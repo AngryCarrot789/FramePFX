@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.ViewModels;
@@ -175,11 +176,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".mkv":
                     case ".flv": {
                         ResourceAVMedia media = new ResourceAVMedia() {
-                            FilePath = path
+                            FilePath = path, DisplayName = Path.GetFileName(path)
                         };
 
                         try {
-                            media.OpenMediaFromFile();
+                            await Task.Run(() => media.OpenMediaFromFile());
                         }
                         catch (Exception e) {
                             await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
@@ -222,7 +223,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".bmp":
                     case ".jpg":
                     case ".jpeg": {
-                        ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path});
+                        ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path, DisplayName = Path.GetFileName(path)});
                         using (ErrorList stack = new ErrorList(false)) {
                             await image.LoadResource(null, stack);
                             if (stack.TryGetException(out Exception exception)) {
@@ -236,7 +237,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                         this.CurrentGroup.AddItem(image, true);
                         break;
                     }
-                    // lol
                     case ".txt":
                     case ".text":
                     case ".log":
@@ -252,7 +252,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".cpp": {
                         ResourceTextFileViewModel file = new ResourceTextFileViewModel(new ResourceTextFile() {
                             Path = new ProjectPath(path, EnumPathFlags.AbsoluteFilePath),
-                            IsOnline = true
+                            IsOnline = true, 
+                            DisplayName = Path.GetFileName(path)
                         });
 
                         this.Manager.RegisterEntry(file.Model);

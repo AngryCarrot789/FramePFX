@@ -1,11 +1,17 @@
+using System;
 using FramePFX.Automation;
+using FramePFX.Editor.Registries;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.Timelines.Effects {
     /// <summary>
-    /// The base class for all types of effects (audio, video, etc.)
+    /// The base class for all types of effects (audio, video, etc.). This class supports automation
     /// </summary>
     public abstract class BaseEffect : IAutomatable {
+        /// <summary>
+        /// Whether or not this effect can be removed from a clip. This is also used to determine if an
+        /// effect can be copy and pasted into another clip. When this is false, it cannot be copied nor removed
+        /// </summary>
         public bool IsRemoveable { get; protected set; }
 
         /// <summary>
@@ -15,7 +21,7 @@ namespace FramePFX.Editor.Timelines.Effects {
 
         public AutomationData AutomationData { get; }
 
-        public AutomationEngine AutomationEngine => this.OwnerClip?.AutomationEngine;
+        public AutomationEngine AutomationEngine => this.OwnerClip.AutomationEngine;
 
         public bool IsAutomationChangeInProgress { get; set; }
 
@@ -24,9 +30,104 @@ namespace FramePFX.Editor.Timelines.Effects {
         /// </summary>
         public Clip OwnerClip { get; set; }
 
+        public Project Project => this.OwnerClip.Track.Timeline.Project;
+
         protected BaseEffect() {
+            this.IsRemoveable = true;
             this.AutomationData = new AutomationData(this);
         }
+
+        public static void AddEffectToClip(Clip clip, BaseEffect effect) {
+            InsertEffectIntoClip(clip, effect, clip.Effects.Count);
+        }
+
+        public static void InsertEffectIntoClip(Clip clip, BaseEffect effect, int index) {
+            if (index < 0 || index > clip.Effects.Count) {
+                throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and the number of effects ({clip.Effects.Count})");
+            }
+
+            if (clip.Effects.Contains(effect))
+                throw new Exception("Clip already contains the effect");
+            if (effect.OwnerClip != null)
+                throw new Exception("Effect exists in another clip");
+
+            effect.OwnerClip = clip;
+            effect.OnAddingToClip();
+            clip.Effects.Insert(index, effect);
+            effect.OnAddedToClip();
+        }
+
+        public static bool RemoveEffectFromOwnerClip(BaseEffect effect) {
+            Clip owner = effect.OwnerClip;
+            if (owner == null)
+                return false;
+            int index = owner.Effects.IndexOf(effect);
+            if (index < 0)
+                return false;
+            RemoveEffectAt(owner, index);
+            return true;
+        }
+
+        // this one only really exists to handle the case when we try and remove an effect
+        // from a clip that doesn't own the effect, which throws because something bad happened
+        public static bool RemoveEffectFromClip(Clip clip, BaseEffect effect) {
+            Clip owner = effect.OwnerClip;
+            if (owner == null)
+                return false;
+            if (owner != clip)
+                throw new Exception("Effect does not belong to the clip");
+            int index = owner.Effects.IndexOf(effect);
+            if (index < 0)
+                return false;
+            RemoveEffectAt(owner, index);
+            return true;
+        }
+
+        public static void RemoveEffectAt(Clip clip, int index) {
+            BaseEffect effect = clip.Effects[index];
+            if (effect.OwnerClip != clip) {
+                throw new Exception("Internal error: effect is in the clip's effect list but the effect's owner is not said clip");
+            }
+
+            effect.OnRemovingFromClip();
+            clip.Effects.RemoveAt(index);
+            effect.OnRemovedFromClip();
+            effect.OwnerClip = null;
+        }
+
+        /// <summary>
+        /// Invoked when this effect is about to be removed from the <see cref="OwnerClip"/> (which will be non-null at this call)
+        /// </summary>
+        protected virtual void OnRemovingFromClip() {
+
+        }
+
+        /// <summary>
+        /// Invoked when this effect is removed from our <see cref="OwnerClip"/> (which will be non-null at this call, but set to null after method)
+        /// </summary>
+        protected virtual void OnRemovedFromClip() {
+
+        }
+
+        /// <summary>
+        /// Invoked when this effect is about to be added to <see cref="OwnerClip"/> (which is set prior to this call)
+        /// </summary>
+        protected virtual void OnAddingToClip() {
+
+        }
+
+        /// <summary>
+        /// Called after this effect is added to <see cref="OwnerClip"/> (which is set prior to this call)
+        /// </summary>
+        protected virtual void OnAddedToClip() {
+
+        }
+
+        // add/remove event handlers to TrackChanged and TrackTimelineChanged in
+        // the added/removed methods, or adding/removing; it doesn't matter
+
+        // public virtual void OnClipTrackChanged(Track oldTrack, Track track) { }
+        // public virtual void OnClipTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) { }
 
         public virtual void WriteToRBE(RBEDictionary data) {
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.Editor.Registries;
+using System.Diagnostics;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -8,12 +8,10 @@ namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// A group of resource items
     /// </summary>
-    public class ResourceGroup : BaseResourceObject {
+    public sealed class ResourceGroup : BaseResourceObject {
         private readonly List<BaseResourceObject> items;
 
-        public IEnumerable<BaseResourceObject> Items => this.items;
-
-        public BaseResourceObject this[int index] => this.items[index];
+        public IReadOnlyList<BaseResourceObject> Items => this.items;
 
         public ResourceGroup() {
             this.items = new List<BaseResourceObject>();
@@ -40,11 +38,7 @@ namespace FramePFX.Editor.ResourceManaging {
             base.WriteToRBE(data);
             RBEList list = data.CreateList("Items");
             foreach (BaseResourceObject item in this.items) {
-                if (!(item.RegistryId is string registryId))
-                    throw new Exception($"Resource type is not registered: {this.GetType()}");
-                RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(this.RegistryId), registryId);
-                item.WriteToRBE(dictionary.CreateDictionary("Data"));
+                list.Add(WriteSerialisedWithId(item));
             }
         }
 
@@ -52,43 +46,37 @@ namespace FramePFX.Editor.ResourceManaging {
             base.ReadFromRBE(data);
             RBEList list = data.GetList("Items");
             foreach (RBEDictionary dictionary in list.OfType<RBEDictionary>()) {
-                string registryId = dictionary.GetString(nameof(this.RegistryId), null);
-                if (string.IsNullOrEmpty(registryId))
-                    throw new Exception("Missing the registry ID for item");
-                RBEDictionary resdata = dictionary.GetDictionary("Data");
-                BaseResourceObject resource = ResourceTypeRegistry.Instance.CreateResourceItemModel(registryId);
-                resource.ReadFromRBE(resdata);
-                this.items.Add(resource);
+                this.items.Add(ReadSerialisedWithId(dictionary));
             }
         }
 
-        public void AddItem(BaseResourceObject value, bool setManager = true) {
-            this.InsertItem(this.items.Count, value, setManager);
+        public void AddItem(BaseResourceObject value) {
+            this.InsertItem(this.items.Count, value);
         }
 
-        public void InsertItem(int index, BaseResourceObject value, bool setManager = true) {
+        public void InsertItem(int index, BaseResourceObject value) {
+            if (this.items.Contains(value))
+                throw new Exception("Value already stored in this group");
             this.items.Insert(index, value);
+            value.SetManager(this.Manager);
             value.SetParent(this);
-            if (setManager) {
-                value.SetManager(this.Manager);
-            }
         }
 
         public bool RemoveItem(BaseResourceObject item) {
             int index = this.items.IndexOf(item);
-            if (index < 0) {
+            if (index < 0)
                 return false;
-            }
-
             this.RemoveItemAt(index);
             return true;
         }
 
         public void RemoveItemAt(int index) {
-            BaseResourceObject value = this.items[index];
+            BaseResourceObject item = this.items[index];
+            Debug.Assert(item.Parent == this, "Expected item's parent to equal the current group");
+            Debug.Assert(item.Manager == this.Manager, "Expected item's parent to equal the current group");
             this.items.RemoveAt(index);
-            value.SetParent(null);
-            value.SetManager(null);
+            item.SetParent(null);
+            item.SetManager(null);
         }
 
         /// <summary>

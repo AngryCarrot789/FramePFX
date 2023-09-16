@@ -2,16 +2,18 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Automation;
+using FramePFX.Automation.Events;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Editor.ViewModels.Timelines.Clips;
 using FramePFX.Editor.ViewModels.Timelines.Removals;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 using FramePFX.History.ViewModels;
 using FramePFX.Utils;
@@ -237,6 +239,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     return;
                 }
             }
+
+            newClip.AddEffect(new MotionEffect());
 
             this.CreateClip(newClip);
             if (newClip is VideoClip videoClipModel) {

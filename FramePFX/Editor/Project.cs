@@ -76,12 +76,17 @@ namespace FramePFX.Editor {
         /// <param name="file">Input relative path</param>
         /// <returns>Output absolute filepath that may exist on the system</returns>
         /// <exception cref="ArgumentException">Input file name/path is null or empty</exception>
-        public string GetAbsolutePath(string file) {
-            if (string.IsNullOrEmpty(file)) {
-                throw new ArgumentException("File path cannot be null or empty", nameof(file));
+        public string GetAbsolutePath(ProjectPath file) {
+            if (string.IsNullOrEmpty(file.FilePath)) {
+                throw new ArgumentException("File's path cannot be null or empty", nameof(file));
             }
 
-            return Path.Combine(this.GetDirectoryPath(out _), file);
+            if (file.IsAbsolute) {
+                return Path.GetFullPath(file.FilePath);
+            }
+            else {
+                return Path.Combine(this.GetDirectoryPath(out _), file.FilePath);
+            }
         }
 
         public string GetDirectoryPath(out bool isTemp) {

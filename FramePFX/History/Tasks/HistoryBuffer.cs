@@ -30,7 +30,7 @@ namespace FramePFX.History.Tasks {
     /// thread safe because the internal task does not assign the internal action to a non-null value
     /// </para>
     /// </summary>
-    public class HistoryBuffer<T> where T : class, IHistoryAction {
+    public class HistoryBuffer<T> where T : HistoryAction {
         private readonly PropertyChangedEventHandler propertyChangedEventHandler;
         private readonly EventHistoryAction.RemovedEventHandler removedHandler;
         private readonly EventHistoryAction.UndoEventHandler undoHandler;

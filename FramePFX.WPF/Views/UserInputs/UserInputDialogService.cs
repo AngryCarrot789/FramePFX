@@ -30,7 +30,12 @@ namespace FramePFX.WPF.Views.UserInputs {
         }
 
         public Task<bool> ShowSingleInputDialogAsync(SingleInputViewModel viewModel) {
-            return DispatcherUtils.InvokeAsync(() => this.ShowSingleInputDialog(viewModel));
+            if (IoC.Application.IsOnOwnerThread) {
+                return Task.FromResult(this.ShowSingleInputDialog(viewModel));
+            }
+            else {
+                return DispatcherUtils.InvokeAsync(() => this.ShowSingleInputDialog(viewModel));
+            }
         }
 
         public bool ShowDoubleInputDialog(DoubleInputViewModel viewModel) {

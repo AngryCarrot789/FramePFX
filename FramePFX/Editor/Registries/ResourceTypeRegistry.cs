@@ -25,15 +25,15 @@ namespace FramePFX.Editor.Registries {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public BaseResourceObject CreateResourceItemModel(string id) {
+        public BaseResourceObject CreateModel(string id) {
             return (BaseResourceObject) Activator.CreateInstance(base.GetModelType(id));
         }
 
-        public BaseResourceObjectViewModel CreateResourceItemViewModel(string id) {
-            return (BaseResourceObjectViewModel) Activator.CreateInstance(base.GetViewModelType(id), this.CreateResourceItemModel(id));
+        public BaseResourceObjectViewModel CreateViewModel(string id) {
+            return (BaseResourceObjectViewModel) Activator.CreateInstance(base.GetViewModelType(id), this.CreateModel(id));
         }
 
-        public BaseResourceObjectViewModel CreateItemViewModelFromModel(BaseResourceObject item) {
+        public BaseResourceObjectViewModel CreateViewModelFromModel(BaseResourceObject item) {
             return (BaseResourceObjectViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(item), item);
         }
     }

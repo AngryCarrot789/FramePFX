@@ -1,12 +1,10 @@
 using System;
-using System.Reflection;
 using FramePFX.Services;
 using FramePFX.Shortcuts.Dialogs;
 using FramePFX.Views.Dialogs.FilePicking;
 using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.Progression;
 using FramePFX.Views.Dialogs.UserInputs;
-using SkiaSharp;
 
 namespace FramePFX {
     public static class IoC {
@@ -28,7 +26,7 @@ namespace FramePFX {
         /// <summary>
         /// The application dispatcher, used to execute actions on the main thread
         /// </summary>
-        public static IDispatcher Dispatcher { get; set; }
+        public static IApplication Application { get; set; }
 
         public static IClipboardService Clipboard => Provide<IClipboardService>();
         public static IMessageDialogService MessageDialogs => Provide<IMessageDialogService>();
@@ -41,29 +39,7 @@ namespace FramePFX {
 
         public static ITranslator Translator => Provide<ITranslator>();
 
-        public static GRGlInterface GRGlInterface { get; set; }
-        public static GRContext GrContext { get; set; }
-
         public static Action<string> BroadcastShortcutChanged { get; set; }
-
-        public static void LoadServicesFromAttributes() {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
-                    ServiceImplementationAttribute implementationAttribute = typeInfo.GetCustomAttribute<ServiceImplementationAttribute>();
-                    if (implementationAttribute != null && implementationAttribute.Type != null) {
-                        object instance;
-                        try {
-                            instance = Activator.CreateInstance(typeInfo);
-                        }
-                        catch (Exception e) {
-                            throw new Exception($"Failed to create implementation of {implementationAttribute.Type} as {typeInfo}", e);
-                        }
-
-                        Instance.Register(implementationAttribute.Type, instance);
-                    }
-                }
-            }
-        }
 
         public static T Provide<T>() => Instance.GetService<T>();
     }

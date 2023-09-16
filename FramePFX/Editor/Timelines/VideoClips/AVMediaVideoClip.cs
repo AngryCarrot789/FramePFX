@@ -59,7 +59,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                 // a project preview resolution so that decoding is lightning fast for low resolution?
 
-                this.Transform(rc);
+                // this.ApplyTransformation(rc);
                 if (ready.IsHardwareFrame) {
                     // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                     // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
-using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -13,7 +12,7 @@ namespace FramePFX.Editor.Timelines {
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
     /// </summary>
     public abstract class Track : IAutomatable {
-        internal long internalTrackId = -1;
+        private readonly List<Clip> clips;
 
         /// <summary>
         /// The timeline that created this track
@@ -23,7 +22,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// This track's clips (unordered)
         /// </summary>
-        public List<Clip> Clips { get; }
+        public IReadOnlyList<Clip> Clips => this.clips;
 
         /// <summary>
         /// This track's registry ID, used to create instances dynamically through the <see cref="TrackRegistry"/>
@@ -49,34 +48,8 @@ namespace FramePFX.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
-        /// <summary>
-        /// A unique identifier for this track, relative to the project. If an ID is not
-        /// assigned, then a new ID is created for this track
-        /// <para>
-        /// This ID is assigned on demand. Once assigned, it will not be unassigned
-        /// </para>
-        /// </summary>
-        public long UniqueTrackId {
-            get {
-                if (this.internalTrackId >= 0)
-                    return this.internalTrackId;
-                if (this.Timeline == null)
-                    throw new Exception("No timeline assigned");
-                return this.internalTrackId = this.Timeline.GetNextTrackId(this);
-            }
-            set => this.internalTrackId = value;
-        }
-
-        /// <summary>
-        /// Whether or not this clip has an ID assigned or not
-        /// </summary>
-        public bool HasTrackId => this.internalTrackId >= 0;
-
-        // this feels like such bad design...
-        internal TrackViewModel viewModel;
-
         protected Track() {
-            this.Clips = new List<Clip>();
+            this.clips = new List<Clip>();
             this.MinHeight = 21;
             this.MaxHeight = 200;
             this.Height = 60;
@@ -115,7 +88,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public void GetClipsAtFrame(long frame, List<Clip> list) {
-            List<Clip> src = this.Clips;
+            List<Clip> src = this.clips;
             int count = src.Count, i = 0;
             while (i < count) {
                 Clip clip = src[i++];
@@ -126,7 +99,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public Clip GetClipAtFrame(long frame) {
-            List<Clip> src = this.Clips;
+            List<Clip> src = this.clips;
             int i = 0, c = src.Count;
             while (i < c) {
                 Clip clip = src[i++];
@@ -157,7 +130,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public void GetClipIndicesAt(long frame, ICollection<int> indices) {
-            List<Clip> list = this.Clips;
+            List<Clip> list = this.clips;
             for (int i = 0, count = list.Count; i < count; i++) {
                 if (list[i].IntersectsFrameAt(frame)) {
                     indices.Add(i);
@@ -166,16 +139,16 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public void AddClip(Clip clip) {
-            this.InsertClip(this.Clips.Count, clip);
+            this.InsertClip(this.clips.Count, clip);
         }
 
         public void InsertClip(int index, Clip clip) {
-            this.Clips.Insert(index, clip);
+            this.clips.Insert(index, clip);
             Clip.SetTrack(clip, this);
         }
 
         public bool RemoveClip(Clip clip) {
-            int index = this.Clips.IndexOf(clip);
+            int index = this.clips.IndexOf(clip);
             if (index < 0) {
                 return false;
             }
@@ -185,13 +158,15 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public void RemoveClipAt(int index) {
-            Clip clip = this.Clips[index];
-            if (!ReferenceEquals(this, clip.Track)) {
-                throw new Exception("Expected clip (to remove)'s track to equal this instance");
-            }
-
+            Clip clip = this.clips[index];
+            if (!ReferenceEquals(this, clip.Track))
+                throw new Exception("Expected clip's track to equal this instance");
             Clip.SetTrack(clip, null);
-            this.Clips.RemoveAt(index);
+            this.clips.RemoveAt(index);
+        }
+
+        public void MoveClipIndex(int oldIndex, int newIndex) {
+            this.clips.MoveItem(oldIndex, newIndex);
         }
 
         public abstract Track CloneCore();
@@ -202,11 +177,9 @@ namespace FramePFX.Editor.Timelines {
             data.SetDouble(nameof(this.MaxHeight), this.MaxHeight);
             data.SetDouble(nameof(this.Height), this.Height);
             data.SetString(nameof(this.TrackColour), this.TrackColour);
-            if (this.internalTrackId >= 0)
-                data.SetLong(nameof(this.UniqueTrackId), this.internalTrackId);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Clips));
-            foreach (Clip clip in this.Clips) {
+            foreach (Clip clip in this.clips) {
                 Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
             }
         }
@@ -217,23 +190,12 @@ namespace FramePFX.Editor.Timelines {
             this.MaxHeight = data.GetDouble(nameof(this.MaxHeight), 200);
             this.Height = data.GetDouble(nameof(this.Height), 60);
             this.TrackColour = data.TryGetString(nameof(this.TrackColour), out string colour) ? colour : TrackColours.GetRandomColour();
-            if (data.TryGetLong(nameof(this.UniqueTrackId), out long tId) && tId >= 0)
-                this.internalTrackId = tId;
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             this.AutomationData.UpdateBackingStorage();
-            HashSet<long> usedIds = new HashSet<long>();
             foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
                 Clip clip = Clip.ReadSerialisedWithId(dictionary);
-
-                // check for duplicate track ids, caused by external modification or corruption
-                if (clip.internalClipId >= 0) {
-                    if (usedIds.Contains(clip.internalClipId))
-                        throw new Exception("Clip ID already in use: " + clip.internalClipId);
-                    usedIds.Add(clip.internalClipId);
-                }
-
                 this.AddClip(clip);
             }
         }
@@ -248,21 +210,29 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         public long GetMaxDuration() {
             long max = 0L;
-            List<Clip> clips = this.Clips;
-            for (int i = 0, c = clips.Count; i < c; i++)
-                max = Math.Max(max, clips[i].FrameEndIndex);
+            for (int i = this.clips.Count - 1; i >= 0; i--)
+                max = Math.Max(max, this.clips[i].FrameEndIndex);
             return max;
         }
 
         public bool GetUsedFrameSpan(out FrameSpan span) {
-            return FrameSpan.TryUnionAll(this.Clips.Select(x => x.FrameSpan), out span);
+            return FrameSpan.TryUnionAll(this.clips.Select(x => x.FrameSpan), out span);
         }
 
         public void GetUsedFrameSpan(ref long begin, ref long endIndex) {
-            foreach (Clip clip in this.Clips) {
+            foreach (Clip clip in this.clips) {
                 FrameSpan span = clip.FrameSpan;
                 begin = Math.Min(begin, span.Begin);
                 endIndex = Math.Max(endIndex, span.EndIndex);
+            }
+        }
+
+        /// <summary>
+        /// Clears all clips in this track
+        /// </summary>
+        public void Clear() {
+            for (int i = this.clips.Count - 1; i >= 0; i--) {
+                this.RemoveClipAt(i);
             }
         }
     }

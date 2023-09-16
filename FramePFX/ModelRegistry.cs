@@ -93,6 +93,26 @@ namespace FramePFX {
             return entry;
         }
 
+        protected TModel CreateModel(string id) {
+            return (TModel) Activator.CreateInstance(this.GetModelType(id));
+        }
+
+        protected TModel CreateModel(string id, params object[] args) {
+            return (TModel) Activator.CreateInstance(this.GetModelType(id), args);
+        }
+
+        protected TViewModel CreateViewModel(string id) {
+            return (TViewModel) Activator.CreateInstance(this.GetViewModelType(id));
+        }
+
+        protected TViewModel CreateViewModel(string id, params object[] args) {
+            return (TViewModel) Activator.CreateInstance(this.GetViewModelType(id), args);
+        }
+
+        protected TViewModel CreateViewModelFromModel(TModel model) {
+            return (TViewModel) Activator.CreateInstance(this.GetViewModelTypeFromModel(model), model);
+        }
+
         protected class Entry {
             public readonly string Id;
             public readonly Type ModelType;

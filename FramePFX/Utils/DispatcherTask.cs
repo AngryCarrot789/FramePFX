@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Services;
 
 namespace FramePFX.Utils {
     public class DispatcherTask {
@@ -25,7 +26,7 @@ namespace FramePFX.Utils {
                 return;
             }
 
-            IoC.Dispatcher.InvokeLater(this.AttemptExecuteOrRegisterTask);
+            IoC.Application.Invoke(this.AttemptExecuteOrRegisterTask, ExecutionPriority.Normal);
         }
 
         public void AttemptExecuteOrRegisterTask() {

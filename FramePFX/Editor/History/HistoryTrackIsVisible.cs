@@ -10,12 +10,12 @@ namespace FramePFX.Editor.History {
             this.IsVisible = new Transaction<bool>(track.IsVisible, newValue);
         }
 
-        protected override Task UndoAsyncCore() {
+        protected override Task UndoAsyncForHolder() {
             this.Holder.IsVisible = this.IsVisible.Original;
             return Task.CompletedTask;
         }
 
-        protected override Task RedoAsyncCore() {
+        protected override Task RedoAsyncForHolder() {
             this.Holder.IsVisible = this.IsVisible.Current;
             return Task.CompletedTask;
         }

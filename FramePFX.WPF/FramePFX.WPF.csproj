@@ -44,6 +44,9 @@
     <Reference Include="FFmpeg.AutoGen, Version=6.0.0.2, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
       <HintPath>..\packages\FFmpeg.AutoGen.6.0.0.2\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
     </Reference>
+    <Reference Include="libsoundio-sharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\libsoundio-sharp-net.1.0.0\lib\netstandard2.0\libsoundio-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Win32.Registry, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Win32.Registry.4.7.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
     </Reference>
@@ -150,6 +153,10 @@
     <Compile Include="AdvancedContextService\Static\StaticMenuItemCollection.cs" />
     <Compile Include="AdvancedContextService\Static\StaticMenuSeparator.cs" />
     <Compile Include="AdvancedContextService\Static\StaticShortcutMenuItem.cs" />
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="AttachedProperties\ActionControl.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
     <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
@@ -163,189 +170,6 @@
     <Compile Include="AttachedProperties\TopmostFocus.cs" />
     <Compile Include="AttributeProcessor.cs" />
     <Compile Include="BindingErrorListener.cs" />
-    <Compile Include="PropertyEditing\Converters\PropertyItemToolTipConverter.cs" />
-    <Compile Include="PropertyEditing\PropertyEditor.cs" />
-    <Compile Include="PropertyEditing\PropertyEditorItem.cs" />
-    <Compile Include="PropertyEditing\PropertyEditorItemsControl.cs" />
-    <Compile Include="Resources\I18N\LangType.cs" />
-    <Compile Include="Resources\I18N\LocalizationController.cs" />
-    <Compile Include="Resources\I18N\WPFDictionaryTranslator.cs" />
-    <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
-    <Compile Include="Services\ClipboardService.cs" />
-    <Compile Include="Services\WinExplorerService.cs" />
-    <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
-    <Compile Include="Shortcuts\Bindings\InputStateBinding.cs" />
-    <Compile Include="Shortcuts\Bindings\InputStateCollection.cs" />
-    <Compile Include="Shortcuts\Bindings\ShortcutCommandBinding.cs" />
-    <Compile Include="Shortcuts\Bindings\ShortcutCommandCollection.cs" />
-    <Compile Include="Shortcuts\Converters\ActionIdToGestureConverter.cs" />
-    <Compile Include="Shortcuts\Converters\GlobalUpdateShortcutGestureConverter.cs" />
-    <Compile Include="Shortcuts\Converters\KeyStrokeStringConverter.cs" />
-    <Compile Include="Shortcuts\Converters\MouseStrokeStringConverter.cs" />
-    <Compile Include="Shortcuts\Converters\ShortcutIdToGestureConverter.cs" />
-    <Compile Include="Shortcuts\Converters\ShortcutIdToHeaderConverter.cs" />
-    <Compile Include="Shortcuts\Converters\ShortcutIdToToolTipConverter.cs" />
-    <Compile Include="Shortcuts\Converters\ShortcutPathToInputGestureTextConverter.cs" />
-    <Compile Include="Shortcuts\Dialogs\KeyboardDialogService.cs" />
-    <Compile Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml.cs">
-      <DependentUpon>KeyStrokeInputWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shortcuts\Dialogs\MouseDialogService.cs" />
-    <Compile Include="Shortcuts\Dialogs\MouseStrokeInputWindow.xaml.cs">
-      <DependentUpon>MouseStrokeInputWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shortcuts\ShortcutActivateHandler.cs" />
-    <Compile Include="Shortcuts\ShortcutUtils.cs" />
-    <Compile Include="Shortcuts\UIInputManager.cs" />
-    <Compile Include="Shortcuts\Views\ShortcutEditorWindow.xaml.cs">
-      <DependentUpon>ShortcutEditorWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shortcuts\Views\ShortcutManagerDialogService.cs" />
-    <Compile Include="Shortcuts\WPFKeyMapSerialiser.cs" />
-    <Compile Include="Shortcuts\WPFShortcutManager.cs" />
-    <Compile Include="Shortcuts\WPFShortcutProcessor.cs" />
-    <Compile Include="SKAsyncViewPort.cs" />
-    <Compile Include="SKViewPort.cs" />
-    <Compile Include="Themes\Attached\CornerRadiusHelper.cs" />
-    <Compile Include="Themes\Attached\MenuHelper.cs" />
-    <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
-    <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
-    <Compile Include="Themes\Attached\TextHinting.cs" />
-    <Compile Include="Themes\AvalonDock\GeneralDockTheme.cs" />
-    <Compile Include="Themes\AvalonDock\Themes\Menu\MenuKeys.cs" />
-    <Compile Include="Themes\AvalonDock\Themes\ResourceKeys.cs" />
-    <Compile Include="Themes\ColourKeys.cs" />
-    <Compile Include="Themes\Controls.xaml.cs">
-      <DependentUpon>Controls.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Themes\Converters\TreeViewLineConverter.cs" />
-    <Compile Include="Themes\Generator\ThemeGenerator.cs" />
-    <Compile Include="Themes\ThemesController.cs" />
-    <Compile Include="Themes\ThemeType.cs" />
-    <Compile Include="Themes\ToneGenerator.cs" />
-    <Compile Include="Utils\CASLock.cs" />
-    <Compile Include="Utils\DispatcherCallback.cs" />
-    <Compile Include="Utils\DispatcherDelegate.cs" />
-    <Compile Include="Utils\DispatcherUtils.cs" />
-    <Compile Include="Utils\DynamicCodeConverter.cs" />
-    <Compile Include="Utils\FileUtils.cs" />
-    <Compile Include="Utils\InputDrivenTaskExecutor.cs" />
-    <Compile Include="Utils\KBUtils.cs" />
-    <Compile Include="Utils\KeyUtils.cs" />
-    <Compile Include="Utils\NumberAverager.cs" />
-    <Compile Include="Utils\PointUtils.cs" />
-    <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs" />
-    <Compile Include="Utils\ScrollerUtils.cs" />
-    <Compile Include="Utils\TextPointerUtils.cs" />
-    <Compile Include="Utils\ThreadSafeDP.cs" />
-    <Compile Include="Utils\ThreadTimer.cs" />
-    <Compile Include="Utils\Time.cs" />
-    <Compile Include="Utils\UsageCounter.cs" />
-    <Compile Include="Utils\Validate.cs" />
-    <Compile Include="Utils\VisualTreeUtils.cs" />
-    <Compile Include="Validators\FontFamilyValidationRule.cs" />
-    <Compile Include="Views\AppLoggerWindow.xaml.cs">
-      <DependentUpon>AppLoggerWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\AppSplashScreen.xaml.cs">
-      <DependentUpon>AppSplashScreen.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\BaseDialog.cs" />
-    <Compile Include="Views\BaseWindow.cs" />
-    <Compile Include="Views\Exceptions\CollectionToVisibilityConverter.cs" />
-    <Compile Include="Views\Exceptions\ExceptionViewerService.cs" />
-    <Compile Include="Views\Exceptions\ExceptionViewerWindow.xaml.cs">
-      <DependentUpon>ExceptionViewerWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FilePicking\FilePickDialogService.cs" />
-    <Compile Include="Views\FilePicking\FolderPicker.cs" />
-    <Compile Include="Views\Message\CurrentQueueCheckBoxConverter.cs" />
-    <Compile Include="Views\Message\MessageDialogService.cs" />
-    <Compile Include="Views\Message\MessageWindow.xaml.cs">
-      <DependentUpon>MessageWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Modal\BaseDialogEx.xaml.cs">
-      <DependentUpon>BaseDialogEx.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Progression\IndeterminateProgressionWindow.xaml.cs">
-      <DependentUpon>IndeterminateProgressionWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Progression\ProgressionDialogService.cs" />
-    <Compile Include="Views\PropertyPageDemoWindow.xaml.cs">
-      <DependentUpon>PropertyPageDemoWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TestControlPreview.xaml.cs">
-      <DependentUpon>TestControlPreview.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UserInputs\DoubleUserInputWindow.xaml.cs">
-      <DependentUpon>DoubleUserInputWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UserInputs\SimpleInputValidationRule.cs" />
-    <Compile Include="Views\UserInputs\SingleUserInputWindow.xaml.cs">
-      <DependentUpon>SingleUserInputWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UserInputs\UserInputDialogService.cs" />
-    <Compile Include="Views\Validators\DoubleRangeValidationRule.cs" />
-    <Compile Include="Views\Validators\IntRangeValidationRule.cs" />
-    <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs" />
-    <Compile Include="Views\WindowEx.cs" />
-    <Compile Include="Views\WindowViewBase.cs" />
-    <Page Include="AdvancedContextService\ContextStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\ControlStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\xclemence\RulerWPF\RulerStyle.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Automation\AutomationSequenceStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Controls\ResourcesPanelControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\EditorMainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Exporting\ExportSetupWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Exporting\ExportWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Exporting\Pages\FFmpegExportPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\ResourceChecker\ResourceCheckerDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Resources\ResManagerStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Timeline\TimelineStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\CursorUtils.cs" />
     <Compile Include="Controls\Dragger\EditCompletedEventArgs.cs" />
@@ -434,6 +258,7 @@
     <Compile Include="Editor\Resources\ResourceItemControl.cs" />
     <Compile Include="Editor\Resources\ResourceListControl.cs" />
     <Compile Include="Editor\Timeline\Controls\AutomationComboBox.cs" />
+    <Compile Include="Editor\Timeline\Controls\SelectionAdorner.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineContentPanel.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
@@ -458,6 +283,246 @@
     <Compile Include="Highlighting\HighlightableString.cs" />
     <Compile Include="Highlighting\InlineHelper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
+    <Compile Include="Notifications\NotificationControl.cs" />
+    <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
+    <Compile Include="Notifications\NotificationList.cs" />
+    <Compile Include="PropertyEditing\Converters\PropertyItemToolTipConverter.cs" />
+    <Compile Include="PropertyEditing\PropertyEditor.cs" />
+    <Compile Include="PropertyEditing\PropertyEditorItem.cs" />
+    <Compile Include="PropertyEditing\PropertyEditorItemsControl.cs" />
+    <Compile Include="Resources\I18N\LangType.cs" />
+    <Compile Include="Resources\I18N\LocalizationController.cs" />
+    <Compile Include="Resources\I18N\WPFDictionaryTranslator.cs" />
+    <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
+    <Compile Include="Services\ClipboardService.cs" />
+    <Compile Include="Services\WinExplorerService.cs" />
+    <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
+    <Compile Include="Shortcuts\Bindings\InputStateBinding.cs" />
+    <Compile Include="Shortcuts\Bindings\InputStateCollection.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutCommandBinding.cs" />
+    <Compile Include="Shortcuts\Bindings\ShortcutCommandCollection.cs" />
+    <Compile Include="Shortcuts\Converters\ActionIdToGestureConverter.cs" />
+    <Compile Include="Shortcuts\Converters\GlobalUpdateShortcutGestureConverter.cs" />
+    <Compile Include="Shortcuts\Converters\KeyStrokeStringConverter.cs" />
+    <Compile Include="Shortcuts\Converters\MouseStrokeStringConverter.cs" />
+    <Compile Include="Shortcuts\Converters\ShortcutIdToGestureConverter.cs" />
+    <Compile Include="Shortcuts\Converters\ShortcutIdToHeaderConverter.cs" />
+    <Compile Include="Shortcuts\Converters\ShortcutIdToToolTipConverter.cs" />
+    <Compile Include="Shortcuts\Converters\ShortcutPathToInputGestureTextConverter.cs" />
+    <Compile Include="Shortcuts\Dialogs\KeyboardDialogService.cs" />
+    <Compile Include="Shortcuts\Dialogs\KeyStrokeInputWindow.xaml.cs">
+      <DependentUpon>KeyStrokeInputWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shortcuts\Dialogs\MouseDialogService.cs" />
+    <Compile Include="Shortcuts\Dialogs\MouseStrokeInputWindow.xaml.cs">
+      <DependentUpon>MouseStrokeInputWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shortcuts\ShortcutActivateHandler.cs" />
+    <Compile Include="Shortcuts\ShortcutUtils.cs" />
+    <Compile Include="Shortcuts\UIInputManager.cs" />
+    <Compile Include="Shortcuts\Views\ShortcutEditorWindow.xaml.cs">
+      <DependentUpon>ShortcutEditorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shortcuts\Views\ShortcutManagerDialogService.cs" />
+    <Compile Include="Shortcuts\WPFKeyMapSerialiser.cs" />
+    <Compile Include="Shortcuts\WpfShortcutInputManager.cs" />
+    <Compile Include="Shortcuts\WPFShortcutManager.cs" />
+    <Compile Include="SKAsyncViewPort.cs" />
+    <Compile Include="SKViewPort.cs" />
+    <Compile Include="Themes\Attached\CornerRadiusHelper.cs" />
+    <Compile Include="Themes\Attached\MenuHelper.cs" />
+    <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
+    <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
+    <Compile Include="Themes\Attached\TextHinting.cs" />
+    <Compile Include="Themes\AvalonDock\GeneralDockTheme.cs" />
+    <Compile Include="Themes\AvalonDock\Themes\Menu\MenuKeys.cs" />
+    <Compile Include="Themes\AvalonDock\Themes\ResourceKeys.cs" />
+    <Compile Include="Themes\ColourKeys.cs" />
+    <Compile Include="Themes\Controls.xaml.cs">
+      <DependentUpon>Controls.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Themes\Converters\TreeViewLineConverter.cs" />
+    <Compile Include="Themes\Generator\ThemeGenerator.cs" />
+    <Compile Include="Themes\ThemesController.cs" />
+    <Compile Include="Themes\ThemeType.cs" />
+    <Compile Include="Themes\ToneGenerator.cs" />
+    <Compile Include="Utils\ApplicationDelegate.cs" />
+    <Compile Include="Utils\CASLock.cs" />
+    <Compile Include="Utils\DispatcherCallback.cs" />
+    <Compile Include="Utils\DispatcherUtils.cs" />
+    <Compile Include="Utils\DynamicCodeConverter.cs" />
+    <Compile Include="Utils\FileUtils.cs" />
+    <Compile Include="Utils\InputDrivenTaskExecutor.cs" />
+    <Compile Include="Utils\KBUtils.cs" />
+    <Compile Include="Utils\KeyUtils.cs" />
+    <Compile Include="Utils\NumberAverager.cs" />
+    <Compile Include="Utils\PointUtils.cs" />
+    <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs" />
+    <Compile Include="Utils\ScrollerUtils.cs" />
+    <Compile Include="Utils\TextPointerUtils.cs" />
+    <Compile Include="Utils\ThreadSafeDP.cs" />
+    <Compile Include="Utils\ThreadTimer.cs" />
+    <Compile Include="Utils\Time.cs" />
+    <Compile Include="Utils\UsageCounter.cs" />
+    <Compile Include="Utils\Validate.cs" />
+    <Compile Include="Utils\VisualTreeUtils.cs" />
+    <Compile Include="Validators\FontFamilyValidationRule.cs" />
+    <Compile Include="Views\AppLoggerWindow.xaml.cs">
+      <DependentUpon>AppLoggerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AppSplashScreen.xaml.cs">
+      <DependentUpon>AppSplashScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\BaseDialog.cs" />
+    <Compile Include="Views\BaseWindow.cs" />
+    <Compile Include="Views\Exceptions\CollectionToVisibilityConverter.cs" />
+    <Compile Include="Views\Exceptions\ExceptionViewerService.cs" />
+    <Compile Include="Views\Exceptions\ExceptionViewerWindow.xaml.cs">
+      <DependentUpon>ExceptionViewerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FilePicking\FilePickDialogService.cs" />
+    <Compile Include="Views\FilePicking\FolderPicker.cs" />
+    <Compile Include="Views\Message\CurrentQueueCheckBoxConverter.cs" />
+    <Compile Include="Views\Message\MessageDialogService.cs" />
+    <Compile Include="Views\Message\MessageWindow.xaml.cs">
+      <DependentUpon>MessageWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Modal\BaseDialogEx.xaml.cs">
+      <DependentUpon>BaseDialogEx.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Progression\IndeterminateProgressionWindow.xaml.cs">
+      <DependentUpon>IndeterminateProgressionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Progression\ProgressionDialogService.cs" />
+    <Compile Include="Views\PropertyPageDemoWindow.xaml.cs">
+      <DependentUpon>PropertyPageDemoWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TestControlPreview.xaml.cs">
+      <DependentUpon>TestControlPreview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserInputs\DoubleUserInputWindow.xaml.cs">
+      <DependentUpon>DoubleUserInputWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserInputs\SimpleInputValidationRule.cs" />
+    <Compile Include="Views\UserInputs\SingleUserInputWindow.xaml.cs">
+      <DependentUpon>SingleUserInputWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserInputs\UserInputDialogService.cs" />
+    <Compile Include="Views\Validators\DoubleRangeValidationRule.cs" />
+    <Compile Include="Views\Validators\IntRangeValidationRule.cs" />
+    <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs" />
+    <Compile Include="Views\WindowEx.cs" />
+    <Compile Include="Views\WindowViewBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Keymap.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="OpenTK.dll.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Resources\Shaders\pink.frag" />
+    <None Include="Resources\Shaders\pink.vert" />
+    <None Include="Resources\Shaders\rgb.frag" />
+    <None Include="Resources\Shaders\rgb.vert" />
+    <None Include="Resources\Shaders\sky.frag" />
+    <None Include="Resources\Shaders\sky.vert" />
+    <None Include="Resources\Shaders\texture.frag" />
+    <None Include="Resources\Shaders\texture.vert" />
+    <None Include="Resources\Shaders\textureatlas.frag" />
+    <None Include="Resources\Shaders\textureatlas.vert" />
+    <None Include="Resources\Shaders\xyz.frag" />
+    <None Include="Resources\Shaders\xyz.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FramePFX\FramePFX.csproj">
+      <Project>{70a8c2eb-8e04-4708-8752-0be03930ceec}</Project>
+      <Name>FramePFX</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Editor\Timeline\Controls\TimelineClipControl-new-drag-broken.txt" />
+    <Content Include="Keymap.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Themes\OldDragablzStyles.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="AdvancedContextService\ContextStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ControlStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\xclemence\RulerWPF\RulerStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Automation\AutomationSequenceStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Controls\ResourcesPanelControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\EditorMainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Exporting\ExportSetupWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Exporting\ExportWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Exporting\Pages\FFmpegExportPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Project\EditorDialogs\ProjectSettingsEditorWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\ResourceChecker\ResourceCheckerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Resources\ResManagerStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Timeline\TimelineStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Notifications\NotificationStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -588,66 +653,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Notifications\NotificationControl.cs" />
-    <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
-    <Compile Include="Notifications\NotificationList.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="Keymap.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="OpenTK.dll.config" />
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Resources\Shaders\pink.frag" />
-    <None Include="Resources\Shaders\pink.vert" />
-    <None Include="Resources\Shaders\rgb.frag" />
-    <None Include="Resources\Shaders\rgb.vert" />
-    <None Include="Resources\Shaders\sky.frag" />
-    <None Include="Resources\Shaders\sky.vert" />
-    <None Include="Resources\Shaders\texture.frag" />
-    <None Include="Resources\Shaders\texture.vert" />
-    <None Include="Resources\Shaders\textureatlas.frag" />
-    <None Include="Resources\Shaders\textureatlas.vert" />
-    <None Include="Resources\Shaders\xyz.frag" />
-    <None Include="Resources\Shaders\xyz.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FramePFX\FramePFX.csproj">
-      <Project>{70a8c2eb-8e04-4708-8752-0be03930ceec}</Project>
-      <Name>FramePFX</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Editor\Timeline\Controls\TimelineClipControl-new-drag-broken.txt" />
-    <Content Include="Keymap.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Resource Include="Themes\OldDragablzStyles.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Editor\Properties\" />
     <Folder Include="Editor\Timeline\Actions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

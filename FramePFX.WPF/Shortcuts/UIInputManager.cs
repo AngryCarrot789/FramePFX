@@ -1,16 +1,18 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using FramePFX.Utils;
 using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.Shortcuts {
-    public static class UIInputManager {
+    public class UIInputManager : INotifyPropertyChanged {
+        public static UIInputManager Instance { get; } = new UIInputManager();
+
         public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         public static readonly DependencyProperty IsInputSourceProperty = DependencyProperty.RegisterAttached("IsInputSource", typeof(bool), typeof(WPFShortcutManager), new PropertyMetadata(BoolBox.False, WPFShortcutManager.OnIsGlobalShortcutFocusTargetChanged));
-        public static readonly DependencyProperty UsageIdProperty = DependencyProperty.RegisterAttached("UsageId", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(WPFShortcutManager.DEFAULT_USAGE_ID, FrameworkPropertyMetadataOptions.Inherits));
         public static readonly DependencyProperty IsPathFocusedProperty = DependencyProperty.RegisterAttached("IsPathFocused", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
-        internal static readonly DependencyPropertyKey ShortcutProcessorProperty = DependencyProperty.RegisterAttachedReadOnly("ShortcutProcessor", typeof(WPFShortcutProcessor), typeof(UIInputManager), new PropertyMetadata(default(WPFShortcutProcessor)));
+        internal static readonly DependencyPropertyKey ShortcutProcessorProperty = DependencyProperty.RegisterAttachedReadOnly("ShortcutProcessor", typeof(WpfShortcutInputManager), typeof(UIInputManager), new PropertyMetadata(default(WpfShortcutInputManager)));
         public static readonly DependencyProperty UsePreviewEventsProperty = DependencyProperty.RegisterAttached("UsePreviewEvents", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
 
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
@@ -23,10 +25,21 @@ namespace FramePFX.WPF.Shortcuts {
 
         public static WeakReference<DependencyObject> CurrentlyFocusedObject { get; } = new WeakReference<DependencyObject>(null);
 
-        /// <summary>
-        /// The currently focused group
-        /// </summary>
-        public static string FocusedPath { get; private set; }
+        private string focusedPath;
+        public string FocusedPath {
+            get => this.focusedPath;
+            private set {
+                this.focusedPath = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.FocusedPath)));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private UIInputManager() {
+            if (Instance != null)
+                throw new InvalidOperationException();
+        }
 
         /// <summary>
         /// Sets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
@@ -48,10 +61,6 @@ namespace FramePFX.WPF.Shortcuts {
         /// Gets whether or not the element is a shortcut input source for processing shortcuts
         /// </summary>
         public static bool GetIsInputSource(UIElement element) => (bool) element.GetValue(IsInputSourceProperty);
-
-        public static void SetUsageId(DependencyObject element, string value) => element.SetValue(UsageIdProperty, value);
-
-        public static string GetUsageId(DependencyObject element) => (string) element.GetValue(UsageIdProperty);
 
         /// <summary>
         /// Sets whether this element has group focus (will only be set)
@@ -90,10 +99,10 @@ namespace FramePFX.WPF.Shortcuts {
         }
 
         public static void ProcessFocusGroupChange(DependencyObject obj) {
-            string oldPath = FocusedPath;
+            string oldPath = Instance.FocusedPath;
             string newPath = GetFocusPath(obj);
             if (oldPath != newPath) {
-                FocusedPath = newPath;
+                Instance.FocusedPath = newPath;
                 RaiseFocusGroupPathChanged(oldPath, newPath);
                 UpdateHasFocusGroup(obj);
             }

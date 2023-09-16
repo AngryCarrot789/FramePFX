@@ -3,25 +3,26 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:kf="clr-namespace:FramePFX.Automation.ViewModels.Keyframe;assembly=FramePFX"
-                    xmlns:cx="clr-namespace:FramePFX.Editor.Contexts;assembly=FramePFX"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-                    xmlns:clp="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Clips;assembly=FramePFX"
-                    xmlns:ctl="clr-namespace:FramePFX.Editor.ViewModels.Timelines;assembly=FramePFX"
-                    xmlns:tt="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Tracks;assembly=FramePFX"
-                    xmlns:cv="clr-namespace:FramePFX.WPF.Converters"
+                    xmlns:converters="clr-namespace:FramePFX.WPF.Converters"
                     xmlns:ctrl="clr-namespace:FramePFX.WPF.Controls"
                     xmlns:tc="clr-namespace:FramePFX.WPF.Editor.Timeline.Controls"
-                    xmlns:a="clr-namespace:FramePFX.WPF.Editor.Automation"
-                    xmlns:drg="clr-namespace:FramePFX.WPF.Controls.Dragger"
-                    xmlns:ap1="clr-namespace:FramePFX.WPF.Themes.Attached"
+                    xmlns:cx="clr-namespace:FramePFX.Editor.Contexts;assembly=FramePFX"
+                    xmlns:automation="clr-namespace:FramePFX.WPF.Editor.Automation"
+                    xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
+                    xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
                     xmlns:ap2="clr-namespace:FramePFX.WPF.AttachedProperties"
-                    xmlns:rule="clr-namespace:FramePFX.WPF.Controls.xclemence.RulerWPF"
-                    xmlns:wtl="clr-namespace:FramePFX.WPF.Editor.Timeline"
+                    xmlns:rulerWpf="clr-namespace:FramePFX.WPF.Controls.xclemence.RulerWPF"
+                    xmlns:timeline="clr-namespace:FramePFX.WPF.Editor.Timeline"
+                    xmlns:tt="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Tracks;assembly=FramePFX"
                     xmlns:v2="clr-namespace:FramePFX.WPF.Editor.Timeline.Controls.V2"
+                    xmlns:ctl="clr-namespace:FramePFX.Editor.ViewModels.Timelines;assembly=FramePFX"
                     xmlns:acs="clr-namespace:FramePFX.WPF.AdvancedContextService"
+                    xmlns:kf="clr-namespace:FramePFX.Automation.ViewModels.Keyframe;assembly=FramePFX"
+                    xmlns:bindings="clr-namespace:FramePFX.WPF.Shortcuts.Bindings"
+                    xmlns:videoClips="clr-namespace:FramePFX.Editor.ViewModels.Timelines.VideoClips;assembly=FramePFX"
                     mc:Ignorable="d">
-    <cv:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
     <Style TargetType="{x:Type ctrl:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
     <Style TargetType="{x:Type tc:TimelinePlayHeadControl}">
@@ -92,7 +93,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineClipControl}">
-                    <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance clp:VideoClipViewModel}">
+                    <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance videoClips:VideoClipViewModel}">
                         <Border Background="{Binding Track.TrackColour, FallbackValue=Black}" VerticalAlignment="Top" Height="{DynamicResource LayerHeight}">
                             <DockPanel>
                                 <TextBlock IsHitTestVisible="False" Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
@@ -111,13 +112,13 @@
                         <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True" Panel.ZIndex="2"/>
                         <ctrl:CancellableThumb x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="16" Margin="-8,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Panel.ZIndex="2"/>
                         <ctrl:CancellableThumb x:Name="PART_ThumbRight" HorizontalAlignment="Right" Width="16" Margin="0,0,-8,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Panel.ZIndex="2"/>
-                        <a:AutomationSequenceEditor DataContext="{Binding AutomationData}"
-                                                    Sequence="{Binding ActiveSequence}"
-                                                    IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
-                                                    UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineControl}}, Path=UnitZoom, FallbackValue=0}"
-                                                    FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineClipControl}}, Path=FrameDuration}"
-                                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                    Margin="0,20,0,0"/>
+                        <automation:AutomationSequenceEditor DataContext="{Binding ActiveClipOrEffectSequence, Mode=OneWay}" 
+                                                             Sequence="{Binding}"
+                                                             IsOverrideEnabled="{Binding IsOverrideEnabled}"
+                                                             UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineControl}}, Path=UnitZoom, FallbackValue=0}"
+                                                             FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineClipControl}}, Path=FrameDuration}"
+                                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                             Margin="0,20,0,0"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -156,7 +157,7 @@
                         <!-- IsItemHost must be true in order for it's items to sync with the TimelineTrackControl's items -->
                         <Grid d:DataContext="{d:DesignInstance ctl:TrackViewModel}">
                             <Canvas IsItemsHost="True" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
-                            <a:AutomationSequenceEditor DataContext="{Binding AutomationData}"
+                            <automation:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                         Sequence="{Binding ActiveSequence}"
                                                         IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
                                                         UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
@@ -258,7 +259,7 @@
                             <DockPanel>
                                 <Border Background="{TemplateBinding Background}" DockPanel.Dock="Right" Width="50" Panel.ZIndex="1">
                                     <Grid>
-                                        <drg:NumberDragger IsEnabled="True"
+                                        <dragger:NumberDragger IsEnabled="True"
                                                                Background="{TemplateBinding Background}" BorderThickness="0,0,0,0"
                                                                Style="{StaticResource AbletonNumberDraggerStyle}"
                                                                ToolTip="The timeline zoom level (use CTRL + MouseWheel to zoom)"
@@ -276,7 +277,7 @@
                                         <Border Background="{DynamicResource ScrollBarSink.MouseOver.Background}" SnapsToDevicePixels="True" Height="8" CornerRadius="5"/>
                                     </Border>
                                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="1"/>
-                                    <RepeatButton x:Name="PART_LineLeftButton" Command="{x:Static ScrollBar.LineLeftCommand}" Style="{StaticResource ScrollBarButton}" Background="Transparent" ap1:CornerRadiusHelper.Value="5">
+                                    <RepeatButton x:Name="PART_LineLeftButton" Command="{x:Static ScrollBar.LineLeftCommand}" Style="{StaticResource ScrollBarButton}" Background="Transparent" attached:CornerRadiusHelper.Value="5">
                                         <Path x:Name="ArrowLeft" Data="M 3.18,7 C3.18,7 5,7 5,7 5,7 1.81,3.5 1.81,3.5 1.81,3.5 5,0 5,0 5,0 3.18,0 3.18,0 3.18,0 0,3.5 0,3.5 0,3.5 3.18,7 3.18,7 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3" Stretch="Uniform"/>
                                     </RepeatButton>
                                     <Track x:Name="PART_Track" Grid.Column="1" IsEnabled="{TemplateBinding IsMouseOver}">
@@ -373,14 +374,14 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineControl}">
                     <Grid x:Name="PART_rootGrid">
-                        <Border Background="{DynamicResource PanelBackground1}"/>
+                        <Border Background="{TemplateBinding Background}"/>
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false"
                                       Padding="{TemplateBinding Padding}"
                                       CanContentScroll="{TemplateBinding ScrollViewer.CanContentScroll}"
                                       HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
                                       VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
                                       PanningMode="{TemplateBinding ScrollViewer.PanningMode}"
-                                      cv:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
+                                      converters:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
                                       Style="{StaticResource TimelineScrollViewerStyle}">
                             <!--
                             <ScrollViewer.Background>
@@ -428,7 +429,7 @@
                                         Background="{DynamicResource ABrush.Tone4.Background.Static}"
                                         BorderBrush="{DynamicResource PanelBorderBrush}"
                                         BorderThickness="0 0 0 1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="40">
-                                    <rule:Ruler VerticalAlignment="Stretch"
+                                    <rulerWpf:Ruler VerticalAlignment="Stretch"
                                                     HorizontalAlignment="Stretch"
                                                     MarkerControlReference="{Binding ElementName=PART_rootGrid}"
                                                     MaxValue="{Binding MaxDuration}"
@@ -454,8 +455,8 @@
         </Setter>
     </Style>
 
-    <wtl:TimelineTrackListItemTemplateSelector x:Key="TimelineTrackListItemContainerSelector">
-        <wtl:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
+    <timeline:TimelineTrackListItemTemplateSelector x:Key="TimelineTrackListItemContainerSelector">
+        <timeline:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
             <DataTemplate DataType="{x:Type tt:VideoTrackViewModel}">
                 <Grid Margin="4,0">
                     <DockPanel SnapsToDevicePixels="True">
@@ -466,7 +467,7 @@
                             </StackPanel>
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
-                            <drg:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
+                            <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
                                                    TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                                    Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                                    HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
@@ -488,8 +489,8 @@
                     </DockPanel>
                 </Grid>
             </DataTemplate>
-        </wtl:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
-        <wtl:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
+        </timeline:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
+        <timeline:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
             <DataTemplate DataType="{x:Type tt:AudioTrackViewModel}">
                 <Grid Margin="4,0">
                     <DockPanel SnapsToDevicePixels="True">
@@ -500,8 +501,8 @@
                             </StackPanel>
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
-                            <drg:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
-                                                   DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static cv:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
+                            <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
+                                                   DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static converters:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
                                                    TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                                    Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                                    HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
@@ -523,8 +524,8 @@
                     </DockPanel>
                 </Grid>
             </DataTemplate>
-        </wtl:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
-    </wtl:TimelineTrackListItemTemplateSelector>
+        </timeline:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
+    </timeline:TimelineTrackListItemTemplateSelector>
 
     <Style x:Key="TrackListBoxStyle" TargetType="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
         <Setter Property="ItemTemplateSelector" Value="{StaticResource TimelineTrackListItemContainerSelector}"/>
@@ -537,7 +538,7 @@
                     <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="0" SnapsToDevicePixels="true">
                         <ScrollViewer CanContentScroll="False"
                                       x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}"
-                                      cv:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
+                                      converters:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
                                       ap2:HorizontalScrolling.UseHorizontalScrolling="True">
                             <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="0"/>
                         </ScrollViewer>
@@ -573,6 +574,11 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
+                                    <bindings:InputStateCollection.Collection>
+                                        <bindings:InputStateCollection>
+                                            <bindings:InputStateBinding InputStatePath="Application/Editor/UseStateAss1"/>
+                                        </bindings:InputStateCollection>
+                                    </bindings:InputStateCollection.Collection>
                                     <Grid d:DataContext="{d:DesignInstance ctl:TrackViewModel}">
                                         <Rectangle Fill="{Binding TrackColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4"/>
@@ -612,7 +618,7 @@
         </Setter>
     </Style>
 
-    <a:AutomationActivityBrushConverter x:Key="AutomationActivityBrushConverter"/>
+    <automation:AutomationActivityBrushConverter x:Key="AutomationActivityBrushConverter"/>
 
     <Style TargetType="{x:Type tc:AutomationComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
         <Setter Property="StaysOpenOnEdit" Value="True"/>
@@ -632,8 +638,8 @@
                         <Ellipse DockPanel.Dock="Left" Width="5" Height="5" Visibility="{Binding HasKeyFrames, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" Margin="0,0,3,0">
                             <Ellipse.Fill>
                                 <MultiBinding Converter="{StaticResource AutomationActivityBrushConverter}">
-                                    <Binding Path="IsAutomationInUse"/>
-                                    <Binding Path="IsActive"/>
+                                    <Binding Path="IsAutomationInUse" Mode="OneWay"/>
+                                    <Binding Path="IsActive" Mode="OneWay"/>
                                 </MultiBinding>
                             </Ellipse.Fill>
                         </Ellipse>

@@ -3,13 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:e="clr-namespace:FramePFX.Editor.Exporting.Exporters;assembly=FramePFX"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
              xmlns:converters="clr-namespace:FramePFX.WPF.Editor.Exporting.Converters"
+             xmlns:exporters="clr-namespace:FramePFX.Editor.Exporting.Exporters;assembly=FramePFX"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="250"
-             d:DataContext="{d:DesignInstance e:FFmpegExportViewModel}">
+             d:DataContext="{d:DesignInstance exporters:FFmpegExportViewModel}">
     <StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>

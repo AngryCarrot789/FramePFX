@@ -1,24 +1,17 @@
 using System.Numerics;
-using FramePFX.Automation;
 using FramePFX.Automation.Keys;
-using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.Effects.Video {
+    /// <summary>
+    /// An effect that deals with picture transformations (as in position, scale and scale origin)
+    /// </summary>
     public class MotionEffect : VideoEffect {
-        public static readonly AutomationKeyVector2 MediaPositionKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyVector2 MediaScaleKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyVector2 MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaPositionKey          = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleKey             = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleOriginKey       = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyBoolean UseAbsoluteScaleOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect), nameof(UseAbsoluteScaleOrigin));
-
-        // saves using closure allocation for each clip
-        private static readonly UpdateAutomationValueEventHandler UpdateMediaPosition = (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f);
-        private static readonly UpdateAutomationValueEventHandler UpdateMediaScale = (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScale = s.GetVector2Value(f);
-        private static readonly UpdateAutomationValueEventHandler UpdateMediaScaleOrigin = (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScaleOrigin = s.GetVector2Value(f);
-        private static readonly UpdateAutomationValueEventHandler UpdateUseAbsoluteScaleOrigin = (s, f) => ((MotionEffect) s.AutomationData.Owner).UseAbsoluteScaleOrigin = s.GetBooleanValue(f);
-
-        public Vector2? FrameSize;
 
         /// <summary>
         /// The x and y coordinates of the video's media
@@ -41,30 +34,30 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// </summary>
         public bool UseAbsoluteScaleOrigin;
 
-        public MotionEffect(VideoClip clip) {
-            this.OwnerClip = clip;
-            this.IsRemoveable = false;
+        public MotionEffect() {
+            this.AutomationData.AssignKey(MediaPositionKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f));
+            this.AutomationData.AssignKey(MediaScaleKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScale = s.GetVector2Value(f));
+            this.AutomationData.AssignKey(MediaScaleOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScaleOrigin = s.GetVector2Value(f));
+            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).UseAbsoluteScaleOrigin = s.GetBooleanValue(f));
 
             this.MediaPosition = MediaPositionKey.Descriptor.DefaultValue;
             this.MediaScale = MediaScaleKey.Descriptor.DefaultValue;
             this.MediaScaleOrigin = MediaScaleOriginKey.Descriptor.DefaultValue;
             this.UseAbsoluteScaleOrigin = UseAbsoluteScaleOriginKey.Descriptor.DefaultValue;
-            this.AutomationData.AssignKey(MediaPositionKey, UpdateMediaPosition);
-            this.AutomationData.AssignKey(MediaScaleKey, UpdateMediaScale);
-            this.AutomationData.AssignKey(MediaScaleOriginKey, UpdateMediaScaleOrigin);
-            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey, UpdateUseAbsoluteScaleOrigin);
         }
 
-        public override void ProcessFrame(RenderContext rc) {
-            base.ProcessFrame(rc);
+        // apply transformation
+
+        public override void PreProcessFrame(RenderContext rc, Vector2? frame) {
+            base.PreProcessFrame(rc, frame);
             Vector2 pos = this.MediaPosition, scale = this.MediaScale, origin = this.MediaScaleOrigin;
             rc.Canvas.Translate(pos.X, pos.Y);
-            Vector2 sz = this.FrameSize ?? new Vector2(rc.FrameInfo.Width, rc.FrameInfo.Height);
+            Vector2 size = frame ?? rc.FrameSize;
             if (this.UseAbsoluteScaleOrigin) {
                 rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
             }
             else {
-                rc.Canvas.Scale(scale.X, scale.Y, sz.X * origin.X, sz.Y * origin.Y);
+                rc.Canvas.Scale(scale.X, scale.Y, size.X * origin.X, size.Y * origin.Y);
             }
         }
     }

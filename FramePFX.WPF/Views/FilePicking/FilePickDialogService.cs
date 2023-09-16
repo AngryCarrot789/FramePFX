@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using FramePFX.Views.Dialogs.FilePicking;
 using Microsoft.Win32;
+using FramePFX.Views.Dialogs.FilePicking;
 
 namespace FramePFX.WPF.Views.FilePicking {
     [ServiceImplementation(typeof(IFilePickDialogService))]

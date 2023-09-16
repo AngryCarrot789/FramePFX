@@ -7,21 +7,12 @@ namespace FramePFX.Shortcuts.Managing {
     /// A class used to store a reference to a <see cref="Shortcut"/> and its
     /// owning <see cref="ShortcutGroup"/>, and also other shortcut data
     /// </summary>
-    public sealed class GroupedShortcut {
+    public sealed class GroupedShortcut : IGroupedObject {
         private IShortcut shortcut;
 
-        /// <summary>
-        /// The collection that owns this managed shortcut
-        /// </summary>
-        public ShortcutGroup Group { get; }
+        public ShortcutManager Manager => this.Parent.Manager;
 
-        /// <summary>
-        /// The shortcut itself. Will not be null
-        /// </summary>
-        public IShortcut Shortcut {
-            get => this.shortcut;
-            set => this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
-        }
+        public ShortcutGroup Parent { get; }
 
         /// <summary>
         /// The name of the shortcut. This will not be null or empty and will not consist of only whitespaces;
@@ -78,12 +69,20 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         public DataContext ActionContext { get; set; }
 
+        /// <summary>
+        /// The shortcut itself. Will not be null
+        /// </summary>
+        public IShortcut Shortcut {
+            get => this.shortcut;
+            set => this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
+        }
+
         public GroupedShortcut(ShortcutGroup group, string name, IShortcut shortcut, bool isGlobal = false) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
-            this.Group = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
+            this.Parent = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
             this.Name = name;
-            this.Shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut));
+            this.shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut));
             this.FullPath = group.GetPathForName(name);
             this.IsGlobal = isGlobal;
             this.IsInherited = true;

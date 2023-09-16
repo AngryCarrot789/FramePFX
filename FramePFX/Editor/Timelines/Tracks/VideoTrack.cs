@@ -1,4 +1,5 @@
 using FramePFX.Automation;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Utils;
@@ -9,6 +10,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
         public static readonly AutomationKeyBoolean IsVisibleKey = AutomationKey.RegisterBool(nameof(VideoTrack), nameof(IsVisible), new KeyDescriptorBoolean(true));
         public const double MinimumVisibleOpacity = 0.0001d;
 
+        // This isn't necessarily required, because the compiler will generate a hidden class with static variables
+        // like this automatically when no closure allocation is required...
         private static readonly UpdateAutomationValueEventHandler UpdateOpacity = (s, f) => ((VideoTrack) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f);
         private static readonly UpdateAutomationValueEventHandler UpdateIsVisible = (s, f) => ((VideoTrack) s.AutomationData.Owner).IsVisible = s.GetBooleanValue(f);
 

@@ -121,17 +121,16 @@ namespace FramePFX.Automation.Keys {
         }
 
         public static AutomationKey GetKey(string domain, string id) {
-            if (RegistryMap.TryGetValue(domain, out Dictionary<string, AutomationKey> map)) {
-                if (map.TryGetValue(id, out AutomationKey key)) {
-                    return key;
-                }
-            }
-
-            return null;
+            return TryGetKey(domain, id, out AutomationKey key) ? key : null;
         }
 
         public static bool TryGetKey(string domain, string id, out AutomationKey key) {
-            return (key = GetKey(domain, id)) != null;
+            if (RegistryMap.TryGetValue(domain, out Dictionary<string, AutomationKey> map)) {
+                return map.TryGetValue(id, out key);
+            }
+
+            key = null;
+            return false;
         }
 
         /// <summary>

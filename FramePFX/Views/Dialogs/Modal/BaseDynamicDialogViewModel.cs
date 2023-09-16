@@ -147,7 +147,7 @@ namespace FramePFX.Views.Dialogs.Modal {
         }
 
         public DialogButton GetButtonById(string id) {
-            return this.buttons.First(x => x.ActionType != null && x.ActionType == id);
+            return id == null ? null : this.buttons.First(x => x.ActionType != null && x.ActionType == id);
         }
 
         public DialogButton RemoveButtonAt(int index) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.RBC;
@@ -7,17 +8,21 @@ using FramePFX.Utils;
 
 namespace FramePFX.Automation {
     /// <summary>
-    /// Contains a collection of <see cref="AutomationSequence"/>s mapped by an <see cref="AutomationKey"/>. The sequences are designed to
-    /// be immutable; initialised once during the creation of an automatable object, and never modified again
+    /// Contains a collection of <see cref="AutomationSequence"/> objects mapped by an <see cref="AutomationKey"/>. This
+    /// class is designed to be immutable; it is typically created in the constructor of an <see cref="IAutomatable"/>
+    /// object, where sequences are assigned via <see cref="AssignKey"/>
     /// </summary>
     public class AutomationData {
         private readonly Dictionary<AutomationKey, AutomationSequence> map;
         private readonly List<AutomationSequence> sequences;
 
-        public IEnumerable<AutomationSequence> Sequences => this.sequences;
+        /// <summary>
+        /// An ordered enumerable collection of sequences
+        /// </summary>
+        public IReadOnlyList<AutomationSequence> Sequences => this.sequences;
 
         /// <summary>
-        /// The automatable instance that owns this instance
+        /// The object that owns this automation data instance
         /// </summary>
         public IAutomatable Owner { get; }
 
@@ -54,7 +59,7 @@ namespace FramePFX.Automation {
         /// Adds an automation sequence for the given key, allowing it to be automated
         /// </summary>
         /// <param name="key">The key to add</param>
-        public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler) {
+        public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler = null) {
             if (this.map.ContainsKey(key))
                 throw new Exception("Key is already assigned");
             AutomationSequence sequence = new AutomationSequence(this, key);
@@ -92,11 +97,10 @@ namespace FramePFX.Automation {
                 if (!fullId.Split(AutomationKey.FullIdSplitter, out string domain, out string id))
                     throw new Exception($"Invalid KeyId: {fullId}");
 
-                AutomationKey key = AutomationKey.GetKey(domain, id);
-                if (key == null)
+                if (!AutomationKey.TryGetKey(domain, id, out AutomationKey key))
                     throw new Exception("Unknown automation key: " + fullId);
                 if (!this.map.TryGetValue(key, out AutomationSequence sequence))
-                    throw new Exception("Missing/unassigned key: " + fullId);
+                    throw new Exception("Missing/unassigned automation key: " + fullId);
                 sequence.ReadFromRBE(dictionary);
             }
         }

@@ -5,8 +5,8 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows.Data;
 using System.Windows.Markup;
-using FramePFX.Utils;
 using Microsoft.CSharp;
+using FramePFX.Utils;
 
 namespace FramePFX.WPF.Utils {
     /// <summary>

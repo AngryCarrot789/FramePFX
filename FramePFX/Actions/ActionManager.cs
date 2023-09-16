@@ -11,12 +11,14 @@ namespace FramePFX.Actions {
     public class ActionManager {
         public static ActionManager Instance { get; set; }
 
-        private readonly Dictionary<string, LinkedList<GlobalPresentationUpdateHandler>> updateEventMap;
+        private readonly Dictionary<string, LinkedList<CanExecuteChangedEventHandler>> updateEventMap;
+        private readonly List<CanExecuteChangedEventHandler> globalUpdateEventMap;
         private readonly Dictionary<string, AnAction> actions;
 
         public ActionManager() {
             this.actions = new Dictionary<string, AnAction>();
-            this.updateEventMap = new Dictionary<string, LinkedList<GlobalPresentationUpdateHandler>>();
+            this.updateEventMap = new Dictionary<string, LinkedList<CanExecuteChangedEventHandler>>();
+            this.globalUpdateEventMap = new List<CanExecuteChangedEventHandler>();
         }
 
         /// <summary>
@@ -101,7 +103,7 @@ namespace FramePFX.Actions {
         /// Gets an action with the given ID
         /// </summary>
         public virtual AnAction GetAction(string id) {
-            return id != null && this.actions.TryGetValue(id, out AnAction action) ? action : null;
+            return !string.IsNullOrEmpty(id) && this.actions.TryGetValue(id, out AnAction action) ? action : null;
         }
 
         /// <summary>
@@ -169,26 +171,41 @@ namespace FramePFX.Actions {
             return this.actions.TryGetValue(id, out AnAction action) && action != null && action.CanExecute(new AnActionEventArgs(this, id, context, isUserInitiated));
         }
 
-        public void AddPresentationUpdateHandler(string id, GlobalPresentationUpdateHandler handler) {
-            ValidateId(id);
+        public void AddPresentationUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
+            if (id != null && string.IsNullOrWhiteSpace(id)) {
+                throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
+            }
+
             if (handler == null) {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
             }
 
-            if (!this.updateEventMap.TryGetValue(id, out LinkedList<GlobalPresentationUpdateHandler> list)) {
-                this.updateEventMap[id] = list = new LinkedList<GlobalPresentationUpdateHandler>();
+            if (id == null) {
+                if (!this.globalUpdateEventMap.Contains(handler))
+                    this.globalUpdateEventMap.Add(handler);
             }
+            else {
+                if (!this.updateEventMap.TryGetValue(id, out LinkedList<CanExecuteChangedEventHandler> list)) {
+                    this.updateEventMap[id] = list = new LinkedList<CanExecuteChangedEventHandler>();
+                }
 
-            list.AddLast(handler);
+                list.AddLast(handler);
+            }
         }
 
-        public void RemovePresentationUpdateHandler(string id, GlobalPresentationUpdateHandler handler) {
-            ValidateId(id);
+        public void RemovePresentationUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
+            if (id != null && string.IsNullOrWhiteSpace(id)) {
+                throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
+            }
+
             if (handler == null) {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
             }
 
-            if (this.updateEventMap.TryGetValue(id, out var list)) {
+            if (id == null) {
+                this.globalUpdateEventMap.Remove(handler);
+            }
+            else if (this.updateEventMap.TryGetValue(id, out LinkedList<CanExecuteChangedEventHandler> list)) {
                 list.Remove(handler);
             }
         }
@@ -206,14 +223,24 @@ namespace FramePFX.Actions {
         public bool UpdateGlobalPresentation(string id, IDataContext context, bool isUserInitiated = false) {
             ValidateId(id);
             ValidateContext(context);
-            if (!this.updateEventMap.TryGetValue(id, out LinkedList<GlobalPresentationUpdateHandler> list))
+            if (!this.actions.TryGetValue(id, out AnAction action)) {
                 return false;
-            if (!this.actions.TryGetValue(id, out AnAction action))
+            }
+
+            if (!this.updateEventMap.TryGetValue(id, out LinkedList<CanExecuteChangedEventHandler> list) && this.globalUpdateEventMap.Count < 1) {
                 return false;
+            }
 
             AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
             bool canExecute = action.CanExecute(args);
-            foreach (GlobalPresentationUpdateHandler handler in list) {
+
+            if (list != null) {
+                foreach (CanExecuteChangedEventHandler handler in list) {
+                    handler(id, action, args, canExecute);
+                }
+            }
+
+            foreach (CanExecuteChangedEventHandler handler in this.globalUpdateEventMap) {
                 handler(id, action, args, canExecute);
             }
 

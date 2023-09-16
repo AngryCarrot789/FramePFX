@@ -1,19 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Automation;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels;
+using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Commands;
 using FramePFX.Editor.History;
-using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
-using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines.Dragging;
+using FramePFX.Editor.ViewModels.Timelines.Effects;
+using FramePFX.Editor.ViewModels.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
+using FramePFX.Shortcuts.Attributes;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.UserInputs;
 
@@ -21,28 +27,22 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IAcceptResourceDrop, IProjectViewModelBound, IDisposable, IRenameTarget {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
-        protected HistoryVideoClipPosition lastDragHistoryAction;
+        private readonly ObservableCollection<BaseEffectViewModel> effects;
         private bool isSelected;
 
-        public long LastSeekedFrame { get; set; }
+        public Clip Model { get; }
+
+        /// <summary>
+        /// The track this clip is located in
+        /// </summary>
+        public TrackViewModel Track { get; set; }
 
         /// <summary>
         /// Whether or not this clip's history is being changed, and therefore, no changes should be pushed to the history manager
         /// </summary>
         public bool IsHistoryChanging { get; set; }
-
-        /// <summary>
-        /// Whether or not this clip's parameter properties are being refreshed
-        /// </summary>
-        public bool IsAutomationRefreshInProgress { get; set; }
-
-        public bool IsDraggingLeftThumb { get; set; }
-        public bool IsDraggingRightThumb { get; set; }
-        public bool IsDraggingClip { get; set; }
-
-        public bool IsDraggingAny => this.IsDraggingLeftThumb || this.IsDraggingRightThumb || this.IsDraggingClip;
 
         /// <summary>
         /// The clip's display/readable name, editable by a user
@@ -55,11 +55,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.Track?.OnProjectModified();
             }
         }
-
-        /// <summary>
-        /// The track this clip is located in
-        /// </summary>
-        public TrackViewModel Track { get; set; }
 
         public FrameSpan FrameSpan {
             get => this.Model.FrameSpan;
@@ -124,7 +119,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     return this.Track.Timeline.PlayHeadFrame - this.FrameBegin;
                 }
                 else {
-                    return this.FrameBegin;
+                    return 0;
                 }
             }
         }
@@ -146,34 +141,67 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public VideoEditorViewModel Editor => this.Project?.Editor;
 
+        #region Automation
+
         public AutomationDataViewModel AutomationData { get; }
 
         public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
+
+        IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
+
+        /// <summary>
+        /// The automation sequence (either owned by the clip or an effect that this clip has) that is currently active
+        /// </summary>
+        public AutomationSequenceViewModel ActiveClipOrEffectSequence { get; private set; }
+
+        /// <summary>
+        /// Whether or not this clip's parameter properties are being refreshed
+        /// </summary>
+        public bool IsAutomationRefreshInProgress { get; set; }
+
+        #endregion
+
+        #region Drag Helpers
+
+        public bool IsDraggingLeftThumb;
+        public bool IsDraggingRightThumb;
+        public bool IsDraggingClip;
+        public bool IsDraggingAny => this.IsDraggingLeftThumb || this.IsDraggingRightThumb || this.IsDraggingClip;
+        public ClipDragOperation drag;
+
+        #endregion
 
         public AsyncRelayCommand EditDisplayNameCommand { get; }
 
         public RelayCommand RemoveClipCommand { get; }
 
-        public Clip Model { get; }
+        /// <summary>
+        /// This clip's effects
+        /// </summary>
+        public ReadOnlyObservableCollection<BaseEffectViewModel> Effects { get; }
 
-        IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
+        public long LastSeekedFrame;
 
-        public ObservableCollection<BaseEffectViewModel> Effects { get; }
+        /// <summary>
+        /// Called when a
+        /// </summary>
+        public event ClipMovedOverPlayeHeadEventHandler ClipMovedOverPlayHead;
 
-        // public ClipDragInfo dragInfo { get; set; }
-        public ClipDragOperation drag;
+        /// <summary>
+        /// An event fired when the user explicitly when the user seeks a frame that falls outside of the range of this clip.
+        /// This may be fired during playback, but won't be called if the playback automatically leaves a clip
+        /// </summary>
+        public event PlayHeadLeaveClipEventHandler PlayHeadLeaveClip;
 
         protected ClipViewModel(Clip model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            model.viewModel = this;
-
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
-
-            this.Effects = new ObservableCollection<BaseEffectViewModel>();
-            foreach (BaseEffect effect in model.Effects) {
-                BaseEffectViewModel vm = EffectRegistry.Instance.CreateViewModelFromModel(effect);
-                vm.OwnerClip = this;
-                this.Effects.Add(vm);
+            this.AutomationData.ActiveSequenceChanged += this.AutomationDataOnActiveSequenceChanged;
+            this.AutomationData.SetActiveSequenceFromModelDeserialisation();
+            this.effects = new ObservableCollection<BaseEffectViewModel>();
+            this.Effects = new ReadOnlyObservableCollection<BaseEffectViewModel>(this.effects);
+            foreach (BaseEffect fx in model.Effects) {
+                this.AddEffect(EffectRegistry.Instance.CreateViewModelFromModel(fx), false);
             }
 
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
@@ -188,10 +216,58 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             });
         }
 
-        public bool GetHistoryManager(out HistoryManagerViewModel manager) {
-            manager = HistoryManagerViewModel.Instance;
+        private void AutomationDataOnActiveSequenceChanged(AutomationDataViewModel sender, ActiveSequenceChangedEventArgs e) {
+            this.SetActiveAutomationSequence(e.Sequence, false);
+        }
+
+        public void AddEffect(BaseEffectViewModel effect, bool addToModel = true) {
+            this.InsertEffect(effect, this.Effects.Count, addToModel);
+            if (effect.AutomationData.ActiveSequence != null) {
+                this.SetActiveAutomationSequence(effect.AutomationData.ActiveSequence, true);
+            }
+        }
+
+        public void InsertEffect(BaseEffectViewModel effect, int index, bool addToModel = true) {
+            if (this.Effects.Contains(effect))
+                throw new Exception("This clip already contains the effect");
+            if (effect.OwnerClip != null)
+                throw new Exception("Effect exists in another clip");
+
+            if (addToModel)
+                this.Model.InsertEffect(effect.Model, index);
+
+            effect.OwnerClip = this;
+            this.effects.Add(effect);
+            effect.OnAddedToClip();
+        }
+
+        public bool RemoveEffect(BaseEffectViewModel effect, bool removeFromModel = true) {
+            int index = this.Effects.IndexOf(effect);
+            if (index < 0)
+                return false;
+            this.RemoveEffectAt(index, removeFromModel);
             return true;
         }
+
+        public void RemoveEffectAt(int index, bool removeFromModel = true) {
+            BaseEffectViewModel effect = this.Effects[index];
+            if (effect.OwnerClip != this)
+                throw new Exception("Internal error: effect is in our effect list but the effect's owner is not us");
+
+            if (removeFromModel)
+                this.Model.RemoveEffectAt(index);
+
+            this.effects.Remove(effect);
+            effect.OnRemovedFromClip();
+            effect.OwnerClip = null;
+        }
+
+        // [ShortcutTarget("Application/RenameItem")]
+        // public async Task OnShortcutActivated() {
+        //     await Task.Run(async () => {
+        //         await IoC.MessageDialogs.ShowDialogAsync("t", "ttt");
+        //     });
+        // }
 
         public virtual void OnFrameSpanChanged(FrameSpan oldSpan) {
             this.RaisePropertyChanged();
@@ -232,6 +308,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         protected virtual void DisposeCore(ErrorList stack) {
+            for (int i = this.effects.Count - 1; i >= 0; i--) {
+                try {
+                    this.RemoveEffectAt(i);
+                }
+                catch (Exception e) {
+                    stack.Add(new Exception("Failed to remove effect", e));
+                }
+            }
+
             try {
                 this.Model.Dispose();
             }
@@ -242,40 +327,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public bool IntersectsFrameAt(long frame) => this.Model.IntersectsFrameAt(frame);
 
-        public virtual bool CanDropResource(BaseResourceObjectViewModel resource) {
-            return ReferenceEquals(resource.Manager, this.Track?.Timeline.Project.ResourceManager);
-        }
-
-        public virtual Task OnDropResource(BaseResourceObjectViewModel resource) {
-            return IoC.MessageDialogs.ShowMessageAsync("Resource dropped", "This clip can't do anything with that resource!");
-        }
-
-        protected void CreateClipDragHistoryAction() {
-            if (this.lastDragHistoryAction != null) {
-                throw new Exception("Drag history was non-null, which means a drag was started before another drag was completed");
-            }
-
-            this.lastDragHistoryAction = new HistoryVideoClipPosition(this);
-        }
-
-        protected void PushClipDragHistoryAction(bool cancelled) {
-            // throws if this.lastDragHistoryAction is null. It should not be null if there's no bugs in the drag start/end calls
-            if (cancelled) {
-                this.lastDragHistoryAction.Undo();
-            }
-            else if (this.GetHistoryManager(out HistoryManagerViewModel m)) {
-                m.AddAction(this.lastDragHistoryAction, "Drag clip");
-            }
-
-            this.lastDragHistoryAction = null;
-        }
-
         /// <summary>
         /// Called when the user seeks a specific frame, and it intersects with this clip. The frame is relative to this clip's begin frame
         /// </summary>
         /// <param name="oldFrame">Previous frame (not relative to this clip)</param>
         /// <param name="newFrame">Current frame (relative to this clip)</param>
         public virtual void OnUserSeekedFrame(long oldFrame, long newFrame) {
+            this.Model.OnFrameSeeked(oldFrame, newFrame);
         }
 
         /// <summary>
@@ -283,9 +341,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// </summary>
         /// <param name="frame">The play head frame, relative to this clip</param>
         public virtual void OnClipMovedToPlayeHeadFrame(long frame) {
+            this.ClipMovedOverPlayHead?.Invoke(this, frame);
         }
 
-        public virtual void OnPlayHeadLeaveClip(bool isPlayheadLeaveClip) {
+        /// <summary>
+        /// Called when the user seeks a frame that falls outside of the range of this clip
+        /// </summary>
+        /// <param name="isCausedByPlayHeadMovement">True when this is caused by the user moving the playhead, false when this is caused by the user moving the clip around</param>
+        public virtual void OnPlayHeadLeaveClip(bool isCausedByPlayHeadMovement) {
+            this.PlayHeadLeaveClip?.Invoke(this, isCausedByPlayHeadMovement);
         }
 
         private List<ClipViewModel> GetSelectedIncludingThis() {
@@ -358,7 +422,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
                 handle.clip.MediaFrameOffset += (newFrameBegin - handle.clip.FrameBegin);
                 handle.clip.FrameSpan = new FrameSpan(newFrameBegin, duration);
-                handle.history.position.SetCurrent(handle.clip.FrameSpan);
             }
         }
 
@@ -376,7 +439,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 handle.clip.FrameSpan = span.WithEndIndex(newEndIndex);
-                handle.history.position.SetCurrent(handle.clip.FrameSpan);
             }
         }
 
@@ -403,7 +465,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 handle.clip.FrameSpan = new FrameSpan(begin, span.Duration);
-                handle.history.position.SetCurrent(handle.clip.FrameSpan);
             }
         }
 
@@ -427,6 +488,25 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
 
             return false;
+        }
+
+        private bool isUpdatingAutomationSequence;
+
+        public void SetActiveAutomationSequence(AutomationSequenceViewModel sequence, bool isFromEffect) {
+            if (this.isUpdatingAutomationSequence || ReferenceEquals(this.ActiveClipOrEffectSequence, sequence)) {
+                return;
+            }
+
+            this.isUpdatingAutomationSequence = true;
+            this.AutomationData.ActiveSequence = null;
+            foreach (BaseEffectViewModel fx in this.effects) {
+                if (!ReferenceEquals(fx.AutomationData.ActiveSequence, sequence))
+                    fx.AutomationData.ActiveSequence = null;
+            }
+
+            this.ActiveClipOrEffectSequence = sequence;
+            this.RaisePropertyChanged(nameof(this.ActiveClipOrEffectSequence));
+            this.isUpdatingAutomationSequence = false;
         }
     }
 }

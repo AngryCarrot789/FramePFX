@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Services;
 
 namespace FramePFX.Utils {
     /// <summary>
@@ -7,15 +8,10 @@ namespace FramePFX.Utils {
     public class RapidDispatchCallback {
         private volatile bool isScheduled;
         private readonly Action action;
-        private readonly Action<Action> callback;
 
         public bool InvokeLater { get; set; }
 
         public RapidDispatchCallback() {
-            this.callback = (x) => {
-                x();
-                this.isScheduled = false;
-            };
         }
 
         public RapidDispatchCallback(Action action) : this() {
@@ -28,19 +24,13 @@ namespace FramePFX.Utils {
                     return false;
                 }
 
-                Action callback = () => {
+                Action cb = () => {
                     this.action();
                     this.isScheduled = false;
                 };
 
                 this.isScheduled = true;
-                if (this.InvokeLater) {
-                    IoC.Dispatcher.InvokeLater(callback);
-                }
-                else {
-                    IoC.Dispatcher.Invoke(callback);
-                }
-
+                IoC.Application.Invoke(cb, this.InvokeLater ? ExecutionPriority.Normal : ExecutionPriority.Send);
                 return true;
             }
         }
@@ -51,19 +41,13 @@ namespace FramePFX.Utils {
                     return false;
                 }
 
-                Action callback = () => {
+                Action cb = () => {
                     action();
                     this.isScheduled = false;
                 };
 
                 this.isScheduled = true;
-                if (this.InvokeLater) {
-                    IoC.Dispatcher.InvokeLater(callback);
-                }
-                else {
-                    IoC.Dispatcher.Invoke(callback);
-                }
-
+                IoC.Application.Invoke(cb, this.InvokeLater ? ExecutionPriority.Normal : ExecutionPriority.Send);
                 return true;
             }
         }

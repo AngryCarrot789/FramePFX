@@ -53,7 +53,7 @@ namespace FramePFX.Shortcuts.Usage {
                 this.currentStroke = this.currentStroke.Next;
                 return true;
             }
-            else if (this.currentStroke.Value.EqualsWithoutClick(stroke)) {
+            else if (this.currentStroke.Value.EqualsWithoutClickOrRelease(stroke)) {
                 // this allows double or triple clicking
                 // this.clickCounter++;
                 return true;

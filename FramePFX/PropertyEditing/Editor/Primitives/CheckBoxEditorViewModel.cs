@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Commands;
 
 namespace FramePFX.PropertyEditing.Editor.Primitives {
     public class CheckBoxEditorViewModel : BasePropertyEditorViewModel {

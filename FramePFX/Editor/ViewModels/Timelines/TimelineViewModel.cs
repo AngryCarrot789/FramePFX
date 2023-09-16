@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Automation.ViewModels;
+using FramePFX.Commands;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Tracks;
@@ -23,7 +24,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
 
         private List<TrackViewModel> selectedTracks;
-
         public List<TrackViewModel> SelectedTracks {
             get => this.selectedTracks;
             set {
@@ -99,6 +99,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
+            this.AutomationData.SetActiveSequenceFromModelDeserialisation();
             this.tracks = new ObservableCollectionEx<TrackViewModel>();
             this.Tracks = new ReadOnlyObservableCollection<TrackViewModel>(this.tracks);
             this.selectedTracks = new List<TrackViewModel>();
@@ -136,26 +137,29 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 newFrame = 0;
             }
 
-            if (oldFrame == newFrame || !(schedule is bool b)) {
+            if (oldFrame == newFrame) {
                 return;
             }
+
+            this.Model.PlayHeadFrame = newFrame;
+            this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
 
             foreach (TrackViewModel track in this.tracks) {
                 track.OnUserSeekedFrame(oldFrame, newFrame);
             }
 
-            this.isRendering = true;
-            this.Project.AutomationEngine.UpdateAndRefreshAt(true, newFrame);
-            try {
-                await this.Project.Editor.View.Render(b);
-            }
-            catch (TaskCanceledException) {
-                // do nothing
-            }
+            if (schedule is bool b) {
+                this.isRendering = true;
+                this.Project.AutomationEngine.UpdateAndRefreshAt(true, newFrame);
+                try {
+                    await this.Project.Editor.View.Render(b);
+                }
+                catch (TaskCanceledException) {
+                    // do nothing
+                }
 
-            this.Model.PlayHeadFrame = newFrame;
-            this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
-            this.isRendering = false;
+                this.isRendering = false;
+            }
         }
 
         // TODO: Could optimise this, maybe create "chunks" of clips that span 10 frame sections across the entire timeline
@@ -255,7 +259,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 this.tracks.Move(selection[i], target);
-                this.Model.Tracks.MoveItem(selection[i], target);
+                this.Model.MoveTrackIndex(selection[i], target);
                 selection[i] = target;
             }
 
@@ -289,7 +293,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     return;
                 }
 
-                IoC.Dispatcher.InvokeLaterAsync(() => {
+                IoC.Application.InvokeAsync(() => {
                     this.Project.AutomationEngine.RefreshTimeline(this.Project.AutomationEngine.Project.Timeline, this.PlayHeadFrame);
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isPlayBackUiUpdateScheduledState = 0;

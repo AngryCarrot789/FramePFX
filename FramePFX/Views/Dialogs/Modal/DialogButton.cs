@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Views.Dialogs.Message;
 
 namespace FramePFX.Views.Dialogs.Modal {

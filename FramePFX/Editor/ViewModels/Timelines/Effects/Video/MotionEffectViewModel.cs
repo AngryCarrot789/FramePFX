@@ -1,15 +1,16 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using PFXEditor.Automation;
-using PFXEditor.Automation.ViewModels.Keyframe;
-using PFXEditor.Commands;
-using PFXEditor.Editor.Timelines.Effects.Video;
-using PFXEditor.PropertyEditing;
-using PFXEditor.PropertyEditing.Editor.Editor.Effects;
-using PFXEditor.Utils;
+using FramePFX.Automation;
+using FramePFX.Automation.Events;
+using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Commands;
+using FramePFX.Editor.Timelines.Effects.Video;
+using FramePFX.Editor.Timelines.Events;
+using FramePFX.Editor.ViewModels.Timelines.Events;
+using FramePFX.Utils;
 
-namespace PFXEditor.Editor.ViewModels.Timelines.Effects.Video {
+namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
     public class MotionEffectViewModel : VideoEffectViewModel {
         private static readonly RefreshAutomationValueEventHandler RefreshMediaPositionHandler = (s, e) => {
             MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
@@ -140,7 +141,15 @@ namespace PFXEditor.Editor.ViewModels.Timelines.Effects.Video {
         public RelayCommand ToggleMediaScaleActiveCommand { get; }
         public RelayCommand ToggleMediaScaleOriginActiveCommand { get; }
 
+        private readonly FrameSeekedEventHandler handler1;
+        private readonly ClipMovedOverPlayeHeadEventHandler handler2;
+        private readonly PlayHeadLeaveClipEventHandler handler3;
+
         public MotionEffectViewModel(MotionEffect model) : base(model) {
+            this.handler1 = (sender, frame, newFrame) => this.UpdateCommands();
+            this.handler2 = (clip, frame) => this.UpdateCommands();
+            this.handler3 = (clip, movement) => this.UpdateCommands();
+
             this.ResetTransformationCommand = new RelayCommand(() => {
                 this.MediaPosition = MotionEffect.MediaPositionKey.Descriptor.DefaultValue;
                 this.MediaScale = MotionEffect.MediaScaleKey.Descriptor.DefaultValue;
@@ -176,20 +185,23 @@ namespace PFXEditor.Editor.ViewModels.Timelines.Effects.Video {
 
         public override void OnAddedToClip() {
             base.OnAddedToClip();
-            this.OwnerClip.Model.FrameSeeked += this.ModelOnFrameSeeked;
+            this.OwnerClip.Model.FrameSeeked += this.handler1;
+            this.OwnerClip.ClipMovedOverPlayHead += this.handler2;
+            this.OwnerClip.PlayHeadLeaveClip += this.handler3;
+            this.UpdateCommands();
         }
 
         public override void OnRemovedFromClip() {
             base.OnRemovedFromClip();
-            this.OwnerClip.Model.FrameSeeked -= this.ModelOnFrameSeeked;
+            this.OwnerClip.Model.FrameSeeked -= this.handler1;
+            this.OwnerClip.ClipMovedOverPlayHead -= this.handler2;
+            this.OwnerClip.PlayHeadLeaveClip -= this.handler3;
 
             // probably not necessary
-            this.InsertMediaPositionKeyFrameCommand.RaiseCanExecuteChanged();
-            this.InsertMediaScaleKeyFrameCommand.RaiseCanExecuteChanged();
-            this.InsertMediaScaleOriginKeyFrameCommand.RaiseCanExecuteChanged();
+            this.UpdateCommands();
         }
 
-        private void ModelOnFrameSeeked(long oldframe, long newframe) {
+        private void UpdateCommands() {
             this.InsertMediaPositionKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleOriginKeyFrameCommand.RaiseCanExecuteChanged();

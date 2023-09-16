@@ -70,7 +70,7 @@ namespace FramePFX.Shortcuts.Usage {
                 this.ProgressCurrentStroke();
                 return true;
             }
-            else if (this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClick(stroke)) {
+            else if (this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClickOrRelease(stroke)) {
                 return true;
             }
             else {
@@ -87,7 +87,7 @@ namespace FramePFX.Shortcuts.Usage {
                 this.ProgressCurrentStroke();
                 return true;
             }
-            else if (stroke is MouseStroke mouseStroke && this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClick(mouseStroke)) {
+            else if (stroke is MouseStroke mouseStroke && this.currentStroke.Value is MouseStroke cms && cms.EqualsWithoutClickOrRelease(mouseStroke)) {
                 return true;
             }
             else {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 using FramePFX.Views.ViewModels;
 
 namespace FramePFX.Views.Dialogs {

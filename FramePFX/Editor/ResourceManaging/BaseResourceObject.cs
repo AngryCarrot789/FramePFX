@@ -7,7 +7,7 @@ namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResourceObject : IRBESerialisable, IDisposable {
+    public abstract class BaseResourceObject : IDisposable {
         /// <summary>
         /// The manager that this resource belongs to. Null if the resource is unregistered
         /// </summary>
@@ -21,7 +21,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <summary>
         /// This resource object's registry ID, used to reflectively create an instance of it while deserializing data
         /// </summary>
-        public string RegistryId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
+        public string FactoryId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         public string DisplayName { get; set; }
 
@@ -50,6 +50,29 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <param name="manager">The new manager</param>
         public virtual void SetManager(ResourceManager manager) {
             this.Manager = manager;
+        }
+
+        public static BaseResourceObject ReadSerialisedWithId(RBEDictionary dictionary) {
+            string registryId = dictionary.GetString(nameof(FactoryId), null);
+            if (string.IsNullOrEmpty(registryId))
+                throw new Exception("Missing the registry ID for item");
+            RBEDictionary data = dictionary.GetDictionary("Data");
+            BaseResourceObject resource = ResourceTypeRegistry.Instance.CreateModel(registryId);
+            resource.ReadFromRBE(data);
+            return resource;
+        }
+
+        public static void WriteSerialisedWithId(RBEDictionary dictionary, BaseResourceObject item) {
+            if (!(item.FactoryId is string id))
+                throw new Exception("Unknown resource item type: " + item.GetType());
+            dictionary.SetString(nameof(FactoryId), id);
+            item.WriteToRBE(dictionary.CreateDictionary("Data"));
+        }
+
+        public static RBEDictionary WriteSerialisedWithId(BaseResourceObject clip) {
+            RBEDictionary dictionary = new RBEDictionary();
+            WriteSerialisedWithId(dictionary, clip);
+            return dictionary;
         }
 
         public virtual void WriteToRBE(RBEDictionary data) {

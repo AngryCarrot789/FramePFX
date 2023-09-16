@@ -1,4 +1,4 @@
-using FramePFX.Editor.ViewModels.Timelines.Clips;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ViewModels.Timelines.Removals {

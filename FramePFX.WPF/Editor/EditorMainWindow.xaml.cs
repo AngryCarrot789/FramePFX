@@ -11,10 +11,9 @@ using System.Windows.Media.Animation;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
-using FramePFX.Editor.Timelines.Effects.ViewModels;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.History;
+using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.History.ViewModels;
 using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
@@ -43,7 +42,6 @@ namespace FramePFX.WPF.Editor {
         public NotificationPanelViewModel NotificationPanel { get; }
 
         public EditorMainWindow() {
-            BindingErrorListener.Listen();
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
             IoC.BroadcastShortcutActivity = (x) => {
@@ -52,7 +50,6 @@ namespace FramePFX.WPF.Editor {
 
             this.NotificationPanel = new NotificationPanelViewModel(this);
             this.DataContext = new VideoEditorViewModel(this);
-            IoC.App.Editor = (VideoEditorViewModel) this.DataContext;
             this.lastRefreshTime = Time.GetSystemMillis();
 
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
@@ -128,10 +125,7 @@ namespace FramePFX.WPF.Editor {
             if (this.Editor.ActiveProject is ProjectViewModel project) {
                 // TODO: maybe move this to a view model?
                 List<ClipViewModel> clips = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
-                List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
-                PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
-                PFXPropertyEditorRegistry.Instance.ClipInfo.SetupHierarchyState(clips);
-                PFXPropertyEditorRegistry.Instance.EffectInfo.SetupHierarchyState(effects);
+                PFXPropertyEditorRegistry.Instance.OnClipsSelected(clips);
             }
         }
 
@@ -139,7 +133,6 @@ namespace FramePFX.WPF.Editor {
             // TODO: maybe move this to a view model?
             ResourceManagerViewModel manager;
             if (this.Editor.ActiveProject is ProjectViewModel project && (manager = project.ResourceManager) != null) {
-                PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
                 PFXPropertyEditorRegistry.Instance.ResourceInfo.SetupHierarchyState(manager.SelectedItems.ToList());
             }
         }
@@ -195,22 +188,25 @@ namespace FramePFX.WPF.Editor {
 
             long frame = project.Timeline.PlayHeadFrame;
             if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
-                RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
-                context.Canvas.Clear(SKColors.Black);
                 try {
-                    await project.Model.Timeline.RenderAsync(context, frame, token);
-                }
-                catch (TaskCanceledException) {
-                    // do nothing
-                }
+                    RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                    context.Canvas.Clear(SKColors.Black);
+                    try {
+                        await project.Model.Timeline.RenderAsync(context, frame, token);
+                    }
+                    catch (TaskCanceledException) {
+                        // do nothing
+                    }
 
-                Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
-                if (dictionary.Count > 0) {
-                    this.PrintRenderErrors(dictionary);
-                    dictionary.Clear();
+                    Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
+                    if (dictionary.Count > 0) {
+                        this.PrintRenderErrors(dictionary);
+                        dictionary.Clear();
+                    }
                 }
-
-                this.ViewPortElement.EndRender();
+                finally {
+                    this.ViewPortElement.EndRender();
+                }
             }
 
             this.isRenderScheduled = 0;

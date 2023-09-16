@@ -4,7 +4,8 @@ using System.Linq;
 
 namespace FramePFX.PropertyEditing {
     /// <summary>
-    /// The base property editor view model class for handling a single (or multiple) properties, and updating a collection of handlers
+    /// The base property editor view model class for handling any type of property modification
+    /// and reflecting those changes back to one or more handlers (via the <see cref="Handlers"/> list)
     /// </summary>
     public abstract class BasePropertyEditorViewModel : BasePropertyObjectViewModel {
         private static readonly List<object> EmptyList = new List<object>();
@@ -37,6 +38,11 @@ namespace FramePFX.PropertyEditing {
         /// Whether or not this editor has more than 1 handler
         /// </summary>
         public bool IsMultiSelection => this.Handlers.Count > 1;
+
+        /// <summary>
+        /// A mode which helps determine if this editor can be used based on the input handler list
+        /// </summary>
+        public virtual ApplicabilityMode ApplicabilityMode => ApplicabilityMode.All;
 
         protected BasePropertyEditorViewModel(Type applicableType) : base(applicableType) {
             this.handlerToDataMap = new Dictionary<object, PropertyHandler>();
@@ -106,17 +112,16 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
-            // TODO: maybe only load handlers for applicable objects, and ignore the other ones?
-            if (!PropertyGroupViewModel.AreAllApplicable(this, targets)) {
+            if (!GetApplicable(this, targets, out IReadOnlyList<object> list)) {
                 return;
             }
 
             this.IsCurrentlyApplicable = true;
-            foreach (object entry in targets) {
+            foreach (object entry in list) {
                 this.handlerToDataMap[entry] = null;
             }
 
-            this.Handlers = targets;
+            this.Handlers = list;
             this.OnHandlersLoaded();
             this.RaisePropertyChanged(nameof(this.HasHandlers));
             this.RaisePropertyChanged(nameof(this.IsEmpty));
@@ -165,6 +170,40 @@ namespace FramePFX.PropertyEditing {
         protected void PreallocateHandlerData() {
             foreach (object obj in this.Handlers) {
                 this.handlerToDataMap[obj] = this.NewHandler(obj);
+            }
+        }
+
+        private static bool GetApplicable(BasePropertyEditorViewModel editor, IReadOnlyList<object> input, out IReadOnlyList<object> output) {
+            switch (editor.ApplicabilityMode) {
+                case ApplicabilityMode.All: {
+                    // return sources.All(x => editor.IsApplicable(x));
+                    for (int i = 0, c = input.Count; i < c; i++) {
+                        if (!editor.IsApplicable(input[i])) {
+                            output = null;
+                            return false;
+                        }
+                    }
+
+                    output = input;
+                    return true;
+                }
+                case ApplicabilityMode.Any: {
+                    for (int i = 0, c = input.Count; i < c; i++) {
+                        if (editor.IsApplicable(input[i])) {
+                            List<object> list = new List<object>();
+                            do {
+                                list.Add(input[i++]);
+                            } while (i < c);
+
+                            output = list;
+                            return true;
+                        }
+                    }
+
+                    output = null;
+                    return false;
+                }
+                default: throw new Exception("Invalid " + nameof(ApplicabilityMode));
             }
         }
     }

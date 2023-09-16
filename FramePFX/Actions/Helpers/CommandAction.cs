@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using FramePFX.Actions.Contexts;
+using FramePFX.Commands;
 
 namespace FramePFX.Actions.Helpers {
     /// <summary>

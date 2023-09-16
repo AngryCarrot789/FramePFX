@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using FramePFX.Editor.ViewModels.Timelines.Clips;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 
 namespace FramePFX.Editor.History {
-    public class HistoryShapeSize : IHistoryAction {
+    public class HistoryShapeSize : HistoryAction {
         public ShapeClipViewModel Clip { get; }
         public Transaction<float> Width { get; }
         public Transaction<float> Height { get; }
@@ -14,7 +14,7 @@ namespace FramePFX.Editor.History {
             this.Height = Transactions.ImmutableType(clip.Height);
         }
 
-        public async Task UndoAsync() {
+        protected override async Task UndoAsyncCore() {
             this.Clip.IsHistoryChanging = true;
             try {
                 this.Clip.Width = this.Width.Original;
@@ -25,7 +25,7 @@ namespace FramePFX.Editor.History {
             }
         }
 
-        public async Task RedoAsync() {
+        protected override async Task RedoAsyncCore() {
             this.Clip.IsHistoryChanging = true;
             try {
                 this.Clip.Width = this.Width.Current;
@@ -36,7 +36,7 @@ namespace FramePFX.Editor.History {
             }
         }
 
-        public void OnRemoved() {
+        public override void OnRemoved() {
         }
     }
 }

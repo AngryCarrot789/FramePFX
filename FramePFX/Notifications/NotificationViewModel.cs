@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 
 namespace FramePFX.Notifications {
     public abstract class NotificationViewModel : BaseViewModel {
@@ -47,9 +48,7 @@ namespace FramePFX.Notifications {
             this.expiryTime += span.Ticks;
         }
 
-        public void StartAutoHideTask() {
-            this.StartAutoHideTask(this.Timeout);
-        }
+        public void StartAutoHideTask() => this.StartAutoHideTask(this.Timeout);
 
         public virtual void StartAutoHideTask(TimeSpan span) {
             if (this.autoHideTask != null && !this.autoHideTask.IsCompleted) {
@@ -96,7 +95,7 @@ namespace FramePFX.Notifications {
             }
 
             if (!cancel.IsCancellationRequested) {
-                await IoC.Dispatcher.InvokeAsync(this.AutoHideAction);
+                await IoC.Application.InvokeAsync(this.AutoHideAction);
             }
         }
 

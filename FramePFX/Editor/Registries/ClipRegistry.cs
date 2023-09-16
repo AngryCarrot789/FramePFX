@@ -1,9 +1,9 @@
-using System;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.AudioClips;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Editor.ViewModels.Timelines.Clips;
+using FramePFX.Editor.ViewModels.Timelines.AudioClips;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 
 namespace FramePFX.Editor.Registries {
     /// <summary>
@@ -34,16 +34,10 @@ namespace FramePFX.Editor.Registries {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public Clip CreateModel(string id) {
-            return (Clip) Activator.CreateInstance(base.GetModelType(id));
-        }
+        public new Clip CreateModel(string id) => base.CreateModel(id);
 
-        public ClipViewModel CreateViewModel(string id) {
-            return (ClipViewModel) Activator.CreateInstance(base.GetViewModelType(id));
-        }
+        public new ClipViewModel CreateViewModel(string id) => base.CreateViewModel(id);
 
-        public ClipViewModel CreateViewModelFromModel(Clip model) {
-            return (ClipViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(model), model);
-        }
+        public new ClipViewModel CreateViewModelFromModel(Clip model) => base.CreateViewModelFromModel(model);
     }
 }

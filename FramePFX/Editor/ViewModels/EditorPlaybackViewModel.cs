@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Commands;
 
 namespace FramePFX.Editor.ViewModels {
     /// <summary>

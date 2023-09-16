@@ -2,9 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    mc:Ignorable="d"
-                    xmlns:t="clr-namespace:FramePFX.AdvancedContextService;assembly=FramePFX"
-                    xmlns:acs="clr-namespace:FramePFX.WPF.AdvancedContextService">
+                    xmlns:acs="clr-namespace:FramePFX.WPF.AdvancedContextService"
+                    xmlns:advancedContextService="clr-namespace:FramePFX.AdvancedContextService;assembly=FramePFX"
+                    mc:Ignorable="d">
     <Style TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" />
 
     <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}" />
@@ -12,26 +12,26 @@
     <Style TargetType="{x:Type acs:AdvancedShortcutMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}" />
 
     <!-- Dammit visual studio why won't you accept d:DataContext on styles :'( -->
-    <Style d:DataContext="{d:DesignInstance t:BaseContextEntry}" x:Key="BaseContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
+    <Style d:DataContext="{d:DesignInstance advancedContextService:BaseContextEntry}" x:Key="BaseContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
         <Setter Property="Header" Value="{Binding Header, Mode=OneWay}" />
         <Setter Property="ToolTip" Value="{Binding Description, Mode=OneWay}" />
         <Setter Property="ItemsSource" Value="{Binding Children, Mode=OneTime}" />
         <Setter Property="IconType" Value="{Binding IconType}" />
     </Style>
 
-    <Style d:DataContext="{d:DesignInstance t:CommandContextEntry}" x:Key="CommandContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
+    <Style d:DataContext="{d:DesignInstance advancedContextService:CommandContextEntry}" x:Key="CommandContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
         <Setter Property="InputGestureText" Value="{Binding InputGestureText, Mode=OneWay}" />
         <Setter Property="Command" Value="{Binding Command}" />
         <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
     </Style>
 
-    <Style d:DataContext="{d:DesignInstance t:ActionContextEntry}" x:Key="ActionContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
+    <Style d:DataContext="{d:DesignInstance advancedContextService:ActionContextEntry}" x:Key="ActionContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
         <Setter Property="ActionId" Value="{Binding ActionId, Mode=OneWay}" />
     </Style>
 
-    <Style d:DataContext="{d:DesignInstance t:GroupContextEntry}" x:Key="GroupContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}" />
+    <Style d:DataContext="{d:DesignInstance advancedContextService:GroupContextEntry}" x:Key="GroupContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}" />
 
-    <Style d:DataContext="{d:DesignInstance t:ShortcutCommandContextEntry}" x:Key="ShortcutCommandContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedShortcutMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
+    <Style d:DataContext="{d:DesignInstance advancedContextService:ShortcutCommandContextEntry}" x:Key="ShortcutCommandContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedShortcutMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
         <Setter Property="ShortcutIds" Value="{Binding ShortcutIds, Mode=OneTime}" />
         <Setter Property="Command" Value="{Binding Command, Mode=TwoWay}" />
         <Setter Property="CommandParameter" Value="{Binding CommandParameter, Mode=TwoWay}" />

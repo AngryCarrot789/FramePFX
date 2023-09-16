@@ -1,3 +1,5 @@
+using FramePFX.Commands;
+
 namespace FramePFX.Views.Dialogs {
     public class BaseDialogViewModel : BaseViewModel {
         public IDialog Dialog { get; set; }

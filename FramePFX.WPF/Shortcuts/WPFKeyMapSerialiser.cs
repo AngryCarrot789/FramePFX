@@ -88,11 +88,11 @@ namespace FramePFX.WPF.Shortcuts {
                 keyCode = (int) key;
             }
             else if (!int.TryParse(keyCodeText, out keyCode)) {
-                if (!string.IsNullOrEmpty(keyText)) {
+                if (keyText != null) {
                     throw new Exception($"Unknown key: {keyText}");
                 }
 
-                if (!string.IsNullOrEmpty(keyCodeText)) {
+                if (keyCodeText != null) {
                     throw new Exception($"Unknown key code point: '{keyCodeText}'");
                 }
 

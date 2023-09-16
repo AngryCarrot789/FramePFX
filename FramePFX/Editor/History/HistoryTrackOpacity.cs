@@ -10,12 +10,12 @@ namespace FramePFX.Editor.History {
             this.Opacity = Transactions.ImmutableType(track.Opacity);
         }
 
-        protected override Task UndoAsyncCore() {
+        protected override Task UndoAsyncForHolder() {
             this.Holder.Opacity = this.Opacity.Original;
             return Task.CompletedTask;
         }
 
-        protected override Task RedoAsyncCore() {
+        protected override Task RedoAsyncForHolder() {
             this.Holder.Opacity = this.Opacity.Current;
             return Task.CompletedTask;
         }

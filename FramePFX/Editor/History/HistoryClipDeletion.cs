@@ -5,7 +5,7 @@ using FramePFX.History;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.History {
-    public class HistoryClipDeletion : IHistoryAction {
+    public class HistoryClipDeletion : HistoryAction {
         public TimelineViewModel Timeline { get; }
 
         public List<List<RBEDictionary>> SerialisedClips { get; }
@@ -15,15 +15,15 @@ namespace FramePFX.Editor.History {
             this.SerialisedClips = serialisedClips;
         }
 
-        public Task UndoAsync() {
+        protected override Task UndoAsyncCore() {
             return Task.CompletedTask;
         }
 
-        public Task RedoAsync() {
+        protected override Task RedoAsyncCore() {
             return Task.CompletedTask;
         }
 
-        public void OnRemoved() {
+        public override void OnRemoved() {
         }
     }
 }

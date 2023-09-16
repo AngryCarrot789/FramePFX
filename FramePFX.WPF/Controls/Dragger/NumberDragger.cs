@@ -1,18 +1,24 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
+using FramePFX.Commands;
 using FramePFX.Utils;
 
 namespace FramePFX.WPF.Controls.Dragger {
-    [TemplatePart(Name = "PART_HintTextBlock", Type = typeof(TextBlock))]
-    [TemplatePart(Name = "PART_TextBlock", Type = typeof(TextBlock))]
-    [TemplatePart(Name = "PART_TextBox", Type = typeof(TextBox))]
+    [TemplatePart(Name = nameof(PART_HintTextBlock), Type = typeof(TextBlock))]
+    [TemplatePart(Name = nameof(PART_TextBlock), Type = typeof(TextBlock))]
+    [TemplatePart(Name = nameof(PART_TextBox), Type = typeof(TextBox))]
     public class NumberDragger : RangeBase {
+        private static readonly object ValueModStateBeginBox = ValueModState.Begin;
+        private static readonly object ValueModStateFinishBox = ValueModState.Finish;
+        private static readonly object ValueModStateCancelledBox = ValueModState.Cancelled;
+
         #region Dependency Properties
 
         public static readonly DependencyProperty TinyChangeProperty =
@@ -34,8 +40,7 @@ namespace FramePFX.WPF.Controls.Dragger {
                 "IsDragging",
                 typeof(bool),
                 typeof(NumberDragger),
-                new PropertyMetadata(BoolBox.False,
-                    (d, e) => ((NumberDragger) d).OnIsDraggingChanged((bool) e.OldValue, (bool) e.NewValue)));
+                new PropertyMetadata(BoolBox.False, (d, e) => ((NumberDragger) d).OnIsDraggingChanged((bool) e.OldValue, (bool) e.NewValue)));
 
         public static readonly DependencyProperty IsDraggingProperty = IsDraggingPropertyKey.DependencyProperty;
 
@@ -51,8 +56,7 @@ namespace FramePFX.WPF.Controls.Dragger {
                 "Orientation",
                 typeof(Orientation),
                 typeof(NumberDragger),
-                new PropertyMetadata(Orientation.Horizontal,
-                    (d, e) => ((NumberDragger) d).OnOrientationChanged((Orientation) e.OldValue, (Orientation) e.NewValue)));
+                new PropertyMetadata(Orientation.Horizontal, (d, e) => ((NumberDragger) d).OnOrientationChanged((Orientation) e.OldValue, (Orientation) e.NewValue)));
 
         public static readonly DependencyProperty HorizontalIncrementProperty =
             DependencyProperty.Register(
@@ -142,8 +146,12 @@ namespace FramePFX.WPF.Controls.Dragger {
                 typeof(NumberDragger),
                 new PropertyMetadata(null));
 
-        public static readonly DependencyProperty EditStartedCommandProperty = DependencyProperty.Register("EditStartedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty EditCompletedCommandProperty = DependencyProperty.Register("EditCompletedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty EditStateChangedCommandProperty =
+            DependencyProperty.Register(
+                "EditStateChangedCommand",
+                typeof(ICommand),
+                typeof(NumberDragger),
+                new PropertyMetadata(null));
 
         #endregion
 
@@ -275,19 +283,14 @@ namespace FramePFX.WPF.Controls.Dragger {
         }
 
         /// <summary>
-        /// Gets or sets a command executed when an edit begins
+        /// Gets or sets a command executed when the edit state changes. A <see cref="ValueModState"/> is passed as a parameter.
+        /// <para>
+        /// Supports async relay commands
+        /// </para>
         /// </summary>
-        public ICommand EditStartedCommand {
-            get => (ICommand) this.GetValue(EditStartedCommandProperty);
-            set => this.SetValue(EditStartedCommandProperty, value);
-        }
-
-        /// <summary>
-        /// Gets or sets a command executed when an edit is completed, passing the cancelled state as a parameter
-        /// </summary>
-        public ICommand EditCompletedCommand {
-            get => (ICommand) this.GetValue(EditCompletedCommandProperty);
-            set => this.SetValue(EditCompletedCommandProperty, value);
+        public ICommand EditStateChangedCommand {
+            get => (ICommand) this.GetValue(EditStateChangedCommandProperty);
+            set => this.SetValue(EditStateChangedCommandProperty, value);
         }
 
         public bool IsValueReadOnly {
@@ -336,6 +339,7 @@ namespace FramePFX.WPF.Controls.Dragger {
         private bool ignoreMouseMove;
         private bool isUpdatingExternalMouse;
         private bool ignoreLostFocus;
+        private bool hasCancelled_ignoreMouseUp;
 
         public NumberDragger() {
             this.Loaded += (s, e) => {
@@ -344,12 +348,22 @@ namespace FramePFX.WPF.Controls.Dragger {
                 this.UpdateCursor();
                 this.RequeryChangeMapper(this.Value);
             };
-
-            object isChecked = this.GetValue(Window.TitleProperty);
         }
 
         static NumberDragger() {
             ValueProperty.OverrideMetadata(typeof(NumberDragger), new FrameworkPropertyMetadata(null, (o, value) => ((NumberDragger) o).OnCoerceValue(value)));
+            Application.Current.Deactivated += OnApplicationFocusLost;
+        }
+
+        private static void OnApplicationFocusLost(object sender, EventArgs e) {
+            if (Keyboard.FocusedElement is NumberDragger dragger) {
+                if (dragger.IsDragging) {
+                    dragger.CancelDrag();
+                }
+                else if (dragger.IsEditingTextBox) {
+                    dragger.CancelInputEdit();
+                }
+            }
         }
 
         private object OnCoerceValue(object value) {
@@ -621,13 +635,15 @@ namespace FramePFX.WPF.Controls.Dragger {
             if (this.IsDragging) {
                 this.CompleteDrag();
             }
+            else if (this.hasCancelled_ignoreMouseUp) {
+                this.hasCancelled_ignoreMouseUp = false;
+            }
             else if (this.IsMouseOver && !this.IsValueReadOnly) {
                 if (this.IsMouseCaptured) {
                     this.ReleaseMouseCapture();
                 }
 
-                this.IsEditingTextBox = true;
-                this.UpdateCursor();
+                this.OnBeginInputEdit();
             }
 
             base.OnMouseLeftButtonUp(e);
@@ -635,17 +651,7 @@ namespace FramePFX.WPF.Controls.Dragger {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (this.ignoreMouseMove || this.isUpdatingExternalMouse || this.IsValueReadOnly) {
-                return;
-            }
-
-            if (this.IsEditingTextBox) {
-                if (this.IsDragging) {
-                    Debug.WriteLine("IsDragging and IsEditingTextBox were both true");
-                    this.previousValue = null;
-                    this.CancelDrag();
-                }
-
+            if (this.ignoreMouseMove || this.isUpdatingExternalMouse) {
                 return;
             }
 
@@ -654,6 +660,9 @@ namespace FramePFX.WPF.Controls.Dragger {
                     this.CompleteDrag();
                 }
 
+                return;
+            }
+            else if (!this.IsEnabled || this.IsValueReadOnly) { // saves a bit of performance by processing these here
                 return;
             }
 
@@ -781,6 +790,7 @@ namespace FramePFX.WPF.Controls.Dragger {
             if (!e.Handled) {
                 if (this.IsDragging) {
                     if (e.Key == Key.Escape) {
+                        this.hasCancelled_ignoreMouseUp = true;
                         e.Handled = true;
                         this.CancelInputEdit();
                         if (this.IsDragging) {
@@ -799,8 +809,7 @@ namespace FramePFX.WPF.Controls.Dragger {
                         this.ReleaseMouseCapture();
                     }
 
-                    this.IsEditingTextBox = true;
-                    this.UpdateCursor();
+                    this.OnBeginInputEdit();
                 }
             }
         }
@@ -832,6 +841,12 @@ namespace FramePFX.WPF.Controls.Dragger {
             }
         }
 
+        public void OnBeginInputEdit() {
+            this.IsEditingTextBox = true;
+            this.UpdateCursor();
+            this.ExecuteCommand(ValueModStateBeginBox);
+        }
+
         public bool TryCompleteEdit() {
             if (!this.IsValueReadOnly && double.TryParse(this.PART_TextBox.Text, out double value)) {
                 this.CompleteInputEdit(value);
@@ -846,10 +861,12 @@ namespace FramePFX.WPF.Controls.Dragger {
             this.IsEditingTextBox = false;
             // TODO: figure out "trimmed" out part (due to rounding) and use that to figure out if the value is actually different
             this.Value = value;
+            this.ExecuteCommand(ValueModStateFinishBox);
         }
 
         public void CancelInputEdit() {
             this.IsEditingTextBox = false;
+            this.ExecuteCommand(ValueModStateCancelledBox);
         }
 
         public void BeginMouseDrag() {
@@ -871,33 +888,29 @@ namespace FramePFX.WPF.Controls.Dragger {
                 }
             }
 
-            if (this.EditStartedCommand is ICommand command && command.CanExecute(null)) {
-                command.Execute(null);
-            }
+            this.ExecuteCommand(ValueModStateBeginBox);
         }
 
         public void CompleteDrag() {
-            if (!this.IsDragging)
-                return;
-
-            this.ProcessDragCompletion(false);
-            this.previousValue = null;
+            if (this.IsDragging) {
+                this.ProcessDragCompletion(false);
+                this.previousValue = null;
+            }
         }
 
         public void CancelDrag() {
-            if (!this.IsDragging)
-                return;
-
-            this.ProcessDragCompletion(true);
-            if (this.previousValue is double oldVal) {
-                this.previousValue = null;
-                if (this.RestoreValueOnCancel) {
-                    this.Value = oldVal;
+            if (this.IsDragging) {
+                this.ProcessDragCompletion(true);
+                if (this.previousValue is double oldVal) {
+                    this.previousValue = null;
+                    if (this.RestoreValueOnCancel) {
+                        this.Value = oldVal;
+                    }
                 }
             }
         }
 
-        protected void ProcessDragCompletion(bool cancelled) {
+        private void ProcessDragCompletion(bool cancelled) {
             if (this.IsMouseCaptured)
                 this.ReleaseMouseCapture();
             this.ClearValue(IsDraggingPropertyKey);
@@ -918,8 +931,25 @@ namespace FramePFX.WPF.Controls.Dragger {
             this.UpdateCursor();
 
             this.RaiseEvent(new EditCompletedEventArgs(cancelled));
-            if (this.EditCompletedCommand is ICommand command && command.CanExecute(cancelled.Box())) {
-                command.Execute(cancelled.Box());
+            this.ExecuteCommand(cancelled ? ValueModStateCancelledBox : ValueModStateFinishBox);
+        }
+
+        private void ExecuteCommand(object param) {
+            ICommand cmd = this.EditStateChangedCommand;
+            if (cmd != null && cmd.CanExecute(param)) {
+                if (cmd is BaseAsyncRelayCommand asyncCommand) {
+                    this.IsEnabled = false;
+                    Task task = asyncCommand.ExecuteAsync(param);
+                    if (task.IsCompleted) {
+                        this.IsEnabled = true;
+                    }
+                    else {
+                        task.ContinueWith(x => this.IsEnabled = true, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                }
+                else {
+                    cmd.Execute(param);
+                }
             }
         }
 

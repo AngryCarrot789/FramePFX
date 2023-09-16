@@ -4,7 +4,7 @@ using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Effects;
-using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Editor.Timelines.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -13,8 +13,6 @@ namespace FramePFX.Editor.Timelines {
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
     public abstract class Clip : IAutomatable, IDisposable {
-        internal long internalClipId = -1;
-
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
         /// </summary>
@@ -38,24 +36,6 @@ namespace FramePFX.Editor.Timelines {
         public string FactoryId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         public bool IsDisposing { get; private set; }
-
-        /// <summary>
-        /// A unique identifier for this clip, relative to the project. If an ID is not
-        /// assigned, then a new ID is created for this clip
-        /// </summary>
-        public long UniqueClipId {
-            get {
-                if (this.internalClipId >= 0)
-                    return this.internalClipId;
-                return this.internalClipId = this.Track.Timeline.GetNextClipId(this);
-            }
-            set => this.internalClipId = value;
-        }
-
-        /// <summary>
-        /// Whether or not this clip has an ID assigned or not
-        /// </summary>
-        public bool HasClipId => this.internalClipId >= 0;
 
         /// <summary>
         /// The position of this clip in terms of video frames, in the form of a <see cref="Utils.FrameSpan"/> which has a begin and duration property
@@ -93,55 +73,58 @@ namespace FramePFX.Editor.Timelines {
 
         public List<BaseEffect> Effects { get; }
 
-        // this feels like such bad design...
-        internal ClipViewModel viewModel;
+        /// <summary>
+        /// An event fired when this clip is being removed from a track (where new track is null), being
+        /// added to a track (where the previous track is null), or moved between tracks (where neither are null)
+        /// </summary>
+        public event TrackChangedEventHandler TrackChanged;
+
+        /// <summary>
+        /// An event fired when the track (that holds us) timeline changes (as in, a track was
+        /// added to, removed from or moved between timelines)
+        /// </summary>
+        public event TimelineChangedEventHandler TrackTimelineChanged;
+
+        /// <summary>
+        /// An event fired when the user seeks a specific frame on the timeline. This is not fired during playback
+        /// </summary>
+        public event FrameSeekedEventHandler FrameSeeked;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
             this.Effects = new List<BaseEffect>();
         }
 
-        public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
-            string id = dictionary.GetString(nameof(FactoryId));
-            Clip clip = ClipRegistry.Instance.CreateModel(id);
-            clip.ReadFromRBE(dictionary.GetDictionary("Data"));
-            return clip;
-        }
-
-        public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip) {
-            if (!(clip.FactoryId is string id))
-                throw new Exception("Unknown clip type: " + clip.GetType());
-            dictionary.SetString(nameof(FactoryId), id);
-            clip.WriteToRBE(dictionary.CreateDictionary("Data"));
-        }
-
-        public static RBEDictionary WriteSerialisedWithId(Clip clip) {
-            RBEDictionary dictionary = new RBEDictionary();
-            WriteSerialisedWithId(dictionary, clip);
-            return dictionary;
+        /// <summary>
+        /// Called when the user moves the timeline play head over this clip
+        /// </summary>
+        /// <param name="oldFrame">The previous play head position</param>
+        /// <param name="newFrame">The new/current play head position</param>
+        public virtual void OnFrameSeeked(long oldFrame, long newFrame) {
+            this.FrameSeeked?.Invoke(this, oldFrame, newFrame);
         }
 
         /// <summary>
-        /// Called when this clip is added to or removed from a track, or moved between tracks
+        /// Called when this clip is added to, removed from, or moved between tracks
         /// </summary>
         /// <param name="oldTrack">The track this clip was originally in (not in by the time this method is called)</param>
-        /// <param name="track">The track that this clip now exists in</param>
-        protected virtual void OnTrackChanged(Track oldTrack, Track track) {
-
+        /// <param name="newTrack">The track that this clip now exists in</param>
+        protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
+            this.TrackChanged?.Invoke(oldTrack, newTrack);
         }
 
         /// <summary>
         /// Called only when this clip's track's timeline changes. This is called after
-        /// <see cref="Tracks.Track.OnTimelineChanging"/> but before <see cref="Tracks.Track.OnTimelineChanged"/>
+        /// <see cref="Timelines.Track.OnTimelineChanging"/> but before <see cref="Timelines.Track.OnTimelineChanged"/>
         /// <para>
-        /// This is only called when the owning track's timeline changes, not when not when this clip is moved
-        /// between tracks with differing timelines; that should be handled in <see cref="OnTrackChanged"/>
+        /// This is only called when the track (that holds us) timeline changes, but not when not when this clip
+        /// is moved between tracks with differing timelines; that should be handled in <see cref="OnTrackChanged"/>
         /// </para>
         /// </summary>
         /// <param name="oldTimeline">Previous timeline</param>
         /// <param name="newTimeline">The new timeline, associated with our track</param>
         protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
-
+            this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
         }
 
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
@@ -152,6 +135,11 @@ namespace FramePFX.Editor.Timelines {
             return frame >= 0 && frame < span.Duration;
         }
 
+        public void AddEffect(BaseEffect effect) => BaseEffect.AddEffectToClip(this, effect);
+        public void InsertEffect(BaseEffect effect, int index) => BaseEffect.InsertEffectIntoClip(this, effect, index);
+        public bool RemoveEffect(BaseEffect effect) => BaseEffect.RemoveEffectFromClip(this, effect);
+        public void RemoveEffectAt(int index) => BaseEffect.RemoveEffectAt(this, index);
+
         /// <summary>
         /// Writes this clip's data
         /// </summary>
@@ -159,8 +147,6 @@ namespace FramePFX.Editor.Timelines {
         public virtual void WriteToRBE(RBEDictionary data) {
             if (!string.IsNullOrEmpty(this.DisplayName))
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
-            if (this.internalClipId >= 0)
-                data.SetLong(nameof(this.UniqueClipId), this.internalClipId);
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
@@ -180,8 +166,6 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="data"></param>
         public virtual void ReadFromRBE(RBEDictionary data) {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
-            if (data.TryGetLong(nameof(this.UniqueClipId), out long id) && id >= 0)
-                this.internalClipId = id;
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
@@ -269,7 +253,9 @@ namespace FramePFX.Editor.Timelines {
         /// Any exceptions added to this may result in the app crashing and showing a crash report screen
         /// </param>
         protected virtual void DisposeCore(ErrorList stack) {
-
+            for (int i = this.Effects.Count - 1; i >= 0; i--) {
+                this.RemoveEffectAt(i);
+            }
         }
 
         /// <summary>
@@ -280,6 +266,32 @@ namespace FramePFX.Editor.Timelines {
         }
 
         #endregion
+
+        #region Serialisation
+
+        public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
+            string id = dictionary.GetString(nameof(FactoryId));
+            Clip clip = ClipRegistry.Instance.CreateModel(id);
+            clip.ReadFromRBE(dictionary.GetDictionary("Data"));
+            return clip;
+        }
+
+        public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip) {
+            if (!(clip.FactoryId is string id))
+                throw new Exception("Unknown clip type: " + clip.GetType());
+            dictionary.SetString(nameof(FactoryId), id);
+            clip.WriteToRBE(dictionary.CreateDictionary("Data"));
+        }
+
+        public static RBEDictionary WriteSerialisedWithId(Clip clip) {
+            RBEDictionary dictionary = new RBEDictionary();
+            WriteSerialisedWithId(dictionary, clip);
+            return dictionary;
+        }
+
+        #endregion
+
+        #region Static Helpers
 
         public static void SetTrack(Clip clip, Track track) {
             Track oldTrack = clip.Track;
@@ -292,5 +304,7 @@ namespace FramePFX.Editor.Timelines {
         public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
             clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
         }
+
+        #endregion
     }
 }

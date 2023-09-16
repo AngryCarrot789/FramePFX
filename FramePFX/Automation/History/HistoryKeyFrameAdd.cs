@@ -11,7 +11,7 @@ namespace FramePFX.Automation.History {
             this.unsafeKeyFrameList = new List<KeyFrameViewModel>();
         }
 
-        protected override Task UndoAsyncCore() {
+        protected override Task UndoAsyncForHolder() {
             foreach (KeyFrameViewModel keyFrame in this.unsafeKeyFrameList) {
                 this.Holder.RemoveKeyFrame(keyFrame);
             }
@@ -19,7 +19,7 @@ namespace FramePFX.Automation.History {
             return Task.CompletedTask;
         }
 
-        protected override Task RedoAsyncCore() {
+        protected override Task RedoAsyncForHolder() {
             foreach (KeyFrameViewModel keyFrame in this.unsafeKeyFrameList) {
                 this.Holder.AddKeyFrame(keyFrame);
             }

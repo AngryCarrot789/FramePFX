@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using FramePFX.Actions.Contexts;
+using FramePFX.Commands;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Utils;
+using FramePFX.WPF.Shortcuts.Bindings;
 
 namespace FramePFX.WPF.Shortcuts {
     public class WPFShortcutManager : ShortcutManager {
@@ -29,13 +31,7 @@ namespace FramePFX.WPF.Shortcuts {
 
         public static WPFShortcutManager WPFInstance => (WPFShortcutManager) Instance;
 
-        /// <summary>
-        /// Maps an action ID to a dictionary which maps a custom usage ID to the callback functions
-        /// </summary>
-        public static Dictionary<string, Dictionary<string, List<ActivationHandlerReference>>> InputBindingCallbackMap { get; }
-
         static WPFShortcutManager() {
-            InputBindingCallbackMap = new Dictionary<string, Dictionary<string, List<ActivationHandlerReference>>>();
             KeyStroke.KeyCodeToStringProvider = (x) => ((Key) x).ToString();
             KeyStroke.ModifierToStringProvider = (x, s) => {
                 StringJoiner joiner = new StringJoiner(s ? " + " : "+");
@@ -89,34 +85,9 @@ namespace FramePFX.WPF.Shortcuts {
         public WPFShortcutManager() {
         }
 
-        public static void UnregisterHandler(string shortcutId, string usageId) {
-            ShortcutUtils.EnforceIdFormat(shortcutId, nameof(shortcutId));
-            ShortcutUtils.EnforceIdFormat(usageId, nameof(usageId));
-            if (InputBindingCallbackMap.TryGetValue(shortcutId, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
-                usageMap.Remove(usageId);
-            }
-        }
-
-        public static void RegisterHandler(string shortcutId, string usageId, ShortcutActivateHandler handler, bool weak = true) {
-            ShortcutUtils.EnforceIdFormat(shortcutId, nameof(shortcutId));
-            ShortcutUtils.EnforceIdFormat(usageId, nameof(usageId));
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
-
-            if (!InputBindingCallbackMap.TryGetValue(shortcutId, out Dictionary<string, List<ActivationHandlerReference>> usageMap)) {
-                InputBindingCallbackMap[shortcutId] = usageMap = new Dictionary<string, List<ActivationHandlerReference>>();
-            }
-
-            if (!usageMap.TryGetValue(usageId, out List<ActivationHandlerReference> list)) {
-                usageMap[usageId] = list = new List<ActivationHandlerReference>();
-            }
-
-            list.Add(new ActivationHandlerReference(handler, weak));
-        }
-
-        public static WPFShortcutProcessor GetShortcutProcessorForUIObject(object sender) {
+        public static WpfShortcutInputManager GetShortcutProcessorForUIObject(object sender) {
             if (sender != null && (sender is Window window || sender is DependencyObject obj && (window = Window.GetWindow(obj)) != null)) {
-                return (WPFShortcutProcessor) window.GetValue(UIInputManager.ShortcutProcessorProperty.DependencyProperty);
+                return (WpfShortcutInputManager) window.GetValue(UIInputManager.ShortcutProcessorProperty.DependencyProperty);
             }
 
             return null;
@@ -160,7 +131,7 @@ namespace FramePFX.WPF.Shortcuts {
                 window.PreviewKeyDown += RootKeyDownHandlerPreview;
                 window.PreviewKeyUp += RootKeyUpHandlerPreview;
                 window.PreviewMouseWheel += RootWheelHandlerPreview;
-                window.SetValue(UIInputManager.ShortcutProcessorProperty, new WPFShortcutProcessor(manager));
+                window.SetValue(UIInputManager.ShortcutProcessorProperty, new WpfShortcutInputManager(manager));
             }
             else {
                 window.ClearValue(UIInputManager.ShortcutProcessorProperty);
@@ -172,8 +143,8 @@ namespace FramePFX.WPF.Shortcuts {
                 UIInputManager.ProcessFocusGroupChange(hit);
             }
 
-            WPFShortcutProcessor processor = GetShortcutProcessorForUIObject(sender);
-            processor?.OnWindowMouseDown(sender, e, isPreviewEvent);
+            WpfShortcutInputManager inputManager = GetShortcutProcessorForUIObject(sender);
+            inputManager?.OnWindowMouseDown(sender, e, isPreviewEvent);
         }
 
         private static void HandleRootMouseUp(object sender, MouseButtonEventArgs e, bool isPreviewEvent) {
@@ -181,13 +152,13 @@ namespace FramePFX.WPF.Shortcuts {
                 UIInputManager.ProcessFocusGroupChange(hit);
             }
 
-            WPFShortcutProcessor processor = GetShortcutProcessorForUIObject(sender);
-            processor?.OnWindowMouseUp(sender, e, isPreviewEvent);
+            WpfShortcutInputManager inputManager = GetShortcutProcessorForUIObject(sender);
+            inputManager?.OnWindowMouseUp(sender, e, isPreviewEvent);
         }
 
         private static void HandleRootMouseWheel(object sender, MouseWheelEventArgs e, bool isPreviewEvent) {
-            WPFShortcutProcessor processor = GetShortcutProcessorForUIObject(sender);
-            processor?.OnWindowMouseWheel(sender, e, isPreviewEvent);
+            WpfShortcutInputManager inputManager = GetShortcutProcessorForUIObject(sender);
+            inputManager?.OnWindowMouseWheel(sender, e, isPreviewEvent);
         }
 
         private static void HandleRootKeyDown(object sender, KeyEventArgs e, bool isPreviewEvent) {
@@ -199,52 +170,51 @@ namespace FramePFX.WPF.Shortcuts {
         }
 
         public static void OnKeyEvent(object window, DependencyObject focused, KeyEventArgs e, bool isRelease, bool isPreviewEvent) {
-            WPFShortcutProcessor processor = GetShortcutProcessorForUIObject(window);
-            processor?.OnKeyEvent(window, focused, e, isRelease, isPreviewEvent);
+            WpfShortcutInputManager inputManager = GetShortcutProcessorForUIObject(window);
+            inputManager?.OnKeyEvent(window, focused, e, isRelease, isPreviewEvent);
         }
 
-        public override ShortcutProcessor NewProcessor() {
-            return new WPFShortcutProcessor(this);
+        public override ShortcutInputManager NewProcessor() {
+            return new WpfShortcutInputManager(this);
         }
 
-        public void SetRoot(ShortcutGroup @group) {
-            this.Root = @group;
+        public void DeserialiseRoot(Stream stream) {
+            this.InvalidateShortcutCache();
+            ShortcutGroup root = WPFKeyMapSerialiser.Instance.Deserialise(this, stream);
+            this.Root = root; // invalidates cache automatically
+            this.EnsureCacheBuilt(); // do keymap check; crash on errors (e.g. duplicate shortcut path)
         }
 
-        public static void AccumulateContext(DataContext context, DependencyObject target, bool self, bool ic, bool window) {
-            if (self) {
-                if (target is FrameworkElement frameworkElement) {
-                    object dc = frameworkElement.DataContext;
-                    if (dc != null) {
-                        context.AddContext(dc);
-                    }
-                }
-
-                context.AddContext(target);
-            }
-
-            if (ic) {
-                ItemsControl itemsControl = ItemsControl.ItemsControlFromItemContainer(target);
-                if (itemsControl != null && itemsControl.IsItemItsOwnContainer(target)) {
-                    object dc = itemsControl.DataContext;
-                    if (dc != null) {
-                        context.AddContext(dc);
+        protected override async Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+            bool result = false;
+            List<ShortcutCommandBinding> bindings;
+            DependencyObject src = ((WpfShortcutInputManager) inputManager).CurrentSource;
+            if (src != null && (bindings = ShortcutCommandCollection.GetCommandBindingHierarchy(src)).Count > 0) {
+                foreach (ShortcutCommandBinding binding in bindings) {
+                    if (!shortcut.FullPath.Equals(binding.ShortcutPath)) {
+                        continue;
                     }
 
-                    context.AddContext(itemsControl);
-                }
-            }
-
-            if (window) {
-                if (Window.GetWindow(target) is Window win) {
-                    object dc = win.DataContext;
-                    if (dc != null) {
-                        context.AddContext(dc);
+                    ICommand cmd;
+                    if ((!result || binding.AllowChainExecution) && (cmd = binding.Command) != null) {
+                        object param;
+                        if (cmd is BaseAsyncRelayCommand asyncCommand) {
+                            IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.InProgress", shortcut));
+                            if (await asyncCommand.TryExecuteAsync(binding.CommandParameter)) {
+                                IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.Completed", shortcut));
+                                result = true;
+                            }
+                        }
+                        else if (cmd.CanExecute(param = binding.CommandParameter)) {
+                            IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate", shortcut));
+                            cmd.Execute(param);
+                            result = true;
+                        }
                     }
-
-                    context.AddContext(win);
                 }
             }
+
+            return result || await base.OnShortcutActivatedInternal(inputManager, shortcut);
         }
     }
 }

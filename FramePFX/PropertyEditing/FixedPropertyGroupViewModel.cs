@@ -3,35 +3,24 @@ using System.Collections.Generic;
 
 namespace FramePFX.PropertyEditing {
     /// <summary>
-    /// A class which contains a collection of child groups and editors
+    /// An implementation of a property group that stores singleton instances of child groups and
+    /// editors. This is useful for grouping together editors of non-dynamic data sources
     /// </summary>
-    public sealed class PropertyGroupViewModel : BasePropertyObjectViewModel {
-        private readonly Dictionary<string, PropertyGroupViewModel> idToGroupMap;
+    public class SingletonPropertyGroupViewModel : BasePropertyGroupViewModel {
+        private readonly Dictionary<string, BasePropertyGroupViewModel> idToGroupMap;
         private readonly Dictionary<string, BasePropertyEditorViewModel> idToEditorMap;
         private readonly List<BasePropertyObjectViewModel> propertyObjectList;
-        private bool isExpanded;
 
         public IReadOnlyList<BasePropertyObjectViewModel> PropertyObjects => this.propertyObjectList;
-
-        public string Id { get; }
-
-        /// <summary>
-        /// Whether or not this group is expanded, showing the child groups and editors
-        /// </summary>
-        public bool IsExpanded {
-            get => this.isExpanded;
-            set => this.RaisePropertyChanged(ref this.isExpanded, value);
-        }
 
         /// <summary>
         /// Whether or not the current group is the root property group object. Only one root group should exist per instance of <see cref="PropertyEditorRegistry"/>
         /// </summary>
         public bool IsRoot => this.Parent == null;
 
-        public PropertyGroupViewModel(Type applicableType, string id) : base(applicableType) {
-            this.Id = id;
+        public SingletonPropertyGroupViewModel(Type applicableType, string id) : base(applicableType, id) {
             this.propertyObjectList = new List<BasePropertyObjectViewModel>();
-            this.idToGroupMap = new Dictionary<string, PropertyGroupViewModel>();
+            this.idToGroupMap = new Dictionary<string, BasePropertyGroupViewModel>();
             this.idToEditorMap = new Dictionary<string, BasePropertyEditorViewModel>();
         }
 
@@ -49,7 +38,7 @@ namespace FramePFX.PropertyEditing {
         /// <param name="id"></param>
         /// <param name="isExpandedByDefault"></param>
         /// <returns></returns>
-        public PropertyGroupViewModel CreateSubGroup(Type applicableType, string id, bool isExpandedByDefault = true) {
+        public SingletonPropertyGroupViewModel CreateSubSingletonGroup(Type applicableType, string id, bool isExpandedByDefault = true) {
             if (this.ApplicableType != null && !this.ApplicableType.IsAssignableFrom(applicableType)) {
                 throw new Exception($"The target type is not assignable to the current applicable type: {applicableType} # {this.ApplicableType}");
             }
@@ -57,7 +46,7 @@ namespace FramePFX.PropertyEditing {
             if (this.idToGroupMap.ContainsKey(id))
                 throw new Exception($"Group already exists with the ID: {id}");
 
-            PropertyGroupViewModel group = new PropertyGroupViewModel(applicableType, id) {
+            SingletonPropertyGroupViewModel group = new SingletonPropertyGroupViewModel(applicableType, id) {
                 isExpanded = isExpandedByDefault
             };
 
@@ -72,8 +61,8 @@ namespace FramePFX.PropertyEditing {
             return this.idToEditorMap.TryGetValue(name, out BasePropertyEditorViewModel editor) ? editor : null;
         }
 
-        public PropertyGroupViewModel GetGroupByName(string name) {
-            return this.idToGroupMap.TryGetValue(name, out PropertyGroupViewModel g) ? g : null;
+        public BasePropertyGroupViewModel GetGroupByName(string name) {
+            return this.idToGroupMap.TryGetValue(name, out BasePropertyGroupViewModel g) ? g : null;
         }
 
         public void AddPropertyEditor(string id, BasePropertyEditorViewModel editor) {
@@ -99,7 +88,7 @@ namespace FramePFX.PropertyEditing {
                     case BasePropertyEditorViewModel editor:
                         editor.ClearHandlers();
                         break;
-                    case PropertyGroupViewModel group:
+                    case SingletonPropertyGroupViewModel group:
                         group.ClearHierarchyState();
                         break;
                 }
@@ -134,7 +123,7 @@ namespace FramePFX.PropertyEditing {
             List<BasePropertyObjectViewModel> list = this.propertyObjectList;
             foreach (BasePropertyObjectViewModel obj in list) {
                 switch (obj) {
-                    case PropertyGroupViewModel group: {
+                    case SingletonPropertyGroupViewModel group: {
                         group.SetupHierarchyState(input);
                         break;
                     }

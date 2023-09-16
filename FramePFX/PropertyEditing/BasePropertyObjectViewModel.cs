@@ -9,11 +9,15 @@ namespace FramePFX.PropertyEditing {
 
         /// <summary>
         /// Whether or not this item should be visible to the end user or not.
-        /// Not taking this into account and showing it anyway may result a crashing
+        /// Not taking this into account and showing it anyway may result in crashing
         /// </summary>
         public bool IsCurrentlyApplicable {
             get => this.isCurrentlyApplicable;
-            set => this.RaisePropertyChanged(ref this.isCurrentlyApplicable, value);
+            set {
+                if (this.isCurrentlyApplicable == value)
+                    return;
+                this.RaisePropertyChanged(ref this.isCurrentlyApplicable, value);
+            }
         }
 
         /// <summary>
@@ -32,7 +36,7 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public int HierarchyDepth { get; private set; } = -1;
 
-        public PropertyGroupViewModel Parent { get; internal set; }
+        public BasePropertyGroupViewModel Parent { get; internal set; }
 
         public BasePropertyObjectViewModel(Type applicableType) {
             this.ApplicableType = applicableType;
@@ -46,29 +50,36 @@ namespace FramePFX.PropertyEditing {
         public bool IsApplicable(object value) => this.ApplicableType.IsInstanceOfType(value);
 
         /// <summary>
-        /// A helper function that determines if this object can accept a specific number of handler objects
+        /// A helper function that determines if this object can accept a specific number of handler objects.
+        /// <para>
+        /// This always returns false for values 0 and below
+        /// </para>
         /// </summary>
         /// <param name="count">The number of handlers that are available</param>
         /// <returns>This property is applicable for the given number of handlers</returns>
         public bool IsHandlerCountAcceptable(int count) {
-            switch (this.HandlerCountMode) {
-                case HandlerCountMode.Any: return count > 0;
-                case HandlerCountMode.Single: return count == 1;
-                case HandlerCountMode.Multi: return count > 1;
-                default: throw new ArgumentOutOfRangeException();
-            }
+            return IsHandlerCountAcceptable(this.HandlerCountMode, count);
         }
 
         public virtual void RecalculateHierarchyDepth() {
-            PropertyGroupViewModel parent = this.Parent;
+            BasePropertyGroupViewModel parent = this.Parent;
             this.HierarchyDepth = parent == null ? -1 : (parent.HierarchyDepth + 1);
         }
 
         protected int GetHierarchyDepth() {
             int count = -1;
-            for (PropertyGroupViewModel parent = this.Parent; parent != null; parent = parent.Parent)
+            for (BasePropertyGroupViewModel parent = this.Parent; parent != null; parent = parent.Parent)
                 count++;
             return count;
+        }
+
+        public static bool IsHandlerCountAcceptable(HandlerCountMode mode, int count) {
+            switch (mode) {
+                case HandlerCountMode.Any: return count > 0;
+                case HandlerCountMode.Single: return count == 1;
+                case HandlerCountMode.Multi: return count > 1;
+                default: throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

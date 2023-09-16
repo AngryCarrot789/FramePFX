@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editor.ResourceManaging.ViewModels;
@@ -11,11 +12,11 @@ namespace FramePFX.PropertyEditing {
     public class PFXPropertyEditorRegistry : PropertyEditorRegistry {
         public static PFXPropertyEditorRegistry Instance { get; } = new PFXPropertyEditorRegistry();
 
-        public PropertyGroupViewModel ClipInfo { get; }
+        public FixedPropertyGroupViewModel ClipInfo { get; }
 
-        public PropertyGroupViewModel EffectInfo { get; }
+        public DynamicPropertyGroupViewModel EffectInfo { get; }
 
-        public PropertyGroupViewModel ResourceInfo { get; }
+        public FixedPropertyGroupViewModel ResourceInfo { get; }
 
         private PFXPropertyEditorRegistry() {
             this.ClipInfo = this.CreateRootGroup(typeof(ClipViewModel), "Clip Info");
@@ -23,19 +24,31 @@ namespace FramePFX.PropertyEditing {
             this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Single", new VideoClipDataSingleEditorViewModel());
             this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Multi", new VideoClipDataMultipleEditorViewModel());
 
-            this.ResourceInfo = this.CreateRootGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
+            this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
 
-            this.EffectInfo = this.CreateRootGroup(typeof(BaseEffectViewModel), "Effects");
-            PropertyGroupViewModel motion = this.EffectInfo.CreateSubGroup(typeof(MotionEffectViewModel), "Motion");
-            motion.AddPropertyEditor("MotionEffect_Single", new MotionEffectDataSingleEditorViewModel());
-            motion.AddPropertyEditor("MotionEffect_Multi", new MotionEffectDataMultiEditorViewModel());
+            this.EffectInfo = this.Root.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects");
+            this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
+                FixedPropertyGroupViewModel motion = new FixedPropertyGroupViewModel(typeof(MotionEffectViewModel)) {
+                    IsExpanded = true
+                };
+
+                if (!single.HasValue || single.Value) {
+                    motion.AddPropertyEditor("MotionEffect_Single", new MotionEffectDataSingleEditorViewModel());
+                }
+
+                if (!single.HasValue || single.Value == false) {
+                    motion.AddPropertyEditor("MotionEffect_Multi", new MotionEffectDataMultiEditorViewModel());
+                }
+
+                return motion;
+            });
         }
 
         public void OnClipsSelected(List<ClipViewModel> clips) {
-            List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
+            // List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
             this.Root.ClearHierarchyState();
             this.ClipInfo.SetupHierarchyState(clips);
-            this.EffectInfo.SetupHierarchyState(effects);
+            this.EffectInfo.SetupHierarchyStateExtended(clips.Select(x => x.Effects).ToList());
         }
     }
 }

@@ -18,12 +18,12 @@ namespace FramePFX.WPF.PropertyEditing.Converters {
                 description = "No description available";
             }
 
-            PropertyGroupViewModel parent = (PropertyGroupViewModel) values[1];
+            BasePropertyGroupViewModel parent = (BasePropertyGroupViewModel) values[1];
             if (parent == null || parent.IsRoot) {
                 return description;
             }
             else {
-                return $"{description}. This is parented to '{parent.Id}'";
+                return $"{description}. This is parented to '{parent.DisplayName}'";
             }
         }
 

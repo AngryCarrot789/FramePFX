@@ -10,17 +10,17 @@ namespace FramePFX.PropertyEditing {
         /// The root group container for this registry. This group by itself is invalid
         /// and should never be used apart from storing child objects
         /// </summary>
-        public PropertyGroupViewModel Root { get; }
+        public FixedPropertyGroupViewModel Root { get; }
 
         public PropertyEditorRegistry() {
-            this.Root = new PropertyGroupViewModel(null, "<root>");
+            this.Root = new FixedPropertyGroupViewModel(null);
         }
 
         /// <summary>
         /// Convenience function for creating a sub-group in our root group container
         /// </summary>
-        protected PropertyGroupViewModel CreateRootGroup(Type type, string name, bool isExpandedByDefault = true) {
-            return this.Root.CreateSubGroup(type, name, isExpandedByDefault);
+        protected FixedPropertyGroupViewModel CreateRootGroup(Type type, string name, bool isExpandedByDefault = true) {
+            return this.Root.CreateFixedSubGroup(type, name, isExpandedByDefault);
         }
 
         /// <summary>

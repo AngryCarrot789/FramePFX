@@ -742,7 +742,7 @@
                                     <ResourceDictionary.MergedDictionaries>
                                         <StaticResource ResourceKey="PropertyEditorDataTemplates" />
                                     </ResourceDictionary.MergedDictionaries>
-                                    <DataTemplate DataType="{x:Type pec:PropertyGroupViewModel}">
+                                    <DataTemplate DataType="{x:Type pec:BasePropertyGroupViewModel}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="{Binding ColumnWidth0, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
@@ -751,12 +751,12 @@
                                             </Grid.ColumnDefinitions>
                                             <Expander Grid.ColumnSpan="3" Margin="0,0" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                       Style="{StaticResource HierarchicalExpanderStyle}" Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                                      Header="{Binding Id, Mode=OneTime}" FontWeight="Bold"
+                                                      Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
                                                       IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
                                                       x:Name="PART_Expander">
                                                 <Expander.ToolTip>
                                                     <MultiBinding Converter="{x:Static converters:PropertyItemToolTipConverter.Instance}">
-                                                        <Binding Path="Id" Mode="OneWay"/>
+                                                        <Binding Path="DisplayName" Mode="OneWay"/>
                                                         <Binding Path="Parent" Mode="OneWay"/>
                                                     </MultiBinding>
                                                 </Expander.ToolTip>
@@ -773,7 +773,7 @@
                                                                 <ResourceDictionary.MergedDictionaries>
                                                                     <StaticResource ResourceKey="PropertyEditorDataTemplates" />
                                                                 </ResourceDictionary.MergedDictionaries>
-                                                                <DataTemplate DataType="{x:Type pec:PropertyGroupViewModel}">
+                                                                <DataTemplate DataType="{x:Type pec:BasePropertyGroupViewModel}">
                                                                     <Grid>
                                                                         <Grid.ColumnDefinitions>
                                                                             <ColumnDefinition Width="{Binding ColumnWidth0, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
@@ -782,13 +782,13 @@
                                                                         </Grid.ColumnDefinitions>
                                                                         <Expander Grid.ColumnSpan="3" Margin="0" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                                                   Style="{StaticResource HierarchicalExpanderStyle}" Background="{DynamicResource ABrush.Tone4.Background.Static}"
-                                                                                  Header="{Binding Id, Mode=OneTime}" FontWeight="Bold"
+                                                                                  Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
                                                                                   IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
                                                                                   Padding="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItemsControl}}, Path=ContentPadding}"
                                                                                   x:Name="PART_Expander">
                                                                             <Expander.ToolTip>
                                                                                 <MultiBinding Converter="{x:Static converters:PropertyItemToolTipConverter.Instance}">
-                                                                                    <Binding Path="Id" Mode="OneWay"/>
+                                                                                    <Binding Path="DisplayName" Mode="OneWay"/>
                                                                                     <Binding Path="Parent" Mode="OneWay"/>
                                                                                 </MultiBinding>
                                                                             </Expander.ToolTip>

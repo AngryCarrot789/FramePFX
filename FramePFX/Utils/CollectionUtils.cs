@@ -57,5 +57,12 @@ namespace FramePFX.Utils {
         public static IEnumerable<T> SingleItem<T>(in T value) {
             return new List<T> {value};
         }
+
+        public static int CountAll<T>(this IEnumerable<T> source, Func<T, int> func) {
+            int count = 0;
+            foreach (T value in source)
+                count += func(value);
+            return count;
+        }
     }
 }

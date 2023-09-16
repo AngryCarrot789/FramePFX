@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Automation;
@@ -19,7 +18,6 @@ using FramePFX.Editor.ViewModels.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
-using FramePFX.Shortcuts.Attributes;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.UserInputs;
 

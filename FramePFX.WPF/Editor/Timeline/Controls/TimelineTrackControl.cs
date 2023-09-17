@@ -85,13 +85,14 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
             }
 
-            foreach (TimelineTrackControl track in this.Timeline.GetTrackContainers()) {
-                if (track.SelectedItems.Count > 0) {
-                    track.UnselectAll();
+            foreach (TimelineTrackControl trackElement in this.Timeline.GetTrackContainers()) {
+                if (trackElement.SelectedItems.Count > 0) {
+                    trackElement.UnselectAll();
                 }
             }
 
             this.Focus();
+            this.OnSelectionOperationCompleted();
         }
 
         private void OnDragDropEnter(object sender, DragEventArgs e) {
@@ -207,7 +208,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                         int index = map.OrderedIndexToRealIndex(i);
                         if (index != -1) {
                             // using RealIndexToClip may be faster than using ItemContainerGenerator indexing... maybe
-                            this.SetItemSelectedProperty(map.RealIndexToValue[index], true);
+                            this.SetItemSelectedProperty(map.RealIndexToValue[index], true, index);
                             // this.SetItemSelectedPropertyAtIndex(index, true);
                         }
                     }
@@ -217,7 +218,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     for (int i = indexB; i <= indexA; i++) {
                         int index = map.OrderedIndexToRealIndex(i);
                         if (index != -1) {
-                            this.SetItemSelectedProperty(map.RealIndexToValue[index], true);
+                            this.SetItemSelectedProperty(map.RealIndexToValue[index], true, index);
                             // this.SetItemSelectedPropertyAtIndex(index, true);
                         }
                     }
@@ -226,6 +227,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     this.MakeSingleSelection(a);
                 }
             }
+
+            this.OnSelectionOperationCompleted();
         }
 
         public void MakeSingleSelection(TimelineClipControl container) {
@@ -234,23 +237,28 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.lastSelectedItem = container;
         }
 
-        public void SetItemSelectedProperty(TimelineClipControl container, bool selected) {
+        public void SetItemSelectedProperty(TimelineClipControl container, bool selected, int index = -1) {
             container.IsSelected = selected;
             object x = this.ItemContainerGenerator.ItemFromContainer(container);
             if (x == null || x == DependencyProperty.UnsetValue) {
                 x = container;
             }
 
+            if (index == -1)
+                index = this.SelectedItems.IndexOf(x);
             if (selected) {
-                if (!this.SelectedItems.Contains(x))
+                if (index == -1) {
                     this.SelectedItems.Add(x);
+                }
             }
             else {
-                int index = this.SelectedItems.IndexOf(x);
-                if (index != -1)
+                if (index != -1) {
                     this.SelectedItems.RemoveAt(index);
+                }
             }
         }
+
+        public void OnSelectionOperationCompleted() => this.Timeline.OnSelectionOperationCompleted();
 
         protected override Size MeasureOverride(Size constraint) {
             Size size = base.MeasureOverride(constraint);

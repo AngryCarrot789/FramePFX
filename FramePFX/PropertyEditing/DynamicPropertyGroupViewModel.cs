@@ -75,8 +75,7 @@ namespace FramePFX.PropertyEditing {
                 throw new Exception("Type already registered: " + type);
             }
 
-            TypeRegistration registration = new TypeRegistration(this, type, displayName, handlerCountMode, constructor);
-            this.registrations[type] = registration;
+            this.registrations[type] = new TypeRegistration(this, type, displayName, handlerCountMode, constructor);
         }
 
         public override void SetupHierarchyState(IReadOnlyList<object> input) {

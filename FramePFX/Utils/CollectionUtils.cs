@@ -64,5 +64,18 @@ namespace FramePFX.Utils {
                 count += func(value);
             return count;
         }
+
+        public static bool HasAtleast<T>(this IEnumerable<T> source, int count) {
+            int i = 0;
+            using (IEnumerator<T> enumerator = source.GetEnumerator()) {
+                while (enumerator.MoveNext()) {
+                    if (++i >= count) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

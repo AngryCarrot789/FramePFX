@@ -112,7 +112,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.SelectedClips = new ObservableCollection<ClipViewModel>();
             this.SelectedClips.CollectionChanged += (sender, args) => {
                 this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
-                this.Timeline.Project.Editor?.View.UpdateClipSelection();
             };
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
             this.RenameTrackCommand = new AsyncRelayCommand(this.RenameAsync);

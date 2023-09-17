@@ -27,7 +27,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 new FrameworkPropertyMetadata(
                     BoolBox.False,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
-                    (d, e) => ((TimelineClipControl) d).OnSelectionChanged((bool)e.NewValue)));
+                    (d, e) => ((TimelineClipControl) d).OnSelectionChanged((bool) e.OldValue, (bool) e.NewValue)));
 
         public static readonly DependencyProperty FrameBeginProperty =
             DependencyProperty.Register(
@@ -170,7 +170,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     this.isLoadedWithActiveDrag = true;
                     this.Focus();
                     this.CaptureMouse();
-                    this.IsSelected = true;
+                    if (!handler.IsSelected)
+                        this.IsSelected = true;
                 }
             }
 
@@ -274,24 +275,26 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             if (this.DataContext is ClipViewModel handler && !handler.IsDraggingClip) {
                 if (this.IsFocused || this.Focus()) {
+                    TimelineTrackControl track = this.Track;
                     if (!this.IsMouseCaptured) {
                         this.CaptureMouse();
                     }
 
                     this.lastLeftClickPoint = e.GetPosition(this);
                     if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
-                        this.Track.SetItemSelectedProperty(this, true);
+                        track.SetItemSelectedProperty(this, true);
+                        track.OnSelectionOperationCompleted();
                     }
-                    else if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.lastSelectedItem != null && this.Track.SelectedItems.Count > 0) {
-                        this.Track.MakeRangedSelection(this.Track.lastSelectedItem, this);
+                    else if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && track.lastSelectedItem != null && track.SelectedItems.Count > 0) {
+                        track.MakeRangedSelection(track.lastSelectedItem, this);
                     }
-                    else if (this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
+                    else if (track.Timeline.GetSelectedClipContainers().HasAtleast(2)) {
                         if (!this.IsSelected) {
-                            this.Track.Timeline.SetPrimarySelection(this);
+                            track.Timeline.SetPrimarySelection(this, true);
                         }
                     }
                     else {
-                        this.Track.Timeline.SetPrimarySelection(this);
+                        track.Timeline.SetPrimarySelection(this, true);
                     }
 
                     e.Handled = true;
@@ -310,8 +313,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 e.Handled = true;
             }
 
-            if (wasDragging != true && this.IsSelected && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Control) && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().ToList().Count > 1) {
-                this.Track.Timeline.SetPrimarySelection(this);
+            TimelineTrackControl track = this.Track;
+            if (wasDragging != true && this.IsSelected && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Control) && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().HasAtleast(2)) {
+                track.Timeline.SetPrimarySelection(this, false);
             }
 
             base.OnMouseLeftButtonUp(e);
@@ -535,12 +539,20 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             return this.GetTemplateChild(name) is T value ? value : throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
         }
 
-        private void OnSelectionChanged(bool isSelected) {
+        private void OnSelectionChanged(bool wasSelected, bool isSelected) {
+            ClipViewModel clip = (ClipViewModel) this.DataContext;
             if (isSelected) {
+                bool isClipSelected = clip?.IsSelected ?? false;
                 this.OnSelected(new RoutedEventArgs(Selector.SelectedEvent, this));
+                if (clip != null && !isClipSelected && clip.IsSelected) {
+                    clip.UpdateTimelineSelection();
+                }
             }
             else {
                 this.OnUnselected(new RoutedEventArgs(Selector.UnselectedEvent, this));
+                if (clip != null && !clip.IsSelected) {
+                    clip.UpdateTimelineSelection();
+                }
             }
         }
     }

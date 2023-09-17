@@ -218,6 +218,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.SetActiveAutomationSequence(e.Sequence, false);
         }
 
+        public void UpdateTimelineSelection() {
+            this.Timeline?.Project.Editor?.View.UpdateClipSelection();
+        }
+
         public void AddEffect(BaseEffectViewModel effect, bool addToModel = true) {
             this.InsertEffect(effect, this.Effects.Count, addToModel);
             if (effect.AutomationData.ActiveSequence != null) {

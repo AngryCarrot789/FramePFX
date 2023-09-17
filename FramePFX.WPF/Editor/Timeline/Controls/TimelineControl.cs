@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Editor;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 using FramePFX.WPF.Utils;
@@ -385,12 +386,27 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
         }
 
-        public void SetPrimarySelection(TimelineClipControl clip) {
+        public void SetPrimarySelection(TimelineClipControl clip, bool ignoreIfAlreadySelected) {
+            if (ignoreIfAlreadySelected && clip.IsSelected) {
+                object dc;
+                TimelineTrackControl track = clip.Track;
+                if (track == null || (dc = clip.DataContext) == null || track.SelectedItems.Contains(dc)) {
+                    return;
+                }
+            }
+
             foreach (TimelineTrackControl trackControl in this.GetTrackContainers()) {
                 trackControl.UnselectAll();
             }
 
             clip.Track.MakeSingleSelection(clip);
+            this.OnSelectionOperationCompleted();
+        }
+
+        public void OnSelectionOperationCompleted() {
+            if (this.DataContext is TimelineViewModel timeline) {
+                timeline.Project.Editor?.View.UpdateClipSelection();
+            }
         }
     }
 }

@@ -21,15 +21,13 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
         public const int SubStepNumber = 10;
         private bool disposedValue;
         private RulerPositionManager positionManager;
-        private Line marker;
         private bool isLoadedInternal;
 
         public Ruler() {
             this.positionManager = new TopRulerManager(this);
             this.Loaded += this.OnRulerLoaded;
+            this.ClipToBounds = true;
         }
-
-        private Line Marker => this.marker ?? (this.marker = this.Template.FindName("marker", this) as Line);
 
         private ScrollViewer scroller;
 
@@ -59,15 +57,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
 
         private void OnRulerUnloaded(object sender, RoutedEventArgs e) => this.UnloadControl();
 
-        protected override void OnMouseMove(MouseEventArgs e) {
-            base.OnMouseMove(e);
-            Point mousePosition = e.GetPosition(this);
-            this.UpdateMarkerPosition(mousePosition);
-        }
-
         private void OnExternalMouseMouve(object sender, MouseEventArgs e) {
-            Point mousePosition = e.GetPosition(this);
-            this.UpdateMarkerPosition(mousePosition);
         }
 
         protected override void UpdateRulerPosition(RulerPosition position) {
@@ -75,15 +65,6 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
                 this.positionManager = new LeftRulerManager(this);
             else
                 this.positionManager = new TopRulerManager(this);
-        }
-
-        private void UpdateMarkerPosition(Point point) {
-            if (this.Marker == null || this.positionManager == null) {
-                return;
-            }
-
-            // bool positionUpdated = this.positionManager.OnUpdateMakerPosition(this.Marker, point);
-            // this.Marker.Visibility = positionUpdated ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void OnRulerSizeChanged(object sender, SizeChangedEventArgs e) => this.InvalidateVisual();
@@ -102,7 +83,19 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
             }
 
             // calculate visible pixel bounds
-            Rect rect = this.scroller == null ? new Rect(new Point(), this.RenderSize) : new Rect(this.scroller.HorizontalOffset, this.scroller.VerticalOffset, this.scroller.ViewportWidth, this.scroller.ViewportHeight);
+            Rect rect;
+            if (this.scroller != null) {
+                double width = Math.Min(this.scroller.ViewportWidth, this.ActualWidth);
+                double height = Math.Min(this.scroller.ViewportHeight, this.ActualHeight);
+                rect = new Rect(this.scroller.HorizontalOffset, this.scroller.VerticalOffset, width, height);
+            }
+            else {
+                rect = new Rect(new Point(), this.RenderSize);
+            }
+
+            if (this.Background is Brush bg) {
+                dc.DrawRectangle(bg, null, rect);
+            }
 
             double pixelStep;
             double valueStep;

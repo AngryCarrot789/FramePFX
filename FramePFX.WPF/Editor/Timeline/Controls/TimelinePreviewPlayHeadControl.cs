@@ -19,7 +19,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                         if (value < 0) {
                             return TimelineUtils.ZeroLongBox;
                         }
-                        else if (((TimelinePreviewPlayHeadControl) d).Timeline is TimelineControl timeline && value >= timeline.MaxDuration) {
+                        else if (((TimelinePreviewPlayHeadControl) d).Timeline is TimelineEditorControl timeline && value >= timeline.MaxDuration) {
                             return timeline.MaxDuration - 1;
                         }
                         else {
@@ -30,7 +30,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public static readonly DependencyProperty TimelineProperty =
             DependencyProperty.Register(
                 "Timeline",
-                typeof(TimelineControl),
+                typeof(TimelineEditorControl),
                 typeof(TimelinePreviewPlayHeadControl),
                 new PropertyMetadata(null));
 
@@ -47,8 +47,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             set => this.FrameIndex = value;
         }
 
-        public TimelineControl Timeline {
-            get => (TimelineControl) this.GetValue(TimelineProperty);
+        public TimelineEditorControl Timeline {
+            get => (TimelineEditorControl) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }
 

@@ -26,7 +26,7 @@ using FramePFX.WPF.Views;
 using SkiaSharp;
 using Time = FramePFX.Utils.Time;
 
-namespace FramePFX.WPF.Editor {
+namespace FramePFX.WPF.Editor.MainWindow {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>

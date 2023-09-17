@@ -32,7 +32,8 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers {
         protected FormattedText GetFormattedText(double value) {
             CultureInfo culture = this.Control.TextCulture ?? CultureInfo.CurrentUICulture;
             string text = value.ToString(this.Control.TextFormat, culture);
-            ICollection<Typeface> typefaces = this.Control.FontFamily.GetTypefaces();
+            FontFamily font = this.Control.FontFamily ?? (this.Control.FontFamily = new FontFamily("Consolas"));
+            ICollection<Typeface> typefaces = font.GetTypefaces();
             return new FormattedText(text, culture, FlowDirection.LeftToRight, typefaces.FirstOrDefault() ?? FallbackTypeFace, 12, this.Control.Foreground, 96);
         }
 

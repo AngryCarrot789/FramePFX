@@ -5,11 +5,11 @@ using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
     public class TimelineContentPanel : Grid {
-        public TimelineControl Timeline { get; private set; }
+        public TimelineEditorControl Timeline { get; private set; }
 
         public TimelineContentPanel() {
             this.Loaded += (sender, args) => {
-                this.Timeline = VisualTreeUtils.FindParent<TimelineControl>(this);
+                this.Timeline = VisualTreeUtils.FindParent<TimelineEditorControl>(this);
             };
 
             this.Unloaded += (s, e) => {

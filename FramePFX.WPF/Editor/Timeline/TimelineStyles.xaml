@@ -19,8 +19,10 @@
                     xmlns:ctl="clr-namespace:FramePFX.Editor.ViewModels.Timelines;assembly=FramePFX"
                     xmlns:acs="clr-namespace:FramePFX.WPF.AdvancedContextService"
                     xmlns:kf="clr-namespace:FramePFX.Automation.ViewModels.Keyframe;assembly=FramePFX"
-                    xmlns:bindings="clr-namespace:FramePFX.WPF.Shortcuts.Bindings"
+                    xmlns:b="clr-namespace:FramePFX.WPF.Shortcuts.Bindings"
                     xmlns:videoClips="clr-namespace:FramePFX.Editor.ViewModels.Timelines.VideoClips;assembly=FramePFX"
+                    xmlns:shortcuts="clr-namespace:FramePFX.WPF.Shortcuts"
+                    xmlns:ctx="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Context;assembly=FramePFX"
                     mc:Ignorable="d">
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
     <Style TargetType="{x:Type ctrl:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
@@ -75,7 +77,8 @@
 
     <sys:Double x:Key="LayerHeight">20</sys:Double>
 
-    <Style TargetType="{x:Type tc:TimelineClipControl}" d:DataContext="{d:DesignInstance ctl:ClipViewModel}">
+    <!-- d:DataContext="{d:DesignInstance ctl:ClipViewModel}" -->
+    <Style TargetType="{x:Type tc:TimelineClipControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone5.Border.Static}"/>
         <Setter Property="HeaderBrush" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
@@ -115,7 +118,7 @@
                         <automation:AutomationSequenceEditor DataContext="{Binding ActiveClipOrEffectSequence, Mode=OneWay}" 
                                                              Sequence="{Binding}"
                                                              IsOverrideEnabled="{Binding IsOverrideEnabled}"
-                                                             UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineControl}}, Path=UnitZoom, FallbackValue=0}"
+                                                             UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineEditorControl}}, Path=UnitZoom, FallbackValue=0}"
                                                              FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineClipControl}}, Path=FrameDuration}"
                                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                                              Margin="0,20,0,0"/>
@@ -137,8 +140,8 @@
         </Setter>
     </Style>
 
-    <!--  -->
-    <Style TargetType="{x:Type tc:TimelineTrackControl}" d:DataContext="{d:DesignInstance ctl:TrackViewModel}">
+    <!--  d:DataContext="{d:DesignInstance ctl:TrackViewModel}" -->
+    <Style TargetType="{x:Type tc:TimelineTrackControl}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone4.Border.Static}"/>
         <Setter Property="MaxHeight" Value="{Binding MaxHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -160,8 +163,8 @@
                             <automation:AutomationSequenceEditor DataContext="{Binding AutomationData}"
                                                         Sequence="{Binding ActiveSequence}"
                                                         IsOverrideEnabled="{Binding ActiveSequence.IsOverrideEnabled}"
-                                                        UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineControl}}, Path=UnitZoom, FallbackValue=1}"
-                                                        FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineControl}}, Path=MaxDuration, FallbackValue=10000}"
+                                                        UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineEditorControl}}, Path=UnitZoom, FallbackValue=1}"
+                                                        FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineEditorControl}}, Path=MaxDuration, FallbackValue=10000}"
                                                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Grid>
                     </Border>
@@ -259,12 +262,12 @@
                             <DockPanel>
                                 <Border Background="{TemplateBinding Background}" DockPanel.Dock="Right" Width="50" Panel.ZIndex="1">
                                     <Grid>
-                                        <dragger:NumberDragger IsEnabled="True"
+                                        <dragger:NumberDragger IsEnabled="True" Focusable="False"
                                                                Background="{TemplateBinding Background}" BorderThickness="0,0,0,0"
                                                                Style="{StaticResource AbletonNumberDraggerStyle}"
                                                                ToolTip="The timeline zoom level (use CTRL + MouseWheel to zoom)"
                                                                Minimum="0.001" Maximum="200"
-                                                               Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineControl}}, Path=UnitZoom, Mode=OneWay}"/>
+                                                               Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineEditorControl}}, Path=UnitZoom, Mode=OneWay}"/>
                                     </Grid>
                                 </Border>
                                 <Grid x:Name="Bg" SnapsToDevicePixels="true">
@@ -364,7 +367,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type tc:TimelineControl}">
+    <Style TargetType="{x:Type tc:TimelineEditorControl}">
         <Setter Property="Background" Value="{DynamicResource PanelBackground2}"/>
         <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Visible"/>
@@ -372,7 +375,7 @@
         <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type tc:TimelineControl}">
+                <ControlTemplate TargetType="{x:Type tc:TimelineEditorControl}">
                     <Grid x:Name="PART_rootGrid">
                         <Border Background="{TemplateBinding Background}"/>
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false"
@@ -425,10 +428,7 @@
                                     <ItemsPresenter x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </Border>
                                 <Border x:Name="PART_SelectionRange" HorizontalAlignment="Left" VerticalAlignment="Top" Background="DodgerBlue"/>
-                                <Border x:Name="PART_TimestampBoard"
-                                        Background="{DynamicResource ABrush.Tone4.Background.Static}"
-                                        BorderBrush="{DynamicResource PanelBorderBrush}"
-                                        BorderThickness="0 0 0 1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="40">
+                                <Border x:Name="PART_TimestampBoard" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="40">
                                     <rulerWpf:Ruler VerticalAlignment="Stretch"
                                                     HorizontalAlignment="Stretch"
                                                     MarkerControlReference="{Binding ElementName=PART_rootGrid}"
@@ -437,7 +437,7 @@
                                                     MajorLineThickness="1"
                                                     MinorLineThickness="0.5"
                                                     SnapsToDevicePixels="True"
-                                                    UseLayoutRounding="True"/>
+                                                    UseLayoutRounding="True" Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
                                 </Border>
                                 <tc:TimelinePlayHeadControl Background="{DynamicResource ABrush.Tone7.Border.Static}"
                                                             x:Name="PART_PlayHead" Width="1"
@@ -574,11 +574,11 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
-                                    <bindings:InputStateCollection.Collection>
-                                        <bindings:InputStateCollection>
-                                            <bindings:InputStateBinding InputStatePath="Application/Editor/UseStateAss1"/>
-                                        </bindings:InputStateCollection>
-                                    </bindings:InputStateCollection.Collection>
+                                    <b:InputStateCollection.Collection>
+                                        <b:InputStateCollection>
+                                            <b:InputStateBinding InputStatePath="Application/Editor/UseStateAss1"/>
+                                        </b:InputStateCollection>
+                                    </b:InputStateCollection.Collection>
                                     <Grid d:DataContext="{d:DesignInstance ctl:TrackViewModel}">
                                         <Rectangle Fill="{Binding TrackColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4"/>
@@ -682,6 +682,67 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type tc:TimelineControl}">
+        <Setter Property="Background" Value="{DynamicResource PanelBackground2}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type tc:TimelineControl}">
+                    <Grid Grid.IsSharedSizeScope="True" d:DataContext="{d:DesignInstance ctl:TimelineViewModel}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40" SharedSizeGroup="TimelineHeaderSharedRow" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250" SharedSizeGroup="TimelineLeftTrackListSharedGroup" />
+                            <ColumnDefinition Width="1" />
+                            <ColumnDefinition Width="20*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0,1" BorderBrush="{DynamicResource PanelBorderBrush}">
+                            <DockPanel Margin="8,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Medium" />
+                                    <TextBlock FontSize="15" Text="/" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,-2,3,0" />
+                                    <TextBlock FontSize="12" Text="{Binding MaxDuration, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <Border shortcuts:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
+                                Grid.Row="1" Grid.Column="0" BorderThickness="0"
+                                Background="{DynamicResource PanelBackground3}"
+                                BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
+                        <ListBox x:Name="PART_TrackList"
+                                 shortcuts:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
+                                 acs:AdvancedContextMenu.ContextGenerator="{x:Static ctx:TrackContextGenerator.Instance}"
+                                 Style="{StaticResource TrackListBoxStyle}"
+                                 Grid.Row="1" Grid.Column="0"
+                                 SelectionMode="Extended"
+                                 ItemsSource="{Binding Tracks}"
+                                 SelectedItem="{Binding PrimarySelectedTrack}"
+                                 ap2:MultiSelectorHelper.SelectedItems="{Binding SelectedTracks}"
+                                 Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="Transparent"
+                                 BorderThickness="0 0 0 0" Padding="0" />
+                        <tc:TimelineEditorControl x:Name="PART_TimelineEditor"
+                                 Background="{DynamicResource PanelBackground2}"
+                                 ItemsSource="{Binding Tracks, Mode=OneTime}"
+                                 BorderThickness="0"
+                                 Grid.RowSpan="2" Grid.Column="2"
+                                 BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
+                                 MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 shortcuts:UIInputManager.FocusPath="Application/Editor/Timeline/Surface">
+                                 <b:ShortcutCommandCollection.Collection>
+                                     <b:ShortcutCommandCollection>
+                                         <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/Surface/MoveSelectedTrackUp" Command="{Binding MoveSelectedUpCommand, Mode=OneTime}" />
+                                         <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/Surface/MoveSelectedTrackDown" Command="{Binding MoveSelectedDownCommand, Mode=OneTime}" />
+                                     </b:ShortcutCommandCollection>
+                                 </b:ShortcutCommandCollection.Collection>
+                        </tc:TimelineEditorControl>
+                        <GridSplitter Background="Transparent" ResizeDirection="Columns" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" BorderThickness="0" Grid.RowSpan="2" Margin="-5,-1,0,0" SnapsToDevicePixels="True" />
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

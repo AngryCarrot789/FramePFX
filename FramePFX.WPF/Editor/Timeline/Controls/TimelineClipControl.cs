@@ -140,7 +140,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public TimelineTrackControl Track => ItemsControl.ItemsControlFromItemContainer(this) as TimelineTrackControl;
 
-        public TimelineControl Timeline => this.Track?.Timeline;
+        public TimelineEditorControl Timeline => this.Track?.Timeline;
 
         private bool isProcessingAsyncDrop;
         private bool isUpdatingUnitZoom;

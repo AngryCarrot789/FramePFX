@@ -6,14 +6,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers;
 
 namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
-    public abstract class RulerBase : Control {
+    public abstract class RulerBase : FrameworkElement {
         public static readonly DependencyProperty MaxValueProperty = DependencyProperty.Register(nameof(MaxValue), typeof(double), typeof(RulerBase), new FrameworkPropertyMetadata(double.NaN, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty RulerPositionProperty = DependencyProperty.Register(nameof(RulerPosition), typeof(RulerPosition), typeof(RulerBase), new FrameworkPropertyMetadata(RulerPosition.Top, OnRulerPositionChanged));
         public static readonly DependencyProperty MajorStepValuesProperty = DependencyProperty.Register(nameof(MajorStepValues), typeof(IEnumerable<int>), typeof(RulerBase), new FrameworkPropertyMetadata(new int[] {1, 2, 5}, FrameworkPropertyMetadataOptions.AffectsRender));
@@ -33,6 +35,10 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
         public static readonly DependencyProperty LeftRulerLineAlignmentProperty = DependencyProperty.Register(nameof(LeftRulerLineAlignment), typeof(HorizontalAlignment), typeof(RulerBase), new FrameworkPropertyMetadata(HorizontalAlignment.Right, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty MajorLineThicknessProperty = DependencyProperty.Register("MajorLineThickness", typeof(double), typeof(RulerBase), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty MinorLineThicknessProperty = DependencyProperty.Register("MinorLineThickness", typeof(double), typeof(RulerBase), new FrameworkPropertyMetadata(0.5d, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty BackgroundProperty = Panel.BackgroundProperty.AddOwner(typeof(RulerBase), new FrameworkPropertyMetadata(Panel.BackgroundProperty.DefaultMetadata.DefaultValue, FrameworkPropertyMetadataOptions.None));
+        public static readonly DependencyProperty FontFamilyProperty = TextElement.FontFamilyProperty.AddOwner(typeof(RulerBase), new FrameworkPropertyMetadata(SystemFonts.MessageFontFamily));
+        public static readonly DependencyProperty ForegroundProperty = TextElement.ForegroundProperty.AddOwner(typeof(RulerBase), new FrameworkPropertyMetadata(SystemColors.ControlTextBrush));
 
         private Pen majorLineStepColourPen;
         private Pen minorLineStepColourPen;
@@ -135,10 +141,31 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
             set => this.SetValue(MajorLineThicknessProperty, value);
         }
 
+        [Bindable(true)]
+        [Category("Appearance")]
+        public Brush Background {
+            get => (Brush) this.GetValue(BackgroundProperty);
+            set => this.SetValue(BackgroundProperty, value);
+        }
+
+        [Bindable(true)]
+        [Category("Appearance")]
+        [Localizability(LocalizationCategory.Font)]
+        public FontFamily FontFamily {
+            get => (FontFamily) this.GetValue(FontFamilyProperty);
+            set => this.SetValue(FontFamilyProperty, value);
+        }
+
+        [Bindable(true)]
+        [Category("Appearance")]
+        public Brush Foreground {
+            get => (Brush) this.GetValue(ForegroundProperty);
+            set => this.SetValue(ForegroundProperty, value);
+        }
+
         private static void OnRulerPositionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             if (!(d is RulerBase control) || !(e.NewValue is RulerPosition position))
                 return;
-
             control.UpdateRulerPosition(position);
         }
 

@@ -223,7 +223,7 @@
     <Compile Include="Editor\Controls\ResourcesPanelControl.xaml.cs">
       <DependentUpon>ResourcesPanelControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\EditorMainWindow.xaml.cs">
+    <Compile Include="Editor\MainWindow\EditorMainWindow.xaml.cs">
       <DependentUpon>EditorMainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Editor\EditorTitleConverter.cs" />
@@ -262,6 +262,7 @@
     <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineContentPanel.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelineEditorControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelinePreviewPlayHeadControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineTrackControl.cs" />
@@ -492,7 +493,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Editor\EditorMainWindow.xaml">
+    <Page Include="Editor\MainWindow\EditorMainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

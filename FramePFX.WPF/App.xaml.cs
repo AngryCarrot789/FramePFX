@@ -32,6 +32,7 @@ using FramePFX.WPF.Themes;
 using FramePFX.WPF.Utils;
 using FramePFX.WPF.Views;
 using SoundIOSharp;
+using FramePFX.WPF.Editor.MainWindow;
 
 namespace FramePFX.WPF {
     public partial class App : Application {

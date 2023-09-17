@@ -17,7 +17,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         /// <summary>
         /// The timeline that contains this track
         /// </summary>
-        public TimelineControl Timeline => ItemsControlFromItemContainer(this) as TimelineControl;
+        public TimelineEditorControl Timeline => ItemsControlFromItemContainer(this) as TimelineEditorControl;
 
         /// <summary>
         /// The zoom level of the associated timeline, or 1, if no timeline is present
@@ -262,7 +262,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         protected override Size MeasureOverride(Size constraint) {
             Size size = base.MeasureOverride(constraint);
-            return this.Timeline is TimelineControl timeline ? new Size(timeline.MaxDuration * this.UnitZoom, constraint.Height) : size;
+            return this.Timeline is TimelineEditorControl timeline ? new Size(timeline.MaxDuration * this.UnitZoom, constraint.Height) : size;
         }
 
         protected override DependencyObject GetContainerForItemOverride() => new TimelineClipControl();

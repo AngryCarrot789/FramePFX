@@ -720,16 +720,24 @@
         <Setter Property="ColumnWidth2" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}"/>
         -->
         <Style.Triggers>
-            <DataTrigger Binding="{Binding IsCurrentlyApplicable}" Value="True">
+            <DataTrigger Binding="{Binding IsCurrentlyApplicable, Mode=OneWay}" Value="True">
                 <Setter Property="Visibility" Value="Visible" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding IsCurrentlyApplicable}" Value="False">
+            <DataTrigger Binding="{Binding IsCurrentlyApplicable, Mode=OneWay}" Value="False">
                 <Setter Property="Visibility" Value="Collapsed" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
 
-    <Style TargetType="{x:Type pe:PropertyEditorItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}" />
+    <Style TargetType="{x:Type pe:PropertyEditorItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel IsItemsHost="True" VirtualizationMode="Recycling" ScrollUnit="Pixel" CacheLengthUnit="Pixel"/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style TargetType="{x:Type pe:PropertyEditor}">
         <Setter Property="Template">
@@ -749,7 +757,7 @@
                                                 <ColumnDefinition Width="{Binding ColumnWidth1, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                                 <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                             </Grid.ColumnDefinitions>
-                                            <Expander Grid.ColumnSpan="3" Margin="0,0" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                            <Expander Grid.ColumnSpan="3" Margin="0,0" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                       Style="{StaticResource HierarchicalExpanderStyle}" Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                       Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
                                                       IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
@@ -761,11 +769,11 @@
                                                     </MultiBinding>
                                                 </Expander.ToolTip>
                                                 <StackPanel>
-                                                    <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,0,0,0" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
+                                                    <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,0,0,0" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
                                                         <ItemsControl.ItemContainerStyle>
                                                             <Style TargetType="{x:Type pe:PropertyEditorItem}" BasedOn="{StaticResource {x:Type pe:PropertyEditorItem}}">
                                                                 <Setter Property="Margin" Value="0,0,0,0" />
-                                                                <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
+                                                                <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
                                                             </Style>
                                                         </ItemsControl.ItemContainerStyle>
                                                         <ItemsControl.Resources>
@@ -780,7 +788,7 @@
                                                                             <ColumnDefinition Width="{Binding ColumnWidth1, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                                                             <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                                                         </Grid.ColumnDefinitions>
-                                                                        <Expander Grid.ColumnSpan="3" Margin="0" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                                                        <Expander Grid.ColumnSpan="3" Margin="0" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                                                   Style="{StaticResource HierarchicalExpanderStyle}" Background="{DynamicResource ABrush.Tone4.Background.Static}"
                                                                                   Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
                                                                                   IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
@@ -793,10 +801,10 @@
                                                                                 </MultiBinding>
                                                                             </Expander.ToolTip>
                                                                             <StackPanel>
-                                                                                <pe:PropertyEditorItemsControl FontWeight="Normal" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
+                                                                                <pe:PropertyEditorItemsControl FontWeight="Normal" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
                                                                                     <ItemsControl.ItemContainerStyle>
                                                                                         <Style TargetType="{x:Type pe:PropertyEditorItem}" BasedOn="{StaticResource {x:Type pe:PropertyEditorItem}}">
-                                                                                            <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
+                                                                                            <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
                                                                                         </Style>
                                                                                     </ItemsControl.ItemContainerStyle>
                                                                                 </pe:PropertyEditorItemsControl>

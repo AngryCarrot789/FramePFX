@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -9,6 +10,12 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.WPF.PropertyEditing {
     public class PropertyEditor : Control {
+        #region Dependency Properties
+
+        private static readonly DependencyPropertyKey SelectedItemPropertyKey = DependencyProperty.RegisterReadOnly(nameof(SelectedItem), typeof(IList), typeof(PropertyEditor), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty SelectedItemProperty = SelectedItemPropertyKey.DependencyProperty;
+        public static readonly RoutedEvent SelectedItemChangedEvent = EventManager.RegisterRoutedEvent("SelectedItemChanged", RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<object>), typeof(PropertyEditor));
+
         public static readonly DependencyProperty EditorRegistryProperty =
             DependencyProperty.Register(
                 "EditorRegistry",
@@ -39,6 +46,8 @@ namespace FramePFX.WPF.PropertyEditing {
         public static readonly DependencyProperty ColumnWidth1Property = DependencyProperty.Register("ColumnWidth1", typeof(GridLength), typeof(PropertyEditor), new PropertyMetadata(new GridLength(5)));
         public static readonly DependencyProperty ColumnWidth2Property = DependencyProperty.Register("ColumnWidth2", typeof(GridLength), typeof(PropertyEditor), new PropertyMetadata(Star));
 
+        #endregion
+
         public PropertyEditorRegistry EditorRegistry {
             get => (PropertyEditorRegistry) this.GetValue(EditorRegistryProperty);
             set => this.SetValue(EditorRegistryProperty, value);
@@ -60,6 +69,20 @@ namespace FramePFX.WPF.PropertyEditing {
         public GridLength ColumnWidth0 { get => (GridLength) this.GetValue(ColumnWidth0Property); set => this.SetValue(ColumnWidth0Property, value); }
         public GridLength ColumnWidth1 { get => (GridLength) this.GetValue(ColumnWidth1Property); set => this.SetValue(ColumnWidth1Property, value); }
         public GridLength ColumnWidth2 { get => (GridLength) this.GetValue(ColumnWidth2Property); set => this.SetValue(ColumnWidth2Property, value); }
+
+        [Bindable(true)]
+        [Category("Appearance")]
+        [ReadOnly(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public IList SelectedItem => (IList) this.GetValue(SelectedItemProperty);
+
+        [Category("Behavior")]
+        public event RoutedPropertyChangedEventHandler<object> SelectedItemChanged {
+            add => this.AddHandler(SelectedItemChangedEvent, value);
+            remove => this.RemoveHandler(SelectedItemChangedEvent, value);
+        }
+
+        protected virtual void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object> e) => this.RaiseEvent((RoutedEventArgs) e);
 
         private readonly bool isInDesigner;
 

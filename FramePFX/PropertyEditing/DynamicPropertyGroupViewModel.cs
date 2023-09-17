@@ -27,7 +27,10 @@ namespace FramePFX.PropertyEditing {
 
         /// <summary>
         /// Whether or not this group should only use 1 handler per child group. When false,
-        /// this group will attempt to merge multiple of the same type of handler into a single group
+        /// this group will attempt to merge multiple of the same type of handler into a single group.
+        /// <para>
+        /// This is true by default
+        /// </para>
         /// <para>
         /// This property is only used for the standard <see cref="SetupHierarchyState"/>
         /// </para>
@@ -49,6 +52,14 @@ namespace FramePFX.PropertyEditing {
             this.registrations = new Dictionary<Type, TypeRegistration>();
             this.activeObjects = new ObservableCollection<BasePropertyObjectViewModel>();
             this.RequireAllHandlerListsHaveCommonHandlerCountForExtendedMode = true;
+            this.UseSingleHandlerPerGroup = true;
+        }
+
+
+        private void AddGroupInternal(BasePropertyGroupViewModel group) {
+            group.Parent = this;
+            group.RecalculateHierarchyDepth();
+            this.activeObjects.Add(group);
         }
 
         /// <summary>
@@ -64,7 +75,7 @@ namespace FramePFX.PropertyEditing {
                 throw new Exception("Type already registered: " + type);
             }
 
-            TypeRegistration registration = new TypeRegistration(type, displayName, handlerCountMode, constructor);
+            TypeRegistration registration = new TypeRegistration(this, type, displayName, handlerCountMode, constructor);
             this.registrations[type] = registration;
         }
 
@@ -94,7 +105,7 @@ namespace FramePFX.PropertyEditing {
 
                     BasePropertyGroupViewModel group = registration.GetSingleHandlerGroup();
                     group.SetupHierarchyState(new SingletonList<object>(handler));
-                    this.activeObjects.Add(group);
+                    this.AddGroupInternal(group);
                 }
             }
             else {
@@ -135,14 +146,14 @@ namespace FramePFX.PropertyEditing {
                         case HandlerCountMode.Multi: {
                             BasePropertyGroupViewModel group = registration.NewDynamicGroup(list.Count == 1);
                             group.SetupHierarchyState(list);
-                            this.activeObjects.Add(group);
+                            this.AddGroupInternal(group);
                             break;
                         }
                         case HandlerCountMode.Single: {
                             foreach (object handler in list) {
                                 BasePropertyGroupViewModel group = registration.NewDynamicGroup(true);
                                 group.SetupHierarchyState(new SingletonList<object>(handler));
-                                this.activeObjects.Add(group);
+                                this.AddGroupInternal(group);
                             }
 
                             break;
@@ -260,14 +271,14 @@ namespace FramePFX.PropertyEditing {
                     case HandlerCountMode.Multi: {
                         BasePropertyGroupViewModel group = registration.NewDynamicGroup(list.Count == 1);
                         group.SetupHierarchyState(list);
-                        this.activeObjects.Add(group);
+                        this.AddGroupInternal(group);
                         break;
                     }
                     case HandlerCountMode.Single: {
                         foreach (object handler in list) {
                             BasePropertyGroupViewModel group = registration.NewDynamicGroup(true);
                             group.SetupHierarchyState(new SingletonList<object>(handler));
-                            this.activeObjects.Add(group);
+                            this.AddGroupInternal(group);
                         }
 
                         break;
@@ -281,14 +292,31 @@ namespace FramePFX.PropertyEditing {
             }
         }
 
+        public override void ClearHierarchyState() {
+            if (!this.IsCurrentlyApplicable) {
+                return;
+            }
+
+            List<BasePropertyObjectViewModel> items = this.activeObjects.ToList();
+            this.activeObjects.Clear();
+            foreach (BasePropertyObjectViewModel obj in items) {
+                ((BasePropertyGroupViewModel) obj).ClearHierarchyState();
+                obj.Parent = null;
+            }
+
+            this.IsCurrentlyApplicable = false;
+        }
+
         private class TypeRegistration {
             private readonly Type type;
             private readonly string id; // used for debugging... for now
             public readonly HandlerCountMode handlerCountMode;
             private readonly Func<bool?, BasePropertyGroupViewModel> constructor;
             private BasePropertyGroupViewModel singleHandlerInstance;
+            private readonly DynamicPropertyGroupViewModel group;
 
-            public TypeRegistration(Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor) {
+            public TypeRegistration(DynamicPropertyGroupViewModel group, Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor) {
+                this.group = group;
                 this.type = type;
                 this.id = id;
                 this.handlerCountMode = handlerCountMode;

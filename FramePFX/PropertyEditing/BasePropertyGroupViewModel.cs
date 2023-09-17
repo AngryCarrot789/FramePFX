@@ -13,6 +13,12 @@ namespace FramePFX.PropertyEditing {
             set => this.RaisePropertyChanged(ref this.isExpanded, value);
         }
 
+        private bool isSelected;
+        public bool IsSelected {
+            get => this.isSelected;
+            set => this.RaisePropertyChanged(ref this.isSelected, value);
+        }
+
         /// <summary>
         /// Whether or not the current group is the root property group object. Only one root group should exist per instance of <see cref="PropertyEditorRegistry"/>
         /// </summary>

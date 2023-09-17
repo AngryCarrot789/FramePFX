@@ -28,7 +28,7 @@ namespace FramePFX.PropertyEditing {
         /// Gets a read-only list of all base property objects currently stored in this group. This
         /// typically remains un-changed for <see cref="FixedPropertyGroupViewModel"/>
         /// </summary>
-        public abstract IReadOnlyList<BasePropertyObjectViewModel> PropertyObjects { get; }
+        public abstract IReadOnlyList<IPropertyObject> PropertyObjects { get; }
 
         public string DisplayName { get; set; } = "Group";
 
@@ -44,7 +44,7 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
-            foreach (BasePropertyObjectViewModel obj in this.PropertyObjects) {
+            foreach (IPropertyObject obj in this.PropertyObjects) {
                 switch (obj) {
                     case BasePropertyEditorViewModel editor:
                         editor.ClearHandlers();

@@ -15,7 +15,7 @@ using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
-    public sealed class TimelineClipControl : Control {
+    public class TimelineClipControl : Control {
         private static readonly object LongZeroObject = 0L;
 
         public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
@@ -550,9 +550,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
             else {
                 this.OnUnselected(new RoutedEventArgs(Selector.UnselectedEvent, this));
-                if (clip != null && !clip.IsSelected) {
-                    clip.UpdateTimelineSelection();
-                }
             }
         }
     }

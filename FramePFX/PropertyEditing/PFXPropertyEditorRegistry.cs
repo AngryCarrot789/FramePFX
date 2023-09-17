@@ -24,9 +24,7 @@ namespace FramePFX.PropertyEditing {
             this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Single", new VideoClipDataSingleEditorViewModel());
             this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Multi", new VideoClipDataMultipleEditorViewModel());
 
-            this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
-
-            this.EffectInfo = this.Root.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects");
+            this.EffectInfo = this.ClipInfo.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects", isHierarchial:false);
             this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
                 FixedPropertyGroupViewModel motion = new FixedPropertyGroupViewModel(typeof(MotionEffectViewModel)) {
                     IsExpanded = true
@@ -42,6 +40,10 @@ namespace FramePFX.PropertyEditing {
 
                 return motion;
             });
+
+            this.Root.AddSeparator();
+
+            this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
         }
 
         public void OnClipsSelected(List<ClipViewModel> clips) {
@@ -49,6 +51,12 @@ namespace FramePFX.PropertyEditing {
             this.Root.ClearHierarchyState();
             this.ClipInfo.SetupHierarchyState(clips);
             this.EffectInfo.SetupHierarchyStateExtended(clips.Select(x => x.Effects).ToList());
+            this.Root.CleanSeparators();
+        }
+
+        public void OnResourcesSelected(List<BaseResourceObjectViewModel> list) {
+            this.ResourceInfo.SetupHierarchyState(list);
+            this.Root.CleanSeparators();
         }
     }
 }

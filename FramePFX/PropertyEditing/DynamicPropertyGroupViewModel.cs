@@ -23,7 +23,7 @@ namespace FramePFX.PropertyEditing {
         private readonly ObservableCollection<BasePropertyObjectViewModel> activeObjects;
         private readonly Dictionary<Type, TypeRegistration> registrations;
 
-        public override IReadOnlyList<BasePropertyObjectViewModel> PropertyObjects => this.activeObjects;
+        public override IReadOnlyList<IPropertyObject> PropertyObjects => this.activeObjects;
 
         /// <summary>
         /// Whether or not this group should only use 1 handler per child group. When false,

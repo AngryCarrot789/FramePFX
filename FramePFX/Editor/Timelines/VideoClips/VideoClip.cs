@@ -15,7 +15,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// </summary>
         public double Opacity;
 
-        public byte OpacityByte => RenderUtils.DoubleToByte(this.Opacity);
+        public byte OpacityByte => RenderUtils.DoubleToByte255(this.Opacity);
 
         /// <summary>
         /// Whether or not this clip handles it's own opacity calculation to help with render performance. Default

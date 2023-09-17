@@ -286,6 +286,7 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
+    <Compile Include="PropertyEditing\PropertyEditorItemStyleSelector.cs" />
     <Compile Include="PropertyEditing\Converters\PropertyItemToolTipConverter.cs" />
     <Compile Include="PropertyEditing\PropertyEditor.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItem.cs" />
@@ -526,6 +527,10 @@
     <Page Include="Notifications\NotificationStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertyEditing\PropertyEditorDataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PropertyEditing\PropertyEditorStyles.xaml">
       <Generator>MSBuild:Compile</Generator>

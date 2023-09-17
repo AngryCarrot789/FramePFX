@@ -48,9 +48,7 @@ namespace FramePFX.Editor.ResourceManaging {
             this.onlineStateChangedHandler = this.OnOnlineStateChanged;
             if (manager != null) {
                 this.Manager = manager;
-                manager.ResourceAdded += this.resourceAddedHandler;
-                manager.ResourceRemoved += this.resourceRemovedHandler;
-                manager.ResourceReplaced += this.resourceReplacedHandler;
+                this.AttachManager(manager);
             }
         }
 
@@ -122,15 +120,18 @@ namespace FramePFX.Editor.ResourceManaging {
         /// finally invokes the <see cref="Disposed"/> event
         /// </summary>
         public void Dispose() {
-            GC.SuppressFinalize(this);
+            if (this.isDisposed) {
+                return;
+            }
+
             this.Dispose(true);
             this.Disposed?.Invoke(this, EventArgs.Empty);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
-                this.EnsureNotDisposed("This resource is already disposed");
-                this.ClearInternalResource(true);
+                this.ClearInternalResource();
             }
 
             // finalizer call would most likely mean Manager is null, because otherwise how

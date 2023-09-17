@@ -163,7 +163,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                         DisplayName = "Media Clip"
                     };
 
-                    clip.SetTargetResourceId(media.UniqueId);
+                    clip.ResourceHelper.SetTargetResourceId(media.UniqueId);
                     newClip = clip;
                 }
                 else {
@@ -214,7 +214,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                         DisplayName = "Shape Clip"
                     };
 
-                    clip.SetTargetResourceId(argb.UniqueId);
+                    clip.ResourceHelper.SetTargetResourceId(argb.UniqueId);
                     newClip = clip;
                 }
                 else if (resource.Model is ResourceImage img) {
@@ -223,7 +223,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                         DisplayName = "Image Clip"
                     };
 
-                    clip.SetTargetResourceId(img.UniqueId);
+                    clip.ResourceHelper.SetTargetResourceId(img.UniqueId);
                     newClip = clip;
                 }
                 else if (resource.Model is ResourceText text) {
@@ -232,7 +232,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                         DisplayName = "Text Clip"
                     };
 
-                    clip.SetTargetResourceId(text.UniqueId);
+                    clip.ResourceHelper.SetTargetResourceId(text.UniqueId);
                     newClip = clip;
                 }
                 else {

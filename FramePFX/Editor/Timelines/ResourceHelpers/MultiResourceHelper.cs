@@ -7,23 +7,36 @@ using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines {
-    /// <summary>
-    /// A base video clip that can reference
-    /// </summary>
-    public abstract class BaseMultiResourceClip : VideoClip {
+namespace FramePFX.Editor.Timelines.ResourceHelpers {
+    public class MultiResourceHelper : BaseResourceHelper {
         public delegate void ClipResourceModifiedEventHandler(string key, ResourceItem resource, string property);
 
         public delegate void ClipResourceChangedEventHandler(string key, ResourceItem oldItem, ResourceItem newItem);
 
         private readonly Dictionary<string, ResourcePathEntry> ResourceMap;
 
-        public event ClipResourceChangedEventHandler ClipResourceChanged;
-        public event ClipResourceModifiedEventHandler ClipResourceDataModified;
-        public event ResourceItemEventHandler OnlineStateChanged;
+        /// <summary>
+        /// An event fired when the underlying resource being used has changed
+        /// </summary>
+        public event ClipResourceChangedEventHandler ResourceChanged;
 
-        protected BaseMultiResourceClip() {
+        /// <summary>
+        /// An event fired when the underlying resource raises a <see cref="ResourceItem.DataModified"/> event
+        /// </summary>
+        public event ClipResourceModifiedEventHandler ResourceDataModified;
+
+        /// <summary>
+        /// The clip that owns this helper
+        /// </summary>
+        public IMultiResourceClip Clip { get; }
+
+        public MultiResourceHelper(IMultiResourceClip clip) {
+            this.Clip = clip ?? throw new ArgumentNullException(nameof(clip));
             this.ResourceMap = new Dictionary<string, ResourcePathEntry>();
+            clip.TrackChanged += this.OnTrackChanged;
+            clip.TrackTimelineChanged += this.OnTrackTimelineChanged;
+            clip.SerialiseExtension += (c, data) => this.WriteToRBE(data);
+            clip.DeserialiseExtension += (c, data) => this.ReadFromRBE(data);
         }
 
         protected void AddResourceKey(string key) {
@@ -32,12 +45,18 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public void SetTargetResourceId(string key, ulong id) {
-            this.ResourceMap[key].SetTargetResourceId(id, this.ResourceManager);
+            this.ResourceMap[key].SetTargetResourceId(id, this.Clip.Project?.ResourceManager);
         }
 
-        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
-            base.OnTrackChanged(oldTrack, newTrack);
-            ResourceManager manager = newTrack?.Timeline?.Project?.ResourceManager;
+        private void OnTrackChanged(Track oldTrack, Track newTrack) {
+            this.SetManager(newTrack?.Timeline?.Project?.ResourceManager);
+        }
+
+        private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+            this.SetManager(timeline?.Project?.ResourceManager);
+        }
+
+        private void SetManager(ResourceManager manager) {
             using (ErrorList stack = new ErrorList()) {
                 foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
                     ResourcePath path = entry.path;
@@ -55,20 +74,26 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        protected virtual void OnOnlineStateChanged(ResourceItem item) {
-            this.InvalidateRender();
+        private void OnResourceChanged(string key, ResourceItem oldItem, ResourceItem newItem) {
+            this.TriggerClipRender();
         }
 
-        protected virtual void OnResourceChanged(string key, ResourceItem oldItem, ResourceItem newItem) {
-            this.InvalidateRender();
+        private void OnResourceDataModified(string key, string property) {
+            this.TriggerClipRender();
         }
 
-        protected virtual void OnResourceDataModified(string key, string property) {
-            this.InvalidateRender();
+        protected override void OnOnlineStateChanged(ResourceManager manager, ResourceItem item) {
+            base.OnOnlineStateChanged(manager, item);
+            this.TriggerClipRender();
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
+        private void TriggerClipRender() {
+            if (this.Clip is VideoClip clip) {
+                clip.InvalidateRender();
+            }
+        }
+
+        public void WriteToRBE(RBEDictionary data) {
             if (this.ResourceMap.Count > 0) {
                 RBEDictionary resourceMapDictionary = data.CreateDictionary(nameof(this.ResourceMap));
                 foreach (KeyValuePair<string, ResourcePathEntry> entry in this.ResourceMap) {
@@ -78,8 +103,7 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
+        public void ReadFromRBE(RBEDictionary data) {
             if (data.TryGetElement(nameof(this.ResourceMap), out RBEDictionary resourceMapDictionary)) {
                 foreach (KeyValuePair<string, RBEBase> pair in resourceMapDictionary.Map) {
                     if (this.ResourceMap.TryGetValue(pair.Key, out ResourcePathEntry entry) && pair.Value is RBEDictionary dictionary) {
@@ -98,24 +122,29 @@ namespace FramePFX.Editor.Timelines {
             return false;
         }
 
-        protected override void DisposeCore(ErrorList stack) {
-            base.DisposeCore(stack);
+        protected override void DisposeCore(ErrorList list, bool disposing) {
+            base.DisposeCore(list, disposing);
             foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
-                entry.DisposePath();
+                try {
+                    entry.DisposePath();
+                }
+                catch (Exception e) {
+                    list.Add(e);
+                }
             }
         }
 
         private class ResourcePathEntry {
-            // unique keys that inheritors of BaseMultiResourceClip specify to identify a resource
+            // unique keys that inheritors of MultiResourceHelper specify to identify a resource
             public readonly string entryKey;
-            private readonly BaseMultiResourceClip clip;
+            private readonly MultiResourceHelper helper;
             private readonly ResourcePath.ResourceChangedEventHandler resourceChangedHandler;
             private readonly ResourceModifiedEventHandler dataModifiedHandler;
             private readonly ResourceItemEventHandler onlineStateChangedHandler;
             public ResourcePath path;
 
-            public ResourcePathEntry(BaseMultiResourceClip clip, string entryKey) {
-                this.clip = clip ?? throw new ArgumentNullException(nameof(clip));
+            public ResourcePathEntry(MultiResourceHelper clip, string entryKey) {
+                this.helper = clip ?? throw new ArgumentNullException(nameof(clip));
                 this.entryKey = string.IsNullOrEmpty(entryKey) ? throw new ArgumentException("Entry id cannot be null or empty", nameof(entryKey)) : entryKey;
                 this.resourceChangedHandler = this.OnEntryResourceChangedInternal;
                 this.dataModifiedHandler = this.OnEntryResourceDataModifiedInternal;
@@ -145,8 +174,8 @@ namespace FramePFX.Editor.Timelines {
                     newItem.DataModified += this.dataModifiedHandler;
                 }
 
-                this.clip.OnResourceChanged(this.entryKey, oldItem, newItem);
-                this.clip.ClipResourceChanged?.Invoke(this.entryKey, oldItem, newItem);
+                this.helper.OnResourceChanged(this.entryKey, oldItem, newItem);
+                this.helper.ResourceChanged?.Invoke(this.entryKey, oldItem, newItem);
             }
 
             private void OnEntryResourceDataModifiedInternal(ResourceItem sender, string property) {
@@ -154,15 +183,14 @@ namespace FramePFX.Editor.Timelines {
                     throw new InvalidOperationException("Expected resource path to be non-null");
                 if (!this.path.IsCachedItemEqualTo(sender))
                     throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-                this.clip.OnResourceDataModified(this.entryKey, property);
-                this.clip.ClipResourceDataModified?.Invoke(this.entryKey, sender, property);
+                this.helper.OnResourceDataModified(this.entryKey, property);
+                this.helper.ResourceDataModified?.Invoke(this.entryKey, sender, property);
             }
 
             private void OnEntryOnlineStateChangedInternal(ResourceManager manager, ResourceItem item) {
                 if (!this.path.IsCachedItemEqualTo(item))
                     throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-                this.clip.OnOnlineStateChanged(item);
-                this.clip.OnlineStateChanged?.Invoke(manager, item);
+                this.helper.OnOnlineStateChanged(manager, item);
             }
 
             public static void WriteToRBE(ResourcePathEntry entry, RBEDictionary resourceMapDictionary) {

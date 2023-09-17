@@ -4,13 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.FFmpegWrapper;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class AVMediaVideoClip : BaseResourceVideoClip<ResourceAVMedia> {
+    public class AVMediaVideoClip : VideoClip, IResourceClip<ResourceAVMedia> {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         public unsafe SwsContext* scaler;
         private PictureFormat scalerInputFormat;
@@ -20,8 +21,20 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         // TODO: decoder thread
         // public override bool UseAsyncRendering => true;
 
+        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
+        public ResourceHelper<ResourceAVMedia> ResourceHelper { get; }
+
         public AVMediaVideoClip() {
+            this.ResourceHelper = new ResourceHelper<ResourceAVMedia>(this);
+            this.ResourceHelper.ResourceChanged += this.OnResourceChanged;
         }
+
+        protected override void LoadDataIntoClone(Clip clone) {
+            base.LoadDataIntoClone(clone);
+            this.ResourceHelper.LoadDataIntoClone(((AVMediaVideoClip) clone).ResourceHelper);
+        }
+
+        private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceHelper.TryGetResource(out resource);
 
         public override Vector2? GetSize() {
             return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
@@ -150,7 +163,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new AVMediaVideoClip();
         }
 
-        protected override void OnResourceChanged(ResourceAVMedia oldItem, ResourceAVMedia newItem) {
+        protected void OnResourceChanged(ResourceAVMedia oldItem, ResourceAVMedia newItem) {
             this.renderFrameRgb?.Dispose();
             this.renderFrameRgb = null;
             this.downloadedHwFrame?.Dispose();
@@ -161,8 +174,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                     this.scaler = null;
                 }
             }
-
-            base.OnResourceChanged(oldItem, newItem);
         }
 
         // Help from https://github.com/Golim4r/OpenGL-Video-Player

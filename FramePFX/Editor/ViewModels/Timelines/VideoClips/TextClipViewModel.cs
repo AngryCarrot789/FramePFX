@@ -10,10 +10,10 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             set {
                 this.Model.ULText = value;
                 if (value) {
-                    this.Model.LocalText.Text = this.Model.TryGetResource(out ResourceText resource) ? resource.Text : this.text;
+                    this.Model.LocalText.Text = this.Model.ResourceHelper.TryGetResource(out ResourceText resource) ? resource.Text : this.text;
                     this.text = null;
                 }
-                else if (this.Model.TryGetResource(out ResourceText resource)) {
+                else if (this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
                     this.text = resource.Text;
                 }
 
@@ -34,7 +34,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
                     this.Model.LocalText.Text = value;
                     this.Model.InvalidateTextCache();
                 }
-                else if (!this.Model.TryGetResource(out ResourceText resource)) {
+                else if (!this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
                     this.text = value;
                 }
                 else {
@@ -53,7 +53,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             get => this.fontFamily;
             set {
                 this.RaisePropertyChanged(ref this.fontFamily, value);
-                if (this.Model.TryGetResource(out ResourceText resource)) {
+                if (this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
                     resource.FontFamily = value;
                     resource.OnDataModified(nameof(resource.FontFamily));
                 }
@@ -66,7 +66,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             get => this.fontSize;
             set {
                 this.RaisePropertyChanged(ref this.fontSize, value);
-                if (this.Model.TryGetResource(out ResourceText resource)) {
+                if (this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
                     resource.FontSize = value;
                     resource.OnDataModified(nameof(resource.FontSize));
                 }
@@ -79,7 +79,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             get => this.skewX;
             set {
                 this.RaisePropertyChanged(ref this.skewX, value);
-                if (this.Model.TryGetResource(out ResourceText resource)) {
+                if (this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
                     resource.SkewX = value;
                     resource.OnDataModified(nameof(resource.SkewX));
                 }
@@ -87,8 +87,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         public TextClipViewModel(TextVideoClip model) : base(model) {
-            model.ClipResourceDataModified += this.OnResourceModified;
-            model.ClipResourceChanged += this.OnResourceChanged;
+            model.ResourceHelper.ResourceDataModified += this.OnResourceModified;
+            model.ResourceHelper.ResourceChanged += this.OnResourceChanged;
         }
 
         private void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {

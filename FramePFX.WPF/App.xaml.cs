@@ -411,7 +411,7 @@ namespace FramePFX.WPF {
                 clip1.AddEffect(motion);
                 motion.MediaPosition = new Vector2(0, 0);
 
-                clip1.SetTargetResourceId(id_r);
+                clip1.ResourceHelper.SetTargetResourceId(id_r);
                 track1.AddClip(clip1);
 
                 ShapeVideoClip clip2 = new ShapeVideoClip {
@@ -424,7 +424,7 @@ namespace FramePFX.WPF {
                 clip2.AddEffect(motion);
                 motion.MediaPosition = new Vector2(200, 200);
 
-                clip2.SetTargetResourceId(id_g);
+                clip2.ResourceHelper.SetTargetResourceId(id_g);
                 track1.AddClip(clip2);
             }
             {
@@ -443,7 +443,7 @@ namespace FramePFX.WPF {
                 clip1.AddEffect(motion);
                 motion.MediaPosition = new Vector2(200, 200);
 
-                clip1.SetTargetResourceId(id_b);
+                clip1.ResourceHelper.SetTargetResourceId(id_b);
                 track2.AddClip(clip1);
                 ShapeVideoClip clip2 = new ShapeVideoClip {
                     Width = 100, Height = 1000,
@@ -459,7 +459,7 @@ namespace FramePFX.WPF {
                 motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
                 motion.AutomationData.ActiveKeyFullId = MotionEffect.MediaPositionKey.FullId;
                 motion.MediaPosition = new Vector2(400, 400);
-                clip2.SetTargetResourceId(id_d);
+                clip2.ResourceHelper.SetTargetResourceId(id_d);
                 track2.AddClip(clip2);
             }
             {

@@ -133,7 +133,7 @@ namespace FramePFX.WPF.Editor {
             // TODO: maybe move this to a view model?
             ResourceManagerViewModel manager;
             if (this.Editor.ActiveProject is ProjectViewModel project && (manager = project.ResourceManager) != null) {
-                PFXPropertyEditorRegistry.Instance.ResourceInfo.SetupHierarchyState(manager.SelectedItems.ToList());
+                PFXPropertyEditorRegistry.Instance.OnResourcesSelected(manager.SelectedItems.ToList());
             }
         }
 

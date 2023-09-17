@@ -78,439 +78,7 @@
         <Setter Property="Placement" Value="MousePoint"/>
     </Style>
     
-    <ResourceDictionary x:Key="PropertyEditorDataTemplates">
-        <!-- Clips -->
-        <!-- Video Clips -->
-        <!--
-        <DataTemplate DataType="{x:Type clips:VideoClipDataSingleEditorViewModel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                </Grid.RowDefinitions>
-                <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="0" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,0,0,0" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"         EditingHint="Add to X and Y" DisplayTextOverride="Position" Height="18" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"       EditingHint="Add to X and Y" DisplayTextOverride="Scale" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="6" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditingHint="Add to X and Y" DisplayTextOverride="Origin" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="8" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,0,0,0" />
-                <Grid Grid.Column="2" Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding OpacityEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertOpacityKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetOpacityCommand, Mode=OneTime}" ToolTip="Reset the opacity" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}"/>
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}"/>
-                    <StackPanel Orientation="Horizontal" Grid.Column="2">
-                        <ToggleButton IsChecked="{Binding MediaPositionAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding MediaPositionAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertMediaPositionKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetMediaPositionCommand, Mode=OneTime}" ToolTip="Reset the media position" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="2">
-                        <ToggleButton IsChecked="{Binding MediaScaleAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding MediaScaleAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertMediaScaleKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetMediaScaleCommand, Mode=OneTime}" ToolTip="Reset the media scale" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="2">
-                        <ToggleButton IsChecked="{Binding MediaScaleOriginAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding MediaScaleOriginAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertMediaScaleOriginKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetMediaScaleOriginCommand, Mode=OneTime}" ToolTip="Reset the media scale origin" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="8">
-                    <TextBlock Grid.Column="0" Grid.Row="0" Padding="6,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding MediaFrameOffset, Mode=OneWay}" />
-                </Grid>
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="3" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="5" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="7" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-            </Grid>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type clips:VideoClipDataMultipleEditorViewModel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock FontWeight="Normal" Padding="6,1" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,0,0,0" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Position" Height="18" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Scale" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="6" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <Grid Grid.Column="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding OpacityEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <Button Command="{Binding ResetOpacityCommand, Mode=OneTime}" ToolTip="Reset the opacity" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}" />
-                    <Button Grid.Column="2" HorizontalAlignment="Right" Command="{Binding ResetMediaPositionCommand, Mode=OneTime}" ToolTip="Reset the media position" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                        <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                    </Button>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <Button Grid.Column="2" HorizontalAlignment="Right" Command="{Binding ResetMediaScaleCommand, Mode=OneTime}" ToolTip="Reset the media scale" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                        <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                    </Button>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <Button Grid.Column="2" HorizontalAlignment="Right" Command="{Binding ResetMediaScaleOriginCommand, Mode=OneTime}" ToolTip="Reset the media scale origin" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                        <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                    </Button>
-                </Grid>
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="3" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="5" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-            </Grid>
-        </DataTemplate>
-        -->
-
-        <DataTemplate DataType="{x:Type clips:VideoClipDataSingleEditorViewModel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="0" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,0,0,0" />
-                <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="2" VerticalAlignment="Center" Text="Media Offset" Height="18" Margin="0,0,0,0" />
-                <Grid Grid.Column="2" Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding OpacityEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertOpacityKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetOpacityCommand, Mode=OneTime}" ToolTip="Reset the opacity" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="2">
-                    <TextBlock Grid.Column="0" Grid.Row="0" Padding="6,2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding MediaFrameOffset, Mode=OneWay}" />
-                </Grid>
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-            </Grid>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type clips:VideoClipDataMultipleEditorViewModel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
-                </Grid.ColumnDefinitions>
-                <TextBlock FontWeight="Normal" Padding="6,1" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,0,0,0" />
-                <Grid Grid.Column="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding OpacityEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <Button Command="{Binding ResetOpacityCommand, Mode=OneTime}" ToolTip="Reset the opacity" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Grid>
-        </DataTemplate>
-
-        <!-- Effects -->
-        <!-- Motion Effect -->
-        <DataTemplate DataType="{x:Type effects:MotionEffectDataSingleEditorViewModel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"         EditingHint="Add to X and Y" DisplayTextOverride="Position" Height="18" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"       EditingHint="Add to X and Y" DisplayTextOverride="Scale" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditingHint="Add to X and Y" DisplayTextOverride="Origin" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <ToggleButton x:Name="OriginPopupToggle" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Right" Content="[]" Width="20" Background="Transparent" BorderThickness="0"
-                              ToolTip="Select a pre-defined origin location (e.g. top-left, center, middle-right, etc.)"/>
-                <Popup x:Name="OriginGridPopup" Style="{StaticResource ScaleOriginGridPopupStyle}"
-                       IsOpen="{Binding ElementName=OriginPopupToggle, Path=IsChecked, Mode=TwoWay}"
-                       PlacementTarget="{Binding ElementName=OriginPopupToggle}">
-                    <ContentControl ContentTemplate="{StaticResource ScaleOriginGridDataTemplate}"/>
-                </Popup>
-                <Grid Grid.Column="2" Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="2">
-                        <ToggleButton IsChecked="{Binding MediaPositionAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding MediaPositionAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertMediaPositionKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetMediaPositionCommand, Mode=OneTime}" ToolTip="Reset the media position" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="2">
-                        <ToggleButton IsChecked="{Binding MediaScaleAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding MediaScaleAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertMediaScaleKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetMediaScaleCommand, Mode=OneTime}" ToolTip="Reset the media scale" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <StackPanel Orientation="Horizontal" Grid.Column="2">
-                        <ToggleButton IsChecked="{Binding MediaScaleOriginAutomationSequence.IsActive, Mode=TwoWay}" ToolTip="Toggle whether this parameter is active or not" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="A" />
-                        <ToggleButton IsChecked="{Binding MediaScaleOriginAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
-                        <Button Command="{Binding InsertMediaScaleOriginKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
-                            <Ellipse Width="8" Height="8" Fill="White" />
-                        </Button>
-                        <Button Command="{Binding ResetMediaScaleOriginCommand, Mode=OneTime}" ToolTip="Reset the media scale origin" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                <Border Margin="5,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="3" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-            </Grid>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type effects:MotionEffectDataMultiEditorViewModel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Position" Height="18" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Scale" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <dragger:NumberDragger FontWeight="Normal" Padding="4,1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayTextOverride="Origin" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                <Grid Grid.Column="2" Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}"/>
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaPositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaPositionEditStateChangedCommand, Mode=OneTime}"/>
-                    <Button Grid.Column="2" HorizontalAlignment="Right" Command="{Binding ResetMediaPositionCommand, Mode=OneTime}" ToolTip="Reset the media position" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                        <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                    </Button>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <Button Grid.Column="2" HorizontalAlignment="Right" Command="{Binding ResetMediaScaleCommand, Mode=OneTime}" ToolTip="Reset the media scale" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                        <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                    </Button>
-                </Grid>
-                <Grid Grid.Column="2" Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="88" />
-                    </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <dragger:NumberDragger Grid.Column="1" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding MediaScaleOriginY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding MediaScaleOriginEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
-                    <Button Grid.Column="2" HorizontalAlignment="Right" Command="{Binding ResetMediaScaleOriginCommand, Mode=OneTime}" ToolTip="Reset the media scale origin" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
-                        <Path Width="12" Height="14" Stretch="Fill" Fill="White" Data="{StaticResource ResetGeometry}" />
-                    </Button>
-                </Grid>
-                <Border Margin="0,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="1" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                <Border Margin="0,0,0,0" Background="{DynamicResource ABrush.Tone4.Border.Static}" Grid.Row="3" Grid.ColumnSpan="3" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-            </Grid>
-        </DataTemplate>
-
-        <!-- General Clip -->
-
-        <DataTemplate DataType="{x:Type clips:ClipDataEditorViewModel}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
-                    <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
-                </Grid.ColumnDefinitions>
-                <TextBlock FontWeight="Normal" Padding="6,2" VerticalAlignment="Center" Text="Display Name" Height="18" Margin="0,0,0,0" />
-                <TextBox Grid.Column="2" FontWeight="Normal" Padding="2,1" VerticalAlignment="Center" Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,3" />
-            </Grid>
-        </DataTemplate>
-
-        <!-- Primitive types -->
-        <DataTemplate DataType="{x:Type primitives:CheckBoxEditorViewModel}">
-            <StackPanel Orientation="Horizontal">
-                <CheckBox Content="{Binding Label, Mode=OneWay}" IsChecked="{Binding IsChecked}" />
-            </StackPanel>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type primitives:CheckBoxGridEditorViewModel}">
-            <ItemsControl ItemsSource="{Binding Editors, Mode=OneTime}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid IsItemsHost="True" Rows="1" Columns="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}, Path=Items.Count}" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <StaticResource>
-                        <StaticResource.ResourceKey>
-                            <DataTemplateKey DataType="{x:Type primitives:CheckBoxEditorViewModel}" />
-                        </StaticResource.ResourceKey>
-                    </StaticResource>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Setter Property="Margin" Value="0,0,2,0" />
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
-        </DataTemplate>
-    </ResourceDictionary>
+    
 
     <Style x:Key="HierarchicalExpanderToggleButtonStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
@@ -620,7 +188,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
-                    <Border Padding="{TemplateBinding Padding}">
+                    <Border Padding="0">
                         <DockPanel Background="Transparent" SnapsToDevicePixels="False">
                             <!-- original:  M 1,1.5 L 4.5,5 L 8,1.5  -->
                             <!-- Pointing down:  M 1,0 L 5,4.5 L 9,0  -->
@@ -713,43 +281,80 @@
         </Setter>
     </Style>
 
+    <Style x:Key="OuterHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
+    </Style>
+
+    <Style x:Key="InnerHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+    </Style>
+
+    <!--
+    <Style x:Key="OuterHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle_OLD}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style x:Key="InnerHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle_OLD}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="5,0,0,0"/>
+    </Style>
+    -->
+
+    <!-- fuckin visual studio -->
+    <!-- d:DataContext="{d:DesignInstance {x:Type pec:BasePropertyObjectViewModel}}" -->
     <Style TargetType="{x:Type pe:PropertyEditorItem}">
+        <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
         <!--
         <Setter Property="ColumnWidth0" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}"/>
         <Setter Property="ColumnWidth1" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}"/>
         <Setter Property="ColumnWidth2" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}"/>
         -->
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding IsCurrentlyApplicable, Mode=OneWay}" Value="True">
-                <Setter Property="Visibility" Value="Visible" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding IsCurrentlyApplicable, Mode=OneWay}" Value="False">
-                <Setter Property="Visibility" Value="Collapsed" />
-            </DataTrigger>
-        </Style.Triggers>
     </Style>
 
     <Style TargetType="{x:Type pe:PropertyEditorItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel IsItemsHost="True" VirtualizationMode="Recycling" ScrollUnit="Pixel" CacheLengthUnit="Pixel"/>
+                    <!-- Cannot use virtualization because this control can contain PropertyEditorItem and Separator -->
+                    <StackPanel IsItemsHost="True"/>
                 </ItemsPanelTemplate>
             </Setter.Value>
         </Setter>
     </Style>
+
+    <pe:PropertyEditorItemStyleSelector x:Key="PropertyEditorItemStyleSelector"
+                                        PropertyItemsControlStyle="{StaticResource {x:Type pe:PropertyEditorItemsControl}}"
+                                        PropertyItemStyle="{StaticResource {x:Type pe:PropertyEditorItem}}">
+        <pe:PropertyEditorItemStyleSelector.SeparatorStyle>
+            <!-- d:DataContext="{d:DesignInstance {x:Type pec:PropertyObjectSeparator}}" -->
+            <Style TargetType="{x:Type Separator}" BasedOn="{StaticResource {x:Type Separator}}">
+                <Setter Property="Margin" Value="0,5"/>
+                <Setter Property="Visibility" Value="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
+            </Style>
+        </pe:PropertyEditorItemStyleSelector.SeparatorStyle>
+    </pe:PropertyEditorItemStyleSelector>
+
+    <ResourceDictionary x:Key="PropertyEditorDataTemplateDictionary" Source="PropertyEditorDataTemplates.xaml"/>
 
     <Style TargetType="{x:Type pe:PropertyEditor}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type pe:PropertyEditor}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <pe:PropertyEditorItemsControl ItemsSource="{TemplateBinding ApplicableItems}" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <pe:PropertyEditorItemsControl ItemsSource="{TemplateBinding ApplicableItems}"
+                                                       HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
+                                                       BorderBrush="{TemplateBinding BorderBrush}"
+                                                       BorderThickness="{TemplateBinding BorderThickness}"
+                                                       ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}">
                             <ItemsControl.Resources>
                                 <ResourceDictionary>
                                     <ResourceDictionary.MergedDictionaries>
-                                        <StaticResource ResourceKey="PropertyEditorDataTemplates" />
+                                        <StaticResource ResourceKey="PropertyEditorDataTemplateDictionary"/>
                                     </ResourceDictionary.MergedDictionaries>
+                                    <DataTemplate DataType="{x:Type pec:PropertyObjectSeparator}">
+                                        <Separator Visibility="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
+                                    </DataTemplate>
                                     <DataTemplate DataType="{x:Type pec:BasePropertyGroupViewModel}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -758,7 +363,7 @@
                                                 <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                             </Grid.ColumnDefinitions>
                                             <Expander Grid.ColumnSpan="3" Margin="0,0" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
-                                                      Style="{StaticResource HierarchicalExpanderStyle}" Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                                      Style="{StaticResource OuterHierarchicalExpanderStyle}"
                                                       Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
                                                       IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
                                                       x:Name="PART_Expander">
@@ -769,30 +374,26 @@
                                                     </MultiBinding>
                                                 </Expander.ToolTip>
                                                 <StackPanel>
-                                                    <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,0,0,0" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
-                                                        <ItemsControl.ItemContainerStyle>
-                                                            <Style TargetType="{x:Type pe:PropertyEditorItem}" BasedOn="{StaticResource {x:Type pe:PropertyEditorItem}}">
-                                                                <Setter Property="Margin" Value="0,0,0,0" />
-                                                                <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
-                                                            </Style>
-                                                        </ItemsControl.ItemContainerStyle>
+                                                    <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,0,0,0"
+                                                                                   ItemsSource="{Binding PropertyObjects, Mode=OneTime}"
+                                                                                   Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                                                                   ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}">
                                                         <ItemsControl.Resources>
                                                             <ResourceDictionary>
                                                                 <ResourceDictionary.MergedDictionaries>
-                                                                    <StaticResource ResourceKey="PropertyEditorDataTemplates" />
+                                                                    <StaticResource ResourceKey="PropertyEditorDataTemplateDictionary"/>
                                                                 </ResourceDictionary.MergedDictionaries>
                                                                 <DataTemplate DataType="{x:Type pec:BasePropertyGroupViewModel}">
-                                                                    <Grid>
+                                                                    <Grid Margin="0">
                                                                         <Grid.ColumnDefinitions>
                                                                             <ColumnDefinition Width="{Binding ColumnWidth0, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                                                             <ColumnDefinition Width="{Binding ColumnWidth1, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                                                             <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                                                         </Grid.ColumnDefinitions>
                                                                         <Expander Grid.ColumnSpan="3" Margin="0" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
-                                                                                  Style="{StaticResource HierarchicalExpanderStyle}" Background="{DynamicResource ABrush.Tone4.Background.Static}"
+                                                                                  Style="{StaticResource InnerHierarchicalExpanderStyle}"
                                                                                   Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
                                                                                   IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
-                                                                                  Padding="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItemsControl}}, Path=ContentPadding}"
                                                                                   x:Name="PART_Expander">
                                                                             <Expander.ToolTip>
                                                                                 <MultiBinding Converter="{x:Static converters:PropertyItemToolTipConverter.Instance}">
@@ -800,14 +401,9 @@
                                                                                     <Binding Path="Parent" Mode="OneWay"/>
                                                                                 </MultiBinding>
                                                                             </Expander.ToolTip>
-                                                                            <StackPanel>
-                                                                                <pe:PropertyEditorItemsControl FontWeight="Normal" ItemsSource="{Binding PropertyObjects, Mode=OneTime}" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}">
-                                                                                    <ItemsControl.ItemContainerStyle>
-                                                                                        <Style TargetType="{x:Type pe:PropertyEditorItem}" BasedOn="{StaticResource {x:Type pe:PropertyEditorItem}}">
-                                                                                            <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
-                                                                                        </Style>
-                                                                                    </ItemsControl.ItemContainerStyle>
-                                                                                </pe:PropertyEditorItemsControl>
+                                                                            <StackPanel Margin="{Binding ElementName=PART_Expander, Mode=OneWay, Path=Padding}">
+                                                                                <pe:PropertyEditorItemsControl FontWeight="Normal" ItemsSource="{Binding PropertyObjects, Mode=OneTime}"
+                                                                                                               Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
                                                                             </StackPanel>
                                                                         </Expander>
                                                                     </Grid>

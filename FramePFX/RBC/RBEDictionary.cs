@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FramePFX.RBC {
     /// <summary>
@@ -74,6 +75,8 @@ namespace FramePFX.RBC {
         }
 
         public RBEDictionary CreateDictionary(string key) {
+            if (this.Map.ContainsKey(key))
+                throw new Exception("Key already in use: " + key);
             RBEDictionary dictionary = new RBEDictionary();
             this[key] = dictionary;
             return dictionary;
@@ -90,6 +93,8 @@ namespace FramePFX.RBC {
         }
 
         public RBEList CreateList(string key) {
+            if (this.Map.ContainsKey(key))
+                throw new Exception("Key already in use: " + key);
             RBEList list = new RBEList();
             this[key] = list;
             return list;

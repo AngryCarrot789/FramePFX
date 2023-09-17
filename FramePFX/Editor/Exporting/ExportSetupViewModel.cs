@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting.Exporters;
+using FramePFX.Editor.ViewModels;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs;
 using FramePFX.Views.Windows;
@@ -59,9 +60,9 @@ namespace FramePFX.Editor.Exporting {
 
         public AsyncRelayCommand CancelSetupCommand { get; }
 
-        public Project Project { get; }
+        public ProjectViewModel Project { get; }
 
-        public ExportSetupViewModel(Project project) {
+        public ExportSetupViewModel(ProjectViewModel project) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.RunExportCommand = new AsyncRelayCommand(this.ExportActionAsync, () => this.SelectedExporter != null);
             this.CancelSetupCommand = new AsyncRelayCommand(this.CancelSetupAction);
@@ -71,7 +72,7 @@ namespace FramePFX.Editor.Exporting {
 
             this.Exporters = new ReadOnlyObservableCollection<ExporterViewModel>(collection);
             foreach (ExporterViewModel e in this.Exporters) {
-                e.LoadProjectDefaults(project);
+                e.LoadProjectDefaults(project.Model);
             }
 
             this.SelectedExporter = collection[0];
@@ -93,22 +94,28 @@ namespace FramePFX.Editor.Exporting {
                 return;
             }
 
-            ExportProperties properties = new ExportProperties(this.RenderSpan, this.FilePath);
-            ExportProgressViewModel export = new ExportProgressViewModel(properties);
-            IWindow window = IoC.Provide<IExportViewService>().ShowExportWindow(export);
-
+            this.Project.Model.IsExporting = true;
             try {
-                // Export will most likely be using unsafe code, meaning async won't work
-                await Task.Factory.StartNew(
-                    () => exporter.Exporter.Export(this.Project, export, new ExportProperties(this.RenderSpan, this.FilePath)),
-                    TaskCreationOptions.LongRunning);
-            }
-            catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "Failed to export:", e.GetToString());
-            }
+                ExportProperties properties = new ExportProperties(this.RenderSpan, this.FilePath);
+                ExportProgressViewModel export = new ExportProgressViewModel(properties);
+                IWindow window = IoC.Provide<IExportViewService>().ShowExportWindow(export);
 
-            await window.CloseWindowAsync();
-            await this.Dialog.CloseDialogAsync(true);
+                try {
+                    // Export will most likely be using unsafe code, meaning async won't work
+                    await Task.Factory.StartNew(
+                        () => exporter.Exporter.Export(this.Project.Model, export, new ExportProperties(this.RenderSpan, this.FilePath)),
+                        TaskCreationOptions.LongRunning);
+                }
+                catch (Exception e) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "Failed to export:", e.GetToString());
+                }
+
+                await window.CloseWindowAsync();
+                await this.Dialog.CloseDialogAsync(true);
+            }
+            finally {
+                this.Project.Model.IsExporting = false;
+            }
         }
     }
 }

@@ -3,12 +3,13 @@ using System.Collections.Specialized;
 using System.Numerics;
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class TextVideoClip : BaseResourceVideoClip<ResourceText> {
+    public class TextVideoClip : VideoClip, IResourceClip<ResourceText> {
         private BitVector32 clipProps;
 
         private readonly ResourceText lt;
@@ -29,9 +30,37 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public bool ULBorderThickness { get => this.IsUsingClipProperty(nameof(ResourceText.BorderThickness)); set => this.SetUseClipProperty(nameof(ResourceText.BorderThickness), value); }
         public bool ULIsAntiAliased { get => this.IsUsingClipProperty(nameof(ResourceText.IsAntiAliased)); set => this.SetUseClipProperty(nameof(ResourceText.IsAntiAliased), value); }
 
+        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
+        public ResourceHelper<ResourceText> ResourceHelper { get; }
+
         public TextVideoClip() {
+            this.ResourceHelper = new ResourceHelper<ResourceText>(this);
+            this.ResourceHelper.ResourceChanged += this.OnResourceChanged;
+            this.ResourceHelper.ResourceDataModified += this.OnResourceDataModified;
+
             this.clipProps = new BitVector32();
             this.lt = new ResourceText();
+        }
+
+        protected void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
+            this.InvalidateTextCache();
+        }
+
+        protected void OnResourceDataModified(ResourceText resource, string property) {
+            switch (property) {
+                case nameof(ResourceText.FontFamily):
+                case nameof(ResourceText.FontSize):
+                case nameof(ResourceText.SkewX):
+                case nameof(ResourceText.Text):
+                    this.InvalidateTextCache();
+                    break;
+                case nameof(ResourceText.Foreground):
+                case nameof(ResourceText.Border):
+                case nameof(ResourceText.BorderThickness):
+                case nameof(ResourceText.IsAntiAliased):
+                    break;
+                default: return;
+            }
         }
 
         private static int PropertyIndex(string property) {
@@ -64,14 +93,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
-            TextVideoClip textClip = (TextVideoClip) clone;
+            TextVideoClip clip = (TextVideoClip) clone;
+            this.ResourceHelper.LoadDataIntoClone(clip.ResourceHelper);
 
             RBEDictionary dictionary = new RBEDictionary();
             this.lt.WriteToRBE(dictionary);
-            textClip.lt.ReadFromRBE(dictionary);
+            clip.lt.ReadFromRBE(dictionary);
 
             BitVector32 props = this.clipProps;
-            textClip.clipProps = props;
+            clip.clipProps = props;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -84,30 +114,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             base.ReadFromRBE(data);
             this.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
             this.lt.ReadFromRBE(data.GetDictionary("LocalTextData"));
-        }
-
-        protected override void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
-            this.InvalidateTextCache();
-            base.OnResourceChanged(oldItem, newItem);
-        }
-
-        protected override void OnResourceDataModified(string property) {
-            switch (property) {
-                case nameof(ResourceText.FontFamily):
-                case nameof(ResourceText.FontSize):
-                case nameof(ResourceText.SkewX):
-                case nameof(ResourceText.Text):
-                    this.InvalidateTextCache();
-                    break;
-                case nameof(ResourceText.Foreground):
-                case nameof(ResourceText.Border):
-                case nameof(ResourceText.BorderThickness):
-                case nameof(ResourceText.IsAntiAliased):
-                    break;
-                default: return;
-            }
-
-            base.OnResourceDataModified(property);
         }
 
         public override Vector2? GetSize() {
@@ -128,11 +134,11 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override bool BeginRender(long frame) {
-            return this.TryGetResource(out ResourceText _);
+            return this.ResourceHelper.TryGetResource(out ResourceText _);
         }
 
         public override Task EndRender(RenderContext rc, long frame) {
-            if (!this.TryGetResource(out ResourceText r)) {
+            if (!this.ResourceHelper.TryGetResource(out ResourceText r)) {
                 return Task.CompletedTask;
             }
 

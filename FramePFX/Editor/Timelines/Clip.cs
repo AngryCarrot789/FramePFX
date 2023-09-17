@@ -5,23 +5,30 @@ using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Events;
+using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
+using FramePFX.RBC.Events;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IAutomatable, IDisposable {
+    public abstract class Clip : IClip, IAutomatable, IDisposable {
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
         /// </summary>
         public Track Track { get; private set; }
 
         /// <summary>
+        /// The project associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
+        /// </summary>
+        public Project Project => this.Track?.Timeline?.Project;
+
+        /// <summary>
         /// Returns the resource manager associated with this clip. This is fetched from the <see cref="Track"/> property, so this returns null if that is null
         /// </summary>
-        public ResourceManager ResourceManager => this.Track?.Timeline.Project.ResourceManager;
+        public ResourceManager ResourceManager => this.Project?.ResourceManager;
 
         public long TimelinePlayhead => this.Track?.Timeline.PlayHeadFrame ?? 0;
 
@@ -73,22 +80,11 @@ namespace FramePFX.Editor.Timelines {
 
         public List<BaseEffect> Effects { get; }
 
-        /// <summary>
-        /// An event fired when this clip is being removed from a track (where new track is null), being
-        /// added to a track (where the previous track is null), or moved between tracks (where neither are null)
-        /// </summary>
         public event TrackChangedEventHandler TrackChanged;
-
-        /// <summary>
-        /// An event fired when the track (that holds us) timeline changes (as in, a track was
-        /// added to, removed from or moved between timelines)
-        /// </summary>
         public event TimelineChangedEventHandler TrackTimelineChanged;
-
-        /// <summary>
-        /// An event fired when the user seeks a specific frame on the timeline. This is not fired during playback
-        /// </summary>
         public event FrameSeekedEventHandler FrameSeeked;
+        public event WriteToRBEEventHandler SerialiseExtension;
+        public event ReadFromRBEEventHandler DeserialiseExtension;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
@@ -158,6 +154,8 @@ namespace FramePFX.Editor.Timelines {
                 dictionary.SetString(nameof(BaseEffect.FactoryId), id);
                 effect.WriteToRBE(dictionary.CreateDictionary("Data"));
             }
+
+            this.SerialiseExtension?.Invoke(this, data);
         }
 
         /// <summary>
@@ -179,6 +177,8 @@ namespace FramePFX.Editor.Timelines {
                 effect.OwnerClip = this;
                 this.Effects.Add(effect);
             }
+
+            this.DeserialiseExtension?.Invoke(this, data);
         }
 
         /// <summary>
@@ -248,13 +248,17 @@ namespace FramePFX.Editor.Timelines {
         /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ErrorList"/>
         /// </para>
         /// </summary>
-        /// <param name="stack">
+        /// <param name="list">
         /// The exception stack in which to add any encountered exceptions during disposal.
         /// Any exceptions added to this may result in the app crashing and showing a crash report screen
         /// </param>
-        protected virtual void DisposeCore(ErrorList stack) {
+        protected virtual void DisposeCore(ErrorList list) {
             for (int i = this.Effects.Count - 1; i >= 0; i--) {
                 this.RemoveEffectAt(i);
+            }
+
+            if (this is IBaseResourceClip resourceClip) {
+                resourceClip.ResourceHelper.Dispose();
             }
         }
 

@@ -5,16 +5,12 @@ using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines {
-    // TODO: Maybe use composition/components instead of inheritance, because what about BaseResourceAudioClip?
-
+namespace FramePFX.Editor.Timelines.ResourceHelpers {
     /// <summary>
-    /// A base video clip that references a single resource
+    /// A class that helps with managing a single resource object for use by a clip
     /// </summary>
-    /// <typeparam name="T">The resource item type</typeparam>
-    public abstract class BaseResourceVideoClip<T> : VideoClip where T : ResourceItem {
+    public class ResourceHelper<T> : BaseResourceHelper where T : ResourceItem {
         public delegate void ClipResourceModifiedEventHandler(T resource, string property);
-
         public delegate void ClipResourceChangedEventHandler(T oldItem, T newItem);
 
         private readonly ResourcePath<T>.ResourceChangedEventHandler resourceChangedHandler;
@@ -23,14 +19,39 @@ namespace FramePFX.Editor.Timelines {
 
         public ResourcePath<T> ResourcePath { get; private set; }
 
-        public event ClipResourceChangedEventHandler ClipResourceChanged;
-        public event ClipResourceModifiedEventHandler ClipResourceDataModified;
-        public event ResourceItemEventHandler OnlineStateChanged;
+        /// <summary>
+        /// An event fired when the underlying resource being used has changed
+        /// </summary>
+        public event ClipResourceChangedEventHandler ResourceChanged;
 
-        protected BaseResourceVideoClip() {
+        /// <summary>
+        /// An event fired when the underlying resource raises a <see cref="ResourceItem.DataModified"/> event
+        /// </summary>
+        public event ClipResourceModifiedEventHandler ResourceDataModified;
+
+        /// <summary>
+        /// The clip that owns this helper
+        /// </summary>
+        public IResourceClip<T> Clip { get; }
+
+        /// <summary>
+        /// Whether or not this helper has a valid path
+        /// </summary>
+        public bool HasPath => this.ResourcePath != null;
+
+        // this class is automatically disposed by the base clip class which uses
+        // the dirty OOP trick of 'if (this is BaseResourceHelper)' to dispose it
+        // the only thing that must be manually handled is LoadDataIntoClone
+
+        public ResourceHelper(IResourceClip<T> clip) {
+            this.Clip = clip ?? throw new ArgumentNullException(nameof(clip));
             this.resourceChangedHandler = this.OnResourceChangedInternal;
             this.dataModifiedHandler = this.OnResourceDataModifiedInternal;
             this.onlineStateChangedHandler = this.OnOnlineStateChangedInternal;
+            clip.TrackChanged += this.OnTrackChanged;
+            clip.TrackTimelineChanged += this.OnTrackTimelineChanged;
+            clip.SerialiseExtension += (c, data) => this.WriteToRBE(data);
+            clip.DeserialiseExtension += (c, data) => this.ReadFromRBE(data);
         }
 
         private void DisposePath() {
@@ -46,8 +67,7 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
-            base.OnTrackChanged(oldTrack, newTrack);
+        private void OnTrackChanged(Track oldTrack, Track newTrack) {
             if (this.ResourcePath == null)
                 return;
             ResourceManager manager = newTrack?.Timeline?.Project?.ResourceManager;
@@ -56,8 +76,7 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        protected override void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
-            base.OnTrackTimelineChanged(oldTimeline, timeline);
+        private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
             if (this.ResourcePath == null)
                 return;
             ResourceManager manager = timeline?.Project?.ResourceManager;
@@ -67,13 +86,13 @@ namespace FramePFX.Editor.Timelines {
         }
 
         /// <summary>
-        /// Sets this <see cref="BaseResourceVideoClip{T}"/>'s target resource ID. The previous <see cref="ResourcePath{T}"/> is
+        /// Sets this <see cref="ResourceHelper{T}"/>'s target resource ID. The previous <see cref="ResourcePath{T}"/> is
         /// disposed and replace with a new instance using the same <see cref="ResourceManager"/>
         /// </summary>
         /// <param name="id">The target resource ID. Cannot be null, empty, or consist of only whitespaces</param>
         public void SetTargetResourceId(ulong id) {
             this.DisposePath();
-            this.ResourcePath = new ResourcePath<T>(this.ResourceManager, id);
+            this.ResourcePath = new ResourcePath<T>(this.Clip.Project?.ResourceManager, id);
             this.ResourcePath.ResourceChanged += this.resourceChangedHandler;
         }
 
@@ -88,8 +107,8 @@ namespace FramePFX.Editor.Timelines {
                 newItem.DataModified += this.dataModifiedHandler;
             }
 
-            this.OnResourceChanged(oldItem, newItem);
-            this.ClipResourceChanged?.Invoke(oldItem, newItem);
+            this.ResourceChanged?.Invoke(oldItem, newItem);
+            this.TriggerClipRender();
         }
 
         private void OnResourceDataModifiedInternal(ResourceItem sender, string property) {
@@ -97,39 +116,33 @@ namespace FramePFX.Editor.Timelines {
                 throw new InvalidOperationException("Expected resource path to be non-null");
             if (!this.ResourcePath.IsCachedItemEqualTo(sender))
                 throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-            this.OnResourceDataModified(property);
-            this.ClipResourceDataModified?.Invoke((T) sender, property);
+            this.ResourceDataModified?.Invoke((T) sender, property);
+            this.TriggerClipRender();
         }
 
         private void OnOnlineStateChangedInternal(ResourceManager manager, ResourceItem item) {
             if (!this.ResourcePath.IsCachedItemEqualTo(item))
                 throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-            this.OnOnlineStateChanged((T) item);
-            this.OnlineStateChanged?.Invoke(manager, item);
+            this.OnOnlineStateChanged(manager, item);
+            this.TriggerClipRender();
         }
 
-        protected virtual void OnOnlineStateChanged(T item) {
-            this.InvalidateRender();
+        public void TriggerClipRender() {
+            if (this.Clip is VideoClip clip) {
+                clip.InvalidateRender();
+            }
         }
 
-        protected virtual void OnResourceChanged(T oldItem, T newItem) {
-            this.InvalidateRender();
-        }
-
-        protected virtual void OnResourceDataModified(string property) {
-            this.InvalidateRender();
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            if (this.ResourcePath != null)
+        public void WriteToRBE(RBEDictionary data) {
+            if (this.ResourcePath != null) {
                 ResourcePath<T>.WriteToRBE(this.ResourcePath, data.CreateDictionary(nameof(this.ResourcePath)));
+            }
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            if (data.TryGetElement(nameof(this.ResourcePath), out RBEDictionary resource))
-                this.ResourcePath = ResourcePath<T>.ReadFromRBE(this.Track?.Timeline.Project.ResourceManager, resource);
+        public void ReadFromRBE(RBEDictionary data) {
+            if (data.TryGetElement(nameof(this.ResourcePath), out RBEDictionary resource)) {
+                this.ResourcePath = ResourcePath<T>.ReadFromRBE(this.Clip.Project?.ResourceManager, resource);
+            }
         }
 
         public bool TryGetResource(out T resource) {
@@ -141,22 +154,20 @@ namespace FramePFX.Editor.Timelines {
             return false;
         }
 
-        protected override void DisposeCore(ErrorList stack) {
-            base.DisposeCore(stack);
+        protected override void DisposeCore(ErrorList list, bool disposing) {
             if (this.ResourcePath != null && !this.ResourcePath.IsDisposed) {
                 try {
                     this.DisposePath();
                 }
                 catch (Exception e) {
-                    stack.Add(e);
+                    list.Add(e);
                 }
             }
         }
 
-        protected override void LoadDataIntoClone(Clip clone) {
-            base.LoadDataIntoClone(clone);
+        public void LoadDataIntoClone(ResourceHelper<T> helper) {
             if (this.ResourcePath != null) {
-                ((BaseResourceVideoClip<T>) clone).SetTargetResourceId(this.ResourcePath.ResourceId);
+                helper.SetTargetResourceId(this.ResourcePath.ResourceId);
             }
         }
     }

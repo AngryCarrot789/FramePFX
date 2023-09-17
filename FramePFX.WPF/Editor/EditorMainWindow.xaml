@@ -76,7 +76,7 @@
                 <MenuItem Header="Show logs" Click="ShowLogsClick" />
             </MenuItem>
         </Menu>
-        <Grid Margin="0,19,0,0" IsEnabled="{Binding IsExporting, Converter={StaticResource InvertBoolConverter}}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+        <Grid Margin="0,19,0,0" IsEnabled="{Binding IsEditorEnabled, Converter={StaticResource InvertBoolConverter}}" UseLayoutRounding="True" SnapsToDevicePixels="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="7*" />
                 <RowDefinition Height="1" />

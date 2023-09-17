@@ -28,7 +28,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// The project associated with this timeline
         /// </summary>
-        public Project Project { get; }
+        public Project Project { get; set; }
 
         /// <summary>
         /// The current play head
@@ -54,8 +54,7 @@ namespace FramePFX.Editor.Timelines {
         // view model can access this
         public Dictionary<Clip, Exception> ExceptionsLastRender { get; } = new Dictionary<Clip, Exception>();
 
-        public Timeline(Project project) {
-            this.Project = project ?? throw new ArgumentNullException(nameof(project));
+        public Timeline() {
             this.tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
         }
@@ -101,6 +100,7 @@ namespace FramePFX.Editor.Timelines {
                 throw new Exception("Invalid next clip id");
             if ((this.nextTrackId = data.GetLong("NextTrackId")) < 0)
                 throw new Exception("Invalid next track id");
+            this.ClearTracks();
             this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
@@ -163,24 +163,15 @@ namespace FramePFX.Editor.Timelines {
 
         public void ClearTracks() {
             using (ErrorList list = new ErrorList()) {
-                foreach (Track track in this.tracks) {
-                    track.Clear();
+                try {
+                    for (int i = this.tracks.Count - 1; i >= 0; i--) {
+                        this.tracks[i].Clear();
+                        this.RemoveTrackAt(i);
+                    }
                 }
-            }
-
-            try {
-                foreach (Track track in this.tracks) {
-                    Track.SetTimeline(track, null);
+                catch (Exception e) {
+                    list.Add(e);
                 }
-            }
-#if DEBUG
-            catch (Exception) {
-                Debugger.Break();
-                throw;
-            }
-#endif
-            finally {
-                this.tracks.Clear();
             }
         }
 
@@ -197,8 +188,8 @@ namespace FramePFX.Editor.Timelines {
             return this.RenderAsync(render, frame, source.Token);
         }
 
-        // I did some testing and found that async is about 10x slower than regular
-        // method invocation, when using the async state machine in debug mode
+        // I did some testing and found that awaiting in async is about 10x slower than regular
+        // method invocation, when in debug mode (which uses class-based async state machines)
 
         // Which means that async probably won't affect the render performance all that much, and
         // if anything, stuff like waiting for video decoders to finish would take longer
@@ -206,20 +197,36 @@ namespace FramePFX.Editor.Timelines {
         // Anyway this method is extremely messy but a lot of it is just avoiding the usage of enumerators
         // in order to re-use local variables... because I like fast apps ;-)
         public async Task RenderAsync(RenderContext render, long frame, CancellationToken token) {
+            if (!this.BeginCompositeRender(frame, token))
+                throw new TaskCanceledException("Begin render took too long to complete");
+            await this.EndCompositeRenderAsync(render, frame, token);
+        }
+
+        public void CancelCompositeRenderList(long frame, int i = 0) {
+            using (ErrorList list = new ErrorList("Failed to cancel one or more clip renders")) {
+                List<VideoClip> renderList = this.RenderList;
+                for (int k = renderList.Count; i < k; i++) {
+                    try {
+                        renderList[i].OnRenderCancelled(frame);
+                    }
+                    catch (Exception e) {
+                        list.Add(e);
+                    }
+                }
+
+                renderList.Clear();
+            }
+        }
+
+        public bool BeginCompositeRender(long frame, CancellationToken token) {
             List<VideoClip> renderList = this.RenderList;
             List<Track> trackList = this.tracks;
-            SKPaint trackPaint = null, clipPaint = null;
-            int i = trackList.Count - 1, j, k, m; // reusable variables
             // Render timeline from the bottom to the top
-            for (; i >= 0; i--) {
+            for (int i = trackList.Count - 1; i >= 0; i--) {
                 if (token.IsCancellationRequested) {
                     // BeginRender phase must have taken too long; call cancel to all clips that were prepared
-                    for (j = 0, k = renderList.Count; j < k; j++) {
-                        renderList[j].OnRenderCancelled(frame);
-                    }
-
-                    renderList.Clear();
-                    throw new TaskCanceledException();
+                    this.CancelCompositeRenderList(frame);
+                    return false;
                 }
 
                 if (trackList[i] is VideoTrack track && track.IsActuallyVisible) {
@@ -228,25 +235,43 @@ namespace FramePFX.Editor.Timelines {
                         continue;
                     }
 
-                    if (clip.BeginRender(frame)) {
+                    bool render;
+                    try {
+                        render = clip.BeginRender(frame);
+                    }
+                    catch (Exception e) {
+                        try {
+                            this.CancelCompositeRenderList(frame);
+                        }
+                        catch (Exception ex) {
+                            e.AddSuppressed(ex);
+                        }
+
+                        throw new Exception("Failed to invoke " + nameof(clip.BeginRender) + " for clip", e);
+                    }
+
+                    if (render) {
                         renderList.Add(clip);
                     }
                 }
             }
 
+            return true;
+        }
+
+        public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token) {
+            List<VideoClip> renderList = this.RenderList;
+            SKPaint trackPaint = null, clipPaint = null;
             try {
-                for (i = 0, k = renderList.Count; i < k; i++) {
-                    VideoClip clip = renderList[i];
+                int j, m;
+                for (int i = 0, k = renderList.Count; i < k; i++) {
                     if (token.IsCancellationRequested) {
                         // Rendering took too long. Some clips may have already drawn. Cancel the rest
-                        for (j = i; j < k; j++) {
-                            renderList[j].OnRenderCancelled(frame);
-                        }
-
-                        renderList.Clear();
+                        this.CancelCompositeRenderList(i);
                         throw new TaskCanceledException();
                     }
 
+                    VideoClip clip = renderList[i];
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     try {
@@ -274,6 +299,16 @@ namespace FramePFX.Editor.Timelines {
                     }
                     catch (TaskCanceledException) {
                         // do nothing
+                    }
+                    catch (Exception e) {
+                        try {
+                            this.CancelCompositeRenderList(frame, i);
+                        }
+                        catch (Exception ex) {
+                            e.AddSuppressed(ex);
+                        }
+
+                        throw new Exception("Failed to render clip", e);
                     }
                     finally {
                         EndOpacityLayer(render, clipSaveCount, ref clipPaint);

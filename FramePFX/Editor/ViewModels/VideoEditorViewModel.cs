@@ -17,11 +17,11 @@ namespace FramePFX.Editor.ViewModels {
         private bool isClosingProject;
         private bool isRecordingKeyFrames;
 
-        private bool isExporting;
+        private bool isEditorEnabled;
 
-        public bool IsExporting {
-            get => this.isExporting;
-            set => this.RaisePropertyChanged(ref this.isExporting, value);
+        public bool IsEditorEnabled {
+            get => this.isEditorEnabled;
+            set => this.RaisePropertyChanged(ref this.isEditorEnabled, value);
         }
 
         /// <summary>
@@ -108,16 +108,16 @@ namespace FramePFX.Editor.ViewModels {
             }
 
             FrameSpan span = this.ActiveProject.Timeline.Model.GetUsedFrameSpan();
-            ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject.Model) {
+            ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject) {
                 RenderSpan = span.WithBegin(0)
             };
 
-            this.IsExporting = true;
+            this.IsEditorEnabled = true;
             try {
                 await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
             }
             finally {
-                this.IsExporting = false;
+                this.IsEditorEnabled = false;
             }
 
             await this.ActiveProject.Timeline.DoRenderAsync(false);

@@ -1,14 +1,16 @@
 using System.Numerics;
 using System.Threading.Tasks;
+using FramePFX.Editor.ResourceManaging;
 using OpenTK.Graphics.OpenGL;
 using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class ShapeVideoClip : BaseResourceVideoClip<ResourceColour> {
+    public class ShapeVideoClip : VideoClip, IResourceClip<ResourceColour> {
         //, OGLRenderTarget {
         public float Width { get; set; }
 
@@ -16,10 +18,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override bool UseCustomOpacityCalculation => true;
 
+        public ResourceHelper<ResourceColour> ResourceHelper { get; }
+        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
+
         public ShapeVideoClip() {
+            this.ResourceHelper = new ResourceHelper<ResourceColour>(this);
+            this.ResourceHelper.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
-        protected override void OnResourceDataModified(string property) {
+        private void ResourceHelperOnResourceDataModified(ResourceColour resource, string property) {
             switch (property) {
                 case nameof(ResourceColour.Colour):
                     this.InvalidateRender();
@@ -44,11 +51,11 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override bool BeginRender(long frame) {
-            return this.TryGetResource(out ResourceColour _);
+            return this.ResourceHelper.TryGetResource(out ResourceColour _);
         }
 
         public override Task EndRender(RenderContext rc, long frame) {
-            if (!this.TryGetResource(out ResourceColour r)) {
+            if (!this.ResourceHelper.TryGetResource(out ResourceColour r)) {
                 return Task.CompletedTask;
             }
 
@@ -62,7 +69,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public void RenderGL(long frame) {
-            if (!this.TryGetResource(out ResourceColour r)) {
+            if (!this.ResourceHelper.TryGetResource(out ResourceColour r)) {
                 return;
             }
 
@@ -84,6 +91,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
             ShapeVideoClip clip = (ShapeVideoClip) clone;
+            this.ResourceHelper.LoadDataIntoClone(clip.ResourceHelper);
             clip.Width = this.Width;
             clip.Height = this.Height;
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace FramePFX.PropertyEditing {
     /// <summary>
@@ -14,19 +15,21 @@ namespace FramePFX.PropertyEditing {
     public sealed class FixedPropertyGroupViewModel : BasePropertyGroupViewModel {
         private readonly Dictionary<string, BasePropertyGroupViewModel> idToGroupMap;
         private readonly Dictionary<string, BasePropertyEditorViewModel> idToEditorMap;
-        private readonly List<BasePropertyObjectViewModel> propertyObjectList;
+        private readonly List<IPropertyObject> propertyObjectList;
+        private readonly HashSet<BasePropertyGroupViewModel> nonHierarchialGroups;
 
-        public override IReadOnlyList<BasePropertyObjectViewModel> PropertyObjects => this.propertyObjectList;
+        public override IReadOnlyList<IPropertyObject> PropertyObjects => this.propertyObjectList;
 
         public FixedPropertyGroupViewModel(Type applicableType) : base(applicableType) {
-            this.propertyObjectList = new List<BasePropertyObjectViewModel>();
+            this.propertyObjectList = new List<IPropertyObject>();
             this.idToGroupMap = new Dictionary<string, BasePropertyGroupViewModel>();
             this.idToEditorMap = new Dictionary<string, BasePropertyEditorViewModel>();
+            this.nonHierarchialGroups = new HashSet<BasePropertyGroupViewModel>();
         }
 
         public override void RecalculateHierarchyDepth() {
             base.RecalculateHierarchyDepth();
-            foreach (BasePropertyObjectViewModel obj in this.propertyObjectList) {
+            foreach (BasePropertyObjectViewModel obj in this.propertyObjectList.OfType<BasePropertyObjectViewModel>()) {
                 obj.RecalculateHierarchyDepth();
             }
         }
@@ -50,15 +53,18 @@ namespace FramePFX.PropertyEditing {
         /// <param name="id"></param>
         /// <param name="isExpandedByDefault"></param>
         /// <returns></returns>
-        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true) {
-            this.ValidateApplicableType(applicableType);
+        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool isHierarchial = true) {
+            if (isHierarchial) {
+                this.ValidateApplicableType(applicableType);
+            }
+
             this.ValidateId(id);
             FixedPropertyGroupViewModel group = new FixedPropertyGroupViewModel(applicableType) {
                 IsExpanded = isExpandedByDefault,
                 DisplayName = id
             };
 
-            this.AddGroupInternal(group, id);
+            this.AddGroupInternal(group, id, isHierarchial);
             return group;
         }
 
@@ -69,23 +75,29 @@ namespace FramePFX.PropertyEditing {
         /// <param name="id"></param>
         /// <param name="isExpandedByDefault"></param>
         /// <returns></returns>
-        public DynamicPropertyGroupViewModel CreateDynamicSubGroup(Type applicableType, string id, bool isExpandedByDefault = true) {
-            this.ValidateApplicableType(applicableType);
+        public DynamicPropertyGroupViewModel CreateDynamicSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool isHierarchial = true) {
+            if (isHierarchial) {
+                this.ValidateApplicableType(applicableType);
+            }
+
             this.ValidateId(id);
             DynamicPropertyGroupViewModel group = new DynamicPropertyGroupViewModel(applicableType) {
                 IsExpanded = isExpandedByDefault,
                 DisplayName = id
             };
 
-            this.AddGroupInternal(group, id);
+            this.AddGroupInternal(group, id, isHierarchial);
             return group;
         }
 
-        private void AddGroupInternal(BasePropertyGroupViewModel group, string id) {
+        private void AddGroupInternal(BasePropertyGroupViewModel group, string id, bool isHierarchial) {
             group.Parent = this;
             group.RecalculateHierarchyDepth();
             this.idToGroupMap[id] = group;
             this.propertyObjectList.Add(group);
+            if (isHierarchial) {
+                this.nonHierarchialGroups.Add(group);
+            }
         }
 
         public void AddPropertyEditor(string id, BasePropertyEditorViewModel editor) {
@@ -115,24 +127,75 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
-            this.IsCurrentlyApplicable = true;
             // TODO: maybe calculate every possible type from the given input (scanning each object's hierarchy
             // and adding each type to a HashSet), and then using that to check for applicability.
             // It would probably be slower for single selections, which is most likely what will be used...
             // but the performance difference for multi select would make it worth it tbh
 
-            foreach (BasePropertyObjectViewModel obj in this.propertyObjectList) {
-                switch (obj) {
-                    case BasePropertyGroupViewModel group: {
-                        group.SetupHierarchyState(input);
-                        break;
+            bool isApplicable = false;
+            IPropertyObject lastEntry = null;
+            List<IPropertyObject> list = this.propertyObjectList;
+            for (int i = 0, end = list.Count - 1; i <= end; i++) {
+                IPropertyObject obj = this.propertyObjectList[i];
+                if (obj is PropertyObjectSeparator separator) {
+                    if (i == 0 || i == end || lastEntry is PropertyObjectSeparator || (lastEntry is BasePropertyObjectViewModel p && !p.IsCurrentlyApplicable)) {
+                        separator.IsVisible = false;
                     }
-                    case BasePropertyEditorViewModel editor: {
-                        editor.SetHandlers(input);
-                        break;
+                    else {
+                        separator.IsVisible = true;
+                    }
+
+                    lastEntry = obj;
+                    continue;
+                }
+                else if (!this.nonHierarchialGroups.Contains(obj)) {
+                    switch (obj) {
+                        case BasePropertyGroupViewModel group: {
+                            group.SetupHierarchyState(input);
+                            isApplicable |= group.IsCurrentlyApplicable;
+                            break;
+                        }
+                        case BasePropertyEditorViewModel editor: {
+                            editor.SetHandlers(input);
+                            isApplicable |= editor.IsCurrentlyApplicable;
+                            break;
+                        }
+                    }
+
+                    if (lastEntry is PropertyObjectSeparator && obj is BasePropertyObjectViewModel p1 && !p1.IsCurrentlyApplicable) {
+                        ((PropertyObjectSeparator) lastEntry).IsVisible = false;
                     }
                 }
+
+                lastEntry = obj;
             }
+
+            this.IsCurrentlyApplicable = isApplicable;
+        }
+
+        public void CleanSeparators() {
+            IPropertyObject lastEntry = null;
+            List<IPropertyObject> list = this.propertyObjectList;
+            for (int i = 0, end = list.Count - 1; i <= end; i++) {
+                IPropertyObject obj = this.propertyObjectList[i];
+                if (obj is PropertyObjectSeparator separator) {
+                    if (i == 0 || i == end || lastEntry is PropertyObjectSeparator || (lastEntry is BasePropertyObjectViewModel prop && !prop.IsCurrentlyApplicable)) {
+                        separator.IsVisible = false;
+                    }
+                    else {
+                        separator.IsVisible = true;
+                    }
+                }
+                else if (obj is BasePropertyObjectViewModel prop && lastEntry is PropertyObjectSeparator && !prop.IsCurrentlyApplicable) {
+                    ((PropertyObjectSeparator) lastEntry).IsVisible = false;
+                }
+
+                lastEntry = obj;
+            }
+        }
+
+        public void AddSeparator() {
+            this.propertyObjectList.Add(new PropertyObjectSeparator());
         }
     }
 }

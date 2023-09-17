@@ -4,7 +4,7 @@ namespace FramePFX.PropertyEditing {
     /// <summary>
     /// The base class for property groups and editors
     /// </summary>
-    public class BasePropertyObjectViewModel : BaseViewModel {
+    public class BasePropertyObjectViewModel : BaseViewModel, IPropertyObject {
         private bool isCurrentlyApplicable;
 
         /// <summary>

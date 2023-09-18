@@ -9,11 +9,6 @@ namespace FramePFX.Automation {
         AutomationData AutomationData { get; }
 
         /// <summary>
-        /// The automation engine associated with this automatable instance. May be null
-        /// </summary>
-        AutomationEngine AutomationEngine { get; }
-
-        /// <summary>
         /// Whether or not a parameter's value is being set, and therefore, no other parameters should be changed, no history should be pushed, etc
         /// <para>
         /// This is typically modified by the automation engine itself, before setting the actual value

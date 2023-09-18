@@ -41,7 +41,7 @@ namespace FramePFX.WPF.Editor.Automation {
         protected KeyFramePoint(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {
             this.editor = editor;
             this.keyFrame = keyFrame;
-            this.project = keyFrame.OwnerSequence.AutomationData.Owner.AutomationEngine.Project;
+            this.project = keyFrame.OwnerSequence.AutomationData.Owner.Project ?? throw new Exception("Could not get project from key frame");
         }
 
         public static KeyFramePoint ForKeyFrame(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {

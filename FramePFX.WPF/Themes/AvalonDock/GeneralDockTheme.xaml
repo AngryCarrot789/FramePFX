@@ -206,15 +206,14 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type TabItem}">
                                 <Grid SnapsToDevicePixels="true">
-                                    <Border x:Name="SelectedBD" Margin="1,-1,1,0" BorderBrush="{DynamicResource {x:Static rk:ResourceKeys.ToolWindowTabSelectedActiveBackground}}" BorderThickness="0,1,0,0" Visibility="Collapsed" />
-                                    <Border x:Name="Bd" Margin="0" CornerRadius="0" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource {x:Static rk:ResourceKeys.PanelBorderBrush}}">
-                                        <ContentPresenter x:Name="Content" Margin="6,2" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                    <Border x:Name="Bd" Margin="0" CornerRadius="0" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource {x:Static rk:ResourceKeys.PanelBorderBrush}}" BorderThickness="1,0,1,1">
+                                        <ContentPresenter x:Name="Content" Margin="6,2" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
+                                                          VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" 
+                                                          ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                     </Border>
                                 </Grid>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="Selector.IsSelected" Value="true">
-                                        <Setter TargetName="SelectedBD" Property="Visibility" Value="Visible" />
-                                        <Setter TargetName="Bd" Property="BorderThickness" Value="1,0,1,1" />
+                                    <Trigger Property="IsSelected" Value="true">
                                         <Setter Property="Panel.ZIndex" Value="1" />
                                     </Trigger>
                                     <!-- Tool Window : Tab / Selected, active -->

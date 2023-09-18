@@ -40,8 +40,6 @@ namespace FramePFX.Editor.ViewModels {
 
         public ResourceManagerViewModel ResourceManager { get; }
 
-        public AutomationEngineViewModel AutomationEngine { get; }
-
         /// <summary>
         /// The path of the project file, which links all of the saved data the project references
         /// </summary>
@@ -69,18 +67,29 @@ namespace FramePFX.Editor.ViewModels {
 
         public AsyncRelayCommand OpenSettingsCommand { get; }
 
+        public bool IsExporting {
+            get => this.Model.IsExporting;
+            set {
+                if (this.IsExporting == value)
+                    return;
+                this.Model.IsExporting = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         public ProjectViewModel(Project project) {
             this.Model = project ?? throw new ArgumentNullException(nameof(project));
             this.Settings = new ProjectSettingsViewModel(project.Settings);
             this.Settings.ProjectModified += this.OnProjectModified;
             this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
-            this.Timeline = new TimelineViewModel(this, project.Timeline);
+            this.Timeline = new TimelineViewModel(project.Timeline) {
+                Project = this
+            };
 
-            this.AutomationEngine = new AutomationEngineViewModel(this, project.AutomationEngine);
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.IsSaving);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.IsSaving);
             this.OpenSettingsCommand = new AsyncRelayCommand(this.OpenSettingsAction);
-            this.Model.CreateDir();
+            this.Model.GetDataFolder();
         }
 
         public async Task OpenSettingsAction() {
@@ -175,8 +184,6 @@ namespace FramePFX.Editor.ViewModels {
 
         // Use debug and release versions in order for the debugger to pickup exceptions or Debugger.Break() (for debugging of course)
 
-#if true // DEBUG
-
         private async Task<bool> SaveProjectData(string folder) {
             if (string.IsNullOrEmpty(folder)) {
                 throw new Exception("Project dir cannot be null or empty");
@@ -206,31 +213,45 @@ namespace FramePFX.Editor.ViewModels {
             // copy temp project files into actual project dir
             if (!string.IsNullOrEmpty(this.Model.TempDataFolder) && Directory.Exists(this.Model.TempDataFolder)) {
                 await this.ResourceManager.OfflineAllAsync(false);
-                using (IEnumerator<string> enumerator = Directory.EnumerateFileSystemEntries(this.Model.TempDataFolder).GetEnumerator()) {
-                    while (true) {
-                        try {
-                            if (!enumerator.MoveNext()) {
-                                break;
-                            }
-                        }
-                        catch (Exception e) {
-                            string str = e.GetToString();
-                            AppLogger.WriteLine(str);
-                            Debug.WriteLine(str);
-                            continue;
-                        }
+                IEnumerable<string> enumerable = null;
+                try {
+                    enumerable = Directory.EnumerateFileSystemEntries(this.Model.TempDataFolder);
+                }
+                catch (Exception e) {
+                    AppLogger.WriteLine("Failed to create temp folder enumerator: " + e.GetToString());
+                }
 
-                        string path = enumerator.Current;
-                        if (string.IsNullOrEmpty(path))
-                            continue;
-                        string fileName = Path.GetFileName(path);
-                        try {
-                            Directory.Move(path, Path.Combine(dataFolder.FullName, fileName));
-                        }
-                        catch (Exception me) {
-                            string str = me.GetToString();
-                            AppLogger.WriteLine(str);
-                            Debug.WriteLine(str);
+                if (enumerable != null) {
+                    using (IEnumerator<string> enumerator = enumerable.GetEnumerator()) {
+                        bool wasLastEnumerationError = false;
+                        while (true) {
+                            try {
+                                if (!enumerator.MoveNext()) {
+                                    break;
+                                }
+                            }
+                            catch (Exception e) {
+                                if (wasLastEnumerationError) {
+                                    break;
+                                }
+                                else {
+                                    wasLastEnumerationError = true;
+                                }
+
+                                AppLogger.WriteLine("Exception enumerating next file in temp folder: " + e.GetToString());
+                                continue;
+                            }
+
+                            string path = enumerator.Current;
+                            if (string.IsNullOrEmpty(path))
+                                continue;
+                            try {
+                                string fileName = Path.GetFileName(path);
+                                Directory.Move(path, Path.Combine(dataFolder.FullName, fileName));
+                            }
+                            catch (Exception ex) {
+                                AppLogger.WriteLine("Exception while moving path from temp to real directory: " + ex.GetToString());
+                            }
                         }
                     }
                 }
@@ -239,9 +260,7 @@ namespace FramePFX.Editor.ViewModels {
                     Directory.Delete(this.Model.TempDataFolder);
                 }
                 catch (Exception ex) {
-                    string str = "Failed to delete temp data folder:\n" + ex.GetToString();
-                    AppLogger.WriteLine(str);
-                    Debug.WriteLine(str);
+                    AppLogger.WriteLine("Failed to delete temp data folder: " + ex.GetToString());
                 }
                 finally {
                     this.Model.TempDataFolder = null;
@@ -272,103 +291,30 @@ namespace FramePFX.Editor.ViewModels {
             return true;
         }
 
-#else
-        private async Task<bool> SaveProjectData(string folder) {
-            if (string.IsNullOrEmpty(folder))
-                throw new Exception("Project dir cannot be null or empty");
-
-            this.Model.IsSaving = true;
-            bool reloadResources = false;
-
-            DirectoryInfo dataFolder = Directory.CreateDirectory(folder);
-
-            try {
-                // copy temp project files into actual project dir
-                if (!string.IsNullOrEmpty(this.Model.TempDataFolder) && Directory.Exists(this.Model.TempDataFolder)) {
-                    await this.ResourceManager.OfflineAllAsync(false);
-                    Exception moveException = null;
-                    foreach (string path in Directory.EnumerateFileSystemEntries(this.Model.TempDataFolder)) {
-                        string fileName = Path.GetFileName(path);
-                        try {
-                            Directory.Move(path, Path.Combine(dataFolder.FullName, fileName));
-                        }
-                        catch (Exception me) {
-                            (moveException ?? (moveException = new Exception("Exception moving 1 or more directories from temp directory to project directory"))).
-                                AddSuppressed(me);
-                        }
-                    }
-
-                    reloadResources = true;
-                    try {
-                        Directory.Delete(this.Model.TempDataFolder);
-                    }
-                    catch (Exception ex) {
-                        Debug.WriteLine($"Failed to delete temp data folder: " + ex.GetToString());
-                    }
-                }
-
-                this.Model.TempDataFolder = null;
-            }
-            catch (PathTooLongException ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("PathTooLongException", "Could not create project directory", ex.GetToString());
-                return false;
-            }
-            catch (SecurityException ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("SecurityException", "Could not create project directory", ex.GetToString());
-                return false;
-            }
-            catch (UnauthorizedAccessException ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("UnauthorizedAccessException", "Could not create project directory", ex.GetToString());
-                return false;
-            }
-            catch (Exception ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Unexpected error", "Could not create project directory", ex.GetToString());
-                return false;
-            }
-
-            if (this.Editor != null) {
-                await this.Editor.OnProjectSaving();
-            }
-
-            Exception e = null;
-            RBEDictionary projData = new RBEDictionary();
-            this.Model.WriteToRBE(projData);
-
-            string projectFile = Path.Combine(folder, "Project" + Filters.FrameFPXExtensionDot);
-            RBEUtils.WriteToFilePacked(projData, projectFile);
-            this.Model.IsSaving = false;
-            if (this.Editor != null) {
-                await this.Editor.OnProjectSaved(true);
-            }
-
-            this.HasSavedOnce = true;
-            this.SetHasUnsavedChanges(false);
-
-            if (reloadResources) {
-                await ResourceCheckerViewModel.LoadProjectResources(this, false);
-            }
-
-            return true;
-        }
-
-#endif
-
         public void Dispose() {
-            using (ErrorList stack1 = new ErrorList()) {
+            using (ErrorList list = new ErrorList()) {
                 try {
                     this.Timeline.Dispose();
                 }
                 catch (Exception e) {
-                    stack1.Add(e);
+                    list.Add(e);
                 }
 
                 try {
                     this.ResourceManager.Dispose();
                 }
                 catch (Exception e) {
-                    stack1.Add(e);
+                    list.Add(e);
                 }
             }
+        }
+
+        public void OnDisconnectFromEditor() {
+            this.Editor = null;
+        }
+
+        public void OnConnectToEditor(VideoEditorViewModel editor) {
+            this.Editor = editor; // this also sets the project model's editor
         }
     }
 }

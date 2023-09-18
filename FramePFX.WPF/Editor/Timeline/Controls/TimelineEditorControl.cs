@@ -273,7 +273,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     this.PART_PlayHead.FrameIndex = frameX;
                 }
 
-                e.Handled = true;
                 if (enableThumbDragging) {
                     this.PART_PlayHead.EnableDragging(new Point(x, 0));
                 }

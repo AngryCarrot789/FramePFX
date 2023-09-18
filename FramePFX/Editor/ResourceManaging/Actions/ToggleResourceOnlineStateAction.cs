@@ -12,6 +12,10 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
         public override async Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
             if (e.DataContext.TryGetContext(out ResourceItemViewModel resItem)) {
                 List<ResourceItemViewModel> items = resItem.Manager.SelectedItems.OfType<ResourceItemViewModel>().ToList();
+                if (!items.Contains(resItem)) {
+                    items.Add(resItem);
+                }
+
                 if (items.Count > 0) {
                     await SetOnlineState(items, isToggled);
                     return true;
@@ -38,7 +42,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             using (ErrorList stack = new ErrorList(false)) {
                 foreach (ResourceItemViewModel item in items) {
                     if (state == false || (state == null && item.IsOnline)) {
-                        item.Model.Disable(stack, true);
+                        await item.SetOfflineAsync(true);
                     }
                     else {
                         list.Add(item);

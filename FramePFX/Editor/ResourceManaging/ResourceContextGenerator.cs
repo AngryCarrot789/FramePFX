@@ -61,8 +61,9 @@ namespace FramePFX.Editor.ResourceManaging {
             }
 
             if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null)) {
+                ResourceGroupViewModel group = resItem as ResourceGroupViewModel ?? manager.CurrentGroup;
                 List<IContextEntry> newList = new List<IContextEntry>();
-                newList.Add(new CommandContextEntry("Text", manager.CreateResourceCommand, nameof(ResourceText)));
+                newList.Add(new ActionContextEntry(group, "actions.resources.newitem.NewText", "Text", "Create a new text resource, and clip"));
                 newList.Add(new CommandContextEntry("ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));
                 newList.Add(new CommandContextEntry("Image", manager.CreateResourceCommand, nameof(ResourceImage)));
                 newList.Add(SeparatorEntry.Instance);

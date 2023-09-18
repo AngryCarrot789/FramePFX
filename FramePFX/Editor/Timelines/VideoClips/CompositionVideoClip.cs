@@ -27,7 +27,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 return Task.CompletedTask;
             }
 
-            CancellationTokenSource src = new CancellationTokenSource(project.IsExporting ? 0 : 3000);
+            CancellationTokenSource src = new CancellationTokenSource(project.IsExporting ? -1 : 3000);
             return resource.Timeline.EndCompositeRenderAsync(rc, frame, src.Token);
         }
 

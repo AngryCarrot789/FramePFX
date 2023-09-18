@@ -2,9 +2,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
-using FramePFX.RBC;
 using FramePFX.Rendering;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public class ImageVideoClip : VideoClip, IResourceClip<ResourceImage> {

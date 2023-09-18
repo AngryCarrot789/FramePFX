@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Utils;
@@ -38,20 +39,32 @@ namespace FramePFX.Editor.Exporting {
         public int RenderProgressPercentage => (int) Maths.Map(this.currentRenderFrame, this.BeginFrame, this.EndFrame, 0, 100);
         public int EncodeProgressPercentage => (int) Maths.Map(this.currentEncodeFrame, this.BeginFrame, this.EndFrame, 0, 100);
 
-        public Func<Task> CancelCallback { get; set; }
-
         public AsyncRelayCommand CancelCommand { get; }
 
-        public ExportProgressViewModel(ExportProperties properties) {
+        public CancellationTokenSource Cancellation { get; }
+
+        private bool isCancelled;
+
+        public ExportProgressViewModel(ExportProperties properties, CancellationTokenSource cancellation) {
             this.ExportProperties = properties;
+            this.Cancellation = cancellation;
             this.currentRenderFrame = properties.Span.Begin;
             this.currentEncodeFrame = properties.Span.Begin;
-            this.CancelCommand = new AsyncRelayCommand(this.CancelActionAsync, () => this.CancelCallback != null);
+            this.CancelCommand = new AsyncRelayCommand(this.CancelActionAsync, () => !this.isCancelled);
         }
 
         public async Task CancelActionAsync() {
-            if (this.CancelCallback != null) {
-                await this.CancelCallback();
+            if (this.isCancelled) {
+                return;
+            }
+
+            this.isCancelled = true;
+            this.CancelCommand.RaiseCanExecuteChanged();
+            try {
+                this.Cancellation.Cancel();
+            }
+            catch (Exception e) {
+                await IoC.MessageDialogs.ShowMessageExAsync("Error cancelling render", "This is weird...", e.GetToString());
             }
         }
 

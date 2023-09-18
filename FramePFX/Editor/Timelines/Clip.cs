@@ -9,12 +9,13 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
+using FramePFX.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IClip, IAutomatable, IDisposable {
+    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable {
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
         /// </summary>
@@ -74,8 +75,6 @@ namespace FramePFX.Editor.Timelines {
 
         public AutomationData AutomationData { get; }
 
-        public AutomationEngine AutomationEngine => this.Track?.AutomationEngine;
-
         public bool IsAutomationChangeInProgress { get; set; }
 
         public List<BaseEffect> Effects { get; }
@@ -126,9 +125,8 @@ namespace FramePFX.Editor.Timelines {
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
 
         public bool GetRelativeFrame(long playhead, out long frame) {
-            FrameSpan span = this.FrameSpan;
-            frame = playhead - span.Begin;
-            return frame >= 0 && frame < span.Duration;
+            frame = this.ConvertTimelineToRelativeFrame(playhead, out bool valid);
+            return valid;
         }
 
         public void AddEffect(BaseEffect effect) => BaseEffect.AddEffectToClip(this, effect);
@@ -310,5 +308,20 @@ namespace FramePFX.Editor.Timelines {
         }
 
         #endregion
+
+        public long ConvertRelativeToTimelineFrame(long relative) => this.FrameBegin + relative;
+
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) {
+            FrameSpan span = this.FrameSpan;
+            long frame = timeline - span.Begin;
+            valid = frame >= 0 && frame < span.Duration;
+            return frame;
+        }
+
+        public bool IsTimelineFrameInRange(long timeline) {
+            FrameSpan span = this.FrameSpan;
+            long frame = timeline - span.Begin;
+            return frame >= 0 && frame < span.Duration;
+        }
     }
 }

@@ -77,7 +77,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList stack) {
+        protected override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
             if (string.IsNullOrEmpty(this.FilePath)) {
                 return true;
             }
@@ -96,7 +96,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
                 this.Model.Dispose();
             }
             catch (Exception e) {
-                stack.Add(e);
+                list.Add(e);
             }
 
             checker?.Add(new InvalidImageViewModel(this));

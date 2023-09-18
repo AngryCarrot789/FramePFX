@@ -1,11 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.PropertyEditing.Editor.Editor.Clips;
+using FramePFX.PropertyEditing.Editor.Editor.Clips.Text;
 using FramePFX.PropertyEditing.Editor.Editor.Effects;
 
 namespace FramePFX.PropertyEditing {
@@ -23,6 +24,11 @@ namespace FramePFX.PropertyEditing {
             this.ClipInfo.AddPropertyEditor("ClipDataEditor", new ClipDataEditorViewModel());
             this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Single", new VideoClipDataSingleEditorViewModel());
             this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Multi", new VideoClipDataMultipleEditorViewModel());
+
+            {
+                FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(TextClipViewModel), "Text Info");
+                group.AddPropertyEditor("TextEditor", new TextClipDataEditorViewModel());
+            }
 
             this.EffectInfo = this.ClipInfo.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects", isHierarchial:false);
             this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
@@ -46,10 +52,16 @@ namespace FramePFX.PropertyEditing {
             this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
         }
 
-        public void OnClipsSelected(List<ClipViewModel> clips) {
+        public void OnClipsSelected(IReadOnlyList<ClipViewModel> clips) {
             // List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
             this.Root.ClearHierarchyState();
             this.ClipInfo.SetupHierarchyState(clips);
+            foreach (IPropertyObject obj in this.ClipInfo.PropertyObjects) {
+                if (obj is FixedPropertyGroupViewModel group && this.ClipInfo.IsDisconnectedFromHierarchy(group)) {
+                    group.SetupHierarchyState(clips);
+                }
+            }
+
             this.EffectInfo.SetupHierarchyStateExtended(clips.Select(x => x.Effects).ToList());
             this.Root.CleanSeparators();
         }

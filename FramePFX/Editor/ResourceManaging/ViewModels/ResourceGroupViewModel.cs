@@ -188,6 +188,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         public bool CanDropResource(BaseResourceObjectViewModel resource) {
+            if (resource is ResourceGroupViewModel group && this.IsPartOfParentHierarchy(group)) {
+                return false;
+            }
+
             return resource is ResourceGroupViewModel || resource is ResourceItemViewModel;
         }
 
@@ -199,14 +203,29 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public Task OnDropResources(IEnumerable<BaseResourceObjectViewModel> resources) {
             foreach (BaseResourceObjectViewModel resource in resources) {
-                if (!this.CanDropResource(resource))
+                if (resource is ResourceGroupViewModel group && this.IsPartOfParentHierarchy(group)) {
                     continue;
+                }
+
+                if (!this.CanDropResource(resource)) {
+                    continue;
+                }
 
                 resource.Parent?.RemoveItem(resource, true, false);
                 this.AddItem(resource);
             }
 
             return Task.CompletedTask;
+        }
+
+        public bool IsPartOfParentHierarchy(ResourceGroupViewModel item) {
+            for (ResourceGroupViewModel parent = this; item != null; item = item.Parent) {
+                if (parent == item) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public async Task OfflineRecursiveAsync(bool user) {

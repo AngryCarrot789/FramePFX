@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting.Exporters;
@@ -94,27 +95,51 @@ namespace FramePFX.Editor.Exporting {
                 return;
             }
 
-            this.Project.Model.IsExporting = true;
+            EditorPlaybackViewModel playback = this.Project.Editor.Playback;
+            if (playback.IsPlaying) {
+                await playback.PauseAction();
+            }
+
+            CancellationTokenSource source = new CancellationTokenSource();
+            this.Project.IsExporting = true;
+            bool isCancelled = false;
             try {
+                AppLogger.PushHeader("Begin Export");
                 ExportProperties properties = new ExportProperties(this.RenderSpan, this.FilePath);
-                ExportProgressViewModel export = new ExportProgressViewModel(properties);
+                ExportProgressViewModel export = new ExportProgressViewModel(properties, source);
                 IWindow window = IoC.Provide<IExportViewService>().ShowExportWindow(export);
 
                 try {
                     // Export will most likely be using unsafe code, meaning async won't work
                     await Task.Factory.StartNew(
-                        () => exporter.Exporter.Export(this.Project.Model, export, new ExportProperties(this.RenderSpan, this.FilePath)),
+                        () => exporter.Exporter.Export(this.Project.Model, export, new ExportProperties(this.RenderSpan, this.FilePath), source.Token),
                         TaskCreationOptions.LongRunning);
                 }
+                catch (TaskCanceledException) {
+                    isCancelled = true;
+                }
                 catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "Failed to export:", e.GetToString());
+                    string err = e.GetToString();
+                    AppLogger.WriteLine("Error exporting: " + err);
+                    await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "An error occurred while exporting: ", err);
+                }
+
+                if (isCancelled && File.Exists(this.FilePath)) {
+                    try {
+                        File.Delete(this.FilePath);
+                    }
+                    catch (Exception e) {
+                        AppLogger.WriteLine("Failed to delete cancelled export's file: " + e.GetToString());
+                    }
                 }
 
                 await window.CloseWindowAsync();
                 await this.Dialog.CloseDialogAsync(true);
             }
             finally {
-                this.Project.Model.IsExporting = false;
+                AppLogger.PopHeader();
+                this.Project.IsExporting = false;
+                source.Dispose();
             }
         }
     }

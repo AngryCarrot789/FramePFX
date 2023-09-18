@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
@@ -12,10 +11,9 @@ using FramePFX.History;
 
 namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
     public class VideoClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
+        private readonly RefreshAutomationValueEventHandler RefreshOpacityHandler;
+
         private double opacity;
-
-        public VideoClipViewModel Clip => (VideoClipViewModel) this.Handlers[0];
-
         public double Opacity {
             get => this.opacity;
             set {
@@ -41,10 +39,10 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
 
         public EditStateCommand OpacityEditStateChangedCommand { get; }
 
-        public AutomationSequenceViewModel OpacityAutomationSequence => this.Clip.OpacityAutomationSequence;
-        public IEnumerable<VideoClipViewModel> Clips => this.Handlers.Cast<VideoClipViewModel>();
+        public AutomationSequenceViewModel OpacityAutomationSequence => this.SingleSelection.OpacityAutomationSequence;
 
-        private readonly RefreshAutomationValueEventHandler RefreshOpacityHandler;
+        public VideoClipViewModel SingleSelection => (VideoClipViewModel) this.Handlers[0];
+        public IEnumerable<VideoClipViewModel> Clips => this.Handlers.Cast<VideoClipViewModel>();
 
         public VideoClipDataEditorViewModel() : base(typeof(VideoClipViewModel)) {
             this.RefreshOpacityHandler = this.RefreshOpacity;
@@ -53,14 +51,13 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
         }
 
         private void RefreshOpacity(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
-            this.RaisePropertyChanged(ref this.opacity, this.Clip.Opacity, nameof(this.Opacity));
+            this.RaisePropertyChanged(ref this.opacity, this.SingleSelection.Opacity, nameof(this.Opacity));
         }
 
         protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
             if (this.Handlers.Count == 1) {
-                VideoClipViewModel clip = (VideoClipViewModel) this.Handlers[0];
-                clip.OpacityAutomationSequence.RefreshValue += this.RefreshOpacityHandler;
+                this.SingleSelection.OpacityAutomationSequence.RefreshValue += this.RefreshOpacityHandler;
             }
 
             this.RequeryOpacityFromHandlers();
@@ -75,8 +72,7 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
         protected override void OnClearHandlers() {
             base.OnClearHandlers();
             if (this.Handlers.Count == 1) {
-                VideoClipViewModel clip = (VideoClipViewModel) this.Handlers[0];
-                clip.OpacityAutomationSequence.RefreshValue -= this.RefreshOpacityHandler;
+                this.SingleSelection.OpacityAutomationSequence.RefreshValue -= this.RefreshOpacityHandler;
             }
 
             this.OpacityEditStateChangedCommand.OnReset();

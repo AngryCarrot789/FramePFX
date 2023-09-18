@@ -19,7 +19,7 @@ namespace FramePFX.WPF.Views {
             };
         }
 
-        private void OnLog(string line) {
+        private void OnLog(string text) {
             DispatcherUtils.Invoke(this.Dispatcher, this.updateAction);
         }
 

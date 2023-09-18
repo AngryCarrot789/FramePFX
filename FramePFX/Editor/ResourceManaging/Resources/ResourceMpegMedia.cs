@@ -64,7 +64,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
                     this.reader = null;
                 }
 
-                throw;
+                throw new Exception("Failed to open reader", e);
             }
         }
     }

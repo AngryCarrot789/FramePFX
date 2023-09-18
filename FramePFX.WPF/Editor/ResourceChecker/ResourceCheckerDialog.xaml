@@ -8,7 +8,7 @@
                   xmlns:r="clr-namespace:FramePFX.Editor.ResourceChecker.Resources;assembly=FramePFX"
                   xmlns:rc="clr-namespace:FramePFX.Editor.ResourceChecker;assembly=FramePFX"
                   mc:Ignorable="d"
-                  Title="ResourceCheckerDialog" Height="450" Width="800"
+                  Title="Resolve resources issues" Height="450" Width="800"
                   Style="{DynamicResource CustomWindowStyleEx}"
                   TitlebarBrush="{DynamicResource ABrush.Tone4.Background.Static}"
                   d:DataContext="{d:DesignInstance rc:ResourceCheckerViewModel}">
@@ -22,8 +22,8 @@
             <RowDefinition Height="44*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="104*" />
-            <ColumnDefinition Width="291*" />
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="29*" />
         </Grid.ColumnDefinitions>
         <Border x:Name="ButtonBarBorder" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0" Grid.Column="1" Grid.Row="1">
             <Grid>
@@ -33,14 +33,14 @@
             </Grid>
         </Border>
         <Grid Grid.RowSpan="2">
-            <ListBox HorizontalAlignment="Left" Width="208"
+            <ListBox HorizontalAlignment="Stretch"
                      BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0"
                      ItemsSource="{Binding Resources}"
                      SelectedIndex="{Binding CurrentIndex, UpdateSourceTrigger=PropertyChanged}"
                      SelectedItem="{Binding CurrentItem, UpdateSourceTrigger=PropertyChanged}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Resource.UniqueId, Mode=OneWay}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Resource.DisplayName, Mode=OneWay}" VerticalAlignment="Center" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -58,7 +58,19 @@
                             <Button Margin="0,5,0,0" Content="Refresh Image" Command="{Binding LoadImageCommand, Mode=OneTime}" />
                         </StackPanel>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type r:InvalidVideoViewModel}" />
+                    <DataTemplate DataType="{x:Type r:InvalidAVMediaViewModel}">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Media file path: " Padding="5" />
+                            <DockPanel Height="24">
+                                <Button Content="..." Command="{Binding SelectFileCommand, Mode=OneTime}" DockPanel.Dock="Right" Height="24" Width="24" />
+                                <TextBox Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" Padding="4,1" VerticalContentAlignment="Center" VerticalAlignment="Stretch" />
+                            </DockPanel>
+                            <Button Margin="0,5,0,0" Content="Reload" Command="{Binding LoadFileCommand, Mode=OneTime}" ToolTip="Reload the file from the current file path"/>
+                            <Separator Margin="0,5"/>
+                            <TextBlock Text="Error:"/>
+                            <TextBox IsReadOnly="True" FontFamily="Consolas" Text="{Binding ExceptionMessage, Mode=OneWay}"/>
+                        </StackPanel>
+                    </DataTemplate>
                 </ContentPresenter.Resources>
             </ContentPresenter>
         </Border>

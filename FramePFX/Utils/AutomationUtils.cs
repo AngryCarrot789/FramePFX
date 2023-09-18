@@ -1,35 +1,30 @@
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 
 namespace FramePFX.Utils {
     public static class AutomationUtils {
-        /// <summary>
-        /// Whether or not a key frame can be added when a view model property is modified
-        /// </summary>
-        /// <param name="timeline"></param>
-        /// <returns></returns>
-        public static bool CanAddKeyFrame(TimelineViewModel timeline, IAutomatableViewModel automatable, AutomationKey key) {
+        public static bool GetNewKeyFrameTime(IAutomatableViewModel automatable, AutomationKey key, out long frame) {
+            TimelineViewModel timeline = automatable.Timeline;
             if (timeline == null) {
+                frame = 0;
                 return false;
             }
 
-            if (automatable is ClipViewModel clip) {
-                if (!clip.Model.GetRelativeFrame(timeline.PlayHeadFrame, out long _)) {
-                    return false;
-                }
-            }
-            else if (automatable is BaseEffectViewModel effect) {
-                if (effect.OwnerClip == null || !effect.OwnerClip.Model.GetRelativeFrame(timeline.PlayHeadFrame, out long _)) {
+            frame = timeline.PlayHeadFrame;
+            if (automatable is IStrictFrameRange range) {
+                frame = range.ConvertTimelineToRelativeFrame(frame, out bool isValid);
+                if (!isValid) {
                     return false;
                 }
             }
 
             AutomationSequenceViewModel active = automatable.AutomationData.ActiveSequence;
-            VideoEditorViewModel editor = timeline.Project.Editor;
+            VideoEditorViewModel editor = timeline.Project?.Editor;
             if (editor != null && editor.IsRecordingKeyFrames) {
                 return active == null || !active.IsOverrideEnabled;
             }

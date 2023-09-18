@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using FFmpeg.AutoGen;
+using FramePFX.Automation;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -34,7 +35,9 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
         public static int RNDTO2(int X) => (int) ((X) & 0xFFFFFFFE);
         public static int RNDTO32(int X) => (int) ((X % 32) != 0 ? ((X + 32) & 0xFFFFFFE0) : X);
 
-        public override unsafe void Export(Project project, IExportProgress progress, ExportProperties properties) {
+        public override unsafe void Export(Project project, IExportProgress progress, ExportProperties properties, CancellationToken cancellation) {
+            Task renderTask = null;
+            bool isRenderCancelled = false;
             FrameSpan duration = properties.Span;
             Resolution resolution = this.Resolution;
             Rational frameRate = this.FrameRate;
@@ -173,25 +176,40 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                 goto fail_or_end;
             }
 
+            if (cancellation.IsCancellationRequested) {
+                goto fail_or_end;
+            }
+
             using (SKSurface surface = SKSurface.Create(frameInfo)) {
                 if (surface == null) {
                     throw new Exception("Failed to create SKSurface");
                 }
 
-                Task renderTask = Task.CompletedTask;
                 RenderContext rc = new RenderContext(surface, surface.Canvas, frameInfo);
-
-                CancellationTokenSource source = new CancellationTokenSource(); // infinite timeout
                 for (long fidx = duration.Begin, end = duration.EndIndex; fidx < end; fidx++) {
-                    while (!renderTask.IsCompleted) {
-                        Thread.SpinWait(32);
+                    if (cancellation.IsCancellationRequested) {
+                        isRenderCancelled = true;
+                        goto fail_or_end;
                     }
 
                     rc.Canvas.Clear(SKColors.Black);
-                    project.AutomationEngine.UpdateAt(fidx);
-                    renderTask = project.Timeline.RenderAsync(rc, fidx, source.Token);
-                    surface.Flush();
+                    AutomationEngine.UpdateProject(project, fidx);
+                    try {
+                        renderTask = project.Timeline.RenderAsync(rc, fidx, cancellation);
+                        while (!renderTask.IsCompleted) {
+                            Thread.Sleep(1);
+                        }
+                    }
+                    catch (TaskCanceledException) {
+                        isRenderCancelled = true;
+                        goto fail_or_end;
+                    }
+                    catch (Exception e) {
+                        properties.EncounteredError = true;
+                        AppLogger.WriteLine("Exception while rendering project timeline: " + e.GetToString());
+                    }
 
+                    surface.Flush();
                     // is it even possible to hardware accelerate this?
                     // currently, this is reading pixels from GPU to main memory, then
                     // sws_scale takes those raw pixels and converts to YUV
@@ -329,7 +347,16 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                         }
                     }
 
-                    throw new Exception($"Exception exporting. Last ret = {ret} ({Marshal.PtrToStringAnsi((IntPtr) strbuf, i)}) ({(LavResult) ret})", exception);
+                    throw new Exception($"Exception exporting. Last ret = {(LavResult) ret} ({ret}) ({Marshal.PtrToStringAnsi((IntPtr) strbuf, i)})", exception);
+                }
+            }
+
+            if (isRenderCancelled) {
+                if (renderTask != null) {
+                    throw new TaskCanceledException(renderTask);
+                }
+                else {
+                    throw new TaskCanceledException("Export cancelled before rendering could begin");
                 }
             }
         }

@@ -17,6 +17,9 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines {
+    /// <summary>
+    /// A timeline or sequence, which contains a collection of tracks (which contain a collection of clips)
+    /// </summary>
     public class Timeline : IAutomatable, IRBESerialisable {
         private readonly List<Track> tracks;
         private readonly List<VideoClip> RenderList = new List<VideoClip>();
@@ -47,19 +50,14 @@ namespace FramePFX.Editor.Timelines {
 
         public AutomationData AutomationData { get; }
 
-        public AutomationEngine AutomationEngine => this.Project.AutomationEngine;
-
         public bool IsAutomationChangeInProgress { get; set; }
-
-        // view model can access this
-        public Dictionary<Clip, Exception> ExceptionsLastRender { get; } = new Dictionary<Clip, Exception>();
 
         public Timeline() {
             this.tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
         }
 
-        public void DoUpdateBackingStorageForTimeline() {
+        public void UpdateAutomationBackingStorage() {
             this.AutomationData.UpdateBackingStorage();
             foreach (Track track in this.Tracks) {
                 track.AutomationData.UpdateBackingStorage();
@@ -181,11 +179,6 @@ namespace FramePFX.Editor.Timelines {
                 paint.Dispose();
                 paint = null;
             }
-        }
-
-        public Task RenderAsync(RenderContext render, long frame) {
-            CancellationTokenSource source = new CancellationTokenSource(1000);
-            return this.RenderAsync(render, frame, source.Token);
         }
 
         // I did some testing and found that awaiting in async is about 10x slower than regular

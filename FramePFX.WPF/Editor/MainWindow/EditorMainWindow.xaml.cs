@@ -8,12 +8,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.History.ViewModels;
 using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
@@ -22,6 +22,7 @@ using FramePFX.Rendering;
 using FramePFX.Utils;
 using FramePFX.WPF.Notifications;
 using FramePFX.WPF.Themes;
+using FramePFX.WPF.Utils;
 using FramePFX.WPF.Views;
 using SkiaSharp;
 using Time = FramePFX.Utils.Time;
@@ -36,10 +37,11 @@ namespace FramePFX.WPF.Editor.MainWindow {
         private const long RefreshInterval = 5000;
         private long lastRefreshTime;
         private bool isRefreshing;
-        private volatile int isRenderScheduled;
+        private volatile int isRenderActive;
         private bool isPrintingErrors;
 
         public NotificationPanelViewModel NotificationPanel { get; }
+        private readonly Func<TimelineViewModel, Task> doRenderActiveTimelineFunc;
 
         public EditorMainWindow() {
             this.InitializeComponent();
@@ -48,6 +50,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 this.NotificationBarTextBlock.Text = x;
             };
 
+            this.doRenderActiveTimelineFunc = this.RenderTimelineInternal;
             this.NotificationPanel = new NotificationPanelViewModel(this);
             this.DataContext = new VideoEditorViewModel(this);
             this.lastRefreshTime = Time.GetSystemMillis();
@@ -122,10 +125,9 @@ namespace FramePFX.WPF.Editor.MainWindow {
         // }
 
         public void UpdateClipSelection() {
-            if (this.Editor.ActiveProject is ProjectViewModel project) {
+            if (this.Editor.ActiveTimeline is TimelineViewModel timeline) {
                 // TODO: maybe move this to a view model?
-                List<ClipViewModel> clips = project.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
-                PFXPropertyEditorRegistry.Instance.OnClipsSelected(clips);
+                PFXPropertyEditorRegistry.Instance.OnClipsSelected(timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
             }
         }
 
@@ -143,90 +145,68 @@ namespace FramePFX.WPF.Editor.MainWindow {
 
         private Task lastRenderTask = Task.CompletedTask;
 
-        public async Task Render(bool scheduleRender) {
-            if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
+        public async Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender) {
+            if (Interlocked.CompareExchange(ref this.isRenderActive, 1, 0) != 0) {
                 return;
             }
 
             if (scheduleRender) {
                 if (this.lastRenderTask != null) {
-                    await this.lastRenderTask;
-                    this.lastRenderTask = null;
-                }
-
-                this.lastRenderTask = this.Dispatcher.InvokeAsync(this.DoRenderCoreAsync).Task;
-            }
-            else if (this.Dispatcher.CheckAccess()) {
-                await this.DoRenderCoreAsync();
-            }
-            else {
-                // this.Dispatcher.Invoke(this.renderCallback);
-                await await this.Dispatcher.InvokeAsync(this.DoRenderCoreAsync);
-            }
-        }
-
-        private async Task DoRenderCoreAsync() {
-            CancellationTokenSource source = new CancellationTokenSource(2000);
-            try {
-                await this.DoRenderCoreAsync(source.Token);
-            }
-            catch (TaskCanceledException) {
-                AppLogger.WriteLine("Render at " + nameof(this.DoRenderCoreAsync) + " took longer than 1 second. Cancelling render");
-            }
-            finally {
-                this.isRenderScheduled = 0;
-            }
-        }
-
-        private async Task DoRenderCoreAsync(CancellationToken token) {
-            VideoEditorViewModel editor = this.Editor;
-            ProjectViewModel project = editor.ActiveProject;
-            if (project == null || project.Model.IsSaving) {
-                this.isRenderScheduled = 0;
-                return;
-            }
-
-            long frame = project.Timeline.PlayHeadFrame;
-            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
-                try {
-                    RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
-                    context.Canvas.Clear(SKColors.Black);
                     try {
-                        await project.Model.Timeline.RenderAsync(context, frame, token);
+                        await this.lastRenderTask;
                     }
                     catch (TaskCanceledException) {
                         // do nothing
                     }
 
-                    Dictionary<Clip, Exception> dictionary = project.Model.Timeline.ExceptionsLastRender;
-                    if (dictionary.Count > 0) {
-                        this.PrintRenderErrors(dictionary);
-                        dictionary.Clear();
-                    }
+                    this.lastRenderTask = null;
                 }
-                finally {
-                    this.ViewPortElement.EndRender();
-                }
-            }
 
-            this.isRenderScheduled = 0;
+                this.lastRenderTask = this.Dispatcher.BeginInvoke(DispatcherPriority.Send, this.doRenderActiveTimelineFunc, timeline).Task;
+            }
+            else if (this.Dispatcher.CheckAccess()) {
+                await this.RenderTimelineInternal(timeline);
+            }
+            else {
+                await this.Dispatcher.BeginInvoke(DispatcherPriority.Send, this.doRenderActiveTimelineFunc, timeline).Task;
+            }
         }
 
-        private async void PrintRenderErrors(Dictionary<Clip, Exception> dictionary) {
-            if (this.isPrintingErrors) {
+        private async Task RenderTimelineInternal(TimelineViewModel timeline) {
+            VideoEditorViewModel editor = this.Editor;
+            ProjectViewModel project = editor.ActiveProject;
+            if (project == null || project.Model.IsSaving || project.Model.IsExporting) {
+                Interlocked.Exchange(ref this.isRenderActive, 0);
                 return;
             }
 
-            await this.Editor.Playback.StopAction();
-
-            this.isPrintingErrors = true;
-            StringBuilder sb = new StringBuilder(2048);
-            foreach (KeyValuePair<Clip, Exception> entry in dictionary) {
-                sb.Append($"{entry.Key.DisplayName ?? entry.Key.ToString()}: {entry.Value.GetToString()}\n");
+            try {
+                CancellationTokenSource source = new CancellationTokenSource(-1);
+                long frame = timeline.PlayHeadFrame;
+                if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
+                    try {
+                        RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                        context.Canvas.Clear(SKColors.Black);
+                        try {
+                            await timeline.Model.RenderAsync(context, frame, source.Token);
+                        }
+                        catch (TaskCanceledException) {
+                            AppLogger.WriteLine("Render at " + nameof(this.RenderTimelineInternal) + " took longer than 3 second");
+                        }
+                        catch (Exception e) {
+                            await editor.Playback.StopAction();
+                            AppLogger.WriteLine("Exception rendering timeline: " + e.GetToString());
+                            await IoC.MessageDialogs.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
+                        }
+                    }
+                    finally {
+                        this.ViewPortElement.EndRender();
+                    }
+                }
             }
-
-            await IoC.MessageDialogs.ShowMessageExAsync("Render error", $"An exception updating {dictionary.Count} clips", sb.ToString());
-            this.isPrintingErrors = false;
+            finally {
+                Interlocked.Exchange(ref this.isRenderActive, 0);
+            }
         }
 
         protected override async Task<bool> OnClosingAsync() {

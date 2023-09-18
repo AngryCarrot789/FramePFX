@@ -54,8 +54,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Rational FPS => this.Project.Settings.FrameRate;
 
-        public Rational PlayheadRational => new Rational((int) this.PlayHeadFrame, this.FPS.den);
-
         public long MaxDuration {
             get => this.Model.MaxDuration;
             set {
@@ -77,9 +75,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public AutomationDataViewModel AutomationData { get; }
 
-        public ProjectViewModel Project { get; }
+        public bool IsAutomationRefreshInProgress { get; set; }
 
-        public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
+        public ProjectViewModel Project { get; set; }
 
         public bool IsAutomationChangeInProgress {
             get => this.Model.IsAutomationChangeInProgress;
@@ -95,9 +93,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         private readonly Action CachedDoRenderAndScheduleUpdatePlayHead;
 
-        public TimelineViewModel(ProjectViewModel project, Timeline model) {
+        TimelineViewModel ITimelineViewModelBound.Timeline => this;
+
+        public TimelineViewModel(Timeline model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
             this.tracks = new ObservableCollectionEx<TrackViewModel>();
@@ -116,6 +115,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.tracks.Add(trackVm);
                 TrackViewModel.RaiseTimelineChanged(trackVm);
             }
+        }
+
+        /// <summary>
+        /// Initialises this timeline
+        /// </summary>
+        public void Initialise() {
+
         }
 
         public void AddTrack(TrackViewModel track) => this.InsertTrack(this.tracks.Count, track);
@@ -150,15 +156,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
             if (schedule is bool b) {
                 this.isRendering = true;
-                this.Project.AutomationEngine.UpdateAndRefreshAt(true, newFrame);
                 try {
-                    await this.Project.Editor.View.Render(b);
+                    await this.DoRender(b);
                 }
                 catch (TaskCanceledException) {
                     // do nothing
                 }
-
-                this.isRendering = false;
+                finally {
+                    this.isRendering = false;
+                }
             }
         }
 
@@ -180,26 +186,21 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public Task<AudioTrackViewModel> AddNewAudioTrackAction() => this.InsertNewAudioTrackAction(this.tracks.Count);
 
         public async Task<VideoTrackViewModel> InsertNewVideoTrackAction(int index) {
-            VideoTrackViewModel track = new VideoTrackViewModel(new VideoTrack());
+            VideoTrackViewModel track = new VideoTrackViewModel(new VideoTrack() {DisplayName = "Video Track " + (this.tracks.Count + 1)});
             this.InsertTrack(index, track);
-            await this.DoRenderAsync(true);
+            await this.DoRender(true);
             return track;
         }
 
-        public async Task<AudioTrackViewModel> InsertNewAudioTrackAction(int index) {
-            AudioTrackViewModel track = new AudioTrackViewModel(new AudioTrack());
+        public Task<AudioTrackViewModel> InsertNewAudioTrackAction(int index) {
+            AudioTrackViewModel track = new AudioTrackViewModel(new AudioTrack() {DisplayName = "Audio Track " + (this.tracks.Count + 1)});
             this.InsertTrack(index, track);
-            return track;
+            return Task.FromResult(track);
         }
 
-        public void DoRender(bool schedule = false) {
-            this.Project.AutomationEngine.UpdateAndRefreshAt(true, this.PlayHeadFrame);
-            this.Project.Editor.DoRenderFrame(schedule);
-        }
-
-        public async Task DoRenderAsync(bool schedule) {
-            this.Project.AutomationEngine.UpdateAndRefreshAt(true, this.PlayHeadFrame);
-            await this.Project.Editor.DoRenderFrame(schedule);
+        public Task DoRender(bool schedule = false) {
+            AutomationEngine.UpdateAndRefreshProject(this.Project, this.PlayHeadFrame);
+            return this.Project.Editor.DoRenderFrame(this, schedule);
         }
 
         public Task RemoveSelectedTracksAction() {
@@ -286,15 +287,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
 
             this.Model.PlayHeadFrame = Periodic.Add(this.PlayHeadFrame, 1, 0L, this.MaxDuration);
-            this.Project.AutomationEngine.Model.UpdateAt(this.PlayHeadFrame);
-
-            editor.DoRenderFrame().ContinueWith((t) => {
+            AutomationEngine.UpdateProject(this.Project.Model, this.PlayHeadFrame);
+            editor.DoRenderFrame(this).ContinueWith(t => {
                 if (Interlocked.CompareExchange(ref this.isPlayBackUiUpdateScheduledState, 1, 0) != 0) {
                     return;
                 }
 
                 IoC.Application.InvokeAsync(() => {
-                    this.Project.AutomationEngine.RefreshTimeline(this.Project.AutomationEngine.Project.Timeline, this.PlayHeadFrame);
+                    AutomationEngine.RefreshTimeline(this, this.PlayHeadFrame);
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isPlayBackUiUpdateScheduledState = 0;
                 });

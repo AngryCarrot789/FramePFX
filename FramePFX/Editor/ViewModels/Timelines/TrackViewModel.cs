@@ -101,8 +101,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
-        public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
-
         protected TrackViewModel(Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);

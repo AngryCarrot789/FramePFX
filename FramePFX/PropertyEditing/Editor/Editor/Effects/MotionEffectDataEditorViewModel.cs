@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;

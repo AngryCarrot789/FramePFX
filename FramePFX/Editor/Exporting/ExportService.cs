@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace FramePFX.Editor.Exporting {
     /// <summary>
     /// A service that implement a project export procedure
@@ -15,9 +17,11 @@ namespace FramePFX.Editor.Exporting {
         /// The given project should not be modified externally during render
         /// </para>
         /// </summary>
+        /// <param name="project"></param>
         /// <param name="progress">A helper class for updating the UI of export progress (optionally used, but should be non-null)</param>
         /// <param name="properties">Specific export properties that aren't necessarily related to the project itself</param>
+        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public abstract void Export(Project project, IExportProgress progress, ExportProperties properties);
+        public abstract void Export(Project project, IExportProgress progress, ExportProperties properties, CancellationToken cancellation);
     }
 }

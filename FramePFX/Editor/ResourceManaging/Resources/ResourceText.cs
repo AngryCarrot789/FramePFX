@@ -22,8 +22,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         public ResourceText() {
             this.FontSize = 40;
             this.FontFamily = "Consolas";
-            this.Text = "Text Here";
-
+            this.Text = "Sample Text";
             this.Foreground = SKColors.White;
             this.Border = SKColors.DarkGray;
             this.BorderThickness = 5d;

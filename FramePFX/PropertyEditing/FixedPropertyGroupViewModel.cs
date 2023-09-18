@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace FramePFX.PropertyEditing {
@@ -95,7 +94,7 @@ namespace FramePFX.PropertyEditing {
             group.RecalculateHierarchyDepth();
             this.idToGroupMap[id] = group;
             this.propertyObjectList.Add(group);
-            if (isHierarchial) {
+            if (!isHierarchial) {
                 this.nonHierarchialGroups.Add(group);
             }
         }
@@ -148,18 +147,16 @@ namespace FramePFX.PropertyEditing {
                     lastEntry = obj;
                     continue;
                 }
-                else if (!this.nonHierarchialGroups.Contains(obj)) {
-                    switch (obj) {
-                        case BasePropertyGroupViewModel group: {
+                else {
+                    if (obj is BasePropertyGroupViewModel group) {
+                        if (!this.nonHierarchialGroups.Contains(group)) {
                             group.SetupHierarchyState(input);
                             isApplicable |= group.IsCurrentlyApplicable;
-                            break;
                         }
-                        case BasePropertyEditorViewModel editor: {
-                            editor.SetHandlers(input);
-                            isApplicable |= editor.IsCurrentlyApplicable;
-                            break;
-                        }
+                    }
+                    else if (obj is BasePropertyEditorViewModel editor) {
+                        editor.SetHandlers(input);
+                        isApplicable |= editor.IsCurrentlyApplicable;
                     }
 
                     if (lastEntry is PropertyObjectSeparator && obj is BasePropertyObjectViewModel p1 && !p1.IsCurrentlyApplicable) {
@@ -196,6 +193,10 @@ namespace FramePFX.PropertyEditing {
 
         public void AddSeparator() {
             this.propertyObjectList.Add(new PropertyObjectSeparator());
+        }
+
+        public bool IsDisconnectedFromHierarchy(FixedPropertyGroupViewModel group) {
+            return this.nonHierarchialGroups.Contains(group);
         }
     }
 }

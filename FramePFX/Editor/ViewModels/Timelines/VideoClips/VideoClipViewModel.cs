@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
@@ -32,8 +31,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             set {
                 this.ValidateNotInAutomationChange();
                 TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, VideoClip.OpacityKey)) {
-                    this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.FrameBegin).SetDoubleValue(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, VideoClip.OpacityKey, out long frame)) {
+                    this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(frame).SetDoubleValue(value);
                 }
                 else {
                     this.AutomationData[VideoClip.OpacityKey].GetOverride().SetDoubleValue(value);
@@ -63,12 +62,16 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
 
         #endregion
 
-        public readonly Func<bool> CanInsertKeyFrame;
+        public readonly Func<bool> IsPlayHeadFrameInRange;
 
         protected VideoClipViewModel(VideoClip model) : base(model) {
-            this.CanInsertKeyFrame = () => this.Track != null && this.Model.GetRelativeFrame(this.Timeline.PlayHeadFrame, out long _);
+            this.IsPlayHeadFrameInRange = () => {
+                long? frame = this.Timeline?.PlayHeadFrame;
+                return frame.HasValue && this.Model.IsTimelineFrameInRange(frame.Value);
+            };
+
             this.ResetOpacityCommand = new RelayCommand(() => this.Opacity = VideoClip.OpacityKey.Descriptor.DefaultValue);
-            this.InsertOpacityKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetDoubleValue(this.Opacity), this.CanInsertKeyFrame);
+            this.InsertOpacityKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetDoubleValue(this.Opacity), this.IsPlayHeadFrameInRange);
             this.ToggleOpacityActiveCommand = new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].ToggleOverrideAction());
 
             this.renderCallback = (x, s) => {

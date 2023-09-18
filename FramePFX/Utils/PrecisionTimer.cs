@@ -38,7 +38,7 @@ namespace FramePFX.Utils {
 
         public void Start(bool usePrecisionMode) {
             this.isRunning = true;
-            this.SetupRenderTask(usePrecisionMode);
+            this.SetupTask(usePrecisionMode);
         }
 
         public async Task StopAsync() {
@@ -73,7 +73,7 @@ namespace FramePFX.Utils {
             this.Start(usePrecisionMode);
         }
 
-        private void SetupRenderTask(bool usePrecisionMode) {
+        private void SetupTask(bool usePrecisionMode) {
             this.nextTickTime = Time.GetSystemTicks();
             this.isRunning = true;
             if (usePrecisionMode) {

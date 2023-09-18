@@ -22,6 +22,13 @@ namespace FramePFX.WPF.Editor.Resources {
                 typeof(BaseResourceItemControl),
                 new PropertyMetadata(null));
 
+        public static readonly DependencyProperty HeaderMouseOverBackgroundProperty =
+            DependencyProperty.Register(
+                "HeaderMouseOverBackground",
+                typeof(Brush),
+                typeof(BaseResourceItemControl),
+                new PropertyMetadata(null));
+
         public static readonly DependencyProperty ContentBackgroundProperty =
             DependencyProperty.Register(
                 "ContentBackground",
@@ -32,6 +39,11 @@ namespace FramePFX.WPF.Editor.Resources {
         public Brush HeaderBackground {
             get => (Brush) this.GetValue(HeaderBackgroundProperty);
             set => this.SetValue(HeaderBackgroundProperty, value);
+        }
+
+        public Brush HeaderMouseOverBackground {
+            get => (Brush) this.GetValue(HeaderMouseOverBackgroundProperty);
+            set => this.SetValue(HeaderMouseOverBackgroundProperty, value);
         }
 
         public Brush ContentBackground {

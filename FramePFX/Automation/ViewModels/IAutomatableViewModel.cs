@@ -1,5 +1,7 @@
+using FramePFX.Editor;
+
 namespace FramePFX.Automation.ViewModels {
-    public interface IAutomatableViewModel {
+    public interface IAutomatableViewModel : ITimelineViewModelBound {
         /// <summary>
         /// A reference to this automatable view model's backing model
         /// </summary>
@@ -10,9 +12,6 @@ namespace FramePFX.Automation.ViewModels {
         /// </summary>
         AutomationDataViewModel AutomationData { get; }
 
-        /// <summary>
-        /// The automation engine view model associated with this automatable instance
-        /// </summary>
-        AutomationEngineViewModel AutomationEngine { get; }
+        bool IsAutomationRefreshInProgress { get; set; }
     }
 }

@@ -8,6 +8,8 @@ using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
+using FramePFX.Editor;
+using FramePFX.Editor.ViewModels;
 
 namespace FramePFX.Automation.ViewModels {
     /// <summary>
@@ -141,14 +143,14 @@ namespace FramePFX.Automation.ViewModels {
             this.ToggleOverrideCommand.RaiseCanExecuteChanged();
             this.DeselectSequenceCommand.RaiseCanExecuteChanged(); // just in case
             this.OverrideStateChanged?.Invoke(this, EventArgs.Empty);
-            AutomationEngineViewModel engine = this.Owner.AutomationEngine;
-            if (engine != null) {
-                engine.OnOverrideStateChanged(this, sequence);
+            ProjectViewModel project;
+            if (this.Owner is IProjectViewModelBound projectBound && (project = projectBound.Project) != null) {
+                AutomationEngine.OnOverrideStateChanged(project, this, sequence);
             }
 #if DEBUG
             else {
                 Debugger.Break();
-                Debug.WriteLine("No automation engine available");
+                Debug.WriteLine("Automateable object is not project bound");
             }
 #endif
         }
@@ -158,16 +160,7 @@ namespace FramePFX.Automation.ViewModels {
                 throw new Exception("Invalid sequence; not owned by this instance");
             }
 
-            AutomationEngineViewModel engine = this.Owner.AutomationEngine;
-            if (engine != null) {
-                engine.OnKeyFrameChanged(this, sequence, keyFrame);
-            }
-#if DEBUG
-            else {
-                Debugger.Break();
-                Debug.WriteLine("No automation engine available");
-            }
-#endif
+            AutomationEngine.OnKeyFrameChanged(this, sequence, keyFrame);
         }
 
         public bool CanToggleOverride() {

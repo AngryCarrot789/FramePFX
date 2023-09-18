@@ -7,18 +7,24 @@ using FramePFX.Utils;
 
 namespace FramePFX.Automation.ViewModels.Keyframe {
     public abstract class KeyFrameViewModel : BaseViewModel {
+        private AutomationSequenceViewModel ownerSequence;
+
         /// <summary>
         /// The underlying key frame object
         /// </summary>
         public KeyFrame Model { get; }
 
-        private AutomationSequenceViewModel ownerSequence;
-
+        /// <summary>
+        /// The sequence that this key frame is currently placed in
+        /// </summary>
         public AutomationSequenceViewModel OwnerSequence {
             get => this.ownerSequence;
             set => this.RaisePropertyChanged(ref this.ownerSequence, value);
         }
 
+        /// <summary>
+        /// This key frame's current frame
+        /// </summary>
         public long Time {
             get => this.Model.time;
             set {
@@ -59,6 +65,16 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         public void SetLongValue(long value) => ((KeyFrameLongViewModel) this).Value = ((KeyDescriptorLong) this.Model.sequence.Key.Descriptor).Clamp(value);
         public void SetBooleanValue(bool value) => ((KeyFrameBooleanViewModel) this).Value = value;
         public void SetVector2Value(Vector2 value) => ((KeyFrameVector2ViewModel) this).Value = ((KeyDescriptorVector2) this.Model.sequence.Key.Descriptor).Clamp(value);
+
+        public void SetValueFromObject(object value) {
+            switch (this) {
+                case KeyFrameFloatViewModel i:   { i.SetFloatValue((float) value); } break;
+                case KeyFrameDoubleViewModel i:  { i.SetDoubleValue((double) value); } break;
+                case KeyFrameLongViewModel i:    { i.SetLongValue((long) value); } break;
+                case KeyFrameBooleanViewModel i: { i.SetBooleanValue((bool) value); } break;
+                case KeyFrameVector2ViewModel i: { i.SetVector2Value((Vector2) value); } break;
+            }
+        }
 
         public static KeyFrameViewModel NewInstance(KeyFrame keyFrame) {
             switch (keyFrame.DataType) {

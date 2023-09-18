@@ -10,19 +10,21 @@ namespace FramePFX.Editor.ResourceManaging {
         private bool isOnline;
 
         /// <summary>
-        /// Whether or not this resource is online or not
+        /// Gets or sets if this resource is online (usable) or offline (not usable by clips).
+        /// <see cref="OnIsOnlineStateChanged"/> must be called after modifying this value
         /// </summary>
         public bool IsOnline {
             get => this.isOnline;
             set {
                 this.isOnline = value;
-                if (value)
+                if (value) {
                     this.IsOfflineByUser = false;
+                }
             }
         }
 
         /// <summary>
-        /// Whether this resource was forced offline by the user
+        /// Gets or sets if the reason the resource is offline is because a user forced it offline
         /// </summary>
         public bool IsOfflineByUser { get; set; }
 
@@ -35,7 +37,6 @@ namespace FramePFX.Editor.ResourceManaging {
         public event ResourceItemEventHandler OnlineStateChanged;
 
         protected ResourceItem() {
-            this.IsOnline = true;
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 return;
 
             this.OnDisableCore(list, user);
-            this.IsOnline = false;
+            this.isOnline = false;
             this.IsOfflineByUser = user;
             this.OnIsOnlineStateChanged();
         }
@@ -126,5 +127,14 @@ namespace FramePFX.Editor.ResourceManaging {
         /// Internal method for setting a resource item's unique ID
         /// </summary>
         internal static void SetUniqueId(ResourceItem item, ulong id) => item.UniqueId = id;
+
+        public static void SetOnlineState(ResourceItem item, bool isOnline) {
+            if (isOnline == item.isOnline) {
+                return;
+            }
+
+            item.IsOnline = isOnline;
+            item.OnIsOnlineStateChanged();
+        }
     }
 }

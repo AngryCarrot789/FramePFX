@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using FramePFX.Utils;
-using OpenTK.Input;
 
 namespace FramePFX.PropertyEditing {
     /// <summary>
@@ -103,7 +102,7 @@ namespace FramePFX.PropertyEditing {
                         continue;
 
                     BasePropertyGroupViewModel group = registration.GetSingleHandlerGroup();
-                    group.SetupHierarchyState(new SingletonList<object>(handler));
+                    group.SetupHierarchyState(CollectionUtils.Singleton(handler));
                     this.AddGroupInternal(group);
                 }
             }
@@ -151,7 +150,7 @@ namespace FramePFX.PropertyEditing {
                         case HandlerCountMode.Single: {
                             foreach (object handler in list) {
                                 BasePropertyGroupViewModel group = registration.NewDynamicGroup(true);
-                                group.SetupHierarchyState(new SingletonList<object>(handler));
+                                group.SetupHierarchyState(CollectionUtils.Singleton(handler));
                                 this.AddGroupInternal(group);
                             }
 
@@ -276,7 +275,7 @@ namespace FramePFX.PropertyEditing {
                     case HandlerCountMode.Single: {
                         foreach (object handler in list) {
                             BasePropertyGroupViewModel group = registration.NewDynamicGroup(true);
-                            group.SetupHierarchyState(new SingletonList<object>(handler));
+                            group.SetupHierarchyState(CollectionUtils.Singleton(handler));
                             this.AddGroupInternal(group);
                         }
 

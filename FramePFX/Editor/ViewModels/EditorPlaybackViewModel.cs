@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using FramePFX.Commands;
+using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.ViewModels {
     /// <summary>
@@ -40,6 +41,8 @@ namespace FramePFX.Editor.ViewModels {
         public bool IsPlaying {
             get => this.Model.IsPlaying;
             private set {
+                if (this.IsPlaying == value)
+                    return;
                 this.Model.IsPlaying = value;
                 this.RaisePropertyChanged();
             }
@@ -52,6 +55,7 @@ namespace FramePFX.Editor.ViewModels {
         public AsyncRelayCommand SwitchPrecisionTimingModeCommand { get; }
 
         private bool wasPlayingBeforeSave;
+        private long lastPlayTime;
 
         public event ProjectModifiedEvent ProjectModified;
 
@@ -84,30 +88,26 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task PlayAction() {
-            if (this.IsPlaying || this.Project == null) {
-                return;
+            TimelineViewModel timeline = this.Editor.ActiveTimeline;
+            if (timeline != null && this.Project != null && !this.IsPlaying) {
+                this.lastPlayTime = timeline.PlayHeadFrame;
+                this.StartRenderTimer();
+                this.UpdatePlaybackCommands();
             }
-
-            this.StartRenderTimer();
-            this.UpdatePlaybackCommands();
         }
 
         public async Task PauseAction() {
-            if (!this.IsPlaying || this.Project == null) {
-                return;
+            if (this.Project != null && this.IsPlaying) {
+                await this.StopRenderTimer();
+                this.UpdatePlaybackCommands();
             }
-
-            await this.StopRenderTimer();
-            this.UpdatePlaybackCommands();
         }
 
         public async Task StopAction() {
-            if (!this.IsPlaying || this.Project == null) {
-                return;
+            if (this.Project != null && this.IsPlaying) {
+                await this.StopRenderTimer();
+                this.UpdatePlaybackCommands();
             }
-
-            await this.StopRenderTimer();
-            this.UpdatePlaybackCommands();
         }
 
         public Task TogglePlayAction() {
@@ -124,24 +124,14 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task OnProjectChanging(ProjectViewModel project) {
-            if (this.Project != null) {
-            }
-
-            if (this.IsPlaying) {
-                await this.StopRenderTimer();
-                this.UpdatePlaybackCommands();
-            }
-
-            if (project == null) {
-                await this.Model.PlaybackTimer.StopAsync();
-            }
+            await this.StopRenderTimer();
+            this.UpdatePlaybackCommands();
         }
 
         public async Task OnProjectChanged(ProjectViewModel project) {
             await this.Model.PlaybackTimer.StopAsync();
             if (project != null) {
                 this.SetTimerFrameRate(project.Settings.FrameRate);
-                ProjectSettings settings = project.Settings.Model;
             }
 
             this.UpdatePlaybackCommands();

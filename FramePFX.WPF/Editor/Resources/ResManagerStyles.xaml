@@ -23,9 +23,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type resources:BaseResourceItemControl}">
-                    <Border x:Name="Bd" Width="150" Height="100" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                    <Border x:Name="Bd" Width="150" Height="100" BorderThickness="1"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}">
                         <Grid>
-                            <Border VerticalAlignment="Bottom" Height="24" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding HeaderBackground}" BorderThickness="0 1 0 0">
+                            <Border x:Name="PART_HeaderBorder" VerticalAlignment="Bottom" Height="24" BorderThickness="0,1,0,0"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    Background="{TemplateBinding HeaderBackground}">
                                 <Grid>
                                     <TextBlock Text="{TemplateBinding HeaderText}"
                                                Padding="3" VerticalAlignment="Center"
@@ -47,6 +51,7 @@
                             </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Background}" />
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}" />
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type resources:BaseResourceItemControl}}, Path=HeaderMouseOverBackground}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -86,8 +91,9 @@
                    d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                        <Setter Property="Background" Value="DarkRed" />
+                    <DataTrigger Binding="{Binding IsOnline, Mode=OneWay}" Value="False">
+                        <Setter Property="HeaderBackground" Value="DarkRed" />
+                        <Setter Property="HeaderMouseOverBackground" Value="Red" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

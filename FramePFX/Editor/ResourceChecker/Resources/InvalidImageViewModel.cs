@@ -44,7 +44,7 @@ namespace FramePFX.Editor.ResourceChecker.Resources {
             }
 
             this.Resource.RequireImageReload = false;
-            await this.RemoveFromCheckerAction();
+            await this.RemoveSelf();
             return true;
         }
     }

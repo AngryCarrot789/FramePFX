@@ -89,8 +89,16 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         /// Sets this <see cref="ResourceHelper{T}"/>'s target resource ID. The previous <see cref="ResourcePath{T}"/> is
         /// disposed and replace with a new instance using the same <see cref="ResourceManager"/>
         /// </summary>
-        /// <param name="id">The target resource ID. Cannot be null, empty, or consist of only whitespaces</param>
+        /// <param name="id">The target resource ID</param>
         public void SetTargetResourceId(ulong id) {
+            if (id == 0) {
+                throw new ArgumentOutOfRangeException(nameof(id), "ID must not be the null value (0)");
+            }
+
+            if (this.ResourcePath != null && this.ResourcePath.ResourceId == id) {
+                return;
+            }
+
             this.DisposePath();
             this.ResourcePath = new ResourcePath<T>(this.Clip.Project?.ResourceManager, id);
             this.ResourcePath.ResourceChanged += this.resourceChangedHandler;

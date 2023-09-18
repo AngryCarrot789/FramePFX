@@ -11,6 +11,7 @@ using FramePFX.Utils;
 namespace FramePFX.Editor.ResourceManaging.Resources {
     public class ResourceAVMedia : ResourceItem {
         public string FilePath { get; set; }
+        public string OriginalFilePath;
 
         public MediaDemuxer Demuxer { get; private set; }
 
@@ -26,7 +27,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
 
         protected override void OnDisableCore(ErrorList list, bool user) {
             base.OnDisableCore(list, user);
-            this.CloseFile(list);
+            this.DisposeMediaFile();
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -38,8 +39,6 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             base.ReadFromRBE(data);
             this.FilePath = data.GetString(nameof(this.FilePath), null);
         }
-
-        public void OpenMediaFromFile() => this.OpenFileAndDemuxer();
 
         public unsafe Resolution? GetResolution() {
             if (this.stream != null) {
@@ -61,7 +60,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             }
 
             if (this.decoder == null) {
-                this.OpenVideoDecoder();
+                return null;
             }
 
             //Images have a single frame, which we'll miss if we don't clamp timestamp to zero.
@@ -114,37 +113,35 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             }
         }
 
-        private void OpenFileAndDemuxer() {
+        public void LoadMediaFile() {
+            this.DisposeMediaFile();
             try {
-                this.CloseDecoder();
                 this.Demuxer = new MediaDemuxer(this.FilePath);
                 this.stream = this.Demuxer.FindBestStream(MediaTypes.Video);
             }
             catch (Exception e) {
-                try {
-                    this.Dispose();
-                }
-                catch (Exception ex) {
-                    e.AddSuppressed(ex);
-                }
-
+                this.DisposeMediaFile();
                 // Invalid media file
                 throw new IOException("Failed to open demuxer", e);
             }
 
+            try {
+                this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, false);
+                this.frameQueue = new FrameQueue(this.stream, 8);
+                this.hasHardwareDecoder = this.TrySetupHardwareDecoder();
+                this.decoder.Open();
+            }
+            catch (Exception e) {
+                this.DisposeMediaFile();
+                throw new Exception("Could not open decoder", e);
+            }
+
             if (this.stream == null) {
+                this.DisposeMediaFile();
                 throw new Exception("Could not find a video stream for media");
             }
 
-            this.IsOnline = true;
-        }
-
-        public void OpenVideoDecoder() {
-            this.EnsureHasVideoStream();
-            this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, open: false);
-            this.frameQueue = new FrameQueue(this.stream, 4);
-            this.hasHardwareDecoder = this.TrySetupHardwareDecoder();
-            this.decoder.Open();
+            this.OriginalFilePath = this.FilePath;
         }
 
         private bool TrySetupHardwareDecoder() {
@@ -167,53 +164,39 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             return false;
         }
 
-        /// <summary>
-        /// Deallocates media decoders and internal frames.
-        /// </summary>
-        public void CloseDecoder() {
-            this.decoder?.Dispose();
-            this.decoder = null;
+        public void DisposeMediaFile() {
+            using (ErrorList list = new ErrorList()) {
+                try {
+                    this.Demuxer?.Dispose();
+                }
+                catch (Exception e) {
+                    list.Add(e);
+                }
 
-            this.frameQueue?.Dispose();
-            this.frameQueue = null;
+                try {
+                    this.decoder?.Dispose();
+                }
+                catch (Exception e) {
+                    list.Add(e);
+                }
 
-            this.hasHardwareDecoder = false;
-        }
+                try {
+                    this.frameQueue?.Dispose();
+                }
+                catch (Exception e) {
+                    list.Add(e);
+                }
 
-        public void CloseFile() {
-            this.CloseDecoder();
-            this.Demuxer?.Dispose();
-            this.Demuxer = null;
+                this.Demuxer = null;
+                this.decoder = null;
+                this.frameQueue = null;
+                this.hasHardwareDecoder = false;
+            }
         }
 
         protected override void DisposeCore(ErrorList list) {
             base.DisposeCore(list);
-            this.CloseFile(list);
-        }
-
-        private void CloseFile(ErrorList list) {
-            try {
-                this.CloseDecoder();
-            }
-            catch (Exception e) {
-                list.Add(new Exception("Failed to release decoder and frame queue", e));
-            }
-
-            try {
-                this.Demuxer?.Dispose();
-            }
-            catch (Exception e) {
-                list.Add(new Exception("Failed to dispose demuxer", e));
-            }
-            finally {
-                this.Demuxer = null;
-            }
-        }
-
-        protected void EnsureHasVideoStream() {
-            if (this.stream == null) {
-                throw new InvalidOperationException("No video stream is available");
-            }
+            this.DisposeMediaFile();
         }
     }
 }

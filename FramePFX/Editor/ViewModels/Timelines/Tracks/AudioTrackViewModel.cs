@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging.ViewModels;
@@ -44,9 +43,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     this.volumeHistory.Volume.Current = value;
                 }
 
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, AudioTrack.VolumeKey)) {
-                    this.AutomationData[AudioTrack.VolumeKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetFloatValue(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, AudioTrack.VolumeKey, out long frame)) {
+                    this.AutomationData[AudioTrack.VolumeKey].GetActiveKeyFrameOrCreateNew(frame).SetFloatValue(value);
                 }
                 else {
                     this.AutomationData[AudioTrack.VolumeKey].GetOverride().SetFloatValue(value);
@@ -71,9 +69,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     HistoryManagerViewModel.Instance.AddAction(new HistoryAudioTrackIsMuted(this, value), "Switch IsMuted");
                 }
 
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, AudioTrack.IsMutedKey)) {
-                    this.AutomationData[AudioTrack.IsMutedKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, AudioTrack.IsMutedKey, out long frame)) {
+                    this.AutomationData[AudioTrack.IsMutedKey].GetActiveKeyFrameOrCreateNew(frame).SetBooleanValue(value);
                 }
                 else {
                     this.AutomationData[AudioTrack.IsMutedKey].GetOverride().SetBooleanValue(value);

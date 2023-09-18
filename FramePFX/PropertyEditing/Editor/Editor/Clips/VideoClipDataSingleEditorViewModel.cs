@@ -6,16 +6,16 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
     public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
 
-        public RelayCommand InsertOpacityKeyFrameCommand => this.Clip?.InsertOpacityKeyFrameCommand;
+        public RelayCommand InsertOpacityKeyFrameCommand => this.SingleSelection?.InsertOpacityKeyFrameCommand;
 
-        public long MediaFrameOffset => this.Clip.MediaFrameOffset;
+        public long MediaFrameOffset => this.SingleSelection.MediaFrameOffset;
 
         public VideoClipDataSingleEditorViewModel() {
         }
 
         protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
-            this.Clip.PropertyChanged += this.OnClipPropertyChanged;
+            this.SingleSelection.PropertyChanged += this.OnClipPropertyChanged;
 
             // not really sure if this is necessary...
             this.RaisePropertyChanged(nameof(this.InsertOpacityKeyFrameCommand));
@@ -23,7 +23,7 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
 
         protected override void OnClearHandlers() {
             base.OnClearHandlers();
-            this.Clip.PropertyChanged -= this.OnClipPropertyChanged;
+            this.SingleSelection.PropertyChanged -= this.OnClipPropertyChanged;
         }
 
         private void OnClipPropertyChanged(object sender, PropertyChangedEventArgs e) {

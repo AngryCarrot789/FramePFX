@@ -43,23 +43,28 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList stack) {
-            if (string.IsNullOrEmpty(this.FilePath)) {
+        protected override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
+            if (string.IsNullOrWhiteSpace(this.FilePath)) {
                 return true;
             }
 
+            bool fail = true;
             if (File.Exists(this.FilePath)) {
                 try {
                     this.Model.LoadMedia(this.FilePath);
-                    return true;
+                    fail = false;
                 }
                 catch (Exception e) {
-                    stack.Add(e);
+                    AppLogger.WriteLine("Exception while loading media for resource at file '" + this.FilePath + "': " + e.GetToString());
                 }
             }
 
-            checker?.Add(new InvalidVideoViewModel(this));
-            return false;
+            if (fail) {
+                // checker?.Add(new InvalidVideoViewModel(this));
+                return false;
+            }
+
+            return true;
         }
     }
 }

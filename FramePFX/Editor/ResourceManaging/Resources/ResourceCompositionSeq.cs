@@ -11,14 +11,15 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         /// <summary>
         /// This composition sequence's timeline
         /// </summary>
-        public Timeline Timeline { get; }
+        public CompositionTimeline Timeline { get; }
 
-        public ResourceCompositionSeq() : this(new Timeline()) {
+        public ResourceCompositionSeq() : this(new CompositionTimeline()) {
 
         }
 
-        public ResourceCompositionSeq(Timeline timeline) {
+        public ResourceCompositionSeq(CompositionTimeline timeline) {
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
+            timeline.Owner = this;
         }
 
         public override void SetManager(ResourceManager manager) {

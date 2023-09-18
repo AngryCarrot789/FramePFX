@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Actions;
+using FramePFX.Automation;
 using FramePFX.Automation.Keyframe;
+using FramePFX.Automation.ViewModels;
 using FramePFX.Editor;
 using FramePFX.Editor.Actions;
 using FramePFX.Editor.ResourceChecker;
@@ -24,7 +26,6 @@ using FramePFX.History.Actions;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Shortcuts.ViewModels;
 using FramePFX.Utils;
-using FramePFX.WPF.Editor;
 using FramePFX.WPF.Resources.I18N;
 using FramePFX.WPF.Shortcuts;
 using FramePFX.WPF.Shortcuts.Converters;
@@ -241,10 +242,12 @@ namespace FramePFX.WPF {
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
-            await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
+            if (!await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true)) {
+                AppLogger.WriteLine("LOL WTF Failed to load demo project resources");
+            }
+
             ((EditorMainWindow)this.MainWindow)?.VPViewBox.FitContentToCenter();
-            editor.ActiveProject.AutomationEngine.UpdateAndRefresh(true);
-            await editor.View.Render();
+            await editor.ActiveProject.Timeline.DoRender();
         }
 
         public static void PlaySineWave() {
@@ -381,26 +384,26 @@ namespace FramePFX.WPF {
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             ResourceManager manager = project.ResourceManager;
-            ulong id_r = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(220, 25, 25) { DisplayName = "colour_red" }));
-            ulong id_g = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 220, 25) { DisplayName = "colour_green" }));
-            ulong id_b = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 25, 220) { DisplayName = "colour_blue" }));
+            ulong id_r = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
+            ulong id_g = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
+            ulong id_b = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
 
             ResourceGroup group = new ResourceGroup("Extra Colours");
             manager.RootGroup.AddItem(group);
-            ulong id_w = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(220, 220, 220) { DisplayName = "white colour" }));
-            ulong id_d = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(50, 100, 220) { DisplayName = "idek" }));
+            ulong id_w = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
 
             MotionEffect motion;
             {
-                VideoTrack track1 = new VideoTrack() {
+                VideoTrack track = new VideoTrack() {
                     DisplayName = "Track 1 with stuff"
                 };
-                project.Timeline.AddTrack(track1);
 
-                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
-                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
-                track1.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
-                track1.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
+                project.Timeline.AddTrack(track);
+                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                track.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
 
                 ShapeVideoClip clip1 = new ShapeVideoClip {
                     Width = 200, Height = 200,
@@ -408,12 +411,11 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip colour_red"
                 };
 
-                motion = new MotionEffect();
-                clip1.AddEffect(motion);
+                clip1.AddEffect(motion = new MotionEffect());
                 motion.MediaPosition = new Vector2(0, 0);
 
                 clip1.ResourceHelper.SetTargetResourceId(id_r);
-                track1.AddClip(clip1);
+                track.AddClip(clip1);
 
                 ShapeVideoClip clip2 = new ShapeVideoClip {
                     Width = 200, Height = 200,
@@ -421,39 +423,36 @@ namespace FramePFX.WPF {
                     DisplayName = "Clip colour_green"
                 };
 
-                motion = new MotionEffect();
-                clip2.AddEffect(motion);
+                clip2.AddEffect(motion = new MotionEffect());
                 motion.MediaPosition = new Vector2(200, 200);
 
                 clip2.ResourceHelper.SetTargetResourceId(id_g);
-                track1.AddClip(clip2);
+                track.AddClip(clip2);
             }
             {
-                VideoTrack track2 = new VideoTrack() {
+                VideoTrack track = new VideoTrack() {
                     DisplayName = "Track 2"
                 };
-                project.Timeline.AddTrack(track2);
 
+                project.Timeline.AddTrack(track);
                 ShapeVideoClip clip1 = new ShapeVideoClip {
                     Width = 400, Height = 400,
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
                 };
 
-                motion = new MotionEffect();
-                clip1.AddEffect(motion);
+                clip1.AddEffect(motion = new MotionEffect());
                 motion.MediaPosition = new Vector2(200, 200);
 
                 clip1.ResourceHelper.SetTargetResourceId(id_b);
-                track2.AddClip(clip1);
+                track.AddClip(clip1);
                 ShapeVideoClip clip2 = new ShapeVideoClip {
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip blueish"
                 };
 
-                motion = new MotionEffect();
-                clip2.AddEffect(motion);
+                clip2.AddEffect(motion = new MotionEffect());
                 motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
                 motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
                 motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
@@ -461,16 +460,14 @@ namespace FramePFX.WPF {
                 motion.AutomationData.ActiveKeyFullId = MotionEffect.MediaPositionKey.FullId;
                 motion.MediaPosition = new Vector2(400, 400);
                 clip2.ResourceHelper.SetTargetResourceId(id_d);
-                track2.AddClip(clip2);
-            }
-            {
-                VideoTrack track1 = new VideoTrack() {
-                    DisplayName = "Empty track"
-                };
-                project.Timeline.AddTrack(track1);
+                track.AddClip(clip2);
             }
 
-            project.Timeline.DoUpdateBackingStorageForTimeline();
+            project.Timeline.AddTrack(new VideoTrack() {
+                DisplayName = "Empty track"
+            });
+
+            project.UpdateAutomationBackingStorage();
             return project;
         }
     }

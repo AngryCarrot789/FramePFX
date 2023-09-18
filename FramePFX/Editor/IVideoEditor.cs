@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Notifications;
 using FramePFX.Views;
 
@@ -7,7 +8,7 @@ namespace FramePFX.Editor {
     /// An interface for a video editor view
     /// </summary>
     public interface IVideoEditor : IViewBase {
-        Task Render(bool scheduleRender = false);
+        Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender = false);
 
         void UpdateClipSelection();
 

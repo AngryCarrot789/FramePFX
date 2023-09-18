@@ -1,5 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using FramePFX.Commands;
+using FramePFX.Editor.ResourceChecker;
+using FramePFX.Editor.ResourceChecker.Resources;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Utils;
 
@@ -22,21 +25,30 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             this.OpenFileCommand = new AsyncRelayCommand(this.OpenFileAction);
         }
 
+        public void SetFilePath(string filePath) => this.FilePath = filePath;
+
         public async Task OpenFileAction() {
             string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
-            if (file != null) {
-                this.FilePath = file[0];
-#if DEBUG
-                this.Model.CloseFile();
-#else
-                try {
-                    this.Model.CloseFile();
-                }
-                catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Exception closing file", e.GetToString());
-                }
-#endif
+            if (file == null) {
+                return;
             }
+
+            this.FilePath = file[0];
+            await TryLoadResource(this, null, true);
+        }
+
+        protected override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
+            try {
+                this.Model.LoadMediaFile();
+            }
+            catch (Exception e) {
+                checker?.Add(new InvalidAVMediaViewModel(this) {
+                    ExceptionMessage = e.GetToString()
+                });
+                return false;
+            }
+
+            return true;
         }
     }
 }

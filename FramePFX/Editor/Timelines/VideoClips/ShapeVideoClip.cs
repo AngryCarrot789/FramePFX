@@ -1,6 +1,5 @@
 using System.Numerics;
 using System.Threading.Tasks;
-using FramePFX.Editor.ResourceManaging;
 using OpenTK.Graphics.OpenGL;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;

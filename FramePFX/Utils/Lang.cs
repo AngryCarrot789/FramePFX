@@ -1,4 +1,7 @@
 namespace FramePFX.Utils {
+    /// <summary>
+    /// English language helper... this really needs to be replaced with actual localisation instead of hard coded messages LOL
+    /// </summary>
     public static class Lang {
         /// <summary>
         /// Returns "S" if count is not equal to 1, otherwise returns an empty string if count == 1

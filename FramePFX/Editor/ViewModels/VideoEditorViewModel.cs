@@ -1,9 +1,11 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting;
 using FramePFX.Editor.Notifications;
 using FramePFX.Editor.ResourceChecker;
+using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History.ViewModels;
 using FramePFX.RBC;
 using FramePFX.Utils;
@@ -13,39 +15,50 @@ namespace FramePFX.Editor.ViewModels {
     /// A view model that represents a video editor
     /// </summary>
     public class VideoEditorViewModel : BaseViewModel, IDisposable {
+        private readonly ObservableCollection<TimelineViewModel> activeTimelines;
         private ProjectViewModel activeProject;
         private bool isClosingProject;
         private bool isRecordingKeyFrames;
-
         private bool isEditorEnabled;
+        private bool areAutomationShortcutsEnabled;
+        private TimelineViewModel activeTimeline;
 
         public bool IsEditorEnabled {
             get => this.isEditorEnabled;
-            set => this.RaisePropertyChanged(ref this.isEditorEnabled, value);
+            set {
+                if (this.isEditorEnabled == value)
+                    return;
+                this.RaisePropertyChanged(ref this.isEditorEnabled, value);
+            }
         }
 
         /// <summary>
         /// The project that is currently being edited in this editor. May be null if no project is loaded
         /// </summary>
-        public ProjectViewModel ActiveProject {
-            get => this.activeProject;
-            private set {
-                if (ReferenceEquals(this.activeProject, value))
-                    return;
+        public ProjectViewModel ActiveProject => this.activeProject;
 
-                if (this.activeProject != null)
-                    this.activeProject.Editor = null;
+        /// <summary>
+        /// A collection of timelines currently active in the UI
+        /// </summary>
+        public ReadOnlyObservableCollection<TimelineViewModel> ActiveTimelines { get; }
 
-                if (value != null) {
-                    this.Model.ActiveProject = value.Model;
-                    value.Editor = this; // this also sets the project model's editor
-                }
-                else {
-                    this.Model.ActiveProject = null;
-                }
+        /// <summary>
+        /// Gets or sets the timeline that is currently active in the UI.
+        /// Updating this may cause a render to be triggered asynchronously
+        /// </summary>
+        public TimelineViewModel ActiveTimeline {
+            get => this.activeTimeline;
+            set => this.SetActiveTimeline(value);
+        }
 
-                this.RaisePropertyChanged(ref this.activeProject, value);
-                this.ExportCommand.RaiseCanExecuteChanged();
+        private void SetActiveTimeline(TimelineViewModel timeline) {
+            if (timeline == this.activeTimeline)
+                return;
+            if (!this.activeTimelines.Contains(timeline))
+                throw new Exception("Timeline is not in the active timelines list");
+            this.RaisePropertyChanged(ref this.activeTimeline, timeline);
+            if (timeline != null) {
+                this.DoRenderFrame(timeline, true);
             }
         }
 
@@ -70,8 +83,6 @@ namespace FramePFX.Editor.ViewModels {
             set => this.RaisePropertyChanged(ref this.isRecordingKeyFrames, value);
         }
 
-        private bool areAutomationShortcutsEnabled;
-
         public bool AreAutomationShortcutsEnabled {
             get => this.areAutomationShortcutsEnabled;
             set => this.RaisePropertyChanged(ref this.areAutomationShortcutsEnabled, value);
@@ -94,9 +105,11 @@ namespace FramePFX.Editor.ViewModels {
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditor();
+            this.activeTimelines = new ObservableCollection<TimelineViewModel>();
+            this.ActiveTimelines = new ReadOnlyObservableCollection<TimelineViewModel>(this.activeTimelines);
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
-            this.Playback.Model.OnStepFrame = () => this.ActiveProject?.Timeline.OnStepFrameCallback();
+            this.Playback.Model.OnStepFrame = () => this.ActiveTimeline?.OnStepFrameCallback();
             this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
@@ -107,20 +120,25 @@ namespace FramePFX.Editor.ViewModels {
                 return;
             }
 
-            FrameSpan span = this.ActiveProject.Timeline.Model.GetUsedFrameSpan();
+            if (this.Playback.IsPlaying) {
+                await this.Playback.PauseAction();
+            }
+
+            TimelineViewModel timeline = this.ActiveProject.Timeline;
+            FrameSpan span = timeline.Model.GetUsedFrameSpan();
             ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject) {
                 RenderSpan = span.WithBegin(0)
             };
 
-            this.IsEditorEnabled = true;
+            this.IsEditorEnabled = false;
             try {
                 await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
             }
             finally {
-                this.IsEditorEnabled = false;
+                this.IsEditorEnabled = true;
             }
 
-            await this.ActiveProject.Timeline.DoRenderAsync(false);
+            await timeline.DoRender(false);
         }
 
         private void OnProjectModified(object sender, string property) {
@@ -190,8 +208,6 @@ namespace FramePFX.Editor.ViewModels {
                 catch (Exception e) {
                     await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
                 }
-
-                this.ActiveProject = null;
             }
 
             await this.SetProject(pvm);
@@ -209,9 +225,7 @@ namespace FramePFX.Editor.ViewModels {
                 }
 #endif
 
-                await this.Playback.OnProjectChanging(null);
-                this.ActiveProject = null;
-                await this.Playback.OnProjectChanged(null);
+                await this.SetProject(null);
                 return;
             }
 
@@ -219,9 +233,33 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task SetProject(ProjectViewModel project) {
-            await HistoryManagerViewModel.Instance.ResetAsync();
+            if (ReferenceEquals(this.activeProject, project)) {
+                return;
+            }
+
             await this.Playback.OnProjectChanging(project);
-            this.ActiveProject = project;
+            await HistoryManagerViewModel.Instance.ResetAsync();
+            if (this.activeProject != null) {
+                this.activeTimeline = null;
+                this.RaisePropertyChanged(nameof(this.ActiveTimeline));
+
+                this.activeTimelines.Clear();
+                this.activeProject.OnDisconnectFromEditor();
+                this.Model.SetProject(null);
+            }
+
+            this.activeProject = project;
+            if (project != null) {
+                this.Model.SetProject(project.Model);
+                this.activeProject.OnConnectToEditor(this);
+                this.activeTimelines.Add(project.Timeline);
+                this.activeTimeline = project.Timeline;
+                this.RaisePropertyChanged(nameof(this.ActiveTimeline));
+            }
+
+            this.RaisePropertyChanged(nameof(this.ActiveProject));
+            this.IsEditorEnabled = project != null;
+            this.ExportCommand.RaiseCanExecuteChanged();
             await this.Playback.OnProjectChanged(project);
         }
 
@@ -318,10 +356,8 @@ namespace FramePFX.Editor.ViewModels {
             this.notification = null;
         }
 
-        public Task DoRenderFrame() => this.DoRenderFrame(false);
-
-        public Task DoRenderFrame(bool schedule) {
-            return this.View.Render(schedule);
+        public Task DoRenderFrame(TimelineViewModel timeline, bool schedule = false) {
+            return this.View.RenderTimelineAsync(timeline, schedule);
         }
     }
 }

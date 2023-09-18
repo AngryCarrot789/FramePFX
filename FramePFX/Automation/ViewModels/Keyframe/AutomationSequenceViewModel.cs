@@ -96,9 +96,11 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             this.RaisePropertyChanged(nameof(this.IsAutomationInUse));
         }
 
-        public void DoRefreshValue(AutomationEngineViewModel engine, long tlframe, bool isDuringPlayback, bool isPlaybackTick) {
-            this.RefreshValue?.Invoke(this, new RefreshAutomationValueEventArgs(tlframe, isDuringPlayback, isPlaybackTick));
+        public void DoRefreshValue(long tlframe, bool isDuringPlayback, bool isPlaybackTick) {
+            this.DoRefreshValue(new RefreshAutomationValueEventArgs(tlframe, isDuringPlayback, isPlaybackTick));
         }
+
+        public void DoRefreshValue(RefreshAutomationValueEventArgs e) => this.RefreshValue?.Invoke(this, e);
 
         private void AddInternalUnsafe(int index, KeyFrameViewModel keyFrame) {
             keyFrame.OwnerSequence = this;
@@ -154,10 +156,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             if (newKeyFrame.Model.DataType != this.Model.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {newKeyFrame.Model.DataType}", nameof(newKeyFrame));
 
-            int index = this.Model.AddKeyFrame(newKeyFrame.Model);
-            newKeyFrame.OwnerSequence = this;
-            this.AddInternalUnsafe(index, newKeyFrame);
-
+            this.AddInternalUnsafe(this.Model.AddKeyFrame(newKeyFrame.Model), newKeyFrame);
             if (applyHistory && !this.IsHistoryChanging) {
                 HistoryKeyFrameAdd action = new HistoryKeyFrameAdd(this);
                 action.unsafeKeyFrameList.Add(newKeyFrame);

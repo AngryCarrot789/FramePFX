@@ -44,8 +44,6 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         public AutomationData AutomationData { get; }
 
-        public AutomationEngine AutomationEngine => this.Timeline.AutomationEngine;
-
         public bool IsAutomationChangeInProgress { get; set; }
 
         protected Track() {

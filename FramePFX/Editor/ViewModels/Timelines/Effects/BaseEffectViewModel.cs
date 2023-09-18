@@ -1,12 +1,13 @@
+using System;
 using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels;
-using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.History;
 
 namespace FramePFX.Editor.ViewModels.Timelines.Effects {
-    public class BaseEffectViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound, IHistoryHolder {
+    public class BaseEffectViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound, IHistoryHolder, IStrictFrameRange {
         public BaseEffect Model { get; }
 
         public bool IsRemoveable => this.Model.IsRemoveable;
@@ -19,8 +20,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
 
         public AutomationDataViewModel AutomationData { get; }
 
-        public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
-
         public ProjectViewModel Project => this.OwnerClip.Project;
 
         public bool IsHistoryChanging { get; set; }
@@ -28,8 +27,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
         public bool IsAutomationRefreshInProgress { get; set; }
 
         public BaseEffectViewModel(BaseEffect model) {
-            this.Model = model;
-            this.AutomationData = new AutomationDataViewModel(this, this.Model.AutomationData);
+            this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.AutomationData.ActiveSequenceChanged += this.OnActiveSequenceChanged;
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
         }
@@ -52,5 +51,11 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
         private void OnActiveSequenceChanged(AutomationDataViewModel sender, ActiveSequenceChangedEventArgs e) {
             this.OwnerClip?.SetActiveAutomationSequence(e.Sequence, true);
         }
+
+        public long ConvertRelativeToTimelineFrame(long relative) => this.Model.ConvertRelativeToTimelineFrame(relative);
+
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) => this.Model.ConvertTimelineToRelativeFrame(timeline, out valid);
+
+        public bool IsTimelineFrameInRange(long timeline) => this.Model.IsTimelineFrameInRange(timeline);
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,12 +48,11 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override async Task EndRender(RenderContext rc, long frame) {
-            if (!this.TryGetResource(out ResourceAVMedia resource))
+            if (!this.TryGetResource(out ResourceAVMedia resource) || resource.Demuxer == null || resource.stream == null) {
                 return;
+            }
 
             if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null) {
-                if (resource.Demuxer == null || resource.stream == null)
-                    resource.OpenMediaFromFile();
                 if (this.renderFrameRgb == null) {
                     unsafe {
                         AVCodecParameters* pars = resource.stream.Handle->codecpar;
@@ -67,8 +67,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 this.currentFrame = frame;
             }
 
-            if (this.readyFrame != null) {
-                VideoFrame ready = this.readyFrame;
+            VideoFrame ready = this.readyFrame;
+            if (ready != null && !ready.IsDisposed) {
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                 // a project preview resolution so that decoding is lightning fast for low resolution?
 

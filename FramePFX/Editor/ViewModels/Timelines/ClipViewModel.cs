@@ -25,7 +25,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget, IStrictFrameRange {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         private readonly ObservableCollection<BaseEffectViewModel> effects;
         private bool isSelected;
@@ -113,12 +113,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// </summary>
         public long RelativePlayHead {
             get {
-                if (this.Track != null) {
-                    return this.Track.Timeline.PlayHeadFrame - this.FrameBegin;
-                }
-                else {
-                    return 0;
-                }
+                long? playhead = this.Track?.Timeline?.PlayHeadFrame;
+                return playhead.HasValue ? this.ConvertTimelineToRelativeFrame(playhead.Value, out _) : 0;
             }
         }
 
@@ -142,8 +138,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         #region Automation
 
         public AutomationDataViewModel AutomationData { get; }
-
-        public AutomationEngineViewModel AutomationEngine => this.Project?.AutomationEngine;
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
 
@@ -510,5 +504,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.RaisePropertyChanged(nameof(this.ActiveClipOrEffectSequence));
             this.isUpdatingAutomationSequence = false;
         }
+
+        public long ConvertRelativeToTimelineFrame(long relative) => this.Model.ConvertRelativeToTimelineFrame(relative);
+
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) => this.Model.ConvertTimelineToRelativeFrame(timeline, out valid);
+
+        public bool IsTimelineFrameInRange(long timeline) => this.Model.IsTimelineFrameInRange(timeline);
     }
 }

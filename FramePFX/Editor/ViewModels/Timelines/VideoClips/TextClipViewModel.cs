@@ -10,11 +10,11 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             set {
                 this.Model.ULText = value;
                 if (value) {
-                    this.Model.LocalText.Text = this.Model.ResourceHelper.TryGetResource(out ResourceText resource) ? resource.Text : this.text;
-                    this.text = null;
+                    this.Model.LocalText.Text = this.Model.ResourceHelper.TryGetResource(out ResourceText resource) ? resource.Text : this.invalidResource_CachedText;
+                    this.invalidResource_CachedText = null;
                 }
                 else if (this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
-                    this.text = resource.Text;
+                    this.invalidResource_CachedText = resource.Text;
                 }
 
                 this.Model.InvalidateTextCache();
@@ -24,18 +24,18 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             }
         }
 
-        private string text; // the resource modified events will update this field
+        private string invalidResource_CachedText; // the resource modified events will update this field
 
         public string Text {
-            get => this.UseCustomText ? this.Model.LocalText.Text : this.text;
+            get => this.UseCustomText ? this.Model.LocalText.Text : this.invalidResource_CachedText;
             set {
                 if (this.UseCustomText) {
-                    this.text = null;
+                    this.invalidResource_CachedText = null;
                     this.Model.LocalText.Text = value;
                     this.Model.InvalidateTextCache();
                 }
                 else if (!this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
-                    this.text = value;
+                    this.invalidResource_CachedText = value;
                 }
                 else {
                     resource.Text = value;
@@ -48,7 +48,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         private string fontFamily;
-
         public string FontFamily {
             get => this.fontFamily;
             set {
@@ -93,7 +92,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
 
         private void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
             if (!this.UseCustomText) {
-                this.text = newItem?.Text ?? "Text Here";
+                this.invalidResource_CachedText = newItem?.Text ?? "Text Here";
                 this.RaisePropertyChanged(nameof(this.Text));
             }
 
@@ -108,7 +107,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         private void OnResourceModified(ResourceText resource, string property) {
             switch (property) {
                 case nameof(resource.Text) when !this.UseCustomText:
-                    this.text = resource.Text;
+                    this.invalidResource_CachedText = resource.Text;
                     this.RaisePropertyChanged(nameof(this.Text));
                     break;
                 case nameof(resource.FontSize):

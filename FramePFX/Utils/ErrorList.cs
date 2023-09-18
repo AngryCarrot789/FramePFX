@@ -45,6 +45,11 @@ namespace FramePFX.Utils {
         public ErrorList(bool throwOnDispose = true) : this(null, throwOnDispose, true) {
         }
 
+        /// <summary>
+        /// Returns a new error list that does not thrown when disposed
+        /// </summary>
+        public static ErrorList NoAutoThrow => new ErrorList(false);
+
         public void Add(Exception exception) {
             if (exception == null)
                 throw new ArgumentNullException(nameof(exception));
@@ -70,6 +75,24 @@ namespace FramePFX.Utils {
             }
 
             return true;
+        }
+
+        public void Execute(Action action) {
+            try {
+                action();
+            }
+            catch (Exception e) {
+                this.Add(e);
+            }
+        }
+
+        public void Execute<T>(T value, Action<T> action) {
+            try {
+                action(value);
+            }
+            catch (Exception e) {
+                this.Add(e);
+            }
         }
 
         public IEnumerator<Exception> GetEnumerator() => this.exceptions?.GetEnumerator() ?? Enumerable.Empty<Exception>().GetEnumerator();

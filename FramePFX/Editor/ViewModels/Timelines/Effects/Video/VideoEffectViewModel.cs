@@ -1,4 +1,3 @@
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;

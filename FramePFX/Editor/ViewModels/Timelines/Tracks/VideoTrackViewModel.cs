@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging;
@@ -73,9 +72,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     }
                 }
 
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, VideoTrack.OpacityKey)) {
-                    this.AutomationData[VideoTrack.OpacityKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetDoubleValue(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, VideoTrack.OpacityKey, out long frame)) {
+                    this.AutomationData[VideoTrack.OpacityKey].GetActiveKeyFrameOrCreateNew(frame).SetDoubleValue(value);
                 }
                 else {
                     this.AutomationData[VideoTrack.OpacityKey].GetOverride().SetDoubleValue(value);
@@ -100,9 +98,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     HistoryManagerViewModel.Instance.AddAction(new HistoryTrackIsVisible(this, value), "Edit IsVisible");
                 }
 
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, VideoTrack.IsVisibleKey)) {
-                    this.AutomationData[VideoTrack.IsVisibleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame).SetBooleanValue(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, VideoTrack.IsVisibleKey, out long frame)) {
+                    this.AutomationData[VideoTrack.IsVisibleKey].GetActiveKeyFrameOrCreateNew(frame).SetBooleanValue(value);
                 }
                 else {
                     this.AutomationData[VideoTrack.IsVisibleKey].GetOverride().SetBooleanValue(value);
@@ -134,6 +131,11 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         }
 
         public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
+            if (!resource.Model.IsOnline) {
+                await IoC.MessageDialogs.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
+                return;
+            }
+
             if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
                 return;
@@ -144,30 +146,35 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
             Clip newClip = null;
             if (resource.Model is ResourceAVMedia media) {
-                media.OpenMediaFromFile();
-                TimeSpan span = media.GetDuration();
-                long dur = (long) Math.Floor(span.TotalSeconds * fps);
-                if (dur < 2) {
-                    // image files are 1
-                    dur = defaultDuration;
-                }
-
-                if (dur > 0) {
-                    long newProjectDuration = frameBegin + dur + 600;
-                    if (newProjectDuration > this.Timeline.MaxDuration) {
-                        this.Timeline.MaxDuration = newProjectDuration;
+                if (media.IsValidMediaFile) {
+                    TimeSpan span = media.GetDuration();
+                    long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                    if (dur < 2) {
+                        // image files are 1
+                        dur = defaultDuration;
                     }
 
-                    AVMediaVideoClip clip = new AVMediaVideoClip() {
-                        FrameSpan = new FrameSpan(frameBegin, dur),
-                        DisplayName = "Media Clip"
-                    };
+                    if (dur > 0) {
+                        long newProjectDuration = frameBegin + dur + 600;
+                        if (newProjectDuration > this.Timeline.MaxDuration) {
+                            this.Timeline.MaxDuration = newProjectDuration;
+                        }
 
-                    clip.ResourceHelper.SetTargetResourceId(media.UniqueId);
-                    newClip = clip;
+                        AVMediaVideoClip clip = new AVMediaVideoClip() {
+                            FrameSpan = new FrameSpan(frameBegin, dur),
+                            DisplayName = "Media Clip"
+                        };
+
+                        clip.ResourceHelper.SetTargetResourceId(media.UniqueId);
+                        newClip = clip;
+                    }
+                    else {
+                        await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                        return;
+                    }
                 }
                 else {
-                    await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                    await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
                     return;
                 }
             }
@@ -241,7 +248,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             }
 
             newClip.AddEffect(new MotionEffect());
-
             this.CreateClip(newClip);
             if (newClip is VideoClip videoClipModel) {
                 videoClipModel.InvalidateRender();
@@ -301,6 +307,35 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.DoRender(true);
             }
+        }
+
+        public bool GetSpanUntilClip(long frame, out FrameSpan span) {
+            if (this.Clips.Count < 1) {
+                span = default;
+                return false;
+            }
+
+            long minimum = frame;
+            foreach (ClipViewModel clip in this.Clips) {
+                if (clip.FrameBegin > frame) {
+                    if (clip.IntersectsFrameAt(frame)) {
+                        span = default;
+                        return false;
+                    }
+                    else {
+                        minimum = Math.Min(clip.FrameBegin, frame);
+                    }
+                }
+            }
+
+            // should not be possible to be less... but just in case somehow
+            if (minimum <= frame) {
+                span = default;
+                return false;
+            }
+
+            span = FrameSpan.FromIndex(frame, minimum);
+            return true;
         }
     }
 }

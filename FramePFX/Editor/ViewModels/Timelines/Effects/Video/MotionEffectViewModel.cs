@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
@@ -55,9 +54,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             get => this.Model.MediaPosition;
             set {
                 this.ValidateNotInAutomationChange();
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, MotionEffect.MediaPositionKey)) {
-                    this.AutomationData[MotionEffect.MediaPositionKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.OwnerClip.FrameBegin).SetVector2Value(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, MotionEffect.MediaPositionKey, out long frame)) {
+                    this.AutomationData[MotionEffect.MediaPositionKey].GetActiveKeyFrameOrCreateNew(frame).SetVector2Value(value);
                 }
                 else {
                     this.AutomationData[MotionEffect.MediaPositionKey].GetOverride().SetVector2Value(value);
@@ -83,9 +81,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             get => this.Model.MediaScale;
             set {
                 this.ValidateNotInAutomationChange();
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, MotionEffect.MediaScaleKey)) {
-                    this.AutomationData[MotionEffect.MediaScaleKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.OwnerClip.FrameBegin).SetVector2Value(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, MotionEffect.MediaScaleKey, out long frame)) {
+                    this.AutomationData[MotionEffect.MediaScaleKey].GetActiveKeyFrameOrCreateNew(frame).SetVector2Value(value);
                 }
                 else {
                     this.AutomationData[MotionEffect.MediaScaleKey].GetOverride().SetVector2Value(value);
@@ -111,9 +108,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             get => this.Model.MediaScaleOrigin;
             set {
                 this.ValidateNotInAutomationChange();
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.CanAddKeyFrame(timeline, this, MotionEffect.MediaScaleOriginKey)) {
-                    this.AutomationData[MotionEffect.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(timeline.PlayHeadFrame - this.OwnerClip.FrameBegin).SetVector2Value(value);
+                if (AutomationUtils.GetNewKeyFrameTime(this, MotionEffect.MediaScaleOriginKey, out long frame)) {
+                    this.AutomationData[MotionEffect.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(frame).SetVector2Value(value);
                 }
                 else {
                     this.AutomationData[MotionEffect.MediaScaleOriginKey].GetOverride().SetVector2Value(value);
@@ -160,7 +156,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             this.ResetMediaScaleCommand = new RelayCommand(() => this.MediaScale = MotionEffect.MediaScaleKey.Descriptor.DefaultValue);
             this.ResetMediaScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = MotionEffect.MediaScaleOriginKey.Descriptor.DefaultValue);
 
-            Func<bool> CanInsertKeyFrame = () => this.OwnerClip != null && this.OwnerClip.CanInsertKeyFrame();
+            Func<bool> CanInsertKeyFrame = () => this.OwnerClip != null && this.OwnerClip.IsPlayHeadFrameInRange();
             this.InsertMediaPositionKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaPositionKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.OwnerClip.RelativePlayHead, 0)).SetVector2Value(this.MediaPosition), CanInsertKeyFrame);
             this.InsertMediaScaleKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaScaleKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.OwnerClip.RelativePlayHead, 0)).SetVector2Value(this.MediaScale), CanInsertKeyFrame);
             this.InsertMediaScaleOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.OwnerClip.RelativePlayHead).SetVector2Value(this.MediaScaleOrigin), CanInsertKeyFrame);

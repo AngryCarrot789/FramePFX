@@ -14,7 +14,6 @@ namespace FramePFX.FFmpeg {
         public FrameQueue(MediaStream stream, int size) {
             this.stream = stream;
             this.frames = new VideoFrame[size];
-
             for (int i = 0; i < size; i++) {
                 this.frames[i] = new VideoFrame();
             }

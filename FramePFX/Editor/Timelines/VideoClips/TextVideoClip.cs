@@ -155,7 +155,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 };
             }
 
-            float lineHeight = this.cachedPaint.TextSize * 1.2f; // Adjust the spacing as needed
+            float lineHeight = this.cachedPaint.TextSize * 1.2f;
             if (this.cachedBlobs == null) {
                 string text = this.ULText ? this.lt.Text : r.Text;
                 if (string.IsNullOrEmpty(text)) {
@@ -173,7 +173,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             foreach (SKTextBlob blob in this.cachedBlobs) {
                 if (blob != null) {
                     // rc.Canvas.DrawText(blob, 0, size.Y * this.MediaScaleOrigin.Y, this.cachedPaint);
-                    rc.Canvas.DrawText(blob, 0, 0, this.cachedPaint);
+                    rc.Canvas.DrawText(blob, 0, blob.Bounds.Height / 2f, this.cachedPaint);
                 }
             }
 

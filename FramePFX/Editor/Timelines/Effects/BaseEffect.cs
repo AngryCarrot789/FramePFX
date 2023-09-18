@@ -7,7 +7,7 @@ namespace FramePFX.Editor.Timelines.Effects {
     /// <summary>
     /// The base class for all types of effects (audio, video, etc.). This class supports automation
     /// </summary>
-    public abstract class BaseEffect : IAutomatable {
+    public abstract class BaseEffect : IAutomatable, IStrictFrameRange {
         /// <summary>
         /// Whether or not this effect can be removed from a clip. This is also used to determine if an
         /// effect can be copy and pasted into another clip. When this is false, it cannot be copied nor removed
@@ -20,8 +20,6 @@ namespace FramePFX.Editor.Timelines.Effects {
         public string FactoryId => EffectRegistry.Instance.GetTypeIdForModel(this.GetType());
 
         public AutomationData AutomationData { get; }
-
-        public AutomationEngine AutomationEngine => this.OwnerClip.AutomationEngine;
 
         public bool IsAutomationChangeInProgress { get; set; }
 
@@ -136,6 +134,21 @@ namespace FramePFX.Editor.Timelines.Effects {
         public virtual void ReadFromRBE(RBEDictionary data) {
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             this.AutomationData.UpdateBackingStorage();
+        }
+
+        public long ConvertRelativeToTimelineFrame(long relative) {
+            return this.OwnerClip?.ConvertRelativeToTimelineFrame(relative) ?? relative;
+        }
+
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) {
+            if (this.OwnerClip != null)
+                return this.OwnerClip.ConvertTimelineToRelativeFrame(timeline, out valid);
+            valid = false;
+            return timeline;
+        }
+
+        public bool IsTimelineFrameInRange(long timeline) {
+            return this.OwnerClip?.IsTimelineFrameInRange(timeline) ?? false;
         }
     }
 }

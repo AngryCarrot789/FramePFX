@@ -353,7 +353,6 @@
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
     <Compile Include="Utils\DynamicCodeConverter.cs" />
-    <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="Utils\InputDrivenTaskExecutor.cs" />
     <Compile Include="Utils\KBUtils.cs" />
     <Compile Include="Utils\KeyUtils.cs" />

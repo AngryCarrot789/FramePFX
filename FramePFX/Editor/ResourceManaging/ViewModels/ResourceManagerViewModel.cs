@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Commands;
+using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.ViewModels;
@@ -50,7 +51,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public AsyncRelayCommand<string> CreateResourceCommand { get; }
 
-        public ResourceManager Manager { get; }
+        public ResourceManager Model { get; }
 
         public ProjectViewModel Project { get; }
 
@@ -63,7 +64,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         public ObservableCollection<BaseResourceObjectViewModel> SelectedItems { get; }
 
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
-            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Root = new ResourceGroupViewModel(manager.RootGroup);
             this.Root.SetManager(this);
@@ -122,41 +123,38 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         private async Task CreateResourceAction(string type) {
-            BaseResourceObjectViewModel resObj;
+            BaseResourceObject resourceItem;
             switch (type) {
                 case nameof(ResourceColour):
-                    resObj = new ResourceColourViewModel(new ResourceColour());
+                    resourceItem = new ResourceColour();
                     break;
                 case nameof(ResourceImage):
-                    resObj = new ResourceImageViewModel(new ResourceImage());
+                    resourceItem = new ResourceImage();
                     break;
                 case nameof(ResourceTextFile):
-                    resObj = new ResourceTextFileViewModel(new ResourceTextFile());
+                    resourceItem = new ResourceTextFile();
                     break;
                 case nameof(ResourceText):
-                    resObj = new ResourceTextViewModel(new ResourceText());
+                    resourceItem = new ResourceText();
                     break;
                 case nameof(ResourceGroup):
-                    resObj = new ResourceGroupViewModel(new ResourceGroup());
+                    resourceItem = new ResourceGroup();
                     break;
                 default:
                     await IoC.MessageDialogs.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
                     return;
             }
 
+            BaseResourceObjectViewModel resObj = ResourceTypeRegistry.Instance.CreateViewModelFromModel(resourceItem);
             if (resObj is ResourceItemViewModel item) {
-                this.Manager.RegisterEntry(item.Model);
-                this.CurrentGroup.AddItem(item, true);
-                using (ErrorList stack = new ErrorList(false)) {
-                    await item.LoadResource(null, stack);
-                    if (stack.TryGetException(out Exception exception)) {
-                        await IoC.MessageDialogs.ShowMessageExAsync("Exception", "An exception occurred while loading/enabling resource", exception.GetToString());
-                    }
+                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentGroup, item)) {
+                    await IoC.MessageDialogs.ShowMessageAsync("Resource error", "Could not load resource. See app logs for more details");
                 }
             }
             else if (resObj is ResourceGroupViewModel group) {
+                group.DisplayName = "New Group";
                 await group.RenameAsync();
-                this.CurrentGroup.AddItem(group, true);
+                this.CurrentGroup.AddItem(group);
             }
         }
 
@@ -179,25 +177,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                             FilePath = path, DisplayName = Path.GetFileName(path)
                         };
 
-                        try {
-                            await Task.Run(() => media.OpenMediaFromFile());
+                        ResourceAVMediaViewModel vm = (ResourceAVMediaViewModel) ResourceTypeRegistry.Instance.CreateViewModelFromModel(media);
+                        if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentGroup, vm)) {
+                            await IoC.MessageDialogs.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
                         }
-                        catch (Exception e) {
-                            await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
-                            return;
-                        }
-
-                        ResourceAVMediaViewModel vm = new ResourceAVMediaViewModel(media);
-                        using (ErrorList stack = new ErrorList(false)) {
-                            await vm.LoadResource(null, stack);
-                            if (stack.TryGetException(out Exception exception)) {
-                                await IoC.MessageDialogs.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
-                                return;
-                            }
-                        }
-
-                        this.Manager.RegisterEntry(vm.Model);
-                        this.CurrentGroup.AddItem(vm, true);
 
                         // ResourceMpegMediaViewModel media = new ResourceMpegMediaViewModel(new ResourceMpegMedia() {FilePath = path});
                         // using (ExceptionStack stack = new ExceptionStack(false)) {
@@ -224,16 +207,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".jpg":
                     case ".jpeg": {
                         ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path, DisplayName = Path.GetFileName(path)});
-                        using (ErrorList stack = new ErrorList(false)) {
-                            await image.LoadResource(null, stack);
-                            if (stack.TryGetException(out Exception exception)) {
-                                ((BaseResourceObjectViewModel) image).Model.Dispose();
-                                await IoC.MessageDialogs.ShowMessageExAsync("Error opening image", "Failed to open image file", exception.GetToString());
-                                return;
-                            }
+                        if (!await ResourceItemViewModel.TryLoadResource(image, null)) {
+                            return;
                         }
 
-                        this.Manager.RegisterEntry(image.Model);
+                        this.Model.RegisterEntry(image.Model);
                         this.CurrentGroup.AddItem(image, true);
                         break;
                     }
@@ -252,12 +230,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".cpp": {
                         ResourceTextFileViewModel file = new ResourceTextFileViewModel(new ResourceTextFile() {
                             Path = new ProjectPath(path, EnumPathFlags.AbsoluteFilePath),
-                            IsOnline = true, 
                             DisplayName = Path.GetFileName(path)
                         });
 
-                        this.Manager.RegisterEntry(file.Model);
-                        this.CurrentGroup.AddItem(file, true);
+                        if (await ResourceItemViewModel.TryLoadResource(file, null)) {
+                            this.Model.RegisterEntry(file.Model);
+                            this.CurrentGroup.AddItem(file, true);
+                        }
+
                         break;
                     }
                 }
@@ -266,7 +246,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public void Dispose() {
             ((BaseResourceObjectViewModel) this.Root).Model.Dispose();
-            this.Manager.ClearEntries();
+            this.Model.ClearEntries();
         }
 
         public async Task OfflineAllAsync(bool user) {

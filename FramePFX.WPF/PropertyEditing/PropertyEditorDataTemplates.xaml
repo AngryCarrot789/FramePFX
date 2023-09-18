@@ -14,6 +14,7 @@
                     xmlns:clips="clr-namespace:FramePFX.PropertyEditing.Editor.Editor.Clips;assembly=FramePFX"
                     xmlns:effects="clr-namespace:FramePFX.PropertyEditing.Editor.Editor.Effects;assembly=FramePFX"
                     xmlns:video="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Effects.Video;assembly=FramePFX"
+                    xmlns:text="clr-namespace:FramePFX.PropertyEditing.Editor.Editor.Clips.Text;assembly=FramePFX"
                     mc:Ignorable="d">
     <!-- Clips -->
     <!-- Video Clips -->
@@ -74,6 +75,25 @@
                     </Button>
                 </StackPanel>
             </Grid>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Text Clip -->
+    <DataTemplate DataType="{x:Type text:TextClipDataEditorViewModel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Normal" Padding="6,1" Text="Font" Height="18" Margin="0,0,0,0" />
+            <TextBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="6,1" Text="{Binding FontFamily, UpdateSourceTrigger=PropertyChanged}" TextWrapping="NoWrap" Margin="0,0,0,0" />
+            <TextBlock Grid.Row="1" Grid.Column="0" FontWeight="Normal" Padding="6,1" Text="Text" Height="18" Margin="0,0,0,0" />
+            <TextBox Grid.Row="1" Grid.Column="2" FontWeight="Normal" Padding="6,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0,0,0,0"/>
         </Grid>
     </DataTemplate>
 

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Commands;
+using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Utils;
@@ -42,8 +43,8 @@ namespace FramePFX.Editor.ResourceChecker {
             this.OfflineAllCommand = new AsyncRelayCommand(this.OfflineAllAction);
         }
 
-        public static Task<bool> LoadProjectResources(ProjectViewModel project, bool forceValidate) {
-            return LoadResources(project.ResourceManager.Root.Items, forceValidate);
+        public static Task<bool> LoadProjectResources(ProjectViewModel project, bool ignoreUserOffline) {
+            return LoadResources(project.ResourceManager.Root.Items.ToList(), ignoreUserOffline);
         }
 
         /// <summary>
@@ -57,14 +58,8 @@ namespace FramePFX.Editor.ResourceChecker {
         /// <returns>Whether the UI operation was successful or cancelled</returns>
         public static async Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false) {
             ResourceCheckerViewModel checker = new ResourceCheckerViewModel();
-            using (ErrorList stack = new ErrorList(false)) {
-                foreach (BaseResourceObjectViewModel resourceObject in resources.ToList()) {
-                    await LoadResourcesRecursive(checker, resourceObject, stack, ignoreUserOffline);
-                }
-
-                if (stack.TryGetException(out Exception exception)) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Exceptions", "One or more exceptions occurred while checking the resource validation states. This can be ignored", exception.GetToString());
-                }
+            foreach (BaseResourceObjectViewModel obj in resources) {
+                await LoadResourcesRecursive(checker, obj, ignoreUserOffline);
             }
 
             if (checker.Resources.Count < 1) {
@@ -74,19 +69,15 @@ namespace FramePFX.Editor.ResourceChecker {
             return await IoC.Provide<IResourceCheckerService>().ShowCheckerDialog(checker);
         }
 
-        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resourceObject, ErrorList stack, bool ignoreUserOffline = false) {
-            if (resourceObject is ResourceItemViewModel item) {
-                if (!item.Model.IsOnline && (ignoreUserOffline || !item.Model.IsOfflineByUser)) {
-                    bool isOnline = await item.LoadResource(checker, stack);
-                    if (isOnline != item.Model.IsOnline) {
-                        item.Model.IsOnline = isOnline;
-                        item.Model.OnIsOnlineStateChanged();
-                    }
+        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resource, bool ignoreUserOffline = false) {
+            if (resource is ResourceItemViewModel item) {
+                if (!item.IsOnline && (ignoreUserOffline || !item.IsOfflineByUser)) {
+                    await ResourceItemViewModel.TryLoadResource(item, checker);
                 }
             }
-            else if (resourceObject is ResourceGroupViewModel group) {
+            else if (resource is ResourceGroupViewModel group) {
                 foreach (BaseResourceObjectViewModel obj in group.Items) {
-                    await LoadResourcesRecursive(checker, obj, stack, ignoreUserOffline);
+                    await LoadResourcesRecursive(checker, obj, ignoreUserOffline);
                 }
             }
         }

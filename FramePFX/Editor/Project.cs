@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using FramePFX.Automation;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines;
 using FramePFX.RBC;
@@ -24,11 +23,6 @@ namespace FramePFX.Editor {
         /// </summary>
         public VideoEditor Editor { get; set; }
 
-        /// <summary>
-        /// This project's automation engine
-        /// </summary>
-        public AutomationEngine AutomationEngine { get; }
-
         public bool IsExporting { get; set; }
 
         /// <summary>
@@ -44,23 +38,13 @@ namespace FramePFX.Editor {
             };
 
             this.ResourceManager = new ResourceManager(this);
-            this.AutomationEngine = new AutomationEngine(this);
             this.Timeline = new Timeline() {
                 Project = this,
-                MaxDuration = 10000L
+                MaxDuration = 5000L
             };
         }
 
         public void WriteToRBE(RBEDictionary data) {
-            this.DataFolder = data.GetString(nameof(this.DataFolder), null);
-            if (string.IsNullOrEmpty(this.DataFolder))
-                this.TempDataFolder = data.GetString(nameof(this.TempDataFolder), null);
-            this.Settings.WriteToRBE(data.CreateDictionary(nameof(this.Settings)));
-            this.ResourceManager.WriteToRBE(data.CreateDictionary(nameof(this.ResourceManager)));
-            this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
-        }
-
-        public void ReadFromRBE(RBEDictionary data) {
             if (!string.IsNullOrEmpty(this.DataFolder)) {
                 data.SetString(nameof(this.DataFolder), this.DataFolder);
             }
@@ -68,18 +52,27 @@ namespace FramePFX.Editor {
                 data.SetString(nameof(this.TempDataFolder), this.TempDataFolder);
             }
 
+            this.Settings.WriteToRBE(data.CreateDictionary(nameof(this.Settings)));
+            this.ResourceManager.WriteToRBE(data.CreateDictionary(nameof(this.ResourceManager)));
+            this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
+        }
+
+        public void ReadFromRBE(RBEDictionary data) {
+            this.DataFolder = data.GetString(nameof(this.DataFolder), null);
+            if (string.IsNullOrEmpty(this.DataFolder))
+                this.TempDataFolder = data.GetString(nameof(this.TempDataFolder), null);
             this.Settings.ReadFromRBE(data.GetDictionary(nameof(this.Settings)));
             this.ResourceManager.ReadFromRBE(data.GetDictionary(nameof(this.ResourceManager)));
             this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
         }
 
         /// <summary>
-        /// Gets the absolute file path from a relative file path (relative to the project data folder directory)
+        /// Gets the absolute file path from a project path
         /// </summary>
         /// <param name="file">Input relative path</param>
         /// <returns>Output absolute filepath that may exist on the system</returns>
-        /// <exception cref="ArgumentException">Input file name/path is null or empty</exception>
-        public string GetAbsolutePath(ProjectPath file) {
+        /// <exception cref="ArgumentException">The path's file path is null or empty... somehow</exception>
+        public string GetFilePath(ProjectPath file) {
             if (string.IsNullOrEmpty(file.FilePath)) {
                 throw new ArgumentException("File's path cannot be null or empty", nameof(file));
             }
@@ -109,11 +102,27 @@ namespace FramePFX.Editor {
             }
         }
 
-        public DirectoryInfo CreateDir(out bool isTemp) {
+        /// <summary>
+        /// Gets or creates the project's data folder
+        /// </summary>
+        /// <param name="isTemp">Whether or not the current data folder is in the temp directory</param>
+        /// <returns>The directory info for the data folder</returns>
+        public DirectoryInfo GetDataFolder(out bool isTemp) {
             // Cleaner and also faster than manual existence check (exists() ? new DirectoryInfo(dir) : create())
             return Directory.CreateDirectory(this.GetDirectoryPath(out isTemp));
         }
 
-        public DirectoryInfo CreateDir() => this.CreateDir(out _);
+        /// <summary>
+        /// Gets or creates the project's data folder
+        /// </summary>
+        /// <returns>The directory info for the data folder</returns>
+        public DirectoryInfo GetDataFolder() => this.GetDataFolder(out _);
+
+        /// <summary>
+        /// Updates the backing storage of the timeline, all tracks and all clips
+        /// </summary>
+        public void UpdateAutomationBackingStorage() {
+            this.Timeline.UpdateAutomationBackingStorage();
+        }
     }
 }

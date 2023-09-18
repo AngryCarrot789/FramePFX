@@ -2,13 +2,30 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using FramePFX.Utils;
 using SkiaSharp;
+using Rect = System.Windows.Rect;
 
 namespace FramePFX.WPF {
     public sealed class SKAsyncViewPort : FrameworkElement {
+        public static readonly DependencyProperty UseNearestNeighbourRenderingProperty =
+            DependencyProperty.Register(
+                "UseNearestNeighbourRendering",
+                typeof(bool),
+                typeof(SKAsyncViewPort),
+                new FrameworkPropertyMetadata(
+                    BoolBox.False,
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    (d, e) => RenderOptions.SetBitmapScalingMode(d, (bool) e.NewValue ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.Unspecified)));
+
         private readonly bool designMode;
         private WriteableBitmap bitmap;
         private bool ignorePixelScaling;
+
+        public bool UseNearestNeighbourRendering {
+            get => (bool) this.GetValue(UseNearestNeighbourRenderingProperty);
+            set => this.SetValue(UseNearestNeighbourRenderingProperty, value);
+        }
 
         /// <summary>Gets the current canvas size.</summary>
         /// <value />

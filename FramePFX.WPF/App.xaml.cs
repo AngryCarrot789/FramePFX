@@ -1,6 +1,7 @@
 ﻿using FFmpeg.AutoGen;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -242,10 +243,7 @@ namespace FramePFX.WPF {
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
-            if (!await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true)) {
-                AppLogger.WriteLine("LOL WTF Failed to load demo project resources");
-            }
-
+            await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
             ((EditorMainWindow)this.MainWindow)?.VPViewBox.FitContentToCenter();
             await editor.ActiveProject.Timeline.DoRender();
         }

@@ -40,7 +40,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             model.OnlineStateChanged += this.onlineStateChangedHandler;
             this.SetOfflineCommand = new AsyncRelayCommand(() => this.SetOfflineAsync(true), () => this.IsOnline);
             this.SetOnlineCommand = new AsyncRelayCommand(async () => {
-                await ResourceCheckerViewModel.LoadResources(CollectionUtils.Singleton(this), true);
+                ResourceCheckerViewModel checker = new ResourceCheckerViewModel() {
+                    Caption = "This resource could not be loaded"
+                };
+
+                await ResourceCheckerViewModel.LoadResources(checker, CollectionUtils.Singleton(this), true);
             }, () => !this.IsOnline);
         }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting;
@@ -170,36 +171,46 @@ namespace FramePFX.Editor.ViewModels {
                 return;
             }
 
-#if DEBUG
-            RBEBase rbe = RBEUtils.ReadFromFilePacked(result[0]);
-            RBEDictionary dictionary = (RBEDictionary) rbe;
-            Project project = new Project();
-            project.ReadFromRBE(dictionary);
-            ProjectViewModel pvm = new ProjectViewModel(project);
-#else
-            RBEDictionary dictionary;
+            string path = result[0];
+            string parentFolder;
             try {
-                dictionary = RBEUtils.ReadFromFilePacked(result[0]) as RBEDictionary;
+                parentFolder = Path.GetDirectoryName(path);
+            }
+            catch (ArgumentException) {
+                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
+                return;
+            }
+
+            RBEDictionary dictionary;
+
+#if DEBUG
+            dictionary = RBEUtils.ReadFromFilePacked(path) as RBEDictionary;
+#else
+            try {
+                dictionary = RBEUtils.ReadFromFilePacked(path) as RBEDictionary;
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());
                 return;
             }
+#endif
+
             if (dictionary == null) {
                 await IoC.MessageDialogs.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
                 return;
             }
+
             Project projectModel = new Project();
             ProjectViewModel pvm;
+
             try {
-                projectModel.ReadFromRBE(dictionary);
+                projectModel.ReadFromRBE(dictionary, parentFolder);
                 pvm = new ProjectViewModel(projectModel);
             }
             catch (Exception e) {
                 await IoC.MessageDialogs.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
                 return;
             }
-#endif
 
             if (this.ActiveProject != null) {
                 try {
@@ -213,7 +224,11 @@ namespace FramePFX.Editor.ViewModels {
             await this.SetProject(pvm);
             pvm.HasSavedOnce = true;
 
-            if (!await ResourceCheckerViewModel.LoadProjectResources(pvm, true)) {
+            ResourceCheckerViewModel checker = new ResourceCheckerViewModel() {
+                Caption = "Project contains resources that could not be loaded (e.g. missing files)"
+            };
+
+            if (!await ResourceCheckerViewModel.LoadProjectResources(checker, pvm, true)) {
 #if DEBUG
                 pvm.Dispose();
 #else

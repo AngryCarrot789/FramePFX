@@ -16,6 +16,7 @@ namespace FramePFX.Editor.ResourceManaging {
         // volatile juuust in case...
         protected volatile bool isDisposing;
         protected volatile bool isDisposed;
+        protected bool isManagerBeingReplaced;
 
         public bool IsDisposing => this.isDisposing;
         public bool IsDisposed => this.isDisposed;
@@ -58,6 +59,7 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public void SetManager(ResourceManager manager) {
             this.EnsureNotDisposed();
+            this.EnsureNotReplacingManager("Cannot set manager while it is already being set");
             ResourceManager oldManager = this.Manager;
             if (ReferenceEquals(oldManager, manager)) {
                 if (manager != null) {
@@ -68,6 +70,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 return;
             }
 
+            this.isManagerBeingReplaced = true;
             this.ClearInternalResource(true);
             if (oldManager != null) {
                 this.DetachManager(oldManager);
@@ -77,6 +80,8 @@ namespace FramePFX.Editor.ResourceManaging {
             if (manager != null) {
                 this.AttachManager(manager);
             }
+
+            this.isManagerBeingReplaced = false;
         }
 
         protected void AttachManager(ResourceManager manager) {
@@ -146,6 +151,12 @@ namespace FramePFX.Editor.ResourceManaging {
         protected void EnsureNotDisposed(string message = null) {
             if (this.isDisposed) {
                 throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is disposed");
+            }
+        }
+
+        protected void EnsureNotReplacingManager(string message) {
+            if (this.isManagerBeingReplaced) {
+                throw new InvalidOperationException(message);
             }
         }
     }
@@ -235,6 +246,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
         public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
             this.EnsureNotDisposed();
+            this.EnsureNotReplacingManager("Cannot attempt to get resource while manager is being set");
             switch (this.IsValid) {
                 case false: {
                     if (this.cached != null)
@@ -444,6 +456,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
         public bool TryGetResource(out T resource, bool requireIsOnline = true) {
             this.EnsureNotDisposed();
+            this.EnsureNotReplacingManager("Cannot attempt to get resource while manager is being set");
             switch (this.IsValid) {
                 case false:
                     if (this.cached != null)

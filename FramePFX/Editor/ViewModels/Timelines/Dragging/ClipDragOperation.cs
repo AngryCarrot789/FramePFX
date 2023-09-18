@@ -51,8 +51,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Dragging {
             }
 
             for (int i = this.clips.Count - 1; i >= 0; i--) {
-                ClipDragHandleInfo info = this.clips[i];
-                this.timeline.MoveClip(info.clip, track, targetTrack);
+                track.MoveClipToTrack(this.clips[i].clip, targetTrack);
             }
         }
     }

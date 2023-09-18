@@ -36,7 +36,6 @@
             <ListBox HorizontalAlignment="Stretch"
                      BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0"
                      ItemsSource="{Binding Resources}"
-                     SelectedIndex="{Binding CurrentIndex, UpdateSourceTrigger=PropertyChanged}"
                      SelectedItem="{Binding CurrentItem, UpdateSourceTrigger=PropertyChanged}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>

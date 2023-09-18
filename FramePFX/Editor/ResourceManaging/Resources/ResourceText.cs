@@ -19,6 +19,10 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
 
         public bool IsAntiAliased { get; set; }
 
+        public SKPaint GeneratedPaint;
+        public SKFont GeneratedFont;
+        public SKTextBlob[] GeneratedBlobs;
+
         public ResourceText() {
             this.FontSize = 40;
             this.FontFamily = "Consolas";
@@ -27,6 +31,53 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             this.Border = SKColors.DarkGray;
             this.BorderThickness = 5d;
             this.IsAntiAliased = true;
+        }
+
+        public override void OnDataModified(string propertyName = null) {
+            switch (propertyName) {
+                case nameof(this.Text):
+                case nameof(this.FontFamily):
+                case nameof(this.FontSize):
+                case nameof(this.SkewX):
+                case nameof(this.BorderThickness):
+                case nameof(this.Foreground):
+                case nameof(this.IsAntiAliased):
+                    this.InvalidateSkiaTextData();
+                    this.GenerateSkiaTextData();
+                    break;
+            }
+
+            base.OnDataModified(propertyName);
+        }
+
+        public void InvalidateSkiaTextData() {
+            this.GeneratedFont?.Dispose();
+            this.GeneratedFont = null;
+            this.GeneratedPaint?.Dispose();
+            this.GeneratedPaint = null;
+            DisposeTextBlobs(ref this.GeneratedBlobs);
+        }
+
+        public void GenerateSkiaTextData() {
+            if (this.GeneratedFont == null) {
+                SKTypeface typeface = SKTypeface.FromFamilyName(string.IsNullOrEmpty(this.FontFamily) ? "Consolas" : this.FontFamily);
+                if (typeface != null) {
+                    this.GeneratedFont = new SKFont(typeface, (float) this.FontSize, 1f, (float) this.SkewX);
+                }
+            }
+
+            if (this.GeneratedPaint == null && this.GeneratedFont != null) {
+                this.GeneratedPaint = new SKPaint(this.GeneratedFont) {
+                    StrokeWidth = (float) this.BorderThickness,
+                    Color = this.Foreground,
+                    TextAlign = SKTextAlign.Left,
+                    IsAntialias = this.IsAntiAliased
+                };
+            }
+
+            if (this.GeneratedBlobs == null && !string.IsNullOrEmpty(this.Text) && this.GeneratedFont != null && this.GeneratedPaint != null) {
+                this.GeneratedBlobs = CreateTextBlobs(this.Text, this.GeneratedPaint, this.GeneratedFont);
+            }
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -51,6 +102,33 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             this.Border = data.GetUInt(nameof(this.Border));
             this.BorderThickness = data.GetDouble(nameof(this.BorderThickness));
             this.IsAntiAliased = data.GetBool(nameof(this.IsAntiAliased));
+        }
+
+        public static SKTextBlob[] CreateTextBlobs(string input, SKPaint paint, SKFont font) {
+            return CreateTextBlobs(input, font, paint.TextSize * 1.2f);
+        }
+
+        public static SKTextBlob[] CreateTextBlobs(string input, SKFont font, float lineHeight) {
+            if (string.IsNullOrEmpty(input)) {
+                return null;
+            }
+
+            string[] lines = input.Split('\n');
+            SKTextBlob[] blobs = new SKTextBlob[lines.Length];
+            for (int i = 0; i < lines.Length; i++) {
+                float y = 0 + (i * lineHeight);
+                blobs[i] = SKTextBlob.Create(lines[i], font, new SKPoint(0, y));
+            }
+
+            return blobs;
+        }
+
+        public static void DisposeTextBlobs(ref SKTextBlob[] blobs) {
+            if (blobs == null)
+                return;
+            foreach (SKTextBlob blob in blobs)
+                blob?.Dispose();
+            blobs = null;
         }
     }
 }

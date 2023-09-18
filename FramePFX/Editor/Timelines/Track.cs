@@ -167,6 +167,20 @@ namespace FramePFX.Editor.Timelines {
             this.clips.MoveItem(oldIndex, newIndex);
         }
 
+        public bool MoveClipToTrack(Clip clip, Track newTrack) {
+            int index = this.clips.IndexOf(clip);
+            if (index == -1)
+                return false;
+            this.MoveClipToTrack(index, newTrack);
+            return true;
+        }
+
+        public void MoveClipToTrack(int index, Track newTrack) {
+            Clip clip = this.clips[index];
+            this.clips.RemoveAt(index);
+            newTrack.AddClip(clip);
+        }
+
         public abstract Track CloneCore();
 
         public virtual void WriteToRBE(RBEDictionary data) {

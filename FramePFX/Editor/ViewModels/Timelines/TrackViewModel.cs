@@ -152,15 +152,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             ClipViewModel.RaiseTrackChanged(clip);
         }
 
-        public bool RemoveClipFromTrack(ClipViewModel clip) {
+        public bool RemoveClip(ClipViewModel clip) {
             int index = this.clips.IndexOf(clip);
             if (index < 0)
                 return false;
-            this.RemoveClipFromTrack(index);
+            this.RemoveClipAt(index);
             return true;
         }
 
-        public ClipViewModel RemoveClipFromTrack(int index) {
+        public ClipViewModel RemoveClipAt(int index) {
             ClipViewModel clip = this.clips[index];
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception($"Clip track does not match the current instance: {clip.Track} != {this}");
@@ -210,7 +210,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
                     Validate.Exception(index < this.Model.Clips.Count, "Model-ViewModel list desynchronized");
                     Validate.Exception(ReferenceEquals(clip.Model, this.Model.Clips[index]), "Model-ViewModel list desynchronized");
-                    this.RemoveClipFromTrack(index);
+                    this.RemoveClipAt(index);
                     try {
                         clip.Dispose();
                     }
@@ -238,7 +238,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     ClipViewModel clip = this.clips[i];
 
                     try {
-                        this.RemoveClipFromTrack(i);
+                        this.RemoveClipAt(i);
                     }
                     catch (Exception e) {
                         innerStack.Add(new Exception("Failed to remove clip from track", e));
@@ -350,6 +350,35 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
             if (!clip.IsSelected)
                 clip.IsSelected = true;
+        }
+
+        public void MoveClipToTrack(ClipViewModel clip, TrackViewModel newTrack) {
+            if (newTrack == null) {
+                this.RemoveClip(clip);
+                return;
+            }
+            else if (clip.Track == null) {
+                this.AddClip(clip);
+                return;
+            }
+
+            int index = this.clips.IndexOf(clip);
+            if (index < 0) {
+                throw new Exception("Clip was not present in the old track");
+            }
+
+            if (!ReferenceEquals(clip, this.clips[index]))
+                throw new Exception($"Clip does not reference equal other clip in track: {clip} != {this.clips[index]}");
+            if (!ReferenceEquals(this, clip.Track))
+                throw new Exception($"Clip track does not match the current instance: {clip.Track} != {this}");
+            if (!ReferenceEquals(this.Model.Clips[index], clip.Model))
+                throw new Exception($"Clip model clip list desynchronized");
+
+            this.Model.MoveClipToTrack(index, newTrack.Model);
+            this.clips.RemoveAt(index);
+            newTrack.clips.Add(clip);
+            clip.Track = newTrack;
+            ClipViewModel.RaiseTrackChanged(clip);
         }
     }
 }

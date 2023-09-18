@@ -303,30 +303,25 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public void Dispose() {
             using (ErrorList stack = new ErrorList("Exception disposing timeline")) {
-                try {
-                    this.DisposeCore(stack);
-                }
-                catch (Exception e) {
-                    stack.Add(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
-                }
+                this.DisposeCore(stack);
             }
         }
 
-        protected virtual void DisposeCore(ErrorList stack) {
-            using (ErrorList innerStack = new ErrorList(false)) {
+        protected virtual void DisposeCore(ErrorList list) {
+            using (ErrorList innerList = ErrorList.NoAutoThrow) {
                 foreach (TrackViewModel track in this.tracks) {
                     try {
                         track.Dispose();
                     }
                     catch (Exception e) {
-                        innerStack.Add(e);
+                        innerList.Add(e);
                     }
                 }
 
                 this.tracks.Clear();
                 this.Model.ClearTracks();
-                if (innerStack.TryGetException(out Exception ex)) {
-                    stack.Add(ex);
+                if (innerList.TryGetException(out Exception ex)) {
+                    list.Add(ex);
                 }
             }
         }
@@ -336,10 +331,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             return index > 0 ? this.tracks[index - 1] : null;
         }
 
-        public void MoveClip(ClipViewModel clip, TrackViewModel oldTrack, TrackViewModel newTrack) {
-            if (!oldTrack.RemoveClipFromTrack(clip))
-                throw new Exception("Clip was not present in the old track");
-            newTrack.AddClip(clip);
+        public static void MoveClip(ClipViewModel clip, TrackViewModel oldTrack, TrackViewModel newTrack) {
+            oldTrack.MoveClipToTrack(clip, newTrack);
         }
 
         public void OnProjectModified() {

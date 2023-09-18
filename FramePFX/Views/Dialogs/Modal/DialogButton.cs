@@ -5,6 +5,10 @@ using FramePFX.Views.Dialogs.Message;
 
 namespace FramePFX.Views.Dialogs.Modal {
     public class DialogButton : BaseViewModel {
+        private string text;
+        private string toolTip;
+        private bool canUseAsAutomaticResult;
+
         /// <summary>
         /// The dialog that owns this button
         /// </summary>
@@ -21,20 +25,25 @@ namespace FramePFX.Views.Dialogs.Modal {
         /// </summary>
         public string ActionType { get; }
 
-        private string text;
-
+        /// <summary>
+        /// Gets or sets the text that is placed in this button
+        /// </summary>
         public string Text {
             get => this.text;
             set => this.RaisePropertyChanged(ref this.text, value);
         }
 
-        private string toolTip;
-
+        /// <summary>
+        /// A tooltip that is shown when the user places their mouse over this button for long enough
+        /// </summary>
         public string ToolTip {
             get => this.toolTip;
             set => this.RaisePropertyChanged(ref this.toolTip, value);
         }
 
+        /// <summary>
+        /// Whether or not this button is enabled (can be clicked)
+        /// </summary>
         public bool IsEnabled {
             get => this.Command.IsEnabled;
             set {
@@ -42,8 +51,6 @@ namespace FramePFX.Views.Dialogs.Modal {
                 this.RaisePropertyChanged();
             }
         }
-
-        private bool canUseAsAutomaticResult;
 
         /// <summary>
         /// Whether or not this button can be used as the automatic result when the owning dialog is trying to show

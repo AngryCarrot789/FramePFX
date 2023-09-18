@@ -13,20 +13,28 @@ using FramePFX.Views.Dialogs;
 namespace FramePFX.Editor.ResourceChecker {
     public class ResourceCheckerViewModel : BaseViewModel {
         private readonly ObservableCollectionEx<InvalidResourceViewModel> resources;
+        private InvalidResourceViewModel currentItem;
+        private string caption;
+
+        /// <summary>
+        /// A collection of invalid resource resolvers that are present
+        /// </summary>
         public ReadOnlyObservableCollection<InvalidResourceViewModel> Resources { get; }
 
-        private InvalidResourceViewModel currentItem;
-
+        /// <summary>
+        /// The item that is currently selected in the UI
+        /// </summary>
         public InvalidResourceViewModel CurrentItem {
             get => this.currentItem;
             set => this.RaisePropertyChanged(ref this.currentItem, value);
         }
 
-        private int currentIndex;
-
-        public int CurrentIndex {
-            get => this.currentIndex;
-            set => this.RaisePropertyChanged(ref this.currentIndex, value);
+        /// <summary>
+        /// A piece of text to show in the caption/titlebar
+        /// </summary>
+        public string Caption {
+            get => this.caption;
+            set => this.RaisePropertyChanged(ref this.caption, value);
         }
 
         public AsyncRelayCommand CancelCommand { get; }
@@ -41,10 +49,19 @@ namespace FramePFX.Editor.ResourceChecker {
             this.CancelCommand = new AsyncRelayCommand(this.CancelAction);
             this.OfflineCurrentCommand = new AsyncRelayCommand(this.OfflineCurrentAction);
             this.OfflineAllCommand = new AsyncRelayCommand(this.OfflineAllAction);
+            this.caption = "Resolve resource errors";
         }
 
         public static Task<bool> LoadProjectResources(ProjectViewModel project, bool ignoreUserOffline) {
-            return LoadResources(project.ResourceManager.Root.Items.ToList(), ignoreUserOffline);
+            return LoadProjectResources(new ResourceCheckerViewModel(), project, ignoreUserOffline);
+        }
+
+        public static Task<bool> LoadProjectResources(ResourceCheckerViewModel checker, ProjectViewModel project, bool ignoreUserOffline) {
+            return LoadResources(checker, project.ResourceManager.Root.Items.ToList(), ignoreUserOffline);
+        }
+
+        public static Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false) {
+            return LoadResources(new ResourceCheckerViewModel(), resources, ignoreUserOffline);
         }
 
         /// <summary>
@@ -56,8 +73,11 @@ namespace FramePFX.Editor.ResourceChecker {
         /// <param name="resources"></param>
         /// <param name="ignoreUserOffline">If the resource was forced offline by the user, setting this to true will force it to be validated anyway</param>
         /// <returns>Whether the UI operation was successful or cancelled</returns>
-        public static async Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false) {
-            ResourceCheckerViewModel checker = new ResourceCheckerViewModel();
+        public static async Task<bool> LoadResources(ResourceCheckerViewModel checker, IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false) {
+            if (checker == null) {
+                throw new ArgumentNullException(nameof(checker));
+            }
+
             foreach (BaseResourceObjectViewModel obj in resources) {
                 await LoadResourcesRecursive(checker, obj, ignoreUserOffline);
             }
@@ -87,9 +107,9 @@ namespace FramePFX.Editor.ResourceChecker {
         }
 
         private async Task OfflineCurrentAction() {
-            int index = this.currentIndex;
+            int index = this.resources.IndexOf(this.currentItem);
             if (index >= 0 && index < this.resources.Count) {
-                InvalidResourceViewModel resource = this.resources[index];
+                InvalidResourceViewModel resource = this.currentItem;
                 await resource.SetResourceOfflineAsync();
                 resource.Checker = null;
                 this.resources.RemoveAt(index);

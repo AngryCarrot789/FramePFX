@@ -12,6 +12,8 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.RBC;
 using FramePFX.Utils;
+using FramePFX.Views.Dialogs.Message;
+using FramePFX.Views.Dialogs.Modal;
 
 namespace FramePFX.Editor.ViewModels {
     public class ProjectViewModel : BaseViewModel, IDisposable {
@@ -46,7 +48,7 @@ namespace FramePFX.Editor.ViewModels {
         public string DataFolder {
             get => this.Model.DataFolder;
             private set {
-                this.Model.DataFolder = value;
+                Project.SetDataFolder(this.Model, value);
                 this.RaisePropertyChanged();
             }
         }
@@ -90,6 +92,21 @@ namespace FramePFX.Editor.ViewModels {
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.IsSaving);
             this.OpenSettingsCommand = new AsyncRelayCommand(this.OpenSettingsAction);
             this.Model.GetDataFolder();
+        }
+
+        private static readonly MessageDialog ShouldCreateDataFolderDialog;
+
+        static ProjectViewModel() {
+            ShouldCreateDataFolderDialog = Dialogs.YesNoDialog.Clone();
+            DialogButton yes = ShouldCreateDataFolderDialog.GetButtonById("yes");
+            yes.Text = "Auto-create";
+            yes.ToolTip = "Creates a new folder, with the same name as the project file, which is where the project assets are stores";
+
+            DialogButton no = ShouldCreateDataFolderDialog.GetButtonById("no");
+            no.Text = "Use Parent";
+            no.ToolTip = "Uses the parent folder (that the project file is stored in) as the data folder";
+
+            ShouldCreateDataFolderDialog.ShowAlwaysUseNextResultOption = true;
         }
 
         public async Task OpenSettingsAction() {
@@ -150,7 +167,10 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task<bool> SaveActionAsync() {
-            if (!string.IsNullOrEmpty(this.DataFolder) && (Directory.Exists(this.DataFolder) || this.HasSavedOnce)) {
+            if (this.Model.IsTempDataFolder || this.DataFolder == null || !Directory.Exists(this.DataFolder) && !this.HasSavedOnce) {
+                return await this.SaveAsActionAsync();
+            }
+            else {
                 if (this.Editor == null)
                     return false;
                 if (this.IsSaving) {
@@ -159,9 +179,6 @@ namespace FramePFX.Editor.ViewModels {
                 }
 
                 return await this.SaveProjectData(this.DataFolder);
-            }
-            else {
-                return await this.SaveAsActionAsync();
             }
         }
 
@@ -173,51 +190,77 @@ namespace FramePFX.Editor.ViewModels {
                 return false;
             }
 
-            string result = await IoC.FilePicker.OpenFolder(Path.GetDirectoryName(this.DataFolder), "Select a folder, in which the project data will be saved into");
-            if (result != null && await this.SaveProjectData(result)) {
-                this.DataFolder = result;
-                return true;
-            }
-
-            return false;
+            string initialPath = !string.IsNullOrEmpty(this.DataFolder) ? Path.GetDirectoryName(this.DataFolder) : null;
+            string file = await IoC.FilePicker.SaveFile(Filters.ProjectTypeAndAllFiles, initialPath, "Select a folder, in which the project data will be saved into");
+            return !string.IsNullOrEmpty(file) && await this.SaveProjectData(file);
         }
 
         // Use debug and release versions in order for the debugger to pickup exceptions or Debugger.Break() (for debugging of course)
 
-        private async Task<bool> SaveProjectData(string folder) {
-            if (string.IsNullOrEmpty(folder)) {
-                throw new Exception("Project dir cannot be null or empty");
+        private async Task<bool> SaveProjectData(string pfxFile) {
+            if (string.IsNullOrWhiteSpace(pfxFile)) {
+                throw new Exception("Project file path cannot be an empty string");
             }
 
-            DirectoryInfo dataFolder = null;
+            if (!pfxFile.EndsWith(Filters.FrameFPXExtensionDot)) {
+                pfxFile += Filters.FrameFPXExtensionDot;
+            }
+
+            string parentFolder;
             try {
-                dataFolder = Directory.CreateDirectory(folder);
+                parentFolder = Path.GetDirectoryName(pfxFile);
             }
-            catch (PathTooLongException ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Path too long", "Path was too long. Could not create project data folder", ex.GetToString());
-            }
-            catch (SecurityException ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Security Exception", "Application does not have permission to create directories", ex.GetToString());
-            }
-            catch (UnauthorizedAccessException ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Unauthorized access", "Application does not have access to that directory", ex.GetToString());
-            }
-            catch (Exception ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Unexpected error", "Could not create project directory", ex.GetToString());
-            }
-
-            if (dataFolder == null) {
+            catch (ArgumentException) {
+                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
                 return false;
             }
 
+            if (parentFolder == null) {
+                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file path represents a root-level directory (e.g. C:\\ drive)");
+                return false;
+            }
+            else if (parentFolder.Length < 1) {
+                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file does not have any directory information");
+                return false;
+            }
+
+            string dataFolder;
+            string result = await ShouldCreateDataFolderDialog.ShowAsync("Data Folder", "How do you want to use the data folder?");
+            if (result == "yes") {
+                dataFolder = Path.Combine(parentFolder, Path.GetFileNameWithoutExtension(pfxFile));
+                pfxFile = Path.Combine(dataFolder, Path.GetFileName(pfxFile));
+            }
+            else {
+                dataFolder = parentFolder;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dataFolder)) {
+                try {
+                    Directory.CreateDirectory(dataFolder);
+                }
+                catch (PathTooLongException ex) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Path too long", "Data Folder path was too long; could not create project data folder", ex.GetToString());
+                }
+                catch (SecurityException ex) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Security Exception", "Application does not have permission to create directories", ex.GetToString());
+                }
+                catch (UnauthorizedAccessException ex) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Unauthorized access", "Application does not have access to that directory", ex.GetToString());
+                }
+                catch (Exception ex) {
+                    await IoC.MessageDialogs.ShowMessageExAsync("Unexpected error", "Could not create project directory", ex.GetToString());
+                }
+            }
+
             // copy temp project files into actual project dir
-            if (!string.IsNullOrEmpty(this.Model.TempDataFolder) && Directory.Exists(this.Model.TempDataFolder)) {
+            if (this.Model.IsTempDataFolder && this.Model.DataFolder != null && Directory.Exists(this.Model.DataFolder)) {
                 await this.ResourceManager.OfflineAllAsync(false);
                 IEnumerable<string> enumerable = null;
                 try {
-                    enumerable = Directory.EnumerateFileSystemEntries(this.Model.TempDataFolder);
+                    enumerable = Directory.EnumerateFileSystemEntries(this.Model.DataFolder);
                 }
                 catch (Exception e) {
+                    // e.g. no access or the folder gets deleted in the microseconds after Directory.Exists returns
                     AppLogger.WriteLine("Failed to create temp folder enumerator: " + e.GetToString());
                 }
 
@@ -243,11 +286,12 @@ namespace FramePFX.Editor.ViewModels {
                             }
 
                             string path = enumerator.Current;
-                            if (string.IsNullOrEmpty(path))
+                            if (string.IsNullOrEmpty(path)) {
                                 continue;
+                            }
+
                             try {
-                                string fileName = Path.GetFileName(path);
-                                Directory.Move(path, Path.Combine(dataFolder.FullName, fileName));
+                                Directory.Move(path, Path.Combine(dataFolder, Path.GetFileName(path)));
                             }
                             catch (Exception ex) {
                                 AppLogger.WriteLine("Exception while moving path from temp to real directory: " + ex.GetToString());
@@ -257,18 +301,19 @@ namespace FramePFX.Editor.ViewModels {
                 }
 
                 try {
-                    Directory.Delete(this.Model.TempDataFolder);
+                    Directory.Delete(this.Model.DataFolder);
                 }
                 catch (Exception ex) {
                     AppLogger.WriteLine("Failed to delete temp data folder: " + ex.GetToString());
                 }
-                finally {
-                    this.Model.TempDataFolder = null;
-                }
 
-                if (!await ResourceCheckerViewModel.LoadProjectResources(this, false)) {
-                    return false;
-                }
+                this.DataFolder = null;
+
+                ResourceCheckerViewModel checker = new ResourceCheckerViewModel() {
+                    Caption = "Moving files from temp to new data folder appears to broken things. Fix them here"
+                };
+
+                await ResourceCheckerViewModel.LoadProjectResources(checker, this, false);
             }
 
             this.IsSaving = true;
@@ -276,18 +321,40 @@ namespace FramePFX.Editor.ViewModels {
                 await this.Editor.OnProjectSaving();
             }
 
-            RBEDictionary dictionary = new RBEDictionary();
-            this.Model.WriteToRBE(dictionary);
+            // TODO: maybe add methods to allow resources or clips to save stuff to file here?
 
-            string projectFile = Path.Combine(folder, "Project" + Filters.FrameFPXExtensionDot);
-            RBEUtils.WriteToFilePacked(dictionary, projectFile);
-            this.IsSaving = false;
-            if (this.Editor != null) {
-                await this.Editor.OnProjectSaved(null);
+            Exception exception = null;
+            RBEDictionary dictionary = new RBEDictionary();
+            try {
+                this.Model.WriteToRBE(dictionary);
+            }
+            catch (Exception e) {
+                exception = e;
+                await IoC.MessageDialogs.ShowMessageExAsync("Error saving project", "An exception occurred serialising saving project", e.GetToString());
             }
 
-            this.HasSavedOnce = true;
-            this.SetHasUnsavedChanges(false);
+            if (exception == null) {
+                try {
+                    RBEUtils.WriteToFilePacked(dictionary, pfxFile);
+                }
+                catch (Exception e) {
+                    exception = e;
+                    await IoC.MessageDialogs.ShowMessageExAsync("Error saving project", "An exception occurred writing project to disk", e.GetToString());
+                }
+            }
+
+            this.IsSaving = false;
+            if (this.Editor != null) {
+                await this.Editor.OnProjectSaved(exception);
+            }
+
+            if (exception == null) {
+                this.HasSavedOnce = true;
+                this.SetHasUnsavedChanges(false);
+            }
+
+            this.DataFolder = pfxFile;
+
             return true;
         }
 

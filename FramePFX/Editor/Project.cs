@@ -26,11 +26,18 @@ namespace FramePFX.Editor {
         public bool IsExporting { get; set; }
 
         /// <summary>
-        /// This project's data folder, which is where file-based data is stored (that isn't stored using an absolute path)
+        /// This project's data folder, which is where file-based data is stored (that isn't stored using an absolute path).
+        /// <para>
+        /// This will return null if a data folder has not been generated, in which case,
+        /// calling <see cref="GetDataFolderPath"/> or any similar function will generate it
+        /// </para>
         /// </summary>
-        public string DataFolder;
+        public string DataFolder { get; private set; }
 
-        public string TempDataFolder;
+        /// <summary>
+        /// Whether or not <see cref="DataFolder"/> is located in the tmp folder
+        /// </summary>
+        public bool IsTempDataFolder { get; private set; }
 
         public Project() {
             this.Settings = new ProjectSettings() {
@@ -45,22 +52,17 @@ namespace FramePFX.Editor {
         }
 
         public void WriteToRBE(RBEDictionary data) {
-            if (!string.IsNullOrEmpty(this.DataFolder)) {
-                data.SetString(nameof(this.DataFolder), this.DataFolder);
-            }
-            else if (!string.IsNullOrEmpty(this.TempDataFolder)) {
-                data.SetString(nameof(this.TempDataFolder), this.TempDataFolder);
-            }
-
             this.Settings.WriteToRBE(data.CreateDictionary(nameof(this.Settings)));
             this.ResourceManager.WriteToRBE(data.CreateDictionary(nameof(this.ResourceManager)));
             this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
-            this.DataFolder = data.GetString(nameof(this.DataFolder), null);
-            if (string.IsNullOrEmpty(this.DataFolder))
-                this.TempDataFolder = data.GetString(nameof(this.TempDataFolder), null);
+        public void ReadFromRBE(RBEDictionary data, string dataFolder) {
+            if (this.DataFolder != null) {
+                throw new Exception("Our data folder is not invalid; cannot replace it");
+            }
+
+            this.DataFolder = dataFolder;
             this.Settings.ReadFromRBE(data.GetDictionary(nameof(this.Settings)));
             this.ResourceManager.ReadFromRBE(data.GetDictionary(nameof(this.ResourceManager)));
             this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
@@ -74,32 +76,27 @@ namespace FramePFX.Editor {
         /// <exception cref="ArgumentException">The path's file path is null or empty... somehow</exception>
         public string GetFilePath(ProjectPath file) {
             if (string.IsNullOrEmpty(file.FilePath)) {
-                throw new ArgumentException("File's path cannot be null or empty", nameof(file));
+                throw new ArgumentException("File's path cannot be null or empty (corrupted project path)", nameof(file));
             }
 
             if (file.IsAbsolute) {
                 return Path.GetFullPath(file.FilePath);
             }
             else {
-                return Path.Combine(this.GetDirectoryPath(out _), file.FilePath);
+                return Path.Combine(this.GetDataFolderPath(out _), file.FilePath);
             }
         }
 
-        public string GetDirectoryPath(out bool isTemp) {
+        public string GetDataFolderPath(out bool isTemp) {
             if (string.IsNullOrEmpty(this.DataFolder)) {
-                isTemp = true;
-                if (string.IsNullOrEmpty(this.TempDataFolder)) {
-                    string path = RandomUtils.RandomStringWhere(Path.GetTempPath(), 32, x => !Directory.Exists(x));
-                    return this.TempDataFolder = path;
-                }
-                else {
-                    return this.TempDataFolder;
-                }
+                this.IsTempDataFolder = isTemp = true;
+                this.DataFolder = RandomUtils.RandomStringWhere(Path.GetTempPath(), 16, x => !Directory.Exists(x));
             }
             else {
                 isTemp = false;
-                return this.DataFolder;
             }
+
+            return this.DataFolder;
         }
 
         /// <summary>
@@ -109,7 +106,7 @@ namespace FramePFX.Editor {
         /// <returns>The directory info for the data folder</returns>
         public DirectoryInfo GetDataFolder(out bool isTemp) {
             // Cleaner and also faster than manual existence check (exists() ? new DirectoryInfo(dir) : create())
-            return Directory.CreateDirectory(this.GetDirectoryPath(out isTemp));
+            return Directory.CreateDirectory(this.GetDataFolderPath(out isTemp));
         }
 
         /// <summary>
@@ -123,6 +120,10 @@ namespace FramePFX.Editor {
         /// </summary>
         public void UpdateAutomationBackingStorage() {
             this.Timeline.UpdateAutomationBackingStorage();
+        }
+
+        public static void SetDataFolder(Project project, string value) {
+            project.DataFolder = value;
         }
     }
 }

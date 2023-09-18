@@ -55,7 +55,11 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             }
 
             if (list.Count > 0) {
-                await ResourceCheckerViewModel.LoadResources(list, true);
+                ResourceCheckerViewModel checker = new ResourceCheckerViewModel() {
+                    Caption = (list.Count == 1 ? "This resource" : "These resources") + " could not be loaded (e.g. missing files)"
+                };
+
+                await ResourceCheckerViewModel.LoadResources(checker, list, true);
             }
         }
     }

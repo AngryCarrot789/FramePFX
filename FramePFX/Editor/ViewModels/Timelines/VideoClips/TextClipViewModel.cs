@@ -6,43 +6,43 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         public new TextVideoClip Model => (TextVideoClip) ((ClipViewModel) this).Model;
 
         public bool UseCustomText {
-            get => this.Model.ULText;
+            get => this.Model.UseCustomText;
             set {
-                this.Model.ULText = value;
-                if (value) {
-                    this.Model.LocalText.Text = this.Model.ResourceHelper.TryGetResource(out ResourceText resource) ? resource.Text : this.invalidResource_CachedText;
-                    this.invalidResource_CachedText = null;
-                }
-                else if (this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
-                    this.invalidResource_CachedText = resource.Text;
+                if (this.UseCustomText == value) {
+                    return;
                 }
 
+                this.Model.UseCustomText = value;
+                if (!this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
+                    return;
+                }
+
+                this.Model.CustomText = resource.Text;
                 this.Model.InvalidateTextCache();
+                this.Model.GenerateTextCache();
                 this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(this.Text));
                 this.Model.InvalidateRender();
             }
         }
 
-        private string invalidResource_CachedText; // the resource modified events will update this field
-
-        public string Text {
-            get => this.UseCustomText ? this.Model.LocalText.Text : this.invalidResource_CachedText;
+        public string CustomOrResourceText {
+            get {
+                if (this.UseCustomText || !this.Model.ResourceHelper.TryGetResource(out ResourceText resource))
+                    return this.Model.CustomText;
+                return resource.Text;
+            }
             set {
-                if (this.UseCustomText) {
-                    this.invalidResource_CachedText = null;
-                    this.Model.LocalText.Text = value;
+                if (this.UseCustomText || !this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
+                    this.Model.CustomText = value;
                     this.Model.InvalidateTextCache();
-                }
-                else if (!this.Model.ResourceHelper.TryGetResource(out ResourceText resource)) {
-                    this.invalidResource_CachedText = value;
+                    this.Model.GenerateTextCache();
+                    this.RaisePropertyChanged();
                 }
                 else {
                     resource.Text = value;
                     resource.OnDataModified(nameof(resource.Text));
                 }
 
-                this.RaisePropertyChanged();
                 this.Model.InvalidateRender();
             }
         }
@@ -60,7 +60,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         private double fontSize;
-
         public double FontSize {
             get => this.fontSize;
             set {
@@ -73,7 +72,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         private double skewX;
-
         public double SkewX {
             get => this.skewX;
             set {
@@ -91,9 +89,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         private void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
-            if (!this.UseCustomText) {
-                this.invalidResource_CachedText = newItem?.Text ?? "Text Here";
-                this.RaisePropertyChanged(nameof(this.Text));
+            if (this.UseCustomText) {
+                this.RaisePropertyChanged(nameof(this.CustomOrResourceText));
             }
 
             this.fontSize = newItem?.FontSize ?? 12d;
@@ -106,9 +103,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
 
         private void OnResourceModified(ResourceText resource, string property) {
             switch (property) {
-                case nameof(resource.Text) when !this.UseCustomText:
-                    this.invalidResource_CachedText = resource.Text;
-                    this.RaisePropertyChanged(nameof(this.Text));
+                case nameof(resource.Text) when this.UseCustomText:
+                    this.RaisePropertyChanged(nameof(this.CustomOrResourceText));
                     break;
                 case nameof(resource.FontSize):
                     this.fontSize = resource.FontSize;

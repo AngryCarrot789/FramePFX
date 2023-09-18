@@ -93,7 +93,7 @@
             <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Normal" Padding="6,1" Text="Font" Height="18" Margin="0,0,0,0" />
             <TextBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="6,1" Text="{Binding FontFamily, UpdateSourceTrigger=PropertyChanged}" TextWrapping="NoWrap" Margin="0,0,0,0" />
             <TextBlock Grid.Row="1" Grid.Column="0" FontWeight="Normal" Padding="6,1" Text="Text" Height="18" Margin="0,0,0,0" />
-            <TextBox Grid.Row="1" Grid.Column="2" FontWeight="Normal" Padding="6,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0,0,0,0"/>
+            <TextBox Grid.Row="1" Grid.Column="2" AcceptsReturn="True" AcceptsTab="True" FontWeight="Normal" Padding="6,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0,0,0,0"/>
         </Grid>
     </DataTemplate>
 

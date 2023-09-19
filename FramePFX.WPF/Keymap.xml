@@ -9,17 +9,23 @@
             <KeyStroke Mods="CTRL" Key="R" />
         </Shortcut>
         <Group Name="Editor">
+            <Group Name="ViewPort">
+                <Shortcut Name="TogglePlayPause" ActionId="actions.editor.timeline.TogglePlayPause" Description="Causes the timeline to play or pause">
+                    <KeyStroke Key="Space" />
+                </Shortcut>
+            </Group>
+
 			<!-- ################################## things #################################### -->
-			<InputState Name="UseStateAss1" UseGroupAsManager="true" CanToggle="true">
+			<InputState Name="UseState1" UseGroupAsManager="true" CanToggle="true">
 				<InputState.ActivationKeyStroke Key="D1"/>
 			</InputState>
-            <InputState Name="UseStateAss2" UseGroupAsManager="true">
+            <InputState Name="UseState2" UseGroupAsManager="true">
                 <InputState.ActivationKeyStroke Key="D2"/>
             </InputState>
-            <InputState Name="UseStateAss3" UseGroupAsManager="true">
+            <InputState Name="UseState3" UseGroupAsManager="true">
                 <InputState.ActivationKeyStroke Key="D3"/>
             </InputState>
-            <InputState Name="UseStateAss4" UseGroupAsManager="true">
+            <InputState Name="UseState4" UseGroupAsManager="true">
                 <InputState.ActivationKeyStroke Key="D4"/>
             </InputState>
 

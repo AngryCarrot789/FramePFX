@@ -106,5 +106,19 @@ namespace FramePFX.WPF.Utils {
                 return false;
             }
         }
+
+        public static ItemsControl GetItemsControlFromObject(DependencyObject obj) {
+            ItemsControl ic = ItemsControl.ItemsControlFromItemContainer(obj);
+            if (ic != null) {
+                return ic;
+            }
+
+            DependencyObject templated;
+            if (obj is FrameworkElement && (templated = ((FrameworkElement) obj).TemplatedParent) != null) {
+                ic = templated as ItemsControl ?? ItemsControl.ItemsControlFromItemContainer(templated);
+            }
+
+            return ic;
+        }
     }
 }

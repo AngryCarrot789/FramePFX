@@ -9,10 +9,13 @@ namespace FramePFX.Editor.Actions {
             if (context.TryGetContext(out editor)) {
                 return true;
             }
-            else if (context.TryGetContext(out ProjectViewModel project) && (editor = project.Editor) != null) {
+            else if (context.TryGetContext(out TimelineViewModel timeline) && (editor = timeline.Project.Editor) != null) {
                 return true;
             }
-            else if (context.TryGetContext(out TimelineViewModel timeline) && (editor = timeline.Project.Editor) != null) {
+            else if (context.TryGetContext(out EditorPlaybackViewModel playback) && (editor = playback.Editor) != null) {
+                return true;
+            }
+            else if (context.TryGetContext(out ProjectViewModel project) && (editor = project.Editor) != null) {
                 return true;
             }
             else if (context.TryGetContext(out TrackViewModel track) && (editor = track.Timeline.Project.Editor) != null) {

@@ -40,7 +40,7 @@ namespace FramePFX.Shortcuts.Managing {
         public IDataContext CurrentDataContext { get; set; }
 
         public ShortcutInputManager(ShortcutManager manager) {
-            this.Manager = manager;
+            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
             this.ActiveUsages = new Dictionary<IShortcutUsage, GroupedShortcut>();
             this.cachedShortcutList = new List<GroupedShortcut>(8);
             this.cachedInputStateList = new List<(GroupedInputState, bool)>();

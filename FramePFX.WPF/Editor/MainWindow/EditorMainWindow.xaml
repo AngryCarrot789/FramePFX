@@ -4,7 +4,7 @@
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:views="clr-namespace:FramePFX.WPF.Views"
-            xmlns:shortcuts="clr-namespace:FramePFX.WPF.Shortcuts"
+            xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
             xmlns:editor="clr-namespace:FramePFX.WPF.Editor"
             xmlns:local="clr-namespace:FramePFX.WPF.Editor.MainWindow"
             xmlns:converters="clr-namespace:FramePFX.WPF.Converters"
@@ -26,8 +26,7 @@
             Background="{DynamicResource PanelBackground1}"
             BorderBrush="{DynamicResource PanelBorderBrush}"
             TitlebarBrush="{DynamicResource ABrush.Tone6.Background.Static}"
-            shortcuts:UIInputManager.IsInputSource="True"
-            shortcuts:UIInputManager.FocusPath="Application/Editor">
+            sc:UIInputManager.FocusPath="Application/Editor">
     <Window.Resources>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v0.2.201)" />
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True" />
@@ -91,7 +90,7 @@
                             <LayoutPanel Orientation="Horizontal">
                                 <LayoutAnchorablePane>
                                     <LayoutAnchorable Title="Resources" ContentId="FilesAndResources" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <wctrl:ResourcesPanelControl DataContext="{Binding ActiveProject.ResourceManager}" shortcuts:UIInputManager.FocusPath="Application/Editor/Resources"/>
+                                        <wctrl:ResourcesPanelControl DataContext="{Binding ActiveProject.ResourceManager}" sc:UIInputManager.FocusPath="Application/Editor/Resources"/>
                                     </LayoutAnchorable>
                                     <LayoutAnchorable Title="Property Editor" ContentId="PropertyEditor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                         <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}" />
@@ -99,7 +98,7 @@
                                 </LayoutAnchorablePane>
                                 <LayoutAnchorablePane DockWidth="500">
                                     <LayoutAnchorable Title="Viewport" ContentId="VideoEditorViewPort" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <Grid Grid.Column="2" DataContext="{Binding Playback}">
+                                        <Grid DataContext="{Binding Playback}" sc:UIInputManager.FocusPath="Application/Editor/ViewPort">
                                             <Border Background="{DynamicResource PanelBackground3}" VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
                                                 <Grid>
                                                     <Button Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="OnFitContentToWindowClick" />
@@ -132,7 +131,7 @@
                                 <LayoutAnchorable Title="Main Timeline" ContentId="PropertyEditor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                     <Border Grid.Row="2" DataContext="{Binding ActiveProject}" 
                                                 IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}"
-                                                shortcuts:UIInputManager.FocusPath="Application/Editor/Timeline">
+                                                sc:UIInputManager.FocusPath="Application/Editor/Timeline">
                                         <ctrl:TimelineControl DataContext="{Binding Timeline, Mode=OneTime}">
                                             <b:ShortcutCommandCollection.Collection>
                                                 <b:ShortcutCommandCollection>

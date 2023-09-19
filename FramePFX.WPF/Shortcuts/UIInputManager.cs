@@ -9,10 +9,22 @@ namespace FramePFX.WPF.Shortcuts {
     public class UIInputManager : INotifyPropertyChanged {
         public static UIInputManager Instance { get; } = new UIInputManager();
 
-        public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-        public static readonly DependencyProperty IsInputSourceProperty = DependencyProperty.RegisterAttached("IsInputSource", typeof(bool), typeof(WPFShortcutManager), new PropertyMetadata(BoolBox.False, WPFShortcutManager.OnIsGlobalShortcutFocusTargetChanged));
+        public static readonly DependencyProperty FocusPathProperty =
+            DependencyProperty.RegisterAttached(
+                "FocusPath",
+                typeof(string),
+                typeof(UIInputManager),
+                new FrameworkPropertyMetadata(
+                    null,
+                    FrameworkPropertyMetadataOptions.Inherits, (o, args) => {
+                        if (o is UIElement element) {
+                            element.Focusable = true;
+                        }
+                    }));
+
         public static readonly DependencyProperty IsPathFocusedProperty = DependencyProperty.RegisterAttached("IsPathFocused", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
-        internal static readonly DependencyPropertyKey ShortcutProcessorProperty = DependencyProperty.RegisterAttachedReadOnly("ShortcutProcessor", typeof(WpfShortcutInputManager), typeof(UIInputManager), new PropertyMetadata(default(WpfShortcutInputManager)));
+        internal static readonly DependencyPropertyKey ShortcutProcessorPropertyKey = DependencyProperty.RegisterAttachedReadOnly("ShortcutProcessor", typeof(WPFShortcutInputManager), typeof(UIInputManager), new PropertyMetadata(default(WPFShortcutInputManager)));
+        public static readonly DependencyProperty ShortcutProcessorProperty = ShortcutProcessorPropertyKey.DependencyProperty;
         public static readonly DependencyProperty UsePreviewEventsProperty = DependencyProperty.RegisterAttached("UsePreviewEvents", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
 
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
@@ -50,17 +62,6 @@ namespace FramePFX.WPF.Shortcuts {
         /// Gets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
         /// </summary>
         public static string GetFocusPath(DependencyObject element) => (string) element.GetValue(FocusPathProperty);
-
-        /// <summary>
-        /// Sets whether or not the element is an input source. When true, many of its mouse and key
-        /// events will be hooked in order to process when to execute shortcuts
-        /// </summary>
-        public static void SetIsInputSource(UIElement element, bool value) => element.SetValue(IsInputSourceProperty, value.Box());
-
-        /// <summary>
-        /// Gets whether or not the element is a shortcut input source for processing shortcuts
-        /// </summary>
-        public static bool GetIsInputSource(UIElement element) => (bool) element.GetValue(IsInputSourceProperty);
 
         /// <summary>
         /// Sets whether this element has group focus (will only be set)

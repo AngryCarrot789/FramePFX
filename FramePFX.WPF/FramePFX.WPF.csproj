@@ -327,7 +327,7 @@
     </Compile>
     <Compile Include="Shortcuts\Views\ShortcutManagerDialogService.cs" />
     <Compile Include="Shortcuts\WPFKeyMapSerialiser.cs" />
-    <Compile Include="Shortcuts\WpfShortcutInputManager.cs" />
+    <Compile Include="Shortcuts\WPFShortcutInputManager.cs" />
     <Compile Include="Shortcuts\WPFShortcutManager.cs" />
     <Compile Include="SKAsyncViewPort.cs" />
     <Compile Include="SKViewPort.cs" />

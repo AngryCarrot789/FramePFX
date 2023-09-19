@@ -14,12 +14,13 @@ using FramePFX.Shortcuts.Usage;
 using FramePFX.Utils;
 using FramePFX.WPF.Shortcuts.Bindings;
 using FramePFX.WPF.Utils;
+using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.WPF.Shortcuts {
-    public class WpfShortcutInputManager : ShortcutInputManager {
+    public class WPFShortcutInputManager : ShortcutInputManager {
         private readonly Dictionary<string, List<InputStateBinding>> inputBindingStateMap;
-        private bool isProcessingKey;
-        private bool isProcessingMouse;
+        internal bool isProcessingKey;
+        internal bool isProcessingMouse;
 
         public new WPFShortcutManager Manager => (WPFShortcutManager) base.Manager;
 
@@ -28,12 +29,16 @@ namespace FramePFX.WPF.Shortcuts {
         /// </summary>
         public DependencyObject CurrentSource { get; private set; }
 
-        public WpfShortcutInputManager(WPFShortcutManager manager) : base(manager) {
+        public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager) {
             this.inputBindingStateMap = new Dictionary<string, List<InputStateBinding>>();
         }
 
         public static bool CanProcessEventType(DependencyObject obj, bool isPreviewEvent) {
             return UIInputManager.GetUsePreviewEvents(obj) == isPreviewEvent;
+        }
+
+        public static bool CanProcessMouseEvent(DependencyObject focused, MouseEventArgs e) {
+            return !(focused is TextBoxBase) || UIInputManager.GetCanProcessTextBoxMouseStroke(focused);
         }
 
         public static bool CanProcessKeyEvent(DependencyObject focused, KeyEventArgs e) {
@@ -48,86 +53,67 @@ namespace FramePFX.WPF.Shortcuts {
             }
         }
 
-        public static bool CanProcessMouseEvent(DependencyObject focused, MouseEventArgs e) {
-            return !(focused is TextBoxBase) || UIInputManager.GetCanProcessTextBoxMouseStroke(focused);
-        }
-
         // Using async void here could possibly be dangerous if the awaited processor method (e.g. OnMouseStroke) halts
         // for a while due to a dialog for example. However... the methods should only really be callable when the window
         // is actually focused. But if the "root" event source is not a window then it could possibly be a problem
         // IsProcessingMouse and IsProcessingKey should prevent this issue
 
-        public async void OnWindowMouseDown(object sender, MouseButtonEventArgs e, bool isPreviewEvent) {
-            if (!this.isProcessingMouse && e.OriginalSource is DependencyObject focused) {
-                if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessMouseEvent(focused, e)) {
-                    return;
+        public async void OnInputSourceMouseDown(Window root, DependencyObject focused, MouseButtonEventArgs e) {
+            try {
+                this.isProcessingMouse = true;
+                this.SetupContext(root, focused);
+                MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
+                if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                    e.Handled = true;
                 }
-
-                try {
-                    this.isProcessingMouse = true;
-                    this.SetupContext(sender, focused);
-                    MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
-                    if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
-                        e.Handled = true;
-                    }
-                }
-                finally {
-                    this.isProcessingMouse = false;
-                    this.CurrentDataContext = null;
-                    this.CurrentSource = null;
-                }
+            }
+            finally {
+                this.isProcessingMouse = false;
+                this.CurrentDataContext = null;
+                this.CurrentSource = null;
             }
         }
 
-        public async void OnWindowMouseUp(object sender, MouseButtonEventArgs e, bool isPreviewEvent) {
-            if (!this.isProcessingMouse && e.OriginalSource is DependencyObject focused) {
-                if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessMouseEvent(focused, e)) {
-                    return;
+        public async void OnInputSourceMouseUp(Window root, DependencyObject focused, MouseButtonEventArgs e) {
+            try {
+                this.isProcessingMouse = true;
+                this.SetupContext(root, focused);
+                MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
+                if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                    e.Handled = true;
                 }
-
-                try {
-                    this.isProcessingMouse = true;
-                    this.CurrentSource = focused; // no need to generate the data context as it isn't used
-                    MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, true, e.ClickCount);
-                    await this.ProcessInputStatesForMouseUp(UIInputManager.Instance.FocusedPath, stroke);
-                }
-                finally {
-                    this.isProcessingMouse = false;
-                    this.CurrentSource = null;
-                }
+            }
+            finally {
+                this.isProcessingMouse = false;
+                this.CurrentDataContext = null;
+                this.CurrentSource = null;
             }
         }
 
-        public async void OnWindowMouseWheel(object sender, MouseWheelEventArgs e, bool isPreviewEvent) {
-            if (!this.isProcessingMouse && e.OriginalSource is DependencyObject focused) {
-                if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessMouseEvent(focused, e)) {
-                    return;
-                }
+        public async void OnInputSourceMouseWheel(object sender, DependencyObject focused, MouseWheelEventArgs e) {
+            int button;
+            if (e.Delta < 0) {
+                button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
+            }
+            else if (e.Delta > 0) {
+                button = WPFShortcutManager.BUTTON_WHEEL_UP;
+            }
+            else {
+                return;
+            }
 
-                int button;
-                if (e.Delta < 0) {
-                    button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
+            try {
+                this.isProcessingMouse = true;
+                this.SetupContext(sender, focused);
+                MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
+                if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                    e.Handled = true;
                 }
-                else if (e.Delta > 0) {
-                    button = WPFShortcutManager.BUTTON_WHEEL_UP;
-                }
-                else {
-                    return;
-                }
-
-                try {
-                    this.isProcessingMouse = true;
-                    this.SetupContext(sender, focused);
-                    MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
-                    if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
-                        e.Handled = true;
-                    }
-                }
-                finally {
-                    this.isProcessingMouse = false;
-                    this.CurrentDataContext = null;
-                    this.CurrentSource = null;
-                }
+            }
+            finally {
+                this.isProcessingMouse = false;
+                this.CurrentDataContext = null;
+                this.CurrentSource = null;
             }
         }
 
@@ -144,21 +130,7 @@ namespace FramePFX.WPF.Shortcuts {
             return false;
         }
 
-        public async void OnKeyEvent(object sender, DependencyObject focused, KeyEventArgs e, bool isRelease, bool isPreviewEvent) {
-            if (this.isProcessingKey || e.Handled) {
-                return;
-            }
-
-            Key key = e.Key == Key.System ? e.SystemKey : e.Key;
-            if (key == Key.DeadCharProcessed || key == Key.None) {
-                return;
-            }
-
-            WpfShortcutInputManager inputManager = WPFShortcutManager.GetShortcutProcessorForUIObject(sender);
-            if (inputManager == null) {
-                return;
-            }
-
+        public async void OnInputSourceKeyEvent(Window root, WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent) {
 #if PRINT_DEBUG_KEYSTROKES
             if (!isPreviewEvent) {
                 System.Diagnostics.Debug.WriteLine($"{(isRelease ? "UP  " : "DOWN")}: {e.Key}");
@@ -173,9 +145,9 @@ namespace FramePFX.WPF.Shortcuts {
 
             try {
                 this.isProcessingKey = true;
-                this.SetupContext(sender, focused);
+                this.SetupContext(root, focused);
                 KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
-                if (await inputManager.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat)) {
+                if (await processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat)) {
                     e.Handled = true;
                 }
             }
@@ -192,12 +164,16 @@ namespace FramePFX.WPF.Shortcuts {
                 context.AddContext(dc);
             }
 
-            if (ItemsControl.ItemsControlFromItemContainer(obj) is ItemsControl rc && (dc = rc.DataContext) != null) {
+            object dc2 = null;
+            ItemsControl itemsControl = VisualTreeUtils.GetItemsControlFromObject(obj);
+            if (itemsControl != null && (dc2 = itemsControl.DataContext) != null && !ReferenceEquals(dc, dc2)) {
                 context.AddContext(dc);
             }
 
-            if (sender is DependencyObject && VisualTreeUtils.GetDataContext((DependencyObject) sender, out dc)) {
-                context.AddContext(dc);
+            if (sender is DependencyObject && VisualTreeUtils.GetDataContext((DependencyObject) sender, out object dc3)) {
+                if (!ReferenceEquals(dc, dc3) && !ReferenceEquals(dc2, dc3)) {
+                    context.AddContext(dc);
+                }
             }
 
             this.CurrentDataContext = context;

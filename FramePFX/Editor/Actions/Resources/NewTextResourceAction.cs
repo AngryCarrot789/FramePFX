@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editor.Registries;
@@ -35,7 +36,14 @@ namespace FramePFX.Editor.Actions.Resources {
                 manager = group.Manager;
             }
 
-            ResourceTextViewModel text = (ResourceTextViewModel) ResourceTypeRegistry.Instance.CreateViewModelFromModel(new ResourceTextStyle());
+            if (!TextIncrement.GetIncrementableString((x) => !group.HasAnyByName(x), "Sample Text", out string name)) {
+                name = "Display Name";
+            }
+
+            ResourceTextStyle resource = new ResourceTextStyle() {
+                DisplayName = name
+            };
+            ResourceTextViewModel text = (ResourceTextViewModel) ResourceTypeRegistry.Instance.CreateViewModelFromModel(resource);
             if (!await ResourceItemViewModel.TryAddAndLoadNewResource(group, text)) {
                 return true;
             }
@@ -44,7 +52,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 TimelineViewModel timeline = manager.Project.Timeline;
                 VideoTrackViewModel track;
                 if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !track.GetSpanUntilClip(timeline.PlayHeadFrame, out FrameSpan span)) {
-                    track = await timeline.AddNewVideoTrackAction();
+                    track = await timeline.InsertNewVideoTrackAction(0);
                     span = new FrameSpan(0, 300);
                 }
 
@@ -52,6 +60,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 textClip.ResourceHelper.SetTargetResourceId(text.UniqueId);
                 textClip.FrameSpan = span;
                 textClip.AddEffect(new MotionEffect());
+                textClip.DisplayName = name;
                 TextClipViewModel clip = (TextClipViewModel) ClipRegistry.Instance.CreateViewModelFromModel(textClip);
                 track.AddClip(clip);
             }

@@ -698,7 +698,7 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="250" SharedSizeGroup="TimelineLeftTrackListSharedGroup" />
+                            <ColumnDefinition Width="225" SharedSizeGroup="TimelineLeftTrackListSharedGroup" />
                             <ColumnDefinition Width="1" />
                             <ColumnDefinition Width="20*" />
                         </Grid.ColumnDefinitions>
@@ -723,7 +723,7 @@
                                  SelectionMode="Extended"
                                  ItemsSource="{Binding Tracks}"
                                  SelectedItem="{Binding PrimarySelectedTrack}"
-                                 ap2:MultiSelectorHelper.SelectedItems="{Binding SelectedTracks}"
+                                 ap2:MultiSelectorHelper.SelectedItems="{Binding SelectedTracks, Mode=OneTime}"
                                  Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="Transparent"
                                  BorderThickness="0 0 0 0" Padding="0" />
                         <tc:TimelineEditorControl x:Name="PART_TimelineEditor"

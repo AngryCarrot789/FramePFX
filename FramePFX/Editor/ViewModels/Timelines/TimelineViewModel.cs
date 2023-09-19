@@ -23,14 +23,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         public ReadOnlyObservableCollection<TrackViewModel> Tracks { get; }
 
-        private List<TrackViewModel> selectedTracks;
-        public List<TrackViewModel> SelectedTracks {
-            get => this.selectedTracks;
-            set {
-                this.RaisePropertyChanged(ref this.selectedTracks, value);
-                this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
-            }
-        }
+        public ObservableCollection<TrackViewModel> SelectedTracks { get; }
 
         private TrackViewModel primarySelectedTrack;
         private volatile int isPlayBackUiUpdateScheduledState;
@@ -101,7 +94,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
             this.tracks = new ObservableCollectionEx<TrackViewModel>();
             this.Tracks = new ReadOnlyObservableCollection<TrackViewModel>(this.tracks);
-            this.selectedTracks = new List<TrackViewModel>();
+            this.SelectedTracks = new ObservableCollection<TrackViewModel>();
+            this.SelectedTracks.CollectionChanged += (sender, args) => {
+                this.RemoveSelectedTracksCommand.RaiseCanExecuteChanged();
+            };
+
             this.RemoveSelectedTracksCommand = new AsyncRelayCommand(this.RemoveSelectedTracksAction, () => this.SelectedTracks.Count > 0);
             this.MoveSelectedUpCommand = new RelayCommand(this.MoveSelectedItemUpAction);
             this.MoveSelectedDownCommand = new RelayCommand(this.MoveSelectedItemDownAction);

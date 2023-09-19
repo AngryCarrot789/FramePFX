@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -46,6 +47,15 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
 
             base.OnPreviewKeyDown(e);
+        }
+
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+            base.OnPreviewMouseLeftButtonDown(e);
+            if (this.DataContext is TrackViewModel track && track.Timeline != null) {
+                if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
+                    track.Timeline.PrimarySelectedTrack = track;
+                }
+            }
         }
 
         public IEnumerable<TimelineClipControl> GetClipContainers() {

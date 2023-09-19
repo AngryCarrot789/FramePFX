@@ -106,11 +106,11 @@ namespace FramePFX.Shortcuts.Inputs {
             return this.ToString(true, true, false);
         }
 
-        public string ToString(bool appendClickCount, bool appendDelta, bool useSpacers) {
+        public string ToString(bool appendClickCount, bool appendDelta, bool useModSpacers) {
             StringBuilder sb = new StringBuilder();
-            string mod = KeyStroke.ModifierToStringProvider(this.Modifiers, useSpacers);
+            string mod = KeyStroke.ModifierToStringProvider(this.Modifiers, useModSpacers);
             if (mod.Length > 0) {
-                sb.Append(mod).Append(useSpacers ? " + " : "+");
+                sb.Append(mod).Append(useModSpacers ? " + " : "+");
             }
 
             sb.Append(MouseButtonToStringProvider(this.MouseButton));

@@ -260,5 +260,15 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
             return group;
         }
+
+        public bool HasAnyByName(string s) {
+            foreach (BaseResourceObjectViewModel item in this.items) {
+                if (item.DisplayName == s) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

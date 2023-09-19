@@ -106,6 +106,10 @@ namespace FramePFX.Utils {
             // This is probably over-optimised... this is just for concatenating a string and ulong
             // in the most efficient way possible. 23 = 3 for ' ' + '(' + ')', and 20 for ulong.MaxValue representation
             // hello (69) | len = 10, index = 7, j = 9, j+1 = 10 (passed to new string())
+            if (content == null) {
+                content = input;
+            }
+
             int index = content.Length;
             char[] chars = new char[index + 23];
             content.CopyTo(0, chars, 0, index);

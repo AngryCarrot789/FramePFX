@@ -309,10 +309,10 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             }
         }
 
-        public bool GetSpanUntilClip(long frame, out FrameSpan span) {
+        public bool GetSpanUntilClip(long frame, out FrameSpan span, long unlimitedDuration = 300) {
             if (this.Clips.Count < 1) {
-                span = default;
-                return false;
+                span = new FrameSpan(frame, unlimitedDuration);
+                return true;
             }
 
             long minimum = frame;
@@ -329,9 +329,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             }
 
             // should not be possible to be less... but just in case somehow
-            if (minimum <= frame) {
-                span = default;
-                return false;
+            if (minimum == frame) {
+                span = new FrameSpan(frame, unlimitedDuration);
+                return true;
             }
 
             span = FrameSpan.FromIndex(frame, minimum);

@@ -17,7 +17,7 @@ namespace FramePFX.Editor.Registries {
             base.Register<ResourceImage, ResourceImageViewModel>("r_img");
             base.Register<ResourceAVMedia, ResourceAVMediaViewModel>("r_av_media");
             base.Register<ResourceMpegMedia, ResourceMpegMediaViewModel>("r_media");
-            base.Register<ResourceText, ResourceTextViewModel>("r_txt");
+            base.Register<ResourceTextStyle, ResourceTextViewModel>("r_txt");
             base.Register<ResourceTextFile, ResourceTextFileViewModel>("r_txtfile");
         }
 

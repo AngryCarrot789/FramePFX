@@ -2,16 +2,7 @@ using FramePFX.Editor.ResourceManaging.Resources;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
     public class ResourceTextViewModel : ResourceItemViewModel {
-        public new ResourceText Model => (ResourceText) base.Model;
-
-        public string Text {
-            get => this.Model.Text;
-            set {
-                this.Model.Text = value;
-                this.RaisePropertyChanged();
-                this.Model.OnDataModified(nameof(this.Model.Text));
-            }
-        }
+        public new ResourceTextStyle Model => (ResourceTextStyle) base.Model;
 
         public double FontSize {
             get => this.Model.FontSize;
@@ -40,7 +31,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public ResourceTextViewModel(ResourceText model) : base(model) {
+        public ResourceTextViewModel(ResourceTextStyle model) : base(model) {
         }
     }
 }

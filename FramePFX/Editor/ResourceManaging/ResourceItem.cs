@@ -119,6 +119,13 @@ namespace FramePFX.Editor.ResourceManaging {
             this.DataModified?.Invoke(this, propertyName);
         }
 
+        public void OnDataModified<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
+            if (propertyName == null)
+                throw new ArgumentNullException(nameof(propertyName));
+            property = newValue;
+            this.OnDataModified(propertyName);
+        }
+
         public virtual void OnIsOnlineStateChanged() {
             this.OnlineStateChanged?.Invoke(this.Manager, this);
         }

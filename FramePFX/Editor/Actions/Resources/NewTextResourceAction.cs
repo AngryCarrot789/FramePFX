@@ -35,7 +35,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 manager = group.Manager;
             }
 
-            ResourceTextViewModel text = (ResourceTextViewModel) ResourceTypeRegistry.Instance.CreateViewModelFromModel(new ResourceText());
+            ResourceTextViewModel text = (ResourceTextViewModel) ResourceTypeRegistry.Instance.CreateViewModelFromModel(new ResourceTextStyle());
             if (!await ResourceItemViewModel.TryAddAndLoadNewResource(group, text)) {
                 return true;
             }

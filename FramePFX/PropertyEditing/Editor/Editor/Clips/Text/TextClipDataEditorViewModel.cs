@@ -33,14 +33,7 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips.Text {
                 if (!this.historyText.TryGetAction(out HistoryText action))
                     this.historyText.PushAction(this.HistoryManager, action = new HistoryText(this), "Change text");
                 this.text = value;
-                int i = 0;
-                foreach (TextClipViewModel clip in this.Clips) {
-                    if (!clip.UseCustomText)
-                        clip.UseCustomText = true;
-                    clip.CustomOrResourceText = value;
-                    action.Translations[i++].Current = value;
-                }
-
+                action.SetCurrentValue(value);
                 this.RaisePropertyChanged();
             }
         }
@@ -59,6 +52,7 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips.Text {
             }
 
             this.RequeryFontFamiltyFromHandlers();
+            this.RequeryTextFromHandlers();
         }
 
         public void RequeryFontFamiltyFromHandlers() {
@@ -67,7 +61,7 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips.Text {
         }
 
         public void RequeryTextFromHandlers() {
-            this.text = GetEqualValue(this.Handlers, x => ((TextClipViewModel) x).CustomOrResourceText, out string d) ? d : DifferentValueText;
+            this.text = GetEqualValue(this.Handlers, x => ((TextClipViewModel) x).Text, out string d) ? d : DifferentValueText;
             this.RaisePropertyChanged(nameof(this.Text));
         }
 
@@ -88,7 +82,7 @@ namespace FramePFX.PropertyEditing.Editor.Editor.Clips.Text {
         }
 
         protected class HistoryText : HistoryBasicSingleProperty<TextClipViewModel, string> {
-            public HistoryText(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.CustomOrResourceText, (x, v) => x.CustomOrResourceText = v, editor.RequeryTextFromHandlers) {
+            public HistoryText(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.Text, (x, v) => x.Text = v, editor.RequeryTextFromHandlers) {
             }
         }
     }

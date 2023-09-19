@@ -233,7 +233,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     clip.ResourceHelper.SetTargetResourceId(img.UniqueId);
                     newClip = clip;
                 }
-                else if (resource.Model is ResourceText text) {
+                else if (resource.Model is ResourceTextStyle text) {
                     TextVideoClip clip = new TextVideoClip() {
                         FrameSpan = new FrameSpan(frameBegin, defaultDuration),
                         DisplayName = "Text Clip"

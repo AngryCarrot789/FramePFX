@@ -134,8 +134,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 case nameof(ResourceTextFile):
                     resourceItem = new ResourceTextFile();
                     break;
-                case nameof(ResourceText):
-                    resourceItem = new ResourceText();
+                case nameof(ResourceTextStyle):
+                    resourceItem = new ResourceTextStyle();
                     break;
                 case nameof(ResourceGroup):
                     resourceItem = new ResourceGroup();

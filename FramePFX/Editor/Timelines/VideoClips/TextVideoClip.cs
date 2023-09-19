@@ -9,49 +9,46 @@ using FramePFX.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class TextVideoClip : VideoClip, IResourceClip<ResourceText> {
+    public class TextVideoClip : VideoClip, IResourceClip<ResourceTextStyle> {
         private BitVector32 clipProps;
-        private SKTextBlob[] customTextBlobs;
+        private SKTextBlob[] TextBlobs;
 
         // Use Local <property>
 
         /// <summary>
         /// The custom text this clip uses
         /// </summary>
-        public string CustomText;
-
-        public bool UseCustomText { get => this.IsUsingClipProperty(nameof(ResourceText.Text)); set => this.SetUseClipProperty(nameof(ResourceText.Text), value); }
+        public string Text;
 
         BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
-        public ResourceHelper<ResourceText> ResourceHelper { get; }
+        public ResourceHelper<ResourceTextStyle> ResourceHelper { get; }
+
+        private Vector2 TextBlobBoundingBox;
 
         public TextVideoClip() {
-            this.ResourceHelper = new ResourceHelper<ResourceText>(this);
+            this.ResourceHelper = new ResourceHelper<ResourceTextStyle>(this);
             this.ResourceHelper.ResourceChanged += this.OnResourceChanged;
             this.ResourceHelper.ResourceDataModified += this.OnResourceDataModified;
             this.clipProps = new BitVector32();
-            this.UseCustomText = true;
         }
 
-        protected void OnResourceChanged(ResourceText oldItem, ResourceText newItem) {
+        protected void OnResourceChanged(ResourceTextStyle oldItem, ResourceTextStyle newItem) {
             this.InvalidateTextCache();
             if (newItem != null) {
                 this.GenerateTextCache();
             }
         }
 
-        protected void OnResourceDataModified(ResourceText resource, string property) {
+        protected void OnResourceDataModified(ResourceTextStyle resource, string property) {
             switch (property) {
-                case nameof(ResourceText.FontFamily):
-                case nameof(ResourceText.FontSize):
-                case nameof(ResourceText.SkewX):
-                case nameof(ResourceText.Foreground):
-                case nameof(ResourceText.Border):
-                case nameof(ResourceText.BorderThickness):
-                case nameof(ResourceText.IsAntiAliased):
-                case nameof(ResourceText.Text) when !this.UseCustomText:
-                    this.InvalidateTextCache();
-                    this.GenerateTextCache();
+                case nameof(ResourceTextStyle.FontFamily):
+                case nameof(ResourceTextStyle.FontSize):
+                case nameof(ResourceTextStyle.SkewX):
+                case nameof(ResourceTextStyle.Foreground):
+                case nameof(ResourceTextStyle.Border):
+                case nameof(ResourceTextStyle.BorderThickness):
+                case nameof(ResourceTextStyle.IsAntiAliased):
+                    this.RegenerateText();
                     break;
                 default: return;
             }
@@ -59,7 +56,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         private static int PropertyIndex(string property) {
             switch (property) {
-                case nameof(ResourceText.Text): return 0;
+                // case nameof(ResourceTextStyle.Text): return 0;
                 default: throw new Exception($"Unknown property: {property}");
             }
         }
@@ -81,6 +78,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         protected override void LoadDataIntoClone(Clip clone) {
             base.LoadDataIntoClone(clone);
             TextVideoClip clip = (TextVideoClip) clone;
+            clip.Text = this.Text;
+
             this.ResourceHelper.LoadDataIntoClone(clip.ResourceHelper);
 
             RBEDictionary dictionary = new RBEDictionary();
@@ -90,47 +89,37 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
+            if (!string.IsNullOrEmpty(this.Text))
+                data.SetString(nameof(this.Text), this.Text);
             data.SetInt("ClipPropData0", this.clipProps.Data);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
+            this.Text = data.GetString(nameof(this.Text), null);
             this.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
         }
 
         public override Vector2? GetSize() {
-            if (this.customTextBlobs == null || this.customTextBlobs.Length < 1) {
-                return new Vector2();
-            }
-
-            float w = 0, h = 0;
-            foreach (SKTextBlob blob in this.customTextBlobs) {
-                if (blob != null) {
-                    SKRect bound = blob.Bounds;
-                    w = Math.Max(w, bound.Width);
-                    h = Math.Max(h, bound.Height);
-                }
-            }
-
-            return new Vector2(w, h);
+            return this.TextBlobBoundingBox;
         }
 
+
         public override bool BeginRender(long frame) {
-            return this.ResourceHelper.TryGetResource(out ResourceText _);
+            return this.ResourceHelper.TryGetResource(out ResourceTextStyle _);
         }
 
         public override Task EndRender(RenderContext rc, long frame) {
-            if (!this.ResourceHelper.TryGetResource(out ResourceText r)) {
+            if (!this.ResourceHelper.TryGetResource(out ResourceTextStyle r)) {
                 return Task.CompletedTask;
             }
 
-            SKTextBlob[] blobs = this.UseCustomText ? this.customTextBlobs : r.GeneratedBlobs;
             SKPaint paint = r.GeneratedPaint;
-            if (blobs == null || paint == null) {
+            if (this.TextBlobs == null || paint == null) {
                 return Task.CompletedTask;
             }
 
-            foreach (SKTextBlob blob in blobs) {
+            foreach (SKTextBlob blob in this.TextBlobs) {
                 if (blob != null) {
                     // rc.Canvas.DrawText(blob, 0, size.Y * this.MediaScaleOrigin.Y, this.cachedPaint);
                     rc.Canvas.DrawText(blob, 0, blob.Bounds.Height / 2f, r.GeneratedPaint);
@@ -140,20 +129,38 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return Task.CompletedTask;
         }
 
+        public void RegenerateText() {
+            this.InvalidateTextCache();
+            this.GenerateTextCache();
+        }
+
         public void InvalidateTextCache() {
-            ResourceText.DisposeTextBlobs(ref this.customTextBlobs);
+            ResourceTextStyle.DisposeTextBlobs(ref this.TextBlobs);
+            this.TextBlobBoundingBox = new Vector2();
         }
 
         public void GenerateTextCache() {
-            if (!this.ResourceHelper.TryGetResource(out ResourceText r)) {
+            if (this.TextBlobs != null || string.IsNullOrEmpty(this.Text)) {
                 return;
             }
 
-            if (this.UseCustomText && this.customTextBlobs == null && !string.IsNullOrEmpty(this.CustomText)) {
-                r.GenerateSkiaTextData();
-                if (r.GeneratedFont != null) {
-                    this.customTextBlobs = ResourceText.CreateTextBlobs(this.CustomText, r.GeneratedPaint, r.GeneratedFont);
+            if (!this.ResourceHelper.TryGetResource(out ResourceTextStyle r)) {
+                return;
+            }
+
+            r.GenerateSkiaData();
+            if (r.GeneratedFont != null) {
+                this.TextBlobs = ResourceTextStyle.CreateTextBlobs(this.Text, r.GeneratedPaint, r.GeneratedFont);
+                float w = 0, h = 0;
+                foreach (SKTextBlob blob in this.TextBlobs) {
+                    if (blob != null) {
+                        SKRect bound = blob.Bounds;
+                        w = Math.Max(w, bound.Width);
+                        h = Math.Max(h, bound.Height);
+                    }
                 }
+
+                this.TextBlobBoundingBox = new Vector2(w, h);
             }
         }
     }

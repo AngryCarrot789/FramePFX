@@ -2,31 +2,23 @@ using FramePFX.RBC;
 using SkiaSharp;
 
 namespace FramePFX.Editor.ResourceManaging.Resources {
-    public class ResourceText : ResourceItem {
-        public string Text { get; set; }
-
-        public double FontSize { get; set; }
-
-        public double SkewX { get; set; }
-
-        public string FontFamily { get; set; }
-
-        public SKColor Foreground { get; set; }
-
-        public SKColor Border { get; set; }
-
-        public double BorderThickness { get; set; }
-
-        public bool IsAntiAliased { get; set; }
-
+    /// <summary>
+    /// A resource for storing styling information for a text clip
+    /// </summary>
+    public class ResourceTextStyle : ResourceItem {
+        public double FontSize;
+        public double SkewX;
+        public string FontFamily;
+        public SKColor Foreground;
+        public SKColor Border;
+        public double BorderThickness;
+        public bool IsAntiAliased;
         public SKPaint GeneratedPaint;
         public SKFont GeneratedFont;
-        public SKTextBlob[] GeneratedBlobs;
 
-        public ResourceText() {
+        public ResourceTextStyle() {
             this.FontSize = 40;
             this.FontFamily = "Consolas";
-            this.Text = "Sample Text";
             this.Foreground = SKColors.White;
             this.Border = SKColors.DarkGray;
             this.BorderThickness = 5d;
@@ -34,31 +26,28 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         }
 
         public override void OnDataModified(string propertyName = null) {
+            base.OnDataModified(propertyName);
             switch (propertyName) {
-                case nameof(this.Text):
                 case nameof(this.FontFamily):
                 case nameof(this.FontSize):
                 case nameof(this.SkewX):
                 case nameof(this.BorderThickness):
                 case nameof(this.Foreground):
                 case nameof(this.IsAntiAliased):
-                    this.InvalidateSkiaTextData();
-                    this.GenerateSkiaTextData();
+                    this.InvalidateSkiaData();
+                    this.GenerateSkiaData();
                     break;
             }
-
-            base.OnDataModified(propertyName);
         }
 
-        public void InvalidateSkiaTextData() {
+        public void InvalidateSkiaData() {
             this.GeneratedFont?.Dispose();
             this.GeneratedFont = null;
             this.GeneratedPaint?.Dispose();
             this.GeneratedPaint = null;
-            DisposeTextBlobs(ref this.GeneratedBlobs);
         }
 
-        public void GenerateSkiaTextData() {
+        public void GenerateSkiaData() {
             if (this.GeneratedFont == null) {
                 SKTypeface typeface = SKTypeface.FromFamilyName(string.IsNullOrEmpty(this.FontFamily) ? "Consolas" : this.FontFamily);
                 if (typeface != null) {
@@ -74,15 +63,10 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
                     IsAntialias = this.IsAntiAliased
                 };
             }
-
-            if (this.GeneratedBlobs == null && !string.IsNullOrEmpty(this.Text) && this.GeneratedFont != null && this.GeneratedPaint != null) {
-                this.GeneratedBlobs = CreateTextBlobs(this.Text, this.GeneratedPaint, this.GeneratedFont);
-            }
         }
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            data.SetString(nameof(this.Text), this.Text);
             data.SetDouble(nameof(this.FontSize), this.FontSize);
             data.SetDouble(nameof(this.SkewX), this.SkewX);
             data.SetString(nameof(this.FontFamily), this.FontFamily);
@@ -94,7 +78,6 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            this.Text = data.GetString(nameof(this.Text), null);
             this.FontSize = data.GetDouble(nameof(this.FontSize));
             this.SkewX = data.GetDouble(nameof(this.SkewX));
             this.FontFamily = data.GetString(nameof(this.FontFamily), null);

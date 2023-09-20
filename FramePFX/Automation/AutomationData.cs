@@ -74,8 +74,6 @@ namespace FramePFX.Automation {
 
         public bool TryGetData(AutomationKey key, out AutomationSequence value) => this.map.TryGetValue(key, out value);
 
-        public AutomationSequence GetData(AutomationKey key) => this.map[key];
-
         public void WriteToRBE(RBEDictionary data) {
             if (this.ActiveKeyFullId != null)
                 data.SetString(nameof(this.ActiveKeyFullId), this.ActiveKeyFullId);

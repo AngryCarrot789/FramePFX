@@ -1,4 +1,3 @@
-using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines;
 
 namespace FramePFX.Editor.ViewModels.Timelines {

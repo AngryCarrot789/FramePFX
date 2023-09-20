@@ -1,5 +1,4 @@
 using System;
-using FFmpeg.AutoGen;
 using FramePFX.Actions.Contexts;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;

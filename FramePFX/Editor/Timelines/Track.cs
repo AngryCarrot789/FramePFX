@@ -147,10 +147,8 @@ namespace FramePFX.Editor.Timelines {
 
         public bool RemoveClip(Clip clip) {
             int index = this.clips.IndexOf(clip);
-            if (index < 0) {
+            if (index < 0)
                 return false;
-            }
-
             this.RemoveClipAt(index);
             return true;
         }

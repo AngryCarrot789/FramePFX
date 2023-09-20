@@ -1,8 +1,9 @@
 using System.ComponentModel;
 using FramePFX.Commands;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
+using FramePFX.PropertyEditing;
 
-namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
+namespace FramePFX.Editor.PropertyEditors.Clips {
     public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
 

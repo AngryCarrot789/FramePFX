@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using FramePFX.Editor.PropertyEditors.Clips;
+using FramePFX.Editor.PropertyEditors.Clips.Text;
+using FramePFX.Editor.PropertyEditors.Effects;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
-using FramePFX.PropertyEditing.Editor.Editor.Clips;
-using FramePFX.PropertyEditing.Editor.Editor.Clips.Text;
-using FramePFX.PropertyEditing.Editor.Editor.Effects;
 
 namespace FramePFX.PropertyEditing {
     public class PFXPropertyEditorRegistry : PropertyEditorRegistry {
@@ -31,9 +31,11 @@ namespace FramePFX.PropertyEditing {
             }
 
             this.EffectInfo = this.ClipInfo.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects", isHierarchial:false);
+            this.EffectInfo.IsHeaderBold = true;
+
             this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
                 EffectPropertyGroupViewModel motion = new EffectPropertyGroupViewModel(typeof(MotionEffectViewModel)) {
-                    IsExpanded = true
+                    IsExpanded = true, IsHeaderBold = true
                 };
 
                 if (!single.HasValue || single.Value) {

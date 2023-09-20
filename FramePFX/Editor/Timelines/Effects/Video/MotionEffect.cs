@@ -10,7 +10,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
     public class MotionEffect : VideoEffect {
         public static readonly AutomationKeyVector2 MediaPositionKey          = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyVector2 MediaScaleKey             = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyVector2 MediaScaleOriginKey       = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleOriginKey       = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), new Vector2(), Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyBoolean UseAbsoluteScaleOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect), nameof(UseAbsoluteScaleOrigin));
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         public Vector2 MediaScale;
 
         /// <summary>
-        /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
+        /// The scaling origin point of this video's media. Default value is 0,0 (top-left corner of the frame)
         /// </summary>
         public Vector2 MediaScaleOrigin;
 
@@ -52,11 +52,11 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
             base.PreProcessFrame(rc, frame);
             Vector2 pos = this.MediaPosition, scale = this.MediaScale, origin = this.MediaScaleOrigin;
             rc.Canvas.Translate(pos.X, pos.Y);
-            Vector2 size = frame ?? rc.FrameSize;
             if (this.UseAbsoluteScaleOrigin) {
                 rc.Canvas.Scale(scale.X, scale.Y, origin.X, origin.Y);
             }
-            else {
+            else if (frame.HasValue) {
+                Vector2 size = frame.Value;
                 rc.Canvas.Scale(scale.X, scale.Y, size.X * origin.X, size.Y * origin.Y);
             }
         }

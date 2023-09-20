@@ -6,8 +6,9 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 using FramePFX.History.Tasks;
+using FramePFX.PropertyEditing.Editor;
 
-namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
+namespace FramePFX.Editor.PropertyEditors.Clips {
     public class ClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
         protected readonly HistoryBuffer<HistoryClipDisplayName> displayNameHistory;
 

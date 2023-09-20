@@ -9,8 +9,9 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 using FramePFX.History;
+using FramePFX.PropertyEditing;
 
-namespace FramePFX.PropertyEditing.Editor.Editor.Effects {
+namespace FramePFX.Editor.PropertyEditors.Effects {
     public class MotionEffectDataEditorViewModel : BaseEffectDataEditorViewModel {
         private Vector2 mediaPosition;
         private Vector2 mediaScale;

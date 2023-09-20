@@ -94,7 +94,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// <param name="frame">The frame being rendered</param>
         /// <param name="isCancelled">
         /// If the render was cancelled. This will always be false when this call is
-        /// after <see cref="OnEndRender"/>, but may be true after <see cref="OnBeginRender"/>.
+        /// after the end render call, but may be true after beginning a render.
         /// Possible cancellation reasons are the render cancellation token expiring (timeline render took to long)
         /// or an exception occurred while rendering another clip, causing the remaining clip renders to be cancelled
         /// </param>

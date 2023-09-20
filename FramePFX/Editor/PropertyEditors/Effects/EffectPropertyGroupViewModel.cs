@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FramePFX.AdvancedContextService;
 using FramePFX.Commands;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
+using FramePFX.PropertyEditing;
 
-namespace FramePFX.PropertyEditing.Editor.Editor.Effects {
+namespace FramePFX.Editor.PropertyEditors.Effects {
+    /// <summary>
+    /// A fixed property group for an effect
+    /// </summary>
     public class EffectPropertyGroupViewModel : FixedPropertyGroupViewModel {
         private BaseEffectViewModel handler;
 

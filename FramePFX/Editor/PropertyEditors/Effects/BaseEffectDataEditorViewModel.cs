@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
+using FramePFX.PropertyEditing;
+using FramePFX.PropertyEditing.Editor;
 
-namespace FramePFX.PropertyEditing.Editor.Editor.Effects {
+namespace FramePFX.Editor.PropertyEditors.Effects {
     public abstract class BaseEffectDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
         public IEnumerable<BaseEffectViewModel> Effects => this.Handlers.Cast<BaseEffectViewModel>();
 

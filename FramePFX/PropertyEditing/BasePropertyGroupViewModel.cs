@@ -7,7 +7,7 @@ namespace FramePFX.PropertyEditing {
     public abstract class BasePropertyGroupViewModel : BasePropertyObjectViewModel, IContextProvider {
         private IReadOnlyList<object> handlers;
         private bool isExpanded;
-        private bool isSelected;
+        private bool isHeaderBold;
 
         /// <summary>
         /// Whether or not this group is expanded, showing the child groups and editors
@@ -21,9 +21,13 @@ namespace FramePFX.PropertyEditing {
             }
         }
 
-        public bool IsSelected {
-            get => this.isSelected;
-            set => this.RaisePropertyChanged(ref this.isSelected, value);
+        /// <summary>
+        /// Whether this group is a "bold" group, and therefore, should be expressed a bit more in the UI.
+        /// This could be either through bold text for <see cref="DisplayName"/>, or brighter colours
+        /// </summary>
+        public bool IsHeaderBold {
+            get => this.isHeaderBold;
+            set => this.RaisePropertyChanged(ref this.isHeaderBold, value);
         }
 
         /// <summary>

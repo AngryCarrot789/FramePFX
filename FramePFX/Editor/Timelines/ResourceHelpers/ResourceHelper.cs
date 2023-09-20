@@ -70,16 +70,16 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         private void OnTrackChanged(Track oldTrack, Track newTrack) {
             if (this.ResourcePath == null)
                 return;
-            ResourceManager manager = newTrack?.Timeline?.Project?.ResourceManager;
-            if (manager != this.ResourcePath.Manager) {
-                this.ResourcePath.SetManager(manager);
-            }
+            this.UpdateManager(newTrack?.Timeline?.Project?.ResourceManager);
         }
 
         private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+            this.UpdateManager(timeline?.Project?.ResourceManager);
+        }
+
+        private void UpdateManager(ResourceManager manager) {
             if (this.ResourcePath == null)
                 return;
-            ResourceManager manager = timeline?.Project?.ResourceManager;
             if (manager != this.ResourcePath.Manager) {
                 this.ResourcePath.SetManager(manager);
             }

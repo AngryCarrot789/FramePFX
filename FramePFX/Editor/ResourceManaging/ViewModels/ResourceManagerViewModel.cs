@@ -11,7 +11,6 @@ using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
     public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation {

@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using FramePFX.Commands;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;

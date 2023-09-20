@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using FramePFX.Utils;
-using SkiaSharp;
 
 namespace FramePFX {
     public static class AppLogger {

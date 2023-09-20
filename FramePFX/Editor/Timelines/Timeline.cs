@@ -196,7 +196,7 @@ namespace FramePFX.Editor.Timelines {
             await this.EndCompositeRenderAsync(render, frame, token);
         }
 
-        public void CompleteCompositeRenderList(long frame, bool isCancelled, int i = 0) {
+        private void CompleteRenderList(long frame, bool isCancelled, int i = 0) {
             using (ErrorList list = new ErrorList("Failed to " + (isCancelled ? "cancel" : "finalize") + " one or more clip renders")) {
                 List<VideoClip> renderList = this.RenderList;
                 for (int k = renderList.Count; i < k; i++) {
@@ -212,9 +212,9 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        public void CompleteCompositeRenderList(long frame, bool isCancelled, Exception e, int i = 0) {
+        private void CompleteRenderList(long frame, bool isCancelled, Exception e, int i = 0) {
             try {
-                this.CompleteCompositeRenderList(frame, isCancelled, i);
+                this.CompleteRenderList(frame, isCancelled, i);
             }
             catch (Exception ex) {
                 e.AddSuppressed(ex);
@@ -242,7 +242,7 @@ namespace FramePFX.Editor.Timelines {
             for (int i = trackList.Count - 1; i >= 0; i--) {
                 if (token.IsCancellationRequested) {
                     // BeginRender phase must have taken too long; call cancel to all clips that were prepared
-                    this.CompleteCompositeRenderList(frame, true);
+                    this.CompleteRenderList(frame, true);
                     return false;
                 }
 
@@ -257,7 +257,7 @@ namespace FramePFX.Editor.Timelines {
                         render = clip.OnBeginRender(frame);
                     }
                     catch (Exception e) {
-                        this.CompleteCompositeRenderList(frame, true, e);
+                        this.CompleteRenderList(frame, true, e);
                         throw new Exception("Failed to invoke " + nameof(clip.OnBeginRender) + " for clip", e);
                     }
 
@@ -278,7 +278,7 @@ namespace FramePFX.Editor.Timelines {
                 for (int i = 0, k = renderList.Count; i < k; i++) {
                     if (token.IsCancellationRequested) {
                         // Rendering took too long. Some clips may have already drawn. Cancel the rest
-                        this.CompleteCompositeRenderList(frame, true, i);
+                        this.CompleteRenderList(frame, true, i);
                         throw new TaskCanceledException();
                     }
 
@@ -300,7 +300,7 @@ namespace FramePFX.Editor.Timelines {
                             }
                         }
                         catch (Exception e) {
-                            this.CompleteCompositeRenderList(frame, true, e, i);
+                            this.CompleteRenderList(frame, true, e, i);
                             throw new Exception("Failed to pre-process effects", e);
                         }
 
@@ -315,7 +315,7 @@ namespace FramePFX.Editor.Timelines {
                             // do nothing
                         }
                         catch (Exception e) {
-                            this.CompleteCompositeRenderList(frame, true, e, i);
+                            this.CompleteRenderList(frame, true, e, i);
                             throw new Exception($"Failed to render '{clip}'", e);
                         }
 
@@ -335,7 +335,7 @@ namespace FramePFX.Editor.Timelines {
                                 e.AddSuppressed(new Exception("Failed to finalize clip just after post effect error", ex));
                             }
 
-                            this.CompleteCompositeRenderList(frame, true, e, i + 1);
+                            this.CompleteRenderList(frame, true, e, i + 1);
                             throw new Exception("Failed to post-process effects", e);
                         }
 
@@ -343,7 +343,7 @@ namespace FramePFX.Editor.Timelines {
                             clip.OnRenderCompleted(frame, false);
                         }
                         catch (Exception e) {
-                            this.CompleteCompositeRenderList(frame, true, e, i + 1);
+                            this.CompleteRenderList(frame, true, e, i + 1);
                             throw new Exception($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
                         }
                     }

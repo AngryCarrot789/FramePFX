@@ -3,7 +3,6 @@
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:s="clr-namespace:System;assembly=mscorlib"
-                    xmlns:editor="clr-namespace:FramePFX.PropertyEditing.Editor.Editor;assembly=FramePFX"
                     xmlns:pe="clr-namespace:FramePFX.WPF.PropertyEditing"
                     xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
                     xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
@@ -11,10 +10,10 @@
                     xmlns:pec="clr-namespace:FramePFX.PropertyEditing;assembly=FramePFX"
                     xmlns:c="clr-namespace:FramePFX.WPF.Converters"
                     xmlns:converters="clr-namespace:FramePFX.WPF.PropertyEditing.Converters"
-                    xmlns:clips="clr-namespace:FramePFX.PropertyEditing.Editor.Editor.Clips;assembly=FramePFX"
-                    xmlns:effects="clr-namespace:FramePFX.PropertyEditing.Editor.Editor.Effects;assembly=FramePFX"
                     xmlns:video="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Effects.Video;assembly=FramePFX"
-                    xmlns:text="clr-namespace:FramePFX.PropertyEditing.Editor.Editor.Clips.Text;assembly=FramePFX"
+                    xmlns:clips="clr-namespace:FramePFX.Editor.PropertyEditors.Clips;assembly=FramePFX"
+                    xmlns:text="clr-namespace:FramePFX.Editor.PropertyEditors.Clips.Text;assembly=FramePFX"
+                    xmlns:effects="clr-namespace:FramePFX.Editor.PropertyEditors.Effects;assembly=FramePFX"
                     mc:Ignorable="d">
     <!-- Clips -->
     <!-- Video Clips -->

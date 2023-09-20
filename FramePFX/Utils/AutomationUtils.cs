@@ -4,7 +4,6 @@ using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Editor.ViewModels.Timelines.Effects;
 
 namespace FramePFX.Utils {
     public static class AutomationUtils {

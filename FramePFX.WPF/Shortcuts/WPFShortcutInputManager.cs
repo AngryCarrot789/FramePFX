@@ -14,7 +14,6 @@ using FramePFX.Shortcuts.Usage;
 using FramePFX.Utils;
 using FramePFX.WPF.Shortcuts.Bindings;
 using FramePFX.WPF.Utils;
-using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.WPF.Shortcuts {
     public class WPFShortcutInputManager : ShortcutInputManager {

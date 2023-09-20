@@ -9,7 +9,6 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
-using FramePFX.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Editor.Timelines {
     /// <summary>

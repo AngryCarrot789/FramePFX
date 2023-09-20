@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.ResourceChecker;

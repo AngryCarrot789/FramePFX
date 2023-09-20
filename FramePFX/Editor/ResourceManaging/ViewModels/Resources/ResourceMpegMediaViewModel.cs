@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.ResourceChecker;
-using FramePFX.Editor.ResourceChecker.Resources;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Utils;
 

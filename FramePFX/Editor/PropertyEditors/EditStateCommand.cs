@@ -6,7 +6,7 @@ using FramePFX.History;
 using FramePFX.History.ViewModels;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Editor.Editor {
+namespace FramePFX.Editor.PropertyEditors {
     /// <summary>
     /// A command that helps manage a begin and end edit state, and also pushing changes to the history
     /// </summary>

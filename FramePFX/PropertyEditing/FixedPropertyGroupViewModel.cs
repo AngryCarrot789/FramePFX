@@ -100,6 +100,10 @@ namespace FramePFX.PropertyEditing {
         }
 
         private void AddGroupInternal(BasePropertyGroupViewModel group, string id, bool isHierarchial) {
+            if (this.Parent?.IsRoot ?? true) {
+                group.IsHeaderBold = true;
+            }
+
             group.Parent = this;
             group.RecalculateHierarchyDepth();
             this.idToGroupMap[id] = group;

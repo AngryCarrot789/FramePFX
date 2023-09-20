@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.RBC;
@@ -9,18 +10,13 @@ namespace FramePFX.Automation.Keyframe {
     /// <summary>
     /// Contains all of the key frames for a specific <see cref="AutomationKey"/>
     /// </summary>
-    public class AutomationSequence : IRBESerialisable {
+    public abstract class AutomationSequence : IRBESerialisable {
         private readonly List<KeyFrame> keyFrameList;
 
         /// <summary>
         /// Whether or not this sequence has any key frames
         /// </summary>
         public bool IsEmpty => this.keyFrameList.Count < 1;
-
-        /// <summary>
-        /// A keyframe that stores an override value, which overrides any automation
-        /// </summary>
-        public KeyFrame OverrideKeyFrame { get; }
 
         /// <summary>
         /// Whether or not the current automation sequence is in override mode or not. When in override mode,
@@ -47,18 +43,11 @@ namespace FramePFX.Automation.Keyframe {
 
         public AutomationKey Key { get; }
 
-        /// <summary>
-        /// An event fired, notifying any listeners to query their live value from the automation data
-        /// </summary>
-        public UpdateAutomationValueEventHandler UpdateValue;
-
         public AutomationSequence(AutomationData automationData, AutomationKey key) {
             this.AutomationData = automationData;
             this.Key = key;
             this.keyFrameList = new List<KeyFrame>();
             this.DataType = key.DataType;
-            this.OverrideKeyFrame = key.CreateKeyFrame();
-            this.OverrideKeyFrame.sequence = this;
         }
 
         public void Clear() {
@@ -70,60 +59,55 @@ namespace FramePFX.Automation.Keyframe {
         }
 
         /// <summary>
-        /// Invokes the <see cref="UpdateValue"/> event, allowing any listeners to re-query their actual value at the given frame
+        /// Updates the sequence's backing value for the given frame
         /// </summary>
-        /// <param name="frame">The frame</param>
-        public void DoUpdateValue(long frame) {
-            this.UpdateValue?.Invoke(this, frame);
-        }
+        /// <param name="frame">The frame to update the value of</param>
+        public abstract void DoUpdateValue(long frame);
 
         #region Helper Getter Functions
 
         // Caching just as a slight performance helper... hopefully. It seems like a new lambda class
         // is being instantiated each time one is used, unless it gets inlined by the JIT... dunno. TBD
-        private static readonly Func<KeyFrame, float> FuncGetFloat = k => ((KeyFrameFloat) k).Value;
-        private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
-        private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
-        private static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBoolean) k).Value;
-        private static readonly Func<KeyFrame, Vector2> FuncGetVec2 = k => ((KeyFrameVector2) k).Value;
-        private static readonly Func<long, KeyFrame, KeyFrame, float> FuncCalcFloat = (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, double> FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, long> FuncCalcLong = (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVec2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
+        protected static readonly Func<KeyFrame, float> FuncGetFloat = k => ((KeyFrameFloat) k).Value;
+        protected static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
+        protected static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
+        protected static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBoolean) k).Value;
+        protected static readonly Func<KeyFrame, Vector2> FuncGetVec2 = k => ((KeyFrameVector2) k).Value;
+        protected static readonly Func<long, KeyFrame, KeyFrame, float> FuncCalcFloat = (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
+        protected static readonly Func<long, KeyFrame, KeyFrame, double> FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
+        protected static readonly Func<long, KeyFrame, KeyFrame, long> FuncCalcLong = (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
+        protected static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
+        protected static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVec2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
 
-        public float GetFloatValue(long frame, bool ignoreOverrideState = false) {
-            ValidateType(AutomationDataType.Float, this.DataType);
-            return this.GetValueInternal(frame, FuncGetFloat, FuncCalcFloat, ignoreOverrideState);
+        public virtual float GetFloatValue(long time, bool ignoreOverrideState = false) {
+            throw new Exception("This sequence is not float-based");
         }
 
-        public double GetDoubleValue(long frame, bool ignoreOverrideState = false) {
-            ValidateType(AutomationDataType.Double, this.DataType);
-            return this.GetValueInternal(frame, FuncGetDouble, FuncCalcDouble, ignoreOverrideState);
+        public virtual double GetDoubleValue(long time, bool ignoreOverrideState = false) {
+            throw new Exception("This sequence is not double-based");
         }
 
-        public long GetLongValue(long frame, bool ignoreOverrideState = false) {
-            ValidateType(AutomationDataType.Long, this.DataType);
-            return this.GetValueInternal(frame, FuncGetLong, FuncCalcLong, ignoreOverrideState);
+        public virtual long GetLongValue(long time, bool ignoreOverrideState = false) {
+            throw new Exception("This sequence is not long-based");
         }
 
-        public bool GetBooleanValue(long frame, bool ignoreOverrideState = false) {
-            ValidateType(AutomationDataType.Boolean, this.DataType);
-            return this.GetValueInternal(frame, FuncGetBool, FuncCalcBool, ignoreOverrideState);
+        public virtual bool GetBooleanValue(long time, bool ignoreOverrideState = false) {
+            throw new Exception("This sequence is not bool-based");
         }
 
-        public Vector2 GetVector2Value(long frame, bool ignoreOverrideState = false) {
-            ValidateType(AutomationDataType.Vector2, this.DataType);
-            return this.GetValueInternal(frame, FuncGetVec2, FuncCalcVec2, ignoreOverrideState);
+        public virtual Vector2 GetVector2Value(long time, bool ignoreOverrideState = false) {
+            throw new Exception("This sequence is not vector2-based");
         }
 
-        private T GetValueInternal<T>(long frame, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, bool ignoreOverride = false) {
-            if ((ignoreOverride || !this.IsOverrideEnabled) && this.GetIndicesForFrame(frame, out int a, out int b)) {
-                return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(frame, this.keyFrameList[a], this.keyFrameList[b]);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool GetValueInternal<T>(long time, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, out T value, bool ignoreOverride = false) {
+            if ((ignoreOverride || !this.IsOverrideEnabled) && this.GetIndicesForFrame(time, out int a, out int b)) {
+                value = b == -1 ? toValue(this.keyFrameList[a]) : interpolate(time, this.keyFrameList[a], this.keyFrameList[b]);
+                return true;
             }
-            else {
-                return toValue(this.OverrideKeyFrame);
-            }
+
+            value = default;
+            return false;
         }
 
         #endregion
@@ -304,7 +288,7 @@ namespace FramePFX.Automation.Keyframe {
         public void WriteToRBE(RBEDictionary data) {
             data.SetByte(nameof(this.DataType), (byte) this.DataType);
             data.SetBool(nameof(this.IsOverrideEnabled), this.IsOverrideEnabled);
-            this.OverrideKeyFrame.WriteToRBE(data.CreateDictionary(nameof(this.OverrideKeyFrame)));
+            // this.OverrideKeyFrame.WriteToRBE(data.CreateDictionary(nameof(this.OverrideKeyFrame)));
 
             RBEList list = data.CreateList(nameof(this.KeyFrames));
             foreach (KeyFrame keyFrame in this.keyFrameList) {
@@ -320,7 +304,7 @@ namespace FramePFX.Automation.Keyframe {
             }
 
             this.IsOverrideEnabled = data.GetBool(nameof(this.IsOverrideEnabled), false);
-            this.OverrideKeyFrame.ReadFromRBE(data.GetDictionary(nameof(this.OverrideKeyFrame)));
+            // this.OverrideKeyFrame.ReadFromRBE(data.GetDictionary(nameof(this.OverrideKeyFrame)));
 
             List<KeyFrame> frames = new List<KeyFrame>();
             RBEList list = data.GetList(nameof(this.KeyFrames));
@@ -358,6 +342,87 @@ namespace FramePFX.Automation.Keyframe {
 
         public override string ToString() {
             return $"{nameof(AutomationSequence)}({this.DataType} -> {this.Key.FullId} [{this.keyFrameList.Count} keyframes])";
+        }
+    }
+
+    public sealed class AutomationSequenceFloat : AutomationSequence {
+        public float Value;
+        public float OverrideValue;
+
+        public AutomationSequenceFloat(AutomationData automationData, AutomationKey key) : base(automationData, key) {
+        }
+
+        public override void DoUpdateValue(long frame) => this.Value = this.GetFloatValue(frame);
+
+        public override float GetFloatValue(long time, bool ignoreOverrideState = false) {
+            if (this.GetValueInternal(time, FuncGetFloat, FuncCalcFloat, out float value, ignoreOverrideState))
+                return value;
+            return this.OverrideValue;
+        }
+    }
+
+    public sealed class AutomationSequenceDouble : AutomationSequence {
+        public double Value;
+        public double OverrideValue;
+
+        public AutomationSequenceDouble(AutomationData automationData, AutomationKey key) : base(automationData, key) {
+        }
+
+        public override void DoUpdateValue(long frame) => this.Value = this.GetDoubleValue(frame);
+
+        public override double GetDoubleValue(long time, bool ignoreOverrideState = false) {
+            ValidateType(AutomationDataType.Double, this.DataType);
+            if (this.GetValueInternal(time, FuncGetDouble, FuncCalcDouble, out double value, ignoreOverrideState))
+                return value;
+            return this.OverrideValue;
+        }
+    }
+
+    public sealed class AutomationSequenceLong : AutomationSequence {
+        public long Value;
+        public long OverrideValue;
+
+        public AutomationSequenceLong(AutomationData automationData, AutomationKey key) : base(automationData, key) {
+        }
+
+        public override void DoUpdateValue(long frame) => this.Value = this.GetLongValue(frame);
+
+        public override long GetLongValue(long time, bool ignoreOverrideState = false) {
+            if (this.GetValueInternal(time, FuncGetLong, FuncCalcLong, out long value, ignoreOverrideState))
+                return value;
+            return this.OverrideValue;
+        }
+    }
+
+    public sealed class AutomationSequenceBoolean : AutomationSequence {
+        public bool Value;
+        public bool OverrideValue;
+
+        public AutomationSequenceBoolean(AutomationData automationData, AutomationKey key) : base(automationData, key) {
+        }
+
+        public override void DoUpdateValue(long frame) => this.Value = this.GetBooleanValue(frame);
+
+        public override bool GetBooleanValue(long time, bool ignoreOverrideState = false) {
+            if (this.GetValueInternal(time, FuncGetBool, FuncCalcBool, out bool value, ignoreOverrideState))
+                return value;
+            return this.OverrideValue;
+        }
+    }
+
+    public sealed class AutomationSequenceVector2 : AutomationSequence {
+        public Vector2 Value;
+        public Vector2 OverrideValue;
+
+        public AutomationSequenceVector2(AutomationData automationData, AutomationKey key) : base(automationData, key) {
+        }
+
+        public override void DoUpdateValue(long frame) => this.Value = this.GetVector2Value(frame);
+
+        public override Vector2 GetVector2Value(long time, bool ignoreOverrideState = false) {
+            if (this.GetValueInternal(time, FuncGetVec2, FuncCalcVec2, out Vector2 value, ignoreOverrideState))
+                return value;
+            return this.OverrideValue;
         }
     }
 }

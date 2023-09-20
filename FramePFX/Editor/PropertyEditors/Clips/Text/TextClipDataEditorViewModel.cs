@@ -5,8 +5,10 @@ using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History.Tasks;
+using FramePFX.PropertyEditing;
+using FramePFX.PropertyEditing.Editor;
 
-namespace FramePFX.PropertyEditing.Editor.Editor.Clips.Text {
+namespace FramePFX.Editor.PropertyEditors.Clips.Text {
     public class TextClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
         private readonly HistoryBuffer<HistoryFontFamilty> historyFontFamily;
         private readonly HistoryBuffer<HistoryText> historyText;

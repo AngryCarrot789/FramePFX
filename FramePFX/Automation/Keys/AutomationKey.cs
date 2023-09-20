@@ -144,7 +144,8 @@ namespace FramePFX.Automation.Keys {
         }
 
         protected bool Equals(AutomationKey other) {
-            return this.GetType() == other.GetType() && this.Domain == other.Domain && this.Id == other.Id;
+            // cheaper to rule out the hash code than always doing type and string comparison
+            return this.hashCode == other.hashCode && this.GetType() == other.GetType() && this.Domain == other.Domain && this.Id == other.Id;
         }
 
         public override bool Equals(object obj) {

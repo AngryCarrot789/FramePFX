@@ -8,8 +8,9 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
+using FramePFX.PropertyEditing.Editor;
 
-namespace FramePFX.PropertyEditing.Editor.Editor.Clips {
+namespace FramePFX.Editor.PropertyEditors.Clips {
     public class VideoClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
         private readonly RefreshAutomationValueEventHandler RefreshOpacityHandler;
 

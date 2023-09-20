@@ -9,24 +9,11 @@ namespace FramePFX.WPF.Shortcuts {
     public class UIInputManager : INotifyPropertyChanged {
         public static UIInputManager Instance { get; } = new UIInputManager();
 
-        public static readonly DependencyProperty FocusPathProperty =
-            DependencyProperty.RegisterAttached(
-                "FocusPath",
-                typeof(string),
-                typeof(UIInputManager),
-                new FrameworkPropertyMetadata(
-                    null,
-                    FrameworkPropertyMetadataOptions.Inherits, (o, args) => {
-                        if (o is UIElement element) {
-                            element.Focusable = true;
-                        }
-                    }));
-
+        public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         public static readonly DependencyProperty IsPathFocusedProperty = DependencyProperty.RegisterAttached("IsPathFocused", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
         internal static readonly DependencyPropertyKey ShortcutProcessorPropertyKey = DependencyProperty.RegisterAttachedReadOnly("ShortcutProcessor", typeof(WPFShortcutInputManager), typeof(UIInputManager), new PropertyMetadata(default(WPFShortcutInputManager)));
         public static readonly DependencyProperty ShortcutProcessorProperty = ShortcutProcessorPropertyKey.DependencyProperty;
         public static readonly DependencyProperty UsePreviewEventsProperty = DependencyProperty.RegisterAttached("UsePreviewEvents", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
-
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeWithModifiersProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStrokeWithModifiers", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty CanProcessTextBoxMouseStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxMouseStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.True));
@@ -105,7 +92,7 @@ namespace FramePFX.WPF.Shortcuts {
             if (oldPath != newPath) {
                 Instance.FocusedPath = newPath;
                 RaiseFocusGroupPathChanged(oldPath, newPath);
-                UpdateHasFocusGroup(obj);
+                UpdateFocusGroup(obj);
             }
         }
 
@@ -114,14 +101,14 @@ namespace FramePFX.WPF.Shortcuts {
         /// set, assuming that means it is a primary focus group, and then sets the <see cref="IsPathFocusedProperty"/> to true for
         /// that element, and false for the last element that was focused
         /// </summary>
-        /// <param name="eventObject">Target/focused element which now has focus</param>
-        public static void UpdateHasFocusGroup(DependencyObject eventObject) {
+        /// <param name="target">Target/focused element which now has focus</param>
+        public static void UpdateFocusGroup(DependencyObject target) {
             if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused)) {
                 CurrentlyFocusedObject.SetTarget(null);
                 SetIsPathFocused(lastFocused, false);
             }
 
-            DependencyObject root = VisualTreeUtils.FindNearestInheritedPropertyDefinition(FocusPathProperty, eventObject);
+            DependencyObject root = VisualTreeUtils.FindNearestInheritedPropertyDefinition(FocusPathProperty, target);
             // do {
             //     root = VisualTreeUtils.FindInheritedPropertyDefinition(FocusGroupPathProperty, root);
             // } while (root != null && !GetHasAdvancedFocusVisual(root) && (root = VisualTreeHelper.GetParent(root)) != null);
@@ -129,12 +116,12 @@ namespace FramePFX.WPF.Shortcuts {
             if (root != null) {
                 CurrentlyFocusedObject.SetTarget(root);
                 SetIsPathFocused(root, true);
-                if (root is UIElement element && element.Focusable && !element.IsFocused) {
-                    element.Focus();
-                }
+                // if (root is UIElement element && element.Focusable && !element.IsFocused) {
+                //     element.Focus();
+                // }
             }
             else {
-                Debug.WriteLine("Failed to find root control that owns the FocusGroupPathProperty of " + GetFocusPath(eventObject));
+                Debug.WriteLine("Failed to find root control that owns the FocusGroupPathProperty of " + GetFocusPath(target));
             }
         }
     }

@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor;
+using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
+using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
@@ -21,13 +24,17 @@ namespace FramePFX.Automation {
             UpdateAutomationData(timeline, frame);
             foreach (Track track in timeline.Tracks) {
                 UpdateAutomationData(track, frame);
-                foreach (Clip clip in track.Clips) {
-                    FrameSpan span = clip.FrameSpan;
-                    long relative = frame - span.Begin;
-                    if (relative >= 0 && relative < span.Duration) {
+                IReadOnlyList<Clip> clips = track.Clips;
+                for (int i = clips.Count - 1; i >= 0; i--) {
+                    Clip clip = clips[i];
+                    if (clip.GetRelativeFrame(frame, out long relative)) {
                         UpdateAutomationData(clip, relative);
                         foreach (BaseEffect effect in clip.Effects) {
                             UpdateAutomationData(effect, relative);
+                        }
+
+                        if (clip is CompositionVideoClip composition && composition.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource)) {
+                            UpdateTimeline(resource.Timeline, relative);
                         }
                     }
                 }

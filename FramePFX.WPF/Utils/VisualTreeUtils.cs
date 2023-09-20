@@ -20,6 +20,17 @@ namespace FramePFX.WPF.Utils {
             return obj;
         }
 
+        public static DependencyObject FindNearestInheritedPropertyDefinition(DependencyProperty property, DependencyObject startObject, out object value) {
+            object val = null;
+            DependencyObject obj = startObject;
+            while (obj != null && (val = obj.ReadLocalValue(property)) == DependencyProperty.UnsetValue) {
+                obj = GetParent(obj);
+            }
+
+            value = val;
+            return obj;
+        }
+
         public static DependencyObject GetParent(DependencyObject source) {
             if (source is Visual || source is Visual3D) {
                 return VisualTreeHelper.GetParent(source);

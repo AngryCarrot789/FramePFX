@@ -7,8 +7,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Editor;
+using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 using FramePFX.WPF.Utils;
@@ -404,7 +407,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public void OnSelectionOperationCompleted() {
             if (this.DataContext is TimelineViewModel timeline) {
-                timeline.Project.Editor?.View.UpdateClipSelection();
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
             }
         }
     }

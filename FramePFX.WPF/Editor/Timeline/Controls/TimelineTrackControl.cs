@@ -58,6 +58,35 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
         }
 
+        private bool canSetPlayHead;
+
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
+            base.OnPreviewMouseLeftButtonUp(e);
+            if (this.canSetPlayHead && !e.Handled && this.DataContext is TrackViewModel track && track.Timeline != null) {
+                Point point = e.GetPosition(this);
+                track.Timeline.PlayHeadFrame = TimelineUtils.PixelToFrame(point.X, this.Timeline.UnitZoom, true);
+            }
+
+            this.canSetPlayHead = false;
+        }
+
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+            base.OnMouseLeftButtonDown(e);
+            this.canSetPlayHead = true;
+            if (this.Timeline.GetSelectedClipContainers().Any(clip => ReferenceEquals(clip.Track, this) && clip.IsMouseOver)) {
+                return;
+            }
+
+            foreach (TimelineTrackControl trackElement in this.Timeline.GetTrackContainers()) {
+                if (trackElement.SelectedItems.Count > 0) {
+                    trackElement.UnselectAll();
+                }
+            }
+
+            this.Focus();
+            this.OnSelectionOperationCompleted();
+        }
+
         public IEnumerable<TimelineClipControl> GetClipContainers() {
             return this.GetClipContainers(this.Items);
         }
@@ -88,22 +117,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         public IEnumerable<TimelineClipControl> GetClipsThatIntersect(FrameSpan span) => this.GetClipContainers().Where(x => x.Span.Intersects(span));
-
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
-            base.OnMouseLeftButtonDown(e);
-            if (this.Timeline.GetSelectedClipContainers().Any(clip => ReferenceEquals(clip.Track, this) && clip.IsMouseOver)) {
-                return;
-            }
-
-            foreach (TimelineTrackControl trackElement in this.Timeline.GetTrackContainers()) {
-                if (trackElement.SelectedItems.Count > 0) {
-                    trackElement.UnselectAll();
-                }
-            }
-
-            this.Focus();
-            this.OnSelectionOperationCompleted();
-        }
 
         private void OnDragDropEnter(object sender, DragEventArgs e) {
             if (this.isProcessingDrop || this.ResourceItemDropHandler == null) {

@@ -10,10 +10,6 @@ namespace FramePFX.Editor {
     public interface IVideoEditor : IViewBase {
         Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender = false);
 
-        void UpdateClipSelection();
-
-        void UpdateResourceSelection();
-
         void PushNotificationMessage(string message);
 
         NotificationPanelViewModel NotificationPanel { get; }

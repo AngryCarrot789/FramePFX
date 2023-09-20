@@ -18,6 +18,7 @@ using FramePFX.Editor.ViewModels.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
+using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.UserInputs;
 
@@ -28,6 +29,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget, IStrictFrameRange {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         private readonly ObservableCollection<BaseEffectViewModel> effects;
+        private bool isClearingEffects;
         private bool isSelected;
 
         public Clip Model { get; }
@@ -213,7 +215,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public void UpdateTimelineSelection() {
-            this.Timeline?.Project.Editor?.View.UpdateClipSelection();
+            if (this.Timeline != null) {
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(this.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
+            }
         }
 
         public void AddEffect(BaseEffectViewModel effect, bool addToModel = true) {
@@ -233,8 +237,12 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.Model.InsertEffect(effect.Model, index);
 
             effect.OwnerClip = this;
+            BaseEffectViewModel.OnAddingToClip(effect);
             this.effects.Add(effect);
-            effect.OnAddedToClip();
+            BaseEffectViewModel.OnAddedToClip(effect);
+            if (!this.isClearingEffects) {
+                this.UpdateEffectPropertyEditor();
+            }
         }
 
         public bool RemoveEffect(BaseEffectViewModel effect, bool removeFromModel = true) {
@@ -253,9 +261,18 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             if (removeFromModel)
                 this.Model.RemoveEffectAt(index);
 
-            this.effects.Remove(effect);
-            effect.OnRemovedFromClip();
+            BaseEffectViewModel.OnRemovingFromClip(effect);
             effect.OwnerClip = null;
+            this.effects.Remove(effect);
+            BaseEffectViewModel.OnRemovedFromClip(effect, this);
+            if (!this.isClearingEffects) {
+                this.UpdateEffectPropertyEditor();
+            }
+        }
+
+        // TODO: feels weird referencing the property editor here... maybe switch to using events?
+        protected virtual void UpdateEffectPropertyEditor() {
+            PFXPropertyEditorRegistry.Instance.OnEffectCollectionChanged();
         }
 
         // [ShortcutTarget("Application/RenameItem")]
@@ -303,16 +320,25 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        protected virtual void DisposeCore(ErrorList stack) {
-            for (int i = this.effects.Count - 1; i >= 0; i--) {
-                try {
-                    this.RemoveEffectAt(i);
+        public void ClearEffects(bool updatePropertyPages = true) {
+            using (ErrorList list = new ErrorList()) {
+                this.isClearingEffects = true;
+                for (int i = this.effects.Count - 1; i >= 0; i--) {
+                    try {
+                        this.RemoveEffectAt(i);
+                    }
+                    catch (Exception e) {
+                        list.Add(new Exception("Failed to remove effect", e));
+                    }
                 }
-                catch (Exception e) {
-                    stack.Add(new Exception("Failed to remove effect", e));
+                this.isClearingEffects = false;
+                if (updatePropertyPages) {
+                    this.UpdateEffectPropertyEditor();
                 }
             }
+        }
 
+        protected virtual void DisposeCore(ErrorList stack) {
             try {
                 this.Model.Dispose();
             }

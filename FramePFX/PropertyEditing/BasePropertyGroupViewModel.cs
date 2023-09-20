@@ -1,19 +1,26 @@
 using System;
 using System.Collections.Generic;
+using FramePFX.AdvancedContextService;
+using FramePFX.Commands;
 
 namespace FramePFX.PropertyEditing {
-    public abstract class BasePropertyGroupViewModel : BasePropertyObjectViewModel {
+    public abstract class BasePropertyGroupViewModel : BasePropertyObjectViewModel, IContextProvider {
+        private IReadOnlyList<object> handlers;
         private bool isExpanded;
+        private bool isSelected;
 
         /// <summary>
         /// Whether or not this group is expanded, showing the child groups and editors
         /// </summary>
         public bool IsExpanded {
             get => this.isExpanded;
-            set => this.RaisePropertyChanged(ref this.isExpanded, value);
+            set {
+                this.RaisePropertyChanged(ref this.isExpanded, value);
+                this.ExpandCommand.RaiseCanExecuteChanged();
+                this.CollapseCommand.RaiseCanExecuteChanged();
+            }
         }
 
-        private bool isSelected;
         public bool IsSelected {
             get => this.isSelected;
             set => this.RaisePropertyChanged(ref this.isSelected, value);
@@ -30,17 +37,53 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public abstract IReadOnlyList<IPropertyObject> PropertyObjects { get; }
 
+        /// <summary>
+        /// Gets a list of handlers that are currently active (updated during a call to <see cref="SetupHierarchyState"/>)
+        /// </summary>
+        public IReadOnlyList<object> Handlers {
+            get => this.handlers;
+            protected set => this.RaisePropertyChanged(ref this.handlers, value);
+        }
+
         public string DisplayName { get; set; } = "Group";
 
-        protected BasePropertyGroupViewModel(Type applicableType) : base(applicableType) {
+        public RelayCommand ExpandCommand { get; }
+        public RelayCommand CollapseCommand { get; }
 
+        public RelayCommand ExpandHierarchyCommand { get; }
+        public RelayCommand CollapseHierarchyCommand { get; }
+
+        protected BasePropertyGroupViewModel(Type applicableType) : base(applicableType) {
+            this.ExpandCommand = new RelayCommand(() => this.IsExpanded = true, () => !this.IsExpanded);
+            this.CollapseCommand = new RelayCommand(() => this.IsExpanded = false, () => this.IsExpanded);
+            this.ExpandHierarchyCommand = new RelayCommand(this.ExpandHierarchy);
+            this.CollapseHierarchyCommand = new RelayCommand(this.CollapseHierarchy);
+        }
+
+        protected void ExpandHierarchy() {
+            this.IsExpanded = true;
+            foreach (IPropertyObject obj in this.PropertyObjects) {
+                if (obj is BasePropertyGroupViewModel group) {
+                    group.ExpandHierarchy();
+                }
+            }
+        }
+
+        protected void CollapseHierarchy() {
+            // probably more performant to expand the top first, so that closing child ones won't cause rendering
+            this.IsExpanded = false;
+            foreach (IPropertyObject obj in this.PropertyObjects) {
+                if (obj is BasePropertyGroupViewModel group) {
+                    group.CollapseHierarchy();
+                }
+            }
         }
 
         /// <summary>
         /// Recursively clears the state of all groups and editors
         /// </summary>
         public virtual void ClearHierarchyState() {
-            if (!this.IsCurrentlyApplicable) {
+            if (!this.IsCurrentlyApplicable && !this.IsRoot) {
                 return;
             }
 
@@ -56,6 +99,7 @@ namespace FramePFX.PropertyEditing {
             }
 
             this.IsCurrentlyApplicable = false;
+            this.Handlers = null;
         }
 
         /// <summary>
@@ -73,6 +117,12 @@ namespace FramePFX.PropertyEditing {
                 if (group.IsApplicable(sources[i]))
                     return true;
             return false;
+        }
+
+        public virtual void GetContext(List<IContextEntry> list) {
+            list.Add(!this.IsExpanded ? new CommandContextEntry("Expand", this.ExpandCommand) : new CommandContextEntry("Collapse", this.CollapseCommand));
+            list.Add(new CommandContextEntry("Expand Hierarchy", this.ExpandHierarchyCommand));
+            list.Add(new CommandContextEntry("Collapse Hierarchy", this.CollapseHierarchyCommand));
         }
     }
 }

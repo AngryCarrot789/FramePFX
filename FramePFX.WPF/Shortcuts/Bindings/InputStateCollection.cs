@@ -49,11 +49,12 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
                 object localValue = source.ReadLocalValue(CollectionProperty);
                 if (localValue is InputStateCollection collection && collection.Count > 0) {
                     foreach (InputStateBinding binding in collection) {
-                        if (!string.IsNullOrWhiteSpace(binding.InputStatePath)) {
-                            if (!map.TryGetValue(binding.InputStatePath, out var list))
-                                map[binding.InputStatePath] = list = new List<InputStateBinding>();
-                            list.Add(binding);
-                        }
+                        string path = binding.InputStatePath;
+                        if (string.IsNullOrWhiteSpace(path))
+                            continue;
+                        if (!map.TryGetValue(path, out List<InputStateBinding> list))
+                            map[path] = list = new List<InputStateBinding>();
+                        list.Add(binding);
                     }
                 }
             } while ((source = VisualTreeUtils.GetParent(source)) != null);

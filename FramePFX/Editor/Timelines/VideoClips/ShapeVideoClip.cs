@@ -49,16 +49,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(this.Width, this.Height);
         }
 
-        public override bool BeginRender(long frame) {
+        public override bool OnBeginRender(long frame) {
             return this.ResourceHelper.TryGetResource(out ResourceColour _);
         }
 
-        public override Task EndRender(RenderContext rc, long frame) {
+        public override Task OnEndRender(RenderContext rc, long frame) {
             if (!this.ResourceHelper.TryGetResource(out ResourceColour r)) {
                 return Task.CompletedTask;
             }
 
-            // this.ApplyTransformation(rc);
             SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
             using (SKPaint paint = new SKPaint() {Color = colour}) {
                 rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);

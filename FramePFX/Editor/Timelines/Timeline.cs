@@ -23,6 +23,7 @@ namespace FramePFX.Editor.Timelines {
     public class Timeline : IAutomatable, IRBESerialisable {
         private readonly List<Track> tracks;
         private readonly List<VideoClip> RenderList = new List<VideoClip>();
+        private volatile bool isBeginningRender;
 
         // not a chance anyone's creating more than 9 quintillion clips or tracks
         private long nextClipId;
@@ -195,12 +196,12 @@ namespace FramePFX.Editor.Timelines {
             await this.EndCompositeRenderAsync(render, frame, token);
         }
 
-        public void CancelCompositeRenderList(long frame, int i = 0) {
-            using (ErrorList list = new ErrorList("Failed to cancel one or more clip renders")) {
+        public void CompleteCompositeRenderList(long frame, bool isCancelled, int i = 0) {
+            using (ErrorList list = new ErrorList("Failed to " + (isCancelled ? "cancel" : "finalize") + " one or more clip renders")) {
                 List<VideoClip> renderList = this.RenderList;
                 for (int k = renderList.Count; i < k; i++) {
                     try {
-                        renderList[i].OnRenderCancelled(frame);
+                        renderList[i].OnRenderCompleted(frame, isCancelled);
                     }
                     catch (Exception e) {
                         list.Add(e);
@@ -211,14 +212,37 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
+        public void CompleteCompositeRenderList(long frame, bool isCancelled, Exception e, int i = 0) {
+            try {
+                this.CompleteCompositeRenderList(frame, isCancelled, i);
+            }
+            catch (Exception ex) {
+                e.AddSuppressed(ex);
+            }
+        }
+
         public bool BeginCompositeRender(long frame, CancellationToken token) {
+            if (this.isBeginningRender)
+                throw new Exception("Already rendering. Possible asynchronous render");
+            if (this.RenderList.Count > 0)
+                throw new Exception("Render queue already loaded. Possible asynchronous render or " + nameof(this.EndCompositeRenderAsync) + " was not called");
+            try {
+                this.isBeginningRender = true;
+                return this.BeginCompositeRenderInternal(frame, token);
+            }
+            finally {
+                this.isBeginningRender = false;
+            }
+        }
+
+        private bool BeginCompositeRenderInternal(long frame, CancellationToken token) {
             List<VideoClip> renderList = this.RenderList;
             List<Track> trackList = this.tracks;
             // Render timeline from the bottom to the top
             for (int i = trackList.Count - 1; i >= 0; i--) {
                 if (token.IsCancellationRequested) {
                     // BeginRender phase must have taken too long; call cancel to all clips that were prepared
-                    this.CancelCompositeRenderList(frame);
+                    this.CompleteCompositeRenderList(frame, true);
                     return false;
                 }
 
@@ -230,17 +254,11 @@ namespace FramePFX.Editor.Timelines {
 
                     bool render;
                     try {
-                        render = clip.BeginRender(frame);
+                        render = clip.OnBeginRender(frame);
                     }
                     catch (Exception e) {
-                        try {
-                            this.CancelCompositeRenderList(frame);
-                        }
-                        catch (Exception ex) {
-                            e.AddSuppressed(ex);
-                        }
-
-                        throw new Exception("Failed to invoke " + nameof(clip.BeginRender) + " for clip", e);
+                        this.CompleteCompositeRenderList(frame, true, e);
+                        throw new Exception("Failed to invoke " + nameof(clip.OnBeginRender) + " for clip", e);
                     }
 
                     if (render) {
@@ -260,7 +278,7 @@ namespace FramePFX.Editor.Timelines {
                 for (int i = 0, k = renderList.Count; i < k; i++) {
                     if (token.IsCancellationRequested) {
                         // Rendering took too long. Some clips may have already drawn. Cancel the rest
-                        this.CancelCompositeRenderList(i);
+                        this.CompleteCompositeRenderList(frame, true, i);
                         throw new TaskCanceledException();
                     }
 
@@ -273,35 +291,64 @@ namespace FramePFX.Editor.Timelines {
                         BaseEffect effect;
 
                         Vector2? frameSize = clip.GetSize();
-                        // pre-process clip effects, such as translation, scale, etc.
-                        for (j = 0; j < m; j++) {
-                            if ((effect = effects[j]) is VideoEffect) {
-                                ((VideoEffect) effect).PreProcessFrame(render, frameSize);
+                        try {
+                            // pre-process clip effects, such as translation, scale, etc.
+                            for (j = 0; j < m; j++) {
+                                if ((effect = effects[j]) is VideoEffect) {
+                                    ((VideoEffect) effect).PreProcessFrame(render, frameSize);
+                                }
                             }
                         }
+                        catch (Exception e) {
+                            this.CompleteCompositeRenderList(frame, true, e, i);
+                            throw new Exception("Failed to pre-process effects", e);
+                        }
 
-                        // actual render the clip
-                        await clip.EndRender(render, frame);
-
-                        // post process clip, e.g. twirl or whatever
-                        for (j = 0; j < m; j++) {
-                            if ((effect = effects[j]) is VideoEffect) {
-                                ((VideoEffect) effect).PostProcessFrame(render);
+                        try {
+                            // actual render the clip
+                            Task task = clip.OnEndRender(render, frame);
+                            if (!task.IsCompleted) { // possibly help with performance a tiny bit
+                                await task;
                             }
+                        }
+                        catch (TaskCanceledException) {
+                            // do nothing
+                        }
+                        catch (Exception e) {
+                            this.CompleteCompositeRenderList(frame, true, e, i);
+                            throw new Exception($"Failed to render '{clip}'", e);
+                        }
+
+                        try {
+                            // post process clip, e.g. twirl or whatever
+                            for (j = 0; j < m; j++) {
+                                if ((effect = effects[j]) is VideoEffect) {
+                                    ((VideoEffect) effect).PostProcessFrame(render);
+                                }
+                            }
+                        }
+                        catch (Exception e) {
+                            try {
+                                clip.OnRenderCompleted(frame, false);
+                            }
+                            catch (Exception ex) {
+                                e.AddSuppressed(new Exception("Failed to finalize clip just after post effect error", ex));
+                            }
+
+                            this.CompleteCompositeRenderList(frame, true, e, i + 1);
+                            throw new Exception("Failed to post-process effects", e);
+                        }
+
+                        try {
+                            clip.OnRenderCompleted(frame, false);
+                        }
+                        catch (Exception e) {
+                            this.CompleteCompositeRenderList(frame, true, e, i + 1);
+                            throw new Exception($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
                         }
                     }
                     catch (TaskCanceledException) {
                         // do nothing
-                    }
-                    catch (Exception e) {
-                        try {
-                            this.CancelCompositeRenderList(frame, i);
-                        }
-                        catch (Exception ex) {
-                            e.AddSuppressed(ex);
-                        }
-
-                        throw new Exception("Failed to render clip", e);
                     }
                     finally {
                         EndOpacityLayer(render, clipSaveCount, ref clipPaint);

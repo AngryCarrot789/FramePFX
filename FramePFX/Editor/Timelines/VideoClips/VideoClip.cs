@@ -63,34 +63,43 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public virtual Vector2? GetSize() => null;
 
         /// <summary>
-        /// Prepares this clip for being rendered at the given frame. This is called before anything is drawn.
+        /// Prepares this clip for being rendered at the given frame. This is called before anything should
+        /// be drawn (e.g. prepare decoder thread), and is also called before effects are processed.
         /// <para>
-        /// This function may get called multiple times before <see cref="EndRender"/> if, for
-        /// example, a render gets cancelled during the preparation phase
+        /// This function may get called multiple times before <see cref="OnEndRender"/> if, for
+        /// example, a render gets cancelled during the preparation phase. <see cref="OnRenderCompleted"/> will
+        /// always get called after this function in that case though; there will never be a duplicate sequential call
         /// </para>
         /// </summary>
         /// <param name="frame">The frame being rendered</param>
-        /// <returns>Whether or not this clip can be rendered. False means <see cref="EndRender"/> will not be called</returns>
-        public virtual bool BeginRender(long frame) {
+        /// <returns>Whether or not this clip can be rendered. False means <see cref="OnEndRender"/> will not be called</returns>
+        public virtual bool OnBeginRender(long frame) {
             return false;
         }
 
         /// <summary>
-        /// Called when an async render is cancelled (only called if <see cref="BeginRender"/> was invoked but <see cref="EndRender"/> was not)
-        /// </summary>
-        /// <param name="frame">The frame being rendered</param>
-        public virtual void OnRenderCancelled(long frame) {
-
-        }
-
-        /// <summary>
-        /// Actually draw this video clip into the render context. <see cref="BeginRender"/> is always called before this method call
+        /// Actually draw this video clip into the render context. This invocation always follows a call to <see cref="OnBeginRender"/>
         /// </summary>
         /// <param name="rc">The rendering/drawing context</param>
         /// <param name="frame">The frame being rendered</param>
         /// <returns>A task to await for the render to complete</returns>
-        public virtual Task EndRender(RenderContext rc, long frame) {
+        public virtual Task OnEndRender(RenderContext rc, long frame) {
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Called when an async render is finalized. This will only be called if <see cref="OnBeginRender"/> was ever
+        /// called. This will ALWAYS follow a call to either <see cref="OnBeginRender"/> or <see cref="OnEndRender"/>
+        /// </summary>
+        /// <param name="frame">The frame being rendered</param>
+        /// <param name="isCancelled">
+        /// If the render was cancelled. This will always be false when this call is
+        /// after <see cref="OnEndRender"/>, but may be true after <see cref="OnBeginRender"/>.
+        /// Possible cancellation reasons are the render cancellation token expiring (timeline render took to long)
+        /// or an exception occurred while rendering another clip, causing the remaining clip renders to be cancelled
+        /// </param>
+        public virtual void OnRenderCompleted(long frame, bool isCancelled) {
+
         }
     }
 }

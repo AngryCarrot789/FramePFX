@@ -41,13 +41,13 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
         }
 
-        public override bool BeginRender(long frame) {
+        public override bool OnBeginRender(long frame) {
             if (!this.TryGetResource(out ResourceAVMedia resource))
                 return false;
             return resource.stream != null && resource.Demuxer != null;
         }
 
-        public override async Task EndRender(RenderContext rc, long frame) {
+        public override async Task OnEndRender(RenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceAVMedia resource) || resource.Demuxer == null || resource.stream == null) {
                 return;
             }

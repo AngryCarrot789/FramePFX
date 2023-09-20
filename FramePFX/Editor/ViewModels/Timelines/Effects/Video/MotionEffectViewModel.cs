@@ -179,7 +179,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             }
         }
 
-        public override void OnAddedToClip() {
+        protected override void OnAddedToClip() {
             base.OnAddedToClip();
             this.OwnerClip.Model.FrameSeeked += this.handler1;
             this.OwnerClip.ClipMovedOverPlayHead += this.handler2;
@@ -187,13 +187,11 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             this.UpdateCommands();
         }
 
-        public override void OnRemovedFromClip() {
-            base.OnRemovedFromClip();
+        protected override void OnRemovingFromClip() {
+            base.OnRemovingFromClip();
             this.OwnerClip.Model.FrameSeeked -= this.handler1;
             this.OwnerClip.ClipMovedOverPlayHead -= this.handler2;
             this.OwnerClip.PlayHeadLeaveClip -= this.handler3;
-
-            // probably not necessary
             this.UpdateCommands();
         }
 

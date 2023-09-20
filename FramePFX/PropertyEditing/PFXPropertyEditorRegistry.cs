@@ -32,7 +32,7 @@ namespace FramePFX.PropertyEditing {
 
             this.EffectInfo = this.ClipInfo.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects", isHierarchial:false);
             this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
-                FixedPropertyGroupViewModel motion = new FixedPropertyGroupViewModel(typeof(MotionEffectViewModel)) {
+                EffectPropertyGroupViewModel motion = new EffectPropertyGroupViewModel(typeof(MotionEffectViewModel)) {
                     IsExpanded = true
                 };
 
@@ -52,9 +52,8 @@ namespace FramePFX.PropertyEditing {
             this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
         }
 
-        public void OnClipsSelected(IReadOnlyList<ClipViewModel> clips) {
+        public void OnClipSelectionChanged(IReadOnlyList<ClipViewModel> clips) {
             // List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
-            this.Root.ClearHierarchyState();
             this.ClipInfo.SetupHierarchyState(clips);
             foreach (IPropertyObject obj in this.ClipInfo.PropertyObjects) {
                 if (obj is FixedPropertyGroupViewModel group && this.ClipInfo.IsDisconnectedFromHierarchy(group)) {
@@ -66,7 +65,17 @@ namespace FramePFX.PropertyEditing {
             this.Root.CleanSeparators();
         }
 
-        public void OnResourcesSelected(List<BaseResourceObjectViewModel> list) {
+        public void OnEffectCollectionChanged() {
+            IReadOnlyList<object> clips = this.ClipInfo.Handlers;
+            if (clips != null && clips.Count > 0) {
+                this.EffectInfo.SetupHierarchyState(clips.Cast<ClipViewModel>().Select(x => x.Effects).ToList());
+            }
+            else {
+                this.EffectInfo.ClearHierarchyState();
+            }
+        }
+
+        public void OnResourcesSelectionChanged(IReadOnlyList<BaseResourceObjectViewModel> list) {
             this.ResourceInfo.SetupHierarchyState(list);
             this.Root.CleanSeparators();
         }

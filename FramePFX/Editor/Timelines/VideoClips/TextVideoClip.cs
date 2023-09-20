@@ -105,11 +105,11 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
 
-        public override bool BeginRender(long frame) {
+        public override bool OnBeginRender(long frame) {
             return this.ResourceHelper.TryGetResource(out ResourceTextStyle _);
         }
 
-        public override Task EndRender(RenderContext rc, long frame) {
+        public override Task OnEndRender(RenderContext rc, long frame) {
             if (!this.ResourceHelper.TryGetResource(out ResourceTextStyle r)) {
                 return Task.CompletedTask;
             }

@@ -37,7 +37,9 @@ namespace FramePFX.WPF.Editor.Timeline.Utils {
             }
         }
 
-        public static long PixelToFrame(double pixels, double zoom) => (long) (pixels / zoom);
+        public static long PixelToFrame(double pixels, double zoom, bool round = false) {
+            return (long) (round ? Math.Round(pixels / zoom) : (pixels / zoom));
+        }
 
         public static double FrameToPixel(long pixels, double zoom) {
             return pixels * zoom;

@@ -9,26 +9,34 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
         public ResourceHelper<ResourceCompositionSeq> ResourceHelper { get; }
 
+        private CancellationTokenSource tokenSource;
+
         public CompositionVideoClip() {
             this.ResourceHelper = new ResourceHelper<ResourceCompositionSeq>(this);
         }
 
-        public override bool BeginRender(long frame) {
-            if (!this.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource) || resource.Timeline.Project == null) {
+        public override bool OnBeginRender(long frame) {
+            Project project;
+            if (!this.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource) || (project = resource.Timeline.Project) == null) {
                 return false;
             }
 
+            this.tokenSource = new CancellationTokenSource(project.IsExporting ? -1 : 3000);
             return resource.Timeline.BeginCompositeRender(frame, CancellationToken.None);
         }
 
-        public override Task EndRender(RenderContext rc, long frame) {
-            Project project;
-            if (!this.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource) || (project = resource.Timeline.Project) == null) {
+        public override Task OnEndRender(RenderContext rc, long frame) {
+            if (!this.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource)) {
                 return Task.CompletedTask;
             }
 
-            CancellationTokenSource src = new CancellationTokenSource(project.IsExporting ? -1 : 3000);
-            return resource.Timeline.EndCompositeRenderAsync(rc, frame, src.Token);
+            return resource.Timeline.EndCompositeRenderAsync(rc, frame, this.tokenSource.Token);
+        }
+
+        public override void OnRenderCompleted(long frame, bool isCancelled) {
+            base.OnRenderCompleted(frame, isCancelled);
+            this.tokenSource?.Dispose();
+            this.tokenSource = null;
         }
 
         protected override Clip NewInstance() {

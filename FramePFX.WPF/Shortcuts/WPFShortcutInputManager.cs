@@ -90,7 +90,7 @@ namespace FramePFX.WPF.Shortcuts {
             }
         }
 
-        public async void OnInputSourceMouseWheel(object sender, DependencyObject focused, MouseWheelEventArgs e) {
+        public async void OnInputSourceMouseWheel(Window sender, DependencyObject focused, MouseWheelEventArgs e) {
             int button;
             if (e.Delta < 0) {
                 button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
@@ -158,22 +158,32 @@ namespace FramePFX.WPF.Shortcuts {
             }
         }
 
-        public void SetupContext(object sender, DependencyObject obj) {
+        public void SetupContext(Window root, DependencyObject obj) {
+            object o1, o2 = null, o3;
             DataContext context = new DataContext();
-            if (VisualTreeUtils.GetDataContext(obj, out object dc)) {
-                context.AddContext(dc);
+            if (VisualTreeUtils.GetDataContext(obj, out o1)) {
+                context.AddContext(o1);
             }
 
-            object dc2 = null;
             ItemsControl itemsControl = VisualTreeUtils.GetItemsControlFromObject(obj);
-            if (itemsControl != null && (dc2 = itemsControl.DataContext) != null && !ReferenceEquals(dc, dc2)) {
-                context.AddContext(dc);
+            if (itemsControl != null && (o2 = itemsControl.DataContext) != null && !ReferenceEquals(o1, o2)) {
+                context.AddContext(o2);
             }
 
-            if (sender is DependencyObject && VisualTreeUtils.GetDataContext((DependencyObject) sender, out object dc3)) {
-                if (!ReferenceEquals(dc, dc3) && !ReferenceEquals(dc2, dc3)) {
+            if (VisualTreeUtils.GetDataContext(root, out o3)) {
+                if (!ReferenceEquals(o1, o3) && !ReferenceEquals(o2, o3)) {
+                    context.AddContext(o3);
+                }
+            }
+
+            DependencyObject pathObject = obj;
+            while ((pathObject = VisualTreeUtils.FindNearestInheritedPropertyDefinition(UIInputManager.FocusPathProperty, pathObject)) != null) {
+                object dc;
+                if (pathObject is FrameworkElement element && !context.InternalContext.Contains(dc = element.DataContext)) {
                     context.AddContext(dc);
                 }
+
+                pathObject = VisualTreeUtils.GetParent(pathObject);
             }
 
             this.CurrentDataContext = context;

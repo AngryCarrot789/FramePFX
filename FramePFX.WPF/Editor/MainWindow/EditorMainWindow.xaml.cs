@@ -124,21 +124,6 @@ namespace FramePFX.WPF.Editor.MainWindow {
         //     this.lastRefreshTime = Time.GetSystemMillis();
         // }
 
-        public void UpdateClipSelection() {
-            if (this.Editor.ActiveTimeline is TimelineViewModel timeline) {
-                // TODO: maybe move this to a view model?
-                PFXPropertyEditorRegistry.Instance.OnClipsSelected(timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
-            }
-        }
-
-        public void UpdateResourceSelection() {
-            // TODO: maybe move this to a view model?
-            ResourceManagerViewModel manager;
-            if (this.Editor.ActiveProject is ProjectViewModel project && (manager = project.ResourceManager) != null) {
-                PFXPropertyEditorRegistry.Instance.OnResourcesSelected(manager.SelectedItems.ToList());
-            }
-        }
-
         public void PushNotificationMessage(string message) {
             this.NotificationBarTextBlock.Text = message;
         }

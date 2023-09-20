@@ -5,13 +5,14 @@ using System.Linq;
 namespace FramePFX.PropertyEditing {
     /// <summary>
     /// An implementation of a property group that stores singleton instances of child groups and editors.
-    /// This is useful for grouping together editors of non-dynamic data sources (e.g. editing handlers' properties)
+    /// This is useful for grouping together editors of non-dynamic data sources (e.g. editing the properties of handler objects)
     /// <para>
-    /// A case where this may not be useful is when trying to edit the properties of objects stored in a collection within a handler, where
-    /// that collection may change; that requires multiple instances of the same editor, which is what <see cref="DynamicPropertyGroupViewModel"/> does
+    /// A case where this may not be useful is when you want to have each handler have their own editor hierarchy, instead of one
+    /// group being shared across multiple handlers. This is what <see cref="DynamicPropertyGroupViewModel"/> does, while also providing
+    /// some optimisations
     /// </para>
     /// </summary>
-    public sealed class FixedPropertyGroupViewModel : BasePropertyGroupViewModel {
+    public class FixedPropertyGroupViewModel : BasePropertyGroupViewModel {
         private readonly Dictionary<string, BasePropertyGroupViewModel> idToGroupMap;
         private readonly Dictionary<string, BasePropertyEditorViewModel> idToEditorMap;
         private readonly List<IPropertyObject> propertyObjectList;
@@ -89,6 +90,15 @@ namespace FramePFX.PropertyEditing {
             return group;
         }
 
+        public void AddSubGroup(BasePropertyGroupViewModel group, string id, bool isHierarchial = true) {
+            if (isHierarchial && group.ApplicableType != null) {
+                this.ValidateApplicableType(group.ApplicableType);
+            }
+
+            this.ValidateId(id);
+            this.AddGroupInternal(group, id, isHierarchial);
+        }
+
         private void AddGroupInternal(BasePropertyGroupViewModel group, string id, bool isHierarchial) {
             group.Parent = this;
             group.RecalculateHierarchyDepth();
@@ -131,6 +141,7 @@ namespace FramePFX.PropertyEditing {
             // It would probably be slower for single selections, which is most likely what will be used...
             // but the performance difference for multi select would make it worth it tbh
 
+            this.Handlers = input;
             bool isApplicable = false;
             IPropertyObject lastEntry = null;
             List<IPropertyObject> list = this.propertyObjectList;

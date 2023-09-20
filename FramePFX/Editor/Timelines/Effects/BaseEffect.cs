@@ -89,36 +89,33 @@ namespace FramePFX.Editor.Timelines.Effects {
 
             effect.OnRemovingFromClip();
             clip.Effects.RemoveAt(index);
-            effect.OnRemovedFromClip();
             effect.OwnerClip = null;
-        }
-
-        /// <summary>
-        /// Invoked when this effect is about to be removed from the <see cref="OwnerClip"/> (which will be non-null at this call)
-        /// </summary>
-        protected virtual void OnRemovingFromClip() {
-
-        }
-
-        /// <summary>
-        /// Invoked when this effect is removed from our <see cref="OwnerClip"/> (which will be non-null at this call, but set to null after method)
-        /// </summary>
-        protected virtual void OnRemovedFromClip() {
-
+            effect.OnRemovedFromClip(clip);
         }
 
         /// <summary>
         /// Invoked when this effect is about to be added to <see cref="OwnerClip"/> (which is set prior to this call)
         /// </summary>
         protected virtual void OnAddingToClip() {
-
         }
 
         /// <summary>
-        /// Called after this effect is added to <see cref="OwnerClip"/> (which is set prior to this call)
+        /// Invoked when this effect is added to the <see cref="OwnerClip"/>'s effect list
         /// </summary>
         protected virtual void OnAddedToClip() {
+        }
 
+        /// <summary>
+        /// Invoked when this effect is about to be removed from the <see cref="OwnerClip"/>
+        /// </summary>
+        protected virtual void OnRemovingFromClip() {
+        }
+
+        /// <summary>
+        /// Invoked when this effect has been removed from our previous owner (passed as a parameter)'s effect list
+        /// </summary>
+        /// <param name="clip">Our previous owner (<see cref="OwnerClip"/>, which is set to null prior to this call)</param>
+        protected virtual void OnRemovedFromClip(Clip clip) {
         }
 
         // add/remove event handlers to TrackChanged and TrackTimelineChanged in

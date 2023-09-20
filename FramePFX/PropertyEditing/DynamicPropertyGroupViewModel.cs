@@ -21,6 +21,7 @@ namespace FramePFX.PropertyEditing {
     public class DynamicPropertyGroupViewModel : BasePropertyGroupViewModel {
         private readonly ObservableCollection<BasePropertyObjectViewModel> activeObjects;
         private readonly Dictionary<Type, TypeRegistration> registrations;
+        private IReadOnlyList<IReadOnlyList<object>> extendedHandlerList;
 
         public override IReadOnlyList<IPropertyObject> PropertyObjects => this.activeObjects;
 
@@ -47,6 +48,13 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public bool RequireAllHandlerListsHaveCommonHandlerCountForExtendedMode { get; set; }
 
+        public IReadOnlyList<IReadOnlyList<object>> ExtendedHandlerList {
+            get => this.extendedHandlerList;
+            protected set => this.RaisePropertyChanged(ref this.extendedHandlerList, value);
+        }
+
+        public DynamicMode CurrentMode { get; set; }
+
         public DynamicPropertyGroupViewModel(Type applicableType) : base(applicableType) {
             this.registrations = new Dictionary<Type, TypeRegistration>();
             this.activeObjects = new ObservableCollection<BasePropertyObjectViewModel>();
@@ -55,9 +63,12 @@ namespace FramePFX.PropertyEditing {
         }
 
 
-        private void AddGroupInternal(BasePropertyGroupViewModel group) {
+        private void AddAndSetup(BasePropertyGroupViewModel group, IReadOnlyList<object> handlers) {
+            // WPF will attempt to begin binding as soon as the group is added to the activeObjects list,
+            // but most bindings rely on the state of the group having handlers, so this is a little hack that
             group.Parent = this;
             group.RecalculateHierarchyDepth();
+            group.SetupHierarchyState(handlers);
             this.activeObjects.Add(group);
         }
 
@@ -92,7 +103,9 @@ namespace FramePFX.PropertyEditing {
             //  motion, motion, contrast
             //  motion, contrast
 
+            this.Handlers = input;
             if (this.UseSingleHandlerPerGroup) {
+                this.CurrentMode = DynamicMode.SingleHandlerPerSubGroup;
                 for (int i = 0; i < count; i++) {
                     object handler = input[i];
                     Type type = handler.GetType();
@@ -101,12 +114,11 @@ namespace FramePFX.PropertyEditing {
                     if (!IsHandlerCountAcceptable(registration.handlerCountMode, 1))
                         continue;
 
-                    BasePropertyGroupViewModel group = registration.GetSingleHandlerGroup();
-                    group.SetupHierarchyState(CollectionUtils.Singleton(handler));
-                    this.AddGroupInternal(group);
+                    this.AddAndSetup(registration.GetCachedOrNewInstance(), CollectionUtils.Singleton(handler));
                 }
             }
             else {
+                this.CurrentMode = DynamicMode.MultipleHandlersPerSubGroup;
                 Dictionary<TypeRegistration, List<object>> counter = new Dictionary<TypeRegistration, List<object>>();
                 // use a list here to try and maintain some of the original order, even if some
                 // groups get collapsed into 1 (via multiple handlers)
@@ -142,16 +154,12 @@ namespace FramePFX.PropertyEditing {
                     switch (mode) {
                         case HandlerCountMode.Any:
                         case HandlerCountMode.Multi: {
-                            BasePropertyGroupViewModel group = registration.NewDynamicGroup(list.Count == 1);
-                            group.SetupHierarchyState(list);
-                            this.AddGroupInternal(group);
+                            this.AddAndSetup(registration.NewDynamicGroup(list.Count == 1), list);
                             break;
                         }
                         case HandlerCountMode.Single: {
                             foreach (object handler in list) {
-                                BasePropertyGroupViewModel group = registration.NewDynamicGroup(true);
-                                group.SetupHierarchyState(CollectionUtils.Singleton(handler));
-                                this.AddGroupInternal(group);
+                                this.AddAndSetup(registration.NewDynamicGroup(true), CollectionUtils.Singleton(handler));
                             }
 
                             break;
@@ -195,6 +203,8 @@ namespace FramePFX.PropertyEditing {
 
             // use a list here to try and maintain some of the original order, even if some
             // groups get collapsed into 1 (via multiple handlers)
+            this.CurrentMode = DynamicMode.Extended;
+            this.ExtendedHandlerList = inputLists;
             List<TypeRegistration> typeUsage = new List<TypeRegistration>();
             Dictionary<TypeRegistration, List<object>> counter = new Dictionary<TypeRegistration, List<object>>();
             Dictionary<TypeRegistration, object> inner_counter = new Dictionary<TypeRegistration, object>();
@@ -267,16 +277,12 @@ namespace FramePFX.PropertyEditing {
                 switch (mode) {
                     case HandlerCountMode.Any:
                     case HandlerCountMode.Multi: {
-                        BasePropertyGroupViewModel group = registration.NewDynamicGroup(list.Count == 1);
-                        group.SetupHierarchyState(list);
-                        this.AddGroupInternal(group);
+                        this.AddAndSetup(registration.NewDynamicGroup(list.Count == 1), list);
                         break;
                     }
                     case HandlerCountMode.Single: {
                         foreach (object handler in list) {
-                            BasePropertyGroupViewModel group = registration.NewDynamicGroup(true);
-                            group.SetupHierarchyState(CollectionUtils.Singleton(handler));
-                            this.AddGroupInternal(group);
+                            this.AddAndSetup(registration.NewDynamicGroup(true), CollectionUtils.Singleton(handler));
                         }
 
                         break;
@@ -303,6 +309,7 @@ namespace FramePFX.PropertyEditing {
             }
 
             this.IsCurrentlyApplicable = false;
+            this.CurrentMode = DynamicMode.Inactive;
         }
 
         private class TypeRegistration {
@@ -310,7 +317,7 @@ namespace FramePFX.PropertyEditing {
             private readonly string id; // used for debugging... for now
             public readonly HandlerCountMode handlerCountMode;
             private readonly Func<bool?, BasePropertyGroupViewModel> constructor;
-            private BasePropertyGroupViewModel singleHandlerInstance;
+            private BasePropertyGroupViewModel cachedSingleHandler;
             private readonly DynamicPropertyGroupViewModel group;
 
             public TypeRegistration(DynamicPropertyGroupViewModel group, Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor) {
@@ -333,8 +340,16 @@ namespace FramePFX.PropertyEditing {
                 return this.ProcessObject(this.constructor(isUsingSingleHandler));
             }
 
-            public BasePropertyGroupViewModel GetSingleHandlerGroup() {
-                return this.singleHandlerInstance ?? (this.singleHandlerInstance = this.ProcessObject(this.constructor(true)));
+            public BasePropertyGroupViewModel GetCachedOrNewInstance() {
+                if (this.cachedSingleHandler == null) {
+                    return this.cachedSingleHandler = this.ProcessObject(this.constructor(true));
+                }
+                else if (this.cachedSingleHandler.Parent == null) {
+                    return this.cachedSingleHandler;
+                }
+                else {
+                    return this.NewDynamicGroup(true);
+                }
             }
 
             private BasePropertyGroupViewModel ProcessObject(BasePropertyGroupViewModel obj) {

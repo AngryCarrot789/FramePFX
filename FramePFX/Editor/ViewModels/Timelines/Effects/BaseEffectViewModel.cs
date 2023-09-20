@@ -36,15 +36,28 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
         // same behaviour as the BaseEffect versions
 
         /// <summary>
-        /// Called when this effect is added to <see cref="OwnerClip"/> (which was set to a non-null value before this call)
+        /// Invoked when this effect is about to be added to <see cref="OwnerClip"/> (which is set prior to this call)
         /// </summary>
-        public virtual void OnAddedToClip() {
+        protected virtual void OnAddingToClip() {
         }
 
         /// <summary>
-        /// Called when this effect is removed from <see cref="OwnerClip"/> (which is set to null after this call)
+        /// Invoked when this effect is added to the <see cref="OwnerClip"/>'s effect list
         /// </summary>
-        public virtual void OnRemovedFromClip() {
+        protected virtual void OnAddedToClip() {
+        }
+
+        /// <summary>
+        /// Invoked when this effect is about to be removed from the <see cref="OwnerClip"/>
+        /// </summary>
+        protected virtual void OnRemovingFromClip() {
+        }
+
+        /// <summary>
+        /// Invoked when this effect has been removed from our previous owner (passed as a parameter)'s effect list
+        /// </summary>
+        /// <param name="clip">Our previous owner (<see cref="OwnerClip"/>, which is set to null prior to this call)</param>
+        protected virtual void OnRemovedFromClip(ClipViewModel clip) {
         }
 
         // called when our automation data's active sequence changes
@@ -57,5 +70,10 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
         public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) => this.Model.ConvertTimelineToRelativeFrame(timeline, out valid);
 
         public bool IsTimelineFrameInRange(long timeline) => this.Model.IsTimelineFrameInRange(timeline);
+
+        public static void OnAddingToClip(BaseEffectViewModel effect) => effect.OnAddingToClip();
+        public static void OnAddedToClip(BaseEffectViewModel effect) => effect.OnAddedToClip();
+        public static void OnRemovingFromClip(BaseEffectViewModel effect) => effect.OnRemovingFromClip();
+        public static void OnRemovedFromClip(BaseEffectViewModel effect, ClipViewModel clip) => effect.OnRemovedFromClip(clip);
     }
 }

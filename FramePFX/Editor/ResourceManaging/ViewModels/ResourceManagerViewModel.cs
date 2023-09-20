@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Registries;
@@ -9,6 +10,7 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Interactivity;
+using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
@@ -71,7 +73,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.currentGroup = this.Root;
             this.SelectedItems = new ObservableCollection<BaseResourceObjectViewModel>();
             this.SelectedItems.CollectionChanged += (sender, args) => {
-                this.Project?.Editor?.View?.UpdateResourceSelection();
+                PFXPropertyEditorRegistry.Instance.OnResourcesSelectionChanged(this.SelectedItems.ToList());
             };
 
             this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);

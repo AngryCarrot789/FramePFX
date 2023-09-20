@@ -31,13 +31,13 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new Vector2(r.image.Width, r.image.Height);
         }
 
-        public override bool BeginRender(long frame) {
+        public override bool OnBeginRender(long frame) {
             if (!this.ResourceHelper.TryGetResource(out ResourceImage resource))
                 return false;
             return resource.image != null;
         }
 
-        public override Task EndRender(RenderContext rc, long frame) {
+        public override Task OnEndRender(RenderContext rc, long frame) {
             if (!this.ResourceHelper.TryGetResource(out ResourceImage resource))
                 return Task.CompletedTask;
             if (resource.image == null)

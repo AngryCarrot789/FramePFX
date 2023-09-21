@@ -50,10 +50,14 @@ namespace FramePFX.PropertyEditing {
         /// Creates and adds a new child fixed group object to this group
         /// </summary>
         /// <param name="applicableType">The applicable type. Must be assignable to the current group's applicable type</param>
-        /// <param name="id"></param>
-        /// <param name="isExpandedByDefault"></param>
+        /// <param name="id">The unique ID for this group, relative to this group</param>
+        /// <param name="isExpandedByDefault">Whether or not the group is expanded by default</param>
+        /// <param name="useSetupHandlers">
+        /// Whether or not a call to this instance's setup will setup the handlers for the created sub-group. True by default
+        /// </param>
+        /// <param name="isSelectable">Whether or not this group is selectable in the UI. Default value is false</param>
         /// <returns></returns>
-        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true) {
+        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true, bool isSelectable = false) {
             if (useSetupHandlers) {
                 this.ValidateApplicableType(applicableType);
             }
@@ -61,7 +65,8 @@ namespace FramePFX.PropertyEditing {
             this.ValidateId(id);
             FixedPropertyGroupViewModel group = new FixedPropertyGroupViewModel(applicableType) {
                 IsExpanded = isExpandedByDefault,
-                DisplayName = id
+                DisplayName = id,
+                IsSelectable = isSelectable
             };
 
             this.AddGroupInternal(group, id, useSetupHandlers);
@@ -72,10 +77,14 @@ namespace FramePFX.PropertyEditing {
         /// Creates and adds a new child group object to this group
         /// </summary>
         /// <param name="applicableType">The applicable type. Must be assignable to the current group's applicable type</param>
-        /// <param name="id"></param>
-        /// <param name="isExpandedByDefault"></param>
+        /// <param name="id">The unique ID for this group, relative to this group</param>
+        /// <param name="isExpandedByDefault">Whether or not the group is expanded by default</param>
+        /// <param name="useSetupHandlers">
+        /// Whether or not a call to this instance's setup will setup the handlers for the created sub-group. True by default
+        /// </param>
+        /// <param name="isSelectable">Whether or not this group is selectable in the UI. Default value is false</param>
         /// <returns></returns>
-        public DynamicPropertyGroupViewModel CreateDynamicSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true) {
+        public DynamicPropertyGroupViewModel CreateDynamicSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true, bool isSelectable = false) {
             if (useSetupHandlers) {
                 this.ValidateApplicableType(applicableType);
             }
@@ -83,7 +92,8 @@ namespace FramePFX.PropertyEditing {
             this.ValidateId(id);
             DynamicPropertyGroupViewModel group = new DynamicPropertyGroupViewModel(applicableType) {
                 IsExpanded = isExpandedByDefault,
-                DisplayName = id
+                DisplayName = id,
+                IsSelectable = isSelectable
             };
 
             this.AddGroupInternal(group, id, useSetupHandlers);

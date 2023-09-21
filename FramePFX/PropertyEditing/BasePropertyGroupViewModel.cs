@@ -21,6 +21,8 @@ namespace FramePFX.PropertyEditing {
             }
         }
 
+        public bool IsSelectable { get; set; }
+
         /// <summary>
         /// Whether this group is a "bold" group, and therefore, should be expressed a bit more in the UI.
         /// This could be either through bold text for <see cref="DisplayName"/>, or brighter colours

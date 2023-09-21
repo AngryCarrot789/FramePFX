@@ -6,6 +6,11 @@ namespace FramePFX.WPF.PropertyEditing {
         bool IsSelected { get; set; }
 
         /// <summary>
+        /// Gets whether this control is actually selectable
+        /// </summary>
+        bool IsSelectable { get; }
+
+        /// <summary>
         /// Sets this control as the selected item
         /// </summary>
         /// <param name="isPrimarySelection">

@@ -30,21 +30,17 @@ namespace FramePFX.PropertyEditing {
                 group.AddPropertyEditor("TextEditor", new TextClipDataEditorViewModel());
             }
 
-            this.EffectInfo = this.ClipInfo.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects", useSetupHandlers:false);
-            this.EffectInfo.IsHeaderBold = true;
-
+            this.EffectInfo = new EffectListPropertyGroupViewModel();
+            this.ClipInfo.AddSubGroup(this.EffectInfo, "Effects", false);
             this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
                 EffectPropertyGroupViewModel motion = new EffectPropertyGroupViewModel(typeof(MotionEffectViewModel)) {
-                    IsExpanded = true, IsHeaderBold = true
+                    IsExpanded = true, IsHeaderBold = true, IsSelectable = true
                 };
 
-                if (!single.HasValue || single.Value) {
+                if (!single.HasValue || single.Value)
                     motion.AddPropertyEditor("MotionEffect_Single", new MotionEffectDataSingleEditorViewModel());
-                }
-
-                if (!single.HasValue || single.Value == false) {
+                if (!single.HasValue || !single.Value)
                     motion.AddPropertyEditor("MotionEffect_Multi", new MotionEffectDataMultiEditorViewModel());
-                }
 
                 return motion;
             });
@@ -70,7 +66,17 @@ namespace FramePFX.PropertyEditing {
         public void OnEffectCollectionChanged() {
             IReadOnlyList<object> clips = this.ClipInfo.Handlers;
             if (clips != null && clips.Count > 0) {
-                this.EffectInfo.SetupHierarchyState(clips.Cast<ClipViewModel>().Select(x => x.Effects).ToList());
+                this.EffectInfo.SetupHierarchyStateExtended(clips.Cast<ClipViewModel>().Select(x => x.Effects).ToList());
+            }
+            else {
+                this.EffectInfo.ClearHierarchyState();
+            }
+        }
+
+        public void OnEffectCollectionChanged(IReadOnlyList<BaseEffectViewModel> added, IReadOnlyList<BaseEffectViewModel> removed) {
+            IReadOnlyList<object> clips = this.ClipInfo.Handlers;
+            if (clips != null && clips.Count > 0) {
+                this.EffectInfo.SetupHierarchyStateExtended(clips.Cast<ClipViewModel>().Select(x => x.Effects).ToList());
             }
             else {
                 this.EffectInfo.ClearHierarchyState();

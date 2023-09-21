@@ -41,6 +41,8 @@ namespace FramePFX.WPF.PropertyEditing {
             set => this.SetValue(IsSelectedProperty, value);
         }
 
+        public bool IsSelectable => true;
+
         public PropertyEditor PropertyEditor => PropertyEditorItem.GetPropertyEditor(this);
 
         public PropertyEditorItemsControl ParentItemsControl => PropertyEditorItem.GetParentItemsControl(this);
@@ -48,9 +50,10 @@ namespace FramePFX.WPF.PropertyEditing {
         public PropertyEditorSelectionSlot() {
         }
 
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
-            base.OnPreviewMouseLeftButtonDown(e);
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+            base.OnMouseLeftButtonDown(e);
             this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
+            e.Handled = true;
         }
 
         private void OnSelectionChanged(bool oldValue, bool newValue) {
@@ -67,7 +70,7 @@ namespace FramePFX.WPF.PropertyEditing {
                 return;
             object data = parent.GetItemOrContainerFromContainer(item);
             if (data is IPropertyEditorObject && this.DataContext != data) {
-                editor.OnSelectionChanged((IPropertyEditorObject) data, this, newValue, false);
+                editor.SetContainerSelection((IPropertyEditorObject) data, this, newValue, false);
                 if (newValue && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
                     this.Focus();
                 }
@@ -82,10 +85,6 @@ namespace FramePFX.WPF.PropertyEditing {
         }
 
         public bool SetSelected(bool selected, bool isPrimarySelection) {
-            if (this.IsSelected == selected) {
-                return false;
-            }
-
             PropertyEditor editor = this.PropertyEditor;
             if (editor == null)
                 return false;
@@ -101,7 +100,7 @@ namespace FramePFX.WPF.PropertyEditing {
             if (this.DataContext != data)
                 throw new Exception("Data context does not match property item editor data");
 
-            editor.OnSelectionChanged((IPropertyEditorObject) data, this, selected, isPrimarySelection);
+            editor.SetContainerSelection((IPropertyEditorObject) data, this, selected, isPrimarySelection);
             if (selected && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
                 this.Focus();
             }

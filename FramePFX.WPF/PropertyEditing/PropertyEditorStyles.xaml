@@ -19,6 +19,8 @@
     <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
     <SolidColorBrush x:Key="SeparatorMouseOverBrush" Color="{DynamicResource AColour.AccentTone2.Border.Static}" />
+    <SolidColorBrush x:Key="PropertyEditorSelectionSlot.SelectedActive.Background" Color="{DynamicResource AColour.Tone1.Background.Static}" />
+    <SolidColorBrush x:Key="PropertyEditorEditorGroupItem.SelectedActive.Background" Color="{DynamicResource AColour.Tone6.Background.Selected}" />
 
     <DataTemplate x:Key="ScaleOriginGridDataTemplate">
         <Grid Background="{DynamicResource ABrush.Tone1.Background.Static}" Width="120" Height="120"
@@ -103,6 +105,54 @@
                                 <ContentPresenter Margin="19,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
                                                   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             </Grid>
+                            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="Transparent" Margin="-4,0"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter Property="Data" TargetName="arrow" Value="M 0,0 L 4,4.5 L 8,0" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.MouseOver.Arrow.Stroke}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Pressed.Arrow.Stroke}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Disabled.Arrow.Stroke}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HierarchicalExpanderSelectableToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                        <Grid d:DataContext="{d:DesignInstance pec:BasePropertyGroupViewModel}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0, Mode=TwoWay}" />
+                                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1, Mode=TwoWay}" />
+                                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2, Mode=TwoWay}" />
+                            </Grid.ColumnDefinitions>
+                            <!--
+                        <Border IsHitTestVisible="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="{DynamicResource ABrush.Tone8.Background.Static}" Width="1"/>
+                        -->
+                            <Grid Background="{TemplateBinding Background}" Grid.ColumnSpan="3" SnapsToDevicePixels="False" Margin="0,3" HorizontalAlignment="Left">
+                                <Path x:Name="arrow" Data="M 2,0 L 6,4 L 2,8"
+                                  HorizontalAlignment="Left"
+                                  SnapsToDevicePixels="false"
+                                  Stroke="{DynamicResource Expander.Static.Arrow.Stroke}"
+                                  StrokeThickness="2" VerticalAlignment="Center"
+                                  Width="10" Margin="5,1,0,0" />
+                                <ContentPresenter Margin="19,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </Grid>
                             <Button Command="{Binding CollapseHierarchyCommand, Mode=OneTime}" ToolTip="Collapse hierarchy" HorizontalAlignment="Right" Width="23" Grid.Column="2" BorderThickness="0" Background="Transparent">
                                 <TextBlock Text="&gt;&lt;" FontSize="12">
                                     <TextBlock.LayoutTransform>
@@ -149,6 +199,22 @@
         </Setter>
     </Style>
 
+    <DataTemplate x:Key="Expander_TrueDataTemplate">
+        <TextBlock Text="TRUEEEE"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Expander_FalseDataTemplate">
+        <TextBlock Text="Falsee"/>
+    </DataTemplate>
+
+    <c:BoolConverter x:Key="ExpanderToggleButtonStyleConverter" 
+                     TrueValue="{StaticResource HierarchicalExpanderSelectableToggleButtonStyle}"
+                     FalseValue="{StaticResource HierarchicalExpanderToggleButtonStyle}"/>
+
+    <c:BoolConverter x:Key="ExpanderToggleButtonContentTemplateSelectorConverter" 
+                     TrueValue="{StaticResource Expander_TrueDataTemplate}"
+                     FalseValue="{StaticResource Expander_FalseDataTemplate}"/>
+
     <Style x:Key="HierarchicalExpanderStyle" TargetType="{x:Type Expander}">
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -166,24 +232,50 @@
                             d:DataContext="{d:DesignInstance pec:BasePropertyGroupViewModel}"
                             acs:AdvancedContextMenu.ContextProvider="{Binding}">
                         <DockPanel>
-                            <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                          ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
-                                          Content="{TemplateBinding Header}" DockPanel.Dock="Top"
-                                          Foreground="{TemplateBinding Foreground}"
-                                          FontWeight="{TemplateBinding FontWeight}"
-                                          FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}"
-                                          FontStyle="{TemplateBinding FontStyle}"
-                                          FontStretch="{TemplateBinding FontStretch}"
-                                          FontSize="{TemplateBinding FontSize}"
-                                          FontFamily="{TemplateBinding FontFamily}"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                          Margin="1,1,0,1" MinWidth="0" MinHeight="0"
-                                          Padding="0"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          HorizontalAlignment="Stretch"
-                                          Background="{TemplateBinding Background}"
-                                          Style="{StaticResource HierarchicalExpanderToggleButtonStyle}" />
+                            <Grid DockPanel.Dock="Top" Margin="0,1,0,1" Background="{TemplateBinding Background}">
+                                <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                                              Content="{TemplateBinding Header}" DockPanel.Dock="Top"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              FontWeight="{TemplateBinding FontWeight}"
+                                              FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}"
+                                              FontStyle="{TemplateBinding FontStyle}"
+                                              FontStretch="{TemplateBinding FontStretch}"
+                                              FontSize="{TemplateBinding FontSize}"
+                                              FontFamily="{TemplateBinding FontFamily}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              MinWidth="0" MinHeight="0" Padding="0"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalAlignment="Stretch"
+                                              Background="{TemplateBinding Background}"
+                                              Style="{StaticResource HierarchicalExpanderToggleButtonStyle}"
+                                              Margin="0,0,46,0"/>
+                                <Button DockPanel.Dock="Right" Command="{Binding CollapseHierarchyCommand, Mode=OneTime}" ToolTip="Collapse hierarchy" HorizontalAlignment="Right" Width="23" Grid.Column="2" BorderThickness="0" Background="Transparent">
+                                    <TextBlock Text="&gt;&lt;" FontSize="12">
+                                        <TextBlock.LayoutTransform>
+                                            <TransformGroup>
+                                                <RotateTransform Angle="90"/>
+                                            </TransformGroup>
+                                        </TextBlock.LayoutTransform>
+                                        <TextBlock.RenderTransform>
+                                            <TranslateTransform X="1"/>
+                                        </TextBlock.RenderTransform>
+                                    </TextBlock>
+                                </Button>
+                                <Button Command="{Binding ExpandHierarchyCommand, Mode=OneTime}" ToolTip="Expand hierarchy" HorizontalAlignment="Right" Margin="0,0,23,0" Width="23" Grid.Column="2" BorderThickness="0" Background="Transparent">
+                                    <TextBlock Text="&lt;-&gt;" FontFamily="Consolas" FontSize="10">
+                                        <TextBlock.LayoutTransform>
+                                            <TransformGroup>
+                                                <RotateTransform Angle="90"/>
+                                            </TransformGroup>
+                                        </TextBlock.LayoutTransform>
+                                        <TextBlock.RenderTransform>
+                                            <TranslateTransform X="1"/>
+                                        </TextBlock.RenderTransform>
+                                    </TextBlock>
+                                </Button>
+                            </Grid>
                             <ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" Focusable="false"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               Margin="{TemplateBinding Padding}" Visibility="Collapsed"
@@ -192,14 +284,18 @@
                         </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsSelectable}" Value="True">
+                            <Setter TargetName="HeaderSite" Property="HorizontalAlignment" Value="Left"/>
+                        </DataTrigger>
                         <Trigger Property="IsExpanded" Value="true">
                             <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
-                        <Trigger SourceName="HeaderSite" Property="IsMouseOver" Value="True">
-                        </Trigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}, Path=IsSelected}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource PropertyEditorEditorGroupItem.SelectedActive.Background}"/>
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -340,16 +436,7 @@
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsSelectable" Value="False"/>
-                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
-                                <Condition Property="IsSelected" Value="True"/>
-                            </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Border}"/>
-                        </MultiTrigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsSelectable" Value="False"/>
+                                <Condition Property="IsSelectable" Value="True"/>
                                 <Condition Property="Selector.IsSelectionActive" Value="True"/>
                                 <Condition Property="IsSelected" Value="True"/>
                             </MultiTrigger.Conditions>
@@ -370,9 +457,6 @@
         -->
     </Style>
 
-    <SolidColorBrush x:Key="PropertyEditorSelectionSlot.SelectedInactive.Background" Color="{DynamicResource AColour.Tone4.Background.Selected.Inactive}" />
-    <SolidColorBrush x:Key="PropertyEditorSelectionSlot.SelectedActive.Background" Color="{DynamicResource AColour.Tone4.Background.Selected}" />
-
     <Style TargetType="{x:Type pe:PropertyEditorSelectionSlot}">
         <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItemsControl}}}"/>
         <Setter Property="Template">
@@ -382,20 +466,9 @@
                         <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Stretch"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
-                                <Condition Property="IsSelected" Value="True"/>
-                            </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource PropertyEditorSelectionSlot.SelectedInactive.Background}"/>
-                        </MultiTrigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
-                                <Condition Property="IsSelected" Value="True"/>
-                            </MultiTrigger.Conditions>
+                        <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource PropertyEditorSelectionSlot.SelectedActive.Background}"/>
-                        </MultiTrigger>
+                        </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>

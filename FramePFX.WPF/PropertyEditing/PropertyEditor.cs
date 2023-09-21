@@ -4,7 +4,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Markup;
+using System.Xml.Linq;
 using FramePFX.PropertyEditing;
+using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.PropertyEditing {
     /// <summary>
@@ -72,6 +77,16 @@ namespace FramePFX.WPF.PropertyEditing {
 
         }
 
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+            base.OnPreviewMouseLeftButtonDown(e);
+            if (e.OriginalSource is DependencyObject obj) {
+                PropertyEditorItemsControl parent = VisualTreeUtils.FindParent<PropertyEditorItemsControl>(obj);
+                if (parent == null || parent.myPropertyEditor == this) {
+                    this.ClearSelection();
+                }
+            }
+        }
+
         private static void OnEditorRegistryPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             if (e.NewValue is PropertyEditorRegistry editor) {
                 ((PropertyEditor) d).ApplicableItems = editor.Root.PropertyObjects;
@@ -88,7 +103,7 @@ namespace FramePFX.WPF.PropertyEditing {
             this.ChildItemsControl.myPropertyEditor = this;
         }
 
-        internal void OnSelectionChanged(IPropertyEditorObject data, ISelectablePropertyControl container, bool selected, bool replaceSelection) {
+        internal void SetContainerSelection(IPropertyEditorObject data, ISelectablePropertyControl container, bool selected, bool setPrimarySelection) {
             if (this.IsSelectionChangeActive)
                 return;
 
@@ -105,8 +120,8 @@ namespace FramePFX.WPF.PropertyEditing {
             try {
                 int index;
                 if (selected) {
-                    if (!this.selectedContainers.Contains(container)) {
-                        if (replaceSelection) {
+                    if ((index = this.selectedContainers.IndexOf(container)) == -1 || setPrimarySelection) {
+                        if (setPrimarySelection) {
                             foreach (ISelectablePropertyControl t in this.selectedContainers) {
                                 t.IsSelected = false;
                             }
@@ -119,6 +134,12 @@ namespace FramePFX.WPF.PropertyEditing {
                             this.selectedObjects.Add(data);
                         }
 
+                        flag = true;
+                    }
+                    else {
+                        this.selectedContainers.RemoveAt(index);
+                        this.selectedObjects.RemoveAt(index);
+                        selected = false;
                         flag = true;
                     }
                 }
@@ -143,6 +164,31 @@ namespace FramePFX.WPF.PropertyEditing {
             if (flag) {
                 this.RaiseEvent(new RoutedPropertyChangedEventArgs<IList<IPropertyEditorObject>>(oldValue, newValue, SelectedItemsChangedEvent));
             }
+        }
+
+        public void ClearSelection() {
+            if (this.selectedContainers.Count < 1) {
+                return;
+            }
+
+            IList<IPropertyEditorObject> oldValue = this.selectedObjects.ToList();
+            IList<IPropertyEditorObject> newValue = null;
+            try {
+                this.IsSelectionChangeActive = true;
+                foreach (ISelectablePropertyControl t in this.selectedContainers) {
+                    t.IsSelected = false;
+                }
+
+                this.selectedContainers = new List<ISelectablePropertyControl>();
+                this.selectedObjects = new List<IPropertyEditorObject>();
+                newValue = this.selectedObjects.ToList();
+                this.SetValue(SelectedItemsPropertyKey, newValue);
+            }
+            finally {
+                this.IsSelectionChangeActive = false;
+            }
+
+            this.RaiseEvent(new RoutedPropertyChangedEventArgs<IList<IPropertyEditorObject>>(oldValue, newValue, SelectedItemsChangedEvent));
         }
     }
 }

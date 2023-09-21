@@ -106,6 +106,7 @@ namespace FramePFX.PropertyEditing {
             this.Handlers = input;
             if (this.UseSingleHandlerPerGroup) {
                 this.CurrentMode = DynamicMode.SingleHandlerPerSubGroup;
+                Dictionary<TypeRegistration, int> inUseTypes = new Dictionary<TypeRegistration, int>();
                 for (int i = 0; i < count; i++) {
                     object handler = input[i];
                     Type type = handler.GetType();
@@ -113,8 +114,10 @@ namespace FramePFX.PropertyEditing {
                         continue;
                     if (!IsHandlerCountAcceptable(registration.handlerCountMode, 1))
                         continue;
-
-                    this.AddAndSetup(registration.GetCachedOrNewInstance(), CollectionUtils.Singleton(handler));
+                    inUseTypes.TryGetValue(registration, out int inUse);
+                    BasePropertyGroupViewModel instance = registration.GetSingleHandlerInstance(handler, inUse);
+                    this.AddAndSetup(instance, CollectionUtils.Singleton(handler));
+                    inUseTypes[registration] = inUse + 1;
                 }
             }
             else {
@@ -297,6 +300,15 @@ namespace FramePFX.PropertyEditing {
         }
 
         public override void ClearHierarchyState() {
+            if (this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup && this.Handlers.Count > 0) {
+                foreach (object handler in this.Handlers) {
+                    if (this.registrations.TryGetValue(handler.GetType(), out TypeRegistration registration)) {
+                        registration.OnSingleHandlerInstanceCleared(handler);
+                    }
+                }
+            }
+
+            this.CurrentMode = DynamicMode.Inactive;
             if (!this.IsCurrentlyApplicable) {
                 return;
             }
@@ -309,7 +321,6 @@ namespace FramePFX.PropertyEditing {
             }
 
             this.IsCurrentlyApplicable = false;
-            this.CurrentMode = DynamicMode.Inactive;
         }
 
         private class TypeRegistration {
@@ -317,8 +328,9 @@ namespace FramePFX.PropertyEditing {
             private readonly string id; // used for debugging... for now
             public readonly HandlerCountMode handlerCountMode;
             private readonly Func<bool?, BasePropertyGroupViewModel> constructor;
-            private BasePropertyGroupViewModel cachedSingleHandler;
+            // private BasePropertyGroupViewModel cachedSingleHandler;
             private readonly DynamicPropertyGroupViewModel group;
+            private readonly string ViewModelDataKey;
 
             public TypeRegistration(DynamicPropertyGroupViewModel group, Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor) {
                 this.group = group;
@@ -326,6 +338,7 @@ namespace FramePFX.PropertyEditing {
                 this.id = id;
                 this.handlerCountMode = handlerCountMode;
                 this.constructor = constructor;
+                this.ViewModelDataKey = "CachedPropertyObject_" + this.type.Name;
             }
 
             /// <summary>
@@ -340,15 +353,27 @@ namespace FramePFX.PropertyEditing {
                 return this.ProcessObject(this.constructor(isUsingSingleHandler));
             }
 
-            public BasePropertyGroupViewModel GetCachedOrNewInstance() {
-                if (this.cachedSingleHandler == null) {
-                    return this.cachedSingleHandler = this.ProcessObject(this.constructor(true));
-                }
-                else if (this.cachedSingleHandler.Parent == null) {
-                    return this.cachedSingleHandler;
+            public BasePropertyGroupViewModel GetSingleHandlerInstance(object handler, int inUse) {
+                if (handler is BaseViewModel viewModel) {
+                    if (!TryGetInternalData(viewModel, this.ViewModelDataKey, out BasePropertyGroupViewModel g)) {
+                        SetInternalData(viewModel, this.ViewModelDataKey, g = this.NewDynamicGroup(true));
+                    }
+
+                    g.DisplayName = inUse > 0 ? $"{this.id} ({inUse})" : this.id;
+                    return g;
                 }
                 else {
                     return this.NewDynamicGroup(true);
+                }
+            }
+
+            public void OnSingleHandlerInstanceCleared(object handler) {
+                if (!(handler is BaseViewModel viewModel)) {
+                    return;
+                }
+
+                if (TryGetInternalData(viewModel, this.ViewModelDataKey, out BasePropertyGroupViewModel g)) {
+                    g.ClearHierarchyState();
                 }
             }
 

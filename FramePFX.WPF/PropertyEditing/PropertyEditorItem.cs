@@ -41,8 +41,21 @@ namespace FramePFX.WPF.PropertyEditing {
 
         public PropertyEditorItem() {
             this.DataContextChanged += (sender, args) => {
-                this.SetValue(IsSelectableProperty, (!(args.NewValue is BasePropertyGroupViewModel)).Box());
+                bool selectable = !(args.NewValue is BasePropertyGroupViewModel group) || group.IsSelectable;
+                this.SetValue(IsSelectableProperty, selectable.Box());
             };
+        }
+
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+            base.OnMouseLeftButtonDown(e);
+            if (this.IsSelectable) {
+                if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+                    this.SetSelected(!this.IsSelected, false);
+                }
+                else {
+                    this.SetSelected(true, true);
+                }
+            }
         }
 
         internal static PropertyEditor GetPropertyEditor(DependencyObject obj) {
@@ -77,7 +90,7 @@ namespace FramePFX.WPF.PropertyEditing {
             if (!editor.IsSelectionChangeActive) {
                 object data = parent.GetItemOrContainerFromContainer(this);
                 if (data is IPropertyEditorObject) {
-                    editor.OnSelectionChanged((IPropertyEditorObject) data, this, newValue, false);
+                    editor.SetContainerSelection((IPropertyEditorObject) data, this, newValue, false);
                     if (newValue && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
                         this.Focus();
                     }
@@ -108,7 +121,7 @@ namespace FramePFX.WPF.PropertyEditing {
             if (!(data is IPropertyEditorObject))
                 throw new Exception("This item has no data object associated with it");
 
-            editor.OnSelectionChanged((IPropertyEditorObject) data, this, selected, isPrimarySelection);
+            editor.SetContainerSelection((IPropertyEditorObject) data, this, selected, isPrimarySelection);
             if (selected && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
                 this.Focus();
             }

@@ -1,4 +1,3 @@
-using System;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines;

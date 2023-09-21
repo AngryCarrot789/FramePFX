@@ -51,16 +51,16 @@ namespace FramePFX.Editor.ResourceChecker {
             this.caption = "Resolve resource errors";
         }
 
-        public static Task<bool> LoadProjectResources(ProjectViewModel project, bool ignoreUserOffline) {
-            return LoadProjectResources(new ResourceCheckerViewModel(), project, ignoreUserOffline);
+        public static Task<bool> LoadProjectResources(ProjectViewModel project, bool forceOnline) {
+            return LoadProjectResources(new ResourceCheckerViewModel(), project, forceOnline);
         }
 
-        public static Task<bool> LoadProjectResources(ResourceCheckerViewModel checker, ProjectViewModel project, bool ignoreUserOffline) {
-            return LoadResources(checker, project.ResourceManager.Root.Items.ToList(), ignoreUserOffline);
+        public static Task<bool> LoadProjectResources(ResourceCheckerViewModel checker, ProjectViewModel project, bool forceOnline) {
+            return LoadResources(checker, project.ResourceManager.Root.Items.ToList(), forceOnline);
         }
 
-        public static Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false) {
-            return LoadResources(new ResourceCheckerViewModel(), resources, ignoreUserOffline);
+        public static Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool forceOnline = false) {
+            return LoadResources(new ResourceCheckerViewModel(), resources, forceOnline);
         }
 
         /// <summary>
@@ -70,15 +70,15 @@ namespace FramePFX.Editor.ResourceChecker {
         /// </para>
         /// </summary>
         /// <param name="resources"></param>
-        /// <param name="ignoreUserOffline">If the resource was forced offline by the user, setting this to true will force it to be validated anyway</param>
+        /// <param name="forceOnline">Force loads a resource if it's offline, ignoring if the user set it to offline</param>
         /// <returns>Whether the UI operation was successful or cancelled</returns>
-        public static async Task<bool> LoadResources(ResourceCheckerViewModel checker, IEnumerable<BaseResourceObjectViewModel> resources, bool ignoreUserOffline = false) {
+        public static async Task<bool> LoadResources(ResourceCheckerViewModel checker, IEnumerable<BaseResourceObjectViewModel> resources, bool forceOnline = false) {
             if (checker == null) {
                 throw new ArgumentNullException(nameof(checker));
             }
 
             foreach (BaseResourceObjectViewModel obj in resources) {
-                await LoadResourcesRecursive(checker, obj, ignoreUserOffline);
+                await LoadResourcesRecursive(checker, obj, forceOnline);
             }
 
             if (checker.Resources.Count < 1) {
@@ -88,15 +88,15 @@ namespace FramePFX.Editor.ResourceChecker {
             return await Services.GetService<IResourceCheckerService>().ShowCheckerDialog(checker);
         }
 
-        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resource, bool ignoreUserOffline = false) {
+        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resource, bool forceOnline = false) {
             if (resource is ResourceItemViewModel item) {
-                if (!item.IsOnline && (ignoreUserOffline || !item.IsOfflineByUser)) {
+                if (!item.IsOnline && (forceOnline || !item.IsOfflineByUser)) {
                     await ResourceItemViewModel.TryLoadResource(item, checker);
                 }
             }
             else if (resource is ResourceGroupViewModel group) {
                 foreach (BaseResourceObjectViewModel obj in group.Items) {
-                    await LoadResourcesRecursive(checker, obj, ignoreUserOffline);
+                    await LoadResourcesRecursive(checker, obj, forceOnline);
                 }
             }
         }

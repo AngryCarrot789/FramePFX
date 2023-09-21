@@ -90,7 +90,7 @@ namespace FramePFX.Editor {
         public string GetDataFolderPath(out bool isTemp) {
             if (string.IsNullOrEmpty(this.DataFolder)) {
                 this.IsTempDataFolder = isTemp = true;
-                this.DataFolder = RandomUtils.RandomStringWhere(Path.GetTempPath(), 16, x => !Directory.Exists(x));
+                this.DataFolder = RandomUtils.RandomLettersWhere(Path.GetTempPath(), 16, x => !Directory.Exists(x));
             }
             else {
                 isTemp = false;

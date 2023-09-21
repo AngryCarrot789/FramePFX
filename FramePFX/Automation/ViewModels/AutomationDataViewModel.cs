@@ -8,8 +8,6 @@ using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
-using FramePFX.Editor;
-using FramePFX.Editor.ViewModels;
 
 namespace FramePFX.Automation.ViewModels {
     /// <summary>

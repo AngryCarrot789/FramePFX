@@ -1,4 +1,3 @@
-using System;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;

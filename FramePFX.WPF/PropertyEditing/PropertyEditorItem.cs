@@ -41,7 +41,7 @@ namespace FramePFX.WPF.PropertyEditing {
 
         public PropertyEditorItem() {
             this.DataContextChanged += (sender, args) => {
-                bool selectable = !(args.NewValue is BasePropertyGroupViewModel group) || group.IsSelectable;
+                bool selectable = args.NewValue is BasePropertyGroupViewModel group && group.IsSelectable;
                 this.SetValue(IsSelectableProperty, selectable.Box());
             };
         }
@@ -55,6 +55,8 @@ namespace FramePFX.WPF.PropertyEditing {
                 else {
                     this.SetSelected(true, true);
                 }
+
+                e.Handled = true;
             }
         }
 

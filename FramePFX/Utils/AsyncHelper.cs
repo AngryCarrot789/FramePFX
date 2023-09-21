@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.ServiceManaging;
-using OpenTK.Graphics.ES30;
 
 namespace FramePFX.Utils {
     public static class AsyncHelper {

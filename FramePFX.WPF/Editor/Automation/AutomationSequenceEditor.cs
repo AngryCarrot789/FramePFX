@@ -693,7 +693,7 @@ namespace FramePFX.WPF.Editor.Automation {
             KeyFramePoint next = this.captured.Next;
 
             long min = prev?.keyFrame.Time ?? this.FrameBegin;
-            long max = next?.keyFrame.Time ?? (this.FrameBegin + this.FrameDuration - 1);
+            long max = next?.keyFrame.Time ?? (this.FrameBegin + this.FrameDuration);
 
             if (this.isCaptureInitialised) {
                 this.lastMousePoint = mPos;
@@ -762,37 +762,6 @@ namespace FramePFX.WPF.Editor.Automation {
 
         #region Rendering
 
-        public static Rect GetVisibleRect(ScrollViewer scroller, UIElement element) {
-            Rect rect;
-            Size size = element.RenderSize;
-            if (scroller == null) {
-                rect = new Rect(0, 0, size.Width, size.Height);
-            }
-            else {
-                Point position = element.TranslatePoint(new Point(), scroller);
-                double r1L = scroller.HorizontalOffset;
-                double r1T = scroller.VerticalOffset;
-                double r1R = r1L + scroller.ViewportWidth;
-                double r1B = r1T + scroller.ViewportHeight;
-                double r2L = r1L + position.X;
-                double r2T = r1T + position.Y;
-                double r2R = r2L + size.Width;
-                double r2B = r2T + size.Height;
-                if (r1L > r2R || r1R < r2L || r1T > r2B || r1B < r2T) {
-                    rect = new Rect();
-                }
-                else {
-                    double x1 = Math.Max(r1L, r2L);
-                    double y1 = Math.Max(r1T, r2T);
-                    double x2 = Math.Min(r1R, r2R);
-                    double y2 = Math.Min(r1B, r2B);
-                    rect = new Rect(x1 - r2L, y1 - r2T, x2 - x1, y2 - y1);
-                }
-            }
-
-            return rect;
-        }
-
         protected override void OnRender(DrawingContext dc) {
             List<KeyFramePoint> list = this.backingList;
             int end = list.Count - 1;
@@ -827,10 +796,41 @@ namespace FramePFX.WPF.Editor.Automation {
                     dc.DrawLine(end < 0 ? this.LineOverridePen : this.OverrideModeValueLinePen, new Point(0, y), new Point(visible.Right, y));
                 }
 
-                if (this.isOverrideEnabled) { 
+                if (this.isOverrideEnabled) {
                     dc.Pop();
                 }
             }
+        }
+
+        public static Rect GetVisibleRect(ScrollViewer scroller, UIElement element) {
+            Rect rect;
+            Size size = element.RenderSize;
+            if (scroller == null) {
+                rect = new Rect(0, 0, size.Width, size.Height);
+            }
+            else {
+                Point position = element.TranslatePoint(new Point(), scroller);
+                double r1L = scroller.HorizontalOffset;
+                double r1T = scroller.VerticalOffset;
+                double r1R = r1L + scroller.ViewportWidth;
+                double r1B = r1T + scroller.ViewportHeight;
+                double r2L = r1L + position.X;
+                double r2T = r1T + position.Y;
+                double r2R = r2L + size.Width;
+                double r2B = r2T + size.Height;
+                if (r1L > r2R || r1R < r2L || r1T > r2B || r1B < r2T) {
+                    rect = new Rect();
+                }
+                else {
+                    double x1 = Math.Max(r1L, r2L);
+                    double y1 = Math.Max(r1T, r2T);
+                    double x2 = Math.Min(r1R, r2R);
+                    double y2 = Math.Min(r1B, r2B);
+                    rect = new Rect(x1 - r2L, y1 - r2T, x2 - x1, y2 - y1);
+                }
+            }
+
+            return rect;
         }
 
         private void InvalidKeyFrameDataAndRender() {
@@ -855,6 +855,7 @@ namespace FramePFX.WPF.Editor.Automation {
             Point p2 = key.GetLocation();
             Point p1 = new Point(0, p2.Y);
             if (RectContains(ref rect, ref p1) || RectContains(ref rect, ref p2)) {
+                ClipPoints(ref rect, ref p1, ref p2);
                 dc.DrawLine(this.LineTransparentPen, p1, p2);
                 dc.DrawLine(this.isOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Head ? this.LineMouseOverPen : this.LinePen), p1, p2);
             }
@@ -865,6 +866,7 @@ namespace FramePFX.WPF.Editor.Automation {
             Point a = key.GetLocation();
             Point b = new Point(rect.Right, a.Y);
             if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b)) {
+                ClipPoints(ref rect, ref a, ref b);
                 dc.DrawLine(this.LineTransparentPen, a, b);
                 dc.DrawLine(this.isOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Tail ? this.LineMouseOverPen : this.LinePen), a, b);
             }
@@ -882,6 +884,53 @@ namespace FramePFX.WPF.Editor.Automation {
 
         public static bool RectContains(ref Rect rect, ref Rect r) {
             return r.Right > rect.Left && r.Left < rect.Right && r.Bottom > rect.Top && r.Top < rect.Bottom;
+        }
+
+        public static void ClipPoints(ref Rect rect, ref Point p1, ref Point p2) {
+            // Calculate the line's slope
+            double m = (p2.Y - p1.Y) / (p2.X - p1.X);
+
+            // Calculate intersection points
+            double leftX = rect.X;
+            double leftY = m * rect.X + (p1.Y - m * p1.X);
+
+            double rightX = rect.X + rect.Width;
+            double rightY = m * rightX + (p1.Y - m * p1.X);
+
+            double topY = rect.Y;
+            double topX = (topY - p1.Y + m * p1.X) / m;
+
+            double bottomY = rect.Y + rect.Height;
+            double bottomX = (bottomY - p1.Y + m * p1.X) / m;
+
+            // Check if intersection points are within the rectangle
+            if (rect.X <= leftX && leftX <= rect.X + rect.Width && rect.Y <= leftY && leftY <= rect.Y + rect.Height) {
+                // (leftX, leftY) is within the rectangle
+                // Update p1 to the clipped point
+                p1.X = leftX;
+                p1.Y = leftY;
+            }
+
+            if (rect.X <= rightX && rightX <= rect.X + rect.Width && rect.Y <= rightY && rightY <= rect.Y + rect.Height) {
+                // (rightX, rightY) is within the rectangle
+                // Update p2 to the clipped point
+                p2.X = rightX;
+                p2.Y = rightY;
+            }
+
+            if (rect.X <= topX && topX <= rect.X + rect.Width && rect.Y <= topY && topY <= rect.Y + rect.Height) {
+                // (topX, topY) is within the rectangle
+                // Update p1 to the clipped point
+                p1.X = topX;
+                p1.Y = topY;
+            }
+
+            if (rect.X <= bottomX && bottomX <= rect.X + rect.Width && rect.Y <= bottomY && bottomY <= rect.Y + rect.Height) {
+                // (bottomX, bottomY) is within the rectangle
+                // Update p2 to the clipped point
+                p2.X = bottomX;
+                p2.Y = bottomY;
+            }
         }
 
         /// <summary>

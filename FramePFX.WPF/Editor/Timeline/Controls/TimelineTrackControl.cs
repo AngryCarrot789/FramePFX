@@ -8,6 +8,7 @@ using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Utils;
+using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Track;
 using FramePFX.WPF.Editor.Timeline.Utils;
 
@@ -26,7 +27,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public TrackViewModel ViewModel => this.DataContext as TrackViewModel;
 
-        public IResourceItemDropHandler ResourceItemDropHandler => this.DataContext as IResourceItemDropHandler;
+        public ITrackResourceDropHandler ResourceItemDropHandler => this.DataContext as ITrackResourceDropHandler;
 
         private bool isProcessingDrop;
         public TimelineClipControl lastSelectedItem;
@@ -126,42 +127,49 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnDragOver(object sender, DragEventArgs e) {
-            IResourceItemDropHandler handler;
-            if (!this.isProcessingDrop && (handler = this.ResourceItemDropHandler) != null) {
-                if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
-                    object value = e.Data.GetData(nameof(BaseResourceObjectViewModel));
-                    if (value is ResourceItemViewModel resource) {
-                        if (handler.CanDropResource(resource)) {
-                            return;
-                        }
-                    }
+            ITrackResourceDropHandler handler;
+            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null) {
+                goto end;
+            }
+
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
+                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
+                if (!(obj is List<BaseResourceObjectViewModel> resources) || resources.Count != 1) {
+                    goto end;
+                }
+
+                if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item)) {
+                    e.Effects = DragDropEffects.Copy;
+                    e.Handled = true;
+                    return;
                 }
             }
 
+            end:
             e.Effects = DragDropEffects.None;
             e.Handled = true;
         }
 
         private void OnDrop(object sender, DragEventArgs e) {
-            IResourceItemDropHandler handler;
-            if (!this.isProcessingDrop && (handler = this.ResourceItemDropHandler) != null) {
-                if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
-                    object value = e.Data.GetData(nameof(BaseResourceObjectViewModel));
-                    if (value is ResourceItemViewModel resource) {
+            ITrackResourceDropHandler handler;
+            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null) {
+                e.Effects = DragDropEffects.None;
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
+                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
+                if (obj is List<BaseResourceObjectViewModel> resources && resources.Count == 1) {
+                    if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item)) {
                         this.isProcessingDrop = true;
-                        if (handler.CanDropResource(resource)) {
-                            this.OnDropResource(handler, resource, e.GetPosition(this));
-                            return;
-                        }
+                        this.OnDropResource(handler, item, e.GetPosition(this));
                     }
                 }
             }
-
-            e.Effects = DragDropEffects.None;
-            e.Handled = true;
         }
 
-        protected async void OnDropResource(IResourceItemDropHandler handler, ResourceItemViewModel item, Point mouse) {
+        private async void OnDropResource(ITrackResourceDropHandler handler, ResourceItemViewModel item, Point mouse) {
             long frame = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
             frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
             await handler.OnResourceDropped(item, frame);

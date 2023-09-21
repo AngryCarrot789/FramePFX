@@ -1,7 +1,11 @@
+using System.Threading.Tasks;
 using FramePFX.Editor.History;
+using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
+using FramePFX.Interactivity;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
     public class ShapeClipViewModel : VideoClipViewModel {
@@ -40,6 +44,15 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         public ShapeClipViewModel(ShapeVideoClip model) : base(model) {
+        }
+
+        public override bool CanDropResource(ResourceItemViewModel resource) {
+            return resource is ResourceColourViewModel;
+        }
+
+        public override Task OnDropResource(ResourceItemViewModel resource, EnumDropType dropType) {
+            this.Model.ResourceHelper.SetTargetResourceId(resource.UniqueId);
+            return Task.CompletedTask;
         }
     }
 }

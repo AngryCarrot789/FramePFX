@@ -1,28 +1,41 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceChecker;
+using FramePFX.Interactivity;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
-    public class ResourceGroupViewModel : BaseResourceObjectViewModel, IDisplayName, INavigatableResource, IAcceptResourceDrop {
+    public class ResourceGroupViewModel : BaseResourceObjectViewModel, IDisplayName, INavigatableResource, IResourceDropHandler {
         internal readonly ObservableCollection<BaseResourceObjectViewModel> items;
 
         public ReadOnlyObservableCollection<BaseResourceObjectViewModel> Items { get; }
 
         public new ResourceGroup Model => (ResourceGroup) base.Model;
 
+        public readonly Predicate<string> PredicateIsNameFree;
+
         public ResourceGroupViewModel(ResourceGroup model) : base(model) {
             this.items = new ObservableCollection<BaseResourceObjectViewModel>();
             this.Items = new ReadOnlyObservableCollection<BaseResourceObjectViewModel>(this.items);
+            this.PredicateIsNameFree = n => {
+                foreach (BaseResourceObjectViewModel item in this.items) {
+                    if (item.DisplayName == n) {
+                        return false;
+                    }
+                }
+                return true;
+            };
             foreach (BaseResourceObject item in model.Items) {
                 // no need to set manager to ours because it will be null as we are in the ctor
                 BaseResourceObjectViewModel viewModel = item.CreateViewModel();
-                viewModel.SetParent(this);
+                PreSetParent(viewModel, this);
                 this.items.Add(viewModel);
+                PostSetParent(viewModel, this);
             }
         }
 
@@ -40,6 +53,35 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
+        public void MoveItemTo(int srcIndex, ResourceGroupViewModel target, int dstIndex) {
+            if (target == this)
+                throw new Exception("Cannot move item to the same instance");
+
+            BaseResourceObjectViewModel item = this.items[srcIndex];
+            if (!ReferenceEquals(this, item.Parent))
+                throw new Exception("Item does not belong to this group, but it contained in the list");
+            if (!ReferenceEquals(item.Model, this.Model.Items[srcIndex]))
+                throw new Exception("View model and model list de-synced");
+
+            this.Model.MoveItemTo(srcIndex, target.Model, dstIndex);
+
+            this.items.RemoveAt(srcIndex);
+            PreSetParent(item, target);
+            target.items.Insert(dstIndex, item);
+            PostSetParent(item, target);
+        }
+
+        public void MoveItemTo(int srcIndex, ResourceGroupViewModel target) {
+            this.MoveItemTo(srcIndex, target, target.items.Count);
+        }
+
+        public void MoveItemTo(BaseResourceObjectViewModel item, ResourceGroupViewModel target) {
+            int index = this.items.IndexOf(item);
+            if (index == -1)
+                throw new Exception("Resource was not stored in this group");
+            this.MoveItemTo(index, target);
+        }
+
         public void AddItem(BaseResourceObjectViewModel item, bool addToModel = true) {
             this.InsertItem(this.items.Count, item, addToModel);
         }
@@ -47,8 +89,9 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         public void InsertItem(int index, BaseResourceObjectViewModel item, bool addToModel = true) {
             if (addToModel)
                 this.Model.InsertItem(index, item.Model);
-            item.SetParent(this);
+            PreSetParent(item, this);
             this.items.Insert(index, item);
+            PostSetParent(item, this);
             item.SetManager(this.Manager);
         }
 
@@ -76,7 +119,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             if (removeFromModel)
                 this.Model.RemoveItemAt(index);
             this.items.RemoveAt(index);
-            item.SetParent(null);
+            SetParent(item, null);
             item.SetManager(null);
         }
 
@@ -195,31 +238,61 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return resource is ResourceGroupViewModel || resource is ResourceItemViewModel;
         }
 
-        public Task OnDropResource(BaseResourceObjectViewModel resource) {
+        public Task OnDropResource(BaseResourceObjectViewModel resource, EnumDropType dropType) {
             resource.Parent?.RemoveItem(resource, true, false);
             this.AddItem(resource);
             return Task.CompletedTask;
         }
 
-        public Task OnDropResources(IEnumerable<BaseResourceObjectViewModel> resources) {
-            foreach (BaseResourceObjectViewModel resource in resources) {
-                if (resource is ResourceGroupViewModel group && this.IsPartOfParentHierarchy(group)) {
-                    continue;
-                }
-
-                if (!this.CanDropResource(resource)) {
-                    continue;
-                }
-
-                resource.Parent?.RemoveItem(resource, true, false);
-                this.AddItem(resource);
+        public Task OnDropResources(List<BaseResourceObjectViewModel> resources, EnumDropType dropType) {
+            if (dropType != EnumDropType.Copy && dropType != EnumDropType.Move) {
+                return Task.CompletedTask;
             }
 
-            return Task.CompletedTask;
+            List<BaseResourceObjectViewModel> loadList = new List<BaseResourceObjectViewModel>();
+            foreach (BaseResourceObjectViewModel resource in resources) {
+                if (resource is ResourceGroupViewModel group && group.IsPartOfParentHierarchy(this)) {
+                    continue;
+                }
+
+                if (dropType == EnumDropType.Copy) {
+                    BaseResourceObject clone = BaseResourceObject.CloneAndRegister(resource.Model);
+                    if (!TextIncrement.GetIncrementableString(this.PredicateIsNameFree, clone.DisplayName, out string name))
+                        name = clone.DisplayName;
+                    clone.DisplayName = name;
+
+                    BaseResourceObjectViewModel newItem = clone.CreateViewModel();
+                    this.AddItem(newItem);
+                    loadList.Add(newItem);
+                }
+                else if (resource.Parent != null) {
+                    if (resource.Parent != this) { // might drag drop a resource in the same group
+                        resource.Parent.MoveItemTo(resource, this);
+                        loadList.Add(resource);
+                    }
+                }
+                else {
+                    if (resource.Model is ResourceItem item && item.Manager != null && !item.IsRegistered()) {
+                        item.Manager.RegisterEntry(item);
+                        AppLogger.WriteLine("Unexpected unregistered item dropped\n" + new StackTrace(true));
+                    }
+
+                    this.AddItem(resource);
+                    loadList.Add(resource);
+                }
+            }
+
+            return ResourceCheckerViewModel.LoadResources(new ResourceCheckerViewModel(), loadList);
         }
 
-        public bool IsPartOfParentHierarchy(ResourceGroupViewModel item) {
-            for (ResourceGroupViewModel parent = this; item != null; item = item.Parent) {
+        private static void EnsureRegistered(ResourceManager manager, ResourceItem item) {
+            if (!item.IsRegistered()) {
+                manager.RegisterEntry(item);
+            }
+        }
+
+        public bool IsPartOfParentHierarchy(ResourceGroupViewModel item, bool startAtThis = true) {
+            for (ResourceGroupViewModel parent = startAtThis ? this : this.Parent; item != null; item = item.Parent) {
                 if (parent == item) {
                     return true;
                 }
@@ -239,36 +312,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                         break;
                 }
             }
-        }
-
-        public async Task<ResourceGroupViewModel> GroupSelectionIntoNewGroupAction() {
-            ResourceGroupViewModel group = new ResourceGroupViewModel(new ResourceGroup("New Group"));
-            if (!await group.RenameAsync()) {
-                return null;
-            }
-
-            List<BaseResourceObjectViewModel> list = this.Manager.SelectedItems.Where(x => x != this && x.Parent == this).ToList();
-            this.Manager.SelectedItems.Clear();
-            foreach (BaseResourceObjectViewModel item in list) {
-                this.RemoveItem(item, true, false);
-            }
-
-            this.AddItem(group);
-            foreach (BaseResourceObjectViewModel item in list) {
-                group.AddItem(item);
-            }
-
-            return group;
-        }
-
-        public bool HasAnyByName(string s) {
-            foreach (BaseResourceObjectViewModel item in this.items) {
-                if (item.DisplayName == s) {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

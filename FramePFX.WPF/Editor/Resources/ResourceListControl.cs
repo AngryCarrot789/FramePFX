@@ -9,26 +9,22 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
+using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
     public class ResourceListControl : MultiSelector {
-        public static readonly DependencyProperty FileDropNotifierProperty = DependencyProperty.Register("FileDropNotifier", typeof(IFileDropNotifier), typeof(ResourceListControl), new PropertyMetadata(null));
-
         public static readonly DependencyProperty ItemDirectionProperty = DependencyProperty.Register("ItemDirection", typeof(Orientation), typeof(ResourceListControl), new PropertyMetadata(Orientation.Horizontal));
 
-        public IFileDropNotifier FileDropNotifier {
-            get => (IFileDropNotifier) this.GetValue(FileDropNotifierProperty);
-            set => this.SetValue(FileDropNotifierProperty, value);
-        }
+        public const string ResourceDropType = "PFXResource_DropType";
 
         public Orientation ItemDirection {
             get => (Orientation) this.GetValue(ItemDirectionProperty);
             set => this.SetValue(ItemDirectionProperty, value);
         }
 
-        public IResourceManagerNavigation Navigation => this.DataContext as IResourceManagerNavigation;
-
         internal BaseResourceItemControl lastSelectedItem;
+
+        public ResourceManagerViewModel ResourceManager => (ResourceManagerViewModel) this.DataContext;
 
         public ResourceListControl() {
             this.AllowDrop = true;
@@ -80,37 +76,61 @@ namespace FramePFX.WPF.Editor.Resources {
             this.UnselectAll();
         }
 
+        protected override void OnDragEnter(DragEventArgs e) {
+            this.OnDragOver(e);
+            base.OnDragEnter(e);
+        }
+
         protected override void OnDragOver(DragEventArgs e) {
-            if (this.FileDropNotifier == null) {
+            ResourceManagerViewModel manager = this.ResourceManager;
+            if (manager == null) {
                 e.Effects = DragDropEffects.None;
+                e.Handled = true;
+            }
+            else if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
+                e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, manager.GetFileDropType(files));
                 e.Handled = true;
             }
 
             base.OnDragOver(e);
         }
 
+        protected override void OnDragLeave(DragEventArgs e) {
+            base.OnDragLeave(e);
+        }
+
         protected override async void OnDrop(DragEventArgs e) {
-            if (this.FileDropNotifier == null) {
-                await Services.DialogService.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
+            ResourceManagerViewModel manager = this.ResourceManager;
+            if (manager == null) {
                 return;
             }
 
+            e.Handled = true;
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files) {
-                FileDropType type = FileDropType.None;
-                if (await this.FileDropNotifier.CanDrop(files, ref type)) {
-                    e.Handled = true;
-                    await this.FileDropNotifier.OnFilesDropped(files);
+                EnumDropType dropType = DropUtils.GetDropAction((int) e.KeyStates, manager.GetFileDropType(files));
+                if (dropType != EnumDropType.None) {
+                    await manager.OnFilesDropped(files, dropType);
                 }
             }
-            else if (e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel item) {
-                return;
+            else if (e.Data.GetDataPresent(ResourceDropType)) {
+                object obj = e.Data.GetData(ResourceDropType);
+                if (obj is List<BaseResourceObjectViewModel> resources) {
+                    this.isProcessingAsyncDrop = true;
+                    this.HandleOnDropResources(manager.CurrentGroup, resources, DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects));
+                }
             }
             else {
                 await Services.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
             }
         }
 
+        private async void HandleOnDropResources(ResourceGroupViewModel group, List<BaseResourceObjectViewModel> selection, EnumDropType dropType) {
+            await group.OnDropResources(selection, dropType);
+            this.isProcessingAsyncDrop = false;
+        }
+
         private object currentItem;
+        private bool isProcessingAsyncDrop;
 
         protected override bool IsItemItsOwnContainerOverride(object item) {
             if (item is BaseResourceItemControl)
@@ -135,10 +155,10 @@ namespace FramePFX.WPF.Editor.Resources {
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseDown(e);
             if (e.ChangedButton == MouseButton.XButton1) {
-                this.Navigation?.GoBackward();
+                this.ResourceManager?.GoBackward();
             }
             else if (e.ChangedButton == MouseButton.XButton2) {
-                this.Navigation?.GoForward();
+                this.ResourceManager?.GoForward();
             }
         }
 

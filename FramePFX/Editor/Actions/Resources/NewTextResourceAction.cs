@@ -33,10 +33,8 @@ namespace FramePFX.Editor.Actions.Resources {
                 manager = group.Manager;
             }
 
-            if (!TextIncrement.GetIncrementableString((x) => !group.HasAnyByName(x), "Sample Text", out string name)) {
-                name = "Display Name";
-            }
-
+            if (!TextIncrement.GetIncrementableString(group.PredicateIsNameFree, "Sample Text", out string name))
+                name = "Sample Text";
             ResourceTextStyle resource = new ResourceTextStyle() {
                 DisplayName = name
             };

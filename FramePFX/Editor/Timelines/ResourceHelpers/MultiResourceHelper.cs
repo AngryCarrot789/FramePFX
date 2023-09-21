@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Editor.Timelines.VideoClips;

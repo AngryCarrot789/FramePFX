@@ -55,11 +55,12 @@ namespace FramePFX.WPF.PropertyEditing {
             this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
         }
 
-        // protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
-        //     base.OnMouseLeftButtonDown(e);
-        //     this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
-        //     e.Handled = true;
-        // }
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+            base.OnMouseLeftButtonDown(e);
+            if (!this.IsSelected)
+                this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
+            e.Handled = true;
+        }
 
         private void OnSelectionChanged(bool oldValue, bool newValue) {
             if (oldValue == newValue) {

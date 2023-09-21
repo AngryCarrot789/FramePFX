@@ -519,8 +519,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         #region Drag Dropping
 
         protected override void OnDragOver(DragEventArgs e) {
-            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
-                object obj = e.Data.GetData(nameof(BaseResourceObjectViewModel));
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
+                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
                 if (obj is BaseResourceObjectViewModel resource && this.DataContext is IAcceptResourceDrop drop && drop.CanDropResource(resource)) {
                     this.IsDroppableTargetOver = true;
                     e.Effects = DragDropEffects.Move;
@@ -551,7 +551,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
 
             this.isProcessingAsyncDrop = true;
-            if (this.DataContext is IAcceptResourceDrop drop && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource) {
+            if (this.DataContext is IAcceptResourceDrop drop && e.Data.GetData(ResourceListControl.ResourceDropType) is BaseResourceObjectViewModel resource) {
                 if (drop.CanDropResource(resource)) {
                     this.HandleOnDropResource(drop, resource);
                 }

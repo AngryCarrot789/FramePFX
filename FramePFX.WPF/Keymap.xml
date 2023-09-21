@@ -14,6 +14,9 @@
                     <KeyStroke Key="Space" />
                 </Shortcut>
             </Group>
+            <Shortcut Name="ToggleAutomationActive">
+                <KeyStroke Key="NumPad0"/>
+            </Shortcut>
 
 			<!-- ################################## things #################################### -->
 			<InputState Name="UseState1" UseGroupAsManager="true" CanToggle="true">
@@ -75,6 +78,25 @@
                     </Shortcut>
                     <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
                         <KeyStroke Key="S" />
+                    </Shortcut>
+
+                    <Shortcut Name="MoveBack" ActionId="actions.timeline.surface.MoveBack">
+                        <KeyStroke Key="Left" />
+                    </Shortcut>
+                    <Shortcut Name="MoveForward" ActionId="actions.timeline.surface.MoveForward">
+                        <KeyStroke Key="Right" />
+                    </Shortcut>
+                    <Shortcut Name="ExpandBack" ActionId="actions.timeline.surface.ExpandBack">
+                        <KeyStroke Mods="SHIFT" Key="Left" />
+                    </Shortcut>
+                    <Shortcut Name="ExpandForward" ActionId="actions.timeline.surface.ExpandForward">
+                        <KeyStroke Mods="SHIFT" Key="Right" />
+                    </Shortcut>
+                    <Shortcut Name="SpecialExpandBack" ActionId="actions.timeline.surface.SpecialExpandBack">
+                        <KeyStroke Mods="CTRL+SHIFT" Key="Left" />
+                    </Shortcut>
+                    <Shortcut Name="SpecialExpandForward" ActionId="actions.timeline.surface.SpecialExpandForward">
+                        <KeyStroke Mods="CTRL+SHIFT" Key="Right" />
                     </Shortcut>
                 </Group>
                 <Group Name="TrackControllers">

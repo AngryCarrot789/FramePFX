@@ -19,7 +19,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for a timeline track. This could be a video or audio track (or others...)
     /// </summary>
-    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, IResourceItemDropHandler, IAutomatableViewModel, IProjectViewModelBound, IRenameTarget {
+    public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, ITrackResourceDropHandler, IAutomatableViewModel, IProjectViewModelBound, IRenameTarget {
         protected readonly HistoryBuffer<HistoryTrackDisplayName> displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
 
         private readonly ObservableCollectionEx<ClipViewModel> clips;
@@ -247,7 +247,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public abstract bool CanDropResource(ResourceItemViewModel resource);
 
-        public abstract Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin);
+        public abstract Task OnResourceDropped(ResourceItemViewModel resource, long frame);
 
         /// <summary>
         /// Slices the given clip at the given frame

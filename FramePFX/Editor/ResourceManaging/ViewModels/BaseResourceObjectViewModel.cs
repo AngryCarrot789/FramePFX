@@ -16,7 +16,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// </summary>
         public ResourceManagerViewModel Manager {
             get => this.manager;
-            protected set => this.RaisePropertyChanged(ref this.manager, value);
+            private set {
+                if (this.manager != value)
+                    this.RaisePropertyChanged(ref this.manager, value);
+            }
         }
 
         /// <summary>
@@ -50,9 +53,18 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, () => this.Parent != null);
         }
 
-        public virtual void SetParent(ResourceGroupViewModel newParent) {
-            this.Parent = newParent;
-            this.OnParentChainChanged();
+        public static void PreSetParent(BaseResourceObjectViewModel obj, ResourceGroupViewModel parent) {
+            obj.parent = parent;
+        }
+
+        public static void PostSetParent(BaseResourceObjectViewModel obj, ResourceGroupViewModel parent) {
+            obj.RaisePropertyChanged(nameof(obj.Parent));
+            obj.OnParentChainChanged();
+        }
+
+        public static void SetParent(BaseResourceObjectViewModel obj, ResourceGroupViewModel parent) {
+            PreSetParent(obj, parent);
+            PostSetParent(obj, parent);
         }
 
         protected internal virtual void OnParentChainChanged() {

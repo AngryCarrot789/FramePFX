@@ -124,7 +124,7 @@ namespace FramePFX.WPF.Shortcuts {
                 // }
             }
             else {
-                Debug.WriteLine("Failed to find root control that owns the FocusGroupPathProperty of " + GetFocusPath(target));
+                Debug.WriteLine("Failed to find root control that owns the FocusPathProperty of '" + GetFocusPath(target) + "'");
             }
         }
     }

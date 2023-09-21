@@ -49,7 +49,6 @@ namespace FramePFX.WPF.Editor.MainWindow {
             this.lastRefreshTime = Time.GetSystemMillis();
 
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
-            this.Width = 1257;
         }
 
         protected override void OnActivated(EventArgs e) {

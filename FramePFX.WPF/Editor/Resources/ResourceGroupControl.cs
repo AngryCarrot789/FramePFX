@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Interactivity;
 using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
@@ -24,15 +26,16 @@ namespace FramePFX.WPF.Editor.Resources {
             this.AllowDrop = true;
         }
 
+        protected override void OnDragEnter(DragEventArgs e) {
+            base.OnDragEnter(e);
+        }
+
         protected override void OnDragOver(DragEventArgs e) {
-            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
-                object obj = e.Data.GetData(nameof(BaseResourceObjectViewModel));
-                if (obj is BaseResourceObjectViewModel resource && this.DataContext is IAcceptResourceDrop drop && drop.CanDropResource(resource)) {
-                    this.IsDroppableTargetOver = true;
-                    e.Effects = DragDropEffects.Move;
-                    e.Handled = true;
-                    goto end;
-                }
+            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel>) {
+                this.IsDroppableTargetOver = true;
+                e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+                e.Handled = true;
+                goto end;
             }
 
             this.ClearValue(IsDroppableTargetOverProperty);
@@ -55,27 +58,17 @@ namespace FramePFX.WPF.Editor.Resources {
                 return;
             }
 
-            e.Handled = true;
-            this.isProcessingAsyncDrop = true;
-            if (this.DataContext is ResourceGroupViewModel group && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource) {
-                ResourceGroupViewModel t = group.Parent;
-                if (t != null && t == resource.Parent && t.Manager.SelectedItems.Contains(resource)) {
-                    this.HandleOnDropResources(group, t.Manager.SelectedItems.ToList());
-                }
-                else if (group.CanDropResource(resource)) {
-                    this.HandleOnDropResource(group, resource);
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
+                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
+                if (obj is List<BaseResourceObjectViewModel> resources && this.DataContext is ResourceGroupViewModel target) {
+                    this.HandleOnDropResources(target, resources, DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects));
+                    e.Handled = true;
                 }
             }
         }
 
-        private async void HandleOnDropResource(ResourceGroupViewModel group, BaseResourceObjectViewModel resource) {
-            await group.OnDropResource(resource);
-            this.ClearValue(IsDroppableTargetOverProperty);
-            this.isProcessingAsyncDrop = false;
-        }
-
-        private async void HandleOnDropResources(ResourceGroupViewModel group, IEnumerable<BaseResourceObjectViewModel> selection) {
-            await group.OnDropResources(selection);
+        private async void HandleOnDropResources(ResourceGroupViewModel group, List<BaseResourceObjectViewModel> selection, EnumDropType dropType) {
+            await group.OnDropResources(selection, dropType);
             this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }

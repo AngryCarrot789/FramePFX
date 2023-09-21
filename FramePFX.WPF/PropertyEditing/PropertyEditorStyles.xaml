@@ -19,8 +19,6 @@
     <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
     <SolidColorBrush x:Key="SeparatorMouseOverBrush" Color="{DynamicResource AColour.AccentTone2.Border.Static}" />
-    <SolidColorBrush x:Key="PropertyEditorSelectionSlot.SelectedActive.Background" Color="{DynamicResource AColour.Tone1.Background.Static}" />
-    <SolidColorBrush x:Key="PropertyEditorEditorGroupItem.SelectedActive.Background" Color="{DynamicResource AColour.Tone6.Background.Selected}" />
 
     <DataTemplate x:Key="ScaleOriginGridDataTemplate">
         <Grid Background="{DynamicResource ABrush.Tone1.Background.Static}" Width="120" Height="120"
@@ -284,7 +282,7 @@
                         </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <DataTrigger Binding="{Binding IsSelectable}" Value="True">
+                        <DataTrigger Binding="{Binding IsSelectable, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True">
                             <Setter TargetName="HeaderSite" Property="HorizontalAlignment" Value="Left"/>
                         </DataTrigger>
                         <Trigger Property="IsExpanded" Value="true">
@@ -293,9 +291,13 @@
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}, Path=IsSelected}" Value="True">
-                            <Setter Property="Background" Value="{StaticResource PropertyEditorEditorGroupItem.SelectedActive.Background}"/>
-                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True"/>
+                                <Condition Binding="{Binding IsSelectable, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                        </MultiDataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -467,7 +469,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource PropertyEditorSelectionSlot.SelectedActive.Background}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone1.Background.Static}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>

@@ -7,7 +7,7 @@
              xmlns:advancedContextService="clr-namespace:FramePFX.WPF.AdvancedContextService"
              xmlns:rm="clr-namespace:FramePFX.Editor.ResourceManaging;assembly=FramePFX"
              xmlns:vms="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels;assembly=FramePFX"
-             xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
+             xmlns:r="clr-namespace:FramePFX.WPF.Editor.Resources"
              xmlns:attachedProperties="clr-namespace:FramePFX.WPF.AttachedProperties"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
@@ -34,13 +34,13 @@
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <resources:ResourceListControl FileDropNotifier="{Binding .}" Background="{DynamicResource PanelBackground3}"
-                                ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
-                                attachedProperties:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}"
-                                HorizontalContentAlignment="Stretch"
-                                VerticalContentAlignment="Stretch"
-                                Grid.Row="1"
-                                Grid.Column="1" />
+        <r:ResourceListControl Background="{DynamicResource PanelBackground3}"
+                               ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
+                               attachedProperties:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}"
+                               HorizontalContentAlignment="Stretch"
+                               VerticalContentAlignment="Stretch"
+                               Grid.Row="1"
+                               Grid.Column="1" />
         <Border Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-1,0,0,0" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
             <TextBlock Text="{Binding DisplayPath, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" Padding="4,1" />
         </Border>

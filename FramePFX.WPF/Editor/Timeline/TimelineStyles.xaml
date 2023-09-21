@@ -98,19 +98,11 @@
                 <ControlTemplate TargetType="{x:Type tc:TimelineClipControl}">
                     <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance videoClips:VideoClipViewModel}">
                         <Border Background="{Binding Track.TrackColour, FallbackValue=Black}" VerticalAlignment="Top" Height="{DynamicResource LayerHeight}">
-                            <DockPanel>
-                                <TextBlock IsHitTestVisible="False" Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
-                                    <TextBlock.InputBindings>
-                                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
-                                    </TextBlock.InputBindings>
-                                </TextBlock>
-                                <DockPanel Visibility="{TemplateBinding IsSelected, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}" DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" Margin="5,1,1,0">
-                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding ToggleOverrideCommand, Mode=OneTime}"
-                                            Content="O" ToolTip="Toggle all overrides" BorderThickness="0"/>
-                                    <Button DockPanel.Dock="Right" Width="20" Command="{Binding DeselectSequenceCommand, Mode=OneTime}"
-                                            Content="-" ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"/>
-                                </DockPanel>
-                            </DockPanel>
+                            <TextBlock IsHitTestVisible="False" Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
+                                <TextBlock.InputBindings>
+                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}"/>
+                                </TextBlock.InputBindings>
+                            </TextBlock>
                         </Border>
                         <Border x:Name="OutlineBorder" BorderThickness="1" SnapsToDevicePixels="True" Panel.ZIndex="2"/>
                         <ctrl:CancellableThumb x:Name="PART_ThumbLeft" HorizontalAlignment="Left" Width="16" Margin="-8,0,0,0" Cursor="SizeWE" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Panel.ZIndex="2"/>

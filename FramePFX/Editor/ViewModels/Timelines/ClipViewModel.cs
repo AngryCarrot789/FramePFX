@@ -10,6 +10,7 @@ using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Dragging;
@@ -18,6 +19,7 @@ using FramePFX.Editor.ViewModels.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
+using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.UserInputs;
@@ -26,7 +28,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget, IStrictFrameRange {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget, IStrictFrameRange, IResourceItemDropHandler {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         private readonly ObservableCollection<BaseEffectViewModel> effects;
         private bool isClearingEffects;
@@ -535,6 +537,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public static void SetTrack(ClipViewModel clip, TrackViewModel track) {
             PreSetTrack(clip, track);
             PostSetTrack(clip, track);
+        }
+
+        public virtual bool CanDropResource(ResourceItemViewModel resource) {
+            return false;
+        }
+
+        public virtual Task OnDropResource(ResourceItemViewModel resource, EnumDropType dropType) {
+            return Task.CompletedTask;
         }
     }
 }

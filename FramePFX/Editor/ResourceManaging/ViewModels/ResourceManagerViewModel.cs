@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using FramePFX.Commands;
-using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.ViewModels;
@@ -159,12 +159,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public Task<bool> CanDrop(string[] paths, ref FileDropType type) {
-            type = FileDropType.Copy;
-            return Task.FromResult(true);
+        public EnumDropType GetFileDropType(string[] paths) {
+            return paths.Length == 1 ? (EnumDropType.All) : EnumDropType.None;
         }
 
-        public async Task OnFilesDropped(string[] paths) {
+        public async Task OnFilesDropped(string[] paths, EnumDropType dropType) {
             foreach (string path in paths) {
                 switch (Path.GetExtension(path).ToLower()) {
                     case ".mp3":
@@ -243,6 +242,13 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     }
                 }
             }
+        }
+
+        public EnumDropType GetResourceDropType(IList<ResourceItemViewModel> items) {
+            return EnumDropType.Copy | EnumDropType.Move;
+        }
+
+        public async Task OnResourcesDropped(IList<ResourceItemViewModel> items, EnumDropType dropType) {
         }
 
         public void ClearAndDispose() {

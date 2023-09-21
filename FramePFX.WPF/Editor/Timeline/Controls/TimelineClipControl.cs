@@ -11,7 +11,9 @@ using System.Windows.Threading;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Interactivity;
 using FramePFX.Utils;
+using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Utils;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
@@ -487,23 +489,31 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         #region Drag Dropping
 
+        protected override void OnDragEnter(DragEventArgs e) {
+            this.OnDragOver(e);
+        }
+
         protected override void OnDragOver(DragEventArgs e) {
-            if (e.Data.GetDataPresent(nameof(BaseResourceObjectViewModel))) {
-                object obj = e.Data.GetData(nameof(BaseResourceObjectViewModel));
-                if (obj is BaseResourceObjectViewModel resource && this.DataContext is IAcceptResourceDrop drop && drop.CanDropResource(resource)) {
-                    this.IsDroppableTargetOver = true;
-                    e.Effects = DragDropEffects.Move;
-                    e.Handled = true;
-                    goto end;
+            if (this.isProcessingAsyncDrop) {
+                e.Effects = DragDropEffects.None;
+                return;
+            }
+
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType) && this.DataContext is ClipViewModel drop) {
+                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
+                if (obj is List<BaseResourceObjectViewModel> resources && resources.Count == 1 && resources[0] is ResourceItemViewModel) {
+                    if (drop.CanDropResource((ResourceItemViewModel) resources[0])) {
+                        if (!this.IsDroppableTargetOver)
+                            this.IsDroppableTargetOver = true;
+                        e.Effects = DragDropEffects.Link;
+                        e.Handled = true;
+                        return;
+                    }
                 }
             }
 
             this.ClearValue(IsDroppableTargetOverProperty);
             e.Effects = DragDropEffects.None;
-
-            end:
-            e.Handled = true;
-            base.OnDragOver(e);
         }
 
         protected override void OnDragLeave(DragEventArgs e) {
@@ -515,20 +525,24 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         private void OnDrop(object sender, DragEventArgs e) {
             e.Handled = true;
-            if (this.isProcessingAsyncDrop) {
+            if (this.isProcessingAsyncDrop || !(this.DataContext is ClipViewModel drop)) {
                 return;
             }
 
-            this.isProcessingAsyncDrop = true;
-            if (this.DataContext is IAcceptResourceDrop drop && e.Data.GetData(nameof(BaseResourceObjectViewModel)) is BaseResourceObjectViewModel resource) {
-                if (drop.CanDropResource(resource)) {
-                    this.HandleOnDropResource(drop, resource);
+            if (!e.Data.GetDataPresent(ResourceListControl.ResourceDropType))
+                return;
+
+            e.Handled = true;
+            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> items && items.Count == 1 && items[0] is ResourceItemViewModel) {
+                if (drop.CanDropResource((ResourceItemViewModel) items[0])) {
+                    this.isProcessingAsyncDrop = true;
+                    this.HandleOnDropResource(drop, (ResourceItemViewModel) items[0], DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects));
                 }
             }
         }
 
-        private async void HandleOnDropResource(IAcceptResourceDrop acceptResourceDrop, BaseResourceObjectViewModel resource) {
-            await acceptResourceDrop.OnDropResource(resource);
+        private async void HandleOnDropResource(ClipViewModel handler, ResourceItemViewModel resource, EnumDropType dropType) {
+            await handler.OnDropResource(resource, dropType);
             this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }

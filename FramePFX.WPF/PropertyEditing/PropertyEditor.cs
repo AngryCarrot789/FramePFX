@@ -4,10 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Markup;
-using System.Xml.Linq;
 using FramePFX.PropertyEditing;
 using FramePFX.WPF.Utils;
 
@@ -111,6 +108,11 @@ namespace FramePFX.WPF.PropertyEditing {
                 throw new Exception("Data must not be null");
             if (container == null)
                 throw new Exception("Container must not be null");
+
+            if (!container.IsSelectable) {
+                return;
+                // throw new Exception("Container is not selectable");
+            }
 
             IList<IPropertyEditorObject> oldValue = this.selectedObjects.ToList();
             IList<IPropertyEditorObject> newValue = null;

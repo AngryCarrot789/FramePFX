@@ -10,6 +10,16 @@ namespace FramePFX.Automation.Keyframe {
     /// Contains all of the key frames for a specific <see cref="AutomationKey"/>
     /// </summary>
     public class AutomationSequence : IRBESerialisable {
+        private static readonly Func<KeyFrame, float> FuncGetFloat = k => ((KeyFrameFloat) k).Value;
+        private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
+        private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
+        private static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBoolean) k).Value;
+        private static readonly Func<KeyFrame, Vector2> FuncGetVec2 = k => ((KeyFrameVector2) k).Value;
+        private static readonly Func<long, KeyFrame, KeyFrame, float> FuncCalcFloat = (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, double> FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, long> FuncCalcLong = (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVec2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
         private readonly List<KeyFrame> keyFrameList;
 
         /// <summary>
@@ -78,19 +88,6 @@ namespace FramePFX.Automation.Keyframe {
         }
 
         #region Helper Getter Functions
-
-        // Caching just as a slight performance helper... hopefully. It seems like a new lambda class
-        // is being instantiated each time one is used, unless it gets inlined by the JIT... dunno. TBD
-        private static readonly Func<KeyFrame, float> FuncGetFloat = k => ((KeyFrameFloat) k).Value;
-        private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
-        private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
-        private static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBoolean) k).Value;
-        private static readonly Func<KeyFrame, Vector2> FuncGetVec2 = k => ((KeyFrameVector2) k).Value;
-        private static readonly Func<long, KeyFrame, KeyFrame, float> FuncCalcFloat = (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, double> FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, long> FuncCalcLong = (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
-        private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVec2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
 
         public float GetFloatValue(long frame, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Float, this.DataType);

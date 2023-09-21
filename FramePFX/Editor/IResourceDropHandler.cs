@@ -4,12 +4,12 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
 
 namespace FramePFX.Editor {
-    public interface IResourceItemDropHandler {
+    public interface IResourceDropHandler {
         /// <summary>
         /// Gets whether the given resource can be dropped on this handler.
         /// This is called every time the mouse moves
         /// </summary>
-        bool CanDropResource(ResourceItemViewModel resource);
+        bool CanDropResource(BaseResourceObjectViewModel resource);
 
         /// <summary>
         /// Called when a resource item is dropped. <see cref="CanDropResource"/> may not get called
@@ -19,6 +19,6 @@ namespace FramePFX.Editor {
         /// </param>
         /// <param name="dropType"></param>
         /// <returns>A task to await</returns>
-        Task OnDropResource(ResourceItemViewModel resource, EnumDropType dropType);
+        Task OnDropResource(BaseResourceObjectViewModel resource, EnumDropType dropType);
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -27,7 +26,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 obj.OnParentChainChanged();
         }
 
-        public override void SetManager(ResourceManager manager) {
+        protected internal override void SetManager(ResourceManager manager) {
             base.SetManager(manager);
             foreach (BaseResourceObject item in this.items) {
                 item.SetManager(manager);
@@ -38,7 +37,7 @@ namespace FramePFX.Editor.ResourceManaging {
             base.WriteToRBE(data);
             RBEList list = data.CreateList("Items");
             foreach (BaseResourceObject item in this.items) {
-                list.Add(WriteSerialisedWithId(item));
+                list.Add(WriteSerialisedWithType(item));
             }
         }
 
@@ -46,7 +45,14 @@ namespace FramePFX.Editor.ResourceManaging {
             base.ReadFromRBE(data);
             RBEList list = data.GetList("Items");
             foreach (RBEDictionary dictionary in list.OfType<RBEDictionary>()) {
-                this.AddItem(ReadSerialisedWithId(dictionary));
+                this.AddItem(ReadSerialisedWithType(dictionary));
+            }
+        }
+
+        protected override void LoadCloneDataFromObject(BaseResourceObject obj) {
+            base.LoadCloneDataFromObject(obj);
+            foreach (BaseResourceObject child in ((ResourceGroup) obj).items) {
+                this.AddItem(Clone(child));
             }
         }
 
@@ -57,8 +63,8 @@ namespace FramePFX.Editor.ResourceManaging {
         public void InsertItem(int index, BaseResourceObject item) {
             if (this.items.Contains(item))
                 throw new Exception("Value already stored in this group");
-            item.SetParent(this);
             this.items.Insert(index, item);
+            SetParent(item, this);
             item.SetManager(this.Manager);
         }
 
@@ -76,7 +82,20 @@ namespace FramePFX.Editor.ResourceManaging {
             ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
             this.items.RemoveAt(index);
             item.SetManager(null);
-            item.SetParent(null);
+            SetParent(item, null);
+        }
+
+        public void MoveItemTo(int srcIndex, ResourceGroup target) {
+            this.MoveItemTo(srcIndex, target, target.items.Count);
+        }
+
+        public void MoveItemTo(int srcIndex, ResourceGroup target, int dstIndex) {
+            BaseResourceObject item = this.items[srcIndex];
+            ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
+            ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
+            this.items.RemoveAt(srcIndex);
+            target.items.Insert(dstIndex, item);
+            SetParent(item, target);
         }
 
         /// <summary>
@@ -103,6 +122,23 @@ namespace FramePFX.Editor.ResourceManaging {
                     catch (Exception e) {
                         list.Add(new Exception("Exception while disposing " + resource.GetType(), e));
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Registers all items in the hierarchy of the given resource if it's a group. If
+        /// it is just a resource item, then the item is registered. This is a recursive function
+        /// </summary>
+        /// <param name="manager">The (non-null) manager to register items with</param>
+        /// <param name="resource">Target item</param>
+        public static void RegisterHierarchy(ResourceManager manager, BaseResourceObject resource) {
+            if (resource is ResourceItem) {
+                manager.RegisterEntry((ResourceItem) resource);
+            }
+            else if (resource is ResourceGroup) {
+                foreach (BaseResourceObject obj in ((ResourceGroup) resource).items) {
+                    RegisterHierarchy(manager, obj);
                 }
             }
         }

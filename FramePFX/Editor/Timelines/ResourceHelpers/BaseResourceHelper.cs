@@ -1,7 +1,5 @@
-using System;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Events;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.ResourceHelpers {
     /// <summary>

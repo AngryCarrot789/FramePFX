@@ -85,7 +85,6 @@ namespace FramePFX.Utils {
         /// <param name="input">Original text</param>
         /// <param name="output">A string that the <see cref="accept"/> predicate accepted</param>
         /// <param name="count">Max number of times to increment until the entry does not exist. <see cref="ulong.MaxValue"/> by default</param>
-        /// <param name="manager"></param>
         /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
         /// <exception cref="ArgumentOutOfRangeException">The <see cref="count"/> parameter is zero</exception>
         /// <exception cref="ArgumentException">The <see cref="input"/> parameter is null or empty</exception>
@@ -104,7 +103,7 @@ namespace FramePFX.Utils {
             ulong max = Maths.WillOverflow(num, count) ? ulong.MaxValue : num + count;
 
             // This is probably over-optimised... this is just for concatenating a string and ulong
-            // in the most efficient way possible. 23 = 3 for ' ' + '(' + ')', and 20 for ulong.MaxValue representation
+            // in the most efficient way possible. 23 = 3 (for ' ' + '(' + ')' chars) + 20 (for ulong.MaxValue representation)
             // hello (69) | len = 10, index = 7, j = 9, j+1 = 10 (passed to new string())
             if (content == null) {
                 content = input;
@@ -155,7 +154,7 @@ namespace FramePFX.Utils {
             Random random = new Random();
             char* chars = stackalloc char[length];
             while (loop > 0) {
-                RandomUtils.RandomString(random, chars, 0, length);
+                RandomUtils.RandomLetters(random, chars, 0, length);
                 output = StringUtils.InjectOrUseChars(src, srcIndex, chars, length);
                 if (accept(output)) {
                     return true;

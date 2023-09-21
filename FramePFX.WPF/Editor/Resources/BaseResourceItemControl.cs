@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
     public abstract class BaseResourceItemControl : ContentControl {
@@ -161,13 +164,18 @@ namespace FramePFX.WPF.Editor.Resources {
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 if (change.X > 5 || change.Y > 5) {
-                    if (!(this.DataContext is BaseResourceObjectViewModel resource)) {
+                    if (!(this.DataContext is BaseResourceObjectViewModel resource) || resource.Manager == null || resource.Manager.SelectedItems.Count < 1) {
                         return;
                     }
 
+                    List<BaseResourceObjectViewModel> list = resource.Manager.SelectedItems.ToList();
+
                     try {
                         this.isDragDropping = true;
-                        DragDrop.DoDragDrop(this, new DataObject(nameof(BaseResourceObjectViewModel), resource), DragDropEffects.Copy | DragDropEffects.Move);
+                        DragDrop.DoDragDrop(this, new DataObject(ResourceListControl.ResourceDropType, list), DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
+                    }
+                    catch (Exception ex) {
+                        AppLogger.WriteLine("Exception while executing resource item drag drop: " + ex.GetToString());
                     }
                     finally {
                         this.isDragDropping = false;

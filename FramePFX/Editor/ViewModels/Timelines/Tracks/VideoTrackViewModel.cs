@@ -130,7 +130,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                    resource is ResourceTextStyleViewModel || resource is ResourceMpegMediaViewModel;
         }
 
-        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
+        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frame) {
             if (!resource.Model.IsOnline) {
                 await Services.DialogService.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
                 return;
@@ -155,13 +155,13 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     }
 
                     if (dur > 0) {
-                        long newProjectDuration = frameBegin + dur + 600;
+                        long newProjectDuration = frame + dur + 600;
                         if (newProjectDuration > this.Timeline.MaxDuration) {
                             this.Timeline.MaxDuration = newProjectDuration;
                         }
 
                         AVMediaVideoClip clip = new AVMediaVideoClip() {
-                            FrameSpan = new FrameSpan(frameBegin, dur),
+                            FrameSpan = new FrameSpan(frame, dur),
                             DisplayName = "Media Clip"
                         };
 
@@ -216,7 +216,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             else {
                 if (resource.Model is ResourceColour argb) {
                     ShapeVideoClip clip = new ShapeVideoClip() {
-                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
+                        FrameSpan = new FrameSpan(frame, defaultDuration),
                         Width = 200, Height = 200,
                         DisplayName = "Shape Clip"
                     };
@@ -226,7 +226,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
                 else if (resource.Model is ResourceImage img) {
                     ImageVideoClip clip = new ImageVideoClip() {
-                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
+                        FrameSpan = new FrameSpan(frame, defaultDuration),
                         DisplayName = "Image Clip"
                     };
 
@@ -235,7 +235,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
                 else if (resource.Model is ResourceTextStyle text) {
                     TextVideoClip clip = new TextVideoClip() {
-                        FrameSpan = new FrameSpan(frameBegin, defaultDuration),
+                        FrameSpan = new FrameSpan(frame, defaultDuration),
                         DisplayName = "Text Clip"
                     };
 

@@ -22,7 +22,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             timeline.Owner = this;
         }
 
-        public override void SetManager(ResourceManager manager) {
+        protected internal override void SetManager(ResourceManager manager) {
             base.SetManager(manager);
             this.Timeline.Project = manager?.Project;
         }

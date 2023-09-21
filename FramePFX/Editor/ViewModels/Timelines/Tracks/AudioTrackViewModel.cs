@@ -98,7 +98,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             return false;
         }
 
-        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
+        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frame) {
             await Services.DialogService.ShowMessageAsync("Audio unsupported", "Cannot drop audio yet");
         }
 

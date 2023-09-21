@@ -80,36 +80,16 @@ namespace FramePFX.WPF.Interactivity {
                 return;
             }
 
-            IFileDropNotifier notifier = GetFileDropNotifier(element) ?? GetPreviewFileDropNotifier(element);
-            if (notifier == null) {
+            IFileDropNotifier handler = GetFileDropNotifier(element) ?? GetPreviewFileDropNotifier(element);
+            if (handler == null) {
                 return;
             }
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
-                FileDropType type = (FileDropType) ((int) e.Effects & (int) FileDropType.All);
+                EnumDropType type = (EnumDropType) e.Effects;
                 SetIsProcessingDragDropEntry(element, true);
                 try {
-                    if (!await notifier.CanDrop(files, ref type)) {
-                        e.Effects = DragDropEffects.None; // does nothing
-                    }
-                    else {
-                        switch (type) {
-                            case FileDropType.None:
-                                e.Effects = DragDropEffects.None;
-                                break;
-                            case FileDropType.Copy:
-                                e.Effects = DragDropEffects.Copy;
-                                break;
-                            case FileDropType.Move:
-                                e.Effects = DragDropEffects.Move;
-                                break;
-                            case FileDropType.All:
-                                e.Effects = DragDropEffects.Copy | DragDropEffects.Move;
-                                break;
-                            default: throw new ArgumentOutOfRangeException();
-                        }
-                    }
-
+                    e.Effects = (DragDropEffects) handler.GetFileDropType(files);
                     e.Handled = true;
                 }
                 finally {
@@ -124,22 +104,17 @@ namespace FramePFX.WPF.Interactivity {
                 return;
             }
 
-            IFileDropNotifier notifier = GetFileDropNotifier(element) ?? GetPreviewFileDropNotifier(element);
-            if (notifier == null) {
+            IFileDropNotifier handler = GetFileDropNotifier(element) ?? GetPreviewFileDropNotifier(element);
+            if (handler == null) {
                 return;
             }
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
-                FileDropType type = (FileDropType) ((int) e.Effects & (int) FileDropType.All);
+                EnumDropType type = (EnumDropType) e.Effects;
                 SetIsProcessingDragDropProcess(element, true);
                 try {
-                    if (await notifier.CanDrop(files, ref type)) {
-                        await notifier.OnFilesDropped(files);
-                    }
-                    else {
-                        e.Effects = DragDropEffects.None;
-                        e.Handled = true;
-                    }
+                    await handler.OnFilesDropped(files, type);
+                    e.Handled = true;
                 }
                 finally {
                     SetIsProcessingDragDropProcess(element, false);

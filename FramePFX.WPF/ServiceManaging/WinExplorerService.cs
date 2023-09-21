@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using FramePFX.Services;
+using FramePFX.ServiceManaging;
 
-namespace FramePFX.WPF.Services {
+namespace FramePFX.WPF.ServiceManaging {
     [ServiceImplementation(typeof(IExplorerService))]
     public class WinExplorerService : IExplorerService {
         public void OpenFileInExplorer(string filePath) {

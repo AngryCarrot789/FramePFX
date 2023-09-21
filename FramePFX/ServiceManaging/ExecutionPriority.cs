@@ -1,4 +1,4 @@
-namespace FramePFX.Services {
+namespace FramePFX.ServiceManaging {
     /// <summary>
     /// A priority enum for dispatching method invocations onto the main thread
     /// </summary>

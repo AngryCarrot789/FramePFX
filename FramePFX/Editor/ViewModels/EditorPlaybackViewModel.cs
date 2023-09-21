@@ -87,13 +87,15 @@ namespace FramePFX.Editor.ViewModels {
             this.IsPlaying = false;
         }
 
-        public async Task PlayAction() {
+        public Task PlayAction() {
             TimelineViewModel timeline = this.Editor.ActiveTimeline;
             if (timeline != null && this.Project != null && !this.IsPlaying) {
                 this.lastPlayTime = timeline.PlayHeadFrame;
                 this.StartRenderTimer();
                 this.UpdatePlaybackCommands();
             }
+
+            return Task.CompletedTask;
         }
 
         public async Task PauseAction() {
@@ -116,7 +118,7 @@ namespace FramePFX.Editor.ViewModels {
             }
 
             if (this.IsPlaying) {
-                return IoC.App.Settings.StopOnTogglePlay ? this.StopAction() : this.PauseAction();
+                return ApplicationViewModel.Instance.Settings.StopOnTogglePlay ? this.StopAction() : this.PauseAction();
             }
             else {
                 return this.PlayAction();
@@ -164,13 +166,14 @@ namespace FramePFX.Editor.ViewModels {
             this.UpdatePlaybackCommands();
         }
 
-        public async Task OnProjectSaved(bool canResumePlaying = true) {
+        public Task OnProjectSaved(bool canResumePlaying = true) {
             if (canResumePlaying && this.wasPlayingBeforeSave) {
                 this.StartRenderTimer();
             }
 
             this.wasPlayingBeforeSave = false;
             this.UpdatePlaybackCommands();
+            return Task.CompletedTask;
         }
     }
 }

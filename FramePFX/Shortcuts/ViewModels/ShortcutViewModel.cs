@@ -16,7 +16,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         /// <summary>
         /// The actual shortcut model
         /// </summary>
-        public GroupedShortcut Shortcut { get; }
+        public GroupedShortcut Model { get; }
 
         /// <summary>
         /// A collection of input strokes
@@ -62,7 +62,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         public RelayCommand<InputStrokeViewModel> RemoveStrokeCommand { get; }
 
         public ShortcutViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, GroupedShortcut reference) : base(manager, parent) {
-            this.Shortcut = reference;
+            this.Model = reference;
             this.Name = reference.Name;
             this.DisplayName = reference.DisplayName ?? reference.Name;
             this.Path = reference.FullPath;
@@ -91,7 +91,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         }
 
         public void AddKeyStrokeAction() {
-            KeyStroke? result = IoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
+            KeyStroke? result = Services.KeyboardDialogs.ShowGetKeyStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new KeyStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -99,7 +99,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         }
 
         public void AddMouseStrokeAction() {
-            MouseStroke? result = IoC.MouseDialogs.ShowGetMouseStrokeDialog();
+            MouseStroke? result = Services.MouseDialogs.ShowGetMouseStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new MouseStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -107,8 +107,8 @@ namespace FramePFX.Shortcuts.ViewModels {
         }
 
         public void UpdateShortcutReference() {
-            IShortcut shortcut = this.Shortcut.Shortcut;
-            this.Shortcut.Shortcut = this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut;
+            IShortcut shortcut = this.Model.Shortcut;
+            this.Model.Shortcut = this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut;
             this.Manager.OnShortcutModified(this, shortcut);
         }
 

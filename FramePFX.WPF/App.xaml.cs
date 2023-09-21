@@ -111,13 +111,7 @@ namespace FramePFX.WPF {
                 Directory.SetCurrentDirectory(dir);
             }
 
-            IoC.Application = new ApplicationDelegate(this);
-            IoC.OnShortcutModified = (x) => {
-                if (!string.IsNullOrWhiteSpace(x)) {
-                    ShortcutManager.Instance.InvalidateShortcutCache();
-                    GlobalUpdateShortcutGestureConverter.BroadcastChange();
-                }
-            };
+            Services.Application = new ApplicationDelegate(this);
 
             List<(TypeInfo, ServiceImplementationAttribute)> list_serviceAttributes = new List<(TypeInfo, ServiceImplementationAttribute)>();
             List<(TypeInfo, ActionRegistrationAttribute)> list_actionAttributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
@@ -146,7 +140,7 @@ namespace FramePFX.WPF {
                     throw new Exception($"Failed to create implementation of {tuple.Item2.Type} as {tuple.Item1}", e);
                 }
 
-                IoC.Instance.Register(tuple.Item2.Type, instance);
+                Services.ServiceManager.Register(tuple.Item2.Type, instance);
             }
 
             await this.SetActivity("Loading localization...");
@@ -154,6 +148,10 @@ namespace FramePFX.WPF {
 
             await this.SetActivity("Loading shortcuts and the action manager...");
             ShortcutManager.Instance = new WPFShortcutManager();
+            ShortcutManager.Instance.ShortcutModified += (sender, value) => {
+                GlobalUpdateShortcutGestureConverter.BroadcastChange();
+            };
+
             ActionManager.Instance = new ActionManager();
             InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
             InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
@@ -176,15 +174,24 @@ namespace FramePFX.WPF {
 
             this.RegisterActions();
 
+            // TODO: user modifiable keymap, and also save it to user documents
+            // also, use version attribute to check out of date keymap, and offer to
+            // overwrite while backing up old file... or just try to convert file
+
             await this.SetActivity("Loading keymap...");
             string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
             if (File.Exists(keymapFilePath)) {
-                using (FileStream stream = File.OpenRead(keymapFilePath)) {
-                    WPFShortcutManager.WPFInstance.DeserialiseRoot(stream);
+                try {
+                    using (FileStream stream = File.OpenRead(keymapFilePath)) {
+                        WPFShortcutManager.WPFInstance.DeserialiseRoot(stream);
+                    }
+                }
+                catch (Exception e) {
+                    await Services.DialogService.ShowMessageExAsync("Invalid keymap", "Failed to read keymap file: " + keymapFilePath, e.GetToString());
                 }
             }
             else {
-                await IoC.MessageDialogs.ShowMessageAsync("No keymap available", "Keymap file does not exist: " + keymapFilePath + $".\nCurrent directory: {Directory.GetCurrentDirectory()}\nCommand line args:{string.Join("\n", Environment.GetCommandLineArgs())}");
+                await Services.DialogService.ShowMessageAsync("No keymap available", "Keymap file does not exist: " + keymapFilePath + $".\nCurrent directory: {Directory.GetCurrentDirectory()}\nCommand line args:{string.Join("\n", Environment.GetCommandLineArgs())}");
             }
 
             await this.SetActivity("Loading FFmpeg...");
@@ -192,7 +199,7 @@ namespace FramePFX.WPF {
                 ffmpeg.avdevice_register_all();
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageAsync("FFmpeg not found", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the project's build folder, e.g. FramePFX/FramePFX.WPF/bin/Debug");
+                await Services.DialogService.ShowMessageAsync("FFmpeg not found", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the project's build folder, e.g. FramePFX/FramePFX.WPF/bin/Debug");
                 throw new Exception("FFmpeg Unavailable. Copy FFmpeg DLLs into the same folder as the app's .exe", e);
             }
         }
@@ -209,8 +216,8 @@ namespace FramePFX.WPF {
                 await this.InitApp();
             }
             catch (Exception ex) {
-                if (IoC.MessageDialogs != null) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("App init failed", "Failed to start FramePFX", ex.GetToString());
+                if (Services.DialogService != null) {
+                    await Services.DialogService.ShowMessageExAsync("App init failed", "Failed to start FramePFX", ex.GetToString());
                 }
                 else {
                     MessageBox.Show("Failed to start FramePFX:\n\n" + ex, "Fatal App init failure");

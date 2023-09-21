@@ -44,7 +44,7 @@ namespace FramePFX.WPF.Shortcuts {
             if (!(focused is TextBoxBase)) {
                 return true;
             }
-            else if (e.KeyboardDevice.Modifiers == 0) {
+            else if (e.KeyboardDevice.Modifiers == ModifierKeys.None) {
                 return UIInputManager.GetCanProcessTextBoxKeyStroke(focused);
             }
             else {
@@ -235,24 +235,24 @@ namespace FramePFX.WPF.Shortcuts {
 
         protected override bool OnNoSuchShortcutForKeyStroke(string @group, in KeyStroke stroke) {
             if (stroke.IsKeyDown) {
-                IoC.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
+                Services.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
             }
 
             return base.OnNoSuchShortcutForKeyStroke(@group, in stroke);
         }
 
         protected override bool OnNoSuchShortcutForMouseStroke(string @group, in MouseStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
+            Services.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
             return base.OnNoSuchShortcutForMouseStroke(@group, in stroke);
         }
 
         protected override bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, GroupedShortcut shortcut, in KeyStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
+            Services.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextKeyStroke(usage, shortcut, in stroke);
         }
 
         protected override bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, GroupedShortcut shortcut, in MouseStroke stroke) {
-            IoC.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
+            Services.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextMouseStroke(usage, shortcut, in stroke);
         }
 
@@ -262,7 +262,7 @@ namespace FramePFX.WPF.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            Services.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnShortcutUsagesCreated();
         }
 
@@ -272,7 +272,7 @@ namespace FramePFX.WPF.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            Services.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnSecondShortcutUsagesProgressed();
         }
     }

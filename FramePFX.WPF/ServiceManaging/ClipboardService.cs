@@ -1,7 +1,7 @@
 using System.Windows;
-using FramePFX.Services;
+using FramePFX.ServiceManaging;
 
-namespace FramePFX.WPF.Services {
+namespace FramePFX.WPF.ServiceManaging {
     [ServiceImplementation(typeof(IClipboardService))]
     public class ClipboardService : IClipboardService {
         public string ReadableText {

@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using FramePFX.Services;
+using FramePFX.ServiceManaging;
 using FramePFX.Views.Dialogs;
 using FramePFX.Views.Dialogs.Message;
 
@@ -10,29 +10,29 @@ namespace FramePFX.WPF.Views.Message {
         // These are awaiting the completion of the task that was created by the dispatcher
 
         public async Task ShowMessageAsync(string caption, string message) {
-            await IoC.Application.Invoke(() => {
+            await Services.Application.Invoke(() => {
                 MessageWindow.DODGY_PRIMARY_SELECTION = "ok";
                 return Dialogs.OkDialog.ShowAsync(caption, message);
             });
         }
 
         public async Task ShowMessageExAsync(string caption, string header, string message) {
-            await IoC.Application.Invoke(() => {
+            await Services.Application.Invoke(() => {
                 MessageWindow.DODGY_PRIMARY_SELECTION = "ok";
                 return Dialogs.OkDialog.ShowAsync(caption, header, message);
             });
         }
 
         public async Task<MsgDialogResult> ShowDialogAsync(string caption, string message, MsgDialogType type, MsgDialogResult defaultResult = MsgDialogResult.None) {
-            return await IoC.Application.Invoke(() => this.ShowDialogAsyncMainThread(caption, message, type, defaultResult));
+            return await Services.Application.Invoke(() => this.ShowDialogAsyncMainThread(caption, message, type, defaultResult));
         }
 
         public async Task<bool> ShowYesNoDialogAsync(string caption, string message, bool defaultResult = true) {
-            return await IoC.Application.Invoke(() => this.ShowYesNoDialogAsyncMainThread(caption, message, defaultResult));
+            return await Services.Application.Invoke(() => this.ShowYesNoDialogAsyncMainThread(caption, message, defaultResult));
         }
 
         public async Task<bool?> ShowYesNoCancelDialogAsync(string caption, string message, bool? defaultResult = true) {
-            return await IoC.Application.Invoke(() => this.ShowYesNoCancelDialogAsyncMainThread(caption, message, defaultResult));
+            return await Services.Application.Invoke(() => this.ShowYesNoCancelDialogAsyncMainThread(caption, message, defaultResult));
         }
 
         public async Task<MsgDialogResult> ShowDialogAsyncMainThread(string caption, string message, MsgDialogType type, MsgDialogResult defaultResult = MsgDialogResult.None) {
@@ -116,7 +116,7 @@ namespace FramePFX.WPF.Views.Message {
         }
 
         public Task<bool?> ShowDialogAsync(MessageDialog dialog) {
-            return IoC.Application.InvokeAsync(() => this.ShowDialogMainThread(dialog), ExecutionPriority.Send);
+            return Services.Application.InvokeAsync(() => this.ShowDialogMainThread(dialog), ExecutionPriority.Send);
         }
     }
 }

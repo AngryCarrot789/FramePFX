@@ -44,7 +44,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
 
         protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
-            this.displayName = GetEqualValue(this.Handlers, (x) => ((ClipViewModel) x).DisplayName, out string name) ? name : IoC.Translator.GetString("S.PropertyEditor.Clips.DifferingDisplayNames");
+            this.displayName = GetEqualValue(this.Handlers, (x) => ((ClipViewModel) x).DisplayName, out string name) ? name : Services.Translator.GetString("S.PropertyEditor.Clips.DifferingDisplayNames");
             this.RaisePropertyChanged(nameof(this.DisplayName));
         }
 

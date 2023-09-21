@@ -6,7 +6,7 @@ using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions {
     public class AddKeyFrameAction : EditorAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+        public override Task<bool> ExecuteAsync(AnActionEventArgs e) {
             AutomationSequenceViewModel sequence;
             if (e.DataContext.TryGetContext(out ClipViewModel clip) && clip.Track != null) {
                 if ((sequence = clip.AutomationData.ActiveSequence) != null) {
@@ -19,11 +19,11 @@ namespace FramePFX.Editor.Actions {
                         CreateKeyFrame(clip.Track.Timeline.PlayHeadFrame, sequence);
                     }
 
-                    return true;
+                    return Task.FromResult(true);
                 }
                 else if ((sequence = clip.Track.AutomationData.ActiveSequence) != null) {
                     CreateKeyFrame(clip.Track.Timeline.PlayHeadFrame, sequence);
-                    return true;
+                    return Task.FromResult(true);
                 }
             }
 
@@ -32,10 +32,10 @@ namespace FramePFX.Editor.Actions {
                     CreateKeyFrame(track.Timeline.PlayHeadFrame, sequence);
                 }
 
-                return true;
+                return Task.FromResult(true);
             }
 
-            return false;
+            return Task.FromResult(false);
         }
 
         public static void CreateKeyFrame(long frame, AutomationSequenceViewModel sequence) {

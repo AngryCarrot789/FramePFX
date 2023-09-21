@@ -109,8 +109,8 @@ namespace FramePFX.Shortcuts.Managing {
         private bool isActivationStrokePressed;
 
         // e.g. clicking a toggle button
-        public async Task OnInputStateTriggeredExternal(ShortcutInputManager inputManager, GroupedInputState state, bool activate) {
-
+        public Task OnInputStateTriggeredExternal(ShortcutInputManager inputManager, GroupedInputState state, bool activate) {
+            return Task.CompletedTask;
         }
 
         // CBA to get it to work :'(

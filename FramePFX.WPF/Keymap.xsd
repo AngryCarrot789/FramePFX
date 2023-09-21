@@ -389,5 +389,6 @@
             <xs:element type="ShortcutType" name="Shortcut"/>
             <xs:element type="InputStateType" name="InputState"/>
         </xs:choice>
+        <xs:attribute type="xs:string" name="Version"/>
     </xs:complexType>
 </xs:schema>

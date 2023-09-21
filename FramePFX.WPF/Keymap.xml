@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0"?>
 
-<KeyMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
+<KeyMap Version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
     <Group Name="Application">
         <Shortcut Name="RenameItem" ActionId="actions.general.RenameItem" Description="Rename the thing">
             <KeyStroke Key="F2" />

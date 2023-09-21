@@ -30,21 +30,21 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public async Task SelectFileAction() {
-            string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
+            string[] file = await Services.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
             if (file != null) {
                 this.FilePath = file[0];
                 try {
                     this.Model.LoadMedia(this.FilePath);
                 }
                 catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Failed", "An exception occurred opening the media", e.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Failed", "An exception occurred opening the media", e.GetToString());
                 }
             }
         }
 
-        protected override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
+        protected override Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
             if (string.IsNullOrWhiteSpace(this.FilePath)) {
-                return true;
+                return Task.FromResult(true);
             }
 
             bool fail = true;
@@ -60,10 +60,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
 
             if (fail) {
                 // checker?.Add(new InvalidVideoViewModel(this));
-                return false;
+                return Task.FromResult(false);
             }
 
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

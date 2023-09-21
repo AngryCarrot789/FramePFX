@@ -1,7 +1,7 @@
 using FramePFX.Editor.ResourceManaging.Resources;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
-    public class ResourceTextViewModel : ResourceItemViewModel {
+    public class ResourceTextStyleViewModel : ResourceItemViewModel {
         public new ResourceTextStyle Model => (ResourceTextStyle) base.Model;
 
         public double FontSize {
@@ -31,7 +31,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             }
         }
 
-        public ResourceTextViewModel(ResourceTextStyle model) : base(model) {
+        public ResourceTextStyleViewModel(ResourceTextStyle model) : base(model) {
         }
     }
 }

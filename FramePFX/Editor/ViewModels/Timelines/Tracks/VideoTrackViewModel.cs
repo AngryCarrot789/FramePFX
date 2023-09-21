@@ -127,17 +127,17 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
         public override bool CanDropResource(ResourceItemViewModel resource) {
             return resource is ResourceAVMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel ||
-                   resource is ResourceTextViewModel || resource is ResourceMpegMediaViewModel;
+                   resource is ResourceTextStyleViewModel || resource is ResourceMpegMediaViewModel;
         }
 
         public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
             if (!resource.Model.IsOnline) {
-                await IoC.MessageDialogs.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
+                await Services.DialogService.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
                 return;
             }
 
             if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
+                await Services.DialogService.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
                 return;
             }
 
@@ -169,12 +169,12 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                         newClip = clip;
                     }
                     else {
-                        await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                        await Services.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
                         return;
                     }
                 }
                 else {
-                    await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
+                    await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
                     return;
                 }
             }

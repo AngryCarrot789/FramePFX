@@ -95,7 +95,7 @@ namespace FramePFX.Notifications {
             }
 
             if (!cancel.IsCancellationRequested) {
-                await IoC.Application.InvokeAsync(this.AutoHideAction);
+                await Services.Application.InvokeAsync(this.AutoHideAction);
             }
         }
 

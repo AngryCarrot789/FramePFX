@@ -76,8 +76,6 @@
         <Setter Property="StaysOpen" Value="False"/>
         <Setter Property="Placement" Value="MousePoint"/>
     </Style>
-    
-    
 
     <Style x:Key="HierarchicalExpanderToggleButtonStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
@@ -329,6 +327,82 @@
     <!-- d:DataContext="{d:DesignInstance {x:Type pec:BasePropertyObjectViewModel}}" -->
     <Style TargetType="{x:Type pe:PropertyEditorItem}">
         <Setter Property="Visibility" Value="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type pe:PropertyEditorItem}">
+                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="true">
+                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Top"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelectable" Value="False"/>
+                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                <Condition Property="IsSelected" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedInactive.Border}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelectable" Value="False"/>
+                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                <Condition Property="IsSelected" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <!--
+        <Setter Property="ColumnWidth0" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}"/>
+        <Setter Property="ColumnWidth1" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}"/>
+        <Setter Property="ColumnWidth2" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}"/>
+        -->
+    </Style>
+
+    <SolidColorBrush x:Key="PropertyEditorSelectionSlot.SelectedInactive.Background" Color="{DynamicResource AColour.Tone4.Background.Selected.Inactive}" />
+    <SolidColorBrush x:Key="PropertyEditorSelectionSlot.SelectedActive.Background" Color="{DynamicResource AColour.Tone4.Background.Selected}" />
+
+    <Style TargetType="{x:Type pe:PropertyEditorSelectionSlot}">
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItemsControl}}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type pe:PropertyEditorSelectionSlot}">
+                    <Border x:Name="Bd" BorderBrush="Transparent" BorderThickness="0" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Stretch"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                <Condition Property="IsSelected" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource PropertyEditorSelectionSlot.SelectedInactive.Background}"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                <Condition Property="IsSelected" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource PropertyEditorSelectionSlot.SelectedActive.Background}"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <!--
         <Setter Property="ColumnWidth0" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}"/>
         <Setter Property="ColumnWidth1" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}"/>
@@ -337,6 +411,7 @@
     </Style>
 
     <Style TargetType="{x:Type pe:PropertyEditorItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone3.Background.Static}"/>
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
@@ -371,7 +446,8 @@
                                                        HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
                                                        BorderBrush="{TemplateBinding BorderBrush}"
                                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                                       ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}">
+                                                       ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}"
+                                                       x:Name="PART_ItemsControl">
                             <ItemsControl.Resources>
                                 <ResourceDictionary>
                                     <ResourceDictionary.MergedDictionaries>
@@ -387,7 +463,8 @@
                                                 <ColumnDefinition Width="{Binding ColumnWidth1, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                                 <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
                                             </Grid.ColumnDefinitions>
-                                            <Expander Grid.ColumnSpan="3" Margin="0,0" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                            <Expander Grid.ColumnSpan="3" Margin="0,0"
+                                                      Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                       Style="{Binding IsHeaderBold, Mode=OneWay, Converter={StaticResource BoldHeaderToExpanderStyleConverter}}"
                                                       Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
                                                       IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
@@ -403,40 +480,6 @@
                                                                                    ItemsSource="{Binding PropertyObjects, Mode=OneTime}"
                                                                                    Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                                                    ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}">
-                                                        <!--
-                                                        <ItemsControl.Resources>
-                                                            <ResourceDictionary>
-                                                                <ResourceDictionary.MergedDictionaries>
-                                                                    <StaticResource ResourceKey="PropertyEditorDataTemplateDictionary"/>
-                                                                </ResourceDictionary.MergedDictionaries>
-                                                                <DataTemplate DataType="{x:Type pec:BasePropertyGroupViewModel}">
-                                                                    <Grid Margin="0">
-                                                                        <Grid.ColumnDefinitions>
-                                                                            <ColumnDefinition Width="{Binding ColumnWidth0, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
-                                                                            <ColumnDefinition Width="{Binding ColumnWidth1, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
-                                                                            <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}}" />
-                                                                        </Grid.ColumnDefinitions>
-                                                                        <Expander Grid.ColumnSpan="3" Margin="0" Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
-                                                                                  Style="{StaticResource NonBoldHierarchicalExpanderStyle}"
-                                                                                  Header="{Binding DisplayName, Mode=OneTime}" FontWeight="Bold"
-                                                                                  IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
-                                                                                  x:Name="PART_Expander">
-                                                                            <Expander.ToolTip>
-                                                                                <MultiBinding Converter="{x:Static converters:PropertyItemToolTipConverter.Instance}">
-                                                                                    <Binding Path="DisplayName" Mode="OneWay"/>
-                                                                                    <Binding Path="Parent" Mode="OneWay"/>
-                                                                                </MultiBinding>
-                                                                            </Expander.ToolTip>
-                                                                            <StackPanel Margin="{Binding ElementName=PART_Expander, Mode=OneWay, Path=Padding}">
-                                                                                <pe:PropertyEditorItemsControl FontWeight="Normal" ItemsSource="{Binding PropertyObjects, Mode=OneTime}"
-                                                                                                               Visibility="{Binding IsCurrentlyApplicable, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
-                                                                            </StackPanel>
-                                                                        </Expander>
-                                                                    </Grid>
-                                                                </DataTemplate>
-                                                            </ResourceDictionary>
-                                                        </ItemsControl.Resources>
-                                                        -->
                                                     </pe:PropertyEditorItemsControl>
                                                 </StackPanel>
                                             </Expander>

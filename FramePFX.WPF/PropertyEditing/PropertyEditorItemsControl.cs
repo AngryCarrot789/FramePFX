@@ -2,19 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.WPF.PropertyEditing {
-    public class PropertyEditorItemsControl : ItemsControl {
+    /// <summary>
+    /// An items control that stores child <see cref="PropertyEditorItem"/> instances
+    /// </summary>
+    public class PropertyEditorItemsControl : Selector, IPropertyEditorControl {
         private readonly Stack<PropertyEditorItem> recycledItems;
+
+        /// <summary>
+        /// Gets the property editor that is directly parented. When this is non-null,
+        /// it means this is the root items control of a property editor system
+        /// </summary>
+        internal PropertyEditor myPropertyEditor;
+
+        public PropertyEditor PropertyEditor => this.myPropertyEditor ?? PropertyEditorItem.GetPropertyEditor(this);
+
+        private object currentItem;
 
         public PropertyEditorItemsControl() {
             VirtualizingPanel.SetVirtualizationMode(this, VirtualizationMode.Recycling);
             VirtualizingPanel.SetCacheLengthUnit(this, VirtualizationCacheLengthUnit.Pixel);
             this.recycledItems = new Stack<PropertyEditorItem>();
         }
-
-        private object currentItem;
 
         protected override bool IsItemItsOwnContainerOverride(object item) {
             if (item is PropertyEditorItem || item is Separator)
@@ -29,7 +41,7 @@ namespace FramePFX.WPF.PropertyEditing {
             switch (item) {
                 case PropertyObjectSeparator _:
                     return new Separator();
-                case IPropertyObject _: {
+                case IPropertyEditorObject _: {
                     if (this.recycledItems.Count > 0)
                         return this.recycledItems.Pop();
                     return new PropertyEditorItem();
@@ -42,6 +54,15 @@ namespace FramePFX.WPF.PropertyEditing {
             base.ClearContainerForItemOverride(element, item);
             if (element is PropertyEditorItem editorItem)
                 this.recycledItems.Push(editorItem);
+        }
+
+        public object GetItemOrContainerFromContainer(DependencyObject container) {
+            object obj = this.ItemContainerGenerator.ItemFromContainer(container);
+            if (obj == DependencyProperty.UnsetValue && ItemsControlFromItemContainer(container) == this && this.IsItemItsOwnContainer(container)) {
+                obj = container;
+            }
+
+            return obj;
         }
     }
 }

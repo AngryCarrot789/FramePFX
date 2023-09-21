@@ -20,16 +20,16 @@ namespace FramePFX.Editor.Registries {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public Track CreateModel(string id) {
-            return (Track) Activator.CreateInstance(base.GetModelType(id));
+        public new Track CreateModel(string id) {
+            return base.CreateModel(id);
         }
 
-        public TrackViewModel CreateViewModel(string id) {
-            return (TrackViewModel) Activator.CreateInstance(base.GetViewModelType(id));
+        public new TrackViewModel CreateViewModel(string id) {
+            return base.CreateViewModel(id);
         }
 
-        public TrackViewModel CreateViewModelFromModel(Track model) {
-            return (TrackViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(model), model);
+        public new TrackViewModel CreateViewModelFromModel(Track model) {
+            return base.CreateViewModelFromModel(model);
         }
     }
 }

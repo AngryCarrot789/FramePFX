@@ -146,7 +146,7 @@ namespace FramePFX.Actions {
                 return await action.ExecuteAsync(e);
             }
             catch (Exception ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
                 return true;
             }
         }

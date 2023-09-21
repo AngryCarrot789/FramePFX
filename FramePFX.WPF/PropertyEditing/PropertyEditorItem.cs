@@ -1,38 +1,134 @@
+using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using FramePFX.PropertyEditing;
+using FramePFX.Utils;
+using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.PropertyEditing {
-    public class PropertyEditorItem : ContentPresenter {
-        // The commented out code was going to be used to support a hard-coded left indentation for deeper items...
-        // but due to how the visual tree is constructed, it's hard to only indent the editor content but not the group header
+    public class PropertyEditorItem : ContentControl, ISelectablePropertyControl {
+        public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(PropertyEditorItem));
+        public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(PropertyEditorItem));
 
-        // public static readonly DependencyProperty ColumnWidth0Property = DependencyProperty.Register("ColumnWidth0", typeof(GridLength), typeof(PropertyEditorItem), new PropertyMetadata(PropertyEditor.ColumnWidth0Property.DefaultMetadata.DefaultValue, null, CoerceValueCallback));
-        // public static readonly DependencyProperty ColumnWidth1Property = DependencyProperty.Register("ColumnWidth1", typeof(GridLength), typeof(PropertyEditorItem), new PropertyMetadata(PropertyEditor.ColumnWidth1Property.DefaultMetadata.DefaultValue, null));
-        // public static readonly DependencyProperty ColumnWidth2Property = DependencyProperty.Register("ColumnWidth2", typeof(GridLength), typeof(PropertyEditorItem), new PropertyMetadata(PropertyEditor.ColumnWidth2Property.DefaultMetadata.DefaultValue, null));
-        // 
-        // public GridLength ColumnWidth0 { get => (GridLength) this.GetValue(ColumnWidth0Property); set => this.SetValue(ColumnWidth0Property, value); }
-        // public GridLength ColumnWidth1 { get => (GridLength) this.GetValue(ColumnWidth1Property); set => this.SetValue(ColumnWidth1Property, value); }
-        // public GridLength ColumnWidth2 { get => (GridLength) this.GetValue(ColumnWidth2Property); set => this.SetValue(ColumnWidth2Property, value); }
+        public static readonly DependencyProperty IsSelectedProperty =
+            Selector.IsSelectedProperty.AddOwner(
+                typeof(PropertyEditorItem),
+                new FrameworkPropertyMetadata(
+                    BoolBox.False,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
+                    (d, e) => ((PropertyEditorItem) d).OnSelectionChanged((bool) e.OldValue, (bool) e.NewValue),
+                    (o, value) => ((PropertyEditorItem) o).IsSelectable ? value : BoolBox.False));
 
-        public PropertyEditorItem() {
-            // this.DataContextChanged += (sender, args) => {
-            //     this.CoerceValue(ColumnWidth0Property);
-            //     this.CoerceValue(ColumnWidth1Property);
-            //     this.CoerceValue(ColumnWidth2Property);
-            // };
+        public static readonly DependencyProperty IsSelectableProperty = DependencyProperty.Register("IsSelectable", typeof(bool), typeof(PropertyEditorItem), new PropertyMetadata(BoolBox.False));
+
+        /// <summary>
+        /// Whether or not this item is selected. Setting this property can affect our <see cref="PropertyEditing.PropertyEditor"/>'s selected items, firing an event
+        /// </summary>
+        [Category("Appearance")]
+        public bool IsSelected {
+            get => (bool) this.GetValue(IsSelectedProperty);
+            set => this.SetValue(IsSelectedProperty, value);
         }
 
-        private static object CoerceValueCallback(DependencyObject d, object basevalue) {
-            // GridLength length = (GridLength) basevalue;
-            // if (length.GridUnitType != GridUnitType.Pixel) {
-            //     return basevalue;
-            // }
-            // 
-            // PropertyEditorItem container = (PropertyEditorItem) d;
-            // if (container.DataContext is BasePropertyEditorViewModel editor && editor.HierarchyDepth > 0) {
-            //     return new GridLength(Math.Max(length.Value - (editor.HierarchyDepth * 4), 0), GridUnitType.Pixel);
-            // }
-            return basevalue;
+        public bool IsSelectable => (bool) this.GetValue(IsSelectableProperty);
+
+        public PropertyEditor PropertyEditor => GetPropertyEditor(this);
+
+        public PropertyEditorItemsControl ParentItemsControl => GetParentItemsControl(this);
+
+        public PropertyEditorItem() {
+            this.DataContextChanged += (sender, args) => {
+                this.SetValue(IsSelectableProperty, (!(args.NewValue is BasePropertyGroupViewModel)).Box());
+            };
+        }
+
+        internal static PropertyEditor GetPropertyEditor(DependencyObject obj) {
+            ItemsControl parent = GetParentItemsControl(obj);
+            while (parent is PropertyEditorItemsControl) {
+                PropertyEditor editor = ((PropertyEditorItemsControl) parent).myPropertyEditor;
+                if (editor != null) {
+                    return editor;
+                }
+
+                PropertyEditorItem containerItem = VisualTreeUtils.FindParent<PropertyEditorItem>(parent);
+                parent = containerItem != null ? ItemsControl.ItemsControlFromItemContainer(containerItem) : null;
+            }
+
+            return null;
+        }
+
+        internal static PropertyEditorItemsControl GetParentItemsControl(DependencyObject obj) {
+            DependencyObject item = obj is PropertyEditorSelectionSlot ? VisualTreeUtils.FindParent<PropertyEditorItem>(obj) : obj;
+            return ItemsControl.ItemsControlFromItemContainer(item) as PropertyEditorItemsControl;
+        }
+
+        private void OnSelectionChanged(bool oldValue, bool newValue) {
+            if (oldValue == newValue || !this.IsSelectable) {
+                return;
+            }
+
+            PropertyEditor editor = this.PropertyEditor;
+            PropertyEditorItemsControl parent = this.ParentItemsControl;
+            if (editor == null || parent == null)
+                return;
+            if (!editor.IsSelectionChangeActive) {
+                object data = parent.GetItemOrContainerFromContainer(this);
+                if (data is IPropertyEditorObject) {
+                    editor.OnSelectionChanged((IPropertyEditorObject) data, this, newValue, false);
+                    if (newValue && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
+                        this.Focus();
+                    }
+                }
+            }
+
+            if (newValue) {
+                this.OnSelected(new RoutedEventArgs(Selector.SelectedEvent, this));
+            }
+            else {
+                this.OnUnselected(new RoutedEventArgs(Selector.UnselectedEvent, this));
+            }
+        }
+
+        public bool SetSelected(bool selected, bool isPrimarySelection) {
+            if (this.IsSelected == selected || !this.IsSelectable) {
+                return false;
+            }
+
+            PropertyEditor editor = this.PropertyEditor;
+            PropertyEditorItemsControl parent = this.ParentItemsControl;
+            if (editor == null || parent == null)
+                return false;
+            if (editor.IsSelectionChangeActive)
+                throw new Exception("Selection change already in progress");
+
+            object data = parent.GetItemOrContainerFromContainer(this);
+            if (!(data is IPropertyEditorObject))
+                throw new Exception("This item has no data object associated with it");
+
+            editor.OnSelectionChanged((IPropertyEditorObject) data, this, selected, isPrimarySelection);
+            if (selected && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
+                this.Focus();
+            }
+
+            if (selected) {
+                this.OnSelected(new RoutedEventArgs(Selector.SelectedEvent, this));
+            }
+            else {
+                this.OnUnselected(new RoutedEventArgs(Selector.UnselectedEvent, this));
+            }
+
+            return true;
+        }
+
+        private void OnSelected(RoutedEventArgs e) {
+            this.RaiseEvent(e);
+        }
+
+        private void OnUnselected(RoutedEventArgs e) {
+            this.RaiseEvent(e);
         }
     }
 }

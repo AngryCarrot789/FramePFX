@@ -405,6 +405,39 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
 
     public class MotionEffectDataSingleEditorViewModel : MotionEffectDataEditorViewModel {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
+
+        private bool isMediaPositionSelected;
+        public bool IsMediaPositionSelected {
+            get => this.isMediaPositionSelected;
+            set {
+                this.RaisePropertyChanged(ref this.isMediaPositionSelected, value);
+                if (this.IsEmpty)
+                    return;
+                this.MediaPositionAutomationSequence.IsActive = value;
+            }
+        }
+
+        private bool isMediaScaleSelected;
+        public bool IsMediaScaleSelected {
+            get => this.isMediaScaleSelected;
+            set {
+                this.RaisePropertyChanged(ref this.isMediaScaleSelected, value);
+                if (this.IsEmpty)
+                    return;
+                this.MediaScaleAutomationSequence.IsActive = value;
+            }
+        }
+
+        private bool isMediaScaleOriginSelected;
+        public bool IsMediaScaleOriginSelected {
+            get => this.isMediaScaleOriginSelected;
+            set {
+                this.RaisePropertyChanged(ref this.isMediaScaleOriginSelected, value);
+                if (this.IsEmpty)
+                    return;
+                this.MediaScaleOriginAutomationSequence.IsActive = value;
+            }
+        }
     }
 
     public class MotionEffectDataMultiEditorViewModel : MotionEffectDataEditorViewModel {

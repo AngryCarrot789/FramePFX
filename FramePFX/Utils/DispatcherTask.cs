@@ -1,5 +1,5 @@
 using System;
-using FramePFX.Services;
+using FramePFX.ServiceManaging;
 
 namespace FramePFX.Utils {
     public class DispatcherTask {
@@ -26,7 +26,7 @@ namespace FramePFX.Utils {
                 return;
             }
 
-            IoC.Application.Invoke(this.AttemptExecuteOrRegisterTask, ExecutionPriority.Normal);
+            Services.Application.Invoke(this.AttemptExecuteOrRegisterTask, ExecutionPriority.Normal);
         }
 
         public void AttemptExecuteOrRegisterTask() {

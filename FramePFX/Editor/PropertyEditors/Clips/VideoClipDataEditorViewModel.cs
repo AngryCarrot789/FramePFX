@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Automation.Events;
@@ -8,6 +9,7 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
+using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Editor;
 
 namespace FramePFX.Editor.PropertyEditors.Clips {
@@ -100,5 +102,51 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
                 return Task.CompletedTask;
             }
         }
+    }
+
+    public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel {
+        public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
+
+        public RelayCommand InsertOpacityKeyFrameCommand => this.SingleSelection?.InsertOpacityKeyFrameCommand;
+
+        public long MediaFrameOffset => this.SingleSelection.MediaFrameOffset;
+
+        private bool isOpacitySelected;
+
+        public bool IsOpacitySelected {
+            get => this.isOpacitySelected;
+            set {
+                this.RaisePropertyChanged(ref this.isOpacitySelected, value);
+                if (!this.IsEmpty)
+                    this.OpacityAutomationSequence.IsActive = value;
+            }
+        }
+
+        public VideoClipDataSingleEditorViewModel() {
+        }
+
+        protected override void OnHandlersLoaded() {
+            base.OnHandlersLoaded();
+            this.SingleSelection.PropertyChanged += this.OnClipPropertyChanged;
+
+            // not really sure if this is necessary...
+            this.RaisePropertyChanged(nameof(this.InsertOpacityKeyFrameCommand));
+        }
+
+        protected override void OnClearHandlers() {
+            base.OnClearHandlers();
+            this.IsOpacitySelected = false;
+            this.SingleSelection.PropertyChanged -= this.OnClipPropertyChanged;
+        }
+
+        private void OnClipPropertyChanged(object sender, PropertyChangedEventArgs e) {
+            if (e.PropertyName == nameof(VideoClipViewModel.MediaFrameOffset)) {
+                this.RaisePropertyChanged(nameof(this.MediaFrameOffset));
+            }
+        }
+    }
+
+    public class VideoClipDataMultipleEditorViewModel : VideoClipDataEditorViewModel {
+        public override HandlerCountMode HandlerCountMode => HandlerCountMode.Multi;
     }
 }

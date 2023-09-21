@@ -8,7 +8,8 @@
                     xmlns:adc="clr-namespace:AvalonDock.Converters;assembly=AvalonDock" 
                     xmlns:adp="clr-namespace:AvalonDock.Properties;assembly=AvalonDock" 
                     xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=AvalonDock"
-                    xmlns:rk="clr-namespace:FramePFX.WPF.Themes.AvalonDock.Themes">
+                    xmlns:rk="clr-namespace:FramePFX.WPF.Themes.AvalonDock.Themes"
+                    xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/FramePFX.WPF;component/Themes/AvalonDock/DarkBrushes.xaml" />
         <ResourceDictionary Source="/FramePFX.WPF;component/Themes/AvalonDock/Themes/OverlayButtons.xaml" />
@@ -823,7 +824,11 @@
                                 <ctrl:AnchorablePaneTitle Model="{Binding Model, RelativeSource={RelativeSource TemplatedParent}}" />
                             </Border>
                             <!-- Added ContentTemplate and ContentTemplateSelector https://github.com/xceedsoftware/wpftoolkit/issues/1525 -->
-                            <ContentPresenter Grid.Row="1" Content="{Binding LayoutItem.View, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding LayoutItem.View.ContentTemplate, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplateSelector="{Binding LayoutItem.View.ContentTemplateSelector, RelativeSource={RelativeSource TemplatedParent}}" FlowDirection="{TemplateBinding FlowDirection}" />
+                            <ContentPresenter x:Name="PART_ContentPresenter" Grid.Row="1" 
+                                              Content="{Binding LayoutItem.View, RelativeSource={RelativeSource TemplatedParent}}" 
+                                              ContentTemplate="{Binding LayoutItem.View.ContentTemplate, RelativeSource={RelativeSource TemplatedParent}}" 
+                                              ContentTemplateSelector="{Binding LayoutItem.View.ContentTemplateSelector, RelativeSource={RelativeSource TemplatedParent}}" 
+                                              FlowDirection="{TemplateBinding FlowDirection}" />
                             <!-- <ContentPresenter Content="{Binding Model.Content, RelativeSource={RelativeSource TemplatedParent}}" ContentTemplate="{Binding LayoutItemTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager}, Mode=FindAncestor}}" ContentTemplateSelector="{Binding LayoutItemTemplateSelector, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager}, Mode=FindAncestor}}" Grid.Row="1"/> -->
                         </Grid>
                     </Border>

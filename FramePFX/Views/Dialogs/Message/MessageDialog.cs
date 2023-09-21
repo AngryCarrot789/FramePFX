@@ -77,7 +77,7 @@ namespace FramePFX.Views.Dialogs.Message {
 
 
         protected override Task<bool?> ShowDialogAsync() {
-            return IoC.MessageDialogs.ShowDialogAsync(this);
+            return Services.DialogService.ShowDialogAsync(this);
         }
 
         public override BaseProcessDialogViewModel CloneCore() {

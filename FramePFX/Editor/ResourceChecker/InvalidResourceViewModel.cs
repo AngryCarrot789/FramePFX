@@ -39,7 +39,7 @@ namespace FramePFX.Editor.ResourceChecker {
             using (ErrorList stack = new ErrorList(false)) {
                 this.Resource.Model.Disable(stack, true);
                 if (stack.TryGetException(out Exception exception)) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting resource to offline", exception.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting resource to offline", exception.GetToString());
                 }
             }
         }

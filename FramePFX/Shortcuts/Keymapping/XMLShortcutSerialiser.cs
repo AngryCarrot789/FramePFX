@@ -8,16 +8,20 @@ using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Utils;
 
-namespace FramePFX.Shortcuts.Serialization {
-    public abstract class XMLShortcutSerialiser {
+namespace FramePFX.Shortcuts.Keymapping {
+    public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
         #region Serialisation
 
-        public XmlDocument Serialise(ShortcutGroup root) {
+        public void Serialise(Keymap keymap, Stream stream) {
+            if (keymap.Root == null)
+                throw new Exception("Missing keymap group");
+
             XmlDocument document = new XmlDocument();
             XmlElement element = document.CreateElement("KeyMap");
-            this.SerialiseGroupData(document, element, root);
+            element.SetAttribute("Version", keymap.Version.ToString());
+            this.SerialiseGroupData(document, element, keymap.Root);
             document.AppendChild(element);
-            return document;
+            document.Save(stream);
         }
 
         private void SerialiseGroupData(XmlDocument doc, XmlElement groupElement, ShortcutGroup group) {
@@ -195,26 +199,22 @@ namespace FramePFX.Shortcuts.Serialization {
 
         #region Deserialisation
 
-        public ShortcutGroup Deserialise(ShortcutManager manager, string filePath) {
-            XmlDocument document = new XmlDocument();
-            document.Load(filePath);
-            return this.Deserialise(manager, document);
-        }
-
-        public ShortcutGroup Deserialise(ShortcutManager manager, Stream stream) {
+        public Keymap Deserialise(ShortcutManager manager, Stream stream) {
             XmlDocument document = new XmlDocument();
             document.Load(stream);
-            return this.Deserialise(manager, document);
-        }
-
-        public ShortcutGroup Deserialise(ShortcutManager manager, XmlDocument document) {
             if (!(document.SelectSingleNode("/KeyMap") is XmlElement rootElement)) {
                 throw new Exception("Expected element of type 'KeyMap' to be the root element for the XML document");
             }
 
+            string version = GetAttributeNullable(rootElement, "Version");
+            Version keymapVersion = !string.IsNullOrEmpty(version) ? Version.Parse(version) : new Version(1, 0, 0);
+
             ShortcutGroup root = ShortcutGroup.CreateRoot(manager);
             this.DeserialiseGroupData(rootElement, root);
-            return root;
+            return new Keymap() {
+                Version = keymapVersion,
+                Root = root
+            };
         }
 
         private void DeserialiseGroupData(XmlElement src, ShortcutGroup dst) {

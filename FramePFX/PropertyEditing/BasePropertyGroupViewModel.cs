@@ -39,7 +39,7 @@ namespace FramePFX.PropertyEditing {
         /// Gets a read-only list of all base property objects currently stored in this group. This
         /// typically remains un-changed for <see cref="FixedPropertyGroupViewModel"/>
         /// </summary>
-        public abstract IReadOnlyList<IPropertyObject> PropertyObjects { get; }
+        public abstract IReadOnlyList<IPropertyEditorObject> PropertyObjects { get; }
 
         /// <summary>
         /// Gets a list of handlers that are currently active (updated during a call to <see cref="SetupHierarchyState"/>)
@@ -66,7 +66,7 @@ namespace FramePFX.PropertyEditing {
 
         protected void ExpandHierarchy() {
             this.IsExpanded = true;
-            foreach (IPropertyObject obj in this.PropertyObjects) {
+            foreach (IPropertyEditorObject obj in this.PropertyObjects) {
                 if (obj is BasePropertyGroupViewModel group) {
                     group.ExpandHierarchy();
                 }
@@ -76,7 +76,7 @@ namespace FramePFX.PropertyEditing {
         protected void CollapseHierarchy() {
             // probably more performant to expand the top first, so that closing child ones won't cause rendering
             this.IsExpanded = false;
-            foreach (IPropertyObject obj in this.PropertyObjects) {
+            foreach (IPropertyEditorObject obj in this.PropertyObjects) {
                 if (obj is BasePropertyGroupViewModel group) {
                     group.CollapseHierarchy();
                 }
@@ -91,7 +91,7 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
-            foreach (IPropertyObject obj in this.PropertyObjects) {
+            foreach (IPropertyEditorObject obj in this.PropertyObjects) {
                 switch (obj) {
                     case BasePropertyEditorViewModel editor:
                         editor.ClearHandlers();

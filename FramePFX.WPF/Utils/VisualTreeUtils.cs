@@ -43,32 +43,36 @@ namespace FramePFX.WPF.Utils {
             }
         }
 
-        public static T FindParent<T>(DependencyObject obj, bool includeSelf = true) where T : DependencyObject {
-            if (obj == null || includeSelf && obj is T) {
-                return (T) obj;
-            }
+        public static T FindParent<T>(DependencyObject obj, bool includeSelf = true) where T : class {
+            if (obj == null)
+                return null;
+            if (includeSelf && obj is T t)
+                return t;
 
             do {
                 obj = GetParent(obj);
-            } while (obj != null && !(obj is T));
-
-            return (T) obj;
+                if (obj == null)
+                    return null;
+                if (obj is T t2)
+                    return t2;
+            } while (true);
         }
 
-        public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf = true) where T : DependencyObject {
-            if (obj == null || includeSelf && obj is T) {
-                return (T) obj;
-            }
+        public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf = true) where T : class {
+            if (obj == null)
+                return null;
+            if (includeSelf && obj is T t)
+                return t;
 
             return FindVisualChildInternal<T>(obj);
         }
 
-        private static T FindVisualChildInternal<T>(DependencyObject obj) where T : DependencyObject {
+        private static T FindVisualChildInternal<T>(DependencyObject obj) where T : class {
             int count, i;
             if (obj is ContentControl) {
                 DependencyObject child = ((ContentControl) obj).Content as DependencyObject;
-                if (child is T) {
-                    return (T) child;
+                if (child is T t) {
+                    return t;
                 }
                 else {
                     return child != null ? FindVisualChildInternal<T>(child) : null;
@@ -77,8 +81,8 @@ namespace FramePFX.WPF.Utils {
             else if ((obj is Visual || obj is Visual3D) && (count = VisualTreeHelper.GetChildrenCount(obj)) > 0) {
                 for (i = 0; i < count;) {
                     DependencyObject child = VisualTreeHelper.GetChild(obj, i++);
-                    if (child is T) {
-                        return (T) child;
+                    if (child is T t) {
+                        return t;
                     }
                 }
 

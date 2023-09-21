@@ -4,8 +4,10 @@ namespace FramePFX.PropertyEditing {
     /// <summary>
     /// The base class for property groups and editors
     /// </summary>
-    public class BasePropertyObjectViewModel : BaseViewModel, IPropertyObject {
+    public class BasePropertyObjectViewModel : BaseViewModel, IPropertyEditorItem {
+        private PropertyEditorRegistry propertyEditor;
         private bool isCurrentlyApplicable;
+        private bool isSelected;
 
         /// <summary>
         /// Whether or not this item should be visible to the end user or not.
@@ -20,6 +22,21 @@ namespace FramePFX.PropertyEditing {
             }
         }
 
+        public PropertyEditorRegistry PropertyEditor {
+            get => this.propertyEditor;
+            private set => this.RaisePropertyChanged(ref this.propertyEditor, value);
+        }
+
+        public bool IsSelected {
+            get => this.isSelected;
+            set => this.RaisePropertyChanged(ref this.isSelected, value);
+        }
+
+        /// <summary>
+        /// How deep the current property is within its parent hierarchy
+        /// </summary>
+        public int HierarchyDepth { get; private set; } = -1;
+
         /// <summary>
         /// The lowest applicable type. This will be null for the root group container. A valid group will contain a non-null applicable type
         /// </summary>
@@ -31,15 +48,21 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public virtual HandlerCountMode HandlerCountMode => HandlerCountMode.Any;
 
-        /// <summary>
-        /// How deep the current property is within its parent hierarchy
-        /// </summary>
-        public int HierarchyDepth { get; private set; } = -1;
-
         public BasePropertyGroupViewModel Parent { get; internal set; }
 
         public BasePropertyObjectViewModel(Type applicableType) {
             this.ApplicableType = applicableType;
+        }
+
+        public void SetPropertyEditor(PropertyEditorRegistry registry) {
+            this.PropertyEditor = registry;
+            if (this is BasePropertyGroupViewModel) {
+                foreach (IPropertyEditorObject obj in ((BasePropertyGroupViewModel) this).PropertyObjects) {
+                    if (obj is BasePropertyObjectViewModel) {
+                        ((BasePropertyObjectViewModel) obj).PropertyEditor = registry;
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -91,7 +91,7 @@ namespace FramePFX.Editor.Exporting {
             }
 
             if (string.IsNullOrEmpty(this.FilePath)) {
-                await IoC.MessageDialogs.ShowMessageAsync("File Path", "No file path provided");
+                await Services.DialogService.ShowMessageAsync("File Path", "No file path provided");
                 return;
             }
 
@@ -107,7 +107,7 @@ namespace FramePFX.Editor.Exporting {
                 AppLogger.PushHeader("Begin Export");
                 ExportProperties properties = new ExportProperties(this.RenderSpan, this.FilePath);
                 ExportProgressViewModel export = new ExportProgressViewModel(properties, source);
-                IWindow window = IoC.Provide<IExportViewService>().ShowExportWindow(export);
+                IWindow window = Services.GetService<IExportViewService>().ShowExportWindow(export);
 
                 try {
                     // Export will most likely be using unsafe code, meaning async won't work
@@ -121,7 +121,7 @@ namespace FramePFX.Editor.Exporting {
                 catch (Exception e) {
                     string err = e.GetToString();
                     AppLogger.WriteLine("Error exporting: " + err);
-                    await IoC.MessageDialogs.ShowMessageExAsync("Export failure", "An error occurred while exporting: ", err);
+                    await Services.DialogService.ShowMessageExAsync("Export failure", "An error occurred while exporting: ", err);
                 }
 
                 if (isCancelled && File.Exists(this.FilePath)) {

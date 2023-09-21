@@ -9,6 +9,7 @@ namespace FramePFX.WPF.Shortcuts {
     public class UIInputManager : INotifyPropertyChanged {
         public static UIInputManager Instance { get; } = new UIInputManager();
 
+        [Category("WPF Input Manager")]
         public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         public static readonly DependencyProperty IsPathFocusedProperty = DependencyProperty.RegisterAttached("IsPathFocused", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
         internal static readonly DependencyPropertyKey ShortcutProcessorPropertyKey = DependencyProperty.RegisterAttachedReadOnly("ShortcutProcessor", typeof(WPFShortcutInputManager), typeof(UIInputManager), new PropertyMetadata(default(WPFShortcutInputManager)));
@@ -43,11 +44,13 @@ namespace FramePFX.WPF.Shortcuts {
         /// <summary>
         /// Sets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
         /// </summary>
+        [Category("WPF Input Manager")]
         public static void SetFocusPath(DependencyObject element, string value) => element.SetValue(FocusPathProperty, value);
 
         /// <summary>
         /// Gets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
         /// </summary>
+        [Category("WPF Input Manager")]
         public static string GetFocusPath(DependencyObject element) => (string) element.GetValue(FocusPathProperty);
 
         /// <summary>

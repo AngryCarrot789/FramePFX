@@ -1,5 +1,5 @@
 using System;
-using FramePFX.Services;
+using FramePFX.ServiceManaging;
 
 namespace FramePFX.Utils {
     /// <summary>
@@ -30,7 +30,7 @@ namespace FramePFX.Utils {
                 };
 
                 this.isScheduled = true;
-                IoC.Application.Invoke(cb, this.InvokeLater ? ExecutionPriority.Normal : ExecutionPriority.Send);
+                Services.Application.Invoke(cb, this.InvokeLater ? ExecutionPriority.Normal : ExecutionPriority.Send);
                 return true;
             }
         }
@@ -47,7 +47,7 @@ namespace FramePFX.Utils {
                 };
 
                 this.isScheduled = true;
-                IoC.Application.Invoke(cb, this.InvokeLater ? ExecutionPriority.Normal : ExecutionPriority.Send);
+                Services.Application.Invoke(cb, this.InvokeLater ? ExecutionPriority.Normal : ExecutionPriority.Send);
                 return true;
             }
         }

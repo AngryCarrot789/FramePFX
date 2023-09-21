@@ -14,7 +14,7 @@ namespace FramePFX.Editor.History {
             this.Height = Transactions.ImmutableType(clip.Height);
         }
 
-        protected override async Task UndoAsyncCore() {
+        protected override Task UndoAsyncCore() {
             this.Clip.IsHistoryChanging = true;
             try {
                 this.Clip.Width = this.Width.Original;
@@ -23,9 +23,11 @@ namespace FramePFX.Editor.History {
             finally {
                 this.Clip.IsHistoryChanging = false;
             }
+
+            return Task.CompletedTask;
         }
 
-        protected override async Task RedoAsyncCore() {
+        protected override Task RedoAsyncCore() {
             this.Clip.IsHistoryChanging = true;
             try {
                 this.Clip.Width = this.Width.Current;
@@ -34,6 +36,8 @@ namespace FramePFX.Editor.History {
             finally {
                 this.Clip.IsHistoryChanging = false;
             }
+
+            return Task.CompletedTask;
         }
 
         public override void OnRemoved() {

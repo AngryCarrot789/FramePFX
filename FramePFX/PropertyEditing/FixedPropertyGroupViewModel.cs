@@ -15,16 +15,16 @@ namespace FramePFX.PropertyEditing {
     public class FixedPropertyGroupViewModel : BasePropertyGroupViewModel {
         private readonly Dictionary<string, BasePropertyGroupViewModel> idToGroupMap;
         private readonly Dictionary<string, BasePropertyEditorViewModel> idToEditorMap;
-        private readonly List<IPropertyObject> propertyObjectList;
-        private readonly HashSet<BasePropertyGroupViewModel> nonHierarchialGroups;
+        private readonly List<IPropertyEditorObject> propertyObjectList;
+        private readonly HashSet<BasePropertyGroupViewModel> ignoreHandlerHierarchy;
 
-        public override IReadOnlyList<IPropertyObject> PropertyObjects => this.propertyObjectList;
+        public override IReadOnlyList<IPropertyEditorObject> PropertyObjects => this.propertyObjectList;
 
         public FixedPropertyGroupViewModel(Type applicableType) : base(applicableType) {
-            this.propertyObjectList = new List<IPropertyObject>();
+            this.propertyObjectList = new List<IPropertyEditorObject>();
             this.idToGroupMap = new Dictionary<string, BasePropertyGroupViewModel>();
             this.idToEditorMap = new Dictionary<string, BasePropertyEditorViewModel>();
-            this.nonHierarchialGroups = new HashSet<BasePropertyGroupViewModel>();
+            this.ignoreHandlerHierarchy = new HashSet<BasePropertyGroupViewModel>();
         }
 
         public override void RecalculateHierarchyDepth() {
@@ -53,8 +53,8 @@ namespace FramePFX.PropertyEditing {
         /// <param name="id"></param>
         /// <param name="isExpandedByDefault"></param>
         /// <returns></returns>
-        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool isHierarchial = true) {
-            if (isHierarchial) {
+        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true) {
+            if (useSetupHandlers) {
                 this.ValidateApplicableType(applicableType);
             }
 
@@ -64,7 +64,7 @@ namespace FramePFX.PropertyEditing {
                 DisplayName = id
             };
 
-            this.AddGroupInternal(group, id, isHierarchial);
+            this.AddGroupInternal(group, id, useSetupHandlers);
             return group;
         }
 
@@ -75,8 +75,8 @@ namespace FramePFX.PropertyEditing {
         /// <param name="id"></param>
         /// <param name="isExpandedByDefault"></param>
         /// <returns></returns>
-        public DynamicPropertyGroupViewModel CreateDynamicSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool isHierarchial = true) {
-            if (isHierarchial) {
+        public DynamicPropertyGroupViewModel CreateDynamicSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true) {
+            if (useSetupHandlers) {
                 this.ValidateApplicableType(applicableType);
             }
 
@@ -86,20 +86,20 @@ namespace FramePFX.PropertyEditing {
                 DisplayName = id
             };
 
-            this.AddGroupInternal(group, id, isHierarchial);
+            this.AddGroupInternal(group, id, useSetupHandlers);
             return group;
         }
 
-        public void AddSubGroup(BasePropertyGroupViewModel group, string id, bool isHierarchial = true) {
-            if (isHierarchial && group.ApplicableType != null) {
+        public void AddSubGroup(BasePropertyGroupViewModel group, string id, bool useSetupHandlers = true) {
+            if (useSetupHandlers && group.ApplicableType != null) {
                 this.ValidateApplicableType(group.ApplicableType);
             }
 
             this.ValidateId(id);
-            this.AddGroupInternal(group, id, isHierarchial);
+            this.AddGroupInternal(group, id, useSetupHandlers);
         }
 
-        private void AddGroupInternal(BasePropertyGroupViewModel group, string id, bool isHierarchial) {
+        private void AddGroupInternal(BasePropertyGroupViewModel group, string id, bool useSetupHandlers) {
             if (this.Parent?.IsRoot ?? true) {
                 group.IsHeaderBold = true;
             }
@@ -108,9 +108,11 @@ namespace FramePFX.PropertyEditing {
             group.RecalculateHierarchyDepth();
             this.idToGroupMap[id] = group;
             this.propertyObjectList.Add(group);
-            if (!isHierarchial) {
-                this.nonHierarchialGroups.Add(group);
+            if (!useSetupHandlers) {
+                this.ignoreHandlerHierarchy.Add(group);
             }
+
+            group.SetPropertyEditor(this.PropertyEditor);
         }
 
         public void AddPropertyEditor(string id, BasePropertyEditorViewModel editor) {
@@ -121,6 +123,7 @@ namespace FramePFX.PropertyEditing {
             editor.RecalculateHierarchyDepth();
             this.idToEditorMap[id] = editor;
             this.propertyObjectList.Add(editor);
+            editor.SetPropertyEditor(this.PropertyEditor);
         }
 
         /// <summary>
@@ -147,10 +150,10 @@ namespace FramePFX.PropertyEditing {
 
             this.Handlers = input;
             bool isApplicable = false;
-            IPropertyObject lastEntry = null;
-            List<IPropertyObject> list = this.propertyObjectList;
+            IPropertyEditorObject lastEntry = null;
+            List<IPropertyEditorObject> list = this.propertyObjectList;
             for (int i = 0, end = list.Count - 1; i <= end; i++) {
-                IPropertyObject obj = this.propertyObjectList[i];
+                IPropertyEditorObject obj = this.propertyObjectList[i];
                 if (obj is PropertyObjectSeparator separator) {
                     if (i == 0 || i == end || lastEntry is PropertyObjectSeparator || (lastEntry is BasePropertyObjectViewModel p && !p.IsCurrentlyApplicable)) {
                         separator.IsVisible = false;
@@ -164,7 +167,7 @@ namespace FramePFX.PropertyEditing {
                 }
                 else {
                     if (obj is BasePropertyGroupViewModel group) {
-                        if (!this.nonHierarchialGroups.Contains(group)) {
+                        if (!this.ignoreHandlerHierarchy.Contains(group)) {
                             group.SetupHierarchyState(input);
                             isApplicable |= group.IsCurrentlyApplicable;
                         }
@@ -186,10 +189,10 @@ namespace FramePFX.PropertyEditing {
         }
 
         public void CleanSeparators() {
-            IPropertyObject lastEntry = null;
-            List<IPropertyObject> list = this.propertyObjectList;
+            IPropertyEditorObject lastEntry = null;
+            List<IPropertyEditorObject> list = this.propertyObjectList;
             for (int i = 0, end = list.Count - 1; i <= end; i++) {
-                IPropertyObject obj = this.propertyObjectList[i];
+                IPropertyEditorObject obj = this.propertyObjectList[i];
                 if (obj is PropertyObjectSeparator separator) {
                     if (i == 0 || i == end || lastEntry is PropertyObjectSeparator || (lastEntry is BasePropertyObjectViewModel prop && !prop.IsCurrentlyApplicable)) {
                         separator.IsVisible = false;
@@ -207,11 +210,11 @@ namespace FramePFX.PropertyEditing {
         }
 
         public void AddSeparator() {
-            this.propertyObjectList.Add(new PropertyObjectSeparator());
+            this.propertyObjectList.Add(new PropertyObjectSeparator(this));
         }
 
-        public bool IsDisconnectedFromHierarchy(FixedPropertyGroupViewModel group) {
-            return this.nonHierarchialGroups.Contains(group);
+        public bool IsDisconnectedFromHandlerHierarchy(FixedPropertyGroupViewModel group) {
+            return this.ignoreHandlerHierarchy.Contains(group);
         }
     }
 }

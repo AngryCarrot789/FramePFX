@@ -1,5 +1,5 @@
 using System;
-using FramePFX.Services;
+using FramePFX.ServiceManaging;
 
 namespace FramePFX.Commands {
     /// <summary>
@@ -54,12 +54,12 @@ namespace FramePFX.Commands {
         /// </summary>
         public virtual void RaiseCanExecuteChanged() {
             if (this.CanExecuteChanged != null) {
-                IApplication application = IoC.Application;
+                IApplication application = Services.Application;
                 if (application.IsOnOwnerThread) {
                     this.CanExecuteChanged(this, EventArgs.Empty);
                 }
                 else {
-                    IoC.Application.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
+                    Services.Application.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
                 }
             }
         }

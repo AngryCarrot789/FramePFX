@@ -29,7 +29,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                 item.Parent.RemoveRange(item.Manager.SelectedItems.ToList());
             }
             catch (Exception ex) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
             }
 
             return true;

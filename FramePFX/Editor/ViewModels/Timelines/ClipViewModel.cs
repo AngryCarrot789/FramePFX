@@ -199,7 +199,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
 
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
-                string name = await IoC.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
+                string name = await Services.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
                 if (name != null) {
                     this.DisplayName = name;
                 }
@@ -503,7 +503,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public async Task<bool> RenameAsync() {
-            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.DisplayName ?? "", Validators.ForNonWhiteSpaceString());
+            string result = await Services.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.DisplayName ?? "", Validators.ForNonWhiteSpaceString());
             if (result != null) {
                 this.DisplayName = result;
                 return true;
@@ -520,7 +520,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
 
             this.isUpdatingAutomationSequence = true;
-            this.AutomationData.ActiveSequence = null;
+            if (isFromEffect && this.AutomationData.ActiveSequence != sequence) {
+                this.AutomationData.ActiveSequence = null;
+            }
+
             foreach (BaseEffectViewModel fx in this.effects) {
                 if (!ReferenceEquals(fx.AutomationData.ActiveSequence, sequence))
                     fx.AutomationData.ActiveSequence = null;
@@ -528,6 +531,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
             this.ActiveClipOrEffectSequence = sequence;
             this.RaisePropertyChanged(nameof(this.ActiveClipOrEffectSequence));
+            this.AutomationData.ActiveSequence = sequence;
             this.isUpdatingAutomationSequence = false;
         }
 

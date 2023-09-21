@@ -52,7 +52,7 @@ namespace FramePFX.Shortcuts.Managing {
         public string ActionId { get; set; }
 
         /// <summary>
-        /// This shortcut's full path (the parent's path (if available/not root) and this shortcut's name). Will not be null and will always containing valid characters
+        /// This shortcut's full path (the parent's path if it's not the root object, and this shortcut's name). Will not be null and will always containing valid characters
         /// </summary>
         public string FullPath { get; }
 

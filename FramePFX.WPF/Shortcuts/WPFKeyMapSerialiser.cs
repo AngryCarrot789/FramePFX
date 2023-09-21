@@ -2,7 +2,7 @@ using System;
 using System.Windows.Input;
 using System.Xml;
 using FramePFX.Shortcuts.Inputs;
-using FramePFX.Shortcuts.Serialization;
+using FramePFX.Shortcuts.Keymapping;
 using FramePFX.Utils;
 using FramePFX.WPF.Utils;
 

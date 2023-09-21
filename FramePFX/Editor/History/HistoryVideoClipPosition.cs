@@ -26,11 +26,12 @@ namespace FramePFX.Editor.History {
             }
         }
 
-        protected override async Task UndoAsyncCore() {
+        protected override Task UndoAsyncCore() {
             this.Undo();
+            return Task.CompletedTask;
         }
 
-        protected override async Task RedoAsyncCore() {
+        protected override Task RedoAsyncCore() {
             this.Clip.IsHistoryChanging = true;
             try {
                 this.Clip.FrameSpan = this.Span.Current;
@@ -39,6 +40,8 @@ namespace FramePFX.Editor.History {
             finally {
                 this.Clip.IsHistoryChanging = false;
             }
+
+            return Task.CompletedTask;
         }
 
         public override void OnRemoved() {

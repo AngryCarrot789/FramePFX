@@ -14,8 +14,8 @@ namespace FramePFX.Shortcuts.Managing {
     public abstract class ShortcutManager {
         private static readonly Dictionary<Type, CachedTypeData> shortcutPathToMethodCache = new Dictionary<Type, CachedTypeData>();
         private List<GroupedShortcut> allShortcuts;
-        private Dictionary<string, LinkedList<GroupedShortcut>> actionToShortcut; // linked because there will only really be like 1 or 2 ever
-        private Dictionary<string, GroupedShortcut> pathToShortcut;
+        private readonly Dictionary<string, LinkedList<GroupedShortcut>> actionToShortcut; // linked because there will only really be like 1 or 2 ever
+        private readonly Dictionary<string, GroupedShortcut> pathToShortcut;
         private readonly Dictionary<string, InputStateManager> stateGroups;
         private ShortcutGroup root;
 
@@ -80,15 +80,22 @@ namespace FramePFX.Shortcuts.Managing {
         }
 
         /// <summary>
+        /// An event fired when a <see cref="GroupedShortcut"/>'s shortcut is modified
+        /// </summary>
+        public event ShortcutModifiedEventHandler<GroupedShortcut> ShortcutModified;
+
+        /// <summary>
         /// Gets or sets the application wide shortcut manager. Realistically, only 1 needs to exist during the runtime of the app
         /// </summary>
         public static ShortcutManager Instance { get; set; }
 
         protected ShortcutManager() {
+            this.actionToShortcut = new Dictionary<string, LinkedList<GroupedShortcut>>();
+            this.pathToShortcut = new Dictionary<string, GroupedShortcut>();
+            this.stateGroups = new Dictionary<string, InputStateManager>();
             this.shortcutHandlersMap = new Dictionary<string, List<ShortcutActivatedEventHandler>>();
             this.shortcutHandlersList = new List<ShortcutActivatedEventHandler>();
             this.shortcutHandlersListIgnoreHandlers = new List<ShortcutActivatedEventHandler>();
-            this.stateGroups = new Dictionary<string, InputStateManager>();
             this.root = ShortcutGroup.CreateRoot(this);
         }
 
@@ -161,10 +168,10 @@ namespace FramePFX.Shortcuts.Managing {
         /// </para>
         /// </summary>
         public virtual void InvalidateShortcutCache() {
-            this.stateGroups.Clear();
             this.allShortcuts = null;
-            this.actionToShortcut = null;
-            this.pathToShortcut = null;
+            this.stateGroups.Clear();
+            this.actionToShortcut.Clear();
+            this.pathToShortcut.Clear();
         }
 
         /// <summary>
@@ -200,9 +207,9 @@ namespace FramePFX.Shortcuts.Managing {
         }
 
         private void RebuildShortcutCache() {
-            this.actionToShortcut = new Dictionary<string, LinkedList<GroupedShortcut>>();
-            this.pathToShortcut = new Dictionary<string, GroupedShortcut>();
             this.allShortcuts = new List<GroupedShortcut>(64);
+            this.actionToShortcut.Clear();
+            this.pathToShortcut.Clear();
             if (this.root != null) {
                 GetAllShortcuts(this.root, this.allShortcuts);
             }
@@ -313,13 +320,13 @@ namespace FramePFX.Shortcuts.Managing {
                     context = ctx;
                 }
 
-                IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
+                Services.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
                 if (await ActionManager.Instance.Execute(shortcut.ActionId, context)) {
-                    IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
+                    Services.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
                     return true;
                 }
                 else {
-                    IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Incomplete!");
+                    Services.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Incomplete!");
                 }
             }
 
@@ -428,6 +435,11 @@ namespace FramePFX.Shortcuts.Managing {
 
                 return info.Count > 0 ? new CachedTypeData(type, info) : null;
             }
+        }
+
+        public void OnShortcutModified(GroupedShortcut shortcut, IShortcut oldShortcut) {
+            this.InvalidateShortcutCache();
+            this.ShortcutModified?.Invoke(shortcut, oldShortcut);
         }
     }
 }

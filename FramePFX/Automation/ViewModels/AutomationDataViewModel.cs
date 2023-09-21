@@ -38,7 +38,7 @@ namespace FramePFX.Automation.ViewModels {
                 }
 
                 if (oldSequence != null) {
-                    oldSequence.RaisePropertyChanged(ref oldSequence.isActive, false, nameof(oldSequence.IsActive));
+                    AutomationSequenceViewModel.SetIsActiveInternal(oldSequence, false);
                 }
 
                 if (value == null) {
@@ -48,7 +48,7 @@ namespace FramePFX.Automation.ViewModels {
                 else {
                     this.activeSequence = value;
                     this.Model.ActiveKeyFullId = value.Key.FullId;
-                    value.RaisePropertyChanged(ref value.isActive, true, nameof(this.activeSequence.IsActive));
+                    AutomationSequenceViewModel.SetIsActiveInternal(value, true);
                 }
 
                 this.RaisePropertyChanged();

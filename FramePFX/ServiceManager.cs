@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 
 namespace FramePFX {
-    public class SimpleIoC : IServiceProvider {
+    public class ServiceManager : IServiceProvider {
         private readonly Dictionary<Type, object> services;
 
-        public SimpleIoC() {
+        public ServiceManager() {
             this.services = new Dictionary<Type, object>();
         }
 

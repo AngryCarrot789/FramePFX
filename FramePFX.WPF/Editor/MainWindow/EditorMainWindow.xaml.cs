@@ -39,7 +39,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
         public EditorMainWindow() {
             this.InitializeComponent();
             // this.oglPort = new OGLMainViewPortImpl(this.GLViewport);
-            IoC.BroadcastShortcutActivity = (x) => {
+            Services.BroadcastShortcutActivity = (x) => {
                 this.NotificationBarTextBlock.Text = x;
             };
 
@@ -174,7 +174,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                         catch (Exception e) {
                             await editor.Playback.StopAction();
                             AppLogger.WriteLine("Exception rendering timeline: " + e.GetToString());
-                            await IoC.MessageDialogs.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
+                            await Services.DialogService.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
                         }
                     }
                     finally {
@@ -194,14 +194,14 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 }
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "Exception while closing project", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Failed to close project", "Exception while closing project", e.GetToString());
             }
 
             try {
                 this.Editor.Dispose();
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Failed to dispose", "Exception while disposing editor", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Failed to dispose", "Exception while disposing editor", e.GetToString());
             }
 
             return true;

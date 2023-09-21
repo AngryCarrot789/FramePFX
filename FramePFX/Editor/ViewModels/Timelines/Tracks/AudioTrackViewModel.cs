@@ -99,7 +99,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         }
 
         public override async Task OnResourceDropped(ResourceItemViewModel resource, long frameBegin) {
-            await IoC.MessageDialogs.ShowMessageAsync("Audio unsupported", "Cannot drop audio yet");
+            await Services.DialogService.ShowMessageAsync("Audio unsupported", "Cannot drop audio yet");
         }
 
         private class HistoryAudioTrackIsMuted : BaseHistoryHolderAction<AudioTrackViewModel> {

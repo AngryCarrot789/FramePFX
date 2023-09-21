@@ -14,7 +14,7 @@ namespace FramePFX.Editor.Actions {
             TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
                 if (e.IsUserInitiated) {
-                    await IoC.MessageDialogs.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
+                    await Services.DialogService.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
                 }
 
                 return false;

@@ -1,6 +1,5 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -8,60 +7,41 @@ using System.Windows.Controls;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.WPF.PropertyEditing {
+    /// <summary>
+    /// The root level of a property editor tree.
+    /// </summary>
+    [TemplatePart(Name = "PART_ItemsControl", Type = typeof(PropertyEditorItemsControl))]
     public class PropertyEditor : Control {
+        private static readonly GridLength Star = new GridLength(1, GridUnitType.Star);
+
         #region Dependency Properties
 
-        private static readonly DependencyPropertyKey SelectedItemPropertyKey = DependencyProperty.RegisterReadOnly(nameof(SelectedItem), typeof(IList), typeof(PropertyEditor), new FrameworkPropertyMetadata(null));
-        public static readonly DependencyProperty SelectedItemProperty = SelectedItemPropertyKey.DependencyProperty;
-        public static readonly RoutedEvent SelectedItemChangedEvent = EventManager.RegisterRoutedEvent("SelectedItemChanged", RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<object>), typeof(PropertyEditor));
-
-        public static readonly DependencyProperty EditorRegistryProperty =
-            DependencyProperty.Register(
-                "EditorRegistry",
-                typeof(PropertyEditorRegistry),
-                typeof(PropertyEditor),
-                new PropertyMetadata(null, (d, e) => {
-                    if (e.NewValue is PropertyEditorRegistry editor) {
-                        ((PropertyEditor) d).ApplicableItems = editor.Root.PropertyObjects;
-                    }
-                }));
-
-        public static readonly DependencyProperty InputItemsProperty =
-            DependencyProperty.Register(
-                "InputItems",
-                typeof(IEnumerable),
-                typeof(PropertyEditor),
-                new PropertyMetadata(null, (d, e) => ((PropertyEditor) d).OnDataSourceChanged((IEnumerable) e.OldValue, (IEnumerable) e.NewValue)));
-
-        public static readonly DependencyProperty ApplicableItemsProperty =
-            DependencyProperty.Register(
-                "ApplicableItems",
-                typeof(IEnumerable),
-                typeof(PropertyEditor),
-                new PropertyMetadata(null));
-
-        private static readonly GridLength Star = new GridLength(1, GridUnitType.Star);
+        private static readonly DependencyPropertyKey SelectedItemsPropertyKey = DependencyProperty.RegisterReadOnly(nameof(SelectedItems), typeof(IList<IPropertyEditorObject>), typeof(PropertyEditor), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty SelectedItemsProperty = SelectedItemsPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty EditorRegistryProperty = DependencyProperty.Register("EditorRegistry", typeof(PropertyEditorRegistry), typeof(PropertyEditor), new PropertyMetadata(null, OnEditorRegistryPropertyChanged));
+        public static readonly DependencyProperty ApplicableItemsProperty = DependencyProperty.Register("ApplicableItems", typeof(IEnumerable<IPropertyEditorObject>), typeof(PropertyEditor), new PropertyMetadata(null));
         public static readonly DependencyProperty ColumnWidth0Property = DependencyProperty.Register("ColumnWidth0", typeof(GridLength), typeof(PropertyEditor), new PropertyMetadata(new GridLength(100d)));
         public static readonly DependencyProperty ColumnWidth1Property = DependencyProperty.Register("ColumnWidth1", typeof(GridLength), typeof(PropertyEditor), new PropertyMetadata(new GridLength(5)));
         public static readonly DependencyProperty ColumnWidth2Property = DependencyProperty.Register("ColumnWidth2", typeof(GridLength), typeof(PropertyEditor), new PropertyMetadata(Star));
 
         #endregion
 
+        public static readonly RoutedEvent SelectedItemsChangedEvent = EventManager.RegisterRoutedEvent("SelectedItemsChanged", RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<IList<IPropertyEditorObject>>), typeof(PropertyEditor));
+        private List<ISelectablePropertyControl> selectedContainers = new List<ISelectablePropertyControl>();
+        private List<IPropertyEditorObject> selectedObjects = new List<IPropertyEditorObject>();
+
         public PropertyEditorRegistry EditorRegistry {
             get => (PropertyEditorRegistry) this.GetValue(EditorRegistryProperty);
             set => this.SetValue(EditorRegistryProperty, value);
         }
 
-        // INPUT
-        public IEnumerable InputItems {
-            get => (IEnumerable) this.GetValue(InputItemsProperty);
-            set => this.SetValue(InputItemsProperty, value);
-        }
-
         // OUTPUT
 
-        public IEnumerable ApplicableItems {
-            get => (IEnumerable) this.GetValue(ApplicableItemsProperty);
+        /// <summary>
+        /// Gets or sets a collection of root-level items that this editor should preset. This is bound by our <see cref="ChildItemsControl"/>
+        /// </summary>
+        public IEnumerable<IPropertyEditorObject> ApplicableItems {
+            get => (IEnumerable<IPropertyEditorObject>) this.GetValue(ApplicableItemsProperty);
             set => this.SetValue(ApplicableItemsProperty, value);
         }
 
@@ -73,39 +53,95 @@ namespace FramePFX.WPF.PropertyEditing {
         [Category("Appearance")]
         [ReadOnly(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public IList SelectedItem => (IList) this.GetValue(SelectedItemProperty);
+        public IList<IPropertyEditorObject> SelectedItems => (IList<IPropertyEditorObject>) this.GetValue(SelectedItemsProperty);
 
         [Category("Behavior")]
-        public event RoutedPropertyChangedEventHandler<object> SelectedItemChanged {
-            add => this.AddHandler(SelectedItemChangedEvent, value);
-            remove => this.RemoveHandler(SelectedItemChangedEvent, value);
+        public event RoutedPropertyChangedEventHandler<IList<IPropertyEditorObject>> SelectedItemsChanged {
+            add => this.AddHandler(SelectedItemsChangedEvent, value);
+            remove => this.RemoveHandler(SelectedItemsChangedEvent, value);
         }
 
-        protected virtual void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object> e) => this.RaiseEvent((RoutedEventArgs) e);
+        public PropertyEditorItemsControl ChildItemsControl { get; private set; }
 
-        private readonly bool isInDesigner;
+        public bool IsSelectionChangeActive { get; set; }
 
         public PropertyEditor() {
-            this.isInDesigner = DesignerProperties.GetIsInDesignMode(this);
         }
 
-        private void OnDataSourceChanged(IEnumerable oldItems, IEnumerable newItems) {
-            if (oldItems is INotifyCollectionChanged)
-                ((INotifyCollectionChanged) oldItems).CollectionChanged -= this.OnDataSourceCollectionChanged;
-            if (newItems is INotifyCollectionChanged)
-                ((INotifyCollectionChanged) newItems).CollectionChanged += this.OnDataSourceCollectionChanged;
-            this.SetupObjects();
+        static PropertyEditor() {
+
         }
 
-        private void OnDataSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            this.SetupObjects();
+        private static void OnEditorRegistryPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (e.NewValue is PropertyEditorRegistry editor) {
+                ((PropertyEditor) d).ApplicableItems = editor.Root.PropertyObjects;
+            }
         }
 
-        private void SetupObjects() {
-            if (this.EditorRegistry is PropertyEditorRegistry registry) {
-                IEnumerable items = this.InputItems;
-                List<object> list = items != null ? items.Cast<object>().ToList() : new List<object>();
-                registry.SetupObjects(list);
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            if (this.ChildItemsControl != null) {
+                this.ChildItemsControl.myPropertyEditor = null;
+            }
+
+            this.ChildItemsControl = this.GetTemplateChild("PART_ItemsControl") as PropertyEditorItemsControl ?? throw new Exception("Missing the editor's items control");
+            this.ChildItemsControl.myPropertyEditor = this;
+        }
+
+        internal void OnSelectionChanged(IPropertyEditorObject data, ISelectablePropertyControl container, bool selected, bool replaceSelection) {
+            if (this.IsSelectionChangeActive)
+                return;
+
+            if (data == null)
+                throw new Exception("Data must not be null");
+            if (container == null)
+                throw new Exception("Container must not be null");
+
+            IList<IPropertyEditorObject> oldValue = this.selectedObjects.ToList();
+            IList<IPropertyEditorObject> newValue = null;
+            bool flag = false;
+
+            this.IsSelectionChangeActive = true;
+            try {
+                int index;
+                if (selected) {
+                    if (!this.selectedContainers.Contains(container)) {
+                        if (replaceSelection) {
+                            foreach (ISelectablePropertyControl t in this.selectedContainers) {
+                                t.IsSelected = false;
+                            }
+
+                            this.selectedContainers = new List<ISelectablePropertyControl>() { container };
+                            this.selectedObjects = new List<IPropertyEditorObject>() { data };
+                        }
+                        else {
+                            this.selectedContainers.Add(container);
+                            this.selectedObjects.Add(data);
+                        }
+
+                        flag = true;
+                    }
+                }
+                else if ((index = this.selectedContainers.IndexOf(container)) != -1) {
+                    this.selectedContainers.RemoveAt(index);
+                    this.selectedObjects.RemoveAt(index);
+                    flag = true;
+                }
+
+                if (container.IsSelected != selected)
+                    container.IsSelected = selected;
+
+                if (flag) {
+                    newValue = this.selectedObjects.ToList();
+                    this.SetValue(SelectedItemsPropertyKey, newValue);
+                }
+            }
+            finally {
+                this.IsSelectionChangeActive = false;
+            }
+
+            if (flag) {
+                this.RaiseEvent(new RoutedPropertyChangedEventArgs<IList<IPropertyEditorObject>>(oldValue, newValue, SelectedItemsChangedEvent));
             }
         }
     }

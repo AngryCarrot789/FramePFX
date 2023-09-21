@@ -32,6 +32,7 @@ namespace FramePFX.WPF.Editor.Resources {
 
         public ResourceListControl() {
             this.AllowDrop = true;
+            this.CanSelectMultipleItems = true;
         }
 
         public IEnumerable<BaseResourceItemControl> GetResourceContainers() {
@@ -90,7 +91,7 @@ namespace FramePFX.WPF.Editor.Resources {
 
         protected override async void OnDrop(DragEventArgs e) {
             if (this.FileDropNotifier == null) {
-                await IoC.MessageDialogs.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
+                await Services.DialogService.ShowMessageAsync("Error", "Could not handle drag drop. No drop handler found");
                 return;
             }
 
@@ -105,17 +106,15 @@ namespace FramePFX.WPF.Editor.Resources {
                 return;
             }
             else {
-                await IoC.MessageDialogs.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
+                await Services.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
             }
         }
 
         private object currentItem;
 
         protected override bool IsItemItsOwnContainerOverride(object item) {
-            if (item is BaseResourceItemControl) {
+            if (item is BaseResourceItemControl)
                 return true;
-            }
-
             this.currentItem = item;
             return false;
         }

@@ -290,7 +290,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     return;
                 }
 
-                IoC.Application.InvokeAsync(() => {
+                Services.Application.InvokeAsync(() => {
                     AutomationEngine.RefreshTimeline(this, this.PlayHeadFrame);
                     this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
                     this.isPlayBackUiUpdateScheduledState = 0;

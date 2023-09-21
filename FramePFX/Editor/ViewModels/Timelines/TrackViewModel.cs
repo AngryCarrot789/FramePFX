@@ -184,7 +184,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            if (confirm && !await IoC.MessageDialogs.ShowYesNoDialogAsync($"Delete clip{Lang.S(list.Count)}?", $"Are you sure you want to delete {(list.Count == 1 ? "1 clip" : $"{list.Count} clips")}?")) {
+            if (confirm && !await Services.DialogService.ShowYesNoDialogAsync($"Delete clip{Lang.S(list.Count)}?", $"Are you sure you want to delete {(list.Count == 1 ? "1 clip" : $"{list.Count} clips")}?")) {
                 return;
             }
 
@@ -196,7 +196,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.DisposeAndRemoveItemsUnsafe(list as List<ClipViewModel> ?? list.ToList());
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error", "An error occurred while removing clips", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Error", "An error occurred while removing clips", e.GetToString());
             }
         }
 
@@ -334,7 +334,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public async Task<bool> RenameAsync() {
-            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Change track name", "Input a new track name:", this.DisplayName ?? "", this.Timeline.TrackNameValidator);
+            string result = await Services.UserInput.ShowSingleInputDialogAsync("Change track name", "Input a new track name:", this.DisplayName ?? "", this.Timeline.TrackNameValidator);
             if (result != null) {
                 this.DisplayName = result;
                 return true;

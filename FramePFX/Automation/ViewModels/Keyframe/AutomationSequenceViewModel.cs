@@ -11,9 +11,9 @@ using FramePFX.History.ViewModels;
 namespace FramePFX.Automation.ViewModels.Keyframe {
     public class AutomationSequenceViewModel : BaseViewModel, IHistoryHolder {
         private readonly ObservableCollection<KeyFrameViewModel> keyFrames;
-        public ReadOnlyObservableCollection<KeyFrameViewModel> KeyFrames { get; }
-
         internal bool isActive;
+
+        public ReadOnlyObservableCollection<KeyFrameViewModel> KeyFrames { get; }
 
         public bool IsOverrideEnabled {
             get => this.Model.IsOverrideEnabled;
@@ -89,6 +89,10 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             foreach (KeyFrame frame in model.KeyFrames) {
                 this.AddInternalUnsafe(this.keyFrames.Count, KeyFrameViewModel.NewInstance(frame));
             }
+        }
+
+        internal static void SetIsActiveInternal(AutomationSequenceViewModel sequence, bool isActive) {
+            sequence.RaisePropertyChanged(ref sequence.isActive, isActive, nameof(sequence.IsActive));
         }
 
         public void UpdateKeyFrameCollectionProperties() {

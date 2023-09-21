@@ -28,7 +28,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
         public void SetFilePath(string filePath) => this.FilePath = filePath;
 
         public async Task OpenFileAction() {
-            string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
+            string[] file = await Services.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
             if (file == null) {
                 return;
             }
@@ -37,7 +37,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             await TryLoadResource(this, null, true);
         }
 
-        protected override async Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
+        protected override Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
             try {
                 this.Model.LoadMediaFile();
             }
@@ -45,10 +45,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
                 checker?.Add(new InvalidAVMediaViewModel(this) {
                     ExceptionMessage = e.GetToString()
                 });
-                return false;
+                return Task.FromResult(false);
             }
 
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

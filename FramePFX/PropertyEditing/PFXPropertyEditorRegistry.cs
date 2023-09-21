@@ -30,7 +30,7 @@ namespace FramePFX.PropertyEditing {
                 group.AddPropertyEditor("TextEditor", new TextClipDataEditorViewModel());
             }
 
-            this.EffectInfo = this.ClipInfo.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects", isHierarchial:false);
+            this.EffectInfo = this.ClipInfo.CreateDynamicSubGroup(typeof(BaseEffectViewModel), "Effects", useSetupHandlers:false);
             this.EffectInfo.IsHeaderBold = true;
 
             this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
@@ -57,8 +57,8 @@ namespace FramePFX.PropertyEditing {
         public void OnClipSelectionChanged(IReadOnlyList<ClipViewModel> clips) {
             // List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
             this.ClipInfo.SetupHierarchyState(clips);
-            foreach (IPropertyObject obj in this.ClipInfo.PropertyObjects) {
-                if (obj is FixedPropertyGroupViewModel group && this.ClipInfo.IsDisconnectedFromHierarchy(group)) {
+            foreach (IPropertyEditorObject obj in this.ClipInfo.PropertyObjects) {
+                if (obj is FixedPropertyGroupViewModel group && this.ClipInfo.IsDisconnectedFromHandlerHierarchy(group)) {
                     group.SetupHierarchyState(clips);
                 }
             }

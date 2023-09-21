@@ -5,10 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace FramePFX {
     /// <summary>
-    /// An abstract class that implements <see cref="INotifyPropertyChanged"/>, allowing data binding between a ViewModel and a View, 
-    /// along with some helper function to, for example, run an <see cref="Action"/> before or after the PropertyRaised event has been risen
+    /// An abstract class that implements <see cref="INotifyPropertyChanged"/>, allowing data binding between a ViewModel and a View
     /// <para>
-    ///     This class should normally be inherited by a ViewModel, such as a MainViewModel for the main view
+    /// This class should normally be inherited by a ViewModel, such as a MainViewModel for the main view
     /// </para>
     /// </summary>
     public abstract class BaseViewModel : INotifyPropertyChanged {

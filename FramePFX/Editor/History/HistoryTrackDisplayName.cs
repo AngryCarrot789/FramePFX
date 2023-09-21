@@ -12,7 +12,7 @@ namespace FramePFX.Editor.History {
             this.DisplayName = Transactions.ImmutableType(track.DisplayName);
         }
 
-        protected override async Task UndoAsyncCore() {
+        protected override Task UndoAsyncCore() {
             try {
                 this.Track.IsHistoryChanging = true;
                 this.Track.DisplayName = this.DisplayName.Original;
@@ -20,9 +20,11 @@ namespace FramePFX.Editor.History {
             finally {
                 this.Track.IsHistoryChanging = false;
             }
+
+            return Task.CompletedTask;
         }
 
-        protected override async Task RedoAsyncCore() {
+        protected override Task RedoAsyncCore() {
             try {
                 this.Track.IsHistoryChanging = true;
                 this.Track.DisplayName = this.DisplayName.Current;
@@ -30,6 +32,8 @@ namespace FramePFX.Editor.History {
             finally {
                 this.Track.IsHistoryChanging = false;
             }
+
+            return Task.CompletedTask;
         }
 
         public override void OnRemoved() {

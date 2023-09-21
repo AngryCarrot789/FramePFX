@@ -17,7 +17,7 @@ namespace FramePFX.Editor.Registries {
             base.Register<ResourceImage, ResourceImageViewModel>("r_img");
             base.Register<ResourceAVMedia, ResourceAVMediaViewModel>("r_av_media");
             base.Register<ResourceMpegMedia, ResourceMpegMediaViewModel>("r_media");
-            base.Register<ResourceTextStyle, ResourceTextViewModel>("r_txt");
+            base.Register<ResourceTextStyle, ResourceTextStyleViewModel>("r_txt");
             base.Register<ResourceTextFile, ResourceTextFileViewModel>("r_txtfile");
         }
 
@@ -25,16 +25,10 @@ namespace FramePFX.Editor.Registries {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public BaseResourceObject CreateModel(string id) {
-            return (BaseResourceObject) Activator.CreateInstance(base.GetModelType(id));
-        }
+        public new BaseResourceObject CreateModel(string id) => base.CreateModel(id);
 
-        public BaseResourceObjectViewModel CreateViewModel(string id) {
-            return (BaseResourceObjectViewModel) Activator.CreateInstance(base.GetViewModelType(id), this.CreateModel(id));
-        }
+        public new BaseResourceObjectViewModel CreateViewModel(string id) => base.CreateViewModel(id);
 
-        public BaseResourceObjectViewModel CreateViewModelFromModel(BaseResourceObject item) {
-            return (BaseResourceObjectViewModel) Activator.CreateInstance(base.GetViewModelTypeFromModel(item), item);
-        }
+        public new BaseResourceObjectViewModel CreateViewModelFromModel(BaseResourceObject item) => base.CreateViewModelFromModel(item);
     }
 }

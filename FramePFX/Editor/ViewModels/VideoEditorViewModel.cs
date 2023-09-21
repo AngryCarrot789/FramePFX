@@ -133,7 +133,7 @@ namespace FramePFX.Editor.ViewModels {
 
             this.IsEditorEnabled = false;
             try {
-                await IoC.Provide<IExportViewService>().ShowExportDialogAsync(setup);
+                await Services.GetService<IExportViewService>().ShowExportDialogAsync(setup);
             }
             finally {
                 this.IsEditorEnabled = true;
@@ -162,7 +162,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task OpenProjectAction() {
-            string[] result = await IoC.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
+            string[] result = await Services.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
             if (result == null) {
                 return;
             }
@@ -177,7 +177,7 @@ namespace FramePFX.Editor.ViewModels {
                 parentFolder = Path.GetDirectoryName(path);
             }
             catch (ArgumentException) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
+                await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
                 return;
             }
 
@@ -196,7 +196,7 @@ namespace FramePFX.Editor.ViewModels {
 #endif
 
             if (dictionary == null) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
+                await Services.DialogService.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
                 return;
             }
 
@@ -208,7 +208,7 @@ namespace FramePFX.Editor.ViewModels {
                 pvm = new ProjectViewModel(projectModel);
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
                 return;
             }
 
@@ -217,7 +217,7 @@ namespace FramePFX.Editor.ViewModels {
                     await this.CloseProjectAction();
                 }
                 catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
                 }
             }
 
@@ -322,7 +322,7 @@ namespace FramePFX.Editor.ViewModels {
                 throw new Exception("No active project");
             }
 
-            bool? result = await IoC.MessageDialogs.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
+            bool? result = await Services.DialogService.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
             if (result == true) {
                 await this.ActiveProject.SaveActionAsync();
             }
@@ -342,7 +342,7 @@ namespace FramePFX.Editor.ViewModels {
                 this.ActiveProject.Dispose();
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Close Project", "An exception occurred while closing project", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Close Project", "An exception occurred while closing project", e.GetToString());
             }
 
             await this.SetProject(null);

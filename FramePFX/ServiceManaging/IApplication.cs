@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Services {
+namespace FramePFX.ServiceManaging {
     /// <summary>
     /// An interface used to do things with the main application
     /// </summary>

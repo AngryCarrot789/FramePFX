@@ -796,40 +796,40 @@ namespace FramePFX.WPF.Editor.Automation {
         protected override void OnRender(DrawingContext dc) {
             List<KeyFramePoint> list = this.backingList;
             int end = list.Count - 1;
-            if (end < 0) {
-                return;
-            }
-
             Rect visible = GetVisibleRect(this.scroller, this);
             if (this.isOverrideEnabled) {
                 dc.PushOpacity(0.5d);
             }
 
-            KeyFramePoint first = list[0], prev = first;
-            this.DrawFirstKeyFrameLine(dc, first, ref visible);
-            if (end == 0) {
-                this.DrawLastKeyFrameLine(dc, first, ref visible);
-                first.RenderEllipse(dc, ref visible);
-            }
-            else {
-                for (int i = 1; i < end; i++) {
-                    KeyFramePoint keyFrame = list[i];
-                    DrawKeyFramesAndLine(dc, prev, keyFrame, ref visible);
-                    prev = keyFrame;
+            if (end >= 0) {
+                KeyFramePoint first = list[0], prev = first;
+                this.DrawFirstKeyFrameLine(dc, first, ref visible);
+                if (end == 0) {
+                    this.DrawLastKeyFrameLine(dc, first, ref visible);
+                    first.RenderEllipse(dc, ref visible);
                 }
+                else {
+                    for (int i = 1; i < end; i++) {
+                        KeyFramePoint keyFrame = list[i];
+                        DrawKeyFramesAndLine(dc, prev, keyFrame, ref visible);
+                        prev = keyFrame;
+                    }
 
-                this.DrawLastKeyFrameLine(dc, list[end], ref visible);
-                DrawKeyFramesAndLine(dc, prev, list[end], ref visible);
+                    this.DrawLastKeyFrameLine(dc, list[end], ref visible);
+                    DrawKeyFramesAndLine(dc, prev, list[end], ref visible);
+                }
             }
 
-            if (this.isOverrideEnabled) {
+            if (this.isOverrideEnabled || end < 0) {
                 AutomationSequenceViewModel seq = this.Sequence;
                 if (seq != null) {
                     double y = this.ActualHeight - KeyPointUtils.GetY(seq.OverrideKeyFrame, this.ActualHeight);
-                    dc.DrawLine(this.OverrideModeValueLinePen, new Point(0, y), new Point(visible.Right, y));
+                    dc.DrawLine(end < 0 ? this.LineOverridePen : this.OverrideModeValueLinePen, new Point(0, y), new Point(visible.Right, y));
                 }
 
-                dc.Pop();
+                if (this.isOverrideEnabled) { 
+                    dc.Pop();
+                }
             }
         }
 

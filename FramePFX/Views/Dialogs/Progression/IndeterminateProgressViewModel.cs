@@ -45,7 +45,7 @@ namespace FramePFX.Views.Dialogs.Progression {
                 await this.Window.CloseWindowAsync();
             }
             else {
-                await IoC.MessageDialogs.ShowMessageAsync("Cannot force", "Cannot force progress completion");
+                await Services.DialogService.ShowMessageAsync("Cannot force", "Cannot force progress completion");
             }
         }
     }

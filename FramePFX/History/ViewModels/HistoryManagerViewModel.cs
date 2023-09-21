@@ -162,10 +162,10 @@ namespace FramePFX.History.ViewModels {
 
         private async Task<bool> IsActionActive(string message) {
             if (this.manager.IsUndoing) {
-                await IoC.MessageDialogs.ShowMessageAsync("Undo already active", message + ". An undo operation is already in progress");
+                await Services.DialogService.ShowMessageAsync("Undo already active", message + ". An undo operation is already in progress");
             }
             else if (this.manager.IsRedoing) {
-                await IoC.MessageDialogs.ShowMessageAsync("Redo already active", message + ". A redo operation is already in progress");
+                await Services.DialogService.ShowMessageAsync("Redo already active", message + ". A redo operation is already in progress");
             }
             else {
                 return false;
@@ -181,21 +181,21 @@ namespace FramePFX.History.ViewModels {
                 return "Value is not an integer";
             });
 
-            string value = await IoC.UserInput.ShowSingleInputDialogAsync(caption, message, def.ToString(), validator);
+            string value = await Services.UserInput.ShowSingleInputDialogAsync(caption, message, def.ToString(), validator);
             if (value == null) {
                 return null;
             }
 
             if (int.TryParse(value, out int integer)) {
                 if (integer < 1) {
-                    await IoC.MessageDialogs.ShowMessageAsync("Invalid value", "Value must be more than 0");
+                    await Services.DialogService.ShowMessageAsync("Invalid value", "Value must be more than 0");
                     return null;
                 }
 
                 return integer;
             }
 
-            await IoC.MessageDialogs.ShowMessageAsync("Invalid value", "Value is not an integer: " + value);
+            await Services.DialogService.ShowMessageAsync("Invalid value", "Value is not an integer: " + value);
             return null;
         }
 
@@ -206,7 +206,7 @@ namespace FramePFX.History.ViewModels {
                     Titlebar = "Clearing history"
                 };
 
-                await IoC.ProgressionDialogs.ShowIndeterminateAsync(progress);
+                await Services.ProgressionDialogs.ShowIndeterminateAsync(progress);
                 do {
                     await Task.Delay(250);
                     if (progress.IsCancelled) {

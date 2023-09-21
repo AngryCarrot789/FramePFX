@@ -64,7 +64,7 @@ namespace FramePFX.Editor.Exporting {
                 this.Cancellation.Cancel();
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error cancelling render", "This is weird...", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Error cancelling render", "This is weird...", e.GetToString());
             }
         }
 

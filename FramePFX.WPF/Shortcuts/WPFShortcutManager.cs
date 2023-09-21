@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using FramePFX.Commands;
 using FramePFX.Shortcuts.Inputs;
+using FramePFX.Shortcuts.Keymapping;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Utils;
 using FramePFX.WPF.Shortcuts.Bindings;
@@ -74,9 +75,16 @@ namespace FramePFX.WPF.Shortcuts {
 
         public void DeserialiseRoot(Stream stream) {
             this.InvalidateShortcutCache();
-            ShortcutGroup root = WPFKeyMapSerialiser.Instance.Deserialise(this, stream);
-            this.Root = root; // invalidates cache automatically
-            this.EnsureCacheBuilt(); // do keymap check; crash on errors (e.g. duplicate shortcut path)
+            Keymap map = WPFKeyMapSerialiser.Instance.Deserialise(this, stream);
+            this.Root = map.Root; // invalidates cache automatically
+            try {
+                this.EnsureCacheBuilt(); // do keymap check; crash on errors (e.g. duplicate shortcut path)
+            }
+            catch (Exception e) {
+                this.InvalidateShortcutCache();
+                this.Root = ShortcutGroup.CreateRoot(this);
+                throw new Exception("Failed to process keymap and built caches", e);
+            }
         }
 
         protected override async Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
@@ -96,14 +104,14 @@ namespace FramePFX.WPF.Shortcuts {
 
                     object param;
                     if (cmd is BaseAsyncRelayCommand asyncCommand) {
-                        IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.InProgress", shortcut));
+                        Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate.InProgress", shortcut));
                         if (await asyncCommand.TryExecuteAsync(binding.CommandParameter)) {
-                            IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.Completed", shortcut));
+                            Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate.Completed", shortcut));
                             result = true;
                         }
                     }
                     else if (cmd.CanExecute(param = binding.CommandParameter)) {
-                        IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate", shortcut));
+                        Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate", shortcut));
                         cmd.Execute(param);
                         result = true;
                     }
@@ -133,23 +141,34 @@ namespace FramePFX.WPF.Shortcuts {
                 return false;
             }
 
+            InputDevice recentInput = inputArgs.InputManager.MostRecentInputDevice;
             DependencyObject focusedObject = null;
-            if (inputArgs.InputManager.MostRecentInputDevice is KeyboardDevice keyboard) {
+            if (recentInput is KeyboardDevice keyboard) {
                 if (keyboard.FocusedElement is DependencyObject obj && obj != window) {
                     focusedObject = obj;
                 }
             }
 
-            if (focusedObject == null && inputArgs.InputManager.MostRecentInputDevice is MouseDevice mouse) {
-                if (mouse.Target is DependencyObject obj && obj != window) {
-                    focusedObject = obj;
+            if (focusedObject == null) {
+                if (recentInput is MouseDevice mouse) {
+                    if (mouse.Target is DependencyObject obj && obj != window) {
+                        focusedObject = obj;
+                    }
+                }
+                else {
+                    mouse = inputArgs.InputManager.PrimaryMouseDevice;
+                    if (mouse.Target is DependencyObject obj && obj != window) {
+                        focusedObject = obj;
+                    }
                 }
             }
 
             if (focusedObject != null) {
                 bool isPreview = e.RoutedEvent == Keyboard.PreviewKeyDownEvent || e.RoutedEvent == Keyboard.PreviewKeyUpEvent;
                 processor.OnInputSourceKeyEvent(window, processor, focusedObject, e, key, e.IsUp, isPreview);
-                return e.Handled || processor.isProcessingKey;
+                if (processor.isProcessingKey)
+                    e.Handled = true;
+                return e.Handled;
             }
 
             return false;
@@ -203,7 +222,9 @@ namespace FramePFX.WPF.Shortcuts {
                 processor.OnInputSourceMouseUp(window, focused, e);
             }
 
-            return e.Handled || processor.isProcessingMouse;
+            if (processor.isProcessingMouse)
+                e.Handled = true;
+            return e.Handled;
         }
 
         private static bool OnApplicationMouseWheelEvent(MouseWheelEventArgs e) {
@@ -237,7 +258,9 @@ namespace FramePFX.WPF.Shortcuts {
             }
 
             processor.OnInputSourceMouseWheel(window, focusedObject, e);
-            return e.Handled || processor.isProcessingMouse;
+            if (processor.isProcessingMouse)
+                e.Handled = true;
+            return e.Handled;
         }
 
         #endregion

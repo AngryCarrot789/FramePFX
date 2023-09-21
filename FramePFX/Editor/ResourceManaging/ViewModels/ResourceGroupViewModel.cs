@@ -19,7 +19,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.items = new ObservableCollection<BaseResourceObjectViewModel>();
             this.Items = new ReadOnlyObservableCollection<BaseResourceObjectViewModel>(this.items);
             foreach (BaseResourceObject item in model.Items) {
-                BaseResourceObjectViewModel viewModel = ResourceTypeRegistry.Instance.CreateViewModelFromModel(item);
+                BaseResourceObjectViewModel viewModel = item.CreateViewModel();
                 this.items.Add(viewModel);
 
                 // no need to set manager to ours because it will be null as we are in the ctor

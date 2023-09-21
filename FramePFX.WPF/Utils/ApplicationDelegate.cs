@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using FramePFX.Services;
+using FramePFX.ServiceManaging;
 
 namespace FramePFX.WPF.Utils {
     public class ApplicationDelegate : IApplication {

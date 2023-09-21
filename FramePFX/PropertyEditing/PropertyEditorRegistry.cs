@@ -14,6 +14,7 @@ namespace FramePFX.PropertyEditing {
 
         public PropertyEditorRegistry() {
             this.Root = new FixedPropertyGroupViewModel(null);
+            this.Root.SetPropertyEditor(this);
         }
 
         /// <summary>

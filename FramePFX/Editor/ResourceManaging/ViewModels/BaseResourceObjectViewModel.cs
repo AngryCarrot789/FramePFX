@@ -65,17 +65,17 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         public virtual async Task<bool> DeleteSelfAction() {
             int index;
             if (this.Parent == null || (index = this.Parent.Items.IndexOf(this)) == -1) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid item", "This resource is not located anywhere...?");
+                await Services.DialogService.ShowMessageAsync("Invalid item", "This resource is not located anywhere...?");
                 return false;
             }
 
             if (this is ResourceItemViewModel resource) {
-                if (await IoC.MessageDialogs.ShowDialogAsync("Delete resource?", $"Delete resource{(this.DisplayName != null ? $"'{this.DisplayName}'" : "")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
+                if (await Services.DialogService.ShowDialogAsync("Delete resource?", $"Delete resource{(this.DisplayName != null ? $"'{this.DisplayName}'" : "")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
                     return false;
             }
             else if (this is ResourceGroupViewModel group) {
                 int total = ResourceGroupViewModel.CountRecursive(group.Items);
-                if (total > 0 && await IoC.MessageDialogs.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource group? It has {total} sub-item{Lang.S(total)}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
+                if (total > 0 && await Services.DialogService.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource group? It has {total} sub-item{Lang.S(total)}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
                     return false;
             }
 
@@ -106,7 +106,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             // testing that the UI functions can be called from other threads
             string result = null;
             await Task.Run(async () => {
-                result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
+                result = await Services.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
             });
 
             if (string.IsNullOrWhiteSpace(result)) {

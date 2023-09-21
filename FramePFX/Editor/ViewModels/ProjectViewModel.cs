@@ -118,7 +118,7 @@ namespace FramePFX.Editor.ViewModels {
                 await playback.StopRenderTimer();
             }
 
-            ProjectSettings result = await IoC.Provide<IProjectSettingsEditor>().EditSettingsAsync(this.Settings.Model);
+            ProjectSettings result = await Services.GetService<IProjectSettingsEditor>().EditSettingsAsync(this.Settings.Model);
             if (result != null) {
                 this.Settings.Resolution = result.Resolution;
 
@@ -127,7 +127,7 @@ namespace FramePFX.Editor.ViewModels {
                 playback.SetTimerFrameRate(result.TimeBase);
 
                 if (oldFps != this.Settings.FrameRate) {
-                    if (await IoC.MessageDialogs.ShowYesNoDialogAsync("Convert Framerate", "Do you want to convert clip and automation to match the new FPS?")) {
+                    if (await Services.DialogService.ShowYesNoDialogAsync("Convert Framerate", "Do you want to convert clip and automation to match the new FPS?")) {
                         this.ConvertProjectFrameRate(oldFps, this.Settings.FrameRate);
                     }
                 }
@@ -173,7 +173,7 @@ namespace FramePFX.Editor.ViewModels {
                 if (this.Editor == null)
                     return false;
                 if (this.IsSaving) {
-                    await IoC.MessageDialogs.ShowMessageAsync("Saving", "Project is already being saved");
+                    await Services.DialogService.ShowMessageAsync("Saving", "Project is already being saved");
                     return false;
                 }
 
@@ -185,12 +185,12 @@ namespace FramePFX.Editor.ViewModels {
             if (this.Editor == null)
                 return false;
             if (this.IsSaving) {
-                await IoC.MessageDialogs.ShowMessageAsync("Saving", "Project is already being saved");
+                await Services.DialogService.ShowMessageAsync("Saving", "Project is already being saved");
                 return false;
             }
 
             string initialPath = !string.IsNullOrEmpty(this.DataFolder) ? Path.GetDirectoryName(this.DataFolder) : null;
-            string file = await IoC.FilePicker.SaveFile(Filters.ProjectTypeAndAllFiles, initialPath, "Select a folder, in which the project data will be saved into");
+            string file = await Services.FilePicker.SaveFile(Filters.ProjectTypeAndAllFiles, initialPath, "Select a folder, in which the project data will be saved into");
             return !string.IsNullOrEmpty(file) && await this.SaveProjectData(file);
         }
 
@@ -210,16 +210,16 @@ namespace FramePFX.Editor.ViewModels {
                 parentFolder = Path.GetDirectoryName(pfxFile);
             }
             catch (ArgumentException) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
+                await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
                 return false;
             }
 
             if (parentFolder == null) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file path represents a root-level directory (e.g. C:\\ drive)");
+                await Services.DialogService.ShowMessageAsync("Invalid file", "The project file path represents a root-level directory (e.g. C:\\ drive)");
                 return false;
             }
             else if (parentFolder.Length < 1) {
-                await IoC.MessageDialogs.ShowMessageAsync("Invalid file", "The project file does not have any directory information");
+                await Services.DialogService.ShowMessageAsync("Invalid file", "The project file does not have any directory information");
                 return false;
             }
 
@@ -238,16 +238,16 @@ namespace FramePFX.Editor.ViewModels {
                     Directory.CreateDirectory(dataFolder);
                 }
                 catch (PathTooLongException ex) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Path too long", "Data Folder path was too long; could not create project data folder", ex.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Path too long", "Data Folder path was too long; could not create project data folder", ex.GetToString());
                 }
                 catch (SecurityException ex) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Security Exception", "Application does not have permission to create directories", ex.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Security Exception", "Application does not have permission to create directories", ex.GetToString());
                 }
                 catch (UnauthorizedAccessException ex) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Unauthorized access", "Application does not have access to that directory", ex.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Unauthorized access", "Application does not have access to that directory", ex.GetToString());
                 }
                 catch (Exception ex) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Unexpected error", "Could not create project directory", ex.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Unexpected error", "Could not create project directory", ex.GetToString());
                 }
             }
 
@@ -329,7 +329,7 @@ namespace FramePFX.Editor.ViewModels {
             }
             catch (Exception e) {
                 exception = e;
-                await IoC.MessageDialogs.ShowMessageExAsync("Error saving project", "An exception occurred serialising saving project", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Error saving project", "An exception occurred serialising saving project", e.GetToString());
             }
 
             if (exception == null) {
@@ -338,7 +338,7 @@ namespace FramePFX.Editor.ViewModels {
                 }
                 catch (Exception e) {
                     exception = e;
-                    await IoC.MessageDialogs.ShowMessageExAsync("Error saving project", "An exception occurred writing project to disk", e.GetToString());
+                    await Services.DialogService.ShowMessageExAsync("Error saving project", "An exception occurred writing project to disk", e.GetToString());
                 }
             }
 

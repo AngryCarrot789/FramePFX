@@ -40,8 +40,8 @@ namespace FramePFX.Editor.Actions.Resources {
             ResourceTextStyle resource = new ResourceTextStyle() {
                 DisplayName = name
             };
-            ResourceTextViewModel text = (ResourceTextViewModel) ResourceTypeRegistry.Instance.CreateViewModelFromModel(resource);
-            if (!await ResourceItemViewModel.TryAddAndLoadNewResource(group, text)) {
+            ResourceTextStyleViewModel textStyle = resource.CreateViewModel<ResourceTextStyleViewModel>();
+            if (!await ResourceItemViewModel.TryAddAndLoadNewResource(group, textStyle)) {
                 return true;
             }
 
@@ -54,7 +54,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 }
 
                 TextVideoClip textClip = new TextVideoClip();
-                textClip.ResourceHelper.SetTargetResourceId(text.UniqueId);
+                textClip.ResourceHelper.SetTargetResourceId(textStyle.UniqueId);
                 textClip.FrameSpan = span;
                 textClip.AddEffect(new MotionEffect());
                 textClip.DisplayName = name;

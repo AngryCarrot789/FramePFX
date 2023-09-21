@@ -142,14 +142,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     resourceItem = new ResourceGroup();
                     break;
                 default:
-                    await IoC.MessageDialogs.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
+                    await Services.DialogService.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
                     return;
             }
 
-            BaseResourceObjectViewModel resObj = ResourceTypeRegistry.Instance.CreateViewModelFromModel(resourceItem);
+            BaseResourceObjectViewModel resObj = resourceItem.CreateViewModel();
             if (resObj is ResourceItemViewModel item) {
                 if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentGroup, item)) {
-                    await IoC.MessageDialogs.ShowMessageAsync("Resource error", "Could not load resource. See app logs for more details");
+                    await Services.DialogService.ShowMessageAsync("Resource error", "Could not load resource. See app logs for more details");
                 }
             }
             else if (resObj is ResourceGroupViewModel group) {
@@ -178,9 +178,9 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                             FilePath = path, DisplayName = Path.GetFileName(path)
                         };
 
-                        ResourceAVMediaViewModel vm = (ResourceAVMediaViewModel) ResourceTypeRegistry.Instance.CreateViewModelFromModel(media);
+                        ResourceAVMediaViewModel vm = media.CreateViewModel<ResourceAVMediaViewModel>();
                         if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentGroup, vm)) {
-                            await IoC.MessageDialogs.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
+                            await Services.DialogService.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
                         }
 
                         // ResourceMpegMediaViewModel media = new ResourceMpegMediaViewModel(new ResourceMpegMedia() {FilePath = path});
@@ -229,10 +229,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".c":
                     case ".hpp":
                     case ".cpp": {
-                        ResourceTextFileViewModel file = new ResourceTextFileViewModel(new ResourceTextFile() {
+                        ResourceTextFileViewModel file = new ResourceTextFile() {
                             Path = new ProjectPath(path, EnumPathFlags.AbsoluteFilePath),
                             DisplayName = Path.GetFileName(path)
-                        });
+                        }.CreateViewModel<ResourceTextFileViewModel>();
 
                         if (await ResourceItemViewModel.TryLoadResource(file, null)) {
                             this.Model.RegisterEntry(file.Model);

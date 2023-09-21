@@ -26,7 +26,7 @@ namespace FramePFX.Editor.ResourceChecker.Resources {
         }
 
         public async Task SelectFileAction() {
-            string[] result = await IoC.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
+            string[] result = await Services.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
             if (result != null && !string.IsNullOrEmpty(result[0])) {
                 this.FilePath = result[0];
                 this.Resource.FilePath = this.FilePath;
@@ -39,7 +39,7 @@ namespace FramePFX.Editor.ResourceChecker.Resources {
                 await this.Resource.Model.LoadImageAsync(this.FilePath);
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error opening image", $"Exception occurred while opening {this.FilePath}", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Error opening image", $"Exception occurred while opening {this.FilePath}", e.GetToString());
                 return false;
             }
 

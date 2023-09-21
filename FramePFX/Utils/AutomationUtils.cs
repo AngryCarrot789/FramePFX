@@ -23,7 +23,7 @@ namespace FramePFX.Utils {
             }
 
             AutomationSequenceViewModel active = automatable.AutomationData.ActiveSequence;
-            VideoEditorViewModel editor = timeline.Project?.Editor;
+            VideoEditorViewModel editor = timeline.Project.Editor;
             if (editor != null && editor.IsRecordingKeyFrames) {
                 return active == null || !active.IsOverrideEnabled;
             }

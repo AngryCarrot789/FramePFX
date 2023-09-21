@@ -26,14 +26,19 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             this.FilePath = data.GetString(nameof(this.FilePath), null);
         }
 
-        protected override void OnDisableCore(ErrorList list, bool user) {
-            base.OnDisableCore(list, user);
+        protected override void OnDisableCore(bool user) {
+            base.OnDisableCore(user);
             this.CloseReader();
         }
 
-        protected override void DisposeCore(ErrorList list) {
-            base.DisposeCore(list);
-            this.CloseReader();
+        public override void Dispose() {
+            base.Dispose();
+            try {
+                this.CloseReader();
+            }
+            catch (Exception e) {
+                AppLogger.WriteLine("Exception while closing Mpeg reader: " + e.GetToString());
+            }
         }
 
         public void CloseReader() {

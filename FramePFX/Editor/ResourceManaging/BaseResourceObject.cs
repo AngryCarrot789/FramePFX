@@ -7,7 +7,7 @@ namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResourceObject : IDisposable {
+    public abstract class BaseResourceObject {
         /// <summary>
         /// The manager that this resource belongs to. Null if the resource is unregistered
         /// </summary>
@@ -85,26 +85,17 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         /// <summary>
-        /// Called when this resource object is about to be "deleted", as in, the user wanted to delete
-        /// the resource. This should close any open file handles, unregister any event handlers, etc
-        /// </summary>
-        public void Dispose() {
-            using (ErrorList list = new ErrorList()) {
-                this.DisposeCore(list);
-            }
-        }
-
-        /// <summary>
-        /// Called by <see cref="Dispose"/> to dispose of any unmanaged resources, unregister event handlers, etc.
+        /// Invoked when this resource is about to be completely deleted. It will not have a parent object nor
+        /// a manager associated with it. Dispose of unmanaged resources, unregister event handlers, etc.
         /// <para>
-        /// This method should not throw, but instead, exceptions should be added to the given <see cref="ErrorList"/>
+        /// Any errors should be logged to the application logger
         /// </para>
         /// <para>
         /// If this object is a <see cref="ResourceItem"/>, it will not be unregistered from the resource manager; that must be done manually
         /// </para>
         /// </summary>
-        /// <param name="list">A list to add exceptions to</param>
-        protected virtual void DisposeCore(ErrorList list) {
+        public virtual void Dispose() {
+
         }
     }
 }

@@ -143,16 +143,7 @@ namespace FramePFX.Automation.ViewModels {
             this.ToggleOverrideCommand.RaiseCanExecuteChanged();
             this.DeselectSequenceCommand.RaiseCanExecuteChanged(); // just in case
             this.OverrideStateChanged?.Invoke(this, EventArgs.Empty);
-            ProjectViewModel project;
-            if (this.Owner is IProjectViewModelBound projectBound && (project = projectBound.Project) != null) {
-                AutomationEngine.OnOverrideStateChanged(project, this, sequence);
-            }
-#if DEBUG
-            else {
-                Debugger.Break();
-                Debug.WriteLine("Automateable object is not project bound");
-            }
-#endif
+            AutomationEngine.OnOverrideStateChanged(this, sequence);
         }
 
         public void OnKeyFrameChanged(AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {

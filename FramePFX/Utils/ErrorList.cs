@@ -98,5 +98,9 @@ namespace FramePFX.Utils {
         public IEnumerator<Exception> GetEnumerator() => this.exceptions?.GetEnumerator() ?? Enumerable.Empty<Exception>().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.exceptions?.GetEnumerator() ?? Enumerable.Empty<Exception>().GetEnumerator();
+
+        public void Clear() {
+            this.exceptions = null;
+        }
     }
 }

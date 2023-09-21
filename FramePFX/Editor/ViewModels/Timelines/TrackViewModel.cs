@@ -120,7 +120,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public virtual void OnProjectModified() {
-            this.Timeline?.OnProjectModified();
         }
 
         public ClipViewModel CreateClip(Clip model, bool addToModel = true) {
@@ -147,9 +146,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.Model.InsertClip(index, clip.Model);
             }
 
-            clip.Track = this;
+            ClipViewModel.PreSetTrack(clip, this);
             this.clips.Insert(index, clip);
-            ClipViewModel.RaiseTrackChanged(clip);
+            ClipViewModel.PostSetTrack(clip, this);
         }
 
         public bool RemoveClip(ClipViewModel clip) {
@@ -165,12 +164,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception($"Clip track does not match the current instance: {clip.Track} != {this}");
             if (!ReferenceEquals(this.Model.Clips[index], clip.Model))
-                throw new Exception($"Clip model clip list desynchronized");
+                throw new Exception("Clip model clip list desynchronized");
 
             this.Model.RemoveClipAt(index);
             this.clips.RemoveAt(index);
-            clip.Track = null;
-            ClipViewModel.RaiseTrackChanged(clip);
+            ClipViewModel.SetTrack(clip, null);
             return clip;
         }
 
@@ -221,42 +219,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        public void Dispose() {
-            using (ErrorList stack = new ErrorList("Exception disposing track")) {
-                try {
-                    this.DisposeCore(stack);
-                }
-                catch (Exception e) {
-                    stack.Add(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
-                }
-            }
-        }
-
-        protected virtual void DisposeCore(ErrorList stack) {
-            using (ErrorList innerStack = new ErrorList("Exception disposing a clip", false)) {
-                for (int i = this.clips.Count - 1; i >= 0; i--) {
-                    ClipViewModel clip = this.clips[i];
-
-                    try {
-                        this.RemoveClipAt(i);
-                    }
-                    catch (Exception e) {
-                        innerStack.Add(new Exception("Failed to remove clip from track", e));
-                    }
-
-                    try {
-                        clip.Dispose();
-                    }
-                    catch (Exception e) {
-                        innerStack.Add(new Exception($"Failed to dispose clip: {clip}", e));
-                    }
-                }
-
-                this.clips.Clear();
-                this.Model.Clear();
-                if (innerStack.TryGetException(out Exception ex)) {
-                    stack.Add(ex);
-                }
+        /// <summary>
+        /// Clears all clips in this timeline and then disposes the timeline. This should be called after the track is removed from a timeline
+        /// </summary>
+        public void ClearAndDispose() {
+            for (int i = this.clips.Count - 1; i >= 0; i--) {
+                ClipViewModel clip = this.clips[i];
+                this.RemoveClipAt(i);
+                clip.Dispose();
             }
         }
 
@@ -354,31 +324,32 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public void MoveClipToTrack(ClipViewModel clip, TrackViewModel newTrack) {
             if (newTrack == null) {
-                this.RemoveClip(clip);
-                return;
+                if (!this.RemoveClip(clip))
+                    throw new Exception("Clip was not present in the old track");
             }
             else if (clip.Track == null) {
                 this.AddClip(clip);
-                return;
             }
+            else {
+                int index = this.clips.IndexOf(clip);
+                if (index < 0) {
+                    throw new Exception("Clip was not present in the old track");
+                }
 
-            int index = this.clips.IndexOf(clip);
-            if (index < 0) {
-                throw new Exception("Clip was not present in the old track");
+                if (!ReferenceEquals(clip, this.clips[index]))
+                    throw new Exception($"Clip does not reference equal other clip in track: {clip} != {this.clips[index]}");
+                if (!ReferenceEquals(this, clip.Track))
+                    throw new Exception($"Clip track does not match the current instance: {clip.Track} != {this}");
+                if (!ReferenceEquals(this.Model.Clips[index], clip.Model))
+                    throw new Exception($"Clip model clip list desynchronized");
+
+                this.Model.MoveClipToTrack(index, newTrack.Model);
+
+                this.clips.RemoveAt(index);
+                ClipViewModel.PreSetTrack(clip, newTrack);
+                newTrack.clips.Add(clip);
+                ClipViewModel.PostSetTrack(clip, newTrack);
             }
-
-            if (!ReferenceEquals(clip, this.clips[index]))
-                throw new Exception($"Clip does not reference equal other clip in track: {clip} != {this.clips[index]}");
-            if (!ReferenceEquals(this, clip.Track))
-                throw new Exception($"Clip track does not match the current instance: {clip.Track} != {this}");
-            if (!ReferenceEquals(this.Model.Clips[index], clip.Model))
-                throw new Exception($"Clip model clip list desynchronized");
-
-            this.Model.MoveClipToTrack(index, newTrack.Model);
-            this.clips.RemoveAt(index);
-            newTrack.clips.Add(clip);
-            clip.Track = newTrack;
-            ClipViewModel.RaiseTrackChanged(clip);
         }
     }
 }

@@ -76,7 +76,7 @@ namespace FramePFX.Editor.ResourceManaging {
             if (!this.IsOnline)
                 return;
 
-            this.OnDisableCore(list, user);
+            this.OnDisableCore(user);
             this.isOnline = false;
             this.IsOfflineByUser = user;
             this.OnIsOnlineStateChanged();
@@ -85,9 +85,8 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <summary>
         /// Called by <see cref="Disable"/> when this resource item should be disabled
         /// </summary>
-        /// <param name="list"></param>
-        /// <param name="user"></param>
-        protected virtual void OnDisableCore(ErrorList list, bool user) {
+        /// <param name="user">True if this was disabled forcefully by the user via the UI</param>
+        protected virtual void OnDisableCore(bool user) {
         }
 
         public override void WriteToRBE(RBEDictionary data) {

@@ -46,20 +46,20 @@ namespace FramePFX.Editor.ResourceManaging {
             base.ReadFromRBE(data);
             RBEList list = data.GetList("Items");
             foreach (RBEDictionary dictionary in list.OfType<RBEDictionary>()) {
-                this.items.Add(ReadSerialisedWithId(dictionary));
+                this.AddItem(ReadSerialisedWithId(dictionary));
             }
         }
 
-        public void AddItem(BaseResourceObject value) {
-            this.InsertItem(this.items.Count, value);
+        public void AddItem(BaseResourceObject item) {
+            this.InsertItem(this.items.Count, item);
         }
 
-        public void InsertItem(int index, BaseResourceObject value) {
-            if (this.items.Contains(value))
+        public void InsertItem(int index, BaseResourceObject item) {
+            if (this.items.Contains(item))
                 throw new Exception("Value already stored in this group");
-            this.items.Insert(index, value);
-            value.SetManager(this.Manager);
-            value.SetParent(this);
+            item.SetParent(this);
+            this.items.Insert(index, item);
+            item.SetManager(this.Manager);
         }
 
         public bool RemoveItem(BaseResourceObject item) {
@@ -72,11 +72,11 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public void RemoveItemAt(int index) {
             BaseResourceObject item = this.items[index];
-            Debug.Assert(item.Parent == this, "Expected item's parent to equal the current group");
-            Debug.Assert(item.Manager == this.Manager, "Expected item's parent to equal the current group");
+            ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
+            ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
             this.items.RemoveAt(index);
-            item.SetParent(null);
             item.SetManager(null);
+            item.SetParent(null);
         }
 
         /// <summary>
@@ -93,20 +93,16 @@ namespace FramePFX.Editor.ResourceManaging {
         /// </summary>
         public void UnsafeClear() => this.items.Clear();
 
-        protected override void DisposeCore(ErrorList list) {
-            base.DisposeCore(list);
-            using (ErrorList innerList = new ErrorList("Exception disposing child resources", false)) {
+        public override void Dispose() {
+            base.Dispose();
+            using (ErrorList list = new ErrorList("Exception disposing child resources", false)) {
                 foreach (BaseResourceObject resource in this.items) {
                     try {
                         resource.Dispose();
                     }
                     catch (Exception e) {
-                        innerList.Add(new Exception("Exception while disposing " + resource.GetType(), e));
+                        list.Add(new Exception("Exception while disposing " + resource.GetType(), e));
                     }
-                }
-
-                if (innerList.TryGetException(out Exception exception)) {
-                    list.Add(exception);
                 }
             }
         }

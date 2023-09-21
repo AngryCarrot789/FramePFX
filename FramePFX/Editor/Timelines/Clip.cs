@@ -171,8 +171,7 @@ namespace FramePFX.Editor.Timelines {
                 string factoryId = dictionary.GetString(nameof(BaseEffect.FactoryId));
                 BaseEffect effect = EffectRegistry.Instance.CreateModel(factoryId);
                 effect.ReadFromRBE(dictionary.GetDictionary("Data"));
-                effect.OwnerClip = this;
-                this.Effects.Add(effect);
+                BaseEffect.AddEffectToClip(this, effect);
             }
 
             this.DeserialiseExtension?.Invoke(this, data);
@@ -224,17 +223,15 @@ namespace FramePFX.Editor.Timelines {
         /// </para>
         /// </summary>
         public void Dispose() {
-            using (ErrorList stack = new ErrorList()) {
-                this.OnBeginDispose();
-                this.DisposeCore(stack);
-                this.OnEndDispose();
-            }
+            this.OnBeginDispose();
+            this.DisposeCore();
+            this.OnEndDispose();
         }
 
         /// <summary>
         /// Called just before <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
         /// </summary>
-        public virtual void OnBeginDispose() {
+        protected virtual void OnBeginDispose() {
             this.IsDisposing = true;
         }
 
@@ -245,13 +242,18 @@ namespace FramePFX.Editor.Timelines {
         /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ErrorList"/>
         /// </para>
         /// </summary>
-        /// <param name="list">
-        /// The exception stack in which to add any encountered exceptions during disposal.
-        /// Any exceptions added to this may result in the app crashing and showing a crash report screen
-        /// </param>
-        protected virtual void DisposeCore(ErrorList list) {
+        protected virtual void DisposeCore() {
             for (int i = this.Effects.Count - 1; i >= 0; i--) {
-                this.RemoveEffectAt(i);
+                try {
+                    this.RemoveEffectAt(i);
+                }
+                catch (Exception e) {
+#if DEBUG
+                    throw new Exception("Failed to remove effect", e);
+#else
+                    AppLogger.WriteLine("Exception while removing effect: " + e.GetToString());
+#endif
+                }
             }
 
             if (this is IBaseResourceClip resourceClip) {
@@ -262,7 +264,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// Called just after <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
         /// </summary>
-        public virtual void OnEndDispose() {
+        protected virtual void OnEndDispose() {
             this.IsDisposing = false;
         }
 

@@ -675,9 +675,26 @@ namespace FramePFX.WPF.Controls.Dragger {
                 return;
             }
 
-            Point mpos = e.GetPosition(this);
+            bool wrap = false;
+            Point mpos = e.GetPosition(this), wrapPoint = mpos;
+            if (this.lastClickPoint is Point lastClick && !this.IsDragging) {
+                if (Math.Abs(mpos.X - lastClick.X) < 5d && Math.Abs(mpos.Y - lastClick.Y) < 5d) {
+                    return;
+                }
+
+                this.BeginMouseDrag();
+            }
+
+            if (!this.IsDragging) {
+                return;
+            }
+
+            if (this.IsEditingTextBox) {
+                Debug.WriteLine("IsEditingTextBox and IsDragging were both true");
+                this.IsEditingTextBox = false;
+            }
+
             if (this.LockCursorWhileDragging) {
-                bool wrap = false;
                 double x = mpos.X, y = mpos.Y;
                 if (this.Orientation == Orientation.Horizontal) {
                     if (mpos.X < 0) {
@@ -701,36 +718,8 @@ namespace FramePFX.WPF.Controls.Dragger {
                 }
 
                 if (wrap) {
-                    this.isUpdatingExternalMouse = true;
-                    try {
-                        Point mp = new Point(x, y);
-                        this.lastMouseMove = mp;
-                        Point sp = this.PointToScreen(mp);
-                        CursorUtils.SetCursorPos((int) sp.X, (int) sp.Y);
-                    }
-                    finally {
-                        this.isUpdatingExternalMouse = false;
-                    }
-
-                    return;
+                    wrapPoint = new Point(x, y);
                 }
-            }
-
-            if (this.lastClickPoint is Point lastClick && !this.IsDragging) {
-                if (Math.Abs(mpos.X - lastClick.X) < 5d && Math.Abs(mpos.Y - lastClick.Y) < 5d) {
-                    return;
-                }
-
-                this.BeginMouseDrag();
-            }
-
-            if (!this.IsDragging) {
-                return;
-            }
-
-            if (this.IsEditingTextBox) {
-                Debug.WriteLine("IsEditingTextBox and IsDragging were both true");
-                this.IsEditingTextBox = false;
             }
 
             double change;
@@ -783,6 +772,18 @@ namespace FramePFX.WPF.Controls.Dragger {
 
             this.Value = roundedValue;
             this.lastMouseMove = mpos;
+
+            if (wrap) {
+                this.isUpdatingExternalMouse = true;
+                try {
+                    this.lastMouseMove = wrapPoint;
+                    Point sp = this.PointToScreen(wrapPoint);
+                    CursorUtils.SetCursorPos((int) sp.X, (int) sp.Y);
+                }
+                finally {
+                    this.isUpdatingExternalMouse = false;
+                }
+            }
         }
 
         protected override void OnKeyDown(KeyEventArgs e) {

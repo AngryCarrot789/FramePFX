@@ -26,7 +26,7 @@ namespace FramePFX.Editor.Timelines.Effects {
         /// <summary>
         /// The clip that this effect has been added to
         /// </summary>
-        public Clip OwnerClip { get; set; }
+        public Clip OwnerClip { get; private set; }
 
         public Project Project => this.OwnerClip.Track.Timeline.Project;
 

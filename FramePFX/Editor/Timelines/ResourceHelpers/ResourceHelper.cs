@@ -3,7 +3,6 @@ using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.ResourceHelpers {
     /// <summary>
@@ -162,14 +161,9 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             return false;
         }
 
-        protected override void DisposeCore(ErrorList list, bool disposing) {
+        public override void Dispose() {
             if (this.ResourcePath != null && !this.ResourcePath.IsDisposed) {
-                try {
-                    this.DisposePath();
-                }
-                catch (Exception e) {
-                    list.Add(e);
-                }
+                this.DisposePath();
             }
         }
 

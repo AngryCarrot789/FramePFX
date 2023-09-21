@@ -97,7 +97,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             if (this.ResourceMap.Count > 0) {
                 RBEDictionary resourceMapDictionary = data.CreateDictionary(nameof(this.ResourceMap));
                 foreach (KeyValuePair<string, ResourcePathEntry> entry in this.ResourceMap) {
-                    Debug.Assert(entry.Key == entry.Value.entryKey, "Map pair key and entry key do not match");
+                    ExceptionUtils.Assert(entry.Key == entry.Value.entryKey, "Map pair key and entry key do not match");
                     ResourcePathEntry.WriteToRBE(entry.Value, resourceMapDictionary);
                 }
             }
@@ -122,15 +122,10 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             return false;
         }
 
-        protected override void DisposeCore(ErrorList list, bool disposing) {
-            base.DisposeCore(list, disposing);
+        public override void Dispose() {
+            base.Dispose();
             foreach (ResourcePathEntry entry in this.ResourceMap.Values) {
-                try {
-                    entry.DisposePath();
-                }
-                catch (Exception e) {
-                    list.Add(e);
-                }
+                entry.DisposePath();
             }
         }
 
@@ -209,15 +204,9 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             }
 
             public void DisposePath() {
-                ResourcePath oldPath = this.path;
-                this.path = null;
-                if (oldPath != null && !oldPath.IsDisposed) {
-                    try {
-                        oldPath.Dispose();
-                    }
-                    finally {
-                        oldPath.ResourceChanged -= this.resourceChangedHandler;
-                    }
+                if (Helper.Exchange(ref this.path, null, out ResourcePath myPath) && !myPath.IsDisposed) {
+                    myPath.Dispose();
+                    myPath.ResourceChanged -= this.resourceChangedHandler;
                 }
             }
         }

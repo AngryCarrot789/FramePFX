@@ -89,7 +89,7 @@ namespace FramePFX.Utils {
         }
 
         private void TaskMain() {
-            while (this.isRunning) {
+            do {
                 long target = this.nextTickTime;
                 while ((target - Time.GetSystemTicks()) > THREAD_SPLICE_IN_TICKS)
                     Thread.Sleep(1);
@@ -104,8 +104,10 @@ namespace FramePFX.Utils {
                 }
 
                 this.nextTickTime = Time.GetSystemTicks() + this.intervalTicks;
+                if (!this.isRunning)
+                    return;
                 this.TickCallback?.Invoke();
-            }
+            } while (true);
         }
 
         private void OnTimerTick() {

@@ -16,26 +16,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         protected BaseResourceHelper() {
         }
 
-        ~BaseResourceHelper() => this.Dispose(false);
-
-        public void Dispose(bool isDisposing = true) {
-            using (ErrorList list = new ErrorList())
-                this.Dispose(list, isDisposing);
-        }
-
-        public void Dispose(ErrorList list, bool isDisposing = true) {
-            try {
-                this.DisposeCore(list, isDisposing);
-            }
-            catch (Exception e) {
-                list.Add(new Exception("Unexpected exception", e));
-            }
-            finally {
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        protected virtual void DisposeCore(ErrorList list, bool disposing) {
+        public virtual void Dispose() {
         }
 
         protected virtual void OnOnlineStateChanged(ResourceManager manager, ResourceItem item) {

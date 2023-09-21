@@ -25,8 +25,8 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         public ResourceAVMedia() {
         }
 
-        protected override void OnDisableCore(ErrorList list, bool user) {
-            base.OnDisableCore(list, user);
+        protected override void OnDisableCore(bool user) {
+            base.OnDisableCore(user);
             this.DisposeMediaFile();
         }
 
@@ -194,8 +194,8 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             }
         }
 
-        protected override void DisposeCore(ErrorList list) {
-            base.DisposeCore(list);
+        public override void Dispose() {
+            base.Dispose();
             this.DisposeMediaFile();
         }
     }

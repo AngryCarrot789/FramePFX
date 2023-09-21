@@ -8,6 +8,7 @@ using FramePFX.Editor.Notifications;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History.ViewModels;
+using FramePFX.Notifications.Types;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -57,9 +58,14 @@ namespace FramePFX.Editor.ViewModels {
                 return;
             if (!this.activeTimelines.Contains(timeline))
                 throw new Exception("Timeline is not in the active timelines list");
+            if (this.activeTimeline != null) {
+                this.Playback.StopPlaybackForChangingTimeline();
+            }
+
             this.RaisePropertyChanged(ref this.activeTimeline, timeline);
             if (timeline != null) {
-                this.DoRenderFrame(timeline, true);
+                timeline.RefreshAutomationAndPlayhead();
+                this.DoDrawRenderFrame(timeline, true);
             }
         }
 
@@ -139,7 +145,7 @@ namespace FramePFX.Editor.ViewModels {
                 this.IsEditorEnabled = true;
             }
 
-            await timeline.DoRender(false);
+            await timeline.DoAutomationTickAndRender(false);
         }
 
         private void OnProjectModified(object sender, string property) {
@@ -190,7 +196,7 @@ namespace FramePFX.Editor.ViewModels {
                 dictionary = RBEUtils.ReadFromFilePacked(path) as RBEDictionary;
             }
             catch (Exception e) {
-                await IoC.MessageDialogs.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());
                 return;
             }
 #endif
@@ -229,17 +235,6 @@ namespace FramePFX.Editor.ViewModels {
             };
 
             if (!await ResourceCheckerViewModel.LoadProjectResources(checker, pvm, true)) {
-#if DEBUG
-                pvm.Dispose();
-#else
-                try {
-                    pvm.Dispose();
-                }
-                catch (Exception e) {
-                    await IoC.MessageDialogs.ShowMessageExAsync("Failed to close project", "...", e.GetToString());
-                }
-#endif
-
                 await this.SetProject(null);
                 return;
             }
@@ -253,14 +248,20 @@ namespace FramePFX.Editor.ViewModels {
             }
 
             await this.Playback.OnProjectChanging(project);
-            await HistoryManagerViewModel.Instance.ResetAsync();
             if (this.activeProject != null) {
                 this.activeTimeline = null;
                 this.RaisePropertyChanged(nameof(this.ActiveTimeline));
-
+                this.Model.ActiveTimeline = null;
                 this.activeTimelines.Clear();
-                this.activeProject.OnDisconnectFromEditor();
                 this.Model.SetProject(null);
+                this.activeProject.OnDisconnectFromEditor();
+                try {
+                    this.activeProject.Dispose();
+                }
+                catch (Exception e) {
+                    AppLogger.WriteLine("Exception while disposing project: " + e.GetToString());
+                    this.View.NotificationPanel.PushNotification(new MessageNotification("Error", "An error occurred while unloading project. See logs for more info"));
+                }
             }
 
             this.activeProject = project;
@@ -276,6 +277,7 @@ namespace FramePFX.Editor.ViewModels {
             this.IsEditorEnabled = project != null;
             this.ExportCommand.RaiseCanExecuteChanged();
             await this.Playback.OnProjectChanged(project);
+            await HistoryManagerViewModel.Instance.ResetAsync();
         }
 
         public void Dispose() {
@@ -363,7 +365,8 @@ namespace FramePFX.Editor.ViewModels {
                 this.notification.OnSaveComplete();
             }
             else {
-                this.notification.OnSaveFailed(e.GetToString());
+                this.notification.OnSaveFailed(e.Message + ". See logs for more info");
+                AppLogger.WriteLine(e.GetToString());
             }
 
             this.notification.Timeout = TimeSpan.FromSeconds(5);
@@ -371,7 +374,7 @@ namespace FramePFX.Editor.ViewModels {
             this.notification = null;
         }
 
-        public Task DoRenderFrame(TimelineViewModel timeline, bool schedule = false) {
+        public Task DoDrawRenderFrame(TimelineViewModel timeline, bool schedule = false) {
             return this.View.RenderTimelineAsync(timeline, schedule);
         }
     }

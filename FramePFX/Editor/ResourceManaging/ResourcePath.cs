@@ -33,12 +33,6 @@ namespace FramePFX.Editor.ResourceManaging {
         /// </summary>
         public bool? IsValid { get; protected set; }
 
-        /// <summary>
-        /// An event called when this resource path is disposed. This is only
-        /// called when explicitly disposed; finalizer does not call this event
-        /// </summary>
-        public event EventHandler Disposed;
-
         public event ResourceItemEventHandler OnlineStateChanged;
 
         protected ResourcePathBase(ResourceManager manager, ulong resourceId) {
@@ -51,10 +45,6 @@ namespace FramePFX.Editor.ResourceManaging {
                 this.Manager = manager;
                 this.AttachManager(manager);
             }
-        }
-
-        ~ResourcePathBase() {
-            this.Dispose(false);
         }
 
         public void SetManager(ResourceManager manager) {
@@ -120,27 +110,12 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         /// <summary>
-        /// Disposes this resource path, removing all <see cref="ResourceManager"/> handlers that it has registered,
-        /// then sets the manager to null which in tern sets the cached item to null (invoking the <see cref="ResourceChanged"/> event), and then
-        /// finally invokes the <see cref="Disposed"/> event
+        /// Disposes this resource path. This first clears the resource (causing the <see cref="ResourceChanged"/>
+        /// event to be fired), removes the <see cref="ResourceManager"/> handlers and finally sets the manager
+        /// to null
         /// </summary>
-        public void Dispose() {
-            if (this.isDisposed) {
-                return;
-            }
-
-            this.Dispose(true);
-            this.Disposed?.Invoke(this, EventArgs.Empty);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                this.ClearInternalResource();
-            }
-
-            // finalizer call would most likely mean Manager is null, because otherwise how
-            // could there be no references if the event handlers are still registered??
+        public virtual void Dispose() {
+            this.ClearInternalResource();
             ResourceManager manager = this.Manager;
             if (manager != null) {
                 this.Manager = null;

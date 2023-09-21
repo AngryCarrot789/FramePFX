@@ -183,7 +183,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             //         media2.LoadMedia(media2.FilePath);
             //     }
             //     catch (Exception e) {
-            //         await IoC.MessageDialogs.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
+            //         await Services.DialogService.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
             //         return;
             //     }
             //     foreach (VideoStream steam in media2.reader.GetVideoStreams()) {
@@ -208,7 +208,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             //             newClip = clip;
             //         }
             //         else {
-            //             await IoC.MessageDialogs.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+            //             await Services.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
             //             return;
             //         }
             //     }
@@ -305,7 +305,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             VideoEditorViewModel editor; // slight performance helper
             if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
-                this.Timeline.DoRender(true);
+                this.Timeline.DoAutomationTickAndRender(true);
             }
         }
 

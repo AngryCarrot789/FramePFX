@@ -88,7 +88,7 @@ namespace FramePFX.History.Tasks {
                     return false;
                 }
                 else {
-                    Debug.Assert(!this.currentAction.IsRemoved, "Did not expect the current action to be removed; the event should have been fired");
+                    ExceptionUtils.Assert(!this.currentAction.IsRemoved, "Did not expect the current action to be removed; the event should have been fired");
                     action = (T) this.currentAction.Action;
                     if (time <= this.pushBackGapTime) {
                         this.expiryTime += this.pushBackTime;
@@ -171,21 +171,21 @@ namespace FramePFX.History.Tasks {
 
         private void OnActionUndo(EventHistoryAction action) {
             lock (this.locker) {
-                Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
+                ExceptionUtils.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
                 this.OnExpired();
             }
         }
 
         private void OnActionRedo(EventHistoryAction action) {
             lock (this.locker) {
-                Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
+                ExceptionUtils.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
                 this.OnExpired();
             }
         }
 
         private void OnActionRemoved(EventHistoryAction action) {
             lock (this.locker) {
-                Debug.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
+                ExceptionUtils.Assert(ReferenceEquals(action, this.currentAction), "Expected action and current action to match");
                 this.OnExpired();
             }
         }

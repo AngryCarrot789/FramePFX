@@ -88,7 +88,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
             catch (Exception e)
             {
-                await IoC.MessageDialogs.ShowMessageExAsync("Error deleting item", "An exception occurred while deleting this item", e.GetToString());
+                await Services.DialogService.ShowMessageExAsync("Error deleting item", "An exception occurred while deleting this item", e.GetToString());
             }
 #endif
 
@@ -98,8 +98,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <summary>
         /// Called when the model associated with this view model is disposed
         /// </summary>
-        /// <param name="list"></param>
-        protected virtual void OnModelDisposed(ErrorList list) {
+        protected virtual void OnModelDisposed() {
         }
 
         public async Task<bool> RenameAsync() {
@@ -134,7 +133,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     list.Add(new Exception("Failed to dispose model", e));
                 }
 
-                this.OnModelDisposed(list);
+                this.OnModelDisposed();
             }
         }
     }

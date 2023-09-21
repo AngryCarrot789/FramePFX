@@ -53,11 +53,8 @@ namespace FramePFX.Editor.ResourceManaging {
         public ResourceManager(Project project) {
             this.uuidToItem = new Dictionary<ulong, ResourceItem>();
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
-            this.RootGroup = new ResourceGroup() {
-                DisplayName = "<root>"
-            };
+            this.RootGroup = new ResourceGroup() {DisplayName = "<root>"};
             this.RootGroup.SetManager(this);
-
             this.IsResourceNotInUsePredicate = s => !this.EntryExists(s);
             this.IsResourceInUsePredicate = this.EntryExists;
         }
@@ -85,19 +82,20 @@ namespace FramePFX.Editor.ResourceManaging {
                 throw new Exception("Cannot read data while resources are still registered");
 
             this.RootGroup.ReadFromRBE(data.GetDictionary(nameof(this.RootGroup)));
-            AccumulateEntriesRecursive(this.RootGroup, this.uuidToItem);
+            AccumulateEntriesRecursive(this, this.RootGroup, this.uuidToItem);
             this.currId = data.GetULong("CurrId", 0UL);
         }
 
-        private static void AccumulateEntriesRecursive(BaseResourceObject obj, Dictionary<ulong, ResourceItem> resources) {
+        private static void AccumulateEntriesRecursive(ResourceManager manager, BaseResourceObject obj, Dictionary<ulong, ResourceItem> resources) {
             if (obj is ResourceItem item) {
                 if (resources.TryGetValue(item.UniqueId, out ResourceItem entry))
                     throw new Exception($"A resource already exists with the id '{item.UniqueId}': {entry}");
                 resources[item.UniqueId] = item;
+                manager.ResourceAdded?.Invoke(manager, item);
             }
             else if (obj is ResourceGroup group) {
                 foreach (BaseResourceObject subItem in group.Items) {
-                    AccumulateEntriesRecursive(subItem, resources);
+                    AccumulateEntriesRecursive(manager, subItem, resources);
                 }
             }
             else {

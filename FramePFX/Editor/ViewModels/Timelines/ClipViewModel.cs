@@ -37,7 +37,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// <summary>
         /// The track this clip is located in
         /// </summary>
-        public TrackViewModel Track { get; set; }
+        public TrackViewModel Track { get; private set; }
 
         /// <summary>
         /// Whether or not this clip's history is being changed, and therefore, no changes should be pushed to the history manager
@@ -278,7 +278,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         // [ShortcutTarget("Application/RenameItem")]
         // public async Task OnShortcutActivated() {
         //     await Task.Run(async () => {
-        //         await IoC.MessageDialogs.ShowDialogAsync("t", "ttt");
+        //         await Services.DialogService.ShowDialogAsync("t", "ttt");
         //     });
         // }
 
@@ -309,17 +309,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Track?.OnProjectModified();
         }
 
-        public void Dispose() {
-            using (ErrorList stack = new ErrorList()) {
-                try {
-                    this.DisposeCore(stack);
-                }
-                catch (Exception e) {
-                    stack.Add(new Exception(nameof(this.DisposeCore) + " method unexpectedly threw", e));
-                }
-            }
-        }
-
         public void ClearEffects(bool updatePropertyPages = true) {
             using (ErrorList list = new ErrorList()) {
                 this.isClearingEffects = true;
@@ -338,13 +327,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        protected virtual void DisposeCore(ErrorList stack) {
-            try {
-                this.Model.Dispose();
-            }
-            catch (Exception e) {
-                stack.Add(new Exception("Exception disposing model", e));
-            }
+        /// <summary>
+        /// Disposes the model and also things that this clip has (e.g. event handlers registered to models)
+        /// </summary>
+        public virtual void Dispose() {
+            this.Model.Dispose();
         }
 
         public bool IntersectsFrameAt(long frame) => this.Model.IntersectsFrameAt(frame);
@@ -494,14 +481,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.drag?.OnDragToTrack(index);
         }
 
-        public static void RaiseTrackChanged(ClipViewModel clip) {
-            clip.RaisePropertyChanged(nameof(Track));
-            clip.RaisePropertyChanged(nameof(Timeline));
-            clip.RaisePropertyChanged(nameof(Project));
-            clip.RaisePropertyChanged(nameof(Editor));
-            clip.RaisePropertyChanged(nameof(RelativePlayHead));
-        }
-
         public async Task<bool> RenameAsync() {
             string result = await Services.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.DisplayName ?? "", Validators.ForNonWhiteSpaceString());
             if (result != null) {
@@ -540,5 +519,22 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) => this.Model.ConvertTimelineToRelativeFrame(timeline, out valid);
 
         public bool IsTimelineFrameInRange(long timeline) => this.Model.IsTimelineFrameInRange(timeline);
+
+        public static void PreSetTrack(ClipViewModel clip, TrackViewModel track) {
+            clip.Track = track;
+        }
+
+        public static void PostSetTrack(ClipViewModel clip, TrackViewModel track) {
+            clip.RaisePropertyChanged(nameof(Track));
+            clip.RaisePropertyChanged(nameof(Timeline));
+            clip.RaisePropertyChanged(nameof(Project));
+            clip.RaisePropertyChanged(nameof(Editor));
+            clip.RaisePropertyChanged(nameof(RelativePlayHead));
+        }
+
+        public static void SetTrack(ClipViewModel clip, TrackViewModel track) {
+            PreSetTrack(clip, track);
+            PostSetTrack(clip, track);
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace FramePFX.WPF.Views {
             this.InitializeComponent();
             this.updateAction = this.UpdateText;
             this.Loaded += (sender, args) => {
-                this.LoggerTextBox.Text = AppLogger.LogText;
+                this.UpdateText();
                 AppLogger.Log += this.OnLog;
             };
 
@@ -24,7 +24,7 @@ namespace FramePFX.WPF.Views {
         }
 
         private void UpdateText() {
-            this.LoggerTextBox.Text = AppLogger.LogText;
+            this.LoggerTextBox.Text = AppLogger.GetLogText();
         }
     }
 }

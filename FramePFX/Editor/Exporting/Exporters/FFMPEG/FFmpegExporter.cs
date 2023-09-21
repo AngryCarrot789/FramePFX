@@ -193,7 +193,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                     }
 
                     rc.Canvas.Clear(SKColors.Black);
-                    AutomationEngine.UpdateProject(project, fidx);
+                    AutomationEngine.UpdateTimeline(project.Timeline, fidx);
                     try {
                         renderTask = project.Timeline.RenderAsync(rc, fidx, cancellation);
                         while (!renderTask.IsCompleted) {

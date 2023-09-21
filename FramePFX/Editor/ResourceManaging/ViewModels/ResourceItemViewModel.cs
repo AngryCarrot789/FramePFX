@@ -189,8 +189,9 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return result;
         }
 
-        protected override void OnModelDisposed(ErrorList list) {
+        protected override void OnModelDisposed() {
             this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
+            base.OnModelDisposed();
         }
     }
 }

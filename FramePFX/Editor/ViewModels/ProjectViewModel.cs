@@ -358,16 +358,16 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public void Dispose() {
-            using (ErrorList list = new ErrorList()) {
+            using (ErrorList list = new ErrorList("Encountered an error while disposing project")) {
                 try {
-                    this.Timeline.Dispose();
+                    this.Timeline.ClearAndDispose();
                 }
                 catch (Exception e) {
                     list.Add(e);
                 }
 
                 try {
-                    this.ResourceManager.Dispose();
+                    this.ResourceManager.ClearAndDispose();
                 }
                 catch (Exception e) {
                     list.Add(e);

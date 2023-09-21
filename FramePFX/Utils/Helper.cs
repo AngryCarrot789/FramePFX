@@ -13,21 +13,19 @@ namespace FramePFX.Utils {
         /// If <see cref="location"/> is null, nothing happens and this function returns true
         /// </para>
         /// </summary>
-        /// <param name="location"></param>
-        /// <param name="newValue"></param>
-        /// <param name="oldValue"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns>True if <see cref="location"/> is non-null, otherwise false</returns>
+        /// <param name="location">The reference to set to the new value</param>
+        /// <param name="newValue">The new value to be set at the location</param>
+        /// <param name="oldValue">The previous value of location</param>
+        /// <typeparam name="T">The type of value</typeparam>
+        /// <returns>True if the location is non-null, otherwise false</returns>
         public static bool Exchange<T>(ref T location, T newValue, out T oldValue) where T : class {
-            T value = location;
-            if (value == null) {
-                oldValue = null;
+            if ((oldValue = location) == null) {
                 return false;
             }
-
-            oldValue = value;
-            location = newValue;
-            return true;
+            else {
+                location = newValue;
+                return true;
+            }
         }
     }
 }

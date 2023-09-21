@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Commands;
+using FramePFX.Utils;
 
 namespace FramePFX.Notifications {
     public abstract class NotificationViewModel : BaseViewModel {
@@ -115,7 +116,7 @@ namespace FramePFX.Notifications {
         }
 
         private void OnNotificationNoLongerVisible(NotificationViewModel obj, bool cancelled) {
-            Debug.Assert(ReferenceEquals(obj, this), "Callback parameter does not match the current instance");
+            ExceptionUtils.Assert(ReferenceEquals(obj, this), "Callback parameter does not match the current instance");
             if (cancelled) {
                 return;
             }

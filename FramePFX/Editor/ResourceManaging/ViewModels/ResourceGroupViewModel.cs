@@ -19,11 +19,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.items = new ObservableCollection<BaseResourceObjectViewModel>();
             this.Items = new ReadOnlyObservableCollection<BaseResourceObjectViewModel>(this.items);
             foreach (BaseResourceObject item in model.Items) {
-                BaseResourceObjectViewModel viewModel = item.CreateViewModel();
-                this.items.Add(viewModel);
-
                 // no need to set manager to ours because it will be null as we are in the ctor
+                BaseResourceObjectViewModel viewModel = item.CreateViewModel();
                 viewModel.SetParent(this);
+                this.items.Add(viewModel);
             }
         }
 
@@ -48,8 +47,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         public void InsertItem(int index, BaseResourceObjectViewModel item, bool addToModel = true) {
             if (addToModel)
                 this.Model.InsertItem(index, item.Model);
-            this.items.Insert(index, item);
             item.SetParent(this);
+            this.items.Insert(index, item);
             item.SetManager(this.Manager);
         }
 
@@ -120,17 +119,17 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             BaseResourceObjectViewModel item = this.items[index];
             using (ErrorList list = new ErrorList()) {
                 try {
-                    item.Dispose();
-                }
-                catch (Exception e) {
-                    list.Add(new Exception($"Failed to dispose of '{item}'", e));
-                }
-
-                try {
                     this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
                 }
                 catch (Exception e) {
                     list.Add(new Exception($"Failed to remove '{item}'", e));
+                }
+
+                try {
+                    item.Dispose();
+                }
+                catch (Exception e) {
+                    list.Add(new Exception($"Failed to dispose of '{item}'", e));
                 }
             }
         }
@@ -138,11 +137,12 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <summary>
         /// Disposes all of this resource's child resources and clears the underlying collection
         /// </summary>
-        public void DisposeChildrenAndClear() {
+        /// <param name="b"></param>
+        public void DisposeChildrenAndClear(bool unregisterHierarcy = true) {
             using (ErrorList list = new ErrorList("Exception while disposing child items")) {
                 for (int i = this.items.Count - 1; i >= 0; i--) {
                     try {
-                        this.DisposeAndRemoveItemAt(i);
+                        this.DisposeAndRemoveItemAt(i, unregisterHierarcy:unregisterHierarcy);
                     }
                     catch (Exception e) {
                         list.Add(e);

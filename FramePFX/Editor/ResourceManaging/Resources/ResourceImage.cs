@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.RBC;
-using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.ResourceManaging.Resources {
@@ -73,44 +72,11 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             }
         }
 
-        protected override void DisposeCore(ErrorList list) {
-            base.DisposeCore(list);
-            try {
-                this.bitmap?.Dispose();
-            }
-            catch (Exception e) {
-                list.Add(new Exception("Failed to dispose bitmap", e));
-            }
-
+        public override void Dispose() {
+            base.Dispose();
+            this.bitmap?.Dispose();
             this.bitmap = null;
-
-            try {
-                this.image?.Dispose();
-            }
-            catch (Exception e) {
-                list.Add(new Exception("Failed to dispose image", e));
-            }
-
-            this.image = null;
-        }
-
-        public void DisposeImageCareless() {
-            try {
-                this.bitmap?.Dispose();
-            }
-            catch (Exception e) {
-                Debug.WriteLine($"Exception disposing image's bitmap at {this.FilePath}: {e.GetToString()}");
-            }
-
-            this.bitmap = null;
-
-            try {
-                this.image?.Dispose();
-            }
-            catch (Exception e) {
-                Debug.WriteLine($"Exception disposing image's image at {this.FilePath}: {e.GetToString()}");
-            }
-
+            this.image?.Dispose();
             this.image = null;
         }
 

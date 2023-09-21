@@ -120,5 +120,11 @@ namespace FramePFX.Utils {
         public static string FormatFrame(StackFrame frame) {
             return frame.ToString(); // default formatting
         }
+
+        public static void Assert(bool condition, string msg) {
+            if (!condition) {
+                throw new Exception(msg);
+            }
+        }
     }
 }

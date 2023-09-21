@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FramePFX.Actions.Contexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Usage;
+using FramePFX.Utils;
 
 namespace FramePFX.Shortcuts.Managing {
     /// <summary>
@@ -288,7 +289,7 @@ namespace FramePFX.Shortcuts.Managing {
 
         public async Task ProcessInputStatesForMouseUp(string focusedGroup, MouseStroke stroke) {
             this.AccumulateShortcuts(stroke, focusedGroup, BlockAllFilter);
-            Debug.Assert(this.cachedShortcutList.Count == 0, "Expected the block all filter to work properly");
+            ExceptionUtils.Assert(this.cachedShortcutList.Count == 0, "Expected the block all filter to work properly");
             await this.ProcessInputStates();
         }
 

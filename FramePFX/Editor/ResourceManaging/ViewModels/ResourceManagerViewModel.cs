@@ -187,7 +187,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                         // using (ExceptionStack stack = new ExceptionStack(false)) {
                         //     await media.LoadResource(null, stack);
                         //     if (stack.TryGetException(out Exception exception)) {
-                        //         await IoC.MessageDialogs.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
+                        //         await Services.DialogService.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
                         //         return;
                         //     }
                         // }
@@ -198,7 +198,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                         // }
                         // else {
                         //     ((BaseResourceObjectViewModel) media).Model.Dispose();
-                        //     await IoC.MessageDialogs.ShowMessageAsync("Empty media", "Media contains no video or audio streams");
+                        //     await Services.DialogService.ShowMessageAsync("Empty media", "Media contains no video or audio streams");
                         // }
 
                         break;
@@ -245,9 +245,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public void Dispose() {
-            ((BaseResourceObjectViewModel) this.Root).Model.Dispose();
-            this.Model.ClearEntries();
+        public void ClearAndDispose() {
+            this.Root.UnregisterHierarchy();
+            this.Root.DisposeChildrenAndClear(false);
+            this.Root.Dispose();
         }
 
         public async Task OfflineAllAsync(bool user) {

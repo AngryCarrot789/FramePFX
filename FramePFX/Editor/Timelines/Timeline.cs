@@ -134,7 +134,7 @@ namespace FramePFX.Editor.Timelines {
 
         public void RemoveTrackAt(int index) {
             Track track = this.tracks[index];
-            Debug.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
+            ExceptionUtils.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
             this.tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
         }
@@ -152,7 +152,7 @@ namespace FramePFX.Editor.Timelines {
 
         public void MoveTrackToTimeline(int index, Timeline timeline) {
             Track track = this.tracks[index];
-            Debug.Assert(track.Timeline == this, "Track is stored in current timeline, but its parent timeline does not match");
+            ExceptionUtils.Assert(track.Timeline == this, "Track is stored in current timeline, but its parent timeline does not match");
             if (timeline.tracks.Contains(track))
                 throw new Exception("Target timeline already contains the track");
             this.tracks.RemoveAt(index);

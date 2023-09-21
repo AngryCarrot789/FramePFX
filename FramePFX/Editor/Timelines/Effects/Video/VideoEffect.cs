@@ -7,10 +7,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// <summary>
         /// The video clip that owns this effect
         /// </summary>
-        public new VideoClip OwnerClip {
-            get => (VideoClip) base.OwnerClip;
-            set => base.OwnerClip = value;
-        }
+        public new VideoClip OwnerClip => (VideoClip) base.OwnerClip;
 
         protected VideoEffect() {
 

@@ -141,8 +141,8 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public void InsertClip(int index, Clip clip) {
-            this.clips.Insert(index, clip);
             Clip.SetTrack(clip, this);
+            this.clips.Insert(index, clip);
         }
 
         public bool RemoveClip(Clip clip) {
@@ -157,8 +157,8 @@ namespace FramePFX.Editor.Timelines {
             Clip clip = this.clips[index];
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception("Expected clip's track to equal this instance");
-            Clip.SetTrack(clip, null);
             this.clips.RemoveAt(index);
+            Clip.SetTrack(clip, null);
         }
 
         public void MoveClipIndex(int oldIndex, int newIndex) {

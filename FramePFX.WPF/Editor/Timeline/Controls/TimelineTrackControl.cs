@@ -7,6 +7,7 @@ using System.Windows.Input;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Track;
@@ -53,7 +54,10 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             base.OnPreviewMouseLeftButtonDown(e);
             if (this.DataContext is TrackViewModel track && track.Timeline != null) {
                 if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
-                    track.Timeline.PrimarySelectedTrack = track;
+                    if (track.Timeline.PrimarySelectedTrack != track) {
+                        track.Timeline.PrimarySelectedTrack = track;
+                        PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(track.Timeline.SelectedTracks.ToList());
+                    }
                 }
             }
         }
@@ -72,7 +76,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);
-            this.canSetPlayHead = true;
+            // this.canSetPlayHead = true;
             if (this.Timeline.GetSelectedClipContainers().Any(clip => ReferenceEquals(clip.Track, this) && clip.IsMouseOver)) {
                 return;
             }

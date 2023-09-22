@@ -22,8 +22,6 @@
     <Folder Include="Automation\Actions\" />
     <Folder Include="Editor\Exporting\Exporters\Services\" />
     <Folder Include="Plugins\Demo\" />
-    <Folder Include="PropertyEditing\Editor\Clips\" />
-    <Folder Include="PropertyEditing\Editor\Editor" />
   </ItemGroup>
 
 </Project>

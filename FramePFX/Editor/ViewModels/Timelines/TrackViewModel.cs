@@ -21,17 +21,16 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     /// </summary>
     public abstract class TrackViewModel : BaseViewModel, IHistoryHolder, IDisplayName, ITrackResourceDropHandler, IAutomatableViewModel, IProjectViewModelBound, IRenameTarget {
         protected readonly HistoryBuffer<HistoryTrackDisplayName> displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
-
         private readonly ObservableCollectionEx<ClipViewModel> clips;
+        private ClipViewModel selectedClip;
+
         public ReadOnlyObservableCollection<ClipViewModel> Clips { get; }
 
         public ObservableCollection<ClipViewModel> SelectedClips { get; }
 
-        private ClipViewModel primarySelectedClip;
-
-        public ClipViewModel PrimarySelectedClip {
-            get => this.primarySelectedClip;
-            set => this.RaisePropertyChanged(ref this.primarySelectedClip, value);
+        public ClipViewModel SelectedClip {
+            get => this.selectedClip;
+            set => this.RaisePropertyChanged(ref this.selectedClip, value);
         }
 
         public string DisplayName {
@@ -39,7 +38,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             set {
                 if (!this.IsHistoryChanging) {
                     if (!this.displayNameHistory.TryGetAction(out HistoryTrackDisplayName action))
-                        this.displayNameHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryTrackDisplayName(this), "Edit media duration");
+                        this.displayNameHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryTrackDisplayName(this), "Edit display name");
                     action.DisplayName.SetCurrent(value);
                 }
 
@@ -48,26 +47,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        public double MinHeight {
-            get => this.Model.MinHeight;
-            set {
-                this.Model.MinHeight = value;
-                this.RaisePropertyChanged();
-            }
-        }
-
-        public double MaxHeight {
-            get => this.Model.MaxHeight;
-            set {
-                this.Model.MaxHeight = value;
-                this.RaisePropertyChanged();
-            }
-        }
-
         public double Height {
             get => this.Model.Height;
             set {
-                this.Model.Height = Math.Max(Math.Min(value, this.MaxHeight), this.MinHeight);
+                this.Model.Height = Math.Max(Math.Min(value, 500), 24);
                 this.RaisePropertyChanged();
             }
         }
@@ -85,10 +68,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public bool IsAutomationRefreshInProgress { get; set; }
 
-        public AsyncRelayCommand RenameTrackCommand { get; }
-
-        public AsyncRelayCommand RemoveSelectedClipsCommand { get; }
-
         public TimelineViewModel Timeline { get; set; }
 
         public ProjectViewModel Project => this.Timeline?.Project;
@@ -97,9 +76,12 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public AutomationDataViewModel AutomationData { get; }
 
-        public Track Model { get; }
+        public AsyncRelayCommand RenameTrackCommand { get; }
+        public AsyncRelayCommand RemoveSelectedClipsCommand { get; }
 
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
+
+        public Track Model { get; }
 
         protected TrackViewModel(Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -111,6 +93,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.SelectedClips.CollectionChanged += (sender, args) => {
                 this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
             };
+
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
             this.RenameTrackCommand = new AsyncRelayCommand(this.RenameAsync);
 
@@ -119,8 +102,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        public virtual void OnProjectModified() {
-        }
+        public virtual void OnProjectModified() => this.Project?.OnProjectModified();
 
         public ClipViewModel CreateClip(Clip model, bool addToModel = true) {
             ClipViewModel vm = ClipRegistry.Instance.CreateViewModelFromModel(model);
@@ -149,6 +131,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             ClipViewModel.PreSetTrack(clip, this);
             this.clips.Insert(index, clip);
             ClipViewModel.PostSetTrack(clip, this);
+            this.OnProjectModified();
         }
 
         public bool RemoveClip(ClipViewModel clip) {
@@ -169,6 +152,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Model.RemoveClipAt(index);
             this.clips.RemoveAt(index);
             ClipViewModel.SetTrack(clip, null);
+            this.OnProjectModified();
             return clip;
         }
 
@@ -300,7 +284,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             track.RaisePropertyChanged(nameof(Timeline));
             track.RaisePropertyChanged(nameof(Project));
             track.RaisePropertyChanged(nameof(Editor));
-            track.RaisePropertyChanged(nameof(AutomationEngine));
         }
 
         public async Task<bool> RenameAsync() {
@@ -341,7 +324,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 if (!ReferenceEquals(this, clip.Track))
                     throw new Exception($"Clip track does not match the current instance: {clip.Track} != {this}");
                 if (!ReferenceEquals(this.Model.Clips[index], clip.Model))
-                    throw new Exception($"Clip model clip list desynchronized");
+                    throw new Exception("Clip model clip list desynchronized");
 
                 this.Model.MoveClipToTrack(index, newTrack.Model);
 
@@ -349,6 +332,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 ClipViewModel.PreSetTrack(clip, newTrack);
                 newTrack.clips.Add(clip);
                 ClipViewModel.PostSetTrack(clip, newTrack);
+                this.OnProjectModified();
             }
         }
     }

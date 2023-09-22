@@ -1,9 +1,12 @@
 using System;
 using FramePFX.Commands;
 
-namespace FramePFX.PropertyEditing.Editor.Primitives {
+namespace FramePFX.PropertyEditing.Editor {
     public class CheckBoxEditorViewModel : BasePropertyEditorViewModel {
         private bool? isChecked;
+        private string label;
+        private string trueLabel;
+        private string falseLabel;
 
         public bool? IsChecked {
             get => this.isChecked;
@@ -21,21 +24,15 @@ namespace FramePFX.PropertyEditing.Editor.Primitives {
             }
         }
 
-        private string label;
-
         public string Label {
             get => this.label;
             set => this.RaisePropertyChanged(ref this.label, value);
         }
 
-        private string trueLabel;
-
         public string TrueLabel {
             get => this.trueLabel;
             set => this.RaisePropertyChanged(ref this.trueLabel, value);
         }
-
-        private string falseLabel;
 
         public string FalseLabel {
             get => this.falseLabel;

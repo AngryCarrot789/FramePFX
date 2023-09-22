@@ -6,6 +6,9 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editor.Exporting {
     public class ExportProgressViewModel : BaseViewModel, IExportProgress {
+        private long currentRenderFrame;
+        private long currentEncodeFrame;
+
         public ExportProperties ExportProperties { get; }
 
         public string FilePath => this.ExportProperties.FilePath;
@@ -16,25 +19,9 @@ namespace FramePFX.Editor.Exporting {
 
         public long EndFrame => this.RenderSpan.EndIndex;
 
-        private long currentRenderFrame;
+        public long CurrentRenderFrame => this.currentRenderFrame;
 
-        public long CurrentRenderFrame {
-            get => this.currentRenderFrame;
-            set {
-                this.RaisePropertyChanged(ref this.currentRenderFrame, value);
-                this.RaisePropertyChanged(nameof(this.RenderProgressPercentage));
-            }
-        }
-
-        private long currentEncodeFrame;
-
-        public long CurrentEncodeFrame {
-            get => this.currentEncodeFrame;
-            set {
-                this.RaisePropertyChanged(ref this.currentEncodeFrame, value);
-                this.RaisePropertyChanged(nameof(this.EncodeProgressPercentage));
-            }
-        }
+        public long CurrentEncodeFrame => this.currentEncodeFrame;
 
         public int RenderProgressPercentage => (int) Maths.Map(this.currentRenderFrame, this.BeginFrame, this.EndFrame, 0, 100);
         public int EncodeProgressPercentage => (int) Maths.Map(this.currentEncodeFrame, this.BeginFrame, this.EndFrame, 0, 100);
@@ -45,12 +32,28 @@ namespace FramePFX.Editor.Exporting {
 
         private bool isCancelled;
 
+        // shorter hand names for "dispatcher scheduled frame render" and "frame encode"
+        private int dschRF, dschEF;
+
+        private readonly RapidDispatchCallback rapidUpdateRender;
+        private readonly RapidDispatchCallback rapidUpdateEncode;
+
         public ExportProgressViewModel(ExportProperties properties, CancellationTokenSource cancellation) {
             this.ExportProperties = properties;
             this.Cancellation = cancellation;
             this.currentRenderFrame = properties.Span.Begin;
             this.currentEncodeFrame = properties.Span.Begin;
             this.CancelCommand = new AsyncRelayCommand(this.CancelActionAsync, () => !this.isCancelled);
+
+            this.rapidUpdateRender = new RapidDispatchCallback(() => {
+                this.RaisePropertyChanged(nameof(this.CurrentRenderFrame));
+                this.RaisePropertyChanged(nameof(this.RenderProgressPercentage));
+            }, "ExportUpdateRender");
+
+            this.rapidUpdateEncode = new RapidDispatchCallback(() => {
+                this.RaisePropertyChanged(nameof(this.CurrentEncodeFrame));
+                this.RaisePropertyChanged(nameof(this.EncodeProgressPercentage));
+            }, "ExportUpdateEncode");
         }
 
         public async Task CancelActionAsync() {
@@ -68,14 +71,16 @@ namespace FramePFX.Editor.Exporting {
             }
         }
 
+        // These are called from the exporter thread,
+
         public void OnFrameRendered(long frame) {
-            // this.CurrentRenderFrame = frame;
-            this.CurrentRenderFrame++;
+            Interlocked.Increment(ref this.currentRenderFrame);
+            this.rapidUpdateRender.Invoke();
         }
 
         public void OnFrameEncoded(long frame) {
-            this.CurrentEncodeFrame++;
-            // this.CurrentEncodeFrame = Math.Max(frame, );
+            Interlocked.Increment(ref this.currentEncodeFrame);
+            this.rapidUpdateEncode.Invoke();
         }
     }
 }

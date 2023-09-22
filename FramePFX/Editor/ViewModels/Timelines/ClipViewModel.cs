@@ -31,7 +31,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget, IStrictFrameRange, IResourceItemDropHandler {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         private readonly ObservableCollection<BaseEffectViewModel> effects;
-        private bool isClearingEffects;
+        private bool skipUpdatePropertyEditor;
         private bool isSelected;
 
         public Clip Model { get; }
@@ -196,9 +196,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
             this.effects = new ObservableCollection<BaseEffectViewModel>();
             this.Effects = new ReadOnlyObservableCollection<BaseEffectViewModel>(this.effects);
+            this.skipUpdatePropertyEditor = true;
             foreach (BaseEffect fx in model.Effects) {
                 this.AddEffect(EffectRegistry.Instance.CreateViewModelFromModel(fx), false);
             }
+            this.skipUpdatePropertyEditor = false;
 
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
                 string name = await Services.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
@@ -216,12 +218,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.SetActiveAutomationSequence(e.Sequence, false);
         }
 
-        public void UpdateTimelineSelection() {
-            if (this.Timeline != null) {
-                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(this.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
-            }
-        }
-
         public void AddEffect(BaseEffectViewModel effect, bool addToModel = true) {
             this.InsertEffect(effect, this.Effects.Count, addToModel);
             if (effect.AutomationData.ActiveSequence != null) {
@@ -230,19 +226,26 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public void InsertEffect(BaseEffectViewModel effect, int index, bool addToModel = true) {
+            if (effect == null)
+                throw new ArgumentNullException(nameof(effect));
+
             if (this.Effects.Contains(effect))
                 throw new Exception("This clip already contains the effect");
             if (effect.OwnerClip != null)
                 throw new Exception("Effect exists in another clip");
 
-            if (addToModel)
+            if (addToModel) {
                 this.Model.InsertEffect(effect.Model, index);
+            }
+            else if (!this.IsEffectTypeAllowed(effect)) {
+                throw new Exception($"Effect type '{effect.GetType()}' is not applicable to the clip '{this.GetType()}'");
+            }
 
             effect.OwnerClip = this;
             BaseEffectViewModel.OnAddingToClip(effect);
             this.effects.Add(effect);
             BaseEffectViewModel.OnAddedToClip(effect);
-            if (!this.isClearingEffects) {
+            if (!this.skipUpdatePropertyEditor) {
                 this.UpdateEffectPropertyEditor();
             }
         }
@@ -267,7 +270,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             effect.OwnerClip = null;
             this.effects.Remove(effect);
             BaseEffectViewModel.OnRemovedFromClip(effect, this);
-            if (!this.isClearingEffects) {
+            if (!this.skipUpdatePropertyEditor) {
                 this.UpdateEffectPropertyEditor();
             }
         }
@@ -313,7 +316,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public void ClearEffects(bool updatePropertyPages = true) {
             using (ErrorList list = new ErrorList()) {
-                this.isClearingEffects = true;
+                this.skipUpdatePropertyEditor = true;
                 for (int i = this.effects.Count - 1; i >= 0; i--) {
                     try {
                         this.RemoveEffectAt(i);
@@ -322,7 +325,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                         list.Add(new Exception("Failed to remove effect", e));
                     }
                 }
-                this.isClearingEffects = false;
+
+                this.skipUpdatePropertyEditor = false;
                 if (updatePropertyPages) {
                     this.UpdateEffectPropertyEditor();
                 }
@@ -518,7 +522,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public long ConvertRelativeToTimelineFrame(long relative) => this.Model.ConvertRelativeToTimelineFrame(relative);
 
-        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) => this.Model.ConvertTimelineToRelativeFrame(timeline, out valid);
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange) => this.Model.ConvertTimelineToRelativeFrame(timeline, out inRange);
 
         public bool IsTimelineFrameInRange(long timeline) => this.Model.IsTimelineFrameInRange(timeline);
 
@@ -545,6 +549,17 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public virtual Task OnDropResource(ResourceItemViewModel resource, EnumDropType dropType) {
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Delegates a call to our model's <see cref="Clip.IsEffectTypeAllowed"/>
+        /// </summary>
+        /// <param name="effect">The non-null effect to check</param>
+        /// <returns>True if the effect can be added, otherwise false</returns>
+        public bool IsEffectTypeAllowed(BaseEffectViewModel effect) {
+            if (effect == null)
+                throw new ArgumentNullException(nameof(effect));
+            return this.Model.IsEffectTypeAllowed(effect.Model);
         }
     }
 }

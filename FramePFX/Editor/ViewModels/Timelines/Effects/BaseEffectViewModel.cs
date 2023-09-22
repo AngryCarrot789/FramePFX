@@ -67,7 +67,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
 
         public long ConvertRelativeToTimelineFrame(long relative) => this.Model.ConvertRelativeToTimelineFrame(relative);
 
-        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) => this.Model.ConvertTimelineToRelativeFrame(timeline, out valid);
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange) => this.Model.ConvertTimelineToRelativeFrame(timeline, out inRange);
 
         public bool IsTimelineFrameInRange(long timeline) => this.Model.IsTimelineFrameInRange(timeline);
 

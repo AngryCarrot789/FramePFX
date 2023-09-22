@@ -7,13 +7,14 @@ using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Editor;
 
-namespace FramePFX.Editor.PropertyEditors.Clips {
-    public class VideoClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
+namespace FramePFX.Editor.PropertyEditors.Tracks.Video {
+    public class VideoTrackDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
         private readonly RefreshAutomationValueEventHandler RefreshOpacityHandler;
 
         private double opacity;
@@ -26,7 +27,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
                 double change = value - oldVal;
                 Transaction<double>[] array = ((HistoryClipOpacity) this.OpacityEditStateChangedCommand.HistoryAction)?.Opacity;
                 for (int i = 0, c = this.Handlers.Count; i < c; i++) {
-                    VideoClipViewModel clip = (VideoClipViewModel) this.Handlers[i];
+                    VideoTrackViewModel clip = (VideoTrackViewModel) this.Handlers[i];
                     double val = useAddition ? (clip.Opacity + change) : value;
                     clip.Opacity = val;
                     if (array != null) {
@@ -44,10 +45,10 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
 
         public AutomationSequenceViewModel OpacityAutomationSequence => this.SingleSelection.OpacityAutomationSequence;
 
-        public VideoClipViewModel SingleSelection => (VideoClipViewModel) this.Handlers[0];
-        public IEnumerable<VideoClipViewModel> Clips => this.Handlers.Cast<VideoClipViewModel>();
+        public VideoTrackViewModel SingleSelection => (VideoTrackViewModel) this.Handlers[0];
+        public IEnumerable<VideoTrackViewModel> Clips => this.Handlers.Cast<VideoTrackViewModel>();
 
-        public VideoClipDataEditorViewModel() : base(typeof(VideoClipViewModel)) {
+        public VideoTrackDataEditorViewModel() : base(typeof(VideoTrackViewModel)) {
             this.RefreshOpacityHandler = this.RefreshOpacity;
             this.ResetOpacityCommand = new RelayCommand(() => this.Opacity = VideoClip.OpacityKey.Descriptor.DefaultValue);
             this.OpacityEditStateChangedCommand = new EditStateCommand(() => new HistoryClipOpacity(this), "Modify opacity");
@@ -68,7 +69,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
         }
 
         public void RequeryOpacityFromHandlers() {
-            this.opacity = GetEqualValue(this.Handlers, (x) => ((VideoClipViewModel) x).Opacity, out double d) ? d : default;
+            this.opacity = GetEqualValue(this.Handlers, (x) => ((VideoTrackViewModel) x).Opacity, out double d) ? d : default;
             this.RaisePropertyChanged(nameof(this.Opacity));
         }
 
@@ -81,22 +82,22 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             this.OpacityEditStateChangedCommand.OnReset();
         }
 
-        protected class HistoryClipOpacity : BaseHistoryMultiHolderAction<VideoClipViewModel> {
+        protected class HistoryClipOpacity : BaseHistoryMultiHolderAction<VideoTrackViewModel> {
             public readonly Transaction<double>[] Opacity;
-            public readonly VideoClipDataEditorViewModel editor;
+            public readonly VideoTrackDataEditorViewModel editor;
 
-            public HistoryClipOpacity(VideoClipDataEditorViewModel editor) : base(editor.Clips) {
+            public HistoryClipOpacity(VideoTrackDataEditorViewModel editor) : base(editor.Clips) {
                 this.Opacity = Transactions.NewArray(this.Holders, x => x.Opacity);
                 this.editor = editor;
             }
 
-            protected override Task UndoAsync(VideoClipViewModel holder, int i) {
+            protected override Task UndoAsync(VideoTrackViewModel holder, int i) {
                 holder.Opacity = this.Opacity[i].Original;
                 this.editor.RequeryOpacityFromHandlers();
                 return Task.CompletedTask;
             }
 
-            protected override Task RedoAsync(VideoClipViewModel holder, int i) {
+            protected override Task RedoAsync(VideoTrackViewModel holder, int i) {
                 holder.Opacity = this.Opacity[i].Current;
                 this.editor.RequeryOpacityFromHandlers();
                 return Task.CompletedTask;
@@ -104,12 +105,10 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
         }
     }
 
-    public class VideoClipDataSingleEditorViewModel : VideoClipDataEditorViewModel {
+    public class VideoTrackDataSingleEditorViewModel : VideoTrackDataEditorViewModel {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
 
         public RelayCommand InsertOpacityKeyFrameCommand => this.SingleSelection?.InsertOpacityKeyFrameCommand;
-
-        public long MediaFrameOffset => this.SingleSelection.MediaFrameOffset;
 
         private bool isOpacitySelected;
 
@@ -117,17 +116,16 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             get => this.isOpacitySelected;
             set {
                 this.RaisePropertyChanged(ref this.isOpacitySelected, value);
-                if (!this.IsEmpty)
-                    this.OpacityAutomationSequence.IsActiveSequence = value;
+                if (!this.IsEmpty && value)
+                    this.OpacityAutomationSequence.IsActiveSequence = true;
             }
         }
 
-        public VideoClipDataSingleEditorViewModel() {
+        public VideoTrackDataSingleEditorViewModel() {
         }
 
         protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
-            this.SingleSelection.PropertyChanged += this.OnClipPropertyChanged;
 
             // not really sure if this is necessary...
             this.RaisePropertyChanged(nameof(this.InsertOpacityKeyFrameCommand));
@@ -136,17 +134,10 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
         protected override void OnClearHandlers() {
             base.OnClearHandlers();
             this.IsOpacitySelected = false;
-            this.SingleSelection.PropertyChanged -= this.OnClipPropertyChanged;
-        }
-
-        private void OnClipPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            if (e.PropertyName == nameof(VideoClipViewModel.MediaFrameOffset)) {
-                this.RaisePropertyChanged(nameof(this.MediaFrameOffset));
-            }
         }
     }
 
-    public class VideoClipDataMultipleEditorViewModel : VideoClipDataEditorViewModel {
+    public class VideoTrackDataMultipleEditorViewModel : VideoTrackDataEditorViewModel {
         public override HandlerCountMode HandlerCountMode => HandlerCountMode.Multi;
     }
 }

@@ -8,6 +8,7 @@ namespace FramePFX.PropertyEditing {
         private IReadOnlyList<object> handlers;
         private bool isExpanded;
         private bool isHeaderBold;
+        private bool isSelected;
 
         /// <summary>
         /// Whether or not this group is expanded, showing the child groups and editors
@@ -22,6 +23,14 @@ namespace FramePFX.PropertyEditing {
         }
 
         public bool IsSelectable { get; set; }
+
+        /// <summary>
+        /// Gets or sets if this item is selected. This modifies our property editor's selected items automatically
+        /// </summary>
+        public bool IsSelected {
+            get => this.isSelected;
+            set => this.RaisePropertyChanged(ref this.isSelected, value);
+        }
 
         /// <summary>
         /// Whether this group is a "bold" group, and therefore, should be expressed a bit more in the UI.

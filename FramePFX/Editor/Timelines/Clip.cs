@@ -312,10 +312,10 @@ namespace FramePFX.Editor.Timelines {
 
         public long ConvertRelativeToTimelineFrame(long relative) => this.FrameBegin + relative;
 
-        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) {
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange) {
             FrameSpan span = this.FrameSpan;
             long frame = timeline - span.Begin;
-            valid = frame >= 0 && frame < span.Duration;
+            inRange = frame >= 0 && frame < span.Duration;
             return frame;
         }
 
@@ -324,5 +324,13 @@ namespace FramePFX.Editor.Timelines {
             long frame = timeline - span.Begin;
             return frame >= 0 && frame < span.Duration;
         }
+
+        /// <summary>
+        /// Whether or not this clip can accept the given effect. This is overridden by video
+        /// and audio clips to check if the effect is a video effect or audio effect respectively
+        /// </summary>
+        /// <param name="effect">The non-null effect to check</param>
+        /// <returns>True if the effect can be added, otherwise false</returns>
+        public abstract bool IsEffectTypeAllowed(BaseEffect effect);
     }
 }

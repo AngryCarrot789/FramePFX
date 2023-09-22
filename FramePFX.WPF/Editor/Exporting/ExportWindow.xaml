@@ -15,10 +15,10 @@
             <TextBlock VerticalAlignment="Top" Text="{Binding FilePath, StringFormat='Exporting video to {0}'}" Padding="5" TextWrapping="Wrap" />
             <Separator Margin="0,5" />
             <TextBlock VerticalAlignment="Top" Text="{Binding RenderProgressPercentage, StringFormat='Render Progress: {0}'}" Padding="5" Margin="0,5,0,0" />
-            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentRenderFrame}" Height="24" Margin="0,5,0,0" />
+            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentRenderFrame, Mode=OneWay}" Height="24" Margin="0,5,0,0" />
             <Separator Margin="0,5" />
             <TextBlock VerticalAlignment="Top" Text="{Binding EncodeProgressPercentage, StringFormat='Encode Progress: {0}'}" Padding="5" Margin="0,5,0,0" />
-            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentEncodeFrame}" Height="24" Margin="0,5,0,0" />
+            <ProgressBar Minimum="{Binding BeginFrame}" Maximum="{Binding EndFrame}" Value="{Binding CurrentEncodeFrame, Mode=OneWay}" Height="24" Margin="0,5,0,0" />
         </StackPanel>
         <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0,1,0,0">
             <Grid Height="43">

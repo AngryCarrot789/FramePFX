@@ -11,8 +11,12 @@ namespace FramePFX.PropertyEditing {
 
         public BasePropertyGroupViewModel Parent { get; }
 
-        public PropertyObjectSeparator(BasePropertyGroupViewModel parent) {
+        public bool IsEditorSeparator { get; }
+
+        public PropertyObjectSeparator(BasePropertyGroupViewModel parent, bool isEditorSeparator = false) {
             this.Parent = parent;
+            this.IsEditorSeparator = isEditorSeparator;
+            this.IsVisible = true;
         }
     }
 }

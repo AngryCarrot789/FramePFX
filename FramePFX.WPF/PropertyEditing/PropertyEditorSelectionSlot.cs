@@ -67,15 +67,21 @@ namespace FramePFX.WPF.PropertyEditing {
                 return;
             }
 
+            // here we reference the item mapped to our parent PropertyEditorItem,
+            // so that we can change the data context of the slot without it messing
+            // up the selection mechanism
             PropertyEditor editor = this.PropertyEditor;
             if (editor == null || editor.IsSelectionChangeActive)
                 return;
-            PropertyEditorItemsControl parent = this.ParentItemsControl;
-            PropertyEditorItem item = VisualTreeUtils.FindVisualChild<PropertyEditorItem>(this);
-            if (parent == null || item == null)
+            PropertyEditorItem item = VisualTreeUtils.GetParent<PropertyEditorItem>(this);
+            if (item == null)
                 return;
+            PropertyEditorItemsControl parent = item.ParentItemsControl;
+            if (parent == null)
+                return;
+
             object data = parent.GetItemOrContainerFromContainer(item);
-            if (data is IPropertyEditorObject && this.DataContext != data) {
+            if (data is IPropertyEditorObject) {
                 editor.SetContainerSelection((IPropertyEditorObject) data, this, newValue, false);
                 if (newValue && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
                     this.Focus();
@@ -97,7 +103,7 @@ namespace FramePFX.WPF.PropertyEditing {
             if (editor.IsSelectionChangeActive)
                 throw new Exception("Selection change already in progress");
             PropertyEditorItemsControl parent = this.ParentItemsControl;
-            PropertyEditorItem item = VisualTreeUtils.FindParent<PropertyEditorItem>(this);
+            PropertyEditorItem item = VisualTreeUtils.GetParent<PropertyEditorItem>(this);
             if (parent == null || item == null)
                 return false;
             object data = parent.GetItemOrContainerFromContainer(item);

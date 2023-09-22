@@ -9,22 +9,26 @@
              xmlns:vms="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels;assembly=FramePFX"
              xmlns:r="clr-namespace:FramePFX.WPF.Editor.Resources"
              xmlns:ap="clr-namespace:FramePFX.WPF.AttachedProperties"
+             xmlns:c="clr-namespace:FramePFX.WPF.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance vms:ResourceManagerViewModel}">
     <Grid Margin="0" sc:UIInputManager.FocusPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="175" />
+            <ColumnDefinition Width="164" />
+            <ColumnDefinition Width="1" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="24" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Border Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" BorderThickness="0"/>
         <r:ResourceTreeView ItemsSource="{Binding Root.Items, Mode=OneTime}"
-                            BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,1,0"
-                            DockPanel.Dock="Left" Grid.RowSpan="2" Grid.Column="0" Width="175"
-                            SelectedItems="{Binding SelectedItems, Mode=OneTime}">
+                            BorderThickness="0" BorderBrush="{DynamicResource PanelBorderBrush}"
+                            SelectedItems="{Binding SelectedItems, Mode=OneTime}"
+                            DockPanel.Dock="Left" Grid.RowSpan="2" Grid.Column="0"
+                            x:Name="PART_ResourceTree">
             <FrameworkElement.Resources>
                 <DataTemplate DataType="{x:Type vms:ResourceItemViewModel}">
                     <TextBlock Text="{Binding DisplayName}"/>
@@ -40,9 +44,13 @@
                                HorizontalContentAlignment="Stretch"
                                VerticalContentAlignment="Stretch"
                                Grid.Row="1"
-                               Grid.Column="1" />
-        <Border Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-1,0,0,0" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
+                               Grid.Column="2" />
+        <Border Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-1,0,0,0" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
             <TextBlock Text="{Binding DisplayPath, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" Padding="4,1" />
         </Border>
+        <Border DockPanel.Dock="Left" Grid.RowSpan="2" Grid.Column="0"
+                BorderBrush="OrangeRed" BorderThickness="1"
+                Visibility="{Binding ElementName=PART_ResourceTree, Path=IsDroppableTargetOver, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrHidden}}"/>
+        <GridSplitter Grid.Column="1" Grid.RowSpan="2" Margin="-5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderThickness="0"/>
     </Grid>
 </UserControl>

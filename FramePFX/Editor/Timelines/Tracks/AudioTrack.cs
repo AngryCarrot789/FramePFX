@@ -85,8 +85,6 @@ namespace FramePFX.Editor.Timelines.Tracks {
         public override Track CloneCore() {
             AudioTrack track = new AudioTrack() {
                 Volume = this.Volume,
-                MaxHeight = this.MaxHeight,
-                MinHeight = this.MinHeight,
                 Height = this.Height,
                 TrackColour = this.TrackColour,
                 DisplayName = TextIncrement.GetNextText(this.DisplayName)

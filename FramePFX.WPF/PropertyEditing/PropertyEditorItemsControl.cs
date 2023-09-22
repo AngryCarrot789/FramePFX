@@ -23,8 +23,6 @@ namespace FramePFX.WPF.PropertyEditing {
         private object currentItem;
 
         public PropertyEditorItemsControl() {
-            VirtualizingPanel.SetVirtualizationMode(this, VirtualizationMode.Recycling);
-            VirtualizingPanel.SetCacheLengthUnit(this, VirtualizationCacheLengthUnit.Pixel);
             this.recycledItems = new Stack<PropertyEditorItem>();
         }
 

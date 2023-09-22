@@ -4,6 +4,7 @@ using System.Windows.Controls.Primitives;
 using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.Utils;
+using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.AttachedProperties {
     public static class ActionControl {
@@ -21,8 +22,8 @@ namespace FramePFX.WPF.AttachedProperties {
             if (d is ButtonBase button) {
                 button.Click -= OnControlClickForInvokeAction;
                 if (GetPresentationUpdateHandler(button) is UpdateHandler oldHandler) {
-                    ActionManager.Instance.RemovePresentationUpdateHandler(oldHandler.ActionId, oldHandler.Handler);
                     button.ClearValue(PresentationUpdateHandlerPropertyKey);
+                    ActionManager.Instance.RemovePresentationUpdateHandler(oldHandler.ActionId, oldHandler.Handler);
                 }
 
                 if (e.NewValue is string newId && !string.IsNullOrWhiteSpace(newId)) {
@@ -33,8 +34,8 @@ namespace FramePFX.WPF.AttachedProperties {
             else if (d is MenuItem menuItem) {
                 menuItem.Click -= OnControlClickForInvokeAction;
                 if (GetPresentationUpdateHandler(menuItem) is UpdateHandler oldHandler) {
-                    ActionManager.Instance.RemovePresentationUpdateHandler(oldHandler.ActionId, oldHandler.Handler);
                     menuItem.ClearValue(PresentationUpdateHandlerPropertyKey);
+                    ActionManager.Instance.RemovePresentationUpdateHandler(oldHandler.ActionId, oldHandler.Handler);
                 }
 
                 if (e.NewValue is string newId && !string.IsNullOrWhiteSpace(newId)) {
@@ -62,22 +63,20 @@ namespace FramePFX.WPF.AttachedProperties {
                 }
 
                 DataContext context = new DataContext();
-                object dc = element.DataContext;
-                if (dc != null) {
-                    context.AddContext(dc);
+                object o1, o2 = null, o3;
+                if (VisualTreeUtils.GetDataContext(element, out o1)) {
+                    context.AddContext(o1);
                 }
 
-                context.AddContext(element);
-                ItemsControl itemsControl = ItemsControl.ItemsControlFromItemContainer(element);
-                if (itemsControl != null && itemsControl.IsItemItsOwnContainer(element)) {
-                    context.AddContext(itemsControl);
+                ItemsControl itemsControl = VisualTreeUtils.GetItemsControlFromObject(element);
+                if (itemsControl != null && (o2 = itemsControl.DataContext) != null && !ReferenceEquals(o1, o2)) {
+                    context.AddContext(o2);
                 }
 
-                if (Window.GetWindow(element) is Window win) {
-                    object winDc = win.DataContext;
-                    if (winDc != null)
-                        context.AddContext(winDc);
-                    context.AddContext(win);
+                if (Window.GetWindow(element) is Window window && VisualTreeUtils.GetDataContext(window, out o3)) {
+                    if (!ReferenceEquals(o1, o3) && !ReferenceEquals(o2, o3)) {
+                        context.AddContext(o3);
+                    }
                 }
 
                 if (element is ToggleButton toggle) {

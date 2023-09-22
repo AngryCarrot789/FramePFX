@@ -25,10 +25,6 @@ namespace FramePFX.Actions {
             this.Context = context ?? new DataContext();
         }
 
-        public AnAction GetAction(ActionManager manager) {
-            return manager.GetAction(this.ActionId);
-        }
-
         protected override bool CanExecuteCore(object parameter) {
             return ActionManager.Instance.CanExecute(this.ActionId, this.Context);
         }

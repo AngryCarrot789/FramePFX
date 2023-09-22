@@ -186,16 +186,20 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                 }
 
                 RenderContext rc = new RenderContext(surface, surface.Canvas, frameInfo);
-                for (long fidx = duration.Begin, end = duration.EndIndex; fidx < end; fidx++) {
+                long exportFrame = duration.Begin; // frame index, relative to export duration
+                long ptsFrame = 0; // frame index, relative to start of file
+                long frameEnd = duration.EndIndex;
+
+                for (; exportFrame < frameEnd; exportFrame++, ptsFrame++) {
                     if (cancellation.IsCancellationRequested) {
                         isRenderCancelled = true;
                         goto fail_or_end;
                     }
 
                     rc.Canvas.Clear(SKColors.Black);
-                    AutomationEngine.UpdateTimeline(project.Timeline, fidx);
+                    AutomationEngine.UpdateTimeline(project.Timeline, exportFrame);
                     try {
-                        renderTask = project.Timeline.RenderAsync(rc, fidx, cancellation);
+                        renderTask = project.Timeline.RenderAsync(rc, exportFrame, cancellation);
                         while (!renderTask.IsCompleted) {
                             Thread.Sleep(1);
                         }
@@ -235,7 +239,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                             ffmpeg.sws_freeContext(s);
                         }
 
-                        frame->pts = fidx;
+                        frame->pts = ptsFrame;
 
                         // Encode frame
                         if ((ret = ffmpeg.avcodec_send_frame(c, frame)) == 0) {
@@ -278,7 +282,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                         }
                     }
 
-                    progress.OnFrameRendered(fidx);
+                    progress.OnFrameRendered(exportFrame);
                 }
 
                 // begin flush run

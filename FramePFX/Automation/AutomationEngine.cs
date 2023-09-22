@@ -39,7 +39,7 @@ namespace FramePFX.Automation {
             try {
                 automatable.IsAutomationChangeInProgress = true;
                 foreach (AutomationSequence sequence1 in automatable.AutomationData.Sequences) {
-                    if (sequence1.IsAutomationInUse) {
+                    if (sequence1.IsAutomationReady) {
                         sequence1.DoUpdateValue(frame);
                     }
                 }
@@ -77,7 +77,7 @@ namespace FramePFX.Automation {
             try {
                 automatable.IsAutomationRefreshInProgress = true;
                 foreach (AutomationSequenceViewModel sequence in automatable.AutomationData.Sequences) {
-                    if (sequence.IsAutomationInUse) {
+                    if (sequence.IsAutomationReady) {
                         sequence.DoRefreshValue(e);
                     }
                 }

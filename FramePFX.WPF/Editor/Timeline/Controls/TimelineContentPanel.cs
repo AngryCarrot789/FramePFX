@@ -9,7 +9,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public TimelineContentPanel() {
             this.Loaded += (sender, args) => {
-                this.Timeline = VisualTreeUtils.FindParent<TimelineEditorControl>(this);
+                this.Timeline = VisualTreeUtils.GetParent<TimelineEditorControl>(this);
             };
 
             this.Unloaded += (s, e) => {

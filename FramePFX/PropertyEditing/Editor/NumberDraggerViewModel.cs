@@ -2,7 +2,7 @@ using System;
 using System.Windows.Input;
 using FramePFX.Commands;
 
-namespace FramePFX.PropertyEditing.Editor.Primitives {
+namespace FramePFX.PropertyEditing.Editor {
     public class NumberDraggerViewModel : BasePropertyEditorViewModel {
         private double value;
 

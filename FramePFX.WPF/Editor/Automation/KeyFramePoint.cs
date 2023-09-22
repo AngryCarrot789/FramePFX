@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using FramePFX.Automation.Keys;
@@ -27,14 +28,16 @@ namespace FramePFX.WPF.Editor.Automation {
         public KeyFramePoint Next {
             get {
                 int index = this.Index + 1;
-                return index >= this.editor.backingList.Count ? null : this.editor.backingList[index];
+                List<KeyFramePoint> list = this.editor.backingList;
+                return index > 0 && index < list.Count ? list[index] : null;
             }
         }
 
         public KeyFramePoint Prev {
             get {
                 int index = this.Index - 1;
-                return index < this.editor.backingList.Count && index >= 0 ? this.editor.backingList[index] : null;
+                List<KeyFramePoint> list = this.editor.backingList;
+                return index < list.Count && index >= 0 ? list[index] : null;
             }
         }
 
@@ -58,7 +61,7 @@ namespace FramePFX.WPF.Editor.Automation {
             }
 
             double height = this.editor.ActualHeight;
-            double px = this.keyFrame.Time * this.editor.UnitZoom;
+            double px = this.keyFrame.Frame * this.editor.UnitZoom;
             double offset_y = KeyPointUtils.GetY(this.keyFrame, height);
             this.renderPoint = point = new Point(px, height - offset_y);
             return point;
@@ -101,7 +104,6 @@ namespace FramePFX.WPF.Editor.Automation {
         public virtual void RenderLine(DrawingContext dc, KeyFramePoint target, ref Rect drawing_area) {
             Point p1 = this.GetLocation();
             Point p2 = target.GetLocation();
-
             // long timeA = this.keyFrame.Timestamp;
             // long timeB = target.keyFrame.Timestamp;
             // if (this.geometry == null) {
@@ -121,9 +123,6 @@ namespace FramePFX.WPF.Editor.Automation {
             // }
 
             if (IsLineVisible(ref drawing_area, ref p1, ref p2)) {
-                // AutomationSequenceEditor.RectContains(ref drawing_area, ref p1) || AutomationSequenceEditor.RectContains(ref drawing_area, ref p2)
-                dc.DrawLine(this.editor.LineTransparentPen, p1, p2);
-                // dc.DrawGeometry(null, this.editor.LineTransparentPen, this.geometry);
                 Pen pen;
                 if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail) {
                     pen = this.editor.isOverrideEnabled ? this.editor.LineOverridePen : (this.LastLineHitType != LineHitType.None ? this.editor.LineMouseOverPen : this.editor.LinePen);
@@ -132,8 +131,23 @@ namespace FramePFX.WPF.Editor.Automation {
                     pen = this.editor.isOverrideEnabled ? this.editor.LineOverridePen : this.editor.LinePen;
                 }
 
+                // TODO: make this work i guess???
+                // This renders quite well, but i don't know how to calculate the actual automation value along the bezier
+                // double rangeX = Maths.Map(this.keyFrame.CurveBendAmount, -1, 1, 0, 1);
+                // double rangeY = Maths.Map(this.keyFrame.CurveBendAmount, 1, -1, 0, 1);
+                // Point mp = new Point(Maths.Lerp(p1.X, p2.X, rangeX), Maths.Lerp(p1.Y, p2.Y, rangeY));
+                // // AppLogger.WriteLine($"Rendering with curve: {Math.Round(rangeX, 2)} & {Math.Round(rangeY, 2)} ({(int) p1.X},{(int)p1.Y} | {(int) mp.X},{(int)mp.Y} | {(int) p2.X},{(int)p2.Y})");
+                // PathGeometry pathGeometry = new PathGeometry() {
+                //     Figures = {new PathFigure {StartPoint = p1, Segments = {new BezierSegment(p1, mp, p2, true)}}}
+                // };
+                // dc.DrawGeometry(null, this.editor.LineTransparentPen, pathGeometry);
+                // dc.DrawGeometry(null, pen, pathGeometry);
+
+                // AutomationSequenceEditor.RectContains(ref drawing_area, ref p1) || AutomationSequenceEditor.RectContains(ref drawing_area, ref p2)
+                //     dc.DrawGeometry(null, this.editor.LineTransparentPen, this.geometry);
+                //     dc.DrawGeometry(null, pen, this.geometry);
+                dc.DrawLine(this.editor.LineTransparentPen, p1, p2);
                 dc.DrawLine(pen, p1, p2);
-                // dc.DrawGeometry(null, pen, this.geometry);
             }
         }
 

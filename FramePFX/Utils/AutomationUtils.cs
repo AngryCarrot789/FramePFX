@@ -16,25 +16,27 @@ namespace FramePFX.Utils {
 
             frame = timeline.PlayHeadFrame;
             if (automatable is IStrictFrameRange range) {
-                frame = range.ConvertTimelineToRelativeFrame(frame, out bool isValid);
-                if (!isValid) {
+                frame = range.ConvertTimelineToRelativeFrame(frame, out bool inRange);
+                if (!inRange) {
                     return false;
                 }
             }
 
             AutomationSequenceViewModel active = automatable.AutomationData.ActiveSequence;
-            VideoEditorViewModel editor = timeline.Project.Editor;
-            if (editor != null && editor.IsRecordingKeyFrames) {
+            if (timeline.IsRecordingKeyFrames) {
                 return active == null || !active.IsOverrideEnabled;
             }
             else {
                 if (active != null && active.Key == key) {
-                    return !active.IsOverrideEnabled;
+                    return !active.IsOverrideEnabled && active.HasKeyFrames;
                 }
 
-                AutomationSequenceViewModel modifiedSequence = automatable.AutomationData[key];
-                if (modifiedSequence.IsActive) {
-                    return !modifiedSequence.IsOverrideEnabled;
+                // pretty sure that that past the above code, false will always get returned...
+                // when the active key does not equal the input key, then the sequence is not active...
+                // oh well, just in case IsActiveSequence bugs out, this will work
+                AutomationSequenceViewModel sequence = automatable.AutomationData[key];
+                if (sequence.IsActiveSequence) {
+                    return !sequence.IsOverrideEnabled && sequence.HasKeyFrames;
                 }
 
                 return false;

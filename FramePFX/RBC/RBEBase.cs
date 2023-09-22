@@ -6,12 +6,12 @@ namespace FramePFX.RBC {
     /// <summary>
     /// The base class for the RBE (REghZy Binary Element... i know right what a sexy acronym)
     /// <para>
-    /// This is used for list/dictionary based binary structures, which is handy for
+    /// This is used for list/dictionary based binary structures
     /// </para>
     /// <para>
-    /// This is based on minecraft's NBT structure, because it's pretty good... for the most part. The primary binary difference
-    /// is that <see cref="RBEList"/> does not store it's child type, whereas minecraft does (for some reason? lists maintain
-    /// their order so the dev should know the right types)
+    /// This is based on minecraft's NBT structure, because it's pretty good... for the most part. The
+    /// primary binary difference is that <see cref="RBEList"/> does not store its child type, whereas
+    /// minecraft does (for some reason...? lists maintain their order so the dev should know the right types)
     /// </para>
     /// </summary>
     public abstract class RBEBase {

@@ -172,13 +172,10 @@ namespace FramePFX.Actions {
         }
 
         public void AddPresentationUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
-            if (id != null && string.IsNullOrWhiteSpace(id)) {
+            if (id != null && string.IsNullOrWhiteSpace(id))
                 throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
-            }
-
-            if (handler == null) {
+            if (handler == null)
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
-            }
 
             if (id == null) {
                 if (!this.globalUpdateEventMap.Contains(handler))
@@ -194,13 +191,10 @@ namespace FramePFX.Actions {
         }
 
         public void RemovePresentationUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
-            if (id != null && string.IsNullOrWhiteSpace(id)) {
+            if (id != null && string.IsNullOrWhiteSpace(id))
                 throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
-            }
-
-            if (handler == null) {
+            if (handler == null)
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
-            }
 
             if (id == null) {
                 this.globalUpdateEventMap.Remove(handler);

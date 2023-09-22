@@ -3,6 +3,8 @@ using System.Linq;
 using FramePFX.Editor.PropertyEditors.Clips;
 using FramePFX.Editor.PropertyEditors.Clips.Text;
 using FramePFX.Editor.PropertyEditors.Effects;
+using FramePFX.Editor.PropertyEditors.Tracks;
+using FramePFX.Editor.PropertyEditors.Tracks.Video;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
@@ -15,19 +17,24 @@ namespace FramePFX.PropertyEditing {
 
         public FixedPropertyGroupViewModel ClipInfo { get; }
 
+        public FixedPropertyGroupViewModel TrackInfo { get; }
+
         public DynamicPropertyGroupViewModel EffectInfo { get; }
 
         public FixedPropertyGroupViewModel ResourceInfo { get; }
 
         private PFXPropertyEditorRegistry() {
-            this.ClipInfo = this.CreateRootGroup(typeof(ClipViewModel), "Clip Info");
-            this.ClipInfo.AddPropertyEditor("ClipDataEditor", new ClipDataEditorViewModel());
-            this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Single", new VideoClipDataSingleEditorViewModel());
-            this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Multi", new VideoClipDataMultipleEditorViewModel());
-
             {
-                FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(TextClipViewModel), "Text Info");
-                group.AddPropertyEditor("TextEditor", new TextClipDataEditorViewModel());
+                this.ClipInfo = this.CreateRootGroup(typeof(ClipViewModel), "Clip Info");
+                this.ClipInfo.AddPropertyEditor("ClipDataEditor", new ClipDataEditorViewModel());
+                this.ClipInfo.AddSeparator(true);
+                this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Single", new VideoClipDataSingleEditorViewModel());
+                this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Multi", new VideoClipDataMultipleEditorViewModel());
+
+                {
+                    FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(TextClipViewModel), "Text Info");
+                    group.AddPropertyEditor("TextEditor", new TextClipDataEditorViewModel());
+                }
             }
 
             this.EffectInfo = new EffectListPropertyGroupViewModel();
@@ -45,9 +52,24 @@ namespace FramePFX.PropertyEditing {
                 return motion;
             });
 
-            this.Root.AddSeparator();
+            this.ClipInfo.AddSeparator(false);
+
+            {
+                this.TrackInfo = this.CreateRootGroup(typeof(TrackViewModel), "Track Info");
+                this.TrackInfo.AddPropertyEditor("TrackDataEditor", new TrackDataEditorViewModel());
+                this.TrackInfo.AddSeparator(true);
+                this.TrackInfo.AddPropertyEditor("VideoTrackDataEditor_Single", new VideoTrackDataSingleEditorViewModel());
+                this.TrackInfo.AddPropertyEditor("VideoTrackDataEditor_Multi", new VideoTrackDataMultipleEditorViewModel());
+            }
+
+            this.ClipInfo.AddSeparator(false);
 
             this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
+        }
+
+        public void OnTrackSelectionChanged(IReadOnlyList<TrackViewModel> tracks) {
+            this.TrackInfo.SetupHierarchyState(tracks);
+            this.Root.CleanSeparators();
         }
 
         public void OnClipSelectionChanged(IReadOnlyList<ClipViewModel> clips) {

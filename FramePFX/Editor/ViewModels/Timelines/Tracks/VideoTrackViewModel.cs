@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Automation.Events;
+using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Resources;
@@ -120,9 +122,20 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             track.InvalidateRenderForAutomationRefresh(in e);
         };
 
+        public AutomationSequenceViewModel OpacityAutomationSequence => this.AutomationData[VideoTrack.OpacityKey];
+
+        public RelayCommand ResetOpacityCommand { get; }
+        public RelayCommand InsertOpacityKeyFrameCommand { get; }
+        public RelayCommand ToggleOpacityActiveCommand { get; }
+
         public VideoTrackViewModel(VideoTrack model) : base(model) {
             this.AutomationData.AssignRefreshHandler(VideoTrack.OpacityKey, RefreshOpacityHandler);
             this.AutomationData.AssignRefreshHandler(VideoTrack.IsVisibleKey, RefreshIsVisibleHandler);
+
+            this.ResetOpacityCommand = new RelayCommand(() => this.Opacity = VideoTrack.OpacityKey.Descriptor.DefaultValue);
+            this.InsertOpacityKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoTrack.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.Timeline.PlayHeadFrame, 0)).SetDoubleValue(this.Opacity), () => this.Timeline != null);
+            this.ToggleOpacityActiveCommand = new RelayCommand(() => this.AutomationData[VideoTrack.OpacityKey].ToggleOverrideAction());
+
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {

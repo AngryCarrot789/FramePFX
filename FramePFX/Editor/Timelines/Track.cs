@@ -33,9 +33,6 @@ namespace FramePFX.Editor.Timelines {
         /// A readable layer name
         /// </summary>
         public string DisplayName { get; set; }
-
-        public double MinHeight { get; set; }
-        public double MaxHeight { get; set; }
         public double Height { get; set; }
         public string TrackColour { get; set; }
 
@@ -48,8 +45,6 @@ namespace FramePFX.Editor.Timelines {
 
         protected Track() {
             this.clips = new List<Clip>();
-            this.MinHeight = 21;
-            this.MaxHeight = 200;
             this.Height = 60;
             this.TrackColour = TrackColours.GetRandomColour();
             this.AutomationData = new AutomationData(this);
@@ -183,8 +178,6 @@ namespace FramePFX.Editor.Timelines {
 
         public virtual void WriteToRBE(RBEDictionary data) {
             data.SetString(nameof(this.DisplayName), this.DisplayName);
-            data.SetDouble(nameof(this.MinHeight), this.MinHeight);
-            data.SetDouble(nameof(this.MaxHeight), this.MaxHeight);
             data.SetDouble(nameof(this.Height), this.Height);
             data.SetString(nameof(this.TrackColour), this.TrackColour);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
@@ -196,8 +189,6 @@ namespace FramePFX.Editor.Timelines {
 
         public virtual void ReadFromRBE(RBEDictionary data) {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
-            this.MinHeight = data.GetDouble(nameof(this.MinHeight), 40);
-            this.MaxHeight = data.GetDouble(nameof(this.MaxHeight), 200);
             this.Height = data.GetDouble(nameof(this.Height), 60);
             this.TrackColour = data.TryGetString(nameof(this.TrackColour), out string colour) ? colour : TrackColours.GetRandomColour();
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));

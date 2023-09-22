@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -71,15 +72,13 @@ namespace FramePFX.WPF.AttachedProperties {
                 IList newList = (IList) e.NewValue;
                 SetUpdatingSelection(d, true);
                 try {
-                    IList list;
+                    IList list = null;
                     if (d is ListBox box) {
-                        list = box.SelectedItems;
+                        if (box.SelectionMode != SelectionMode.Single)
+                            list = box.SelectedItems;
                     }
                     else if (d is MultiSelector ms) {
                         list = ms.SelectedItems;
-                    }
-                    else {
-                        list = null;
                     }
 
                     if (list != null) {
@@ -142,7 +141,7 @@ namespace FramePFX.WPF.AttachedProperties {
                 try {
                     IList srcList;
                     switch (selector) {
-                        case ListBox lb:
+                        case ListBox lb when lb.SelectionMode != SelectionMode.Single:
                             srcList = lb.SelectedItems;
                             break;
                         case MultiSelector ms:

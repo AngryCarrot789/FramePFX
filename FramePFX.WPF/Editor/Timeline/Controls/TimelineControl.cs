@@ -12,6 +12,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public ListBox TrackList { get; private set; }
         public TimelineEditorControl TimelineEditor { get; private set; }
 
+        public TimelineControl() {
+        }
+
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.TrackList = this.GetTemplateChild("PART_TrackList") as ListBox ?? throw new Exception("Missing track list");

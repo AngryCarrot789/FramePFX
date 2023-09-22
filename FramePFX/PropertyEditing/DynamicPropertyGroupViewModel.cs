@@ -53,7 +53,7 @@ namespace FramePFX.PropertyEditing {
             protected set => this.RaisePropertyChanged(ref this.extendedHandlerList, value);
         }
 
-        public DynamicMode CurrentMode { get; set; }
+        public DynamicMode CurrentMode { get; private set; }
 
         public DynamicPropertyGroupViewModel(Type applicableType) : base(applicableType) {
             this.registrations = new Dictionary<Type, TypeRegistration>();
@@ -77,7 +77,12 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         /// <param name="type">The lowest type of object that the constructor creates. This type must also be applicable to this dynamic group's applicable type</param>
         /// <param name="displayName">A readable name for the group</param>
-        /// <param name="constructor"></param>
+        /// <param name="constructor">
+        /// A function that creates an instance of the group. The boolean parameter is labelled 'isUsingSingleHandler',
+        /// which is used to determine if the group is only going to be used used for a single handler (true),
+        /// multiple handlers (false), or unknown (null). When the bool is null, the function should combine the structure
+        /// of the single and multi handlers into one. This is the default value
+        /// </param>
         /// <param name="handlerCountMode"></param>
         /// <exception cref="Exception"></exception>
         public void RegisterType(Type type, string displayName, Func<bool?, BasePropertyGroupViewModel> constructor, HandlerCountMode handlerCountMode = HandlerCountMode.Any) {
@@ -99,9 +104,8 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
-            // example input lists:
-            //  motion, motion, contrast
-            //  motion, contrast
+            // example input list:
+            //   [ motion, motion, contrast ]
 
             this.Handlers = input;
             if (this.UseSingleHandlerPerGroup) {
@@ -115,7 +119,8 @@ namespace FramePFX.PropertyEditing {
                     if (!IsHandlerCountAcceptable(registration.handlerCountMode, 1))
                         continue;
                     inUseTypes.TryGetValue(registration, out int inUse);
-                    BasePropertyGroupViewModel instance = registration.GetSingleHandlerInstance(handler, inUse);
+                    BasePropertyGroupViewModel instance = registration.GetSingleHandlerInstance(handler);
+                    instance.DisplayName = inUse > 0 ? $"{registration.id} ({inUse})" : registration.id;
                     this.AddAndSetup(instance, CollectionUtils.Singleton(handler));
                     inUseTypes[registration] = inUse + 1;
                 }
@@ -157,12 +162,12 @@ namespace FramePFX.PropertyEditing {
                     switch (mode) {
                         case HandlerCountMode.Any:
                         case HandlerCountMode.Multi: {
-                            this.AddAndSetup(registration.NewDynamicGroup(list.Count == 1), list);
+                            this.AddAndSetup(registration.NewGroupInstance(list.Count == 1), list);
                             break;
                         }
                         case HandlerCountMode.Single: {
                             foreach (object handler in list) {
-                                this.AddAndSetup(registration.NewDynamicGroup(true), CollectionUtils.Singleton(handler));
+                                this.AddAndSetup(registration.NewGroupInstance(true), CollectionUtils.Singleton(handler));
                             }
 
                             break;
@@ -192,6 +197,9 @@ namespace FramePFX.PropertyEditing {
             if (!this.IsHandlerCountAcceptable(total)) {
                 return;
             }
+
+            // example input:
+            //   [ [ motion, motion, contrast ], [ motion, contrast ] ]
 
             // This will be calculated based on the below code checking for registered types
             // if (!AreAnyApplicable(this, input))
@@ -280,12 +288,12 @@ namespace FramePFX.PropertyEditing {
                 switch (mode) {
                     case HandlerCountMode.Any:
                     case HandlerCountMode.Multi: {
-                        this.AddAndSetup(registration.NewDynamicGroup(list.Count == 1), list);
+                        this.AddAndSetup(registration.NewGroupInstance(list.Count == 1), list);
                         break;
                     }
                     case HandlerCountMode.Single: {
                         foreach (object handler in list) {
-                            this.AddAndSetup(registration.NewDynamicGroup(true), CollectionUtils.Singleton(handler));
+                            this.AddAndSetup(registration.NewGroupInstance(true), CollectionUtils.Singleton(handler));
                         }
 
                         break;
@@ -325,15 +333,19 @@ namespace FramePFX.PropertyEditing {
 
         private class TypeRegistration {
             private readonly Type type;
-            private readonly string id; // used for debugging... for now
+            public readonly string id;
             public readonly HandlerCountMode handlerCountMode;
             private readonly Func<bool?, BasePropertyGroupViewModel> constructor;
-            // private BasePropertyGroupViewModel cachedSingleHandler;
-            private readonly DynamicPropertyGroupViewModel group;
+            private readonly DynamicPropertyGroupViewModel owner;
+
+            // TODO: Maybe make this key constant?
+            // then, make it map to a dictionary, which maps the type to a cached BasePropertyGroupViewModel.
+            // this way, the view model has the ability to try and serialise the object when writing to RBE
+            // so that, during a project save, stuff like the expansion state can be saved
             private readonly string ViewModelDataKey;
 
-            public TypeRegistration(DynamicPropertyGroupViewModel group, Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor) {
-                this.group = group;
+            public TypeRegistration(DynamicPropertyGroupViewModel owner, Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor) {
+                this.owner = owner;
                 this.type = type;
                 this.id = id;
                 this.handlerCountMode = handlerCountMode;
@@ -346,24 +358,25 @@ namespace FramePFX.PropertyEditing {
             /// </summary>
             /// <param name="isUsingSingleHandler">
             /// True meaning it will only be used for a single handler, false meaning it
-            /// may be used for more than 1 handler, or null meaning it can be used for both
+            /// may be used for more than 1 handler, or null meaning it can be used for both. This
+            /// is purely an optimisation feature; the behaviour without this parameter
+            /// would be like passing null to the constructor
             /// </param>
             /// <returns></returns>
-            public BasePropertyGroupViewModel NewDynamicGroup(bool? isUsingSingleHandler) {
+            public BasePropertyGroupViewModel NewGroupInstance(bool? isUsingSingleHandler) {
                 return this.ProcessObject(this.constructor(isUsingSingleHandler));
             }
 
-            public BasePropertyGroupViewModel GetSingleHandlerInstance(object handler, int inUse) {
+            public BasePropertyGroupViewModel GetSingleHandlerInstance(object handler) {
                 if (handler is BaseViewModel viewModel) {
                     if (!TryGetInternalData(viewModel, this.ViewModelDataKey, out BasePropertyGroupViewModel g)) {
-                        SetInternalData(viewModel, this.ViewModelDataKey, g = this.NewDynamicGroup(true));
+                        SetInternalData(viewModel, this.ViewModelDataKey, g = this.NewGroupInstance(true));
                     }
 
-                    g.DisplayName = inUse > 0 ? $"{this.id} ({inUse})" : this.id;
                     return g;
                 }
                 else {
-                    return this.NewDynamicGroup(true);
+                    return this.NewGroupInstance(true);
                 }
             }
 

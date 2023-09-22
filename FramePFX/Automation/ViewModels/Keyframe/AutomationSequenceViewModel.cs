@@ -11,7 +11,7 @@ using FramePFX.History.ViewModels;
 namespace FramePFX.Automation.ViewModels.Keyframe {
     public class AutomationSequenceViewModel : BaseViewModel, IHistoryHolder {
         private readonly ObservableCollection<KeyFrameViewModel> keyFrames;
-        internal bool isActive;
+        internal bool isActiveSequence;
 
         public ReadOnlyObservableCollection<KeyFrameViewModel> KeyFrames { get; }
 
@@ -36,18 +36,18 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         public AutomationKey Key => this.Model.Key;
 
         /// <summary>
-        /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames
-        /// present, meaning the automation engine can operate upon this sequence normally
+        /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present,
+        /// meaning the automation engine can operate upon this sequence normally
         /// </summary>
-        public bool IsAutomationInUse => this.Model.IsAutomationInUse;
+        public bool IsAutomationReady => this.Model.IsAutomationReady;
 
         /// <summary>
-        /// Whether or not this automation sequence is indirectly active (as in, active but not the selected sequence)
+        /// Gets or sets if this sequence is currently active. Setting this property will modify our owner's active sequence
         /// </summary>
-        public bool IsActive {
-            get => this.isActive;
+        public bool IsActiveSequence {
+            get => this.isActiveSequence;
             set {
-                if (this.isActive == value) {
+                if (this.isActiveSequence == value) {
                     return;
                 }
 
@@ -59,7 +59,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
                 }
                 else {
                     // this case shouldn't really be reachable...
-                    this.RaisePropertyChanged(ref this.isActive, false);
+                    this.RaisePropertyChanged(ref this.isActiveSequence, false);
                 }
             }
         }
@@ -92,12 +92,12 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         }
 
         internal static void SetIsActiveInternal(AutomationSequenceViewModel sequence, bool isActive) {
-            sequence.RaisePropertyChanged(ref sequence.isActive, isActive, nameof(sequence.IsActive));
+            sequence.RaisePropertyChanged(ref sequence.isActiveSequence, isActive, nameof(sequence.IsActiveSequence));
         }
 
         public void UpdateKeyFrameCollectionProperties() {
             this.RaisePropertyChanged(nameof(this.HasKeyFrames));
-            this.RaisePropertyChanged(nameof(this.IsAutomationInUse));
+            this.RaisePropertyChanged(nameof(this.IsAutomationReady));
         }
 
         public void DoRefreshValue(long tlframe, bool isDuringPlayback, bool isPlaybackTick) {
@@ -121,8 +121,8 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             this.UpdateKeyFrameCollectionProperties();
         }
 
-        public KeyFrameViewModel GetLastFrameExactlyAt(long time) {
-            int index = this.Model.GetLastFrameExactlyAt(time);
+        public KeyFrameViewModel GetLastFrameExactlyAt(long frame) {
+            int index = this.Model.GetLastFrameExactlyAt(frame);
             return index == -1 ? null : this.keyFrames[index];
         }
 
@@ -148,15 +148,15 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             }
         }
 
-        public void AddKeyFrame(long time, KeyFrameViewModel keyFrame, bool applyHistory = true) {
-            keyFrame.Time = time;
+        public void AddKeyFrame(long frame, KeyFrameViewModel keyFrame, bool applyHistory = true) {
+            keyFrame.Frame = frame;
             this.AddKeyFrame(keyFrame, applyHistory);
         }
 
         public void AddKeyFrame(KeyFrameViewModel newKeyFrame, bool applyHistory = true) {
-            long time = newKeyFrame.Time;
-            if (time < 0)
-                throw new ArgumentException("Keyframe time stamp must be non-negative: " + time, nameof(newKeyFrame));
+            long frame = newKeyFrame.Frame;
+            if (frame < 0)
+                throw new ArgumentException("Keyframe time stamp must be non-negative: " + frame, nameof(newKeyFrame));
             if (newKeyFrame.Model.DataType != this.Model.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {newKeyFrame.Model.DataType}", nameof(newKeyFrame));
 
@@ -181,19 +181,19 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             return this.OverrideKeyFrame;
         }
 
-        public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long time) {
-            KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(time);
+        public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long frame) {
+            KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(frame);
             if (keyFrame != null) {
                 return keyFrame;
             }
 
-            this.AddKeyFrame(time, keyFrame = KeyFrameViewModel.NewInstance(this.Key.CreateKeyFrame()));
+            this.AddKeyFrame(frame, keyFrame = KeyFrameViewModel.NewInstance(this.Key.CreateKeyFrame()));
             return keyFrame;
         }
 
         private void OnKeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             KeyFrameViewModel keyFrame = (KeyFrameViewModel) sender;
-            if (e.PropertyName == KeyFrameViewModel.GetPropertyName(keyFrame) || e.PropertyName == nameof(KeyFrameViewModel.Time)) {
+            if (e.PropertyName == KeyFrameViewModel.GetPropertyName(keyFrame) || e.PropertyName == nameof(KeyFrameViewModel.Frame)) {
                 this.RaiseKeyFrameChanged(keyFrame);
             }
         }

@@ -12,7 +12,7 @@ namespace FramePFX.Automation.Keyframe {
         public AutomationSequence sequence;
 
         // The key frame time, relative to the project FPS. Converted when the project FPS changes
-        public long time;
+        public long frame;
 
         // A 'bend' in the interpolation. could add something more complicated?
         public double curveBend = 0D; // -1d to +1d
@@ -98,7 +98,7 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="other">The other value to compare</param>
         /// <returns>True when this instance and the other instance are effectively equal (matching timestamp and value)</returns>
         public virtual bool IsEqualTo(KeyFrame other) {
-            return this.time == other.time;
+            return this.frame == other.frame;
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace FramePFX.Automation.Keyframe {
         /// </summary>
         /// <param name="data"></param>
         public virtual void WriteToRBE(RBEDictionary data) {
-            data.SetULong("Time", (ulong) this.time);
+            data.SetULong("Time", (ulong) this.frame);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace FramePFX.Automation.Keyframe {
         /// </summary>
         /// <param name="data"></param>
         public virtual void ReadFromRBE(RBEDictionary data) {
-            this.time = (long) data.GetULong("Time");
+            this.frame = (long) data.GetULong("Time");
         }
 
         #region Factory Methods
@@ -146,14 +146,14 @@ namespace FramePFX.Automation.Keyframe {
         /// <exception cref="ArgumentOutOfRangeException">Unknown automation data type</exception>
         public static KeyFrame CreateInstance(AutomationSequence sequence, long time) {
             KeyFrame keyFrame = CreateInstance(sequence.DataType); // same as sequence.Key.CreateKeyFrame()
-            keyFrame.time = time;
+            keyFrame.frame = time;
             keyFrame.AssignCurrentValue(time, sequence);
             return keyFrame;
         }
 
         public static KeyFrame CreateDefault(AutomationKey key, long time = 0L) {
             KeyFrame keyFrame = CreateInstance(key.DataType);
-            keyFrame.time = time;
+            keyFrame.frame = time;
             keyFrame.AssignDefaultValue(key.Descriptor);
             return keyFrame;
         }
@@ -206,7 +206,7 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="targetTime">Target timestamp. Must be greater than or equal to the current instance's timestamp, otherwise undefined behaviour may occur</param>
         /// <returns>A blend multiplier</returns>
         public double GetInterpolationMultiplier(long frame, long targetTime) {
-            return GetInterpolationLerp(frame, this.time, targetTime, this.curveBend);
+            return GetInterpolationLerp(frame, this.frame, targetTime, this.curveBend);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="nextFrame">Target frame. Its timestamp must be greater than or equal to the current instance's timestamp, otherwise undefined behaviour may occur</param>
         /// <returns>A blend multiplier</returns>
         public double GetInterpolationMultiplier(long frame, KeyFrame nextFrame) {
-            return this.GetInterpolationMultiplier(frame, nextFrame.time);
+            return this.GetInterpolationMultiplier(frame, nextFrame.frame);
         }
 
         #endregion
@@ -226,8 +226,8 @@ namespace FramePFX.Automation.Keyframe {
         [Conditional("DEBUG")]
         protected void ValidateTime(long t, KeyFrame frame) {
             // realistically, this should never be thrown if the function is used correctly... duh
-            if (t < this.time || t > frame.time) {
-                throw new Exception($"Time out of range: {t} < {this.time} || {t} > {frame.time}");
+            if (t < this.frame || t > frame.frame) {
+                throw new Exception($"Time out of range: {t} < {this.frame} || {t} > {frame.frame}");
             }
         }
 
@@ -241,8 +241,8 @@ namespace FramePFX.Automation.Keyframe {
 
         public KeyFrameFloat() { }
 
-        public KeyFrameFloat(long time, float value) {
-            this.time = time;
+        public KeyFrameFloat(long frame, float value) {
+            this.frame = frame;
             this.Value = value;
         }
 
@@ -252,7 +252,7 @@ namespace FramePFX.Automation.Keyframe {
 
         public float Interpolate(long time, KeyFrameFloat frame) {
             this.ValidateTime(time, frame);
-            double blend = this.GetInterpolationMultiplier(time, frame.time);
+            double blend = this.GetInterpolationMultiplier(time, frame.frame);
             return (float) (blend * (frame.Value - this.Value)) + this.Value;
         }
 
@@ -278,8 +278,8 @@ namespace FramePFX.Automation.Keyframe {
 
         public KeyFrameDouble() { }
 
-        public KeyFrameDouble(long time, double value) {
-            this.time = time;
+        public KeyFrameDouble(long frame, double value) {
+            this.frame = frame;
             this.Value = value;
         }
 
@@ -289,7 +289,7 @@ namespace FramePFX.Automation.Keyframe {
 
         public double Interpolate(long time, KeyFrameDouble nextFrame) {
             this.ValidateTime(time, nextFrame);
-            double blend = this.GetInterpolationMultiplier(time, nextFrame.time);
+            double blend = this.GetInterpolationMultiplier(time, nextFrame.frame);
             return blend * (nextFrame.Value - this.Value) + this.Value;
         }
 
@@ -320,8 +320,8 @@ namespace FramePFX.Automation.Keyframe {
 
         public KeyFrameLong() { }
 
-        public KeyFrameLong(long time, long value) {
-            this.time = time;
+        public KeyFrameLong(long frame, long value) {
+            this.frame = frame;
             this.Value = value;
         }
 
@@ -357,8 +357,8 @@ namespace FramePFX.Automation.Keyframe {
 
         public KeyFrameBoolean() { }
 
-        public KeyFrameBoolean(long time, bool value) {
-            this.time = time;
+        public KeyFrameBoolean(long frame, bool value) {
+            this.frame = frame;
             this.Value = value;
         }
 
@@ -404,8 +404,8 @@ namespace FramePFX.Automation.Keyframe {
 
         public KeyFrameVector2() { }
 
-        public KeyFrameVector2(long time, Vector2 value) {
-            this.time = time;
+        public KeyFrameVector2(long frame, Vector2 value) {
+            this.frame = frame;
             this.Value = value;
         }
 

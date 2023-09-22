@@ -40,13 +40,13 @@ namespace FramePFX.WPF.Converters {
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-            if (value == this.TrueValue) {
+            if (Equals(value, this.TrueValue)) {
                 return true;
             }
-            else if (value == this.FalseValue) {
+            else if (Equals(value, this.FalseValue)) {
                 return false;
             }
-            else if (value == this.UnsetValue) {
+            else if (Equals(value, this.UnsetValue)) {
                 return this.ThrowForUnset ? throw new Exception("Unset value not allowed") : DependencyProperty.UnsetValue;
             }
             else if (this.ThrowForNonBool) {

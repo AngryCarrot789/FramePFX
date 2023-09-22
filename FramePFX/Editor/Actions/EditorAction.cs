@@ -130,13 +130,13 @@ namespace FramePFX.Editor.Actions {
             else if (context.TryGetContext(out TrackViewModel track)) {
                 isUsingEditor = false;
                 isUsingSelectedClip = true;
-                return (clip = track.PrimarySelectedClip) != null;
+                return (clip = track.SelectedClip) != null;
             }
             else if (context.TryGetContext(out ProjectViewModel project)) {
                 isUsingEditor = false;
                 isUsingSelectedClip = true;
                 if ((track = project.Timeline.PrimarySelectedTrack) != null) {
-                    return (clip = track.PrimarySelectedClip) != null;
+                    return (clip = track.SelectedClip) != null;
                 }
                 else {
                     return false;
@@ -147,7 +147,7 @@ namespace FramePFX.Editor.Actions {
                 if ((project = editor.ActiveProject) != null) {
                     isUsingSelectedClip = true;
                     if ((track = project.Timeline.PrimarySelectedTrack) != null) {
-                        return (clip = track.PrimarySelectedClip) != null;
+                        return (clip = track.SelectedClip) != null;
                     }
                     else {
                         return false;

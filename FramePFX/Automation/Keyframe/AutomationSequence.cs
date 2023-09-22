@@ -33,8 +33,8 @@ namespace FramePFX.Automation.Keyframe {
         public KeyFrame OverrideKeyFrame { get; }
 
         /// <summary>
-        /// Whether or not the current automation sequence is in override mode or not. When in override mode,
-        /// the automation engine cannot update the value of any parameter, even if it has key frames
+        /// Gets or sets whether or not the current automation sequence is in override mode.
+        /// When in override mode, the automation engine cannot update the value of any parameter, even if it has key frames
         /// </summary>
         public bool IsOverrideEnabled { get; set; }
 
@@ -44,7 +44,7 @@ namespace FramePFX.Automation.Keyframe {
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key
         /// frames present, meaning the automation engine can operate upon this sequence normally
         /// </summary>
-        public bool IsAutomationInUse => !this.IsOverrideEnabled && this.HasKeyFrames;
+        public bool IsAutomationReady => !this.IsOverrideEnabled && this.HasKeyFrames;
 
         /// <summary>
         /// An enumerable of all the key frames, ordered by the timestamp (small to big)
@@ -180,16 +180,16 @@ namespace FramePFX.Automation.Keyframe {
             while (lhs <= rhs) {
                 int mid = (lhs + rhs) / 2;
                 KeyFrame value = list[mid];
-                if (frame > value.time) {
+                if (frame > value.frame) {
                     lhs = mid + 1;
                 }
-                else if (frame < value.time) {
+                else if (frame < value.frame) {
                     rhs = mid - 1;
                 }
                 else {
                     // find last matching timestamp
                     int j = mid + 1;
-                    while (j < count && list[j].time == frame)
+                    while (j < count && list[j].frame == frame)
                         j++;
                     a = j - 1;
                     b = j < count ? j : -1;
@@ -228,12 +228,12 @@ namespace FramePFX.Automation.Keyframe {
             while (lhs <= rhs) {
                 int i = lhs + (rhs - lhs) / 2;
                 KeyFrame keyFrame = list[i];
-                if (keyFrame.time == frame) {
-                    while (i < k && list[i + 1].time == frame)
+                if (keyFrame.frame == frame) {
+                    while (i < k && list[i + 1].frame == frame)
                         i++;
                     return i;
                 }
-                else if (keyFrame.time < frame) {
+                else if (keyFrame.frame < frame) {
                     lhs = i + 1;
                 }
                 else {
@@ -251,7 +251,7 @@ namespace FramePFX.Automation.Keyframe {
         /// <returns>The index of the key frame</returns>
         /// <exception cref="ArgumentException">Timestamp is negative or the data type is invalid</exception>
         public int AddKeyFrame(KeyFrame keyFrame) {
-            long timeStamp = keyFrame.time;
+            long timeStamp = keyFrame.frame;
             if (timeStamp < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + timeStamp, nameof(keyFrame));
             if (keyFrame.DataType != this.DataType)
@@ -259,7 +259,7 @@ namespace FramePFX.Automation.Keyframe {
             keyFrame.sequence = this;
             List<KeyFrame> list = this.keyFrameList;
             for (int i = list.Count - 1; i >= 0; i--) {
-                if (timeStamp >= list[i].time) {
+                if (timeStamp >= list[i].frame) {
                     list.Insert(i + 1, keyFrame);
                     return i + 1;
                 }
@@ -273,8 +273,8 @@ namespace FramePFX.Automation.Keyframe {
         /// Unsafely inserts the key frame at the given index, ignoring order. Do not use!
         /// </summary>
         public void InsertKeyFrame(int index, KeyFrame keyFrame) {
-            if (keyFrame.time < 0)
-                throw new ArgumentException("Keyframe time stamp must be non-negative: " + keyFrame.time, nameof(keyFrame));
+            if (keyFrame.frame < 0)
+                throw new ArgumentException("Keyframe time stamp must be non-negative: " + keyFrame.frame, nameof(keyFrame));
             if (keyFrame.DataType != this.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {keyFrame.DataType}", nameof(keyFrame));
             keyFrame.sequence = this;
@@ -328,7 +328,7 @@ namespace FramePFX.Automation.Keyframe {
             }
 
             // just in case they somehow end up unordered
-            frames.Sort((a, b) => a.time.CompareTo(b.time));
+            frames.Sort((a, b) => a.frame.CompareTo(b.frame));
             this.Clear();
             foreach (KeyFrame frame in frames) {
                 frame.sequence = this;
@@ -354,7 +354,7 @@ namespace FramePFX.Automation.Keyframe {
         }
 
         public override string ToString() {
-            return $"{nameof(AutomationSequence)}({this.DataType} -> {this.Key.FullId} [{this.keyFrameList.Count} keyframes])";
+            return $"{nameof(AutomationSequence)}[{this.Key.FullId} of type {this.DataType} ({this.keyFrameList.Count} keyframes)]";
         }
     }
 }

@@ -15,12 +15,12 @@ namespace FramePFX.Editor.Timelines {
         /// Converts an absolute timeline frame into a relative frame
         /// </summary>
         /// <param name="timeline">Input timeline frame</param>
-        /// <param name="valid">
+        /// <param name="inRange">
         /// True if the timeline frame is within our strict frame range,
         /// otherwise false, meaning it is out of range (and technically invalid)
         /// </param>
         /// <returns>Output relative frame</returns>
-        long ConvertTimelineToRelativeFrame(long timeline, out bool valid);
+        long ConvertTimelineToRelativeFrame(long timeline, out bool inRange);
 
         /// <summary>
         /// Returns true if the timeline frame is within our strict frame range,

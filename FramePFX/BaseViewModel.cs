@@ -11,6 +11,8 @@ namespace FramePFX {
     /// </para>
     /// </summary>
     public abstract class BaseViewModel : INotifyPropertyChanged {
+        // allows view models to store additional runtime objects in a compositional way,
+        // instead of using inheritance and properties. No events are raised when this data changes
         private Dictionary<object, object> internalData;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -71,19 +73,56 @@ namespace FramePFX {
             return vm.internalData ?? (vm.internalData = new Dictionary<object, object>());
         }
 
+        /// <summary>
+        /// Gets an object with the given key. Returns the default value of
+        /// <see cref="T"/> if the internal dictionary is null/empty or no such key is present
+        /// </summary>
+        /// <param name="viewModel">View model instance</param>
+        /// <param name="key">The key</param>
+        /// <typeparam name="T">The type of value</typeparam>
+        /// <returns>The value, or default</returns>
+        /// <exception cref="NullReferenceException">The view model is null</exception>
+        /// <exception cref="ArgumentNullException">The key is null</exception>
         public static T GetInternalData<T>(BaseViewModel viewModel, object key) {
             return GetInternalData(viewModel, key) is T t ? t : default;
         }
 
+        /// <summary>
+        /// Gets an object with the given key. Returns null if the internal
+        /// dictionary is null/empty or no such key is present
+        /// </summary>
+        /// <param name="viewModel">View model instance</param>
+        /// <param name="key">The key</param>
+        /// <returns>The value, or default</returns>
+        /// <exception cref="NullReferenceException">The view model is null</exception>
+        /// <exception cref="ArgumentNullException">The key is null</exception>
         public static object GetInternalData(BaseViewModel viewModel, object key) {
             if (viewModel == null)
-                throw new ArgumentNullException(nameof(viewModel));
+                throw new NullReferenceException(nameof(viewModel));
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
             Dictionary<object, object> map = viewModel.internalData;
             return map == null ? null : map.TryGetValue(key, out object data) ? data : null;
         }
 
+        /// <summary>
+        /// Tries to get an object with the given key
+        /// </summary>
+        /// <param name="viewModel">View model instance</param>
+        /// <param name="key">The key</param>
+        /// <param name="value">
+        /// The output value, or default, if the internal dictionary is null/empty or the key is not present
+        /// </param>
+        /// <typeparam name="T">The type of value</typeparam>
+        /// <returns>True if the key was found, otherwise false</returns>
+        /// <exception cref="NullReferenceException">The view model is null</exception>
+        /// <exception cref="ArgumentNullException">The key is null</exception>
         public static bool TryGetInternalData<T>(BaseViewModel viewModel, object key, out T value) {
-            Dictionary<object, object> map = (viewModel ?? throw new ArgumentNullException(nameof(viewModel))).internalData;
+            if (viewModel == null)
+                throw new NullReferenceException(nameof(viewModel));
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            Dictionary<object, object> map = viewModel.internalData;
             if (map != null && map.TryGetValue(key, out object data) && data is T t) {
                 value = t;
                 return true;
@@ -93,17 +132,35 @@ namespace FramePFX {
             return false;
         }
 
+        /// <summary>
+        /// Adds or replaces a value with the given key
+        /// </summary>
+        /// <param name="viewModel">View model instance</param>
+        /// <param name="key">The key</param>
+        /// <param name="value">The value to add or replace</param>
+        /// <exception cref="NullReferenceException">The view model is null</exception>
+        /// <exception cref="ArgumentNullException">The key is null</exception>
         public static void SetInternalData(BaseViewModel viewModel, object key, object value) {
             if (viewModel == null)
-                throw new ArgumentNullException(nameof(viewModel));
+                throw new NullReferenceException(nameof(viewModel));
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
             GetMap(viewModel)[key] = value;
         }
 
-        public static bool ClearInternalData(BaseViewModel viewModel, object key) {
+        /// <summary>
+        /// Removes a value with the given key
+        /// </summary>
+        /// <param name="viewModel">View model instance</param>
+        /// <param name="key">The key</param>
+        /// <returns>
+        /// True if the value was removed, otherwise false (internal map was null/empty or no such key)
+        /// </returns>
+        /// <exception cref="NullReferenceException">The view model is null</exception>
+        /// <exception cref="ArgumentNullException">The key is null</exception>
+        public static bool RemoveInternalData(BaseViewModel viewModel, object key) {
             if (viewModel == null)
-                throw new ArgumentNullException(nameof(viewModel));
+                throw new NullReferenceException(nameof(viewModel));
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
             Dictionary<object, object> map = viewModel.internalData;

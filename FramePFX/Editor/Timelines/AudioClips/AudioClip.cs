@@ -1,3 +1,5 @@
+using FramePFX.Editor.Timelines.Effects;
+
 namespace FramePFX.Editor.Timelines.AudioClips {
     public class AudioClip : Clip {
         public float Volume { get; set; }
@@ -13,6 +15,10 @@ namespace FramePFX.Editor.Timelines.AudioClips {
             AudioClip clip = (AudioClip) clone;
             clip.Volume = this.Volume;
             clip.IsMuted = this.IsMuted;
+        }
+
+        public override bool IsEffectTypeAllowed(BaseEffect effect) {
+            return false; // no audio effects yet :(
         }
     }
 }

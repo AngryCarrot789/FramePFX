@@ -12,5 +12,5 @@
     <s:String x:Key="S.Shortcuts.Activate.InProgress">Activating shortcut: {0}...</s:String>
     <s:String x:Key="S.Shortcuts.Activate.Completed">Activating shortcut: {0}... Completed!</s:String>
 
-    <s:String x:Key="S.PropertyEditor.Clips.DifferingDisplayNames">&lt;different names&gt;</s:String>
+    <s:String x:Key="S.PropertyEditor.NamedObject.DifferingDisplayNames">&lt;different names&gt;</s:String>
 </ResourceDictionary>

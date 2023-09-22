@@ -37,6 +37,8 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
         public static readonly DependencyProperty IsKeyboardModeProperty = DependencyProperty.Register("IsKeyboardMode", typeof(bool), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty RemarksProperty = DependencyProperty.Register("Remarks", typeof(string), typeof(MultiSelectTreeViewItem));
         public static readonly DependencyProperty RemarksTemplateProperty = DependencyProperty.Register("RemarksTemplate", typeof(DataTemplate), typeof(MultiSelectTreeViewItem));
+        private static readonly DependencyPropertyKey IsLeftMousePressedPropertyKey = DependencyProperty.RegisterReadOnly("IsLeftMousePressed", typeof(bool), typeof(MultiSelectTreeViewItem), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty IsLeftMousePressedProperty = IsLeftMousePressedPropertyKey.DependencyProperty;
 
         // private static readonly FieldInfo FIELD_HVCF_UncommonField;
         // private static readonly MethodInfo METHOD_HVCF_UncommonField_SetValue;
@@ -110,8 +112,9 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
         }
 
         internal void InvokeMouseDown() {
-            MouseButtonEventArgs e = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right);
-            e.RoutedEvent = Mouse.MouseDownEvent;
+            MouseButtonEventArgs e = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right) {
+                RoutedEvent = Mouse.MouseDownEvent
+            };
             this.OnMouseDown(e);
         }
 
@@ -239,6 +242,8 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             set { this.SetValue(RemarksTemplateProperty, value); }
         }
 
+        public bool IsLeftMousePressed => (bool) this.GetValue(IsLeftMousePressedProperty);
+
         private MultiSelectTreeView lastParentTreeView;
 
         internal MultiSelectTreeView ParentTreeView {
@@ -256,35 +261,15 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             }
         }
 
-        private static bool IsControlKeyDown {
-            get {
-                return (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
-            }
-        }
+        private static bool IsControlKeyDown => (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
 
-        private static bool IsShiftKeyDown {
-            get {
-                return (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
-            }
-        }
+        private static bool IsShiftKeyDown => (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
 
-        private bool CanExpand {
-            get {
-                return this.HasItems;
-            }
-        }
+        private bool CanExpand => this.HasItems;
 
-        private bool CanExpandOnInput {
-            get {
-                return this.CanExpand && this.IsEnabled;
-            }
-        }
+        private bool CanExpandOnInput => this.CanExpand && this.IsEnabled;
 
-        private ItemsControl ParentItemsControl {
-            get {
-                return ItemsControlFromItemContainer(this);
-            }
-        }
+        private ItemsControl ParentItemsControl => ItemsControlFromItemContainer(this);
 
         protected static void OnIsSelectedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             // The item has been selected through its IsSelected property. Update the SelectedItems
@@ -514,6 +499,28 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
                 }
 
                 e.Handled = true;
+            }
+        }
+
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+            base.OnPreviewMouseDown(e);
+            if (e.MouseDevice.LeftButton == MouseButtonState.Pressed) {
+                this.SetValue(IsLeftMousePressedPropertyKey, BoolBox.True);
+            }
+            else if (this.IsLeftMousePressed) {
+                this.ClearValue(IsLeftMousePressedPropertyKey);
+            }
+        }
+
+        protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
+            base.OnPreviewMouseUp(e);
+            this.ClearValue(IsLeftMousePressedPropertyKey);
+        }
+
+        protected override void OnPreviewMouseMove(MouseEventArgs e) {
+            base.OnPreviewMouseMove(e);
+            if (this.IsLeftMousePressed && e.MouseDevice.LeftButton != MouseButtonState.Pressed) {
+                this.ClearValue(IsLeftMousePressedPropertyKey);
             }
         }
 

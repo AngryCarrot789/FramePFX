@@ -18,7 +18,7 @@ using Rect = System.Windows.Rect;
 using Vector = System.Windows.Vector;
 
 namespace FramePFX.WPF.Editor.Automation {
-    public class AutomationSequenceEditor : Control {
+    public class AutomationSequenceEditor : FrameworkElement {
         public const double EllipseRadius = 2.5d;
         public const double EllipseThickness = 1d;
         public const double EllipseHitRadius = 12d;
@@ -183,6 +183,7 @@ namespace FramePFX.WPF.Editor.Automation {
         private KeyFramePoint captured;
         private Point lastMousePoint;
         private Point originMousePoint;
+        private Point curveMousePoint;
         private bool isCaptureInitialised;
         private KeyFramePoint lastMouseOver;
         private LineHitType captureLineHit;
@@ -247,7 +248,7 @@ namespace FramePFX.WPF.Editor.Automation {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.scroller = VisualTreeUtils.FindParent<ScrollViewer>(this);
+            this.scroller = VisualTreeUtils.GetParent<ScrollViewer>(this);
             if (this.scroller == null) {
                 return;
             }
@@ -571,12 +572,7 @@ namespace FramePFX.WPF.Editor.Automation {
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
-            Point mPos = e.GetPosition(this);
-        }
-
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
-            base.OnMouseDoubleClick(e);
-            if (e.ChangedButton != MouseButton.Left) {
+            if (e.ClickCount < 2) {
                 return;
             }
 
@@ -692,12 +688,13 @@ namespace FramePFX.WPF.Editor.Automation {
             KeyFramePoint prev = this.captured.Prev;
             KeyFramePoint next = this.captured.Next;
 
-            long min = prev?.keyFrame.Time ?? this.FrameBegin;
-            long max = next?.keyFrame.Time ?? (this.FrameBegin + this.FrameDuration);
+            long min = prev?.keyFrame.Frame ?? this.FrameBegin;
+            long max = next?.keyFrame.Frame ?? (this.FrameBegin + this.FrameDuration);
 
             if (this.isCaptureInitialised) {
                 this.lastMousePoint = mPos;
                 this.originMousePoint = mPos;
+                this.curveMousePoint = mPos;
                 this.isCaptureInitialised = false;
                 return;
             }
@@ -733,20 +730,21 @@ namespace FramePFX.WPF.Editor.Automation {
             }
 
             if (mode == DragMode.LineCurveAmount) {
-                // double diff = mPos.Y - this.originMousePoint.Y;
+                // double diff = mPos.Y - this.curveMousePoint.Y;
                 // double mapped = Maths.Map(60d - diff, -60d, 60d, -1d, 1d);
-                // this.captured.keyFrame.CurveBendAmount = Maths.Clamp(mapped, -1d, 1d);
+                // double curve = Maths.Clamp(mapped, -1d, 1d);
+                // this.captured.keyFrame.CurveBendAmount = curve;
                 // this.captured.InvalidateRenderData();
             }
             else {
                 if (mode == DragMode.FullKeyFrame || mode == DragMode.HorizontalKeyFrame) {
                     long newTime = Math.Max(0, (long) Math.Round(mPos.X / this.UnitZoom));
-                    long oldTime = this.captured.keyFrame.Time;
+                    long oldTime = this.captured.keyFrame.Frame;
                     if ((oldTime + newTime) < 0) {
                         newTime = -oldTime;
                     }
 
-                    this.captured.keyFrame.Time = Maths.Clamp(newTime, min, max);
+                    this.captured.keyFrame.Frame = Maths.Clamp(newTime, min, max);
                 }
 
                 if (mode == DragMode.FullKeyFrame || mode == DragMode.VerticalKeyFrame) {
@@ -766,6 +764,7 @@ namespace FramePFX.WPF.Editor.Automation {
             List<KeyFramePoint> list = this.backingList;
             int end = list.Count - 1;
             Rect visible = GetVisibleRect(this.scroller, this);
+            dc.PushClip(new RectangleGeometry(visible));
             if (this.isOverrideEnabled) {
                 dc.PushOpacity(0.5d);
             }
@@ -800,6 +799,8 @@ namespace FramePFX.WPF.Editor.Automation {
                     dc.Pop();
                 }
             }
+
+            dc.Pop();
         }
 
         public static Rect GetVisibleRect(ScrollViewer scroller, UIElement element) {
@@ -855,7 +856,6 @@ namespace FramePFX.WPF.Editor.Automation {
             Point p2 = key.GetLocation();
             Point p1 = new Point(0, p2.Y);
             if (RectContains(ref rect, ref p1) || RectContains(ref rect, ref p2)) {
-                ClipPoints(ref rect, ref p1, ref p2);
                 dc.DrawLine(this.LineTransparentPen, p1, p2);
                 dc.DrawLine(this.isOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Head ? this.LineMouseOverPen : this.LinePen), p1, p2);
             }
@@ -866,7 +866,6 @@ namespace FramePFX.WPF.Editor.Automation {
             Point a = key.GetLocation();
             Point b = new Point(rect.Right, a.Y);
             if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b)) {
-                ClipPoints(ref rect, ref a, ref b);
                 dc.DrawLine(this.LineTransparentPen, a, b);
                 dc.DrawLine(this.isOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Tail ? this.LineMouseOverPen : this.LinePen), a, b);
             }
@@ -886,51 +885,11 @@ namespace FramePFX.WPF.Editor.Automation {
             return r.Right > rect.Left && r.Left < rect.Right && r.Bottom > rect.Top && r.Top < rect.Bottom;
         }
 
-        public static void ClipPoints(ref Rect rect, ref Point p1, ref Point p2) {
-            // Calculate the line's slope
-            double m = (p2.Y - p1.Y) / (p2.X - p1.X);
-
-            // Calculate intersection points
-            double leftX = rect.X;
-            double leftY = m * rect.X + (p1.Y - m * p1.X);
-
-            double rightX = rect.X + rect.Width;
-            double rightY = m * rightX + (p1.Y - m * p1.X);
-
-            double topY = rect.Y;
-            double topX = (topY - p1.Y + m * p1.X) / m;
-
-            double bottomY = rect.Y + rect.Height;
-            double bottomX = (bottomY - p1.Y + m * p1.X) / m;
-
-            // Check if intersection points are within the rectangle
-            if (rect.X <= leftX && leftX <= rect.X + rect.Width && rect.Y <= leftY && leftY <= rect.Y + rect.Height) {
-                // (leftX, leftY) is within the rectangle
-                // Update p1 to the clipped point
-                p1.X = leftX;
-                p1.Y = leftY;
-            }
-
-            if (rect.X <= rightX && rightX <= rect.X + rect.Width && rect.Y <= rightY && rightY <= rect.Y + rect.Height) {
-                // (rightX, rightY) is within the rectangle
-                // Update p2 to the clipped point
-                p2.X = rightX;
-                p2.Y = rightY;
-            }
-
-            if (rect.X <= topX && topX <= rect.X + rect.Width && rect.Y <= topY && topY <= rect.Y + rect.Height) {
-                // (topX, topY) is within the rectangle
-                // Update p1 to the clipped point
-                p1.X = topX;
-                p1.Y = topY;
-            }
-
-            if (rect.X <= bottomX && bottomX <= rect.X + rect.Width && rect.Y <= bottomY && bottomY <= rect.Y + rect.Height) {
-                // (bottomX, bottomY) is within the rectangle
-                // Update p2 to the clipped point
-                p2.X = bottomX;
-                p2.Y = bottomY;
-            }
+        // Function to calculate the Euclidean distance between two points
+        private static double Distance(Point p1, Point p2) {
+            double dx = p2.X - p1.X;
+            double dy = p2.Y - p1.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
         }
 
         /// <summary>
@@ -964,7 +923,7 @@ namespace FramePFX.WPF.Editor.Automation {
 
         public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
             List<KeyFramePoint> list = this.backingList;
-            int count = list.Count, i = 0, j = count - 1;
+            int count = list.Count, i = 0;
             if (count < 1) {
                 goto fail;
             }

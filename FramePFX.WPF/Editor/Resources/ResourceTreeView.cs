@@ -3,11 +3,19 @@ using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
+using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
 
 namespace FramePFX.WPF.Editor.Resources {
     internal class ResourceTreeView : MultiSelectTreeView {
+        public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceTreeView), new PropertyMetadata(BoolBox.False));
+
         public ResourceManagerViewModel ViewModel => (ResourceManagerViewModel) this.DataContext;
+
+        public bool IsDroppableTargetOver {
+            get => (bool) this.GetValue(IsDroppableTargetOverProperty);
+            set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
+        }
 
         private bool isProcessingAsyncDrop;
 
@@ -34,11 +42,26 @@ namespace FramePFX.WPF.Editor.Resources {
             if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> list) {
                 if (!list.Contains(manager.Root)) {
                     e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+                    if (e.Effects != DragDropEffects.None) {
+                        this.IsDroppableTargetOver = true;
+                    }
+
                     return;
                 }
             }
 
+            if (this.IsDroppableTargetOver) {
+                this.ClearValue(IsDroppableTargetOverProperty);
+            }
+
             e.Effects = DragDropEffects.None;
+        }
+
+        protected override void OnDragLeave(DragEventArgs e) {
+            base.OnDragLeave(e);
+            this.Dispatcher.Invoke(() => {
+                this.ClearValue(IsDroppableTargetOverProperty);
+            }, DispatcherPriority.Loaded);
         }
 
         protected override void OnDrop(DragEventArgs e) {
@@ -62,6 +85,7 @@ namespace FramePFX.WPF.Editor.Resources {
 
         private async void HandleOnDropResources(ResourceGroupViewModel group, List<BaseResourceObjectViewModel> selection, EnumDropType dropType) {
             await group.OnDropResources(selection, dropType);
+            this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }
 

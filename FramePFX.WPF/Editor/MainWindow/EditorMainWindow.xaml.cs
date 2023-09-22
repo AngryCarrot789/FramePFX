@@ -63,7 +63,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
         }
 
         public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null) {
-            BaseViewModel.ClearInternalData(notification, "AnimationCompleted");
+            BaseViewModel.RemoveInternalData(notification, "AnimationCompleted");
             int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
             if (index == -1) {
                 BaseViewModel.SetInternalData(notification, "AnimationCompleted", BoolBox.True);
@@ -231,7 +231,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
 
         private void OnBottomThumbDrag(object sender, DragDeltaEventArgs e) {
             if ((sender as Thumb)?.DataContext is TrackViewModel track) {
-                track.Height = Maths.Clamp(track.Height + e.VerticalChange, track.MinHeight, track.MaxHeight);
+                track.Height = Maths.Clamp(track.Height + e.VerticalChange, 24, 500);
             }
         }
 

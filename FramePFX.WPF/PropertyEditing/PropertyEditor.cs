@@ -77,7 +77,7 @@ namespace FramePFX.WPF.PropertyEditing {
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
             if (e.OriginalSource is DependencyObject obj) {
-                PropertyEditorItemsControl parent = VisualTreeUtils.FindParent<PropertyEditorItemsControl>(obj);
+                PropertyEditorItemsControl parent = VisualTreeUtils.GetParent<PropertyEditorItemsControl>(obj);
                 if (parent == null || parent.myPropertyEditor == this) {
                     this.ClearSelection();
                 }

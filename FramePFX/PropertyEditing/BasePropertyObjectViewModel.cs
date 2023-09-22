@@ -7,7 +7,6 @@ namespace FramePFX.PropertyEditing {
     public class BasePropertyObjectViewModel : BaseViewModel, IPropertyEditorItem {
         private PropertyEditorRegistry propertyEditor;
         private bool isCurrentlyApplicable;
-        private bool isSelected;
 
         /// <summary>
         /// Whether or not this item should be visible to the end user or not.
@@ -25,11 +24,6 @@ namespace FramePFX.PropertyEditing {
         public PropertyEditorRegistry PropertyEditor {
             get => this.propertyEditor;
             private set => this.RaisePropertyChanged(ref this.propertyEditor, value);
-        }
-
-        public bool IsSelected {
-            get => this.isSelected;
-            set => this.RaisePropertyChanged(ref this.isSelected, value);
         }
 
         /// <summary>

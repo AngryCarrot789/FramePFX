@@ -38,8 +38,6 @@ namespace FramePFX.Editor.Timelines.Tracks {
 
         public override Track CloneCore() {
             VideoTrack clone = new VideoTrack() {
-                MaxHeight = this.MaxHeight,
-                MinHeight = this.MinHeight,
                 Height = this.Height,
                 TrackColour = this.TrackColour,
                 DisplayName = TextIncrement.GetNextText(this.DisplayName)

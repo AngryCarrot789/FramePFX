@@ -37,6 +37,16 @@ namespace FramePFX.Editor.Actions {
             public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteGeneral(e, 1, true, true);
         }
 
+        [ActionRegistration("actions.timeline.FrameBack")]
+        public class TimelineFrameBackAction : AnAction {
+            public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteTimeline(e, -1);
+        }
+
+        [ActionRegistration("actions.timeline.FrameForward")]
+        public class TimelineFrameForwardAction : AnAction {
+            public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteTimeline(e, 1);
+        }
+
         public static Task<bool> ExecuteGeneral(AnActionEventArgs e, long amount, bool expandMode = false, bool resizeBothWays = false) {
             if (e.DataContext.TryGetContext(out ClipViewModel clip) && clip.Timeline != null) {
                 OnClipAction(clip, amount, expandMode, resizeBothWays);
@@ -54,10 +64,29 @@ namespace FramePFX.Editor.Actions {
             return Task.FromResult(true);
         }
 
+        public static Task<bool> ExecuteTimeline(AnActionEventArgs e, long amount) {
+            TimelineViewModel timeline;
+            if (e.DataContext.TryGetContext(out ClipViewModel clip) && (timeline = clip.Timeline) != null) {
+                OnTimelineAction(timeline, amount);
+            }
+            else if (e.DataContext.TryGetContext(out TrackViewModel track) && (timeline = track.Timeline) != null) {
+                OnTimelineAction(timeline, amount);
+            }
+            else if (e.DataContext.TryGetContext(out timeline)) {
+                OnTimelineAction(timeline, amount);
+            }
+            else {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+
         // expandMode: holding shift
         // resizeBothWays: holding ctrl + shift
         public static void OnClipAction(ClipViewModel clip, long frame, bool expandMode, bool resizeBothWays) {
             TimelineViewModel timeline = clip.Timeline;
+            frame = GetZoomMultiplied(frame, timeline.UnitZoom);
             FrameSpan span = clip.FrameSpan;
             if (expandMode && !resizeBothWays) {
                 long duration = span.Duration + frame;
@@ -90,6 +119,7 @@ namespace FramePFX.Editor.Actions {
         }
 
         public static void OnTimelineAction(TimelineViewModel timeline, long frame) {
+            frame = GetZoomMultiplied(frame, timeline.UnitZoom);
             long duration = timeline.PlayHeadFrame + frame;
             if (duration < 0) {
                 return;
@@ -100,6 +130,21 @@ namespace FramePFX.Editor.Actions {
             }
 
             timeline.PlayHeadFrame = duration;
+        }
+
+        public static long GetZoomMultiplied(long amount, double zoom) {
+            if (zoom < 0.25d) {
+                return amount * 25;
+            }
+            else if (zoom < 2) {
+                return amount * 10;
+            }
+            else if (zoom < 5) {
+                return amount * 5;
+            }
+            else {
+                return amount;
+            }
         }
     }
 }

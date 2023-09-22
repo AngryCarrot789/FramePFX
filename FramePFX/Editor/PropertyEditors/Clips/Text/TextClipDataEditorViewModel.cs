@@ -40,7 +40,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips.Text {
             }
         }
 
-        public static string DifferentValueText => Services.Translator.GetString("S.PropertyEditor.Clips.DifferingDisplayNames");
+        public static string DifferentValueText => Services.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
 
         public TextClipDataEditorViewModel() : base(typeof(TextClipViewModel)) {
             this.historyFontFamily = new HistoryBuffer<HistoryFontFamilty>();

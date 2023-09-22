@@ -68,7 +68,7 @@ namespace FramePFX.WPF.PropertyEditing {
                     return editor;
                 }
 
-                PropertyEditorItem containerItem = VisualTreeUtils.FindParent<PropertyEditorItem>(parent);
+                PropertyEditorItem containerItem = VisualTreeUtils.GetParent<PropertyEditorItem>(parent);
                 parent = containerItem != null ? ItemsControl.ItemsControlFromItemContainer(containerItem) : null;
             }
 
@@ -76,7 +76,7 @@ namespace FramePFX.WPF.PropertyEditing {
         }
 
         internal static PropertyEditorItemsControl GetParentItemsControl(DependencyObject obj) {
-            DependencyObject item = obj is PropertyEditorSelectionSlot ? VisualTreeUtils.FindParent<PropertyEditorItem>(obj) : obj;
+            DependencyObject item = obj is PropertyEditorSelectionSlot ? VisualTreeUtils.GetParent<PropertyEditorItem>(obj) : obj;
             return ItemsControl.ItemsControlFromItemContainer(item) as PropertyEditorItemsControl;
         }
 

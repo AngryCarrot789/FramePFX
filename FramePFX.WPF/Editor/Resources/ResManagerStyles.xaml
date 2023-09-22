@@ -27,33 +27,36 @@
                     <Border x:Name="Bd" Width="150" Height="100" BorderThickness="1"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}">
-                        <Grid>
-                            <Border x:Name="PART_HeaderBorder" VerticalAlignment="Bottom" Height="24" BorderThickness="0,1,0,0"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    Background="{TemplateBinding HeaderBackground}">
-                                <Grid>
-                                    <TextBlock Text="{TemplateBinding HeaderText}"
-                                               Padding="3" VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis"
-                                               ToolTip="{TemplateBinding HeaderText}" />
-                                </Grid>
-                            </Border>
-                            <Border Margin="0,0,0,24" Background="{TemplateBinding ContentBackground}" SnapsToDevicePixels="True">
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                            </Border>
-                        </Grid>
+                        <Border x:Name="PART_DropActivityBorder" BorderThickness="0">
+                            <Grid>
+                                <Border x:Name="PART_HeaderBorder" VerticalAlignment="Bottom" Height="24" BorderThickness="0,1,0,0"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        Background="{TemplateBinding HeaderBackground}">
+                                    <Grid>
+                                        <TextBlock Text="{TemplateBinding HeaderText}"
+                                                   Padding="3" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{TemplateBinding HeaderText}" />
+                                    </Grid>
+                                </Border>
+                                <Border Margin="0,0,0,24" Background="{TemplateBinding ContentBackground}" SnapsToDevicePixels="True">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                </Border>
+                            </Grid>
+                        </Border>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True" />
-                            </MultiTrigger.Conditions>
+                        <Trigger Property="IsDroppableTargetOver" Value="True">
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="OrangeRed"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Background}" />
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}" />
                             <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type res:BaseResourceItemControl}}, Path=HeaderMouseOverBackground}" />
-                        </MultiTrigger>
+                        </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="Selector.IsSelectionActive" Value="False" />
@@ -87,9 +90,8 @@
 
     <res:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector">
         <res:ResourceItemContainerStyleSelector.ResourceItemStyle>
-            <!--  -->
-            <Style TargetType="{x:Type res:ResourceItemControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}"
-                   d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}">
+            <!-- d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}" -->
+            <Style TargetType="{x:Type res:ResourceItemControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsOnline, Mode=OneWay}" Value="False">
@@ -100,9 +102,8 @@
             </Style>
         </res:ResourceItemContainerStyleSelector.ResourceItemStyle>
         <res:ResourceItemContainerStyleSelector.ResourceGroupStyle>
-            <!--  -->
-            <Style TargetType="{x:Type res:ResourceGroupControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}"
-                   d:DataContext="{d:DesignInstance viewModels:ResourceGroupViewModel}">
+            <!-- d:DataContext="{d:DesignInstance viewModels:ResourceGroupViewModel}" -->
+            <Style TargetType="{x:Type res:ResourceGroupControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
             </Style>
         </res:ResourceItemContainerStyleSelector.ResourceGroupStyle>
@@ -184,10 +185,21 @@
     </Style>
 
     <Style TargetType="{x:Type res:ResourceTreeView}" BasedOn="{StaticResource {x:Type mst:MultiSelectTreeView}}">
-        
+        <Style.Triggers>
+            <Trigger Property="IsDroppableTargetOver" Value="True">
+                <Setter Property="BorderBrush" Value="OrangeRed"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style TargetType="{x:Type res:ResourceTreeViewItem}" BasedOn="{StaticResource {x:Type mst:MultiSelectTreeViewItem}}">
-
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="1,2"/>
+        <Style.Triggers>
+            <Trigger Property="IsDroppableTargetOver" Value="True">
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="OrangeRed"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

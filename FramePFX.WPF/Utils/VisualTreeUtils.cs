@@ -43,18 +43,18 @@ namespace FramePFX.WPF.Utils {
             }
         }
 
-        public static T FindParent<T>(DependencyObject obj, bool includeSelf = true) where T : class {
+        public static T GetParent<T>(DependencyObject obj, bool includeSelf = true) where T : class {
             if (obj == null)
                 return null;
-            if (includeSelf && obj is T t)
-                return t;
+            if (includeSelf && obj is T)
+                return (T) (object) obj;
 
             do {
                 obj = GetParent(obj);
                 if (obj == null)
                     return null;
-                if (obj is T t2)
-                    return t2;
+                if (obj is T)
+                    return (T) (object) obj;
             } while (true);
         }
 

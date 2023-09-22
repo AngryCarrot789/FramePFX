@@ -25,10 +25,10 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         /// <summary>
         /// This key frame's current frame
         /// </summary>
-        public long Time {
-            get => this.Model.time;
+        public long Frame {
+            get => this.Model.frame;
             set {
-                this.Model.time = value;
+                this.Model.frame = value;
                 this.RaisePropertyChanged();
             }
         }

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace FramePFX.PropertyEditing.Editor.Primitives {
+namespace FramePFX.PropertyEditing.Editor {
     public class CheckBoxGridEditorViewModel : BasePropertyEditorViewModel, IEnumerable<CheckBoxEditorViewModel> {
         public ObservableCollection<CheckBoxEditorViewModel> Editors { get; }
 

@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
-using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
 using FramePFX.WPF.Editor.Timeline.Utils;
@@ -54,14 +52,31 @@ namespace FramePFX.WPF.Editor.Resources {
             return !KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control, ModifierKeys.Shift);
         }
 
+        private bool CanExpandNextMouseUp;
+
         protected override void OnMouseDown(MouseButtonEventArgs e) {
-            if (e.ChangedButton == MouseButton.Left && CanBeginDragDrop() && !e.Handled) {
-                if ((this.IsFocused || this.Focus()) && !this.isDragDropping) {
-                    this.CaptureMouse();
-                    this.originMousePoint = e.GetPosition(this);
-                    this.isDragActive = true;
-                    e.Handled = true;
-                    return;
+            if (e.ChangedButton == MouseButton.Left) {
+                MultiSelectTreeView parent = this.ParentTreeView;
+                int count = parent.SelectedItems.Count;
+                if (count < 1 || !this.IsSelected) {
+                    if (count < 1 || !KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control)) {
+                        this.ParentTreeView.ClearSelection();
+                        this.IsSelected = true;
+                    }
+                }
+
+                if (e.ClickCount > 1) {
+                    this.CanExpandNextMouseUp = true;
+                }
+
+                if (CanBeginDragDrop() && !e.Handled) {
+                    if ((this.IsFocused || this.Focus()) && !this.isDragDropping) {
+                        this.CaptureMouse();
+                        this.originMousePoint = e.GetPosition(this);
+                        this.isDragActive = true;
+                        e.Handled = true;
+                        return;
+                    }
                 }
             }
 
@@ -76,12 +91,19 @@ namespace FramePFX.WPF.Editor.Resources {
                 }
 
                 e.Handled = true;
-                if (e.ChangedButton == MouseButton.Left) {
-                    this.ParentTreeView.Selection.Select(this);
+                if (!this.IsSelected) {
+                    if (e.ChangedButton == MouseButton.Left) {
+                        this.ParentTreeView.Selection.Select(this);
+                    }
+                    else if (!this.IsSelected) {
+                        this.ParentTreeView.Selection.Select(this);
+                    }
                 }
-                else if (!this.IsSelected) {
-                    this.ParentTreeView.Selection.Select(this);
-                }
+            }
+
+            if (this.CanExpandNextMouseUp) {
+                this.CanExpandNextMouseUp = false;
+                this.IsExpanded = !this.IsExpanded;
             }
 
             base.OnMouseUp(e);
@@ -138,21 +160,20 @@ namespace FramePFX.WPF.Editor.Resources {
         }
 
         protected override void OnDragOver(DragEventArgs e) {
+            e.Handled = true;
             if (!this.isDragDropping && e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> list) {
-                if (this.DataContext is BaseResourceObjectViewModel vm && !list.Contains(vm)) {
+                if (this.DataContext is ResourceGroupViewModel group && !list.Contains(group)) {
                     this.IsDroppableTargetOver = true;
                     e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                    e.Handled = true;
-                    goto end;
+                    return;
                 }
             }
 
-            this.ClearValue(IsDroppableTargetOverProperty);
-            e.Effects = DragDropEffects.None;
+            if (this.IsDroppableTargetOver) {
+                this.ClearValue(IsDroppableTargetOverProperty);
+            }
 
-            end:
-            e.Handled = true;
-            base.OnDragOver(e);
+            e.Effects = DragDropEffects.None;
         }
 
         protected override void OnDragLeave(DragEventArgs e) {

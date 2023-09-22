@@ -1,5 +1,4 @@
 using System;
-using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.Views {
     public partial class AppLoggerWindow : WindowEx {
@@ -20,11 +19,14 @@ namespace FramePFX.WPF.Views {
         }
 
         private void OnLog(string text) {
-            DispatcherUtils.Invoke(this.Dispatcher, this.updateAction);
+            if (this.Dispatcher.CheckAccess())
+                this.UpdateText();
+            this.Dispatcher.InvokeAsync(this.updateAction);
         }
 
         private void UpdateText() {
             this.LoggerTextBox.Text = AppLogger.GetLogText();
+            this.LoggerTextBox.ScrollToEnd();
         }
     }
 }

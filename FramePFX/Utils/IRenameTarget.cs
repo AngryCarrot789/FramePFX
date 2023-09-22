@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace FramePFX.Utils {
     /// <summary>
-    /// An interface that can be generally renamed by the user pressing rename hotkeys
+    /// An interface for an object that can be generally renamed by the user pressing generic rename hotkeys (F2, CTRL+R, etc.)
     /// </summary>
     public interface IRenameTarget {
         /// <summary>

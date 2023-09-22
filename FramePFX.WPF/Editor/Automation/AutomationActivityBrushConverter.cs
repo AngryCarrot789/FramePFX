@@ -17,9 +17,9 @@ namespace FramePFX.WPF.Editor.Automation {
                 return DependencyProperty.UnsetValue;
             }
 
-            bool isInUse = (bool) values[0];
+            bool isReady = (bool) values[0];
             bool selected = (bool) values[1];
-            if (isInUse) {
+            if (isReady) {
                 return this.ActiveBrush; //selected ? this.ActiveBrush : this.ForcedActive;
             }
             else {

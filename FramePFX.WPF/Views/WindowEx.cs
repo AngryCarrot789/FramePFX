@@ -204,7 +204,7 @@ namespace FramePFX.WPF.Views {
             public MakeTopMostAction() {
             }
 
-            public override Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
+            protected override Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
                 if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = isToggled;
                     return Task.FromResult(true);
@@ -214,7 +214,7 @@ namespace FramePFX.WPF.Views {
                 }
             }
 
-            public override Task<bool> ExecuteNoToggle(AnActionEventArgs e) {
+            protected override Task<bool> ExecuteNoToggle(AnActionEventArgs e) {
                 if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = !window.Topmost;
                     return Task.FromResult(true);

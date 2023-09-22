@@ -52,13 +52,14 @@ namespace FramePFX.PropertyEditing {
         /// <param name="applicableType">The applicable type. Must be assignable to the current group's applicable type</param>
         /// <param name="id">The unique ID for this group, relative to this group</param>
         /// <param name="isExpandedByDefault">Whether or not the group is expanded by default</param>
-        /// <param name="useSetupHandlers">
-        /// Whether or not a call to this instance's setup will setup the handlers for the created sub-group. True by default
+        /// <param name="canSetupHierarchy">
+        /// Whether or not the group's hierarchy will be setup when the current instance's
+        /// hierarchy is also setup (during the recursive setup). True by default
         /// </param>
         /// <param name="isSelectable">Whether or not this group is selectable in the UI. Default value is false</param>
-        /// <returns></returns>
-        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true, bool isSelectable = false) {
-            if (useSetupHandlers) {
+        /// <returns>A new fixed group, which is added to the current instance's internal group collection</returns>
+        public FixedPropertyGroupViewModel CreateFixedSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool canSetupHierarchy = true, bool isSelectable = false) {
+            if (canSetupHierarchy) {
                 this.ValidateApplicableType(applicableType);
             }
 
@@ -69,37 +70,21 @@ namespace FramePFX.PropertyEditing {
                 IsSelectable = isSelectable
             };
 
-            this.AddGroupInternal(group, id, useSetupHandlers);
+            this.AddGroupInternal(group, id, canSetupHierarchy);
             return group;
         }
 
         /// <summary>
-        /// Creates and adds a new child group object to this group
+        /// Adds the given group to this group
         /// </summary>
-        /// <param name="applicableType">The applicable type. Must be assignable to the current group's applicable type</param>
-        /// <param name="id">The unique ID for this group, relative to this group</param>
-        /// <param name="isExpandedByDefault">Whether or not the group is expanded by default</param>
+        /// <param name="group">The group to add</param>
+        /// <param name="id">A unique ID for this group</param>
         /// <param name="useSetupHandlers">
-        /// Whether or not a call to this instance's setup will setup the handlers for the created sub-group. True by default
+        /// Whether or not the group's hierarchy will be setup when the current instance's hierarchy is
+        /// also setup (during the recursive setup). True by default. Set to false to use the new group
+        /// primarily just to make the group structure look better or if you plan on using different types
+        /// of handlers for this new group (e.g. a collection of effect handlers for a clip)
         /// </param>
-        /// <param name="isSelectable">Whether or not this group is selectable in the UI. Default value is false</param>
-        /// <returns></returns>
-        public DynamicPropertyGroupViewModel CreateDynamicSubGroup(Type applicableType, string id, bool isExpandedByDefault = true, bool useSetupHandlers = true, bool isSelectable = false) {
-            if (useSetupHandlers) {
-                this.ValidateApplicableType(applicableType);
-            }
-
-            this.ValidateId(id);
-            DynamicPropertyGroupViewModel group = new DynamicPropertyGroupViewModel(applicableType) {
-                IsExpanded = isExpandedByDefault,
-                DisplayName = id,
-                IsSelectable = isSelectable
-            };
-
-            this.AddGroupInternal(group, id, useSetupHandlers);
-            return group;
-        }
-
         public void AddSubGroup(BasePropertyGroupViewModel group, string id, bool useSetupHandlers = true) {
             if (useSetupHandlers && group.ApplicableType != null) {
                 this.ValidateApplicableType(group.ApplicableType);
@@ -219,8 +204,8 @@ namespace FramePFX.PropertyEditing {
             }
         }
 
-        public void AddSeparator() {
-            this.propertyObjectList.Add(new PropertyObjectSeparator(this));
+        public void AddSeparator(bool isEditorSeparator) {
+            this.propertyObjectList.Add(new PropertyObjectSeparator(this, isEditorSeparator));
         }
 
         public bool IsDisconnectedFromHandlerHierarchy(FixedPropertyGroupViewModel group) {

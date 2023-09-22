@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -12,6 +13,7 @@ using FramePFX.Actions;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Editor;
 using FramePFX.Editor.Actions;
+using FramePFX.Editor.PropertyEditors.Clips;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Actions;
@@ -32,6 +34,10 @@ using FramePFX.WPF.Utils;
 using FramePFX.WPF.Views;
 using SoundIOSharp;
 using FramePFX.WPF.Editor.MainWindow;
+using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.PropertyEditing;
+using System.Windows.Controls;
+using UndoAction = FramePFX.History.Actions.UndoAction;
 
 namespace FramePFX.WPF {
     public partial class App : Application {
@@ -112,7 +118,7 @@ namespace FramePFX.WPF {
             }
 
             Services.Application = new ApplicationDelegate(this);
-
+            Services.ServiceManager.Register(Services.Application);
             List<(TypeInfo, ServiceImplementationAttribute)> list_serviceAttributes = new List<(TypeInfo, ServiceImplementationAttribute)>();
             List<(TypeInfo, ActionRegistrationAttribute)> list_actionAttributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
 
@@ -151,6 +157,8 @@ namespace FramePFX.WPF {
             ShortcutManager.Instance.ShortcutModified += (sender, value) => {
                 GlobalUpdateShortcutGestureConverter.BroadcastChange();
             };
+
+            RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
 
             ActionManager.Instance = new ActionManager();
             InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
@@ -212,6 +220,9 @@ namespace FramePFX.WPF {
             this.MainWindow = this.splash = new AppSplashScreen();
             this.splash.Show();
 
+            ToolTipService.ShowDurationProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
+            ToolTipService.InitialShowDelayProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(400));
+
             try {
                 await this.InitApp();
             }
@@ -247,6 +258,16 @@ namespace FramePFX.WPF {
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
+
+            ClipViewModel demoClip = editor.ActiveProject.Timeline.Tracks[1].Clips[0];
+            demoClip.IsSelected = true;
+            PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(CollectionUtils.SingleItem(demoClip));
+            VideoClipDataSingleEditorViewModel infoEditor = PFXPropertyEditorRegistry.Instance.ClipInfo.PropertyObjects.OfType<VideoClipDataSingleEditorViewModel>().FirstOrDefault();
+            if (infoEditor != null) { // shouldn't be null... but juuuust in case something bad did happen, check anyway
+                infoEditor.IsOpacitySelected = true;
+                demoClip.Timeline.PlayHeadFrame = 323;
+            }
+
             await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
             ((EditorMainWindow)this.MainWindow)?.VPViewBox.FitContentToCenter();
             await editor.ActiveProject.Timeline.DoAutomationTickAndRender();

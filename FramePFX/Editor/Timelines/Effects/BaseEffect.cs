@@ -40,10 +40,14 @@ namespace FramePFX.Editor.Timelines.Effects {
         }
 
         public static void InsertEffectIntoClip(Clip clip, BaseEffect effect, int index) {
-            if (index < 0 || index > clip.Effects.Count) {
+            if (clip == null)
+                throw new NullReferenceException(nameof(clip));
+            if (effect == null)
+                throw new ArgumentNullException(nameof(effect));
+            if (index < 0 || index > clip.Effects.Count)
                 throw new ArgumentOutOfRangeException(nameof(index), index, $"Index must be between 0 and the number of effects ({clip.Effects.Count})");
-            }
-
+            if (!clip.IsEffectTypeAllowed(effect))
+                throw new Exception($"Effect type '{effect.GetType()}' is not applicable to the clip '{clip.GetType()}'");
             if (clip.Effects.Contains(effect))
                 throw new Exception("Clip already contains the effect");
             if (effect.OwnerClip != null)
@@ -137,10 +141,10 @@ namespace FramePFX.Editor.Timelines.Effects {
             return this.OwnerClip?.ConvertRelativeToTimelineFrame(relative) ?? relative;
         }
 
-        public long ConvertTimelineToRelativeFrame(long timeline, out bool valid) {
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange) {
             if (this.OwnerClip != null)
-                return this.OwnerClip.ConvertTimelineToRelativeFrame(timeline, out valid);
-            valid = false;
+                return this.OwnerClip.ConvertTimelineToRelativeFrame(timeline, out inRange);
+            inRange = false;
             return timeline;
         }
 

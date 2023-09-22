@@ -35,6 +35,11 @@ namespace FramePFX.Editor.Actions {
             if (context.TryGetContext(out timeline)) {
                 selectedTrackIndex = (track = timeline.PrimarySelectedTrack) != null ? timeline.Tracks.IndexOf(track) : -1;
             }
+            else if (context.TryGetContext(out VideoEditorViewModel editor)) {
+                if ((timeline = editor.ActiveTimeline) == null)
+                    return false;
+                selectedTrackIndex = (track = timeline.PrimarySelectedTrack) != null ? timeline.Tracks.IndexOf(track) : -1;
+            }
             else if (context.TryGetContext(out track)) {
                 if ((timeline = track.Timeline) == null)
                     return false;

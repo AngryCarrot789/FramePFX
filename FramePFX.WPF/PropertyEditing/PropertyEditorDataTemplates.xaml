@@ -5,12 +5,40 @@
                     xmlns:pe="clr-namespace:FramePFX.WPF.PropertyEditing"
                     xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
                     xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
-                    xmlns:primitives="clr-namespace:FramePFX.PropertyEditing.Editor.Primitives;assembly=FramePFX"
                     xmlns:clips="clr-namespace:FramePFX.Editor.PropertyEditors.Clips;assembly=FramePFX"
                     xmlns:text="clr-namespace:FramePFX.Editor.PropertyEditors.Clips.Text;assembly=FramePFX"
                     xmlns:effects="clr-namespace:FramePFX.Editor.PropertyEditors.Effects;assembly=FramePFX"
+                    xmlns:primitives="clr-namespace:FramePFX.PropertyEditing.Editor;assembly=FramePFX"
+                    xmlns:tracks="clr-namespace:FramePFX.Editor.PropertyEditors.Tracks;assembly=FramePFX"
+                    xmlns:video="clr-namespace:FramePFX.Editor.PropertyEditors.Tracks.Video;assembly=FramePFX"
                     mc:Ignorable="d">
+
+    <Style x:Key="AutomationEllipse" TargetType="{x:Type Ellipse}">
+        <Setter Property="Visibility" Value="{Binding HasKeyFrames, Converter={StaticResource BoolToVisibleOrCollapsedConverter}}"/>
+        <Setter Property="ToolTip" Value="This parameter has key frames. Orange means the automation is active, Grey means the override is on (and therefore disabled)"/>
+        <Setter Property="Fill">
+            <Setter.Value>
+                <MultiBinding Converter="{StaticResource AutomationActivityBrushConverter}">
+                    <Binding Path="IsAutomationReady" Mode="OneWay"/>
+                    <Binding Path="IsActiveSequence" Mode="OneWay"/>
+                </MultiBinding>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <!-- Clips -->
+    <DataTemplate DataType="{x:Type clips:ClipDataEditorViewModel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
+            </Grid.ColumnDefinitions>
+            <TextBlock FontWeight="Normal" Padding="6,2" VerticalAlignment="Center" Text="Display Name" Height="18" Margin="0,0,0,0" />
+            <TextBox Grid.Column="2" FontWeight="Normal" Padding="2,1" VerticalAlignment="Center" Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,3" />
+        </Grid>
+    </DataTemplate>
+
     <!-- Video Clips -->
     <DataTemplate DataType="{x:Type clips:VideoClipDataSingleEditorViewModel}">
         <StackPanel>
@@ -21,7 +49,10 @@
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="0" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,0,0,0" />
+                    <StackPanel Grid.Row="0" VerticalAlignment="Center" Height="18" Orientation="Horizontal">
+                        <TextBlock FontWeight="Normal" Padding="6,1,5,1" Text="Opacity" Grid.Row="0" Margin="0,0,0,0" />
+                        <Ellipse Style="{StaticResource AutomationEllipse}" DataContext="{Binding OpacityAutomationSequence}" Width="5" Height="5" Margin="0,0,3,0"/>
+                    </StackPanel>
                     <Grid Grid.Column="2" Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -109,7 +140,10 @@
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
                     </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger FontWeight="Normal" Padding="4,1" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"         EditingHint="Add to X and Y" DisplayTextOverride="Position" Height="18" />
+                    <StackPanel VerticalAlignment="Center" Height="18" Orientation="Horizontal">
+                        <dragger:NumberDragger FontWeight="Normal" Padding="4,1" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothPos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditingHint="Add to X and Y" DisplayTextOverride="Position"/>
+                        <Ellipse Style="{StaticResource AutomationEllipse}" DataContext="{Binding MediaPositionAutomationSequence}" Width="5" Height="5" Margin="0,0,3,0"/>
+                    </StackPanel>
                     <Grid Grid.Column="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -138,7 +172,10 @@
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
                     </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger FontWeight="Normal" Padding="4,1" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"       EditingHint="Add to X and Y" DisplayTextOverride="Scale" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
+                    <StackPanel VerticalAlignment="Center" Height="18" Orientation="Horizontal">
+                        <dragger:NumberDragger FontWeight="Normal" Padding="4,1" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditingHint="Add to X and Y" DisplayTextOverride="Scale" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
+                        <Ellipse Style="{StaticResource AutomationEllipse}" DataContext="{Binding MediaScaleAutomationSequence}" Width="5" Height="5" Margin="0,0,3,0"/>
+                    </StackPanel>
                     <Grid Grid.Column="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -167,7 +204,10 @@
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
                     </Grid.ColumnDefinitions>
-                    <dragger:NumberDragger FontWeight="Normal" Padding="4,1" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditingHint="Add to X and Y" DisplayTextOverride="Origin" Height="18" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
+                    <StackPanel VerticalAlignment="Center" Height="18" Orientation="Horizontal">
+                        <dragger:NumberDragger FontWeight="Normal" Padding="4,1" VerticalAlignment="Center" VerticalContentAlignment="Center" PreviewRoundedPlaces="2" Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}" Value="{Binding BothScaleOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditingHint="Add to X and Y" DisplayTextOverride="Origin" TinyChange="0.0001" SmallChange="0.001" LargeChange="0.01" MassiveChange="0.05" />
+                        <Ellipse Style="{StaticResource AutomationEllipse}" DataContext="{Binding MediaScaleOriginAutomationSequence}" Width="5" Height="5" Margin="0,0,3,0"/>
+                    </StackPanel>
                     <Grid Grid.Column="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -255,9 +295,9 @@
         </Grid>
     </DataTemplate>
 
-    <!-- General Clip -->
+    <!-- tracks -->
 
-    <DataTemplate DataType="{x:Type clips:ClipDataEditorViewModel}">
+    <DataTemplate DataType="{x:Type tracks:TrackDataEditorViewModel}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
@@ -266,6 +306,62 @@
             </Grid.ColumnDefinitions>
             <TextBlock FontWeight="Normal" Padding="6,2" VerticalAlignment="Center" Text="Display Name" Height="18" Margin="0,0,0,0" />
             <TextBox Grid.Column="2" FontWeight="Normal" Padding="2,1" VerticalAlignment="Center" Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,3" />
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type video:VideoTrackDataSingleEditorViewModel}">
+        <StackPanel>
+            <pe:PropertyEditorSelectionSlot IsSelected="{Binding IsOpacitySelected}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" Height="18" Orientation="Horizontal">
+                        <TextBlock FontWeight="Normal" Padding="6,1" Grid.Row="0" VerticalAlignment="Center" Text="Opacity" Margin="0,0,0,0" />
+                        <Ellipse Style="{StaticResource AutomationEllipse}" DataContext="{Binding OpacityAutomationSequence}" Width="5" Height="5" Margin="0,0,3,0"/>
+                    </StackPanel>
+                    <Grid Grid.Column="2" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2,8,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding OpacityEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05" />
+                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+                            <ToggleButton IsChecked="{Binding OpacityAutomationSequence.IsOverrideEnabled, Mode=TwoWay}" ToolTip="Toggle override state (essentially enabling or disabling automation)" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" Content="O" />
+                            <Button Command="{Binding InsertOpacityKeyFrameCommand}" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
+                                <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                            </Button>
+                            <Button Command="{Binding ResetOpacityCommand, Mode=OneTime}" ToolTip="Reset the opacity" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
+                                <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </pe:PropertyEditorSelectionSlot>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type video:VideoTrackDataMultipleEditorViewModel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
+            </Grid.ColumnDefinitions>
+            <TextBlock FontWeight="Normal" Padding="6,1" VerticalAlignment="Center" Text="Opacity" Height="18" Margin="0,0,0,0" />
+            <Grid Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <dragger:NumberDragger Grid.Column="0" Grid.Row="0" Padding="4,2" PreviewRoundedPlaces="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" EditStateChangedCommand="{Binding OpacityEditStateChangedCommand, Mode=OneTime}" TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05" />
+                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                    <Button Command="{Binding ResetOpacityCommand, Mode=OneTime}" ToolTip="Reset the opacity" Width="20" Height="20" attached:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">
+                        <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}" />
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Grid>
     </DataTemplate>
 

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using FramePFX.Commands;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.ViewModels {
@@ -49,13 +50,14 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public AsyncRelayCommand PlayCommand { get; }
+        public AsyncRelayCommand PlayFromStartCommand { get; }
         public AsyncRelayCommand PauseCommand { get; }
         public AsyncRelayCommand StopCommand { get; }
         public AsyncRelayCommand TogglePlayCommand { get; }
         public AsyncRelayCommand SwitchPrecisionTimingModeCommand { get; }
 
         private bool wasPlayingBeforeSave;
-        private long lastPlayTime;
+        // private long lastPlayTime;
 
         public event ProjectModifiedEvent ProjectModified;
 
@@ -64,6 +66,7 @@ namespace FramePFX.Editor.ViewModels {
             this.Model = editor.Model.Playback;
 
             this.PlayCommand = new AsyncRelayCommand(this.PlayAction, () => this.Project != null && !this.Editor.IsProjectSaving && !this.IsPlaying);
+            this.PlayFromStartCommand = new AsyncRelayCommand(this.PlayFromStart, () => this.Project != null && !this.Editor.IsProjectSaving);
             this.PauseCommand = new AsyncRelayCommand(this.PauseAction, () => this.Project != null && !this.Editor.IsProjectSaving && this.IsPlaying);
             this.StopCommand = new AsyncRelayCommand(this.StopAction, () => this.Project != null && !this.Editor.IsProjectSaving && this.IsPlaying);
             this.TogglePlayCommand = new AsyncRelayCommand(this.TogglePlayAction, () => this.Project != null && !this.Editor.IsProjectSaving);
@@ -96,9 +99,29 @@ namespace FramePFX.Editor.ViewModels {
         public Task PlayAction() {
             TimelineViewModel timeline = this.Editor.ActiveTimeline;
             if (timeline != null && this.Project != null && !this.IsPlaying) {
-                this.lastPlayTime = timeline.PlayHeadFrame;
-                this.StartRenderTimer();
-                this.UpdatePlaybackCommands();
+                timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
+                this.PlayInternal();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private void PlayInternal() {
+            this.StartRenderTimer();
+            this.UpdatePlaybackCommands();
+        }
+
+        private Task PlayFromStart() {
+            TimelineViewModel timeline = this.Editor.ActiveTimeline;
+            if (timeline != null && this.Project != null) {
+                if (!this.IsPlaying) {
+                    timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
+                    timeline.PlayHeadFrame = 0;
+                    this.PlayInternal();
+                }
+                else {
+                    timeline.PlayHeadFrame = 0;
+                }
             }
 
             return Task.CompletedTask;
@@ -108,6 +131,10 @@ namespace FramePFX.Editor.ViewModels {
             if (this.Project != null && this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
+                TimelineViewModel timeline = this.Editor.ActiveTimeline;
+                if (timeline != null) {
+                    timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
+                }
             }
         }
 
@@ -115,6 +142,10 @@ namespace FramePFX.Editor.ViewModels {
             if (this.Project != null && this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
+                TimelineViewModel timeline = this.Editor.ActiveTimeline;
+                if (timeline != null) {
+                    timeline.PlayHeadFrame = timeline.InternalLastPlayHeadBeforePlaying;
+                }
             }
         }
 

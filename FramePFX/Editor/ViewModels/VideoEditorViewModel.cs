@@ -9,6 +9,7 @@ using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History.ViewModels;
 using FramePFX.Notifications.Types;
+using FramePFX.PropertyEditing;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -20,7 +21,6 @@ namespace FramePFX.Editor.ViewModels {
         private readonly ObservableCollection<TimelineViewModel> activeTimelines;
         private ProjectViewModel activeProject;
         private bool isClosingProject;
-        private bool isRecordingKeyFrames;
         private bool isEditorEnabled;
         private bool areAutomationShortcutsEnabled;
         private TimelineViewModel activeTimeline;
@@ -82,14 +82,6 @@ namespace FramePFX.Editor.ViewModels {
             set => this.RaisePropertyChanged(ref this.isClosingProject, value);
         }
 
-        /// <summary>
-        /// Whether or not to add new key frames when a parameter is modified during playback. Default is false
-        /// </summary>
-        public bool IsRecordingKeyFrames {
-            get => this.isRecordingKeyFrames;
-            set => this.RaisePropertyChanged(ref this.isRecordingKeyFrames, value);
-        }
-
         public bool AreAutomationShortcutsEnabled {
             get => this.areAutomationShortcutsEnabled;
             set => this.RaisePropertyChanged(ref this.areAutomationShortcutsEnabled, value);
@@ -149,7 +141,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         private void OnProjectModified(object sender, string property) {
-            this.activeProject?.OnProjectModified(sender, property);
+            this.activeProject?.OnProjectModified();
         }
 
         private async Task NewProjectAction() {
@@ -247,6 +239,7 @@ namespace FramePFX.Editor.ViewModels {
                 return;
             }
 
+            PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null) {
                 this.activeTimeline = null;

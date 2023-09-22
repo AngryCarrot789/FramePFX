@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.AdvancedContextService;
+using FramePFX.PropertyEditing;
 using FramePFX.WPF.AdvancedContextService;
 
 namespace FramePFX.WPF.PropertyEditing {
@@ -10,7 +11,8 @@ namespace FramePFX.WPF.PropertyEditing {
     public class PropertyEditorItemStyleSelector : StyleSelector {
         public Style PropertyItemsControlStyle { get; set; }
         public Style PropertyItemStyle { get; set; }
-        public Style SeparatorStyle { get; set; }
+        public Style GroupSeparatorStyle { get; set; }
+        public Style EditorSeparatorStyle { get; set; }
 
         public PropertyEditorItemStyleSelector() {
         }
@@ -22,7 +24,7 @@ namespace FramePFX.WPF.PropertyEditing {
                 case PropertyEditorItem _:
                     return this.PropertyItemStyle;
                 case Separator _:
-                    return this.SeparatorStyle;
+                    return item is PropertyObjectSeparator separator ? separator.IsEditorSeparator ? this.EditorSeparatorStyle : this.GroupSeparatorStyle : null;
                 default: return base.SelectStyle(item, container);
             }
         }

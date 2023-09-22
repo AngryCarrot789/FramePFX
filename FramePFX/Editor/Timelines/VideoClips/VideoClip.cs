@@ -1,6 +1,8 @@
 using System.Numerics;
 using System.Threading.Tasks;
 using FramePFX.Automation.Keys;
+using FramePFX.Editor.Timelines.Effects;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.RBC;
 using FramePFX.Rendering;
@@ -100,6 +102,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// </param>
         public virtual void OnRenderCompleted(long frame, bool isCancelled) {
 
+        }
+
+        public override bool IsEffectTypeAllowed(BaseEffect effect) {
+            return effect is VideoEffect;
         }
     }
 }

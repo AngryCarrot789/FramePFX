@@ -6,7 +6,7 @@ namespace FramePFX {
     public static class AppLogger {
         private static readonly object PRINTLOCk = new object();
         private static string logText = "";
-        private const int MAX_LEN = 40000;
+        private const int MAX_LEN = 10000;
         private const int MaxHeaderLength = 100;
         private const string Footer = "----------------------------------------------------------------------------------------------------";
 

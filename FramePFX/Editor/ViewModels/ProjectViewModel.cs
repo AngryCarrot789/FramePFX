@@ -81,7 +81,7 @@ namespace FramePFX.Editor.ViewModels {
         public ProjectViewModel(Project project) {
             this.Model = project ?? throw new ArgumentNullException(nameof(project));
             this.Settings = new ProjectSettingsViewModel(project.Settings);
-            this.Settings.ProjectModified += this.OnProjectModified;
+            this.Settings.ProjectModified += (sender, property) => this.OnProjectModified();
             this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
             this.Timeline = new TimelineViewModel(project.Timeline) {
                 Project = this
@@ -150,12 +150,12 @@ namespace FramePFX.Editor.ViewModels {
             foreach (AutomationSequenceViewModel sequence in data.Sequences) {
                 for (int i = sequence.KeyFrames.Count - 1; i >= 0; i--) {
                     KeyFrameViewModel keyFrame = sequence.KeyFrames[i];
-                    keyFrame.Time = (long) Math.Round(ratio * keyFrame.Time);
+                    keyFrame.Frame = (long) Math.Round(ratio * keyFrame.Frame);
                 }
             }
         }
 
-        public void OnProjectModified(object sender, string property) {
+        public void OnProjectModified() {
             this.SetHasUnsavedChanges(true);
         }
 

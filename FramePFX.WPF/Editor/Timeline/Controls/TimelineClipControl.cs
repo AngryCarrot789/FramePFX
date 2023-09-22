@@ -12,6 +12,7 @@ using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Interactivity;
+using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Utils;
@@ -559,7 +560,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 bool isClipSelected = clip?.IsSelected ?? false;
                 this.OnSelected(new RoutedEventArgs(Selector.SelectedEvent, this));
                 if (clip != null && !isClipSelected && clip.IsSelected) {
-                    clip.UpdateTimelineSelection();
+                    if (clip.Timeline != null) {
+                        PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(clip.Timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
+                    }
                 }
             }
             else {

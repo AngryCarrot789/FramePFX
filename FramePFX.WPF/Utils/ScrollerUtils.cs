@@ -14,7 +14,7 @@ namespace FramePFX.WPF.Utils {
         /// <returns>A rectangle of space that is visible on screen, relative to the <paramref name="relativeTo"/> parameter</returns>
         public static Rect GetDrawingBounds(this FrameworkElement element, UIElement relativeTo) {
             if (relativeTo == null) {
-                if ((relativeTo = VisualTreeUtils.FindParent<ScrollViewer>(element)) == null) {
+                if ((relativeTo = VisualTreeUtils.GetParent<ScrollViewer>(element)) == null) {
                     return new Rect(new Point(), element.RenderSize);
                 }
             }

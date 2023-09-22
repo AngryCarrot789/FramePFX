@@ -8,13 +8,6 @@ using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
     public class ResourceGroupControl : BaseResourceItemControl {
-        public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceGroupControl), new PropertyMetadata(BoolBox.False));
-
-        public bool IsDroppableTargetOver {
-            get => (bool) this.GetValue(IsDroppableTargetOverProperty);
-            set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
-        }
-
         public INavigatableResource Resource => this.DataContext as INavigatableResource;
 
         private bool isProcessingAsyncDrop;
@@ -29,19 +22,20 @@ namespace FramePFX.WPF.Editor.Resources {
         }
 
         protected override void OnDragOver(DragEventArgs e) {
+            e.Handled = true;
             if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> list) {
                 if (this.DataContext is BaseResourceObjectViewModel vm && !list.Contains(vm)) {
-                    this.IsDroppableTargetOver = true;
                     e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                    e.Handled = true;
-                    goto end;
+                    if (e.Effects != DragDropEffects.None) {
+                        this.IsDroppableTargetOver = true;
+                    }
+
+                    return;
                 }
             }
 
             this.ClearValue(IsDroppableTargetOverProperty);
             e.Effects = DragDropEffects.None;
-
-            end:
             e.Handled = true;
             base.OnDragOver(e);
         }

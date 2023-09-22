@@ -413,7 +413,7 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
                 this.RaisePropertyChanged(ref this.isMediaPositionSelected, value);
                 if (this.IsEmpty)
                     return;
-                this.MediaPositionAutomationSequence.IsActive = value;
+                this.MediaPositionAutomationSequence.IsActiveSequence = value;
             }
         }
 
@@ -424,7 +424,7 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
                 this.RaisePropertyChanged(ref this.isMediaScaleSelected, value);
                 if (this.IsEmpty)
                     return;
-                this.MediaScaleAutomationSequence.IsActive = value;
+                this.MediaScaleAutomationSequence.IsActiveSequence = value;
             }
         }
 
@@ -435,7 +435,7 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
                 this.RaisePropertyChanged(ref this.isMediaScaleOriginSelected, value);
                 if (this.IsEmpty)
                     return;
-                this.MediaScaleOriginAutomationSequence.IsActive = value;
+                this.MediaScaleOriginAutomationSequence.IsActiveSequence = value;
             }
         }
     }

@@ -6,7 +6,6 @@
                     xmlns:pe="clr-namespace:FramePFX.WPF.PropertyEditing"
                     xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
                     xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
-                    xmlns:primitives="clr-namespace:FramePFX.PropertyEditing.Editor.Primitives;assembly=FramePFX"
                     xmlns:pec="clr-namespace:FramePFX.PropertyEditing;assembly=FramePFX"
                     xmlns:c="clr-namespace:FramePFX.WPF.Converters"
                     xmlns:converters="clr-namespace:FramePFX.WPF.PropertyEditing.Converters"
@@ -497,20 +496,27 @@
         </Setter>
     </Style>
 
+    <Style x:Key="BasePropertyObjectSeparator" TargetType="{x:Type Separator}" BasedOn="{StaticResource {x:Type Separator}}">
+        <Setter Property="Visibility" Value="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
+    </Style>
+    <Style x:Key="GroupSeparatorStyle" TargetType="{x:Type Separator}" BasedOn="{StaticResource BasePropertyObjectSeparator}">
+        <Setter Property="Margin" Value="0,5"/>
+    </Style>
+    <Style x:Key="EditorSeparatorStyle" TargetType="{x:Type Separator}" BasedOn="{StaticResource BasePropertyObjectSeparator}">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Border.Static}"/>
+    </Style>
+
     <pe:PropertyEditorItemStyleSelector x:Key="PropertyEditorItemStyleSelector"
                                         PropertyItemsControlStyle="{StaticResource {x:Type pe:PropertyEditorItemsControl}}"
-                                        PropertyItemStyle="{StaticResource {x:Type pe:PropertyEditorItem}}">
-        <pe:PropertyEditorItemStyleSelector.SeparatorStyle>
-            <!-- d:DataContext="{d:DesignInstance {x:Type pec:PropertyObjectSeparator}}" -->
-            <Style TargetType="{x:Type Separator}" BasedOn="{StaticResource {x:Type Separator}}">
-                <Setter Property="Margin" Value="0,5"/>
-                <Setter Property="Visibility" Value="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
-            </Style>
-        </pe:PropertyEditorItemStyleSelector.SeparatorStyle>
-    </pe:PropertyEditorItemStyleSelector>
+                                        PropertyItemStyle="{StaticResource {x:Type pe:PropertyEditorItem}}"
+                                        GroupSeparatorStyle="{StaticResource GroupSeparatorStyle}"
+                                        EditorSeparatorStyle="{StaticResource EditorSeparatorStyle}"/>
 
-    <ResourceDictionary x:Key="PropertyEditorDataTemplateDictionary" Source="PropertyEditorDataTemplates.xaml"/>
+        <ResourceDictionary x:Key="PropertyEditorDataTemplateDictionary" Source="PropertyEditorDataTemplates.xaml"/>
     <c:BoolConverter x:Key="BoldHeaderToExpanderStyleConverter" TrueValue="{StaticResource BoldHierarchicalExpanderStyle}" FalseValue="{StaticResource NonBoldHierarchicalExpanderStyle}"/>
+
+    <c:BoolConverter x:Key="SeparatorStyleConverter" TrueValue="{StaticResource EditorSeparatorStyle}" FalseValue="{StaticResource GroupSeparatorStyle}"/>
 
     <Style TargetType="{x:Type pe:PropertyEditor}">
         <Setter Property="Template">
@@ -529,7 +535,8 @@
                                         <StaticResource ResourceKey="PropertyEditorDataTemplateDictionary"/>
                                     </ResourceDictionary.MergedDictionaries>
                                     <DataTemplate DataType="{x:Type pec:PropertyObjectSeparator}">
-                                        <Separator Visibility="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
+                                        <Separator Visibility="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                                   Style="{Binding IsEditorSeparator, Converter={StaticResource SeparatorStyleConverter}}"/>
                                     </DataTemplate>
                                     <DataTemplate DataType="{x:Type pec:BasePropertyGroupViewModel}">
                                         <Grid>

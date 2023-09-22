@@ -11,6 +11,8 @@ using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
     public abstract class BaseResourceItemControl : ContentControl {
+        public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(BaseResourceItemControl), new PropertyMetadata(BoolBox.False));
+
         public static readonly DependencyProperty HeaderTextProperty =
             DependencyProperty.Register(
                 "HeaderText",
@@ -38,6 +40,11 @@ namespace FramePFX.WPF.Editor.Resources {
                 typeof(Brush),
                 typeof(BaseResourceItemControl),
                 new PropertyMetadata(null));
+
+        public bool IsDroppableTargetOver {
+            get => (bool) this.GetValue(IsDroppableTargetOverProperty);
+            set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
+        }
 
         public Brush HeaderBackground {
             get => (Brush) this.GetValue(HeaderBackgroundProperty);

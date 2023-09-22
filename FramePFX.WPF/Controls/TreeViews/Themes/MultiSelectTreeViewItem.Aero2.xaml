@@ -41,22 +41,21 @@
                                    Visibility="Collapsed"/>
 
                         <Rectangle x:Name="VerLn" Stroke="{DynamicResource ABrush.Tone7.Border.Static}"
-                                   Fill="{DynamicResource ABrush.Tone7.Border.Static}" 
+                                   Fill="{DynamicResource ABrush.Tone7.Border.Static}"
                                    SnapsToDevicePixels="true" Width="1" Margin="0" Grid.RowSpan="2"
                                    Visibility="Visible" Grid.Row="0"/>
 
                         <ToggleButton x:Name="Expander"
                                       IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type mst:MultiSelectTreeViewItem}}, Path=IsExpanded, FallbackValue=False}"
-                                      ClickMode="Press" 
+                                      ClickMode="Press"
                                       Style="{StaticResource ExpandCollapseToggleStyle}"/>
-                        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
-                            <Border x:Name="headerBorder"
+                        <Border Grid.Column="1" Grid.ColumnSpan="2" x:Name="headerBorder"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     Background="{TemplateBinding Background}"
                                     Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
                                     VerticalAlignment="Center" HorizontalAlignment="Stretch">
-                                <ContentPresenter x:Name="PART_Header"
+                            <ContentPresenter x:Name="PART_Header"
                                                   FocusManager.IsFocusScope="True"
                                                   Content="{TemplateBinding HeaderedContentControl.Header}"
                                                   ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}"
@@ -66,11 +65,15 @@
                                                   HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
                                                   VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
                                                   SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
-                                                  Margin="0,1,0,1"/>
-                            </Border>
+                                                  Margin="0"/>
+                        </Border>
 
-                            <ContentPresenter Content="{TemplateBinding Remarks}" ContentTemplate="{TemplateBinding RemarksTemplate}" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
-                        </StackPanel>
+                        <ContentPresenter Content="{TemplateBinding Remarks}" ContentTemplate="{TemplateBinding RemarksTemplate}" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                        <!--
+                            Place the above content presenter and border in this stack panel for small width headers
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
+                            </StackPanel>
+                        -->
                         <ItemsPresenter x:Name="ItemsHost" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" Margin="0,0,0,0"/>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -109,8 +112,8 @@
                                 <Condition Property="HoverHighlighting" Value="True" />
                                 <Condition Property="IsMouseOver" Value="True" SourceName="headerBorder" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" Value="{DynamicResource TreeViewItem.MouseOver.Background}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource TreeViewItem.MouseOver.Border}" />
+                            <Setter Property="Control.Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}" />
+                            <Setter Property="Border.BorderBrush" Value="{DynamicResource ABrush.AccentTone3.Border.Static}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -118,8 +121,17 @@
                                 <Condition Property="IsMouseOver" Value="True" SourceName="headerBorder" />
                                 <Condition Property="IsSelected" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Control.Background" Value="{DynamicResource TreeViewItem.MouseOver.Background}" />
-                            <Setter Property="Border.BorderBrush" Value="{DynamicResource TreeViewItem.MouseOver.Border}" />
+                            <Setter Property="Control.Background" Value="{DynamicResource ABrush.AccentTone2.Background.Static}" />
+                            <Setter Property="Border.BorderBrush" Value="{DynamicResource ABrush.AccentTone2.Border.Static}" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HoverHighlighting" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True" SourceName="headerBorder" />
+                                <Condition Property="IsLeftMousePressed" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Control.Background" Value="{DynamicResource ABrush.AccentTone1.Background.Static}" />
+                            <Setter Property="Border.BorderBrush" Value="{DynamicResource ABrush.AccentTone1.Border.Static}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>

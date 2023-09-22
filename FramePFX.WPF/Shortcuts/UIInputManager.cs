@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using FramePFX.Utils;
 using FramePFX.WPF.Utils;
 
@@ -9,7 +10,6 @@ namespace FramePFX.WPF.Shortcuts {
     public class UIInputManager : INotifyPropertyChanged {
         public static UIInputManager Instance { get; } = new UIInputManager();
 
-        [Category("WPF Input Manager")]
         public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         public static readonly DependencyProperty IsPathFocusedProperty = DependencyProperty.RegisterAttached("IsPathFocused", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
         internal static readonly DependencyPropertyKey ShortcutProcessorPropertyKey = DependencyProperty.RegisterAttachedReadOnly("ShortcutProcessor", typeof(WPFShortcutInputManager), typeof(UIInputManager), new PropertyMetadata(default(WPFShortcutInputManager)));
@@ -20,7 +20,6 @@ namespace FramePFX.WPF.Shortcuts {
         public static readonly DependencyProperty CanProcessTextBoxMouseStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxMouseStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.True));
 
         public delegate void FocusedPathChangedEventHandler(string oldPath, string newPath);
-
         public static event FocusedPathChangedEventHandler OnFocusedPathChanged;
 
         public static WeakReference<DependencyObject> CurrentlyFocusedObject { get; } = new WeakReference<DependencyObject>(null);
@@ -41,16 +40,18 @@ namespace FramePFX.WPF.Shortcuts {
                 throw new InvalidOperationException();
         }
 
+        static UIInputManager() {
+            InputManager.Current.PreProcessInput += OnPreProcessInput;
+        }
+
         /// <summary>
         /// Sets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
         /// </summary>
-        [Category("WPF Input Manager")]
         public static void SetFocusPath(DependencyObject element, string value) => element.SetValue(FocusPathProperty, value);
 
         /// <summary>
         /// Gets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
         /// </summary>
-        [Category("WPF Input Manager")]
         public static string GetFocusPath(DependencyObject element) => (string) element.GetValue(FocusPathProperty);
 
         /// <summary>
@@ -127,5 +128,170 @@ namespace FramePFX.WPF.Shortcuts {
                 Debug.WriteLine("Failed to find root control that owns the FocusPathProperty of '" + GetFocusPath(target) + "'");
             }
         }
+
+        #region Input Event Handlers
+
+        private static void OnPreProcessInput(object sender, PreProcessInputEventArgs args) {
+            switch (args.StagingItem.Input) {
+                case KeyEventArgs e:
+                    if (OnApplicationKeyEvent(e, args))
+                        args.Cancel();
+                    break;
+                case MouseButtonEventArgs e:
+                    if (OnApplicationMouseButtonEvent(e))
+                        args.Cancel();
+                    break;
+                case MouseWheelEventArgs e:
+                    if (OnApplicationMouseWheelEvent(e))
+                        args.Cancel();
+                    break;
+            }
+        }
+
+        private static bool OnApplicationKeyEvent(KeyEventArgs e, PreProcessInputEventArgs inputArgs) {
+            Key key = e.Key == Key.System ? e.SystemKey : e.Key;
+            if (key == Key.DeadCharProcessed || key == Key.None) {
+                return false;
+            }
+
+            if (ShortcutUtils.IsModifierKey(key) && e.IsRepeat) {
+                return false;
+            }
+
+            if (!(e.InputSource.RootVisual is Window window)) {
+                return false;
+            }
+
+            WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
+            if (processor == null) {
+                window.SetValue(ShortcutProcessorPropertyKey, processor = new WPFShortcutInputManager(WPFShortcutManager.WPFInstance));
+            }
+            else if (processor.isProcessingKey) {
+                return false;
+            }
+
+            InputDevice recentInput = inputArgs.InputManager.MostRecentInputDevice;
+            DependencyObject focusedObject = null;
+            if (recentInput is KeyboardDevice keyboard) {
+                if (keyboard.FocusedElement is DependencyObject obj && obj != window) {
+                    focusedObject = obj;
+                }
+            }
+
+            if (focusedObject == null) {
+                if (recentInput is MouseDevice mouse) {
+                    if (mouse.Target is DependencyObject obj && obj != window) {
+                        focusedObject = obj;
+                    }
+                }
+                else {
+                    mouse = inputArgs.InputManager.PrimaryMouseDevice;
+                    if (mouse.Target is DependencyObject obj && obj != window) {
+                        focusedObject = obj;
+                    }
+                }
+            }
+
+            if (focusedObject != null) {
+                bool isPreview = e.RoutedEvent == Keyboard.PreviewKeyDownEvent || e.RoutedEvent == Keyboard.PreviewKeyUpEvent;
+                processor.OnInputSourceKeyEvent(window, processor, focusedObject, e, key, e.IsUp, isPreview);
+                if (processor.isProcessingKey)
+                    e.Handled = true;
+                return e.Handled;
+            }
+
+            return false;
+        }
+
+        private static bool OnApplicationMouseButtonEvent(MouseButtonEventArgs e) {
+            if (!(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject focused))
+                return false;
+            if (!(Window.GetWindow(focused) is Window window) || focused == window)
+                return false;
+
+            bool isPreview, isDown;
+            if (e.RoutedEvent == Mouse.PreviewMouseDownEvent) {
+                isPreview = isDown = true;
+            }
+            else if (e.RoutedEvent == Mouse.PreviewMouseUpEvent) {
+                isPreview = true;
+                isDown = false;
+            }
+            else if (e.RoutedEvent == Mouse.MouseDownEvent) {
+                isPreview = false;
+                isDown = true;
+            }
+            else if (e.RoutedEvent == Mouse.MouseUpEvent) {
+                isPreview = isDown = false;
+            }
+            else {
+                return false;
+            }
+
+            if (isPreview) {
+                ProcessFocusGroupChange(focused);
+            }
+
+            if (!WPFShortcutInputManager.CanProcessEventType(focused, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focused, e)) {
+                return false;
+            }
+
+            WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
+            if (processor == null) {
+                window.SetValue(ShortcutProcessorPropertyKey, processor = new WPFShortcutInputManager(WPFShortcutManager.WPFInstance));
+            }
+            else if (processor.isProcessingMouse) {
+                return false;
+            }
+
+            if (isDown) {
+                processor.OnInputSourceMouseDown(window, focused, e);
+            }
+            else {
+                processor.OnInputSourceMouseUp(window, focused, e);
+            }
+
+            if (processor.isProcessingMouse)
+                e.Handled = true;
+            return e.Handled;
+        }
+
+        private static bool OnApplicationMouseWheelEvent(MouseWheelEventArgs e) {
+            if (e.Delta == 0 || !(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject focusedObject))
+                return false;
+            if (!(Window.GetWindow(focusedObject) is Window window) || focusedObject == window)
+                return false;
+
+            bool isPreview;
+            if (e.RoutedEvent == Mouse.PreviewMouseWheelEvent) {
+                isPreview = true;
+                ProcessFocusGroupChange(focusedObject);
+            }
+            else if (e.RoutedEvent == Mouse.MouseWheelEvent) {
+                isPreview = false;
+            }
+            else {
+                return false;
+            }
+
+            if (!WPFShortcutInputManager.CanProcessEventType(focusedObject, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focusedObject, e)) {
+                return false;
+            }
+
+            WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
+            if (processor == null) {
+                window.SetValue(ShortcutProcessorPropertyKey, processor = new WPFShortcutInputManager(WPFShortcutManager.WPFInstance));
+            }
+            else if (processor.isProcessingMouse) {
+                return false;
+            }
+
+            processor.OnInputSourceMouseWheel(window, focusedObject, e);
+            if (processor.isProcessingMouse)
+                e.Handled = true;
+            return e.Handled;
+        }
+
+        #endregion
     }
 }

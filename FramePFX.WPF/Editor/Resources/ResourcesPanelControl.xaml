@@ -1,18 +1,18 @@
-﻿<UserControl x:Class="FramePFX.WPF.Editor.Controls.ResourcesPanelControl"
+﻿<UserControl x:Class="FramePFX.WPF.Editor.Resources.ResourcesPanelControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:shortcuts="clr-namespace:FramePFX.WPF.Shortcuts"
-             xmlns:advancedContextService="clr-namespace:FramePFX.WPF.AdvancedContextService"
+             xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
+             xmlns:acs="clr-namespace:FramePFX.WPF.AdvancedContextService"
              xmlns:rm="clr-namespace:FramePFX.Editor.ResourceManaging;assembly=FramePFX"
              xmlns:vms="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels;assembly=FramePFX"
              xmlns:r="clr-namespace:FramePFX.WPF.Editor.Resources"
-             xmlns:attachedProperties="clr-namespace:FramePFX.WPF.AttachedProperties"
+             xmlns:ap="clr-namespace:FramePFX.WPF.AttachedProperties"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance vms:ResourceManagerViewModel}">
-    <Grid Margin="0" shortcuts:UIInputManager.FocusPath="Application/Editor/Resources" advancedContextService:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+    <Grid Margin="0" sc:UIInputManager.FocusPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="175" />
             <ColumnDefinition Width="*" />
@@ -21,22 +21,22 @@
             <RowDefinition Height="24" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TreeView ItemsSource="{Binding Root.Items, Mode=OneTime}" DockPanel.Dock="Left" Width="175"
-              BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,1,0"
-              Grid.RowSpan="2"
-              Grid.Column="0">
-            <TreeView.Resources>
+        <r:ResourceTreeView ItemsSource="{Binding Root.Items, Mode=OneTime}"
+                            BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,1,0"
+                            DockPanel.Dock="Left" Grid.RowSpan="2" Grid.Column="0" Width="175"
+                            SelectedItems="{Binding SelectedItems, Mode=OneTime}">
+            <FrameworkElement.Resources>
                 <DataTemplate DataType="{x:Type vms:ResourceItemViewModel}">
-                    <TextBlock Text="{Binding DisplayName}" />
+                    <TextBlock Text="{Binding DisplayName}"/>
                 </DataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type vms:ResourceGroupViewModel}" ItemsSource="{Binding Items, Mode=OneTime}">
-                    <TextBlock Text="{Binding DisplayName}" />
+                    <TextBlock Text="{Binding DisplayName}"/>
                 </HierarchicalDataTemplate>
-            </TreeView.Resources>
-        </TreeView>
+            </FrameworkElement.Resources>
+        </r:ResourceTreeView>
         <r:ResourceListControl Background="{DynamicResource PanelBackground3}"
                                ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
-                               attachedProperties:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}"
+                               ap:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}"
                                HorizontalContentAlignment="Stretch"
                                VerticalContentAlignment="Stretch"
                                Grid.Row="1"

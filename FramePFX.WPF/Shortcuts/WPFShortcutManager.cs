@@ -9,6 +9,7 @@ using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Keymapping;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Utils;
+using FramePFX.WPF.Editor.Timeline.Utils;
 using FramePFX.WPF.Shortcuts.Bindings;
 
 namespace FramePFX.WPF.Shortcuts {
@@ -126,6 +127,10 @@ namespace FramePFX.WPF.Shortcuts {
         private static bool OnApplicationKeyEvent(KeyEventArgs e, PreProcessInputEventArgs inputArgs) {
             Key key = e.Key == Key.System ? e.SystemKey : e.Key;
             if (key == Key.DeadCharProcessed || key == Key.None) {
+                return false;
+            }
+            
+            if (ShortcutUtils.IsModifierKey(key) && e.IsRepeat) {
                 return false;
             }
 

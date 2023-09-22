@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace FramePFX.WPF.Editor.Controls {
+namespace FramePFX.WPF.Editor.Resources {
     /// <summary>
     /// Interaction logic for ResourcesPanelControl.xaml
     /// </summary>

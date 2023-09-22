@@ -244,13 +244,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public EnumDropType GetResourceDropType(IList<ResourceItemViewModel> items) {
-            return EnumDropType.Copy | EnumDropType.Move;
-        }
-
-        public async Task OnResourcesDropped(IList<ResourceItemViewModel> items, EnumDropType dropType) {
-        }
-
         public void ClearAndDispose() {
             this.Root.UnregisterHierarchy();
             this.Root.DisposeChildrenAndClear(false);

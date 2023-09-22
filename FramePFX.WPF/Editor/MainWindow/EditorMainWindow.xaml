@@ -6,12 +6,10 @@
             xmlns:v="clr-namespace:FramePFX.WPF.Views"
             xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
             xmlns:editor="clr-namespace:FramePFX.WPF.Editor"
-            xmlns:local="clr-namespace:FramePFX.WPF.Editor.MainWindow"
             xmlns:converters="clr-namespace:FramePFX.WPF.Converters"
             xmlns:controls="clr-namespace:FramePFX.WPF.Controls"
             xmlns:wpf="clr-namespace:FramePFX.WPF"
             xmlns:av="clr-namespace:FramePFX.WPF.Themes.AvalonDock"
-            xmlns:wctrl="clr-namespace:FramePFX.WPF.Editor.Controls"
             xmlns:pe="clr-namespace:FramePFX.WPF.PropertyEditing"
             xmlns:cpe="clr-namespace:FramePFX.PropertyEditing;assembly=FramePFX"
             xmlns:b="clr-namespace:FramePFX.WPF.Shortcuts.Bindings"
@@ -19,6 +17,7 @@
             xmlns:nn="clr-namespace:FramePFX.WPF.Notifications"
             xmlns:evm="clr-namespace:FramePFX.Editor.ViewModels;assembly=FramePFX"
             xmlns:n="clr-namespace:FramePFX.Notifications;assembly=FramePFX"
+            xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="840"
@@ -64,7 +63,7 @@
                 <MenuItem Header="test notification" Click="MenuItem_OnClick" />
                 <MenuItem Header="Theme">
                     <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0" />
-                    <MenuItem Header="Soft Dark" Click="SetThemeClick" Uid="1" />
+                    <MenuItem Header="Soft Dark (default)" Click="SetThemeClick" Uid="1" />
                     <MenuItem Header="Dark Grey" Click="SetThemeClick" Uid="2" />
                     <MenuItem Header="Grey" Click="SetThemeClick" Uid="3" />
                     <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4" />
@@ -91,7 +90,7 @@
                                 <LayoutPanel Orientation="Horizontal">
                                     <LayoutAnchorablePane DockWidth="75*">
                                         <LayoutAnchorable Title="Resources" ContentId="FilesAndResources" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                            <wctrl:ResourcesPanelControl DataContext="{Binding ActiveProject.ResourceManager}" sc:UIInputManager.FocusPath="Application/Editor/Resources"/>
+                                            <resources:ResourcesPanelControl DataContext="{Binding ActiveProject.ResourceManager}" sc:UIInputManager.FocusPath="Application/Editor/Resources"/>
                                         </LayoutAnchorable>
                                         <LayoutAnchorable Title="Property Editor" ContentId="PropertyEditor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                             <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}" />

@@ -83,16 +83,24 @@ namespace FramePFX.WPF.Editor.Resources {
 
         protected override void OnDragOver(DragEventArgs e) {
             ResourceManagerViewModel manager = this.ResourceManager;
-            if (manager == null) {
-                e.Effects = DragDropEffects.None;
-                e.Handled = true;
-            }
-            else if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
-                e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, manager.GetFileDropType(files));
-                e.Handled = true;
+            if (manager != null) {
+                if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
+                    e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, manager.GetFileDropType(files));
+                    e.Handled = true;
+                    return;
+                }
+                else if (e.Data.GetDataPresent(ResourceDropType)) {
+                    object obj = e.Data.GetData(ResourceDropType);
+                    if (obj is List<BaseResourceObjectViewModel>) {
+                        e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, EnumDropType.Copy | EnumDropType.Move);
+                        e.Handled = true;
+                        return;
+                    }
+                }
             }
 
-            base.OnDragOver(e);
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
         }
 
         protected override void OnDragLeave(DragEventArgs e) {

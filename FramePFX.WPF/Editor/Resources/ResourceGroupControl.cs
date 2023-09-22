@@ -1,10 +1,7 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.Utils;
@@ -28,14 +25,17 @@ namespace FramePFX.WPF.Editor.Resources {
 
         protected override void OnDragEnter(DragEventArgs e) {
             base.OnDragEnter(e);
+            this.OnDragOver(e);
         }
 
         protected override void OnDragOver(DragEventArgs e) {
-            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel>) {
-                this.IsDroppableTargetOver = true;
-                e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                e.Handled = true;
-                goto end;
+            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> list) {
+                if (this.DataContext is BaseResourceObjectViewModel vm && !list.Contains(vm)) {
+                    this.IsDroppableTargetOver = true;
+                    e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+                    e.Handled = true;
+                    goto end;
+                }
             }
 
             this.ClearValue(IsDroppableTargetOverProperty);

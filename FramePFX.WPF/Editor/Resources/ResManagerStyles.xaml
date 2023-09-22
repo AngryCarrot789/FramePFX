@@ -2,13 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                    xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
+                    xmlns:res="clr-namespace:FramePFX.WPF.Editor.Resources"
                     xmlns:viewModels="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels;assembly=FramePFX"
                     xmlns:rc="clr-namespace:FramePFX.Editor.ResourceManaging.ViewModels.Resources;assembly=FramePFX"
                     xmlns:c="clr-namespace:FramePFX.WPF.Converters"
+                    xmlns:mst="clr-namespace:FramePFX.WPF.Controls.TreeViews.Controls"
                     mc:Ignorable="d">
 
-    <Style TargetType="{x:Type resources:BaseResourceItemControl}">
+    <Style TargetType="{x:Type res:BaseResourceItemControl}">
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="2" />
@@ -22,7 +23,7 @@
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type resources:BaseResourceItemControl}">
+                <ControlTemplate TargetType="{x:Type res:BaseResourceItemControl}">
                     <Border x:Name="Bd" Width="150" Height="100" BorderThickness="1"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}">
@@ -51,7 +52,7 @@
                             </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Background}" />
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}" />
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type resources:BaseResourceItemControl}}, Path=HeaderMouseOverBackground}" />
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type res:BaseResourceItemControl}}, Path=HeaderMouseOverBackground}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -84,10 +85,10 @@
         </Setter>
     </Style>
 
-    <resources:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector">
-        <resources:ResourceItemContainerStyleSelector.ResourceItemStyle>
+    <res:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector">
+        <res:ResourceItemContainerStyleSelector.ResourceItemStyle>
             <!--  -->
-            <Style TargetType="{x:Type resources:ResourceItemControl}" BasedOn="{StaticResource {x:Type resources:BaseResourceItemControl}}"
+            <Style TargetType="{x:Type res:ResourceItemControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}"
                    d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
                 <Style.Triggers>
@@ -97,32 +98,32 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-        </resources:ResourceItemContainerStyleSelector.ResourceItemStyle>
-        <resources:ResourceItemContainerStyleSelector.ResourceGroupStyle>
+        </res:ResourceItemContainerStyleSelector.ResourceItemStyle>
+        <res:ResourceItemContainerStyleSelector.ResourceGroupStyle>
             <!--  -->
-            <Style TargetType="{x:Type resources:ResourceGroupControl}" BasedOn="{StaticResource {x:Type resources:BaseResourceItemControl}}"
+            <Style TargetType="{x:Type res:ResourceGroupControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}"
                    d:DataContext="{d:DesignInstance viewModels:ResourceGroupViewModel}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
             </Style>
-        </resources:ResourceItemContainerStyleSelector.ResourceGroupStyle>
-    </resources:ResourceItemContainerStyleSelector>
-    <resources:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
-        <resources:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
+        </res:ResourceItemContainerStyleSelector.ResourceGroupStyle>
+    </res:ResourceItemContainerStyleSelector>
+    <res:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
+        <res:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
             <DataTemplate DataType="{x:Type viewModels:ResourceItemViewModel}">
                 <TextBlock Text="{Binding Path=DisplayName, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding DisplayName, Mode=OneWay}" />
             </DataTemplate>
-        </resources:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
-        <resources:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
+        </res:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
+        <res:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
             <DataTemplate DataType="{x:Type rc:ResourceColourViewModel}">
                 <Border Background="{Binding Colour, Converter={x:Static c:SKColorToBrushConverter.Instance}}" />
             </DataTemplate>
-        </resources:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
-        <resources:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
+        </res:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
+        <res:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
             <DataTemplate DataType="{x:Type viewModels:ResourceGroupViewModel}">
                 <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </DataTemplate>
-        </resources:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
-    </resources:ResourceItemContainerDataTemplateSelector>
+        </res:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
+    </res:ResourceItemContainerDataTemplateSelector>
 
     <ItemsPanelTemplate x:Key="ResourceListControlWrapPanelTemplate">
         <WrapPanel Orientation="Horizontal" />
@@ -132,7 +133,7 @@
         <StackPanel Orientation="Vertical" />
     </ItemsPanelTemplate>
 
-    <Style TargetType="resources:ResourceListControl">
+    <Style TargetType="res:ResourceListControl">
         <Setter Property="Background" Value="{DynamicResource ListBox.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Static.Border}" />
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
@@ -147,7 +148,7 @@
         <Setter Property="ItemsPanel" Value="{StaticResource ResourceListControlWrapPanelTemplate}" />
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type resources:ResourceListControl}">
+                <ControlTemplate TargetType="{x:Type res:ResourceListControl}">
                     <Border x:Name="Bd" Padding="1" SnapsToDevicePixels="true"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
@@ -180,5 +181,13 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type res:ResourceTreeView}" BasedOn="{StaticResource {x:Type mst:MultiSelectTreeView}}">
+        
+    </Style>
+
+    <Style TargetType="{x:Type res:ResourceTreeViewItem}" BasedOn="{StaticResource {x:Type mst:MultiSelectTreeViewItem}}">
+
     </Style>
 </ResourceDictionary>

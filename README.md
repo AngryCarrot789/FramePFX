@@ -56,7 +56,7 @@ https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-lat
 
 You build the project (debug or release), then place all of the FFmpeg DLL files in the WPF project's bin folder, and then you should be able to run the editor, and debug it if you want. 
 
-The front-end uses .NET Framework 4.7.2, and the back-end uses .NET Standard 2.0
+The front-end uses .NET Framework 4.8, and the back-end uses .NET Standard 2.0
 
 ## Cross platform
 Currently there's only a WPF implementation, but I hope to switch to Avalonia at some point or MAUI. Most, if not all, of the important classes are located in the .NET Standard project, so it's relatively easy to port the app over to different platforms. However there's also SkiaSharp, FFmpeg, and soon NAudio (or some other audio processor library) dependencies too...

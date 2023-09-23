@@ -33,7 +33,7 @@
                 <DataTemplate DataType="{x:Type vms:ResourceItemViewModel}">
                     <TextBlock Text="{Binding DisplayName}"/>
                 </DataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type vms:ResourceGroupViewModel}" ItemsSource="{Binding Items, Mode=OneTime}">
+                <HierarchicalDataTemplate DataType="{x:Type vms:ResourceFolderViewModel}" ItemsSource="{Binding Items, Mode=OneTime}">
                     <TextBlock Text="{Binding DisplayName}"/>
                 </HierarchicalDataTemplate>
             </FrameworkElement.Resources>
@@ -41,7 +41,7 @@
         <!-- ap:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}" -->
         
         <r:ResourceListControl Background="{DynamicResource PanelBackground3}"
-                               ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
+                               ItemsSource="{Binding CurrentFolder.Items}" BorderThickness="0"
                                ap:ObservableSelectionHelper.SelectedItems="{Binding SelectedItems}"
                                HorizontalContentAlignment="Stretch"
                                VerticalContentAlignment="Stretch"

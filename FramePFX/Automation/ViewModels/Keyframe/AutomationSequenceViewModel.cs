@@ -161,7 +161,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {newKeyFrame.Model.DataType}", nameof(newKeyFrame));
 
             this.AddInternalUnsafe(this.Model.AddKeyFrame(newKeyFrame.Model), newKeyFrame);
-            if (applyHistory && !this.IsHistoryChanging) {
+            if (applyHistory && !HistoryManagerViewModel.Instance.IsOperationActive) {
                 HistoryKeyFrameAdd action = new HistoryKeyFrameAdd(this);
                 action.unsafeKeyFrameList.Add(newKeyFrame);
                 HistoryManagerViewModel.Instance.AddAction(action, "Add key frame");

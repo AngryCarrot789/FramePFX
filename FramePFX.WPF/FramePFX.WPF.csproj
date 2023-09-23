@@ -204,6 +204,7 @@
     <Compile Include="Controls\HighlightableTextBlock.cs" />
     <Compile Include="Controls\HorizontalIncrement.cs" />
     <Compile Include="Controls\IconTextPair.cs" />
+    <Compile Include="Controls\IconTextPairControl.cs" />
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
     <Compile Include="Controls\SelectionAdorder.cs" />
     <Compile Include="Controls\TreeExtension.cs" />
@@ -239,6 +240,7 @@
     <Compile Include="Converters\DbToVolumeConverter.cs" />
     <Compile Include="Converters\EmptyStringToBoolConverter.cs" />
     <Compile Include="Converters\EnumConverter.cs" />
+    <Compile Include="Converters\FileSizeConverter.cs" />
     <Compile Include="Converters\FloatToDoubleConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\ScrollBinder.cs" />
@@ -283,7 +285,7 @@
     </Compile>
     <Compile Include="Editor\ResourceChecker\ResourceCheckerService.cs" />
     <Compile Include="Editor\Resources\BaseResourceItemControl.cs" />
-    <Compile Include="Editor\Resources\ResourceGroupControl.cs" />
+    <Compile Include="Editor\Resources\ResourceFolderControl.cs" />
     <Compile Include="Editor\Resources\ResourceItemContainerDataTemplateSelector.cs" />
     <Compile Include="Editor\Resources\ResourceItemContainerStyleSelector.cs" />
     <Compile Include="Editor\Resources\ResourceItemControl.cs" />
@@ -314,6 +316,30 @@
     <Compile Include="Editor\Timeline\Utils\KeyboardUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
     <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
+    <Compile Include="Explorer\BasicFileExplorerControl.xaml.cs">
+      <DependentUpon>BasicFileExplorerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Explorer\Controls\Bars\VerticalButtonBar.cs" />
+    <Compile Include="Explorer\Controls\Bars\VerticalButtonBarItem.cs" />
+    <Compile Include="Explorer\Controls\DoubleClickEditBox.xaml.cs">
+      <DependentUpon>DoubleClickEditBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Explorer\Controls\ExplorerViewModeDataTemplateSelector.cs" />
+    <Compile Include="Explorer\Controls\FileExplorerControl.cs" />
+    <Compile Include="Explorer\Controls\FileListBox.cs" />
+    <Compile Include="Explorer\Controls\FileListBoxItem.cs" />
+    <Compile Include="Explorer\Controls\ListBasedExplorerControl.xaml.cs">
+      <DependentUpon>ListBasedExplorerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Explorer\DummyTreeItemStyleSelector.cs" />
+    <Compile Include="Explorer\FileTreeControl.cs" />
+    <Compile Include="Explorer\FileTreeItem.cs" />
+    <Compile Include="Explorer\Icons\CSIDL.cs" />
+    <Compile Include="Explorer\Icons\FileIconService.cs" />
+    <Compile Include="Explorer\Icons\IconCache.cs" />
+    <Compile Include="Explorer\Icons\IImageable.cs" />
+    <Compile Include="Explorer\Icons\ShellEx.cs" />
+    <Compile Include="Explorer\Icons\ShellUtils.cs" />
     <Compile Include="Highlighting\HighlightableString.cs" />
     <Compile Include="Highlighting\InlineHelper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
@@ -396,6 +422,8 @@
     <Compile Include="Utils\PointUtils.cs" />
     <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs" />
     <Compile Include="Utils\ScrollerUtils.cs" />
+    <Compile Include="Utils\ShellIconSize.cs" />
+    <Compile Include="Utils\ShellUtils.cs" />
     <Compile Include="Utils\TextPointerUtils.cs" />
     <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
@@ -622,6 +650,26 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Editor\Timeline\TimelineStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Explorer\BasicFileExplorerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Explorer\Controls\Bars\ButtonBarStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Explorer\Controls\DoubleClickEditBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Explorer\Controls\ListBasedExplorerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Explorer\FileExplorerStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

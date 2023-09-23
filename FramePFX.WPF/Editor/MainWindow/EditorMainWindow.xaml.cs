@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -116,10 +117,6 @@ namespace FramePFX.WPF.Editor.MainWindow {
         //     this.lastRefreshTime = Time.GetSystemMillis();
         // }
 
-        public void PushNotificationMessage(string message) {
-            this.NotificationBarTextBlock.Text = message;
-        }
-
         private Task lastRenderTask = Task.CompletedTask;
 
         public async Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender) {
@@ -139,9 +136,13 @@ namespace FramePFX.WPF.Editor.MainWindow {
                     this.lastRenderTask = null;
                 }
 
+                // does this even work properly??? we might not be awaiting the actual render task, but instead, the dispatcher task
                 this.lastRenderTask = this.Dispatcher.BeginInvoke(DispatcherPriority.Send, this.doRenderActiveTimelineFunc, timeline).Task;
             }
             else if (this.Dispatcher.CheckAccess()) {
+                // could check this, but it risks a potential locked state with isRenderActive... maybe
+                // if (this.lastRenderTask?.IsCompleted ?? false)
+                //     return;
                 await this.RenderTimelineInternal(timeline);
             }
             else {
@@ -163,7 +164,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                     try {
                         RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
-                        context.Canvas.Clear(SKColors.Black);
+                        context.ClearContext();
                         try {
                             await timeline.Model.RenderAsync(context, frame, source.Token);
                         }
@@ -171,8 +172,8 @@ namespace FramePFX.WPF.Editor.MainWindow {
                             AppLogger.WriteLine("Render at " + nameof(this.RenderTimelineInternal) + " took longer than 3 second");
                         }
                         catch (Exception e) {
-                            await editor.Playback.StopAction();
                             AppLogger.WriteLine("Exception rendering timeline: " + e.GetToString());
+                            await editor.Playback.StopForRenderException();
                             await Services.DialogService.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
                         }
                     }

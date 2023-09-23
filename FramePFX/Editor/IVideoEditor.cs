@@ -8,9 +8,13 @@ namespace FramePFX.Editor {
     /// An interface for a video editor view
     /// </summary>
     public interface IVideoEditor : IViewBase {
+        /// <summary>
+        /// Renders the current state of the timeline, and draws it into the editor's view port
+        /// </summary>
+        /// <param name="timeline">The timeline to render</param>
+        /// <param name="scheduleRender">True to schedule for some point in the future, false to render immidiately</param>
+        /// <returns></returns>
         Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender = false);
-
-        void PushNotificationMessage(string message);
 
         NotificationPanelViewModel NotificationPanel { get; }
     }

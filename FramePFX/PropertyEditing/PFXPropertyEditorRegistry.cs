@@ -64,7 +64,7 @@ namespace FramePFX.PropertyEditing {
 
             this.ClipInfo.AddSeparator(false);
 
-            this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceObjectViewModel), "Resource Info");
+            this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceViewModel), "Resource Info");
         }
 
         public void OnTrackSelectionChanged(IReadOnlyList<TrackViewModel> tracks) {
@@ -105,7 +105,7 @@ namespace FramePFX.PropertyEditing {
             }
         }
 
-        public void OnResourcesSelectionChanged(IReadOnlyList<BaseResourceObjectViewModel> list) {
+        public void OnResourcesSelectionChanged(IReadOnlyList<BaseResourceViewModel> list) {
             this.ResourceInfo.SetupHierarchyState(list);
             this.Root.CleanSeparators();
         }

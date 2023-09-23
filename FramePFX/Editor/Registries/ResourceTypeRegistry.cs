@@ -5,13 +5,13 @@ using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 
 namespace FramePFX.Editor.Registries {
     /// <summary>
-    /// The registry for resource items (including the resource group)
+    /// The registry for resource items (including the resource folder)
     /// </summary>
-    public class ResourceTypeRegistry : ModelRegistry<BaseResourceObject, BaseResourceObjectViewModel> {
+    public class ResourceTypeRegistry : ModelRegistry<BaseResourceObject, BaseResourceViewModel> {
         public static ResourceTypeRegistry Instance { get; } = new ResourceTypeRegistry();
 
         private ResourceTypeRegistry() {
-            base.Register<ResourceGroup, ResourceGroupViewModel>("r_group");
+            base.Register<ResourceFolder, ResourceFolderViewModel>("r_group");
             base.Register<ResourceColour, ResourceColourViewModel>("r_argb");
             base.Register<ResourceImage, ResourceImageViewModel>("r_img");
             base.Register<ResourceAVMedia, ResourceAVMediaViewModel>("r_av_media");
@@ -20,14 +20,14 @@ namespace FramePFX.Editor.Registries {
             base.Register<ResourceTextFile, ResourceTextFileViewModel>("r_txtfile");
         }
 
-        public new void Register<TModel, TViewModel>(string id) where TModel : BaseResourceObject where TViewModel : BaseResourceObjectViewModel {
+        public new void Register<TModel, TViewModel>(string id) where TModel : BaseResourceObject where TViewModel : BaseResourceViewModel {
             base.Register<TModel, TViewModel>(id);
         }
 
         public new BaseResourceObject CreateModel(string id) => base.CreateModel(id);
 
-        public new BaseResourceObjectViewModel CreateViewModel(string id) => base.CreateViewModel(id);
+        public new BaseResourceViewModel CreateViewModel(string id) => base.CreateViewModel(id);
 
-        public new BaseResourceObjectViewModel CreateViewModelFromModel(BaseResourceObject item) => base.CreateViewModelFromModel(item);
+        public new BaseResourceViewModel CreateViewModelFromModel(BaseResourceObject item) => base.CreateViewModelFromModel(item);
     }
 }

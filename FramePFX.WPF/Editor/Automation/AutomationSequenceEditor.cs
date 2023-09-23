@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using FramePFX.Automation.Keyframe;
+using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Utils;
 using FramePFX.WPF.Utils;
@@ -24,6 +25,8 @@ namespace FramePFX.WPF.Editor.Automation {
         public const double EllipseHitRadius = 12d;
         public const double LineThickness = 2d;
         public const double LineHitThickness = 12d;
+
+        public const double MaximumFloatingPointRange = 10000;
 
         public static readonly DependencyProperty OverrideModeBrushProperty =
             DependencyProperty.Register(
@@ -189,6 +192,12 @@ namespace FramePFX.WPF.Editor.Automation {
         private LineHitType captureLineHit;
         private DragMode? dragMode;
 
+        // the range of the automation parameter is too large to be rendered accurately
+        // (e.g. -infinity to +infinity or -100000 to +100000)
+        // allowing this to be user-adjustable via the mouse would be ineffective as a single
+        // pixel would equal a float/double value of like 100,000 so :/
+        public bool IsValueRangeHuge;
+
         private static readonly Brush TransparentBrush = Brushes.Transparent; // Brushes.Yellow
 
         internal Pen KeyOverridePen => this.keyOverridePen ?? (this.keyOverridePen = new Pen(this.OverrideModeBrush ?? Brushes.DarkGray, EllipseThickness));
@@ -268,7 +277,10 @@ namespace FramePFX.WPF.Editor.Automation {
             KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(KeyFrame.CreateDefault(sequence.Model.Key, timestamp));
             sequence.AddKeyFrame(keyFrame);
             if (this.TryGetPointByKeyFrame(keyFrame, out KeyFramePoint keyFramePoint)) {
-                keyFramePoint.SetValueForMousePoint(point);
+                if (!this.IsValueRangeHuge) {
+                    keyFramePoint.SetValueForMousePoint(point);
+                }
+
                 if (capturePoint) {
                     this.SetPointCaptured(keyFramePoint, true, LineHitType.None);
                     this.isCaptureInitialised = false;
@@ -474,7 +486,45 @@ namespace FramePFX.WPF.Editor.Automation {
             if (newValue != null) {
                 newValue.OverrideKeyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
                 ((INotifyCollectionChanged) newValue.KeyFrames).CollectionChanged += this.OnCollectionChanged;
+                this.SetupRenderingInfo(newValue);
                 this.GenerateBackingList(newValue);
+            }
+        }
+
+        private static bool IsValueTooLarge(float min, float max) {
+            return float.IsInfinity(min) || float.IsInfinity(max) || Maths.GetRange(min, max) > MaximumFloatingPointRange;
+        }
+
+        private static bool IsValueTooLarge(double min, double max) {
+            return double.IsInfinity(min) || double.IsInfinity(max) || Maths.GetRange(min, max) > MaximumFloatingPointRange;
+        }
+
+        private static bool IsValueTooLarge(long min, long max) {
+            return Maths.GetRange(min, max) > MaximumFloatingPointRange;
+        }
+
+        private void SetupRenderingInfo(AutomationSequenceViewModel sequence) {
+            this.IsValueRangeHuge = false;
+            switch (sequence.Key.DataType) {
+                case AutomationDataType.Float: {
+                    KeyDescriptorFloat desc = (KeyDescriptorFloat) sequence.Key.Descriptor;
+                    this.IsValueRangeHuge = IsValueTooLarge(desc.Minimum, desc.Maximum);
+                    break;
+                }
+                case AutomationDataType.Double: {
+                    KeyDescriptorDouble desc = (KeyDescriptorDouble) sequence.Key.Descriptor;
+                    this.IsValueRangeHuge = IsValueTooLarge(desc.Minimum, desc.Maximum);
+                    break;
+                }
+                case AutomationDataType.Long: {
+                    KeyDescriptorLong desc = (KeyDescriptorLong) sequence.Key.Descriptor;
+                    this.IsValueRangeHuge = IsValueTooLarge(desc.Minimum, desc.Maximum);
+                    break;
+                }
+                case AutomationDataType.Boolean: break;
+                case AutomationDataType.Vector2: break;
+                case AutomationDataType.Vector3: break;
+                default: throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -747,7 +797,7 @@ namespace FramePFX.WPF.Editor.Automation {
                     this.captured.keyFrame.Frame = Maths.Clamp(newTime, min, max);
                 }
 
-                if (mode == DragMode.FullKeyFrame || mode == DragMode.VerticalKeyFrame) {
+                if (!this.IsValueRangeHuge && (mode == DragMode.FullKeyFrame || mode == DragMode.VerticalKeyFrame)) {
                     this.captured.SetValueForMousePoint(mPos);
                 }
             }
@@ -793,7 +843,7 @@ namespace FramePFX.WPF.Editor.Automation {
             if (this.isOverrideEnabled) {
                 AutomationSequenceViewModel seq = this.Sequence;
                 if (seq != null) {
-                    double y = this.ActualHeight - KeyPointUtils.GetY(seq.OverrideKeyFrame, this.ActualHeight);
+                    double y = this.ActualHeight - KeyPointUtils.GetYHelper(this, seq.OverrideKeyFrame, this.ActualHeight);
                     dc.DrawLine(this.OverrideModeValueLinePen, new Point(0, y), new Point(visible.Right, y));
                 }
 

@@ -7,16 +7,16 @@ namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// A group of resource items
     /// </summary>
-    public sealed class ResourceGroup : BaseResourceObject {
+    public sealed class ResourceFolder : BaseResourceObject {
         private readonly List<BaseResourceObject> items;
 
         public IReadOnlyList<BaseResourceObject> Items => this.items;
 
-        public ResourceGroup() {
+        public ResourceFolder() {
             this.items = new List<BaseResourceObject>();
         }
 
-        public ResourceGroup(string displayName) : this() {
+        public ResourceFolder(string displayName) : this() {
             this.DisplayName = displayName;
         }
 
@@ -51,7 +51,7 @@ namespace FramePFX.Editor.ResourceManaging {
 
         protected override void LoadCloneDataFromObject(BaseResourceObject obj) {
             base.LoadCloneDataFromObject(obj);
-            foreach (BaseResourceObject child in ((ResourceGroup) obj).items) {
+            foreach (BaseResourceObject child in ((ResourceFolder) obj).items) {
                 this.AddItem(Clone(child));
             }
         }
@@ -85,11 +85,11 @@ namespace FramePFX.Editor.ResourceManaging {
             SetParent(item, null);
         }
 
-        public void MoveItemTo(int srcIndex, ResourceGroup target) {
+        public void MoveItemTo(int srcIndex, ResourceFolder target) {
             this.MoveItemTo(srcIndex, target, target.items.Count);
         }
 
-        public void MoveItemTo(int srcIndex, ResourceGroup target, int dstIndex) {
+        public void MoveItemTo(int srcIndex, ResourceFolder target, int dstIndex) {
             BaseResourceObject item = this.items[srcIndex];
             ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
             ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
@@ -136,8 +136,8 @@ namespace FramePFX.Editor.ResourceManaging {
             if (resource is ResourceItem) {
                 manager.RegisterEntry((ResourceItem) resource);
             }
-            else if (resource is ResourceGroup) {
-                foreach (BaseResourceObject obj in ((ResourceGroup) resource).items) {
+            else if (resource is ResourceFolder) {
+                foreach (BaseResourceObject obj in ((ResourceFolder) resource).items) {
                     RegisterHierarchy(manager, obj);
                 }
             }

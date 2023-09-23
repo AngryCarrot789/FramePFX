@@ -16,34 +16,34 @@ namespace FramePFX.Editor.Actions.Resources {
     public class NewTextResourceAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             ResourceManagerViewModel manager;
-            ResourceGroupViewModel group;
+            ResourceFolderViewModel folder;
 
-            if (!e.DataContext.TryGetContext(out group)) {
+            if (!e.DataContext.TryGetContext(out folder)) {
                 if (!e.DataContext.TryGetContext(out manager)) {
                     return false;
                 }
-                else if (manager.CurrentGroup == null) {
+                else if (manager.CurrentFolder == null) {
                     return false;
                 }
                 else {
-                    group = manager.CurrentGroup;
+                    folder = manager.CurrentFolder;
                 }
             }
             else {
-                manager = group.Manager;
+                manager = folder.Manager;
             }
 
-            if (!TextIncrement.GetIncrementableString(group.PredicateIsNameFree, "Sample Text", out string name))
+            if (!TextIncrement.GetIncrementableString(folder.PredicateIsNameFree, "Sample Text", out string name))
                 name = "Sample Text";
             ResourceTextStyle resource = new ResourceTextStyle() {
                 DisplayName = name
             };
             ResourceTextStyleViewModel textStyle = resource.CreateViewModel<ResourceTextStyleViewModel>();
-            if (!await ResourceItemViewModel.TryAddAndLoadNewResource(group, textStyle)) {
+            if (!await ResourceItemViewModel.TryAddAndLoadNewResource(folder, textStyle)) {
                 return true;
             }
 
-            group.Manager.SelectedItems.Add(textStyle);
+            folder.Manager.SelectedItems.Add(textStyle);
             if (manager.Project != null) {
                 TimelineViewModel timeline = manager.Project.Timeline;
                 VideoTrackViewModel track;

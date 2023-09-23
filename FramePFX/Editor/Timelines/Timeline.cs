@@ -181,13 +181,15 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        // I did some testing and found that awaiting in async is about 10x slower than regular
-        // method invocation, when in debug mode (which uses class-based async state machines)
+        // I did some testing and found that invoking methods declared with async is generally
+        // about 10x slower than regular method invocation, when in debug mode (which uses
+        // class-based async state machines, AFAIK)
 
-        // Which means that async probably won't affect the render performance all that much, and
-        // if anything, stuff like waiting for video decoders to finish would take longer
+        // And most rendering is probably fully syncrhronous, meaning async is not required (they
+        // can return Task.CompletedTask), which means that async probably won't affect the render
+        // performance all that much
 
-        // Anyway this method is extremely messy but a lot of it is just avoiding the usage of enumerators
+        // Anyway these methods are really messy but a lot of it is just avoiding the usage of enumerators
         // in order to re-use local variables... because I like fast apps ;-)
         public async Task RenderAsync(RenderContext render, long frame, CancellationToken token) {
             if (!this.BeginCompositeRender(frame, token))

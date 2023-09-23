@@ -151,6 +151,9 @@ namespace FramePFX.Automation.Keyframe {
             return keyFrame;
         }
 
+        /// <summary>
+        /// Creates an instance of a key frame which is suitable for the given key, and assigns its default value
+        /// </summary>
         public static KeyFrame CreateDefault(AutomationKey key, long time = 0L) {
             KeyFrame keyFrame = CreateInstance(key.DataType);
             keyFrame.frame = time;

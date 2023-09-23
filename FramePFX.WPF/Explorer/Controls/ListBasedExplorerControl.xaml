@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="FramePFX.WPF.Explorer.Controls.ListBasedExplorerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:l="clr-namespace:FramePFX.WPF.Explorer.Controls"
+             xmlns:cs="clr-namespace:FramePFX.WPF.Controls"
+             xmlns:zip="clr-namespace:FramePFX.FileBrowser.FileTree.Zip;assembly=FramePFX"
+             xmlns:physical="clr-namespace:FramePFX.FileBrowser.FileTree.Physical;assembly=FramePFX"
+             xmlns:file="clr-namespace:FramePFX.FileBrowser;assembly=FramePFX"
+             xmlns:ap="clr-namespace:FramePFX.WPF.AttachedProperties"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance file:FileExplorerViewModel}">
+    <l:FileListBox ItemsSource="{Binding CurrentFolder.Items}"
+                   ap:ObservableSelectionHelper.SelectedItems="{Binding SelectedFiles, Mode=OneTime}"
+                   SelectionMode="Extended"
+                   BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource AncestorType={x:Type l:ListBasedExplorerControl}}}">
+        <FrameworkElement.Resources>
+            <HierarchicalDataTemplate DataType="{x:Type zip:NestedZipVirtualFile}" ItemsSource="{Binding Items, Mode=OneTime}">
+                <!-- A zip file within another zip file -->
+                <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}"/>
+            </HierarchicalDataTemplate>
+            <HierarchicalDataTemplate DataType="{x:Type zip:PhysicalZipVirtualFile}" ItemsSource="{Binding Items, Mode=OneTime}">
+                <!-- A zip file inside of a physical folder -->
+                <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent"/>
+            </HierarchicalDataTemplate>
+            <HierarchicalDataTemplate DataType="{x:Type physical:PhysicalVirtualFolder}" ItemsSource="{Binding Items, Mode=OneTime}">
+                <!-- A physical folder -->
+                <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent"/>
+            </HierarchicalDataTemplate>
+            <HierarchicalDataTemplate DataType="{x:Type zip:ZipEntryVirtualFolder}" ItemsSource="{Binding Items, Mode=OneTime}">
+                <!-- A zip folder; todo, put an icon in here somewhere -->
+                <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}"/>
+            </HierarchicalDataTemplate>
+            <HierarchicalDataTemplate DataType="{x:Type zip:ZipEntryVirtualFile}" ItemsSource="{Binding Items, Mode=OneTime}">
+                <!-- A zip file; todo, put an icon in here somewhere -->
+                <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}"/>
+            </HierarchicalDataTemplate>
+            <DataTemplate DataType="{x:Type physical:PhysicalVirtualFile}">
+                <!-- A physical file -->
+                <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent"/>
+            </DataTemplate>
+        </FrameworkElement.Resources>
+        <ListBox.Style>
+            <Style TargetType="{x:Type l:FileListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
+            </Style>
+        </ListBox.Style>
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="{x:Type l:FileListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                <Setter Property="Height" Value="22"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+        </ListBox.ItemContainerStyle>
+    </l:FileListBox>
+</UserControl>

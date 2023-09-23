@@ -14,7 +14,7 @@ namespace FramePFX.History {
         /// <summary>
         /// Convenient property for checking if <see cref="IsUndoing"/> or <see cref="IsRedoing"/> is true
         /// </summary>
-        public bool IsActionActive => this.IsUndoing || this.IsRedoing;
+        public bool IsOperationActive => this.IsUndoing || this.IsRedoing;
 
         public bool HasUndoActions => this.undoList.Count > 0;
         public bool HasRedoActions => this.redoList.Count > 0;

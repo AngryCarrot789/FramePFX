@@ -257,6 +257,8 @@ namespace FramePFX.WPF {
         }
 
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
+            await editor.FileExplorer.LoadDefaultLocation();
+
             await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
 
             ClipViewModel demoClip = editor.ActiveProject.Timeline.Tracks[1].Clips[0];
@@ -407,14 +409,14 @@ namespace FramePFX.WPF {
             project.Settings.Resolution = new Resolution(1920, 1080);
 
             ResourceManager manager = project.ResourceManager;
-            ulong id_r = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
-            ulong id_g = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
-            ulong id_b = manager.RegisterEntry(manager.RootGroup.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
+            ulong id_r = manager.RegisterEntry(manager.RootFolder.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
+            ulong id_g = manager.RegisterEntry(manager.RootFolder.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
+            ulong id_b = manager.RegisterEntry(manager.RootFolder.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
 
-            ResourceGroup group = new ResourceGroup("Extra Colours");
-            manager.RootGroup.AddItem(group);
-            ulong id_w = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
-            ulong id_d = manager.RegisterEntry(group.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
+            ResourceFolder folder = new ResourceFolder("Extra Colours");
+            manager.RootFolder.AddItem(folder);
+            ulong id_w = manager.RegisterEntry(folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
+            ulong id_d = manager.RegisterEntry(folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
 
             MotionEffect motion;
             {
@@ -492,6 +494,11 @@ namespace FramePFX.WPF {
 
             project.UpdateAutomationBackingStorage();
             return project;
+        }
+
+        private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
+            AppLogger.WriteLine("Unhandled application exception");
+            AppLogger.WriteLine(e.Exception.GetToString());
         }
     }
 }

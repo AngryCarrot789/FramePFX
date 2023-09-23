@@ -34,11 +34,11 @@ namespace FramePFX.Editor.ResourceManaging {
         public event ResourceReplacedEventHandler ResourceReplaced;
 
         /// <summary>
-        /// This manager's root resource group, which contains the tree of resources. Registered entries are
+        /// This manager's root resource folder, which contains the tree of resources. Registered entries are
         /// stored in this tree, and cached in an internal dictionary (for speed purposes), therefore it is
         /// important that this tree is not modified unless the internal dictionary is also modified accordingly
         /// </summary>
-        public ResourceGroup RootGroup { get; }
+        public ResourceFolder RootFolder { get; }
 
         /// <summary>
         /// A predicate that returns false when <see cref="EntryExists(ulong)"/> returns true
@@ -53,8 +53,8 @@ namespace FramePFX.Editor.ResourceManaging {
         public ResourceManager(Project project) {
             this.uuidToItem = new Dictionary<ulong, ResourceItem>();
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
-            this.RootGroup = new ResourceGroup() {DisplayName = "<root>"};
-            this.RootGroup.SetManager(this);
+            this.RootFolder = new ResourceFolder() {DisplayName = "<root>"};
+            this.RootFolder.SetManager(this);
             this.IsResourceNotInUsePredicate = s => !this.EntryExists(s);
             this.IsResourceInUsePredicate = this.EntryExists;
         }
@@ -73,7 +73,7 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         public void WriteToRBE(RBEDictionary data) {
-            this.RootGroup.WriteToRBE(data.CreateDictionary(nameof(this.RootGroup)));
+            this.RootFolder.WriteToRBE(data.CreateDictionary(nameof(this.RootFolder)));
             data.SetULong("CurrId", this.currId);
         }
 
@@ -81,8 +81,8 @@ namespace FramePFX.Editor.ResourceManaging {
             if (this.uuidToItem.Count > 0)
                 throw new Exception("Cannot read data while resources are still registered");
 
-            this.RootGroup.ReadFromRBE(data.GetDictionary(nameof(this.RootGroup)));
-            AccumulateEntriesRecursive(this, this.RootGroup, this.uuidToItem);
+            this.RootFolder.ReadFromRBE(data.GetDictionary(nameof(this.RootFolder)));
+            AccumulateEntriesRecursive(this, this.RootFolder, this.uuidToItem);
             this.currId = data.GetULong("CurrId", 0UL);
         }
 
@@ -93,7 +93,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 resources[item.UniqueId] = item;
                 manager.ResourceAdded?.Invoke(manager, item);
             }
-            else if (obj is ResourceGroup group) {
+            else if (obj is ResourceFolder group) {
                 foreach (BaseResourceObject subItem in group.Items) {
                     AccumulateEntriesRecursive(manager, subItem, resources);
                 }

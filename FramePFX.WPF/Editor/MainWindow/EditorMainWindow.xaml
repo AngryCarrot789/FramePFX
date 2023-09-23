@@ -17,7 +17,7 @@
             xmlns:nn="clr-namespace:FramePFX.WPF.Notifications"
             xmlns:evm="clr-namespace:FramePFX.Editor.ViewModels;assembly=FramePFX"
             xmlns:n="clr-namespace:FramePFX.Notifications;assembly=FramePFX"
-            xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
+            xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources" xmlns:explorer="clr-namespace:FramePFX.WPF.Explorer"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="840"
@@ -98,8 +98,11 @@
                                 <LayoutPanel DockWidth="1080*" Orientation="Vertical">
                                     <LayoutPanel Orientation="Horizontal">
                                         <LayoutAnchorablePane DockWidth="75*">
-                                            <LayoutAnchorable Title="Resources" ContentId="FilesAndResources" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
+                                            <LayoutAnchorable Title="Resources" ContentId="ResourcesAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                                 <resources:ResourcesPanelControl DataContext="{Binding ActiveProject.ResourceManager}" sc:UIInputManager.FocusPath="Application/Editor/Resources"/>
+                                            </LayoutAnchorable>
+                                            <LayoutAnchorable Title="File Explorer" ContentId="FileExplorerAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
+                                                <explorer:BasicFileExplorerControl DataContext="{Binding FileExplorer, Mode=OneTime}" sc:UIInputManager.FocusPath="Application/Editor/FileExplorer"/>
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>
                                         <LayoutAnchorablePane DockWidth="70*">
@@ -113,24 +116,24 @@
                                                                 <ColumnDefinition Width="Auto"/>
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
-                                                            <Button Grid.Column="0" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="OnFitContentToWindowClick" />
-                                                            <CheckBox Grid.Column="0" IsChecked="{Binding PanToCursorOnUserZoom, ElementName=VPViewBox}" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5" />
+                                                            <Button Grid.Column="0" Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="OnFitContentToWindowClick" />
+                                                            <CheckBox Grid.Column="0" Focusable="False" IsChecked="{Binding PanToCursorOnUserZoom, ElementName=VPViewBox}" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5" />
                                                             <StackPanel Grid.Column="1" Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
-                                                                <Button Content="Play/Pause" Width="64" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}" />
-                                                                <Button Width="24" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="5,0,0,0">
+                                                                <Button Focusable="False" Content="Play/Pause" Width="64" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding TogglePlayCommand, Mode=OneTime}" />
+                                                                <Button Focusable="False" Width="24" HorizontalAlignment="Left" Padding="1,0,0,0" Command="{Binding PlayCommand, Mode=OneTime}" Margin="5,0,0,0">
                                                                     <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                                                 </Button>
-                                                                <Button Width="24" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="5,0,0,0">
+                                                                <Button Focusable="False" Width="24" HorizontalAlignment="Left" Command="{Binding PauseCommand, Mode=OneTime}" Margin="5,0,0,0">
                                                                     <Grid Width="14" Height="16">
                                                                         <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                                                         <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                                                     </Grid>
                                                                 </Button>
                                                             </StackPanel>
-                                                            <CheckBox Grid.Column="2" HorizontalAlignment="Right" IsChecked="{Binding UseNearestNeighbourRendering, ElementName=ViewPortElement, Mode=TwoWay}" 
+                                                            <CheckBox Grid.Column="2" Focusable="False" HorizontalAlignment="Right" IsChecked="{Binding UseNearestNeighbourRendering, ElementName=ViewPortElement, Mode=TwoWay}"
                                                                       Content="Use NN Render" Padding="1,0,0,0" Margin="0,0,90,0"
-                                                                      ToolTip="Use nearest-neighbour rendering, which does not use smoothing between pixels. This is only apparent when zoomed in or with low resolution images"/>
-                                                            <Button Grid.Column="2" Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5" />
+                                                                      ToolTip="Toggle between Nearest-Neighbour and Linear scaling for the VIEW PORT ONLY. Nearest-neighbour does not use smoothing between pixels, and is closer to what you will see in the final render. This is only really apparent when zoomed in or with low resolution frames"/>
+                                                            <Button Grid.Column="2" Focusable="False" Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5" />
                                                         </Grid>
                                                     </Border>
                                                     <controls:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource PanelBackground1}">
@@ -141,7 +144,7 @@
                                         </LayoutAnchorablePane>
                                     </LayoutPanel>
                                     <LayoutAnchorablePane DockHeight="350">
-                                        <LayoutAnchorable Title="Main Timeline" ContentId="PropertyEditor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
+                                        <LayoutAnchorable Title="Main Timeline" ContentId="TimelineAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                             <Border Grid.Row="2" DataContext="{Binding ActiveProject}" 
                                                     IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}"
                                                     sc:UIInputManager.FocusPath="Application/Editor/Timeline">
@@ -157,7 +160,7 @@
                                     </LayoutAnchorablePane>
                                 </LayoutPanel>
                                 <LayoutAnchorablePane DockWidth="320*">
-                                    <LayoutAnchorable Title="Property Editor" ContentId="PropertyEditor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
+                                    <LayoutAnchorable Title="Property Editor" ContentId="PropertyEditorAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                         <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}" />
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>

@@ -8,12 +8,12 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
     public class GroupSelectedResourcesAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             ResourceManagerViewModel manager;
-            ResourceGroupViewModel group;
+            ResourceFolderViewModel folder;
             if (e.DataContext.TryGetContext(out manager)) {
-                group = manager.CurrentGroup;
+                folder = manager.CurrentFolder;
             }
-            else if (e.DataContext.TryGetContext(out BaseResourceObjectViewModel item) && (manager = item.Manager) != null) {
-                group = manager.CurrentGroup;
+            else if (e.DataContext.TryGetContext(out BaseResourceViewModel item) && (manager = item.Manager) != null) {
+                folder = manager.CurrentFolder;
             }
             else {
                 return false;
@@ -21,28 +21,28 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
 
             if (manager.SelectedItems.Count > 0) {
                 // comparing x.Parent is faster than target.Items.Contains(x)
-                List<BaseResourceObjectViewModel> list = manager.SelectedItems.Where(x => x != group && x.Parent == group).ToList();
+                List<BaseResourceViewModel> list = manager.SelectedItems.Where(x => x != folder && x.Parent == folder).ToList();
                 manager.SelectedItems.Clear();
-                await GroupSelectionIntoNewGroupAction(manager, group, list);
+                await GroupSelectionIntoNewGroupAction(manager, folder, list);
             }
 
             return true;
         }
 
-        public static async Task GroupSelectionIntoNewGroupAction(ResourceManagerViewModel manager, ResourceGroupViewModel group, List<BaseResourceObjectViewModel> items) {
-            ResourceGroupViewModel newGroup = new ResourceGroupViewModel(new ResourceGroup("New Group"));
-            if (!await newGroup.RenameAsync()) {
+        public static async Task GroupSelectionIntoNewGroupAction(ResourceManagerViewModel manager, ResourceFolderViewModel folder, List<BaseResourceViewModel> items) {
+            ResourceFolderViewModel newFolder = new ResourceFolderViewModel(new ResourceFolder("New Group"));
+            if (!await newFolder.RenameAsync()) {
                 return;
             }
 
             // assert group == item.Parent
-            foreach (BaseResourceObjectViewModel item in items) {
+            foreach (BaseResourceViewModel item in items) {
                 item.Parent.RemoveItem(item, true, false);
             }
 
-            group.AddItem(newGroup);
-            foreach (BaseResourceObjectViewModel item in items) {
-                newGroup.AddItem(item);
+            folder.AddItem(newFolder);
+            foreach (BaseResourceViewModel item in items) {
+                newFolder.AddItem(item);
             }
         }
     }

@@ -52,7 +52,9 @@ namespace FramePFX.WPF.PropertyEditing {
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseLeftButtonDown(e);
-            this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
+            if (!this.IsSelected) {
+                this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
+            }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {

@@ -7,6 +7,7 @@ using FramePFX.Editor.Exporting;
 using FramePFX.Editor.Notifications;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.FileBrowser;
 using FramePFX.History.ViewModels;
 using FramePFX.Notifications.Types;
 using FramePFX.PropertyEditing;
@@ -89,6 +90,8 @@ namespace FramePFX.Editor.ViewModels {
 
         public EditorPlaybackViewModel Playback { get; }
 
+        public FileExplorerViewModel FileExplorer { get; }
+
         public VideoEditor Model { get; }
 
         public IVideoEditor View { get; }
@@ -112,6 +115,7 @@ namespace FramePFX.Editor.ViewModels {
             this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
+            this.FileExplorer = new FileExplorerViewModel();
         }
 
         public async Task ExportAction() {

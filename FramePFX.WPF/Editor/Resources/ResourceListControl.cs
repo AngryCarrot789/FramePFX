@@ -76,64 +76,50 @@ namespace FramePFX.WPF.Editor.Resources {
             this.UnselectAll();
         }
 
-        protected override void OnDragEnter(DragEventArgs e) {
-            this.OnDragOver(e);
-            base.OnDragEnter(e);
-        }
+        protected override void OnDragEnter(DragEventArgs e) => this.OnDragOver(e);
 
         protected override void OnDragOver(DragEventArgs e) {
-            ResourceManagerViewModel manager = this.ResourceManager;
-            if (manager != null) {
-                if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
-                    e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, manager.GetFileDropType(files));
-                    e.Handled = true;
-                    return;
-                }
-                else if (e.Data.GetDataPresent(ResourceDropType)) {
-                    object obj = e.Data.GetData(ResourceDropType);
-                    if (obj is List<BaseResourceObjectViewModel>) {
-                        e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, EnumDropType.Copy | EnumDropType.Move);
-                        e.Handled = true;
-                        return;
-                    }
-                }
-            }
-
-            e.Effects = DragDropEffects.None;
-            e.Handled = true;
-        }
-
-        protected override void OnDragLeave(DragEventArgs e) {
-            base.OnDragLeave(e);
-        }
-
-        protected override async void OnDrop(DragEventArgs e) {
             ResourceManagerViewModel manager = this.ResourceManager;
             if (manager == null) {
                 return;
             }
 
-            e.Handled = true;
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
+                e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, manager.GetFileDropType(files));
+                e.Handled = true;
+            }
+            else {
+                ResourceFolderControl.HandleDragOver(manager.CurrentFolder, e);
+            }
+        }
+
+        protected override async void OnDrop(DragEventArgs e) {
+            if (this.isProcessingAsyncDrop)
+                return;
+
+            ResourceManagerViewModel manager = this.ResourceManager;
+            if (manager == null)
+                return;
+
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files) {
+                e.Handled = true;
                 EnumDropType dropType = DropUtils.GetDropAction((int) e.KeyStates, manager.GetFileDropType(files));
                 if (dropType != EnumDropType.None) {
+                    this.isProcessingAsyncDrop = true;
                     await manager.OnFilesDropped(files, dropType);
                 }
             }
-            else if (e.Data.GetDataPresent(ResourceDropType)) {
-                object obj = e.Data.GetData(ResourceDropType);
-                if (obj is List<BaseResourceObjectViewModel> resources) {
-                    this.isProcessingAsyncDrop = true;
-                    this.HandleOnDropResources(manager.CurrentGroup, resources, DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects));
-                }
+            else if (ResourceFolderControl.CanHandleDrop(manager.CurrentFolder, e, out List<BaseResourceViewModel> list, out EnumDropType effects)) {
+                this.isProcessingAsyncDrop = true;
+                this.HandleOnDropResources(manager.CurrentFolder, list, effects);
             }
-            else {
+            else if (!e.Handled) {
                 await Services.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
             }
         }
 
-        private async void HandleOnDropResources(ResourceGroupViewModel group, List<BaseResourceObjectViewModel> selection, EnumDropType dropType) {
-            await group.OnDropResources(selection, dropType);
+        private async void HandleOnDropResources(ResourceFolderViewModel folder, List<BaseResourceViewModel> selection, EnumDropType dropType) {
+            await folder.OnDropResources(selection, dropType);
             this.isProcessingAsyncDrop = false;
         }
 
@@ -153,8 +139,8 @@ namespace FramePFX.WPF.Editor.Resources {
             if (item is ResourceItemViewModel) {
                 return new ResourceItemControl();
             }
-            else if (item is ResourceGroupViewModel) {
-                return new ResourceGroupControl();
+            else if (item is ResourceFolderViewModel) {
+                return new ResourceFolderControl();
             }
 
             throw new Exception($"Unknown item type: {item}");

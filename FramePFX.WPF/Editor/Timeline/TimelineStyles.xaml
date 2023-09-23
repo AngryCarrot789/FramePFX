@@ -158,7 +158,8 @@
                                                              IsOverrideEnabled="{Binding IsOverrideEnabled}"
                                                              UnitZoom="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineEditorControl}}, Path=UnitZoom, FallbackValue=0}"
                                                              FrameDuration="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type tc:TimelineClipControl}}, Path=FrameDuration}"
-                                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                             HorizontalAlignment="Stretch"
+                                                             VerticalAlignment="Stretch"
                                                              Margin="0,20,0,0"/>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -213,10 +214,15 @@
         </Setter>
     </Style>
 
-    <Style x:Key="TimelineScrollBarStyle" TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource {x:Type ScrollBar}}">
+    <Style x:Key="TimelineScrollBarStyle" TargetType="{x:Type ScrollBar}">
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="false"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0,0"/>
         <Setter Property="Width" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
         <Setter Property="MinWidth" Value="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}"/>
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ScrollBar}">
@@ -231,7 +237,7 @@
                         </Border>
 
                         <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Row="1"/>
-                        <RepeatButton x:Name="PART_LineUpButton" Command="{x:Static ScrollBar.LineUpCommand}" Style="{StaticResource ScrollBarButton}" Background="Transparent">
+                        <RepeatButton x:Name="PART_LineUpButton" Command="{x:Static ScrollBar.LineUpCommand}" Style="{StaticResource ScrollBarButton}">
                             <Path x:Name="ArrowTop" Data="M 0,4 C0,4 0,6 0,6 0,6 3.5,2.5 3.5,2.5 3.5,2.5 7,6 7,6 7,6 7,4 7,4 7,4 3.5,0.5 3.5,0.5 3.5,0.5 0,4 0,4 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3,4,3,3" Stretch="Uniform"/>
                         </RepeatButton>
                         <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsMouseOver}" Grid.Row="1">
@@ -245,7 +251,7 @@
                                 <Thumb Style="{StaticResource ScrollBarThumbVertical}"/>
                             </Track.Thumb>
                         </Track>
-                        <RepeatButton x:Name="PART_LineDownButton" Command="{x:Static ScrollBar.LineDownCommand}" Grid.Row="2" Style="{StaticResource ScrollBarButton}" Background="Transparent">
+                        <RepeatButton x:Name="PART_LineDownButton" Command="{x:Static ScrollBar.LineDownCommand}" Grid.Row="2" Style="{StaticResource ScrollBarButton}">
                             <Path x:Name="ArrowBottom" Data="M 0,2.5 C0,2.5 0,0.5 0,0.5 0,0.5 3.5,4 3.5,4 3.5,4 7,0.5 7,0.5 7,0.5 7,2.5 7,2.5 7,2.5 3.5,6 3.5,6 3.5,6 0,2.5 0,2.5 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3,4,3,3" Stretch="Uniform"/>
                         </RepeatButton>
                     </Grid>
@@ -320,7 +326,7 @@
                                         <Border Background="{DynamicResource ScrollBarSink.MouseOver.Background}" SnapsToDevicePixels="True" Height="8" CornerRadius="5"/>
                                     </Border>
                                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Column="1"/>
-                                    <RepeatButton x:Name="PART_LineLeftButton" Command="{x:Static ScrollBar.LineLeftCommand}" Style="{StaticResource ScrollBarButton}" Background="Transparent" attached:CornerRadiusHelper.Value="5">
+                                    <RepeatButton x:Name="PART_LineLeftButton" Command="{x:Static ScrollBar.LineLeftCommand}" Style="{StaticResource ScrollBarButton}">
                                         <Path x:Name="ArrowLeft" Data="M 3.18,7 C3.18,7 5,7 5,7 5,7 1.81,3.5 1.81,3.5 1.81,3.5 5,0 5,0 5,0 3.18,0 3.18,0 3.18,0 0,3.5 0,3.5 0,3.5 3.18,7 3.18,7 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3" Stretch="Uniform"/>
                                     </RepeatButton>
                                     <Track x:Name="PART_Track" Grid.Column="1" IsEnabled="{TemplateBinding IsMouseOver}">
@@ -334,7 +340,7 @@
                                             <Thumb Style="{StaticResource ScrollBarThumbHorizontal}"/>
                                         </Track.Thumb>
                                     </Track>
-                                    <RepeatButton x:Name="PART_LineRightButton" Grid.Column="2" Command="{x:Static ScrollBar.LineRightCommand}" Style="{StaticResource ScrollBarButton}" Background="Transparent">
+                                    <RepeatButton x:Name="PART_LineRightButton" Grid.Column="2" Command="{x:Static ScrollBar.LineRightCommand}" Style="{StaticResource ScrollBarButton}">
                                         <Path x:Name="ArrowRight" Data="M 1.81,7 C1.81,7 0,7 0,7 0,7 3.18,3.5 3.18,3.5 3.18,3.5 0,0 0,0 0,0 1.81,0 1.81,0 1.81,0 5,3.5 5,3.5 5,3.5 1.81,7 1.81,7 z" Fill="{DynamicResource ScrollBar.Static.Glyph}" Margin="3" Stretch="Uniform"/>
                                     </RepeatButton>
                                 </Grid>
@@ -383,7 +389,9 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="TimelineScrollViewerStyle" TargetType="{x:Type ScrollViewer}" BasedOn="{StaticResource {x:Type ScrollViewer}}">
+    <Style x:Key="TimelineScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ScrollViewer}">
@@ -409,10 +417,6 @@
 
     <Style TargetType="{x:Type tc:TimelineEditorControl}">
         <Setter Property="Background" Value="{DynamicResource PanelBackground1}"/>
-        <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Visible"/>
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineEditorControl}">
@@ -420,12 +424,13 @@
                         <Border Background="{TemplateBinding Background}"/>
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false"
                                       Padding="{TemplateBinding Padding}"
-                                      CanContentScroll="{TemplateBinding ScrollViewer.CanContentScroll}"
-                                      HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                      VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                      PanningMode="{TemplateBinding ScrollViewer.PanningMode}"
+                                      CanContentScroll="False"
+                                      HorizontalScrollBarVisibility="Visible"
+                                      VerticalScrollBarVisibility="Auto"
+                                      PanningMode="Both"
                                       converters:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
-                                      Style="{StaticResource TimelineScrollViewerStyle}">
+                                      Style="{StaticResource TimelineScrollViewerStyle}"
+                                      SnapsToDevicePixels="True">
                             <!--
                             <ScrollViewer.Background>
                                 <DrawingBrush Stretch="None" TileMode="Tile" Viewport="0,0,2,2" ViewportUnits="Absolute">
@@ -729,31 +734,31 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineControl}">
                     <DockPanel d:DataContext="{d:DesignInstance ctl:TimelineViewModel}">
-                        <Border DockPanel.Dock="Bottom" Height="30" Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                        <Border DockPanel.Dock="Bottom" Height="28" Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
-                            <StackPanel Orientation="Horizontal" Margin="3">
+                            <StackPanel Orientation="Horizontal" Margin="2">
                                 <StackPanel Orientation="Horizontal" DataContext="{Binding Project.Editor.Playback}">
-                                    <Button Command="{Binding PlayFromStartCommand, Mode=OneTime}" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+                                    <Button Command="{Binding PlayFromStartCommand, Mode=OneTime}" Focusable="False" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
                                         <Grid Width="20" Height="14">
                                             <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                             <Polygon Margin="7,0,0,0" HorizontalAlignment="Left" Width="14" Height="14" Points="0,14 0,0 13,7" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                         </Grid>
                                     </Button>
-                                    <Button Command="{Binding PlayCommand, Mode=OneTime}" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" >
+                                    <Button Command="{Binding PlayCommand, Mode=OneTime}" Focusable="False" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" >
                                         <Polygon Width="14" Height="14" Points="0,14 0,0 14,7" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                     </Button>
-                                    <Button Command="{Binding PauseCommand, Mode=OneTime}" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+                                    <Button Command="{Binding PauseCommand, Mode=OneTime}" Focusable="False" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
                                         <Grid Width="14" Height="14">
                                             <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                             <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                         </Grid>
                                     </Button>
-                                    <Button Command="{Binding StopCommand, Mode=OneTime}" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+                                    <Button Command="{Binding StopCommand, Mode=OneTime}" Focusable="False" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
                                         <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
                                     </Button>
                                 </StackPanel>
                                 <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" Height="20" Background="{DynamicResource PanelBorderBrush}"/>
-                                <ToggleButton IsChecked="{Binding IsRecordingKeyFrames, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Width="25"
+                                <ToggleButton IsChecked="{Binding IsRecordingKeyFrames, Mode=TwoWay}" Focusable="False" Background="Transparent" BorderThickness="0" Width="25"
                                               Content="Rec" ToolTip="Record automation parameters. Modify any automatable parameter and a keyframe will automatically get created at the playhead"/>
                             </StackPanel>
                         </Border>

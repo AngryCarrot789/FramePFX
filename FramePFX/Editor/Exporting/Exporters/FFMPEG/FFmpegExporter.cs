@@ -196,7 +196,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                         goto fail_or_end;
                     }
 
-                    rc.Canvas.Clear(SKColors.Black);
+                    rc.ClearContext();
                     AutomationEngine.UpdateTimeline(project.Timeline, exportFrame);
                     try {
                         renderTask = project.Timeline.RenderAsync(rc, exportFrame, cancellation);

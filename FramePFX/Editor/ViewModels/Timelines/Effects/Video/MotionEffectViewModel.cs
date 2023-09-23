@@ -35,6 +35,20 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             vfx.InvalidateRenderForAutomationRefresh(in e);
         };
 
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaRotationHandler = (s, e) => {
+            MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
+            vfx.RaisePropertyChanged(nameof(vfx.MediaRotation));
+            vfx.InvalidateRenderForAutomationRefresh(in e);
+        };
+
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaRotationOriginHandler = (s, e) => {
+            MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
+            vfx.RaisePropertyChanged(nameof(vfx.MediaRotationOrigin));
+            vfx.RaisePropertyChanged(nameof(vfx.MediaRotationOriginX));
+            vfx.RaisePropertyChanged(nameof(vfx.MediaRotationOriginY));
+            vfx.InvalidateRenderForAutomationRefresh(in e);
+        };
+
         public new MotionEffect Model => (MotionEffect) base.Model;
 
         public float MediaPositionX {
@@ -118,24 +132,78 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             }
         }
 
+        /// <summary>
+        /// The clockwise rotation of the video's media (relative to <see cref="MediaScaleOrigin"/>)
+        /// </summary>
+        public double MediaRotation {
+            get => this.Model.MediaRotation;
+            set {
+                this.ValidateNotInAutomationChange();
+                if (AutomationUtils.GetNewKeyFrameTime(this, MotionEffect.MediaRotationKey, out long frame)) {
+                    this.AutomationData[MotionEffect.MediaRotationKey].GetActiveKeyFrameOrCreateNew(frame).SetDoubleValue(value);
+                }
+                else {
+                    this.AutomationData[MotionEffect.MediaRotationKey].GetOverride().SetDoubleValue(value);
+                    this.AutomationData[MotionEffect.MediaRotationKey].RaiseOverrideValueChanged();
+                }
+            }
+        }
+
+        public float MediaRotationOriginX {
+            get => this.MediaRotationOrigin.X;
+            set => this.MediaRotationOrigin = new Vector2(value, this.MediaRotationOrigin.Y);
+        }
+
+        public float MediaRotationOriginY {
+            get => this.MediaRotationOrigin.Y;
+            set => this.MediaRotationOrigin = new Vector2(this.MediaRotationOrigin.X, value);
+        }
+
+        /// <summary>
+        /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
+        /// </summary>
+        public Vector2 MediaRotationOrigin {
+            get => this.Model.MediaRotationOrigin;
+            set {
+                this.ValidateNotInAutomationChange();
+                if (AutomationUtils.GetNewKeyFrameTime(this, MotionEffect.MediaRotationOriginKey, out long frame)) {
+                    this.AutomationData[MotionEffect.MediaRotationOriginKey].GetActiveKeyFrameOrCreateNew(frame).SetVector2Value(value);
+                }
+                else {
+                    this.AutomationData[MotionEffect.MediaRotationOriginKey].GetOverride().SetVector2Value(value);
+                    this.AutomationData[MotionEffect.MediaRotationOriginKey].RaiseOverrideValueChanged();
+                }
+            }
+        }
+
         // binding helpers
 
         public AutomationSequenceViewModel MediaPositionAutomationSequence => this.AutomationData[MotionEffect.MediaPositionKey];
         public AutomationSequenceViewModel MediaScaleAutomationSequence => this.AutomationData[MotionEffect.MediaScaleKey];
         public AutomationSequenceViewModel MediaScaleOriginAutomationSequence => this.AutomationData[MotionEffect.MediaScaleOriginKey];
 
+        public AutomationSequenceViewModel MediaRotationAutomationSequence => this.AutomationData[MotionEffect.MediaRotationKey];
+
+        public AutomationSequenceViewModel MediaRotationOriginAutomationSequence => this.AutomationData[MotionEffect.MediaRotationOriginKey];
+
         public RelayCommand ResetTransformationCommand { get; }
         public RelayCommand ResetMediaPositionCommand { get; }
         public RelayCommand ResetMediaScaleCommand { get; }
         public RelayCommand ResetMediaScaleOriginCommand { get; }
+        public RelayCommand ResetMediaRotationCommand { get; }
+        public RelayCommand ResetMediaRotationOriginCommand { get; }
 
         public RelayCommand InsertMediaPositionKeyFrameCommand { get; }
         public RelayCommand InsertMediaScaleKeyFrameCommand { get; }
         public RelayCommand InsertMediaScaleOriginKeyFrameCommand { get; }
+        public RelayCommand InsertMediaRotationKeyFrameCommand { get; }
+        public RelayCommand InsertMediaRotationOriginKeyFrameCommand { get; }
 
         public RelayCommand ToggleMediaPositionActiveCommand { get; }
         public RelayCommand ToggleMediaScaleActiveCommand { get; }
         public RelayCommand ToggleMediaScaleOriginActiveCommand { get; }
+        public RelayCommand ToggleMediaRotationActiveCommand { get; }
+        public RelayCommand ToggleMediaRotationOriginActiveCommand { get; }
 
         private readonly FrameSeekedEventHandler handler1;
         private readonly ClipMovedOverPlayeHeadEventHandler handler2;
@@ -150,24 +218,34 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
                 this.MediaPosition = MotionEffect.MediaPositionKey.Descriptor.DefaultValue;
                 this.MediaScale = MotionEffect.MediaScaleKey.Descriptor.DefaultValue;
                 this.MediaScaleOrigin = MotionEffect.MediaScaleOriginKey.Descriptor.DefaultValue;
+                this.MediaRotation = MotionEffect.MediaRotationKey.Descriptor.DefaultValue;
+                this.MediaRotationOrigin = MotionEffect.MediaRotationOriginKey.Descriptor.DefaultValue;
             });
 
             this.ResetMediaPositionCommand = new RelayCommand(() => this.MediaPosition = MotionEffect.MediaPositionKey.Descriptor.DefaultValue);
             this.ResetMediaScaleCommand = new RelayCommand(() => this.MediaScale = MotionEffect.MediaScaleKey.Descriptor.DefaultValue);
             this.ResetMediaScaleOriginCommand = new RelayCommand(() => this.MediaScaleOrigin = MotionEffect.MediaScaleOriginKey.Descriptor.DefaultValue);
+            this.ResetMediaRotationCommand = new RelayCommand(() => this.MediaRotation = MotionEffect.MediaRotationKey.Descriptor.DefaultValue);
+            this.ResetMediaRotationOriginCommand = new RelayCommand(() => this.MediaRotationOrigin = MotionEffect.MediaRotationOriginKey.Descriptor.DefaultValue);
 
             Func<bool> CanInsertKeyFrame = () => this.OwnerClip != null && this.OwnerClip.IsPlayHeadFrameInRange();
             this.InsertMediaPositionKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaPositionKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.OwnerClip.RelativePlayHead, 0)).SetVector2Value(this.MediaPosition), CanInsertKeyFrame);
             this.InsertMediaScaleKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaScaleKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.OwnerClip.RelativePlayHead, 0)).SetVector2Value(this.MediaScale), CanInsertKeyFrame);
             this.InsertMediaScaleOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaScaleOriginKey].GetActiveKeyFrameOrCreateNew(this.OwnerClip.RelativePlayHead).SetVector2Value(this.MediaScaleOrigin), CanInsertKeyFrame);
+            this.InsertMediaRotationKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaRotationKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.OwnerClip.RelativePlayHead, 0)).SetDoubleValue(this.MediaRotation), CanInsertKeyFrame);
+            this.InsertMediaRotationOriginKeyFrameCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaRotationOriginKey].GetActiveKeyFrameOrCreateNew(this.OwnerClip.RelativePlayHead).SetVector2Value(this.MediaRotationOrigin), CanInsertKeyFrame);
 
             this.ToggleMediaPositionActiveCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaPositionKey].ToggleOverrideAction());
             this.ToggleMediaScaleActiveCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaScaleKey].ToggleOverrideAction());
             this.ToggleMediaScaleOriginActiveCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaScaleOriginKey].ToggleOverrideAction());
+            this.ToggleMediaRotationActiveCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaRotationKey].ToggleOverrideAction());
+            this.ToggleMediaRotationOriginActiveCommand = new RelayCommand(() => this.AutomationData[MotionEffect.MediaRotationOriginKey].ToggleOverrideAction());
 
             this.AutomationData.AssignRefreshHandler(MotionEffect.MediaPositionKey, RefreshMediaPositionHandler);
             this.AutomationData.AssignRefreshHandler(MotionEffect.MediaScaleKey, RefreshMediaScaleHandler);
             this.AutomationData.AssignRefreshHandler(MotionEffect.MediaScaleOriginKey, RefreshMediaScaleOriginHandler);
+            this.AutomationData.AssignRefreshHandler(MotionEffect.MediaRotationKey, RefreshMediaRotationHandler);
+            this.AutomationData.AssignRefreshHandler(MotionEffect.MediaRotationOriginKey, RefreshMediaRotationOriginHandler);
         }
 
         [Conditional("DEBUG")]
@@ -199,6 +277,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             this.InsertMediaPositionKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleOriginKeyFrameCommand.RaiseCanExecuteChanged();
+            this.InsertMediaRotationKeyFrameCommand.RaiseCanExecuteChanged();
+            this.InsertMediaRotationOriginKeyFrameCommand.RaiseCanExecuteChanged();
         }
     }
 }

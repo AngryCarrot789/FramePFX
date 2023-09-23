@@ -15,7 +15,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <summary>
         /// The group that this object is currently in, or null, if this is a root object
         /// </summary>
-        public ResourceGroup Parent { get; private set; }
+        public ResourceFolder Parent { get; private set; }
 
         /// <summary>
         /// This resource object's registry ID, used to reflectively create an instance of it while deserializing data
@@ -51,17 +51,17 @@ namespace FramePFX.Editor.ResourceManaging {
         public static BaseResourceObject CloneAndRegister(BaseResourceObject item) {
             BaseResourceObject clone = Clone(item);
             if (item.Manager != null)
-                ResourceGroup.RegisterHierarchy(item.Manager, clone);
+                ResourceFolder.RegisterHierarchy(item.Manager, clone);
             return clone;
         }
 
-        public static void SetParent(BaseResourceObject obj, ResourceGroup parent) {
+        public static void SetParent(BaseResourceObject obj, ResourceFolder parent) {
             obj.Parent = parent;
             obj.OnParentChainChanged();
         }
 
         /// <summary>
-        /// Called when this resource's parent chain is modified, e.g., a resource group is moved into another resource group,
+        /// Called when this resource's parent chain is modified, e.g., a resource folder is moved into another resource folder,
         /// this method is called for every single child of the group that was moved (recursively)
         /// </summary>
         protected internal virtual void OnParentChainChanged() {

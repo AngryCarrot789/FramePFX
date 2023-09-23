@@ -27,64 +27,29 @@ namespace FramePFX.WPF.Editor.Resources {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(ResourceTreeView), new FrameworkPropertyMetadata(typeof(ResourceTreeView)));
         }
 
-        protected override void OnDragEnter(DragEventArgs e) {
-            base.OnDragEnter(e);
-            this.OnDragOver(e);
-        }
+        protected override void OnDragEnter(DragEventArgs e) => this.OnDragOver(e);
 
         protected override void OnDragOver(DragEventArgs e) {
-            ResourceManagerViewModel manager = this.ViewModel;
-            if (manager == null) {
-                return;
+            if (this.DataContext is ResourceManagerViewModel manager) {
+                this.IsDroppableTargetOver = ResourceFolderControl.HandleDragOver(manager.Root, e);
             }
-
-            e.Handled = true;
-            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> list) {
-                if (!list.Contains(manager.Root)) {
-                    e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                    if (e.Effects != DragDropEffects.None) {
-                        this.IsDroppableTargetOver = true;
-                    }
-
-                    return;
-                }
-            }
-
-            if (this.IsDroppableTargetOver) {
-                this.ClearValue(IsDroppableTargetOverProperty);
-            }
-
-            e.Effects = DragDropEffects.None;
-        }
-
-        protected override void OnDragLeave(DragEventArgs e) {
-            base.OnDragLeave(e);
-            this.Dispatcher.Invoke(() => {
-                this.ClearValue(IsDroppableTargetOverProperty);
-            }, DispatcherPriority.Loaded);
         }
 
         protected override void OnDrop(DragEventArgs e) {
-            if (this.isProcessingAsyncDrop) {
-                return;
-            }
-
-            ResourceManagerViewModel manager = this.ViewModel;
-            if (manager == null) {
-                return;
-            }
-
-            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
-                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (obj is List<BaseResourceObjectViewModel> resources && !resources.Contains(manager.Root)) {
-                    this.HandleOnDropResources(manager.Root, resources, DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects));
-                    e.Handled = true;
+            if (!this.isProcessingAsyncDrop && this.DataContext is ResourceManagerViewModel manager) {
+                if (ResourceFolderControl.CanHandleDrop(manager.Root, e, out List<BaseResourceViewModel> list, out EnumDropType effects)) {
+                    this.HandleOnDropResources(manager.Root, list, effects);
+                    this.IsDroppableTargetOver = false;
                 }
             }
         }
 
-        private async void HandleOnDropResources(ResourceGroupViewModel group, List<BaseResourceObjectViewModel> selection, EnumDropType dropType) {
-            await group.OnDropResources(selection, dropType);
+        protected override void OnDragLeave(DragEventArgs e) {
+            this.Dispatcher.Invoke(() => this.IsDroppableTargetOver = false, DispatcherPriority.Loaded);
+        }
+
+        private async void HandleOnDropResources(ResourceFolderViewModel folder, List<BaseResourceViewModel> selection, EnumDropType dropType) {
+            await folder.OnDropResources(selection, dropType);
             this.ClearValue(IsDroppableTargetOverProperty);
             this.isProcessingAsyncDrop = false;
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -288,11 +289,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public void MoveSelectedTrackDown() => this.MoveSelectedTrack(1);
 
-        public void OnStepFrameCallback() => this.DoAsyncTickAndRenderWithUIUpdate();
-
-        private void DoAsyncTickAndRenderWithUIUpdate() {
+        public void OnStepFrameCallback() {
             VideoEditorViewModel editor = this.Project.Editor;
             if (editor == null) {
+                AppLogger.WriteLine("[FATAL] Attempted to render a timeline without a video editor associated with it");
+                AppLogger.WriteLine(Environment.StackTrace);
                 return;
             }
 

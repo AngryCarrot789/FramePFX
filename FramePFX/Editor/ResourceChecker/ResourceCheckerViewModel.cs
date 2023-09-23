@@ -59,7 +59,7 @@ namespace FramePFX.Editor.ResourceChecker {
             return LoadResources(checker, project.ResourceManager.Root.Items.ToList(), forceOnline);
         }
 
-        public static Task<bool> LoadResources(IEnumerable<BaseResourceObjectViewModel> resources, bool forceOnline = false) {
+        public static Task<bool> LoadResources(IEnumerable<BaseResourceViewModel> resources, bool forceOnline = false) {
             return LoadResources(new ResourceCheckerViewModel(), resources, forceOnline);
         }
 
@@ -72,12 +72,12 @@ namespace FramePFX.Editor.ResourceChecker {
         /// <param name="resources"></param>
         /// <param name="forceOnline">Force loads a resource if it's offline, ignoring if the user set it to offline</param>
         /// <returns>Whether the UI operation was successful or cancelled</returns>
-        public static async Task<bool> LoadResources(ResourceCheckerViewModel checker, IEnumerable<BaseResourceObjectViewModel> resources, bool forceOnline = false) {
+        public static async Task<bool> LoadResources(ResourceCheckerViewModel checker, IEnumerable<BaseResourceViewModel> resources, bool forceOnline = false) {
             if (checker == null) {
                 throw new ArgumentNullException(nameof(checker));
             }
 
-            foreach (BaseResourceObjectViewModel obj in resources) {
+            foreach (BaseResourceViewModel obj in resources) {
                 await LoadResourcesRecursive(checker, obj, forceOnline);
             }
 
@@ -88,14 +88,14 @@ namespace FramePFX.Editor.ResourceChecker {
             return await Services.GetService<IResourceCheckerService>().ShowCheckerDialog(checker);
         }
 
-        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceObjectViewModel resource, bool forceOnline = false) {
+        private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceViewModel resource, bool forceOnline = false) {
             if (resource is ResourceItemViewModel item) {
                 if (!item.IsOnline && (forceOnline || !item.IsOfflineByUser)) {
                     await ResourceItemViewModel.TryLoadResource(item, checker);
                 }
             }
-            else if (resource is ResourceGroupViewModel group) {
-                foreach (BaseResourceObjectViewModel obj in group.Items) {
+            else if (resource is ResourceFolderViewModel group) {
+                foreach (BaseResourceViewModel obj in group.Items) {
                     await LoadResourcesRecursive(checker, obj, forceOnline);
                 }
             }

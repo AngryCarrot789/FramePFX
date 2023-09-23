@@ -19,9 +19,9 @@
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
     <SolidColorBrush x:Key="SeparatorMouseOverBrush" Color="{DynamicResource AColour.AccentTone2.Border.Static}" />
 
-    <DataTemplate x:Key="ScaleOriginGridDataTemplate">
+    <DataTemplate x:Key="OriginGridDataTemplate">
         <Grid Background="{DynamicResource ABrush.Tone1.Background.Static}" Width="120" Height="120"
-              d:DataContext="{d:DesignInstance effects:MotionEffectDataSingleEditorViewModel}"
+              d:DataContext="{d:DesignInstance ICommand}"
               DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Popup}}, Path=PlacementTarget.DataContext}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5"/>
@@ -41,37 +41,37 @@
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="5"/>
             </Grid.RowDefinitions>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="0" Grid.Column="1" Grid.Row="1" BorderThickness="0" ToolTip="Top-left corner (0.0, 0.0)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="0" Grid.Column="1" Grid.Row="1" BorderThickness="0" ToolTip="Top-left corner (0.0, 0.0)">
                 <Path Data="M 2,12 2,2 12,2" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="1" Grid.Column="3" Grid.Row="1" BorderThickness="0" ToolTip="Top-middle (0.5, 0.0)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="1" Grid.Column="3" Grid.Row="1" BorderThickness="0" ToolTip="Top-middle (0.5, 0.0)">
                 <Path Margin="0,-3,0,0" Data="M 2,0 12,0" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="2" Grid.Column="5" Grid.Row="1" BorderThickness="0" ToolTip="Top-right corner (1.0, 0.0)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="2" Grid.Column="5" Grid.Row="1" BorderThickness="0" ToolTip="Top-right corner (1.0, 0.0)">
                 <Path Data="M 2,2 12,2 12,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="3" Grid.Column="1" Grid.Row="3" BorderThickness="0" ToolTip="Middle-left side (0.0, 0.5)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="3" Grid.Column="1" Grid.Row="3" BorderThickness="0" ToolTip="Middle-left side (0.0, 0.5)">
                 <Path Margin="-3,0,0,0" Data="M 0,2 0,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="4" Grid.Column="3" Grid.Row="3" BorderThickness="0" ToolTip="Middle (0.5, 0.5)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="4" Grid.Column="3" Grid.Row="3" BorderThickness="0" ToolTip="Middle (0.5, 0.5)">
                 <Path Margin="-3,0,0,0" Data="M 2,2 12,2 12,12 2,12 Z" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="5" Grid.Column="5" Grid.Row="3" BorderThickness="0" ToolTip="Middle-right side (1.0, 0.5)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="5" Grid.Column="5" Grid.Row="3" BorderThickness="0" ToolTip="Middle-right side (1.0, 0.5)">
                 <Path Data="M 11,2 11,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="6" Grid.Column="1" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-left corner (0, 1.0)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="6" Grid.Column="1" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-left corner (0, 1.0)">
                 <Path Data="M 2,2 2,12 12,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="7" Grid.Column="3" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-middle (0.5, 1.0)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="7" Grid.Column="3" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-middle (0.5, 1.0)">
                 <Path Margin="0,0,0,-3" Data="M 2,11 12,11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
-            <Button Command="{Binding SetPresetScaleOriginCommand}" CommandParameter="8" Grid.Column="5" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-right (1.0, 1.0)">
+            <Button Command="{Binding ., Mode=OneTime}" CommandParameter="8" Grid.Column="5" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-right (1.0, 1.0)">
                 <Path Data="M 2,12 12,12 12,2" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
             </Button>
         </Grid>
     </DataTemplate>
 
-    <Style x:Key="ScaleOriginGridPopupStyle" TargetType="{x:Type Popup}">
+    <Style x:Key="OriginGridPopupStyle" TargetType="{x:Type Popup}">
         <Setter Property="StaysOpen" Value="False"/>
         <Setter Property="Placement" Value="MousePoint"/>
     </Style>

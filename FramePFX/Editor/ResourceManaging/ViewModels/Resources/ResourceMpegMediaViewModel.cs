@@ -12,7 +12,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
         // call      BaseResourceObject::get_Model()
         // castclass ResourceMpegMedia
         // ret
-        public new ResourceMpegMedia Model => (ResourceMpegMedia) ((BaseResourceObjectViewModel) this).Model;
+        public new ResourceMpegMedia Model => (ResourceMpegMedia) ((BaseResourceViewModel) this).Model;
 
         public string FilePath {
             get => this.Model.FilePath;

@@ -33,7 +33,7 @@ namespace FramePFX.WPF.Editor.Resources {
             set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
         }
 
-        public BaseResourceObjectViewModel ViewModel => (BaseResourceObjectViewModel) this.DataContext;
+        public BaseResourceViewModel ViewModel => (BaseResourceViewModel) this.DataContext;
 
         private bool isProcessingAsyncDrop;
         private bool isDragDropping;
@@ -129,17 +129,17 @@ namespace FramePFX.WPF.Editor.Resources {
             Point posB = this.originMousePoint;
             Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
             if (change.X > 5 || change.Y > 5) {
-                if (!(this.DataContext is BaseResourceObjectViewModel resource) || resource.Manager == null) {
+                if (!(this.DataContext is BaseResourceViewModel resource) || resource.Manager == null) {
                     return;
                 }
 
-                ObservableCollection<BaseResourceObjectViewModel> selection = resource.Manager.SelectedItems;
+                ObservableCollection<BaseResourceViewModel> selection = resource.Manager.SelectedItems;
 
                 if (selection.Count < 1 || !selection.Contains(resource)) {
                     this.IsSelected = true;
                 }
 
-                List<BaseResourceObjectViewModel> list = selection.ToList();
+                List<BaseResourceViewModel> list = selection.ToList();
 
                 try {
                     this.isDragDropping = true;
@@ -154,67 +154,31 @@ namespace FramePFX.WPF.Editor.Resources {
             }
         }
 
-        protected override void OnDragEnter(DragEventArgs e) {
-            base.OnDragEnter(e);
-            this.OnDragOver(e);
-        }
+        protected override void OnDragEnter(DragEventArgs e) => this.OnDragOver(e);
 
         protected override void OnDragOver(DragEventArgs e) {
-            e.Handled = true;
-            if (!this.isDragDropping && e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> list) {
-                if (this.DataContext is ResourceGroupViewModel group && !list.Contains(group)) {
-                    this.IsDroppableTargetOver = true;
-                    e.Effects = (DragDropEffects) DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                    return;
-                }
+            if (this.DataContext is ResourceFolderViewModel self) {
+                this.IsDroppableTargetOver = ResourceFolderControl.HandleDragOver(self, e);
             }
-
-            if (this.IsDroppableTargetOver) {
-                this.ClearValue(IsDroppableTargetOverProperty);
-            }
-
-            e.Effects = DragDropEffects.None;
-        }
-
-        protected override void OnDragLeave(DragEventArgs e) {
-            base.OnDragLeave(e);
-            this.Dispatcher.Invoke(() => {
-                this.ClearValue(IsDroppableTargetOverProperty);
-            }, DispatcherPriority.Loaded);
         }
 
         protected override void OnDrop(DragEventArgs e) {
-            if (this.isProcessingAsyncDrop) {
-                return;
-            }
-
-            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
-                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (obj is List<BaseResourceObjectViewModel> resources && this.DataContext is ResourceGroupViewModel target) {
-                    if (!resources.Contains(target)) {
-                        this.HandleOnDropResources(target, resources, DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects));
-                        e.Handled = true;
-                    }
+            if (!this.isProcessingAsyncDrop && this.DataContext is ResourceFolderViewModel self) {
+                if (ResourceFolderControl.CanHandleDrop(self, e, out List<BaseResourceViewModel> list, out EnumDropType effects)) {
+                    this.HandleOnDropResources(self, list, effects);
+                    this.IsDroppableTargetOver = false;
                 }
             }
         }
 
-        private async void HandleOnDropResources(ResourceGroupViewModel group, List<BaseResourceObjectViewModel> selection, EnumDropType dropType) {
-            await group.OnDropResources(selection, dropType);
-            this.ClearValue(IsDroppableTargetOverProperty);
-            this.isProcessingAsyncDrop = false;
+        protected override void OnDragLeave(DragEventArgs e) {
+            this.Dispatcher.Invoke(() => this.IsDroppableTargetOver = false, DispatcherPriority.Loaded);
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
-            base.OnMouseDoubleClick(e);
-            // if (e.ChangedButton != MouseButton.Left) {
-            //     return;
-            // }
-            // if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
-            //     if (this.DataContext is ResourceGroupViewModel group) {
-            //         group.OnNavigate();
-            //     }
-            // }
+        private async void HandleOnDropResources(ResourceFolderViewModel folder, List<BaseResourceViewModel> selection, EnumDropType dropType) {
+            await folder.OnDropResources(selection, dropType);
+            this.ClearValue(IsDroppableTargetOverProperty);
+            this.isProcessingAsyncDrop = false;
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item) {

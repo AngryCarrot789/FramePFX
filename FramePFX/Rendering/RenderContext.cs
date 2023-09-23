@@ -29,5 +29,12 @@ namespace FramePFX.Rendering {
             this.FrameInfo = frameInfo;
             this.FrameSize = new Vector2(frameInfo.Width, frameInfo.Height);
         }
+
+        /// <summary>
+        /// Clears the context's drawing canvas
+        /// </summary>
+        public void ClearContext() {
+            this.Canvas.Clear(SKColors.Black);
+        }
     }
 }

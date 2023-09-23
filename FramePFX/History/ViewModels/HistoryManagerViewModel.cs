@@ -30,6 +30,10 @@ namespace FramePFX.History.ViewModels {
         public bool HasUndoActions => this.manager.HasUndoActions;
         public bool HasRedoActions => this.manager.HasRedoActions;
 
+        public bool IsUndoing => this.manager.IsUndoing;
+        public bool IsRedoing => this.manager.IsRedoing;
+        public bool IsOperationActive => this.manager.IsOperationActive;
+
         private HistoryNotification Notification {
             get {
                 if (this.notificationPanel == null)
@@ -55,11 +59,11 @@ namespace FramePFX.History.ViewModels {
 
         public HistoryManagerViewModel(HistoryManager model) {
             this.manager = model ?? throw new ArgumentNullException(nameof(model));
-            this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.manager.IsActionActive && this.manager.HasUndoActions);
-            this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.manager.IsActionActive && this.manager.HasRedoActions);
-            this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsActionActive && (this.manager.HasRedoActions || this.manager.HasUndoActions));
-            this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.manager.IsActionActive);
-            this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.manager.IsActionActive);
+            this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.manager.IsOperationActive && this.manager.HasUndoActions);
+            this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.manager.IsOperationActive && this.manager.HasRedoActions);
+            this.ClearCommand = new AsyncRelayCommand(this.ClearAction, () => !this.manager.IsOperationActive && (this.manager.HasRedoActions || this.manager.HasUndoActions));
+            this.EditMaxUndoCommand = new AsyncRelayCommand(this.SetMaxUndoAction, () => !this.manager.IsOperationActive);
+            this.EditMaxRedoCommand = new AsyncRelayCommand(this.SetMaxRedoAction, () => !this.manager.IsOperationActive);
             this.mergeList = new Stack<List<HistoryAction>>();
         }
 
@@ -95,7 +99,7 @@ namespace FramePFX.History.ViewModels {
         public IDisposable PushMergeContext() => new MergeContext(this);
 
         public async Task SetMaxUndoAction() {
-            if (await this.IsActionActive("Cannot set maximum undo count")) {
+            if (await this.IsActionActiveHelper("Cannot set maximum undo count")) {
                 return;
             }
 
@@ -106,7 +110,7 @@ namespace FramePFX.History.ViewModels {
         }
 
         public async Task SetMaxRedoAction() {
-            if (await this.IsActionActive("Cannot set maximum redo count")) {
+            if (await this.IsActionActiveHelper("Cannot set maximum redo count")) {
                 return;
             }
 
@@ -126,7 +130,7 @@ namespace FramePFX.History.ViewModels {
         }
 
         public async Task UndoAction() {
-            if (await this.IsActionActive("Cannot perform undo")) {
+            if (await this.IsActionActiveHelper("Cannot perform undo")) {
                 return;
             }
 
@@ -139,7 +143,7 @@ namespace FramePFX.History.ViewModels {
         }
 
         public async Task RedoAction() {
-            if (await this.IsActionActive("Cannot perform redo")) {
+            if (await this.IsActionActiveHelper("Cannot perform redo")) {
                 return;
             }
 
@@ -152,7 +156,7 @@ namespace FramePFX.History.ViewModels {
         }
 
         public async Task ClearAction() {
-            if (await this.IsActionActive("Cannot clear actions")) {
+            if (await this.IsActionActiveHelper("Cannot clear actions")) {
                 return;
             }
 
@@ -160,7 +164,7 @@ namespace FramePFX.History.ViewModels {
             this.Notification.OnUndo();
         }
 
-        private async Task<bool> IsActionActive(string message) {
+        private async Task<bool> IsActionActiveHelper(string message) {
             if (this.manager.IsUndoing) {
                 await Services.DialogService.ShowMessageAsync("Undo already active", message + ". An undo operation is already in progress");
             }

@@ -149,6 +149,13 @@ namespace FramePFX.Editor.ViewModels {
             }
         }
 
+        public async Task StopForRenderException() {
+            if (this.Project != null && this.IsPlaying) {
+                await this.StopRenderTimer();
+                this.UpdatePlaybackCommands();
+            }
+        }
+
         public Task TogglePlayAction() {
             if (this.Project == null) {
                 return Task.CompletedTask;

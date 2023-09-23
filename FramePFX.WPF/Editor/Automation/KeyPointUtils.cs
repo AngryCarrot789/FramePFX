@@ -2,6 +2,7 @@ using System;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Utils;
+using FramePFX.WPF.Editor.Timeline.Utils;
 
 namespace FramePFX.WPF.Editor.Automation {
     public static class KeyPointUtils {
@@ -30,6 +31,15 @@ namespace FramePFX.WPF.Editor.Automation {
                 default: {
                     throw new Exception($"Unknown key frame: {keyFrame}");
                 }
+            }
+        }
+
+        public static double GetYHelper(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame, double height) {
+            if (editor.IsValueRangeHuge) {
+                return height / 2d;
+            }
+            else {
+                return GetY(keyFrame, height);
             }
         }
     }

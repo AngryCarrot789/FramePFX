@@ -138,7 +138,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
                 object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (!(obj is List<BaseResourceObjectViewModel> resources) || resources.Count != 1) {
+                if (!(obj is List<BaseResourceViewModel> resources) || resources.Count != 1) {
                     goto end;
                 }
 
@@ -164,7 +164,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
                 object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (obj is List<BaseResourceObjectViewModel> resources && resources.Count == 1) {
+                if (obj is List<BaseResourceViewModel> resources && resources.Count == 1) {
                     if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item)) {
                         this.isProcessingDrop = true;
                         this.OnDropResource(handler, item, e.GetPosition(this));

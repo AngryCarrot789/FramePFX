@@ -502,7 +502,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType) && this.DataContext is ClipViewModel drop) {
                 object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (obj is List<BaseResourceObjectViewModel> resources && resources.Count == 1 && resources[0] is ResourceItemViewModel) {
+                if (obj is List<BaseResourceViewModel> resources && resources.Count == 1 && resources[0] is ResourceItemViewModel) {
                     if (drop.CanDropResource((ResourceItemViewModel) resources[0])) {
                         if (!this.IsDroppableTargetOver)
                             this.IsDroppableTargetOver = true;
@@ -534,7 +534,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
 
             e.Handled = true;
-            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceObjectViewModel> items && items.Count == 1 && items[0] is ResourceItemViewModel) {
+            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceViewModel> items && items.Count == 1 && items[0] is ResourceItemViewModel) {
                 if (drop.CanDropResource((ResourceItemViewModel) items[0])) {
                     this.isProcessingAsyncDrop = true;
                     this.HandleOnDropResource(drop, (ResourceItemViewModel) items[0], DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects));

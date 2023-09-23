@@ -101,12 +101,12 @@
                 </Style.Triggers>
             </Style>
         </res:ResourceItemContainerStyleSelector.ResourceItemStyle>
-        <res:ResourceItemContainerStyleSelector.ResourceGroupStyle>
-            <!-- d:DataContext="{d:DesignInstance viewModels:ResourceGroupViewModel}" -->
-            <Style TargetType="{x:Type res:ResourceGroupControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}">
+        <res:ResourceItemContainerStyleSelector.ResourceFolderStyle>
+            <!-- d:DataContext="{d:DesignInstance viewModels:ResourceFolderViewModel}" -->
+            <Style TargetType="{x:Type res:ResourceFolderControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}">
                 <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
             </Style>
-        </res:ResourceItemContainerStyleSelector.ResourceGroupStyle>
+        </res:ResourceItemContainerStyleSelector.ResourceFolderStyle>
     </res:ResourceItemContainerStyleSelector>
     <res:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
         <res:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>
@@ -119,11 +119,11 @@
                 <Border Background="{Binding Colour, Converter={x:Static c:SKColorToBrushConverter.Instance}}" />
             </DataTemplate>
         </res:ResourceItemContainerDataTemplateSelector.ResourceItemColourTemplate>
-        <res:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
-            <DataTemplate DataType="{x:Type viewModels:ResourceGroupViewModel}">
+        <res:ResourceItemContainerDataTemplateSelector.ResourceFolderTemplate>
+            <DataTemplate DataType="{x:Type viewModels:ResourceFolderViewModel}">
                 <TextBlock Text="{Binding Path=Items.Count, Mode=OneWay, StringFormat='({0} Items)'}" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </DataTemplate>
-        </res:ResourceItemContainerDataTemplateSelector.ResourceGroupTemplate>
+        </res:ResourceItemContainerDataTemplateSelector.ResourceFolderTemplate>
     </res:ResourceItemContainerDataTemplateSelector>
 
     <ItemsPanelTemplate x:Key="ResourceListControlWrapPanelTemplate">

@@ -6,7 +6,7 @@ using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
-    public abstract class ResourceItemViewModel : BaseResourceObjectViewModel {
+    public abstract class ResourceItemViewModel : BaseResourceViewModel {
         private readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         public new ResourceItem Model => (ResourceItem) base.Model;
@@ -156,32 +156,32 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// A helper function that adds a resource to a target group, registers it with the manager, and then
         /// loads it. If it fails to load, it removes it from the group and unregisters it
         /// </summary>
-        /// <param name="group">The group in which the resource is added to. This group must have a manager associated with it</param>
+        /// <param name="folder">The group in which the resource is added to. This group must have a manager associated with it</param>
         /// <param name="resource">The resource to add and register</param>
         /// <param name="checker">An optional checker passed to <see cref="TryLoadResource"/></param>
         /// <returns>True if the resource was loaded and set online, otherwise false</returns>
         /// <exception cref="ArgumentNullException">The group or resource was null</exception>
         /// <exception cref="Exception">No manager associated with the group, or <see cref="TryLoadResource"/> encountered an unexpected exception</exception>
-        public static async Task<bool> TryAddAndLoadNewResource(ResourceGroupViewModel group, ResourceItemViewModel resource, ResourceCheckerViewModel checker = null, bool keepInHierarchyOnLoadFailure = false) {
-            if (group == null)
-                throw new ArgumentNullException(nameof(group));
+        public static async Task<bool> TryAddAndLoadNewResource(ResourceFolderViewModel folder, ResourceItemViewModel resource, ResourceCheckerViewModel checker = null, bool keepInHierarchyOnLoadFailure = false) {
+            if (folder == null)
+                throw new ArgumentNullException(nameof(folder));
             if (resource == null)
                 throw new ArgumentNullException(nameof(resource));
 
-            ResourceManagerViewModel manager = group.Manager;
+            ResourceManagerViewModel manager = folder.Manager;
             if (manager == null) {
                 throw new Exception("Group has no manager associated with it");
             }
 
             bool result = false;
-            group.AddItem(resource);
+            folder.AddItem(resource);
             ulong id = manager.Model.RegisterEntry(resource.Model);
             if (resource.IsOnline || await TryLoadResource(resource, checker)) {
                 result = true;
             }
             else {
                 if (!keepInHierarchyOnLoadFailure) {
-                    group.RemoveItem(resource, unregisterHierarcy: true);
+                    folder.RemoveItem(resource, unregisterHierarcy: true);
                 }
             }
 

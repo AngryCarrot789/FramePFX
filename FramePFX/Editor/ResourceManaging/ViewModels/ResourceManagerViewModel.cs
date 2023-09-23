@@ -14,35 +14,35 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
     public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation {
-        private ResourceGroupViewModel currentGroup;
+        private ResourceFolderViewModel currentFolder;
 
         /// <summary>
-        /// This manager's root resource group view model
+        /// This manager's root resource folder view model
         /// </summary>
-        public ResourceGroupViewModel Root { get; }
+        public ResourceFolderViewModel Root { get; }
 
         /// <summary>
         /// The group that the UI is currently exploring in
         /// </summary>
-        public ResourceGroupViewModel CurrentGroup {
-            get => this.currentGroup;
+        public ResourceFolderViewModel CurrentFolder {
+            get => this.currentFolder;
             set {
                 this.SelectedItems.Clear();
-                this.RaisePropertyChanged(ref this.currentGroup, value ?? this.Root);
+                this.RaisePropertyChanged(ref this.currentFolder, value ?? this.Root);
                 this.RaisePropertyChanged(nameof(this.DisplayPath));
             }
         }
 
         public string DisplayPath {
             get {
-                if (this.currentGroup == this.Root) {
+                if (this.currentFolder == this.Root) {
                     return "Root";
                 }
 
                 List<string> names = new List<string>();
-                ResourceGroupViewModel group = this.currentGroup;
-                for (; group.Parent != null; group = group.Parent) {
-                    names.Add(group.DisplayName);
+                ResourceFolderViewModel folder = this.currentFolder;
+                for (; folder.Parent != null; folder = folder.Parent) {
+                    names.Add(folder.DisplayName);
                 }
 
                 names.Reverse();
@@ -56,55 +56,55 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public ProjectViewModel Project { get; }
 
-        private readonly LinkedList<ResourceGroupViewModel> undoGroup;
-        private readonly LinkedList<ResourceGroupViewModel> redoGroup;
+        private readonly LinkedList<ResourceFolderViewModel> undoGroup;
+        private readonly LinkedList<ResourceFolderViewModel> redoGroup;
 
         /// <summary>
-        /// The selected items for <see cref="CurrentGroup"/>. Automatically cleared when the group changes
+        /// The selected items for <see cref="CurrentFolder"/>. Automatically cleared when the group changes
         /// </summary>
-        public ObservableCollection<BaseResourceObjectViewModel> SelectedItems { get; }
+        public ObservableCollection<BaseResourceViewModel> SelectedItems { get; }
 
         public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
             this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
-            this.Root = new ResourceGroupViewModel(manager.RootGroup);
+            this.Root = new ResourceFolderViewModel(manager.RootFolder);
             this.Root.SetManager(this);
-            this.currentGroup = this.Root;
-            this.SelectedItems = new ObservableCollection<BaseResourceObjectViewModel>();
+            this.currentFolder = this.Root;
+            this.SelectedItems = new ObservableCollection<BaseResourceViewModel>();
             this.SelectedItems.CollectionChanged += (sender, args) => {
                 PFXPropertyEditorRegistry.Instance.OnResourcesSelectionChanged(this.SelectedItems.ToList());
             };
 
             this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);
-            this.undoGroup = new LinkedList<ResourceGroupViewModel>();
-            this.redoGroup = new LinkedList<ResourceGroupViewModel>();
+            this.undoGroup = new LinkedList<ResourceFolderViewModel>();
+            this.redoGroup = new LinkedList<ResourceFolderViewModel>();
         }
 
-        public void NavigateToGroup(ResourceGroupViewModel group, bool pushHistory = true) {
-            if (ReferenceEquals(this.CurrentGroup, group))
+        public void NavigateToGroup(ResourceFolderViewModel folder, bool pushHistory = true) {
+            if (ReferenceEquals(this.CurrentFolder, folder))
                 return;
 
-            if (group != null && !ReferenceEquals(this, group.Manager))
+            if (folder != null && !ReferenceEquals(this, folder.Manager))
                 throw new Exception("Target group's manager does not match the current instance");
 
-            if (group == null)
-                group = this.Root;
+            if (folder == null)
+                folder = this.Root;
 
             if (pushHistory) {
                 this.redoGroup.Clear();
-                this.undoGroup.AddLast(this.CurrentGroup);
+                this.undoGroup.AddLast(this.CurrentFolder);
             }
 
             this.SelectedItems.Clear();
-            this.CurrentGroup = group;
+            this.CurrentFolder = folder;
         }
 
         public void GoBackward() {
             while (this.undoGroup.Count > 0) {
-                ResourceGroupViewModel last = this.undoGroup.Last.Value;
+                ResourceFolderViewModel last = this.undoGroup.Last.Value;
                 this.undoGroup.RemoveLast();
                 if (ReferenceEquals(last.Manager, this)) {
-                    this.redoGroup.AddLast(this.CurrentGroup);
+                    this.redoGroup.AddLast(this.CurrentFolder);
                     this.NavigateToGroup(last, false);
                     return;
                 }
@@ -113,10 +113,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public void GoForward() {
             while (this.redoGroup.Count > 0) {
-                ResourceGroupViewModel last = this.redoGroup.Last.Value;
+                ResourceFolderViewModel last = this.redoGroup.Last.Value;
                 this.redoGroup.RemoveLast();
                 if (ReferenceEquals(last.Manager, this)) {
-                    this.undoGroup.AddLast(this.CurrentGroup);
+                    this.undoGroup.AddLast(this.CurrentFolder);
                     this.NavigateToGroup(last, false);
                     return;
                 }
@@ -138,24 +138,24 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 case nameof(ResourceTextStyle):
                     resourceItem = new ResourceTextStyle();
                     break;
-                case nameof(ResourceGroup):
-                    resourceItem = new ResourceGroup();
+                case nameof(ResourceFolder):
+                    resourceItem = new ResourceFolder();
                     break;
                 default:
                     await Services.DialogService.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
                     return;
             }
 
-            BaseResourceObjectViewModel resObj = resourceItem.CreateViewModel();
+            BaseResourceViewModel resObj = resourceItem.CreateViewModel();
             if (resObj is ResourceItemViewModel item) {
-                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentGroup, item)) {
+                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, item)) {
                     await Services.DialogService.ShowMessageAsync("Resource error", "Could not load resource. See app logs for more details");
                 }
             }
-            else if (resObj is ResourceGroupViewModel group) {
+            else if (resObj is ResourceFolderViewModel group) {
                 group.DisplayName = "New Group";
                 await group.RenameAsync();
-                this.CurrentGroup.AddItem(group);
+                this.CurrentFolder.AddItem(group);
             }
         }
 
@@ -178,7 +178,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                         };
 
                         ResourceAVMediaViewModel vm = media.CreateViewModel<ResourceAVMediaViewModel>();
-                        if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentGroup, vm)) {
+                        if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, vm)) {
                             await Services.DialogService.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
                         }
 
@@ -212,7 +212,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                         }
 
                         this.Model.RegisterEntry(image.Model);
-                        this.CurrentGroup.AddItem(image, true);
+                        this.CurrentFolder.AddItem(image, true);
                         break;
                     }
                     case ".txt":
@@ -235,7 +235,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
                         if (await ResourceItemViewModel.TryLoadResource(file, null)) {
                             this.Model.RegisterEntry(file.Model);
-                            this.CurrentGroup.AddItem(file, true);
+                            this.CurrentFolder.AddItem(file, true);
                         }
 
                         break;

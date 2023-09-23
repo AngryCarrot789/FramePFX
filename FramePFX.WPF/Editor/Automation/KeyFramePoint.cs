@@ -15,6 +15,8 @@ namespace FramePFX.WPF.Editor.Automation {
         public readonly KeyFrameViewModel keyFrame;
         private Point? renderPoint;
 
+        private static bool HasLoggedNaN = false;
+
         /// <summary>
         /// The index of this key frame point in the backing list
         /// </summary>
@@ -62,7 +64,12 @@ namespace FramePFX.WPF.Editor.Automation {
 
             double height = this.editor.ActualHeight;
             double px = this.keyFrame.Frame * this.editor.UnitZoom;
-            double offset_y = KeyPointUtils.GetY(this.keyFrame, height);
+            double offset_y = KeyPointUtils.GetYHelper(this.editor, this.keyFrame, height);
+            if (double.IsNaN(offset_y) && !HasLoggedNaN) {
+                HasLoggedNaN = true;
+                AppLogger.WriteLine("KeyFramePoint calculated a Y offset of NaN. This typically means the min/max range was negative or positive infinity, which isn't a great idea");
+            }
+
             this.renderPoint = point = new Point(px, height - offset_y);
             return point;
         }

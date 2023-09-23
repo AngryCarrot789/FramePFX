@@ -171,11 +171,11 @@ namespace FramePFX.WPF.Editor.Resources {
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 if (change.X > 5 || change.Y > 5) {
-                    if (!(this.DataContext is BaseResourceObjectViewModel resource) || resource.Manager == null || resource.Manager.SelectedItems.Count < 1) {
+                    if (!(this.DataContext is BaseResourceViewModel resource) || resource.Manager == null || resource.Manager.SelectedItems.Count < 1) {
                         return;
                     }
 
-                    List<BaseResourceObjectViewModel> list = resource.Manager.SelectedItems.ToList();
+                    List<BaseResourceViewModel> list = resource.Manager.SelectedItems.ToList();
 
                     try {
                         this.isDragDropping = true;

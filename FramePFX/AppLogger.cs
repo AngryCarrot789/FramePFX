@@ -29,13 +29,13 @@ namespace FramePFX {
             int len = header.Length;
             int spare = MaxHeaderLength - len - 2;
             if (spare < 1) {
-                line = header.Substring(0, Math.Min(MaxHeaderLength, len)) + "\n";
+                line = header.Substring(0, Math.Min(MaxHeaderLength, len));
             }
             else {
                 double half = spare / 2d;
                 string a = StringUtils.Repeat('-', (int) Math.Floor(half));
                 string b = StringUtils.Repeat('-', (int) Math.Ceiling(half));
-                line = $"{a} {header} {b}\n";
+                line = $"{a} {header} {b}";
             }
 
             lock (PRINTLOCk) {
@@ -78,7 +78,7 @@ namespace FramePFX {
 
         private static void Write(string text) {
 #if DEBUG
-            Debug.WriteLine("[APP LOGGER] " + text);
+            Debug.Write("[APP LOGGER] " + text);
 #endif
             Console.Write(text);
             logText += text;

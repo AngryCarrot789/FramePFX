@@ -221,12 +221,20 @@ namespace FramePFX.WPF.AttachedProperties {
 
                         switch (e.Action) {
                             case NotifyCollectionChangedAction.Add: {
+                                if (targetList.Count < 1)
+                                    break;
+                                if (e.NewStartingIndex > targetList.Count)
+                                    break;
                                 int index = e.NewStartingIndex == -1 ? targetList.Count : e.NewStartingIndex;
                                 foreach (object item in e.NewItems)
                                     targetList.Insert(index++, item);
                                 break;
                             }
                             case NotifyCollectionChangedAction.Remove: {
+                                if (targetList.Count < 1)
+                                    break;
+                                if (e.NewStartingIndex > targetList.Count)
+                                    break;
                                 int index = e.OldStartingIndex == -1 ? targetList.Count : e.OldStartingIndex;
                                 foreach (object item in e.OldItems) {
                                     object expectedItem = targetList[index];
@@ -242,6 +250,10 @@ namespace FramePFX.WPF.AttachedProperties {
                                 break;
                             }
                             case NotifyCollectionChangedAction.Replace: {
+                                if (targetList.Count < 1) {
+                                    break;
+                                }
+
                                 int removeIndex = e.OldStartingIndex;
                                 foreach (object item in e.OldItems) {
                                     if (removeIndex != -1 && ReferenceEquals(targetList[removeIndex], item)) {

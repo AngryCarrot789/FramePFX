@@ -9,7 +9,7 @@ namespace FramePFX.Utils {
                 return false;
             }
             else {
-                Services.Clipboard.ReadableText = text;
+                Services.Clipboard.SetText(text);
                 return true;
             }
         }

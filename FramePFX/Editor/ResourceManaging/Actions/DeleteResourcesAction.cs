@@ -16,10 +16,10 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!e.DataContext.TryGetContext(out BaseResourceObjectViewModel resItem))
+            if (!e.DataContext.TryGetContext(out BaseResourceViewModel resItem))
                 return false;
 
-            if (!(resItem is BaseResourceObjectViewModel item))
+            if (!(resItem is BaseResourceViewModel item))
                 return false;
 
             if (item.Manager.SelectedItems.Count < 1 || item.Parent == null)

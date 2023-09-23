@@ -7,7 +7,7 @@ I doubt this will ever even come close to those editors, but hopefully it will a
 
 # Preview
 There are 6 themes. This is the `Soft Dark` theme. But there's also `Deep dark`, `Dark Grey`, `Grey`, `Red and Black` and a really bad `Light Theme` that makes discord's light theme look good
-![](FramePFX_2023-08-27_20.23.42.png)
+![](FramePFX.WPF_2023-09-22_22.08.29.png)
 
 ### Automation/animation
 Always found automating parameters in the popular editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
@@ -41,14 +41,14 @@ Rendering the main view port is done with SkiaSharp. Originally was done with Op
 ### Resource list
 `ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)
 
-The resources are shareable between clips so that clips can obviously share similar details (e.g. same text or font/font size), or same image
+The resources are shareable between clips so that clips can obviously share similar details (e.g. same text or font/font size), or same image, same shape colour, etc.
 
 To drag videos, images, etc., into the editor: drag and drop the file to the top left "resource manager", and then drag one of those items into the timeline. Will soon support directly dropping a clip into the timeline
 
 Oh and uh... don't drag drop something like your C:\ drive or a folder which contains 100,000s of files in the hierarchy into the ResourceListControl, otherwise the app will probably freeze as it recursively loads all of those files
 
 ### Audio
-I don't know how to implement audio playback yet, so that's a TODO thing
+I don't know how to implement audio playback yet, so that's a TODO thing. If you think you could help implement that, then feel free to give it a try
 
 # Compiling
 FFmpeg's shared x64 libraries are the only external library (at the moment...). They can be found here: 
@@ -56,7 +56,7 @@ https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-lat
 
 You build the project (debug or release), then place all of the FFmpeg DLL files in the WPF project's bin folder, and then you should be able to run the editor, and debug it if you want. 
 
-The front-end uses .NET Framework 4.7.2, and the back-end uses .NET Standard 2.0
+The front-end uses .NET Framework 4.8, and the back-end uses .NET Standard 2.0
 
 ## Cross platform
 Currently there's only a WPF implementation, but I hope to switch to Avalonia at some point or MAUI. Most, if not all, of the important classes are located in the .NET Standard project, so it's relatively easy to port the app over to different platforms. However there's also SkiaSharp, FFmpeg, and soon NAudio (or some other audio processor library) dependencies too...

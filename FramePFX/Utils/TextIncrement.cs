@@ -27,16 +27,10 @@ namespace FramePFX.Utils {
                 return text;
             }
 
-            long max = 0;
-            foreach (string input in inputs) {
-                if (input != null && GetNumbered(input, out string left, out long number) && text.Equals(left)) {
-                    if (number >= max) {
-                        max = number + 1;
-                    }
-                }
-            }
-
-            return max < 1 ? text : $"{text} ({max})";
+            HashSet<string> available = new HashSet<string>(inputs);
+            if (!GetIncrementableString((x) => !available.Contains(x), text, out string output))
+                output = text;
+            return output;
         }
 
         public static bool GetNumbered(string input, out string left, out long number) {

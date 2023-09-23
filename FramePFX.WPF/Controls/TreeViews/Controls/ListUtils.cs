@@ -18,6 +18,17 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             return list[0];
         }
 
+        internal static object FirstNonNull(this IList list) {
+            if (list == null)
+                return null;
+            foreach (object value in list) {
+                if (value != null)
+                    return value;
+            }
+
+            return null;
+        }
+
         // How the list RemoveAll function actually works
         // Putting this here so i understand how it works property lol.
         // It seems like if all values match the predicate, i = 0, and j just sits there getting incremented at L8.

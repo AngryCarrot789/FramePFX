@@ -48,18 +48,10 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         public async Task LoadImageAsync(string file, bool setOnline = true) {
             SKBitmap loadedBitmap = await LoadBitmapAsync(file);
             if (this.bitmap != null || this.image != null) {
-#if DEBUG
-                try {
-                    this.bitmap?.Dispose();
-                    this.image?.Dispose();
-                }
-                finally {
-                    this.bitmap = null;
-                    this.image = null;
-                }
-#else // lazy
-                this.DisposeImageCareless();
-#endif
+                this.bitmap?.Dispose();
+                this.bitmap = null;
+                this.image?.Dispose();
+                this.image = null;
             }
 
             this.bitmap = loadedBitmap;

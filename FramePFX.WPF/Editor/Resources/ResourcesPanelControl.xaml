@@ -38,9 +38,11 @@
                 </HierarchicalDataTemplate>
             </FrameworkElement.Resources>
         </r:ResourceTreeView>
+        <!-- ap:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}" -->
+        
         <r:ResourceListControl Background="{DynamicResource PanelBackground3}"
                                ItemsSource="{Binding CurrentGroup.Items}" BorderThickness="0"
-                               ap:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}"
+                               ap:ObservableSelectionHelper.SelectedItems="{Binding SelectedItems}"
                                HorizontalContentAlignment="Stretch"
                                VerticalContentAlignment="Stretch"
                                Grid.Row="1"

@@ -229,7 +229,7 @@
                             d:DataContext="{d:DesignInstance pec:BasePropertyGroupViewModel}"
                             acs:AdvancedContextMenu.ContextProvider="{Binding}">
                         <DockPanel>
-                            <Grid DockPanel.Dock="Top" Margin="0,1,0,1" Background="{TemplateBinding Background}">
+                            <Grid DockPanel.Dock="Top" Margin="0,2,0,0" Background="{TemplateBinding Background}">
                                 <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}"
                                               ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
                                               Content="{TemplateBinding Header}" DockPanel.Dock="Top"
@@ -460,6 +460,7 @@
 
     <Style TargetType="{x:Type pe:PropertyEditorSelectionSlot}">
         <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItemsControl}}}"/>
+        <Setter Property="Padding" Value="0,1"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type pe:PropertyEditorSelectionSlot}">

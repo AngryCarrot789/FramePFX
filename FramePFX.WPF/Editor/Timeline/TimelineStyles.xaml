@@ -21,7 +21,7 @@
                     xmlns:kf="clr-namespace:FramePFX.Automation.ViewModels.Keyframe;assembly=FramePFX"
                     xmlns:b="clr-namespace:FramePFX.WPF.Shortcuts.Bindings"
                     xmlns:videoClips="clr-namespace:FramePFX.Editor.ViewModels.Timelines.VideoClips;assembly=FramePFX"
-                    xmlns:shortcuts="clr-namespace:FramePFX.WPF.Shortcuts"
+                    xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
                     xmlns:ctx="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Context;assembly=FramePFX"
                     mc:Ignorable="d">
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
@@ -191,7 +191,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="SelectedItem" Value="{Binding SelectedClip}"/>
-        <Setter Property="ap2:MultiSelectorHelper.SelectedItems" Value="{Binding SelectedClips}"/>
+        <Setter Property="ap2:ObservableSelectionHelper.SelectedItems" Value="{Binding SelectedClips, Mode=OneTime}"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -776,19 +776,19 @@
                                     </StackPanel>
                                 </DockPanel>
                             </Border>
-                            <Border shortcuts:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
+                            <Border sc:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
                                     Grid.Row="1" Grid.Column="0" BorderThickness="0"
                                     Background="{DynamicResource PanelBackground3}"
                                     BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
                             <ListBox x:Name="PART_TrackList"
-                                     shortcuts:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
+                                     sc:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
                                      acs:AdvancedContextMenu.ContextGenerator="{x:Static ctx:TrackContextGenerator.Instance}"
                                      Style="{StaticResource TrackListBoxStyle}"
                                      Grid.Row="1" Grid.Column="0"
                                      SelectionMode="Extended"
                                      ItemsSource="{Binding Tracks}"
                                      SelectedItem="{Binding PrimarySelectedTrack}"
-                                     ap2:MultiSelectorHelper.SelectedItems="{Binding SelectedTracks, Mode=OneTime}"
+                                     ap2:ObservableSelectionHelper.SelectedItems="{Binding SelectedTracks, Mode=OneTime}"
                                      Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="Transparent"
                                      BorderThickness="0" Padding="0" />
                             <tc:TimelineEditorControl x:Name="PART_TimelineEditor"
@@ -797,7 +797,7 @@
                                                       Grid.RowSpan="2" Grid.Column="2"
                                                       BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
                                                       MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                      shortcuts:UIInputManager.FocusPath="Application/Editor/Timeline/Surface"
+                                                      sc:UIInputManager.FocusPath="Application/Editor/Timeline/Surface"
                                                       UnitZoom="{Binding UnitZoom, Mode=OneWayToSource}">
                                 <b:ShortcutCommandCollection.Collection>
                                     <b:ShortcutCommandCollection>

@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -234,15 +235,26 @@ namespace FramePFX.WPF.AdvancedContextService {
 
         private void DispatchAction(string id) {
             DataContext context = this.GetDataContext();
-            this.Dispatcher.InvokeAsync(async () => {
-                try {
-                    await ActionManager.Instance.Execute(id, context);
-                }
-                finally {
-                    this.IsExecuting = false;
-                    this.UpdateVisuals();
-                }
-            }, DispatcherPriority.Render);
+            this.Dispatcher.BeginInvoke((Action) (() => this.ExecuteAction(id, context)), DispatcherPriority.Render);
+        }
+
+        private async void ExecuteAction(string id, DataContext context) {
+            try {
+                await ActionManager.Instance.Execute(id, context);
+            }
+#if !DEBUG
+            catch (Exception e) {
+                await Services.DialogService.ShowMessageExAsync(
+                    "Error",
+                    "An unexpected error occurred while processing action. " +
+                    "FramePFX may or may not crash now, but you should probably restart and save just in case",
+                    e.GetToString());
+            }
+#endif
+            finally {
+                this.IsExecuting = false;
+                this.UpdateVisuals();
+            }
         }
     }
 }

@@ -88,6 +88,9 @@ namespace FramePFX.WPF.PropertyEditing {
             if (e.NewValue is PropertyEditorRegistry editor) {
                 ((PropertyEditor) d).ApplicableItems = editor.Root.PropertyObjects;
             }
+            else {
+                d.ClearValue(ApplicableItemsProperty);
+            }
         }
 
         public override void OnApplyTemplate() {

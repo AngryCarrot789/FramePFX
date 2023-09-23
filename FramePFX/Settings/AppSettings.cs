@@ -13,7 +13,7 @@ namespace FramePFX.Settings {
         public static AppSettings Defaults() {
             return new AppSettings() {
                 UseVerticalTrackNumberDraggerBehaviour = false,
-                StopOnTogglePlay = true
+                StopOnTogglePlay = false
             };
         }
 

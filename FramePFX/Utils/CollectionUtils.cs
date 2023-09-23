@@ -42,6 +42,11 @@ namespace FramePFX.Utils {
             }
         }
 
+        public static void ClearAndAdd<T>(this ICollection<T> list, T value) {
+            list.Clear();
+            list.Add(value);
+        }
+
         public static void EnsureLength<T>(T[] array, int count) {
             if (array == null || array.Length != count) {
                 throw new Exception("Expected an array of size " + count + ". Got: " + (array != null ? array.Length.ToString() : "null"));
@@ -50,6 +55,12 @@ namespace FramePFX.Utils {
 
         public static void MoveItem<T>(this IList<T> list, int oldIndex, int newIndex) {
             T removedItem = list[oldIndex];
+            list.RemoveAt(oldIndex);
+            list.Insert(newIndex, removedItem);
+        }
+
+        public static void MoveItem(IList list, int oldIndex, int newIndex) {
+            object removedItem = list[oldIndex];
             list.RemoveAt(oldIndex);
             list.Insert(newIndex, removedItem);
         }

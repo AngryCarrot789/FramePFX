@@ -328,7 +328,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 return true;
             }
 
-            long minimum = frame;
+            long minimum = long.MaxValue;
             foreach (ClipViewModel clip in this.Clips) {
                 if (clip.FrameBegin > frame) {
                     if (clip.IntersectsFrameAt(frame)) {
@@ -336,18 +336,18 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                         return false;
                     }
                     else {
-                        minimum = Math.Min(clip.FrameBegin, frame);
+                        minimum = Math.Min(clip.FrameBegin, minimum);
                     }
                 }
             }
 
-            // should not be possible to be less... but just in case somehow
-            if (minimum == frame) {
+            if (minimum <= frame) {
                 span = new FrameSpan(frame, unlimitedDuration);
-                return true;
+            }
+            else {
+                span = FrameSpan.FromIndex(frame, minimum);
             }
 
-            span = FrameSpan.FromIndex(frame, minimum);
             return true;
         }
     }

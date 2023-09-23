@@ -81,7 +81,7 @@
                     </Grid>
                 </DockPanel>
             </Border>
-            <Border DockPanel.Dock="Bottom" Background="{DynamicResource ABrush.Tone4.Border.Static}" VerticalAlignment="Bottom" Height="20" BorderThickness="0 1 0 0">
+            <Border DockPanel.Dock="Bottom" Background="{DynamicResource ABrush.Tone4.Border.Static}" VerticalAlignment="Bottom" Height="20" BorderThickness="0">
                 <!-- Status bar -->
                 <StackPanel Orientation="Horizontal">
                     <TextBlock VerticalAlignment="Center" x:Name="NotificationBarTextBlock" Padding="3,0" />

@@ -14,6 +14,7 @@ namespace FramePFX.Editor.Actions {
 
             string newName = TextIncrement.GetNextText(timeline.Tracks.OfType<VideoTrackViewModel>().Select(x => x.DisplayName), "Video Track");
             VideoTrackViewModel track = await timeline.InsertNewVideoTrackAction(index);
+            // timeline.SelectedTracks.ClearAndAdd(track);
             track.DisplayName = newName;
             return true;
         }
@@ -27,6 +28,7 @@ namespace FramePFX.Editor.Actions {
 
             string newName = TextIncrement.GetNextText(timeline.Tracks.OfType<AudioTrackViewModel>().Select(x => x.DisplayName), "Audio Track");
             AudioTrackViewModel track = await timeline.InsertNewAudioTrackAction(index);
+            // timeline.SelectedTracks.ClearAndAdd(track);
             track.DisplayName = newName;
             return true;
         }

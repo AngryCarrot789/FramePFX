@@ -90,8 +90,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public TimelineEditorControl() {
             this.HorizontalContentAlignment = HorizontalAlignment.Stretch;
             ScrollViewer.SetCanContentScroll(this, false);
-            this.Loaded += (sender, args) => {
-            };
         }
 
         public IEnumerable<TimelineTrackControl> GetTrackContainers() {

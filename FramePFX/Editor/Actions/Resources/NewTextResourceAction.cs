@@ -43,6 +43,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 return true;
             }
 
+            group.Manager.SelectedItems.Add(textStyle);
             if (manager.Project != null) {
                 TimelineViewModel timeline = manager.Project.Timeline;
                 VideoTrackViewModel track;
@@ -56,8 +57,10 @@ namespace FramePFX.Editor.Actions.Resources {
                 textClip.FrameSpan = span;
                 textClip.AddEffect(new MotionEffect());
                 textClip.DisplayName = name;
+                textClip.Text = "Sample Text";
                 TextClipViewModel clip = (TextClipViewModel) ClipRegistry.Instance.CreateViewModelFromModel(textClip);
                 track.AddClip(clip);
+                await timeline.DoAutomationTickAndRender();
             }
 
             return true;

@@ -73,7 +73,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 list.Add(new ActionContextEntry(folder, "actions.resources.newitem.NewText", "New Text", "Create a new text resource, and clip"));
                 list.Add(new CommandContextEntry("New ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));
                 list.Add(new CommandContextEntry("New Image", manager.CreateResourceCommand, nameof(ResourceImage)));
-                list.Add(new CommandContextEntry("New Composition Sequence", manager.CreateResourceCommand, nameof(ResourceCompositionSeq)));
+                list.Add(new CommandContextEntry("New Composition Sequence", manager.CreateResourceCommand, nameof(ResourceComposition)));
             }
         }
     }

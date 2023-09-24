@@ -274,7 +274,7 @@ namespace FramePFX.WPF {
 
             await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
             ((EditorMainWindow)this.MainWindow)?.VPViewBox.FitContentToCenter();
-            await editor.ActiveProject.Timeline.DoAutomationTickAndRender();
+            await editor.ActiveProject.Timeline.DoAutomationTickAndRenderToPlayback();
         }
 
         public static void PlaySineWave() {

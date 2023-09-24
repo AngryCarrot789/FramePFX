@@ -77,10 +77,10 @@ namespace FramePFX.Editor.Actions.Resources {
                     textClip.AddEffect(new MotionEffect());
                     textClip.DisplayName = name;
                     textClip.Text = "Sample Text";
-                    TextClipViewModel clip = (TextClipViewModel) ClipRegistry.Instance.CreateViewModelFromModel(textClip);
+                    TextClipViewModel clip = (TextClipViewModel) ClipFactory.Instance.CreateViewModelFromModel(textClip);
                     track.AddClip(clip);
                     ClipViewModel.SetSelectedAndShowPropertyEditor(clip);
-                    await timeline.DoAutomationTickAndRender();
+                    await timeline.DoAutomationTickAndRenderToPlayback();
                 }
             }
 

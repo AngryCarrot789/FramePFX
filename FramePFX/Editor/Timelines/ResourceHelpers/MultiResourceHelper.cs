@@ -34,6 +34,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             this.ResourceMap = new Dictionary<string, ResourcePathEntry>();
             clip.TrackChanged += this.OnTrackChanged;
             clip.TrackTimelineChanged += this.OnTrackTimelineChanged;
+            clip.TrackTimelineProjectChanged += this.OnTrackTimelineProjectChanged;
             clip.SerialiseExtension += (c, data) => this.WriteToRBE(data);
             clip.DeserialiseExtension += (c, data) => this.ReadFromRBE(data);
         }
@@ -53,6 +54,10 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
 
         private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
             this.SetManager(timeline?.Project?.ResourceManager);
+        }
+
+        private void OnTrackTimelineProjectChanged(Project oldproject, Project newproject) {
+            this.SetManager(newproject?.ResourceManager);
         }
 
         private void SetManager(ResourceManager manager) {

@@ -17,7 +17,7 @@ namespace FramePFX.Editor.Timelines.Effects {
         /// <summary>
         /// This clip's factory ID, used for creating a new instance dynamically via reflection
         /// </summary>
-        public string FactoryId => EffectRegistry.Instance.GetTypeIdForModel(this.GetType());
+        public string FactoryId => EffectFactory.Instance.GetTypeIdForModel(this.GetType());
 
         public AutomationData AutomationData { get; }
 

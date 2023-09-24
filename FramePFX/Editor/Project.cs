@@ -46,9 +46,10 @@ namespace FramePFX.Editor {
 
             this.ResourceManager = new ResourceManager(this);
             this.Timeline = new Timeline() {
-                Project = this,
                 MaxDuration = 5000L
             };
+
+            this.Timeline.SetProject(this);
         }
 
         public void WriteToRBE(RBEDictionary data) {

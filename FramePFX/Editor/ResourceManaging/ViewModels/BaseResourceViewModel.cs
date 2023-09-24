@@ -59,17 +59,24 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             obj.parent = parent;
         }
 
-        public static void PostSetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent) {
+        public static void PostSetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent, bool myParent) {
             obj.RaisePropertyChanged(nameof(obj.Parent));
-            obj.OnParentChainChanged();
+            obj.OnParentChainChanged(myParent);
         }
 
         public static void SetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent) {
             PreSetParent(obj, parent);
-            PostSetParent(obj, parent);
+            PostSetParent(obj, parent, true);
         }
 
-        protected internal virtual void OnParentChainChanged() {
+        /// <summary>
+        /// Invoked when a parent in our hierarchy has changed (may not be our actual <see cref="Parent"/>)
+        /// </summary>
+        /// <param name="myParent">
+        /// True when our actual parent changed, false when the parent changed
+        /// higher up our hierarchy (e.g. the parent of our parent)
+        /// </param>
+        protected internal virtual void OnParentChainChanged(bool myParent) {
         }
 
         public virtual void SetManager(ResourceManagerViewModel newManager) {
@@ -83,7 +90,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 return false;
             }
 
-            if (this is ResourceItemViewModel resource) {
+            if (this is ResourceItemViewModel) {
                 if (await Services.DialogService.ShowDialogAsync("Delete resource?", $"Delete resource{(this.DisplayName != null ? $"'{this.DisplayName}'" : "")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
                     return false;
             }
@@ -94,7 +101,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
 
 #if DEBUG
-            this.Parent.DisposeAndRemoveItemAt(index);
+            this.Parent.RemoveItemAndDisposeAt(index);
 #else
             try
             {

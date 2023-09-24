@@ -98,7 +98,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.RenameTrackCommand = new AsyncRelayCommand(this.RenameAsync);
 
             for (int i = 0; i < model.Clips.Count; i++) {
-                this.InsertClip(i, ClipRegistry.Instance.CreateViewModelFromModel(model.Clips[i]), false);
+                this.InsertClip(i, ClipFactory.Instance.CreateViewModelFromModel(model.Clips[i]), false);
             }
         }
 
@@ -107,7 +107,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public virtual void OnProjectModified() => this.Project?.OnProjectModified();
 
         public ClipViewModel CreateClip(Clip model, bool addToModel = true) {
-            ClipViewModel vm = ClipRegistry.Instance.CreateViewModelFromModel(model);
+            ClipViewModel vm = ClipFactory.Instance.CreateViewModelFromModel(model);
             this.AddClip(vm, addToModel);
             return vm;
         }
@@ -282,10 +282,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        public static void RaiseTimelineChanged(TrackViewModel track) {
+        public static void OnTimelineChanged(TrackViewModel track) {
             track.RaisePropertyChanged(nameof(Timeline));
             track.RaisePropertyChanged(nameof(Project));
             track.RaisePropertyChanged(nameof(Editor));
+        }
+
+        public static void OnTimelineProjectChanged(TrackViewModel track, ProjectViewModel oldProject, ProjectViewModel newProject) {
+            track.RaisePropertyChanged(nameof(track.Project));
+            track.RaisePropertyChanged(nameof(track.Editor));
         }
 
         public async Task<bool> RenameAsync() {

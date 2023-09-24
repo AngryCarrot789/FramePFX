@@ -34,6 +34,11 @@ namespace FramePFX.Editor.Timelines {
         event TimelineChangedEventHandler TrackTimelineChanged;
 
         /// <summary>
+        /// An event fired when the out track's timeline's project changes
+        /// </summary>
+        event ProjectChangedEventHandler TrackTimelineProjectChanged;
+
+        /// <summary>
         /// An event fired when the user seeks a specific frame on the timeline. This is not fired during playback
         /// </summary>
         event FrameSeekedEventHandler FrameSeeked;

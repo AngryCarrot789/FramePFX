@@ -49,6 +49,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             this.onlineStateChangedHandler = this.OnOnlineStateChangedInternal;
             clip.TrackChanged += this.OnTrackChanged;
             clip.TrackTimelineChanged += this.OnTrackTimelineChanged;
+            clip.TrackTimelineProjectChanged += this.OnTrackTimelineProjectChanged;
             clip.SerialiseExtension += (c, data) => this.WriteToRBE(data);
             clip.DeserialiseExtension += (c, data) => this.ReadFromRBE(data);
         }
@@ -67,8 +68,6 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         }
 
         private void OnTrackChanged(Track oldTrack, Track newTrack) {
-            if (this.ResourcePath == null)
-                return;
             this.UpdateManager(newTrack?.Timeline?.Project?.ResourceManager);
         }
 
@@ -76,12 +75,13 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             this.UpdateManager(timeline?.Project?.ResourceManager);
         }
 
+        private void OnTrackTimelineProjectChanged(Project oldproject, Project newproject) {
+            this.UpdateManager(newproject?.ResourceManager);
+        }
+
         private void UpdateManager(ResourceManager manager) {
-            if (this.ResourcePath == null)
-                return;
-            if (manager != this.ResourcePath.Manager) {
+            if (this.ResourcePath != null && manager != this.ResourcePath.Manager)
                 this.ResourcePath.SetManager(manager);
-            }
         }
 
         /// <summary>

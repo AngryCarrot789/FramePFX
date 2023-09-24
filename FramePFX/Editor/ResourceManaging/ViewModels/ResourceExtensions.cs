@@ -7,7 +7,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         public static BaseResourceViewModel CreateViewModel(this BaseResourceObject obj) {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
-            return ResourceTypeRegistry.Instance.CreateViewModelFromModel(obj);
+            return ResourceTypeFactory.Instance.CreateViewModelFromModel(obj);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

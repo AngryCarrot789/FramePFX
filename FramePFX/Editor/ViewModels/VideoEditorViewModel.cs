@@ -145,7 +145,7 @@ namespace FramePFX.Editor.ViewModels {
                 this.IsEditorEnabled = true;
             }
 
-            await timeline.DoAutomationTickAndRender(false);
+            await timeline.DoAutomationTickAndRenderToPlayback(false);
         }
 
         private void OnProjectModified(object sender, string property) {

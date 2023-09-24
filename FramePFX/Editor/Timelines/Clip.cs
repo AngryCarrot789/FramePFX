@@ -40,7 +40,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// This clip's factory ID, used for creating a new instance dynamically via reflection
         /// </summary>
-        public string FactoryId => ClipRegistry.Instance.GetTypeIdForModel(this.GetType());
+        public string FactoryId => ClipFactory.Instance.GetTypeIdForModel(this.GetType());
 
         public bool IsDisposing { get; private set; }
 
@@ -80,6 +80,7 @@ namespace FramePFX.Editor.Timelines {
 
         public event TrackChangedEventHandler TrackChanged;
         public event TimelineChangedEventHandler TrackTimelineChanged;
+        public event ProjectChangedEventHandler TrackTimelineProjectChanged;
         public event FrameSeekedEventHandler FrameSeeked;
         public event WriteToRBEEventHandler SerialiseExtension;
         public event ReadFromRBEEventHandler DeserialiseExtension;
@@ -119,6 +120,10 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="newTimeline">The new timeline, associated with our track</param>
         protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
             this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
+        }
+
+        protected virtual void OnTrackTimelineProjectChanged(Project oldProject, Project newProject) {
+            this.TrackTimelineProjectChanged?.Invoke(oldProject, newProject);
         }
 
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
@@ -169,7 +174,7 @@ namespace FramePFX.Editor.Timelines {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Effect resource dictionary contained a non dictionary child: {entry.Type}");
                 string factoryId = dictionary.GetString(nameof(BaseEffect.FactoryId));
-                BaseEffect effect = EffectRegistry.Instance.CreateModel(factoryId);
+                BaseEffect effect = EffectFactory.Instance.CreateModel(factoryId);
                 effect.ReadFromRBE(dictionary.GetDictionary("Data"));
                 BaseEffect.AddEffectToClip(this, effect);
             }
@@ -274,7 +279,7 @@ namespace FramePFX.Editor.Timelines {
 
         public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
             string id = dictionary.GetString(nameof(FactoryId));
-            Clip clip = ClipRegistry.Instance.CreateModel(id);
+            Clip clip = ClipFactory.Instance.CreateModel(id);
             clip.ReadFromRBE(dictionary.GetDictionary("Data"));
             return clip;
         }
@@ -306,6 +311,10 @@ namespace FramePFX.Editor.Timelines {
 
         public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
             clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
+        }
+
+        public static void OnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
+            clip.OnTrackTimelineProjectChanged(oldProject, newProject);
         }
 
         #endregion

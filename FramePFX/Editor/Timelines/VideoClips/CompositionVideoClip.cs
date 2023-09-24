@@ -6,14 +6,14 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class CompositionVideoClip : VideoClip, IResourceClip<ResourceCompositionSeq> {
+    public class CompositionVideoClip : VideoClip, IResourceClip<ResourceComposition> {
         BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
-        public ResourceHelper<ResourceCompositionSeq> ResourceHelper { get; }
+        public ResourceHelper<ResourceComposition> ResourceHelper { get; }
 
         private CancellationTokenSource tokenSource;
 
         public CompositionVideoClip() {
-            this.ResourceHelper = new ResourceHelper<ResourceCompositionSeq>(this);
+            this.ResourceHelper = new ResourceHelper<ResourceComposition>(this);
         }
 
         public override Vector2? GetSize(RenderContext rc) {
@@ -22,7 +22,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override bool OnBeginRender(long frame) {
             Project project;
-            if (!this.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource) || (project = resource.Timeline.Project) == null) {
+            if (!this.ResourceHelper.TryGetResource(out ResourceComposition resource) || (project = resource.Timeline.Project) == null) {
                 return false;
             }
 
@@ -32,7 +32,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override Task OnEndRender(RenderContext rc, long frame) {
-            if (!this.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource)) {
+            if (!this.ResourceHelper.TryGetResource(out ResourceComposition resource)) {
                 return Task.CompletedTask;
             }
 

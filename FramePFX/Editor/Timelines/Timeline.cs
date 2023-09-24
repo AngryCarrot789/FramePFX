@@ -31,7 +31,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// The project associated with this timeline
         /// </summary>
-        public Project Project { get; set; }
+        public Project Project { get; private set; }
 
         /// <summary>
         /// The current play head
@@ -55,6 +55,29 @@ namespace FramePFX.Editor.Timelines {
         public Timeline() {
             this.tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
+        }
+
+        public void SetProject(Project project) {
+            Project oldProject = this.Project;
+            if (ReferenceEquals(oldProject, project)) {
+                return;
+            }
+
+            this.OnProjectChanging(project);
+            this.Project = project;
+            foreach (Track track in this.Tracks) {
+                Track.OnTimelineProjectChanged(track, oldProject, project);
+            }
+
+            this.OnProjectChanged(oldProject);
+        }
+
+        protected virtual void OnProjectChanging(Project newProject) {
+
+        }
+
+        protected virtual void OnProjectChanged(Project oldProject) {
+
         }
 
         public void UpdateAutomationBackingStorage() {
@@ -85,10 +108,10 @@ namespace FramePFX.Editor.Timelines {
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Tracks));
             foreach (Track track in this.tracks) {
-                if (!(track.RegistryId is string registryId))
+                if (!(track.FactoryId is string registryId))
                     throw new Exception("Unknown track type: " + track.GetType());
                 RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(Track.RegistryId), registryId);
+                dictionary.SetString(nameof(Track.FactoryId), registryId);
                 track.WriteToRBE(dictionary.CreateDictionary("Data"));
             }
         }
@@ -104,8 +127,8 @@ namespace FramePFX.Editor.Timelines {
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             this.AutomationData.UpdateBackingStorage();
             foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).OfType<RBEDictionary>()) {
-                string registryId = dictionary.GetString(nameof(Track.RegistryId));
-                Track track = TrackRegistry.Instance.CreateModel(registryId);
+                string registryId = dictionary.GetString(nameof(Track.FactoryId));
+                Track track = TrackFactory.Instance.CreateModel(registryId);
                 track.ReadFromRBE(dictionary.GetDictionary("Data"));
                 this.AddTrack(track);
             }

@@ -4,7 +4,7 @@
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-                    xmlns:converters="clr-namespace:FramePFX.WPF.Converters"
+                    xmlns:c="clr-namespace:FramePFX.WPF.Converters"
                     xmlns:ctrl="clr-namespace:FramePFX.WPF.Controls"
                     xmlns:tc="clr-namespace:FramePFX.WPF.Editor.Timeline.Controls"
                     xmlns:cx="clr-namespace:FramePFX.Editor.Contexts;assembly=FramePFX"
@@ -24,7 +24,7 @@
                     xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
                     xmlns:ctx="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Context;assembly=FramePFX"
                     mc:Ignorable="d">
-    <converters:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
+    <c:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
     <Style TargetType="{x:Type ctrl:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
 
     <Style TargetType="{x:Type tc:TimelinePlayHeadControl}">
@@ -428,7 +428,7 @@
                                       HorizontalScrollBarVisibility="Visible"
                                       VerticalScrollBarVisibility="Auto"
                                       PanningMode="Both"
-                                      converters:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
+                                      c:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
                                       Style="{StaticResource TimelineScrollViewerStyle}"
                                       SnapsToDevicePixels="True">
                             <!--
@@ -550,7 +550,7 @@
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
                             <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
-                                                   DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static converters:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
+                                                   DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static c:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
                                                    TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                                    Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                                    HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
@@ -636,7 +636,7 @@
                     <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="0" SnapsToDevicePixels="true">
                         <ScrollViewer CanContentScroll="False"
                                       x:Name="PART_ScrollViewer" Focusable="false" Padding="{TemplateBinding Padding}"
-                                      converters:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
+                                      c:ScrollBinder.VerticalBindGroup="TimelineScrollGroup"
                                       ap2:HorizontalScrolling.UseHorizontalScrolling="True">
                             <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="0"/>
                         </ScrollViewer>
@@ -734,7 +734,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineControl}">
-                    <DockPanel d:DataContext="{d:DesignInstance ctl:TimelineViewModel}">
+                    <DockPanel d:DataContext="{d:DesignInstance ctl:TimelineViewModel}" IsEnabled="{Binding Project, Converter={x:Static c:NullToBoolConverter.NullToFalse}}">
                         <Border DockPanel.Dock="Bottom" Height="28" Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
                             <StackPanel Orientation="Horizontal" Margin="2">

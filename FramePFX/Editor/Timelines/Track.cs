@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.RBC;
@@ -25,9 +26,9 @@ namespace FramePFX.Editor.Timelines {
         public IReadOnlyList<Clip> Clips => this.clips;
 
         /// <summary>
-        /// This track's registry ID, used to create instances dynamically through the <see cref="TrackRegistry"/>
+        /// This track's registry ID, used to create instances dynamically through the <see cref="TrackFactory"/>
         /// </summary>
-        public string RegistryId => TrackRegistry.Instance.GetTypeIdForModel(this.GetType());
+        public string FactoryId => TrackFactory.Instance.GetTypeIdForModel(this.GetType());
 
         /// <summary>
         /// A readable layer name
@@ -77,6 +78,15 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
+        public static void OnTimelineProjectChanged(Track track, Project oldProject, Project newProject) {
+            track.OnProjectChanging(oldProject, newProject);
+            foreach (Clip clip in track.clips) {
+                Clip.OnTrackTimelineProjectChanged(clip, oldProject, newProject);
+            }
+
+            track.OnProjectChanged(oldProject, newProject);
+        }
+
         /// <summary>
         /// Called when this track is about to be moved to a new timeline. <see cref="Timeline"/> is
         /// the previous timeline, and <see cref="newTimeline"/> is the new one
@@ -90,7 +100,15 @@ namespace FramePFX.Editor.Timelines {
         /// Called when this track is moved from one timeline to another
         /// </summary>
         /// <param name="oldTimeline">The previous timeline. May be null, meaning this track was added to a timeline</param>
-        public virtual void OnTimelineChanged(Timeline oldTimeline) {
+        protected virtual void OnTimelineChanged(Timeline oldTimeline) {
+
+        }
+
+        protected virtual void OnProjectChanging(Project oldProject, Project newProject) {
+
+        }
+
+        protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
 
         }
 
@@ -208,7 +226,35 @@ namespace FramePFX.Editor.Timelines {
             newTrack.AddClip(clip);
         }
 
-        public abstract Track CloneCore();
+        protected abstract Track NewInstanceForClone();
+
+        protected virtual void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
+
+        }
+
+        protected virtual void LoadDataIntoClonePost(Track clone, TrackCloneFlags flags) {
+
+        }
+
+        public Track Clone(TrackCloneFlags flags = TrackCloneFlags.DefaultFlags) {
+            Track clone = this.NewInstanceForClone();
+            clone.DisplayName = this.DisplayName;
+            clone.Height = this.Height;
+            clone.TrackColour = this.TrackColour;
+            this.LoadDataIntoClonePre(clone, flags);
+            if ((flags & TrackCloneFlags.AutomationData) != 0) {
+                this.AutomationData.LoadDataIntoClone(clone.AutomationData);
+            }
+
+            if ((flags & TrackCloneFlags.CloneClips) != 0) {
+                foreach (Clip clip in this.Clips) {
+                    clone.AddClip(clip.Clone());
+                }
+            }
+
+            this.LoadDataIntoClonePost(clone, flags);
+            return clone;
+        }
 
         public virtual void WriteToRBE(RBEDictionary data) {
             data.SetString(nameof(this.DisplayName), this.DisplayName);

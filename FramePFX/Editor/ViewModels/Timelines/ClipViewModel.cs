@@ -199,7 +199,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Effects = new ReadOnlyObservableCollection<BaseEffectViewModel>(this.effects);
             this.skipUpdatePropertyEditor = true;
             foreach (BaseEffect fx in model.Effects) {
-                this.AddEffect(EffectRegistry.Instance.CreateViewModelFromModel(fx), false);
+                this.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(fx), false);
             }
             this.skipUpdatePropertyEditor = false;
 

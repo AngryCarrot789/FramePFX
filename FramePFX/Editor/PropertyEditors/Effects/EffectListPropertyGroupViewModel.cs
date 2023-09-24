@@ -25,7 +25,7 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             this.AddMotionEffectCommand = new RelayCommand(() => {
                 if (!this.CanExecuteSingleSelection())
                     return;
-                this.handler.AddEffect(EffectRegistry.Instance.CreateViewModelFromModel(new MotionEffect()));
+                this.handler.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(new MotionEffect()));
             }, this.CanExecuteSingleSelection);
         }
 

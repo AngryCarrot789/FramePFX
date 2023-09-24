@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
+using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
@@ -142,8 +143,15 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 case nameof(ResourceFolder):
                     resourceItem = new ResourceFolder() { DisplayName = "New Folder" };
                     break;
-                case nameof(ResourceCompositionSeq):
-                    resourceItem = new ResourceCompositionSeq() { DisplayName = "New Composition Sequence" };
+                case nameof(ResourceComposition):
+                    resourceItem = new ResourceComposition() { DisplayName = "New Composition Sequence" };
+                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack() {
+                        DisplayName = "Track 1"
+                    });
+
+                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack() {
+                        DisplayName = "Track 2"
+                    });
                     break;
                 default:
                     await Services.DialogService.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");

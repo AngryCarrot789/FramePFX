@@ -115,7 +115,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         public virtual void OnInvalidateRender(bool schedule = true) {
-            this.Track?.Timeline.DoAutomationTickAndRender(schedule);
+            this.Track?.Timeline.DoAutomationTickAndRenderToPlayback(schedule);
         }
 
         public override void Dispose() {

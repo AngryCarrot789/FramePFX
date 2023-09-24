@@ -110,16 +110,6 @@ namespace FramePFX.WPF.Converters {
             set => base.FalseValue = value;
         }
 
-        public new Brush UnsetValue {
-            get => (Brush) base.UnsetValue;
-            set => base.UnsetValue = value;
-        }
-
-        public new Brush NonBoolValue {
-            get => (Brush) base.NonBoolValue;
-            set => base.NonBoolValue = value;
-        }
-
         public BoolToBrushConverter() {
             this.TrueValue = null;
             this.FalseValue = null;
@@ -137,19 +127,26 @@ namespace FramePFX.WPF.Converters {
             set => base.FalseValue = value;
         }
 
-        public new Color UnsetValue {
-            get => (Color) base.UnsetValue;
-            set => base.UnsetValue = value;
-        }
-
-        public new Color NonBoolValue {
-            get => (Color) base.NonBoolValue;
-            set => base.NonBoolValue = value;
-        }
-
         public BoolToColourConverter() {
             this.TrueValue = Colors.Black;
             this.FalseValue = Colors.Black;
+        }
+    }
+
+    public class BoolToDoubleConverter : BoolConverter {
+        public new double TrueValue {
+            get => (double) base.TrueValue;
+            set => base.TrueValue = value;
+        }
+
+        public new double FalseValue {
+            get => (double) base.FalseValue;
+            set => base.FalseValue = value;
+        }
+
+        public BoolToDoubleConverter() {
+            this.TrueValue = 1.0d;
+            this.FalseValue = 0.0d;
         }
     }
 }

@@ -156,6 +156,10 @@ namespace FramePFX.Utils {
             return this.WithBeginIndexClamped(this.Begin + value, lowerLimit);
         }
 
+        public FrameSpan AddBegin(long value) {
+            return new FrameSpan(this.Begin + value, this.Duration);
+        }
+
         /// <summary>
         /// Returns a frame span whose <see cref="Begin"/> and <see cref="Duration"/> are non-negative.
         /// If none of them are negative, the current instance is returned

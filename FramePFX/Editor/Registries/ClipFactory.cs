@@ -9,10 +9,10 @@ namespace FramePFX.Editor.Registries {
     /// <summary>
     /// The registry for clips; audio, video, etc
     /// </summary>
-    public class ClipRegistry : ModelRegistry<Clip, ClipViewModel> {
-        public static ClipRegistry Instance { get; } = new ClipRegistry();
+    public class ClipFactory : ModelFactory<Clip, ClipViewModel> {
+        public static ClipFactory Instance { get; } = new ClipFactory();
 
-        private ClipRegistry() {
+        private ClipFactory() {
             #region video
 
             // clipvideo_type

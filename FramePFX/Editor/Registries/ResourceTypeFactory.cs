@@ -7,10 +7,10 @@ namespace FramePFX.Editor.Registries {
     /// <summary>
     /// The registry for resource items (including the resource folder)
     /// </summary>
-    public class ResourceTypeRegistry : ModelRegistry<BaseResourceObject, BaseResourceViewModel> {
-        public static ResourceTypeRegistry Instance { get; } = new ResourceTypeRegistry();
+    public class ResourceTypeFactory : ModelFactory<BaseResourceObject, BaseResourceViewModel> {
+        public static ResourceTypeFactory Instance { get; } = new ResourceTypeFactory();
 
-        private ResourceTypeRegistry() {
+        private ResourceTypeFactory() {
             base.Register<ResourceFolder, ResourceFolderViewModel>("r_group");
             base.Register<ResourceColour, ResourceColourViewModel>("r_argb");
             base.Register<ResourceImage, ResourceImageViewModel>("r_img");
@@ -18,7 +18,7 @@ namespace FramePFX.Editor.Registries {
             base.Register<ResourceMpegMedia, ResourceMpegMediaViewModel>("r_media");
             base.Register<ResourceTextStyle, ResourceTextStyleViewModel>("r_txt");
             base.Register<ResourceTextFile, ResourceTextFileViewModel>("r_txtfile");
-            base.Register<ResourceCompositionSeq, ResourceCompositionViewModel>("r_comp");
+            base.Register<ResourceComposition, ResourceCompositionViewModel>("r_comp");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : BaseResourceObject where TViewModel : BaseResourceViewModel {

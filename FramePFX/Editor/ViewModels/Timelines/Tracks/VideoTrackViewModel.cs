@@ -259,7 +259,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     clip.ResourceHelper.SetTargetResourceId(text.UniqueId);
                     newClip = clip;
                 }
-                else if (resource.Model is ResourceCompositionSeq comp) {
+                else if (resource.Model is ResourceComposition comp) {
                     CompositionVideoClip clip = new CompositionVideoClip() {
                         FrameSpan = new FrameSpan(frame, defaultDuration),
                         DisplayName = "Composition clip"
@@ -331,7 +331,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             VideoEditorViewModel editor; // slight performance helper
             if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
-                this.Timeline.DoAutomationTickAndRender(true);
+                this.Timeline.DoAutomationTickAndRenderToPlayback(true);
             }
         }
 

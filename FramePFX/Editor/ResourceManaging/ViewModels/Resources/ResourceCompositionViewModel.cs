@@ -1,19 +1,25 @@
+using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
     public class ResourceCompositionViewModel : ResourceItemViewModel {
-        public new ResourceCompositionSeq Model => (ResourceCompositionSeq) base.Model;
+        public new ResourceComposition Model => (ResourceComposition) base.Model;
 
         public TimelineViewModel Timeline { get; }
 
-        public ResourceCompositionViewModel(ResourceCompositionSeq model) : base(model) {
+        public ResourceCompositionViewModel(ResourceComposition model) : base(model) {
             this.Timeline = new TimelineViewModel(model.Timeline);
         }
 
         public override void SetManager(ResourceManagerViewModel manager) {
             base.SetManager(manager);
-            this.Timeline.Project = manager?.Project;
+            this.Timeline.SetProject(manager?.Project);
+        }
+
+        public override Task<bool> DeleteSelfAction() {
+            return base.DeleteSelfAction();
         }
     }
 }

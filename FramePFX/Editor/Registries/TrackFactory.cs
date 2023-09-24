@@ -7,10 +7,10 @@ namespace FramePFX.Editor.Registries {
     /// <summary>
     /// The registry for tracks; audio, video, etc
     /// </summary>
-    public class TrackRegistry : ModelRegistry<Track, TrackViewModel> {
-        public static TrackRegistry Instance { get; } = new TrackRegistry();
+    public class TrackFactory : ModelFactory<Track, TrackViewModel> {
+        public static TrackFactory Instance { get; } = new TrackFactory();
 
-        private TrackRegistry() {
+        private TrackFactory() {
             this.Register<VideoTrack, VideoTrackViewModel>("t_vid");
             this.Register<AudioTrack, AudioTrackViewModel>("t_aud");
         }

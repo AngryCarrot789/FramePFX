@@ -34,14 +34,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 BaseResourceViewModel viewModel = item.CreateViewModel();
                 PreSetParent(viewModel, this);
                 this.items.Add(viewModel);
-                PostSetParent(viewModel, this);
+                PostSetParent(viewModel, this, true);
             }
         }
 
-        protected internal override void OnParentChainChanged() {
-            base.OnParentChainChanged();
+        protected internal override void OnParentChainChanged(bool myParent) {
+            base.OnParentChainChanged(myParent);
             foreach (BaseResourceViewModel obj in this.items) {
-                obj.OnParentChainChanged();
+                obj.OnParentChainChanged(false);
             }
         }
 
@@ -67,7 +67,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.items.RemoveAt(srcIndex);
             PreSetParent(item, target);
             target.items.Insert(dstIndex, item);
-            PostSetParent(item, target);
+            PostSetParent(item, target, true);
         }
 
         public void MoveItemTo(int srcIndex, ResourceFolderViewModel target) {
@@ -90,7 +90,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 this.Model.InsertItem(index, item.Model);
             PreSetParent(item, this);
             this.items.Insert(index, item);
-            PostSetParent(item, this);
+            PostSetParent(item, this, true);
             item.SetManager(this.Manager);
         }
 
@@ -140,7 +140,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
                     try {
                         if (dispose) {
-                            this.DisposeAndRemoveItemAt(index, removeFromModel, unregisterHierarcy);
+                            this.RemoveItemAndDisposeAt(index, removeFromModel, unregisterHierarcy);
                         }
                         else {
                             this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
@@ -157,7 +157,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return count;
         }
 
-        public void DisposeAndRemoveItemAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true) {
+        public void RemoveItemAndDisposeAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true) {
             BaseResourceViewModel item = this.items[index];
             using (ErrorList list = new ErrorList()) {
                 try {
@@ -184,7 +184,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             using (ErrorList list = new ErrorList("Exception while disposing child items")) {
                 for (int i = this.items.Count - 1; i >= 0; i--) {
                     try {
-                        this.DisposeAndRemoveItemAt(i, unregisterHierarcy:unregisterHierarcy);
+                        this.RemoveItemAndDisposeAt(i, unregisterHierarcy:unregisterHierarcy);
                     }
                     catch (Exception e) {
                         list.Add(e);

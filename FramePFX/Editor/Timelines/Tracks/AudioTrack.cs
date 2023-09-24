@@ -82,21 +82,15 @@ namespace FramePFX.Editor.Timelines.Tracks {
             }
         }
 
-        public override Track CloneCore() {
-            AudioTrack track = new AudioTrack() {
-                Volume = this.Volume,
-                Height = this.Height,
-                TrackColour = this.TrackColour,
-                DisplayName = TextIncrement.GetNextText(this.DisplayName)
-            };
+        protected override Track NewInstanceForClone() {
+            return new AudioTrack();
+        }
 
-            foreach (Clip clip in this.Clips) {
-                // assert clip is AudioClipModel
-                // assert CanAccept(clip)
-                track.AddClip(clip.Clone());
-            }
-
-            return track;
+        protected override void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
+            base.LoadDataIntoClonePre(clone, flags);
+            AudioTrack track = (AudioTrack) clone;
+            track.Volume = this.Volume;
+            track.IsMuted = this.IsMuted;
         }
 
         public override bool IsClipTypeAcceptable(Clip clip) {

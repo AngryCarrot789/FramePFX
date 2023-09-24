@@ -20,7 +20,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <summary>
         /// This resource object's registry ID, used to reflectively create an instance of it while deserializing data
         /// </summary>
-        public string FactoryId => ResourceTypeRegistry.Instance.GetTypeIdForModel(this.GetType());
+        public string FactoryId => ResourceTypeFactory.Instance.GetTypeIdForModel(this.GetType());
 
         public string DisplayName { get; set; }
 
@@ -35,7 +35,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <returns>A cloned and fully registered but offline resource</returns>
         /// <exception cref="Exception">Internal error with the resource registry; cloned item type does not match the original item</exception>
         public static BaseResourceObject Clone(BaseResourceObject item) {
-            BaseResourceObject clone = ResourceTypeRegistry.Instance.CreateModel(item.FactoryId);
+            BaseResourceObject clone = ResourceTypeFactory.Instance.CreateModel(item.FactoryId);
             if (clone.GetType() != item.GetType())
                 throw new Exception("Cloned object type does not match the item type");
             clone.LoadCloneDataFromObject(item);
@@ -80,7 +80,7 @@ namespace FramePFX.Editor.ResourceManaging {
             if (string.IsNullOrEmpty(registryId))
                 throw new Exception("Missing the registry ID for item");
             RBEDictionary data = dictionary.GetDictionary("Data");
-            BaseResourceObject resource = ResourceTypeRegistry.Instance.CreateModel(registryId);
+            BaseResourceObject resource = ResourceTypeFactory.Instance.CreateModel(registryId);
             resource.ReadFromRBE(data);
             return resource;
         }

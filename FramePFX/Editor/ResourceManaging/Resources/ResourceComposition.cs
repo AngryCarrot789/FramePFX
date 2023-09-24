@@ -8,31 +8,24 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
     /// A resource for storing information about a composition sequence,
     /// which is a separate timeline that can be used as a clip
     /// </summary>
-    public class ResourceCompositionSeq : ResourceItem {
+    public class ResourceComposition : ResourceItem {
         /// <summary>
         /// This composition sequence's timeline
         /// </summary>
         public CompositionTimeline Timeline { get; }
 
-        public ResourceCompositionSeq() : this(new CompositionTimeline()) {
+        public ResourceComposition() : this(new CompositionTimeline()) {
             this.Timeline.MaxDuration = 5000;
-            this.Timeline.AddTrack(new VideoTrack() {
-                DisplayName = "Track 1"
-            });
-
-            this.Timeline.AddTrack(new VideoTrack() {
-                DisplayName = "Track 2"
-            });
         }
 
-        public ResourceCompositionSeq(CompositionTimeline timeline) {
+        public ResourceComposition(CompositionTimeline timeline) {
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             timeline.Owner = this;
         }
 
         protected internal override void SetManager(ResourceManager manager) {
             base.SetManager(manager);
-            this.Timeline.Project = manager?.Project;
+            this.Timeline.SetProject(manager?.Project);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {

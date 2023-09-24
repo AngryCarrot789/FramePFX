@@ -36,21 +36,15 @@ namespace FramePFX.Editor.Timelines.Tracks {
             this.AutomationData.AssignKey(IsVisibleKey, UpdateIsVisible);
         }
 
-        public override Track CloneCore() {
-            VideoTrack clone = new VideoTrack() {
-                Height = this.Height,
-                TrackColour = this.TrackColour,
-                DisplayName = TextIncrement.GetNextText(this.DisplayName)
-            };
+        protected override Track NewInstanceForClone() {
+            return new VideoTrack();
+        }
 
-            this.AutomationData.LoadDataIntoClone(clone.AutomationData);
-            foreach (Clip clip in this.Clips) {
-                // assert clip is VideoClipModel
-                // assert CanAccept(clip)
-                clone.AddClip(clip.Clone());
-            }
-
-            return clone;
+        protected override void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
+            base.LoadDataIntoClonePre(clone, flags);
+            VideoTrack track = (VideoTrack) clone;
+            track.Opacity = this.Opacity;
+            track.IsVisible = this.IsVisible;
         }
 
         public override bool IsClipTypeAcceptable(Clip clip) {

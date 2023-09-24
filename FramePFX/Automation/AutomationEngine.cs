@@ -27,7 +27,7 @@ namespace FramePFX.Automation {
                             UpdateAutomationData(effect, relative);
                         }
 
-                        if (clip is CompositionVideoClip composition && composition.ResourceHelper.TryGetResource(out ResourceCompositionSeq resource)) {
+                        if (clip is CompositionVideoClip composition && composition.ResourceHelper.TryGetResource(out ResourceComposition resource)) {
                             UpdateTimeline(resource.Timeline, relative);
                         }
                     }

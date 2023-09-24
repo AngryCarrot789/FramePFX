@@ -5,10 +5,10 @@ using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 
 namespace FramePFX.Editor.Registries {
-    public class EffectRegistry : ModelRegistry<BaseEffect, BaseEffectViewModel> {
-        public static EffectRegistry Instance { get; } = new EffectRegistry();
+    public class EffectFactory : ModelFactory<BaseEffect, BaseEffectViewModel> {
+        public static EffectFactory Instance { get; } = new EffectFactory();
 
-        private EffectRegistry() {
+        private EffectFactory() {
             this.Register<MotionEffect, MotionEffectViewModel>("motion");
         }
 

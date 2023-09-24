@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Automation.Events;
@@ -8,7 +7,6 @@ using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
-using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Editor;

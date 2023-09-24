@@ -214,6 +214,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             });
         }
 
+        public static void SetSelectedAndShowPropertyEditor(ClipViewModel clip) {
+            clip.IsSelected = true;
+            TimelineViewModel timeline = clip.Timeline;
+            List<ClipViewModel> list = timeline != null ? timeline.GetSelectedClips().ToList() : CollectionUtils.SingleItem(clip);
+            PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(list);
+        }
+
         private void AutomationDataOnActiveSequenceChanged(AutomationDataViewModel sender, ActiveSequenceChangedEventArgs e) {
             this.SetActiveAutomationSequence(e.Sequence, false);
         }

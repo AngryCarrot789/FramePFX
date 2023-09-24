@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows;
-using FramePFX.Actions.Contexts;
 using FramePFX.FileBrowser;
 using FramePFX.FileBrowser.Explorer;
 using FramePFX.FileBrowser.Explorer.ViewModes;

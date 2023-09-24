@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using FramePFX.Commands;
-using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.ViewModels {

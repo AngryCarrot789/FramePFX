@@ -118,7 +118,7 @@
 
     <!-- Text Clip -->
     <DataTemplate DataType="{x:Type text:TextClipDataEditorViewModel}">
-        <Grid>
+        <Grid Margin="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
                 <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
@@ -129,9 +129,9 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Normal" Padding="6,0" Text="Font" Height="18" Margin="0" />
-            <TextBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="6,1" Text="{Binding FontFamily, UpdateSourceTrigger=PropertyChanged}" TextWrapping="NoWrap" Margin="0" />
+            <TextBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="1,1" Text="{Binding FontFamily, UpdateSourceTrigger=PropertyChanged}" TextWrapping="NoWrap" Margin="0" />
             <TextBlock Grid.Row="1" Grid.Column="0" FontWeight="Normal" Padding="6,0" Text="Text" Height="18" Margin="0" />
-            <TextBox Grid.Row="1" Grid.Column="2" AcceptsReturn="True" AcceptsTab="True" FontWeight="Normal" Padding="6,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0"/>
+            <TextBox Grid.Row="1" Grid.Column="2" AcceptsReturn="True" AcceptsTab="True" FontWeight="Normal" Padding="1,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0"/>
         </Grid>
     </DataTemplate>
 

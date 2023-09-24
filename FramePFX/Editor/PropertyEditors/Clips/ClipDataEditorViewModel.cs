@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.PropertyEditing.Editor;

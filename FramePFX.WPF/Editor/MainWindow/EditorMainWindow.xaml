@@ -27,7 +27,8 @@
             Background="{DynamicResource PanelBackground1}"
             BorderBrush="{DynamicResource PanelBorderBrush}"
             TitlebarBrush="{DynamicResource ABrush.Tone6.Background.Static}"
-            sc:UIInputManager.FocusPath="Application/Editor">
+            sc:UIInputManager.FocusPath="Application/Editor" 
+            Icon="/FramePFX-256.ico" FontWeight="SemiBold">
     <Window.Resources>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v0.2.201)" />
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter"/>

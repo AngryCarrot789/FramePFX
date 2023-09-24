@@ -63,6 +63,7 @@ namespace FramePFX.WPF {
         private DateTime lastInput;
 
         public App() {
+            // ICollection<FontFamily> fonts = Fonts.GetFontFamilies(new Uri("pack://application:,,,/Resources/Fonts/Oxanium/#"));
             // this.lastInput = DateTime.Now;
             // this.monitor = new InputDrivenTaskExecutor(() => {
             //     DateTime now = DateTime.Now;

@@ -42,7 +42,7 @@
         
         <r:ResourceListControl Background="{DynamicResource PanelBackground3}"
                                ItemsSource="{Binding CurrentFolder.Items}" BorderThickness="0"
-                               ap:ObservableSelectionHelper.SelectedItems="{Binding SelectedItems}"
+                               ap:ObservableSelectionHelper.SelectedItems="{Binding SelectedItems, Mode=OneTime}"
                                HorizontalContentAlignment="Stretch"
                                VerticalContentAlignment="Stretch"
                                Grid.Row="1"

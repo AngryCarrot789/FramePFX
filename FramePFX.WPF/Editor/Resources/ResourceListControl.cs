@@ -9,7 +9,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
-using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
     public class ResourceListControl : MultiSelector {

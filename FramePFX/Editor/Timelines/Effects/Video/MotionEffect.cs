@@ -2,7 +2,6 @@ using System.Numerics;
 using FramePFX.Automation.Keys;
 using FramePFX.Rendering;
 using FramePFX.Utils;
-using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.Effects.Video {
     /// <summary>

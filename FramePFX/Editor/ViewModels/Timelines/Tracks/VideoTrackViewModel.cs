@@ -354,7 +354,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
             }
 
-            if (minimum <= frame) {
+            if (minimum <= frame || minimum == long.MaxValue) {
                 span = new FrameSpan(frame, unlimitedDuration);
             }
             else {

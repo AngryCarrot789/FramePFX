@@ -1,5 +1,4 @@
 using System;
-using OpenTK.Graphics.OpenGL4;
 
 namespace FramePFX.Utils {
     public static class RandomUtils {

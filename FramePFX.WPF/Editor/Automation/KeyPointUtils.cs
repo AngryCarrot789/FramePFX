@@ -2,7 +2,6 @@ using System;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Utils;
-using FramePFX.WPF.Editor.Timeline.Utils;
 
 namespace FramePFX.WPF.Editor.Automation {
     public static class KeyPointUtils {

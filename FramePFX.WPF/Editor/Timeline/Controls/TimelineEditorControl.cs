@@ -391,7 +391,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 if (track == null || (dc = clip.DataContext) == null) {
                     return;
                 }
-                else if (track.SelectedItems.Contains(dc) && PFXPropertyEditorRegistry.Instance.ClipInfo.Handlers.Contains(dc)) {
+                else if (track.SelectedItems.Contains(dc) && (PFXPropertyEditorRegistry.Instance.ClipInfo.Handlers?.Contains(dc) ?? false)) {
                     return;
                 }
             }

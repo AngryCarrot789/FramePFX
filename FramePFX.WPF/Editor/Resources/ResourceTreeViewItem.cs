@@ -90,14 +90,19 @@ namespace FramePFX.WPF.Editor.Resources {
                     this.ReleaseMouseCapture();
                 }
 
+                MultiSelectTreeView parent = this.ParentTreeView;
                 e.Handled = true;
                 if (!this.IsSelected) {
                     if (e.ChangedButton == MouseButton.Left) {
-                        this.ParentTreeView.Selection.Select(this);
+                        parent?.Selection.Select(this);
                     }
                     else if (!this.IsSelected) {
-                        this.ParentTreeView.Selection.Select(this);
+                        parent?.Selection.Select(this);
                     }
+                }
+                else if (parent != null && parent.SelectedItems.Count > 1) {
+                    parent.ClearSelection();
+                    this.IsSelected = true;
                 }
             }
 

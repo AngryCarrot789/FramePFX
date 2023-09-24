@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Forms;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
 using ListBox = System.Windows.Controls.ListBox;
@@ -219,60 +218,87 @@ namespace FramePFX.WPF.AttachedProperties {
                             continue;
                         }
 
+                        // The code below has to handle the cases when the source selected items are not actually
+                        // contained in the target object's items collection, and therefore, adding them to the
+                        // target's selection list wouldn't really do anything anyway.
+
+                        // There isn't really an efficient way to do this. WPF internally has helper 'assumption'
+                        // flags which can, but apart from that, you have to lookup each item new selected item
+                        // in the target's items collection to see if they can actually be selected
+
+                        // So this code will just do some possible preconditional checks, and if they succeed,
+                        // it lets WPF handle those cases where the items cannot be selected
+                        int targetListCount = targetList.Count;
                         switch (e.Action) {
                             case NotifyCollectionChangedAction.Add: {
-                                if (targetList.Count < 1)
-                                    break;
-                                if (e.NewStartingIndex > targetList.Count)
-                                    break;
-                                int index = e.NewStartingIndex == -1 ? targetList.Count : e.NewStartingIndex;
-                                foreach (object item in e.NewItems)
-                                    targetList.Insert(index++, item);
+                                int index = e.NewStartingIndex;
+                                if (index == -1) {
+                                    index = targetListCount;
+                                }
+                                else if (index > targetListCount) {
+                                    // weird selection setup; possibly bound a MultiSelectTreeView to a ListBox?
+                                    foreach (object item in e.NewItems) {
+                                        targetList.Add(item);
+                                    }
+                                }
+                                else {
+                                    foreach (object item in e.NewItems) {
+                                        targetList.Insert(index++, item);
+                                    }
+                                }
+
                                 break;
                             }
                             case NotifyCollectionChangedAction.Remove: {
-                                if (targetList.Count < 1)
+                                if (targetListCount < 1) {
                                     break;
-                                if (e.NewStartingIndex > targetList.Count)
-                                    break;
-                                int index = e.OldStartingIndex == -1 ? targetList.Count : e.OldStartingIndex;
+                                }
+
+                                int index = e.OldStartingIndex;
                                 foreach (object item in e.OldItems) {
-                                    object expectedItem = targetList[index];
-                                    if (!ReferenceEquals(expectedItem, item)) {
-                                        Debug.WriteLine("Possibly corrupt selected items: indices do not match");
-                                        targetList.Remove(item);
+                                    if (index != -1 && index < targetList.Count && ReferenceEquals(targetList[index], item)) {
+                                        targetList.RemoveAt(index);
                                     }
                                     else {
-                                        targetList.RemoveAt(index);
+                                        targetList.Remove(item);
                                     }
                                 }
 
                                 break;
                             }
                             case NotifyCollectionChangedAction.Replace: {
-                                if (targetList.Count < 1) {
+                                if (targetListCount < 1) {
                                     break;
                                 }
 
-                                int removeIndex = e.OldStartingIndex;
+                                int rmvidx = e.OldStartingIndex;
                                 foreach (object item in e.OldItems) {
-                                    if (removeIndex != -1 && ReferenceEquals(targetList[removeIndex], item)) {
-                                        targetList.RemoveAt(removeIndex);
+                                    if (rmvidx != -1 && rmvidx < targetList.Count && ReferenceEquals(targetList[rmvidx], item)) {
+                                        targetList.RemoveAt(rmvidx);
                                     }
                                     else {
                                         targetList.Remove(item);
                                     }
                                 }
 
-                                int addedIndex = e.NewStartingIndex == -1 ? targetList.Count : e.NewStartingIndex;
+                                int addidx = e.NewStartingIndex;
                                 foreach (object item in e.NewItems) {
-                                    targetList.Insert(addedIndex++, item);
+                                    if (addidx != -1 && addidx < targetList.Count) {
+                                        targetList.Insert(addidx++, item);
+                                    }
+                                    else {
+                                        targetList.Add(item);
+                                    }
                                 }
 
                                 break;
                             }
                             case NotifyCollectionChangedAction.Move: {
                                 int i = e.OldStartingIndex, j = e.NewStartingIndex;
+                                if (i == -1 || j == -1 || i > targetListCount || j > targetListCount) {
+                                    break;
+                                }
+
                                 foreach (object item in e.NewItems) {
                                     if (!ReferenceEquals(targetList[i], item))
                                         Debug.WriteLine("Possibly corrupt selected items for move operation: indices do not match");
@@ -282,7 +308,7 @@ namespace FramePFX.WPF.AttachedProperties {
                                 break;
                             }
                             case NotifyCollectionChangedAction.Reset:
-                                if (targetList.Count > 0)
+                                if (targetListCount > 0)
                                     targetList.Clear();
                                 break;
                             default: throw new ArgumentOutOfRangeException();

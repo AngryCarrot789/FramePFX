@@ -14,8 +14,8 @@ namespace FramePFX {
         public static ServiceManager ServiceManager { get; } = new ServiceManager();
 
         public static IShortcutManagerDialogService ShortcutManagerDialog => GetService<IShortcutManagerDialogService>();
-        public static Action<string> OnShortcutModified { get; set; }
-        public static Action<string> BroadcastShortcutActivity { get; set; }
+        public static Action<string> OnShortcutModified { get; set; } = (x) => { };
+        public static Action<string> BroadcastShortcutActivity { get; set; } = (x) => { };
 
         /// <summary>
         /// An interface which wraps the application

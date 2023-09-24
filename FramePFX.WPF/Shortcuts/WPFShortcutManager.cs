@@ -9,7 +9,6 @@ using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Keymapping;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Utils;
-using FramePFX.WPF.Editor.Timeline.Utils;
 using FramePFX.WPF.Shortcuts.Bindings;
 
 namespace FramePFX.WPF.Shortcuts {

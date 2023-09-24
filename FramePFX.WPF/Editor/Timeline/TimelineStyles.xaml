@@ -476,7 +476,8 @@
                                                     MinorLineThickness="0.5"
                                                     SnapsToDevicePixels="True"
                                                     UseLayoutRounding="True"
-                                                    Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
+                                                    Background="{DynamicResource ABrush.Tone4.Background.Static}"
+                                                    FontFamily="{StaticResource FontOxanium}"/>
                                 </Border>
                                 <Border Margin="0" Background="{TemplateBinding Background}"
                                         BorderBrush="{TemplateBinding BorderBrush}"

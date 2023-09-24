@@ -63,22 +63,17 @@ namespace FramePFX.Editor.ResourceManaging {
             if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null)) {
                 ResourceFolderViewModel folder = resItem as ResourceFolderViewModel ?? manager.CurrentFolder;
                 List<IContextEntry> newList = new List<IContextEntry>();
-                newList.Add(new ActionContextEntry(folder, "actions.resources.newitem.NewText", "Text", "Create a new text resource, and clip"));
-                newList.Add(new CommandContextEntry("ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));
-                newList.Add(new CommandContextEntry("Image", manager.CreateResourceCommand, nameof(ResourceImage)));
-                newList.Add(new CommandContextEntry("Composition Sequence", manager.CreateResourceCommand, nameof(ResourceCompositionSeq)));
-                newList.Add(SeparatorEntry.Instance);
-                newList.Add(new CommandContextEntry("Group", manager.CreateResourceCommand, nameof(ResourceFolder)));
 
                 if (list.Count > 0) {
-                    list.InsertRange(0, new List<IContextEntry> {
-                        new GroupContextEntry("New...", newList),
-                        SeparatorEntry.Instance
-                    });
+                    list.Add(SeparatorEntry.Instance);
                 }
-                else {
-                    list.Add(new GroupContextEntry("New Resource...", newList));
-                }
+
+                list.Add(new CommandContextEntry("New Folder", manager.CreateResourceCommand, nameof(ResourceFolder)));
+                list.Add(SeparatorEntry.Instance);
+                list.Add(new ActionContextEntry(folder, "actions.resources.newitem.NewText", "New Text", "Create a new text resource, and clip"));
+                list.Add(new CommandContextEntry("New ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));
+                list.Add(new CommandContextEntry("New Image", manager.CreateResourceCommand, nameof(ResourceImage)));
+                list.Add(new CommandContextEntry("New Composition Sequence", manager.CreateResourceCommand, nameof(ResourceCompositionSeq)));
             }
         }
     }

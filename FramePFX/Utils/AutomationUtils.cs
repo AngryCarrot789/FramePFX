@@ -2,7 +2,6 @@ using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.Timelines;
-using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Utils {

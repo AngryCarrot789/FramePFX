@@ -4,7 +4,6 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
-using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
     public class ResourceFolderControl : BaseResourceItemControl {

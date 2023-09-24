@@ -50,7 +50,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsDroppableTargetOver" Value="True">
                             <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="OrangeRed"/>
+                            <Setter Property="BorderBrush" Value="OrangeRed"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Background}" />
@@ -197,8 +197,7 @@
         <Setter Property="Padding" Value="1,2"/>
         <Style.Triggers>
             <Trigger Property="IsDroppableTargetOver" Value="True">
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="BorderBrush" Value="OrangeRed"/>
+                <Setter Property="Background" Value="OrangeRed"/>
             </Trigger>
         </Style.Triggers>
     </Style>

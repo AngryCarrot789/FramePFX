@@ -98,6 +98,10 @@
                     <Shortcut Name="SpecialExpandForward" ActionId="actions.timeline.surface.SpecialExpandForward">
                         <KeyStroke Mods="CTRL+SHIFT" Key="Right" />
                     </Shortcut>
+					
+                    <Shortcut Name="NewTextClip" ActionId="actions.resources.newitem.NewText">
+                        <KeyStroke Mods="CTRL" Key="T" />
+                    </Shortcut>
                 </Group>
                 <Group Name="TrackControllers">
                     <Shortcut Name="DeleteSelectedTrack" Description="Deletes the selected clip">

@@ -430,7 +430,7 @@
                     <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}"
-                            Padding="{TemplateBinding Padding}"
+                            Padding="0"
                             SnapsToDevicePixels="true">
                         <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Top"/>
                     </Border>

@@ -52,6 +52,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>FramePFX-256.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="AvalonDock, Version=4.72.1.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Dirkster.AvalonDock.4.72.1\lib\net40\AvalonDock.dll</HintPath>
@@ -509,6 +512,14 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf" />
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Bold.ttf" />
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf" />
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf" />
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Light.ttf" />
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Medium.ttf" />
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Regular.ttf" />
+    <Resource Include="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf" />
     <None Include="Resources\Shaders\pink.frag" />
     <None Include="Resources\Shaders\pink.vert" />
     <None Include="Resources\Shaders\rgb.frag" />
@@ -532,8 +543,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Fonts\Oxanium\OFL.txt" />
     <Resource Include="Editor\Timeline\Controls\TimelineClipControl-new-drag-broken.txt" />
     <Resource Include="Controls\TreeViews\Source Code.txt" />
+    <Resource Include="FramePFX-256.ico" />
     <Content Include="Keymap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

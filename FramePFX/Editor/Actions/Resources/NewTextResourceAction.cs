@@ -20,7 +20,25 @@ namespace FramePFX.Editor.Actions.Resources {
 
             if (!e.DataContext.TryGetContext(out folder)) {
                 if (!e.DataContext.TryGetContext(out manager)) {
-                    return false;
+                    TimelineViewModel timeline;
+                    if (e.DataContext.TryGetContext(out ClipViewModel clip)) {
+                        timeline = clip.Timeline;
+                    }
+                    else if (e.DataContext.TryGetContext(out TrackViewModel track)) {
+                        timeline = track.Timeline;
+                    }
+                    else if (!e.DataContext.TryGetContext(out timeline)) {
+                        return false;
+                    }
+                    
+                    if (timeline == null) {
+                        return false;
+                    }
+
+                    manager = timeline.Project?.ResourceManager;
+                    if (manager == null)
+                        return false;
+                    folder = manager.CurrentFolder;
                 }
                 else if (manager.CurrentFolder == null) {
                     return false;
@@ -60,6 +78,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 textClip.Text = "Sample Text";
                 TextClipViewModel clip = (TextClipViewModel) ClipRegistry.Instance.CreateViewModelFromModel(textClip);
                 track.AddClip(clip);
+                ClipViewModel.SetSelectedAndShowPropertyEditor(clip);
                 await timeline.DoAutomationTickAndRender();
             }
 

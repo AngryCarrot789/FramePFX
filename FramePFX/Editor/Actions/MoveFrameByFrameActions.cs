@@ -15,39 +15,39 @@ namespace FramePFX.Editor.Actions {
             public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteGeneral(e, 1);
         }
 
-        [ActionRegistration("actions.timeline.surface.ExpandBack")]
-        public class ExpandBackAction : AnAction {
+        [ActionRegistration("actions.timeline.surface.ExpandEndBackwards")]
+        public class ExpandEndBackwardsAction : AnAction {
             public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteGeneral(e, -1, true);
         }
 
-        [ActionRegistration("actions.timeline.surface.ExpandForward")]
-        public class ExpandForwardAction : AnAction {
+        [ActionRegistration("actions.timeline.surface.ExpandEndForward")]
+        public class ExpandEndForwardAction : AnAction {
             public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteGeneral(e, 1, true);
         }
 
-        [ActionRegistration("actions.timeline.surface.SpecialExpandBack")]
-        public class SpecialExpandBackAction : AnAction {
+        [ActionRegistration("actions.timeline.surface.ExpandBeginBack")]
+        public class ExpandBeginBackAction : AnAction {
             public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteGeneral(e, -1, true, true);
         }
 
-        [ActionRegistration("actions.timeline.surface.SpecialExpandForward")]
-        public class SpecialExpandForwardAction : AnAction {
+        [ActionRegistration("actions.timeline.surface.ExpandBeginForward")]
+        public class ExpandBeginForwardAction : AnAction {
             public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteGeneral(e, 1, true, true);
         }
 
         [ActionRegistration("actions.timeline.FrameBack")]
         public class TimelineFrameBackAction : AnAction {
-            public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteTimeline(e, -1);
+            public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteTimeline(e, -1, false);
         }
 
         [ActionRegistration("actions.timeline.FrameForward")]
         public class TimelineFrameForwardAction : AnAction {
-            public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteTimeline(e, 1);
+            public override Task<bool> ExecuteAsync(AnActionEventArgs e) => ExecuteTimeline(e, 1, false);
         }
 
-        public static Task<bool> ExecuteGeneral(AnActionEventArgs e, long amount, bool expandMode = false, bool resizeBothWays = false) {
+        public static Task<bool> ExecuteGeneral(AnActionEventArgs e, long amount, bool expandMode = false, bool resizeBothWays = false, bool forcePlayHead = false) {
             if (e.DataContext.TryGetContext(out ClipViewModel clip) && clip.Timeline != null) {
-                OnClipAction(clip, amount, expandMode, resizeBothWays);
+                OnClipAction(clip, amount, expandMode, resizeBothWays, forcePlayHead);
             }
             else if (e.DataContext.TryGetContext(out TrackViewModel track) && track.Timeline != null) {
                 OnTimelineAction(track.Timeline, amount);
@@ -62,16 +62,16 @@ namespace FramePFX.Editor.Actions {
             return Task.FromResult(true);
         }
 
-        public static Task<bool> ExecuteTimeline(AnActionEventArgs e, long amount) {
+        public static Task<bool> ExecuteTimeline(AnActionEventArgs e, long amount, bool canMultiplyZoom = true) {
             TimelineViewModel timeline;
             if (e.DataContext.TryGetContext(out ClipViewModel clip) && (timeline = clip.Timeline) != null) {
-                OnTimelineAction(timeline, amount);
+                OnTimelineAction(timeline, amount, canMultiplyZoom);
             }
             else if (e.DataContext.TryGetContext(out TrackViewModel track) && (timeline = track.Timeline) != null) {
-                OnTimelineAction(timeline, amount);
+                OnTimelineAction(timeline, amount, canMultiplyZoom);
             }
             else if (e.DataContext.TryGetContext(out timeline)) {
-                OnTimelineAction(timeline, amount);
+                OnTimelineAction(timeline, amount, canMultiplyZoom);
             }
             else {
                 return Task.FromResult(false);
@@ -82,8 +82,13 @@ namespace FramePFX.Editor.Actions {
 
         // expandMode: holding shift
         // resizeBothWays: holding ctrl + shift
-        public static void OnClipAction(ClipViewModel clip, long frame, bool expandMode, bool resizeBothWays) {
+        public static void OnClipAction(ClipViewModel clip, long frame, bool expandMode, bool resizeBothWays, bool forcePlayHead) {
             TimelineViewModel timeline = clip.Timeline;
+            if (forcePlayHead) {
+                OnTimelineAction(timeline, frame);
+                return;
+            }
+
             frame = GetZoomMultiplied(frame, timeline.UnitZoom);
             FrameSpan span = clip.FrameSpan;
             if (expandMode && !resizeBothWays) {
@@ -116,8 +121,11 @@ namespace FramePFX.Editor.Actions {
             }
         }
 
-        public static void OnTimelineAction(TimelineViewModel timeline, long frame) {
-            frame = GetZoomMultiplied(frame, timeline.UnitZoom);
+        public static void OnTimelineAction(TimelineViewModel timeline, long frame, bool canMultiplyZoom = true) {
+            if (canMultiplyZoom) {
+                frame = GetZoomMultiplied(frame, timeline.UnitZoom);
+            }
+
             long duration = timeline.PlayHeadFrame + frame;
             if (duration < 0) {
                 return;
@@ -131,13 +139,13 @@ namespace FramePFX.Editor.Actions {
         }
 
         public static long GetZoomMultiplied(long amount, double zoom) {
-            if (zoom < 0.25d) {
+            if (zoom < 0.1d) {
                 return amount * 25;
             }
-            else if (zoom < 2) {
+            else if (zoom < 0.5) {
                 return amount * 10;
             }
-            else if (zoom < 5) {
+            else if (zoom < 1) {
                 return amount * 5;
             }
             else {

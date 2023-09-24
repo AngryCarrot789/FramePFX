@@ -63,23 +63,25 @@ namespace FramePFX.Editor.Actions.Resources {
 
             folder.Manager.SelectedItems.Add(textStyle);
             if (manager.Project != null) {
-                TimelineViewModel timeline = manager.Project.Timeline;
-                VideoTrackViewModel track;
-                if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !track.GetSpanUntilClip(timeline.PlayHeadFrame, out FrameSpan span)) {
-                    track = await timeline.InsertNewVideoTrackAction(0);
-                    span = new FrameSpan(0, 300);
-                }
+                TimelineViewModel timeline = manager.Project.Editor?.ActiveTimeline;
+                if (timeline != null) {
+                    VideoTrackViewModel track;
+                    if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !track.GetSpanUntilClip(timeline.PlayHeadFrame, out FrameSpan span)) {
+                        track = await timeline.InsertNewVideoTrackAction(0);
+                        span = new FrameSpan(0, 300);
+                    }
 
-                TextVideoClip textClip = new TextVideoClip();
-                textClip.ResourceHelper.SetTargetResourceId(textStyle.UniqueId);
-                textClip.FrameSpan = span;
-                textClip.AddEffect(new MotionEffect());
-                textClip.DisplayName = name;
-                textClip.Text = "Sample Text";
-                TextClipViewModel clip = (TextClipViewModel) ClipRegistry.Instance.CreateViewModelFromModel(textClip);
-                track.AddClip(clip);
-                ClipViewModel.SetSelectedAndShowPropertyEditor(clip);
-                await timeline.DoAutomationTickAndRender();
+                    TextVideoClip textClip = new TextVideoClip();
+                    textClip.ResourceHelper.SetTargetResourceId(textStyle.UniqueId);
+                    textClip.FrameSpan = span;
+                    textClip.AddEffect(new MotionEffect());
+                    textClip.DisplayName = name;
+                    textClip.Text = "Sample Text";
+                    TextClipViewModel clip = (TextClipViewModel) ClipRegistry.Instance.CreateViewModelFromModel(textClip);
+                    track.AddClip(clip);
+                    ClipViewModel.SetSelectedAndShowPropertyEditor(clip);
+                    await timeline.DoAutomationTickAndRender();
+                }
             }
 
             return true;

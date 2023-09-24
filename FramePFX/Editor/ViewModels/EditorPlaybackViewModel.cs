@@ -110,16 +110,20 @@ namespace FramePFX.Editor.ViewModels {
             this.UpdatePlaybackCommands();
         }
 
-        private Task PlayFromStart() {
+        public Task PlayFromStart() {
+            return this.PlayFromFrame(0);
+        }
+
+        public Task PlayFromFrame(long frame) {
             TimelineViewModel timeline = this.Editor.ActiveTimeline;
             if (timeline != null && this.Project != null) {
                 if (!this.IsPlaying) {
                     timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
-                    timeline.PlayHeadFrame = 0;
+                    timeline.PlayHeadFrame = frame;
                     this.PlayInternal();
                 }
                 else {
-                    timeline.PlayHeadFrame = 0;
+                    timeline.PlayHeadFrame = frame;
                 }
             }
 

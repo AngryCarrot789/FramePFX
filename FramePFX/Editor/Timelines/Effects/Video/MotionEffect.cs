@@ -13,7 +13,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         public static readonly AutomationKeyVector2 MediaScaleOriginKey          = AutomationKey.RegisterVec2(nameof(MotionEffect),   nameof(MediaScaleOrigin), new Vector2(), Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyBoolean UseAbsoluteScaleOriginKey    = AutomationKey.RegisterBool(nameof(MotionEffect),   nameof(UseAbsoluteScaleOrigin));
         public static readonly AutomationKeyDouble  MediaRotationKey             = AutomationKey.RegisterDouble(nameof(MotionEffect), nameof(MediaRotation), 0d);
-        public static readonly AutomationKeyVector2 MediaRotationOriginKey       = AutomationKey.RegisterVec2(nameof(MotionEffect),   nameof(MediaRotationOrigin), new Vector2(), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaRotationOriginKey       = AutomationKey.RegisterVec2(nameof(MotionEffect),   nameof(MediaRotationOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyBoolean UseAbsoluteRotationOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect),   nameof(UseAbsoluteRotationOrigin));
 
         /// <summary>

@@ -55,6 +55,12 @@ namespace FramePFX {
             line = PrepareLogLine(line);
             // Stack<HeaderInfo> stack = Headers.Value;
             lock (PRINTLOCk) {
+                if (line.Length > MAX_LEN) {
+                    logText = "";
+                    Write(line.Substring(line.Length - MAX_LEN, MAX_LEN - 1));
+                    return;
+                }
+
                 int new_len = logText.Length + line.Length;
                 if (new_len > MAX_LEN) {
                     int count = new_len - MAX_LEN;
@@ -77,9 +83,8 @@ namespace FramePFX {
 
         private static void Write(string text) {
 #if DEBUG
-            Debug.Write("[APP LOGGER] " + text);
+            System.Diagnostics.Debug.Write("[APP LOGGER] " + text);
 #endif
-            Console.Write(text);
             logText += text;
             Log?.Invoke(text);
         }

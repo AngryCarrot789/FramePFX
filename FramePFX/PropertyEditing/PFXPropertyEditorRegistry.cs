@@ -72,6 +72,10 @@ namespace FramePFX.PropertyEditing {
             this.Root.CleanSeparators();
         }
 
+        public void OnClipSelectionChanged(TimelineViewModel timeline) {
+            this.OnClipSelectionChanged(timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
+        }
+
         public void OnClipSelectionChanged(IReadOnlyList<ClipViewModel> clips) {
             // List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
             this.ClipInfo.SetupHierarchyState(clips);

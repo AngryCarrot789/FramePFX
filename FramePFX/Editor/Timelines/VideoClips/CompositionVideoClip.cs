@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
@@ -13,6 +14,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public CompositionVideoClip() {
             this.ResourceHelper = new ResourceHelper<ResourceCompositionSeq>(this);
+        }
+
+        public override Vector2? GetSize(RenderContext rc) {
+            return rc.FrameSize;
         }
 
         public override bool OnBeginRender(long frame) {

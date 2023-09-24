@@ -75,7 +75,7 @@ namespace FramePFX.Automation.ViewModels {
                     return sequence;
 
 #if DEBUG
-                Debugger.Break();
+                System.Diagnostics.Debugger.Break();
 #endif
 
                 throw new Exception($"Key has not been assigned: {key}");

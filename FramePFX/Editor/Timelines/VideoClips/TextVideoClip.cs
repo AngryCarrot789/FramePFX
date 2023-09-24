@@ -100,7 +100,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
         }
 
-        public override Vector2? GetSize() {
+        public override Vector2? GetSize(RenderContext renderContext) {
             return this.TextBlobBoundingBox;
         }
 

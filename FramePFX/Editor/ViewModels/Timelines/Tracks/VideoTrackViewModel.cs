@@ -336,29 +336,29 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         }
 
         public bool GetSpanUntilClip(long frame, out FrameSpan span, long unlimitedDuration = 300) {
-            if (this.Clips.Count < 1) {
-                span = new FrameSpan(frame, unlimitedDuration);
-                return true;
-            }
-
             long minimum = long.MaxValue;
-            foreach (ClipViewModel clip in this.Clips) {
-                if (clip.FrameBegin > frame) {
-                    if (clip.IntersectsFrameAt(frame)) {
-                        span = default;
-                        return false;
-                    }
-                    else {
-                        minimum = Math.Min(clip.FrameBegin, minimum);
+            if (this.Clips.Count > 0) {
+                foreach (ClipViewModel clip in this.Clips) {
+                    if (clip.FrameBegin > frame) {
+                        if (clip.IntersectsFrameAt(frame)) {
+                            span = default;
+                            return false;
+                        }
+                        else {
+                            minimum = Math.Min(clip.FrameBegin, minimum);
+                            if (minimum <= frame) {
+                                break;
+                            }
+                        }
                     }
                 }
             }
 
-            if (minimum <= frame || minimum == long.MaxValue) {
-                span = new FrameSpan(frame, unlimitedDuration);
+            if (minimum > frame && minimum != long.MaxValue) {
+                span = FrameSpan.FromIndex(frame, minimum);
             }
             else {
-                span = FrameSpan.FromIndex(frame, minimum);
+                span = new FrameSpan(frame, unlimitedDuration);
             }
 
             return true;

@@ -291,7 +291,7 @@ namespace FramePFX.Editor.Timelines {
                         m = effects.Count;
                         BaseEffect effect;
 
-                        Vector2? frameSize = clip.GetSize();
+                        Vector2? frameSize = clip.GetSize(render);
                         try {
                             // pre-process clip effects, such as translation, scale, etc.
                             for (j = 0; j < m; j++) {

@@ -43,7 +43,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     (d, e) => ((TimelineEditorControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
-        public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineEditorControl), new PropertyMetadata(0L));
+        public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineEditorControl), new FrameworkPropertyMetadata(0L, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
         public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRect?), typeof(TimelineEditorControl), new PropertyMetadata((SelectionRect?) null));
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public Point ClipMousePosForTrackTransition { get; set; }
 
-        private ScrollViewer PART_ScrollViewer;
+        public ScrollViewer PART_ScrollViewer;
         private ItemsPresenter PART_ItemsPresenter;
         private TimelinePlayHeadControl PART_PlayHead;
         private Border PART_TimestampBoard;
@@ -318,7 +318,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
                 e.Handled = true;
                 bool shift = (mods & ModifierKeys.Shift) != 0;
-                double multiplier = (shift ? 0.1 : 0.25);
+                double multiplier = (shift ? 0.2 : 0.4);
                 if (e.Delta > 0) {
                     multiplier = 1d + multiplier;
                 }

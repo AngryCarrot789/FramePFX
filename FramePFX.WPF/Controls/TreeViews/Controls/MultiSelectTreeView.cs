@@ -15,7 +15,7 @@ using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Automation.Peers;
 
 namespace FramePFX.WPF.Controls.TreeViews.Controls {
-    [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof (MultiSelectTreeViewItem))]
+    [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(MultiSelectTreeViewItem))]
     public class MultiSelectTreeView : ItemsControl {
         #region Constants and Fields
 

@@ -149,6 +149,10 @@ namespace FramePFX.Utils {
             long A = a; a = b; b = A;
         }
 
+        public static void Swap(ref int a, ref int b) {
+            int A = a; a = b; b = A;
+        }
+
         public static double GetRange(float min, float max) {
             return max < min ? (min - max) : (max - min);
         }

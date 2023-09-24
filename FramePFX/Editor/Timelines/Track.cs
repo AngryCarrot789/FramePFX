@@ -43,11 +43,25 @@ namespace FramePFX.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
+        private readonly ClipRangeCache cache;
+
         protected Track() {
             this.clips = new List<Clip>();
+            this.cache = new ClipRangeCache();
             this.Height = 60;
             this.TrackColour = TrackColours.GetRandomColour();
             this.AutomationData = new AutomationData(this);
+        }
+
+        /// <summary>
+        /// Invoked when a clip's frame span changes, only when it is placed in this specific track. This MUST be called, otherwise the cache will get corrupted
+        /// </summary>
+        /// <param name="clip">The clip whose frame span changed</param>
+        /// <param name="oldSpan">The old frame span</param>
+        public void OnClipFrameSpanChanged(Clip clip, FrameSpan oldSpan) {
+            if (!ReferenceEquals(clip.Track, this))
+                throw new Exception("Clip's track does not match the current instance");
+            this.cache.OnLocationChanged(clip, oldSpan);
         }
 
         public static void SetTimeline(Track track, Timeline timeline) {
@@ -91,17 +105,33 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        public Clip GetClipAtFrame(long frame) {
-            List<Clip> src = this.clips;
-            int i = 0, c = src.Count;
-            while (i < c) {
-                Clip clip = src[i++];
-                long begin = clip.FrameBegin;
-                if (frame >= begin && frame < begin + clip.FrameDuration)
-                    return clip;
-            }
+        // /// <summary>
+        // /// Gets a clip, or 2 clips (to fade between) and returns true. Otherwise,
+        // /// returns false when no clip intersects the given frame.
+        // /// <para>
+        // /// When A and B are non-null, A is the clip whose frame begin is the lowest and B is the clip
+        // /// whose frame begin is the highest, based on a collection of clips that intersects the frame
+        // /// </para>
+        // /// </summary>
+        // /// <param name="frame">Input frame (timeline relative; playhead)</param>
+        // /// <param name="a">The first or only clip</param>
+        // /// <param name="b">The 2nd clip, or null</param>
+        // /// <returns></returns>
+        // public bool GetClipsAtFrame(long frame, out Clip a, out Clip b) {
+        //     return this.cache.GetClipsAtFrame(frame, out a, out b);
+        // }
 
-            return null;
+        public Clip GetClipAtFrame(long frame) {
+            // List<Clip> src = this.clips;
+            // int i = 0, c = src.Count;
+            // while (i < c) {
+            //     Clip clip = src[i++];
+            //     long begin = clip.FrameBegin;
+            //     if (frame >= begin && frame < begin + clip.FrameDuration)
+            //         return clip;
+            // }
+
+            return this.cache.GetPrimaryClipAt(frame);
 
             // cannot use binary search until Clips is ordered
             //List<Clip> src = this.Clips;
@@ -138,6 +168,7 @@ namespace FramePFX.Editor.Timelines {
         public void InsertClip(int index, Clip clip) {
             Clip.SetTrack(clip, this);
             this.clips.Insert(index, clip);
+            this.cache.OnClipAdded(clip);
         }
 
         public bool RemoveClip(Clip clip) {
@@ -153,11 +184,13 @@ namespace FramePFX.Editor.Timelines {
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception("Expected clip's track to equal this instance");
             this.clips.RemoveAt(index);
+            this.cache.OnClipRemoved(clip);
             Clip.SetTrack(clip, null);
         }
 
-        public void MoveClipIndex(int oldIndex, int newIndex) {
+        public void MakeTopMost(Clip clip, int oldIndex, int newIndex) {
             this.clips.MoveItem(oldIndex, newIndex);
+            this.cache.MakeTopMost(clip);
         }
 
         public bool MoveClipToTrack(Clip clip, Track newTrack) {
@@ -171,6 +204,7 @@ namespace FramePFX.Editor.Timelines {
         public void MoveClipToTrack(int index, Track newTrack) {
             Clip clip = this.clips[index];
             this.clips.RemoveAt(index);
+            this.cache.OnClipRemoved(clip);
             newTrack.AddClip(clip);
         }
 

@@ -11,8 +11,8 @@ using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Automation.Peers;
 
 namespace FramePFX.WPF.Controls.TreeViews.Controls {
-    [TemplatePart(Name = "ItemsHost", Type = typeof (ItemsPresenter))]
-    [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof (MultiSelectTreeViewItem))]
+    [TemplatePart(Name = "ItemsHost", Type = typeof(ItemsPresenter))]
+    [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(MultiSelectTreeViewItem))]
     public class MultiSelectTreeViewItem : HeaderedItemsControl { // IHierarchicalVirtualizationAndScrollInfo
         public static readonly DependencyProperty BackgroundFocusedProperty = DependencyProperty.Register("BackgroundFocused", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(SystemColors.HighlightBrush, null));
         public static readonly DependencyProperty BackgroundSelectedHoveredProperty = DependencyProperty.Register("BackgroundSelectedHovered", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(Brushes.DarkGray, null));

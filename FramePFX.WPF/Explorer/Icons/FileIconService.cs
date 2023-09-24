@@ -79,7 +79,7 @@ namespace FramePFX.WPF.Explorer.Icons {
             while (this.canUpdateTaskRun) {
                 int size = Math.Min(this.updateQueue.Count, 20);
                 if (size < 1) {
-                    Thread.Sleep(10);
+                    Thread.Sleep(5);
                     continue;
                 }
 
@@ -101,7 +101,7 @@ namespace FramePFX.WPF.Explorer.Icons {
             while (this.canFileThreadRun) {
                 int count = Math.Min(this.fileQueue.Count, 5);
                 if (count <= 0) {
-                    Thread.Sleep(10);
+                    Thread.Sleep(5);
                     continue;
                 }
 
@@ -122,7 +122,7 @@ namespace FramePFX.WPF.Explorer.Icons {
             while (this.canDirectoryThreadRun) {
                 int count = Math.Min(this.directoryQueue.Count, 5);
                 if (count <= 0) {
-                    Thread.Sleep(10);
+                    Thread.Sleep(5);
                     continue;
                 }
 

@@ -23,7 +23,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             }
         }
 
-        public override Vector2? GetSize() {
+        public override Vector2? GetSize(RenderContext renderContext) {
             if (!this.ResourceHelper.HasPath || !this.ResourceHelper.ResourcePath.TryGetResource(out ResourceImage r) || r.image == null) {
                 return null;
             }

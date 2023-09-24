@@ -73,6 +73,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 this.Model.FrameSpan = value;
+                this.Track?.Model.OnClipFrameSpanChanged(this.Model, oldSpan);
                 this.OnFrameSpanChanged(oldSpan);
             }
         }

@@ -25,6 +25,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         private volatile bool isRendering;
         private bool isRecordingKeyFrames;
         public long InternalLastPlayHeadBeforePlaying; // used for play/pause/stop
+        public long LastSeekPlayHead;
 
         TimelineViewModel ITimelineViewModelBound.Timeline => this;
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
@@ -38,9 +39,25 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public ObservableCollection<TrackViewModel> SelectedTracks { get; }
 
+        public TrackViewModel PreviouslySelectedTrack { get; private set; }
+
         public TrackViewModel PrimarySelectedTrack {
             get => this.primarySelectedTrack;
-            set => this.RaisePropertyChanged(ref this.primarySelectedTrack, value);
+            set {
+                bool flag = ReferenceEquals(this.PreviouslySelectedTrack, this.primarySelectedTrack);
+                if (flag && ReferenceEquals(this.primarySelectedTrack, value)) {
+                    return;
+                }
+
+                if (!flag) {
+                    this.PreviouslySelectedTrack = this.primarySelectedTrack;
+                }
+
+                this.RaisePropertyChanged(ref this.primarySelectedTrack, value);
+                if (!flag) {
+                    this.RaisePropertyChanged(nameof(this.PreviouslySelectedTrack));
+                }
+            }
         }
 
         public AutomationDataViewModel AutomationData { get; }
@@ -53,6 +70,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     return;
                 }
 
+                this.LastSeekPlayHead = this.PlayHeadFrame;
                 this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, value, true);
             }
         }

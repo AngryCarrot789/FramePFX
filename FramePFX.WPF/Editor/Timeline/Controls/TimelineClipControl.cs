@@ -19,7 +19,6 @@ using FramePFX.WPF.Editor.Timeline.Utils;
 namespace FramePFX.WPF.Editor.Timeline.Controls {
     public class TimelineClipControl : Control {
         private static readonly object LongZeroObject = 0L;
-
         public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
         public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
 
@@ -204,9 +203,22 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             return size;
         }
 
+        private void OnAnyThumbDragStart() {
+            this.Focus();
+            TimelineEditorControl timeline = this.Timeline;
+            if (timeline != null) {
+                if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
+                    this.IsSelected = !this.IsSelected;
+                }
+                else if (!timeline.GetSelectedClipContainers().HasAtleast(2)) {
+                    this.Timeline?.SetPrimarySelection(this, true);
+                }
+            }
+        }
+
         private void OnLeftThumbDragStart(object sender, DragStartedEventArgs e) {
             if (this.DataContext is ClipViewModel handler && !handler.IsDraggingLeftThumb) {
-                this.Focus();
+                this.OnAnyThumbDragStart();
                 handler.OnLeftThumbDragStart();
             }
         }
@@ -236,7 +248,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         private void OnRightThumbDragStart(object sender, DragStartedEventArgs e) {
             if (this.DataContext is ClipViewModel handler && !handler.IsDraggingRightThumb) {
-                this.Focus();
+                this.OnAnyThumbDragStart();
                 handler.OnRightThumbDragStart();
             }
         }
@@ -278,30 +290,81 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             if (this.DataContext is ClipViewModel handler && !handler.IsDraggingClip) {
                 if (this.IsFocused || this.Focus()) {
                     TimelineTrackControl track = this.Track;
+                    TimelineEditorControl timeline = track?.Timeline;
                     if (!this.IsMouseCaptured) {
                         this.CaptureMouse();
                     }
 
                     this.lastLeftClickPoint = e.GetPosition(this);
-                    if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
-                        track.SetItemSelectedProperty(this, !this.IsSelected);
-                        track.OnSelectionOperationCompleted();
-                    }
-                    else if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && track.lastSelectedItem != null && track.SelectedItems.Count > 0) {
-                        track.MakeRangedSelection(track.lastSelectedItem, this);
-                    }
-                    else if (track.Timeline.GetSelectedClipContainers().HasAtleast(2)) {
-                        if (!this.IsSelected) {
-                            track.Timeline.SetPrimarySelection(this, true);
+                    if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
+                        if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift)) {
+                            // if (track.lastSelectedItem != null && track.SelectedItems.Count > 0) {
+                            //     track.MakeRangedSelection(track.lastSelectedItem, this);
+                            // }
+                            if (timeline?.DataContext is TimelineViewModel vm) {
+                                if (track.DataContext is TrackViewModel targetTrack) {
+                                    Point mPos = e.GetPosition(timeline);
+                                    double posX = mPos.X + timeline.PART_ScrollViewer?.HorizontalOffset ?? 0d;
+                                    long frameB = TimelineUtils.PixelToFrame(posX, timeline.UnitZoom);
+                                    List<ClipViewModel> clips = new List<ClipViewModel>();
+                                    if (MakeRangedSelection(vm, targetTrack, frameB, clips)) {
+                                        foreach (ClipViewModel clip in clips) {
+                                            if (!clip.IsSelected) {
+                                                clip.IsSelected = true;
+                                            }
+                                        }
+
+                                        PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(vm);
+                                    }
+                                }
+                            }
                         }
-                    }
-                    else {
-                        track.Timeline.SetPrimarySelection(this, true);
+                        else if (timeline != null && timeline.GetSelectedClipContainers().HasAtleast(2)) {
+                            if (!this.IsSelected) {
+                                timeline.SetPrimarySelection(this, true);
+                            }
+                        }
+                        else {
+                            timeline?.SetPrimarySelection(this, true);
+                        }
                     }
 
                     e.Handled = true;
                 }
             }
+        }
+
+        public static bool MakeRangedSelection(TimelineViewModel timeline, TrackViewModel targetTrack, long targetFrame, List<ClipViewModel> clips) {
+            int iA, iB;
+            if (timeline == null || targetTrack == null)
+                return false;
+
+            TrackViewModel trackA = timeline.PreviouslySelectedTrack;
+            if (trackA == null || (iA = timeline.Tracks.IndexOf(trackA)) == -1)
+                return false;
+            if ((iB = timeline.Tracks.IndexOf(targetTrack)) == -1)
+                return false;
+
+            if (iA > iB) {
+                Maths.Swap(ref iA, ref iB);
+            }
+
+            long srcFrame = timeline.PlayHeadFrame;
+            if (srcFrame > targetFrame) {
+                Maths.Swap(ref srcFrame, ref targetFrame);
+            }
+
+            FrameSpan range = FrameSpan.FromIndex(timeline.PlayHeadFrame, targetFrame + 1);
+            for (int i = iA; i <= iB; i++) {
+                TrackViewModel track = timeline.Tracks[i];
+                foreach (ClipViewModel clip in track.Clips) {
+                    if (clip.FrameSpan.Intersects(range)) {
+                        clips.Add(clip);
+                    }
+                }
+            }
+
+            return true;
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
@@ -315,9 +378,31 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 e.Handled = true;
             }
 
-            TimelineTrackControl track = this.Track;
-            if (wasDragging != true && this.IsSelected && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Control) && !KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && this.Track.Timeline.GetSelectedClipContainers().HasAtleast(2)) {
-                track.Timeline.SetPrimarySelection(this, false);
+            TimelineEditorControl timeline = this.Timeline;
+            if (wasDragging != true) {
+                if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
+                    this.IsSelected = !this.IsSelected;
+                }
+                else if (this.IsSelected) {
+                    if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift)) {
+                        if (this.Track.Timeline.GetSelectedClipContainers().HasAtleast(2)) {
+                            timeline?.SetPrimarySelection(this, false);
+                        }
+                    }
+
+                    if (timeline != null) {
+                        Point mPos = e.GetPosition(timeline);
+                        double posX = mPos.X + timeline.PART_ScrollViewer?.HorizontalOffset ?? 0d;
+                        long frame = TimelineUtils.PixelToFrame(posX, timeline.UnitZoom);
+                        if (frame > timeline.MaxDuration) {
+                            timeline.MaxDuration = frame + 300;
+                        }
+
+                        timeline.PlayHeadFrame = frame;
+                    }
+
+                    // track.Timeline.PlayHeadFrame =
+                }
             }
 
             base.OnMouseLeftButtonUp(e);
@@ -428,7 +513,21 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             base.OnKeyDown(e);
             if (!e.Handled && e.Key == Key.Escape) {
                 e.Handled = true;
-                this.CancelDrag();
+                if (this.DataContext is ClipViewModel clip && clip.IsDraggingClip) {
+                    this.CancelDrag();
+                }
+                else {
+                    TimelineEditorControl timeline = this.Timeline;
+                    if (timeline != null) {
+                        foreach (TimelineTrackControl trackElement in timeline.GetTrackContainers()) {
+                            if (trackElement.SelectedItems.Count > 0) {
+                                trackElement.UnselectAll();
+                            }
+                        }
+
+                        timeline.OnSelectionOperationCompleted();
+                    }
+                }
             }
         }
 

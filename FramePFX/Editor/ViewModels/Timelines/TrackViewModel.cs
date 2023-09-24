@@ -102,6 +102,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
+        private static Comparison<ClipViewModel> SortClip = (a, b) => a.FrameBegin.CompareTo(b.FrameBegin);
+
         public virtual void OnProjectModified() => this.Project?.OnProjectModified();
 
         public ClipViewModel CreateClip(Clip model, bool addToModel = true) {
@@ -225,7 +227,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            this.Model.MoveClipIndex(index, endIndex);
+            this.Model.MakeTopMost(clip.Model, index, endIndex);
             this.clips.Move(index, endIndex);
         }
 

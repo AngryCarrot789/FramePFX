@@ -420,7 +420,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineEditorControl}">
-                    <Grid x:Name="PART_rootGrid">
+                    <Grid x:Name="PART_rootGrid" d:DataContext="{d:DesignInstance ctl:TimelineViewModel}">
                         <Border Background="{TemplateBinding Background}"/>
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false"
                                       Padding="{TemplateBinding Padding}"
@@ -494,7 +494,7 @@
                                                             VerticalContentAlignment="Stretch"
                                                             HorizontalAlignment="Left"
                                                             Timeline="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                                            FrameIndex="{Binding PlayHeadFrame, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            FrameIndex="{Binding PlayHeadFrame, Mode=TwoWay}"/>
                             </tc:TimelineContentPanel>
                         </ScrollViewer>
                     </Grid>
@@ -804,7 +804,8 @@
                                                       BorderBrush="{DynamicResource ABrush.Tone2.Border.Static}"
                                                       MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                       sc:UIInputManager.FocusPath="Application/Editor/Timeline/Surface"
-                                                      UnitZoom="{Binding UnitZoom, Mode=OneWayToSource}">
+                                                      UnitZoom="{Binding UnitZoom, Mode=OneWayToSource}"
+                                                      PlayHeadFrame="{Binding PlayHeadFrame, Mode=TwoWay}">
                                 <b:ShortcutCommandCollection.Collection>
                                     <b:ShortcutCommandCollection>
                                         <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/Surface/MoveSelectedTrackUp" Command="{Binding MoveSelectedUpCommand, Mode=OneTime}" />

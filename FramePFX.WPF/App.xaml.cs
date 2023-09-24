@@ -96,6 +96,7 @@ namespace FramePFX.WPF {
             ActionManager.Instance.Register("actions.project.history.Redo", new RedoAction());
             ActionManager.Instance.Register("actions.automation.AddKeyFrame", new AddKeyFrameAction());
             ActionManager.Instance.Register("actions.editor.timeline.TogglePlayPause", new TogglePlayPauseAction());
+            ActionManager.Instance.Register("actions.editor.timeline.PlayAtLastStopFrame", new PlayAtLastFrameAction());
             ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
             ActionManager.Instance.Register("actions.resources.GroupSelection", new GroupSelectedResourcesAction());
             ActionManager.Instance.Register("actions.resources.ToggleOnlineState", new ToggleResourceOnlineStateAction());

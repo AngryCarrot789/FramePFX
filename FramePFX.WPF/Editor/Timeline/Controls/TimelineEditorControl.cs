@@ -388,7 +388,10 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             if (ignoreIfAlreadySelected && clip.IsSelected) {
                 object dc;
                 TimelineTrackControl track = clip.Track;
-                if (track == null || (dc = clip.DataContext) == null || track.SelectedItems.Contains(dc)) {
+                if (track == null || (dc = clip.DataContext) == null) {
+                    return;
+                }
+                else if (track.SelectedItems.Contains(dc) && PFXPropertyEditorRegistry.Instance.ClipInfo.Handlers.Contains(dc)) {
                     return;
                 }
             }

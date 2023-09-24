@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting;
@@ -58,13 +59,16 @@ namespace FramePFX.Editor.ViewModels {
             if (timeline == this.activeTimeline)
                 return;
             if (!this.activeTimelines.Contains(timeline))
-                throw new Exception("Timeline is not in the active timelines list");
+                this.activeTimelines.Add(timeline);
             if (this.activeTimeline != null) {
                 this.Playback.StopPlaybackForChangingTimeline();
             }
 
             this.RaisePropertyChanged(ref this.activeTimeline, timeline);
             if (timeline != null) {
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
+                PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
+                PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
                 timeline.RefreshAutomationAndPlayhead();
                 this.DoDrawRenderFrame(timeline, true);
             }

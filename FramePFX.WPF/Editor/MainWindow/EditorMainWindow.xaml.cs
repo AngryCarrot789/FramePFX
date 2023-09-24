@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using AvalonDock.Layout;
 using FramePFX.Editor;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
@@ -15,6 +17,7 @@ using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
 using FramePFX.Rendering;
 using FramePFX.Utils;
+using FramePFX.WPF.Editor.Timeline;
 using FramePFX.WPF.Notifications;
 using FramePFX.WPF.Themes;
 using FramePFX.WPF.Views;
@@ -35,6 +38,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
         private bool isPrintingErrors;
 
         public NotificationPanelViewModel NotificationPanel { get; }
+
         private readonly Func<TimelineViewModel, Task> doRenderActiveTimelineFunc;
 
         public EditorMainWindow() {
@@ -50,6 +54,36 @@ namespace FramePFX.WPF.Editor.MainWindow {
             this.lastRefreshTime = Time.GetSystemMillis();
 
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
+            this.TimelineLayoutPane.PropertyChanged += this.TimelineLayoutPaneOnPropertyChanged;
+            this.MyDockingManager.ActiveContentChanged += this.MyDockingManagerOnActiveContentChanged;
+        }
+
+        private void MyDockingManagerOnActiveContentChanged(object sender, EventArgs e) {
+            VideoEditorViewModel editor = this.Editor;
+            if (editor != null && this.MyDockingManager.ActiveContent is PreAnchoredTimelineControl control) {
+                if (control.DataContext is TimelineViewModel timeline) {
+                    editor.ActiveTimeline = timeline;
+                }
+            }
+        }
+
+        private void TimelineLayoutPaneOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+            if (e.PropertyName == nameof(this.TimelineLayoutPane.SelectedContent)) {
+                VideoEditorViewModel editor = this.Editor;
+                if (editor != null) {
+                    LayoutContent selected = this.TimelineLayoutPane.SelectedContent;
+                    if (selected != null && selected.Content is PreAnchoredTimelineControl control) {
+                        if (control.DataContext is TimelineViewModel timeline) {
+                            editor.ActiveTimeline = timeline;
+                            return;
+                        }
+                    }
+
+                    if (editor.ActiveProject != null) {
+                        editor.ActiveTimeline = editor.ActiveProject.Timeline;
+                    }
+                }
+            }
         }
 
         protected override void OnActivated(EventArgs e) {
@@ -95,6 +129,18 @@ namespace FramePFX.WPF.Editor.MainWindow {
             if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control) {
                 control.BeginAnimation(OpacityProperty, null);
             }
+        }
+
+        public void OpenTimeline(TimelineViewModel timeline) {
+            LayoutAnchorable anchorable = new LayoutAnchorable {
+                Content = new PreAnchoredTimelineControl() {
+                    DataContext = timeline
+                },
+                CanClose = true, CanDockAsTabbedDocument = true,
+                Title = "A timeline"
+            };
+
+            this.TimelineLayoutPane.Children.Add(anchorable);
         }
 
         // protected override void OnActivated(EventArgs e) {

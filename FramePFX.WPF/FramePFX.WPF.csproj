@@ -304,6 +304,9 @@
     <Compile Include="Editor\Timeline\Controls\V2\TimelineClipControlV2.cs" />
     <Compile Include="Editor\Timeline\Controls\V2\TimelineControlV2.cs" />
     <Compile Include="Editor\Timeline\Controls\V2\TimelineTrackControlV2.cs" />
+    <Compile Include="Editor\Timeline\PreAnchoredTimelineControl.xaml.cs">
+      <DependentUpon>PreAnchoredTimelineControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editor\Timeline\TimelineStyles.xaml.cs">
       <DependentUpon>TimelineStyles.xaml</DependentUpon>
     </Compile>
@@ -648,6 +651,10 @@
     <Page Include="Editor\Resources\ResManagerStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\Timeline\PreAnchoredTimelineControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Timeline\TimelineStyles.xaml">
       <Generator>MSBuild:Compile</Generator>

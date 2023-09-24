@@ -22,6 +22,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             }
 
             this.tokenSource = new CancellationTokenSource(project.IsExporting ? -1 : 3000);
+            frame = this.GetRelativeFrame(frame);
             return resource.Timeline.BeginCompositeRender(frame, CancellationToken.None);
         }
 

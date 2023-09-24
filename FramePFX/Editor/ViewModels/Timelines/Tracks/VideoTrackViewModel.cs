@@ -139,8 +139,12 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {
-            return resource is ResourceAVMediaViewModel || resource is ResourceColourViewModel || resource is ResourceImageViewModel ||
-                   resource is ResourceTextStyleViewModel || resource is ResourceMpegMediaViewModel;
+            return resource is ResourceAVMediaViewModel ||
+                   resource is ResourceColourViewModel ||
+                   resource is ResourceImageViewModel ||
+                   resource is ResourceTextStyleViewModel ||
+                   resource is ResourceMpegMediaViewModel ||
+                   resource is ResourceCompositionViewModel;
         }
 
         public override async Task OnResourceDropped(ResourceItemViewModel resource, long frame) {
@@ -253,6 +257,15 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     };
 
                     clip.ResourceHelper.SetTargetResourceId(text.UniqueId);
+                    newClip = clip;
+                }
+                else if (resource.Model is ResourceCompositionSeq comp) {
+                    CompositionVideoClip clip = new CompositionVideoClip() {
+                        FrameSpan = new FrameSpan(frame, defaultDuration),
+                        DisplayName = "Composition clip"
+                    };
+
+                    clip.ResourceHelper.SetTargetResourceId(comp.UniqueId);
                     newClip = clip;
                 }
                 else {

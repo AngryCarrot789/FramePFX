@@ -17,5 +17,7 @@ namespace FramePFX.Editor {
         Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender = false);
 
         NotificationPanelViewModel NotificationPanel { get; }
+
+        void OpenTimeline(TimelineViewModel timeline);
     }
 }

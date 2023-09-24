@@ -18,6 +18,7 @@ namespace FramePFX.Editor.Registries {
             base.Register<ResourceMpegMedia, ResourceMpegMediaViewModel>("r_media");
             base.Register<ResourceTextStyle, ResourceTextStyleViewModel>("r_txt");
             base.Register<ResourceTextFile, ResourceTextFileViewModel>("r_txtfile");
+            base.Register<ResourceCompositionSeq, ResourceCompositionViewModel>("r_comp");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : BaseResourceObject where TViewModel : BaseResourceViewModel {

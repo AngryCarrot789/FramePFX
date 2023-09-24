@@ -66,6 +66,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 newList.Add(new ActionContextEntry(folder, "actions.resources.newitem.NewText", "Text", "Create a new text resource, and clip"));
                 newList.Add(new CommandContextEntry("ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));
                 newList.Add(new CommandContextEntry("Image", manager.CreateResourceCommand, nameof(ResourceImage)));
+                newList.Add(new CommandContextEntry("Composition Sequence", manager.CreateResourceCommand, nameof(ResourceCompositionSeq)));
                 newList.Add(SeparatorEntry.Instance);
                 newList.Add(new CommandContextEntry("Group", manager.CreateResourceCommand, nameof(ResourceFolder)));
 

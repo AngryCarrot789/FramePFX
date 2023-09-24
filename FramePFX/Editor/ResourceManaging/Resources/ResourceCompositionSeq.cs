@@ -1,5 +1,6 @@
 using System;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.ResourceManaging.Resources {
@@ -14,7 +15,14 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         public CompositionTimeline Timeline { get; }
 
         public ResourceCompositionSeq() : this(new CompositionTimeline()) {
+            this.Timeline.MaxDuration = 5000;
+            this.Timeline.AddTrack(new VideoTrack() {
+                DisplayName = "Track 1"
+            });
 
+            this.Timeline.AddTrack(new VideoTrack() {
+                DisplayName = "Track 2"
+            });
         }
 
         public ResourceCompositionSeq(CompositionTimeline timeline) {

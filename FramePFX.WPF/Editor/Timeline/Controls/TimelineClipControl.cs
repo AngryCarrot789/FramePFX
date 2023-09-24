@@ -285,7 +285,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
                     this.lastLeftClickPoint = e.GetPosition(this);
                     if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
-                        track.SetItemSelectedProperty(this, true);
+                        track.SetItemSelectedProperty(this, !this.IsSelected);
                         track.OnSelectionOperationCompleted();
                     }
                     else if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift) && track.lastSelectedItem != null && track.SelectedItems.Count > 0) {

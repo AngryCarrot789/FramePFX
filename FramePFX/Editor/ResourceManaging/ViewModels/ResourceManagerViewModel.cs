@@ -127,19 +127,24 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             BaseResourceObject resourceItem;
             switch (type) {
                 case nameof(ResourceColour):
-                    resourceItem = new ResourceColour();
+                    resourceItem = new ResourceColour() {
+                        DisplayName = "New Colour"
+                    };
                     break;
                 case nameof(ResourceImage):
-                    resourceItem = new ResourceImage();
+                    resourceItem = new ResourceImage() { DisplayName = "New Image" };
                     break;
                 case nameof(ResourceTextFile):
-                    resourceItem = new ResourceTextFile();
+                    resourceItem = new ResourceTextFile() { DisplayName = "New Text File" };
                     break;
                 case nameof(ResourceTextStyle):
-                    resourceItem = new ResourceTextStyle();
+                    resourceItem = new ResourceTextStyle() { DisplayName = "New Text Style" };
                     break;
                 case nameof(ResourceFolder):
-                    resourceItem = new ResourceFolder();
+                    resourceItem = new ResourceFolder() { DisplayName = "New Folder" };
+                    break;
+                case nameof(ResourceCompositionSeq):
+                    resourceItem = new ResourceCompositionSeq() { DisplayName = "New Composition Sequence" };
                     break;
                 default:
                     await Services.DialogService.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
@@ -153,9 +158,15 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 }
             }
             else if (resObj is ResourceFolderViewModel group) {
-                group.DisplayName = "New Group";
                 await group.RenameAsync();
                 this.CurrentFolder.AddItem(group);
+            }
+
+            if (resObj is ResourceCompositionViewModel composition) {
+                VideoEditorViewModel editor = this.Project.Editor;
+                if (editor != null) {
+                    editor.View.OpenTimeline(composition.Timeline);
+                }
             }
         }
 

@@ -49,6 +49,8 @@ namespace FramePFX.WPF.Converters {
     }
 
     public class NullToBoolConverter : NullConverter {
+        public static NullToBoolConverter Instance { get; } = new NullToBoolConverter();
+
         public new bool NullValue {
             get => (bool) base.NullValue;
             set => base.NullValue = value.Box();

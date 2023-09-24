@@ -17,7 +17,9 @@
             xmlns:nn="clr-namespace:FramePFX.WPF.Notifications"
             xmlns:evm="clr-namespace:FramePFX.Editor.ViewModels;assembly=FramePFX"
             xmlns:n="clr-namespace:FramePFX.Notifications;assembly=FramePFX"
-            xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources" xmlns:explorer="clr-namespace:FramePFX.WPF.Explorer"
+            xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
+            xmlns:explorer="clr-namespace:FramePFX.WPF.Explorer"
+            xmlns:timeline="clr-namespace:FramePFX.WPF.Editor.Timeline"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="840"
@@ -28,7 +30,7 @@
             sc:UIInputManager.FocusPath="Application/Editor">
     <Window.Resources>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v0.2.201)" />
-        <converters:NullToBoolConverter x:Key="NullToDisabledConverter" NullValue="False" NonNullValue="True" />
+        <converters:NullToBoolConverter x:Key="NullToDisabledConverter"/>
         <Style TargetType="{x:Type Slider}">
             <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
             <Setter Property="Background" Value="Transparent" />
@@ -89,7 +91,7 @@
             </Border>
             <Grid>
                 <Border Background="{DynamicResource PanelBackground1}" IsEnabled="{Binding IsEditorEnabled, Mode=OneWay}">
-                    <DockingManager>
+                    <DockingManager x:Name="MyDockingManager">
                         <DockingManager.Theme>
                             <av:GeneralDockTheme/>
                         </DockingManager.Theme>
@@ -143,19 +145,9 @@
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>
                                     </LayoutPanel>
-                                    <LayoutAnchorablePane DockHeight="350">
-                                        <LayoutAnchorable Title="Main Timeline" ContentId="TimelineAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                            <Border Grid.Row="2" DataContext="{Binding ActiveProject}" 
-                                                    IsEnabled="{Binding ., Converter={StaticResource NullToDisabledConverter}, Mode=TwoWay}"
-                                                    sc:UIInputManager.FocusPath="Application/Editor/Timeline">
-                                                <ctrl:TimelineControl DataContext="{Binding Timeline, Mode=OneTime}">
-                                                    <b:ShortcutCommandCollection.Collection>
-                                                        <b:ShortcutCommandCollection>
-                                                            <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/TogglePlayPause" Command="{Binding Project.Editor.Playback.TogglePlayCommand, Mode=OneWay}" />
-                                                        </b:ShortcutCommandCollection>
-                                                    </b:ShortcutCommandCollection.Collection>
-                                                </ctrl:TimelineControl>
-                                            </Border>
+                                    <LayoutAnchorablePane DockHeight="350" x:Name="TimelineLayoutPane">
+                                        <LayoutAnchorable Title="Project Timeline" ContentId="TimelineAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
+                                            <timeline:PreAnchoredTimelineControl DataContext="{Binding ActiveProject.Timeline}"/>
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                 </LayoutPanel>

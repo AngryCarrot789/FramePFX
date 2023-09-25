@@ -33,6 +33,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             set => this.RaisePropertyChanged(ref this.selectedClip, value);
         }
 
+        public long LargestFrameInUse => this.Model.LargestFrameInUse;
+
         public string DisplayName {
             get => this.Model.DisplayName;
             set {
@@ -134,6 +136,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.clips.Insert(index, clip);
             ClipViewModel.PostSetTrack(clip, this);
             this.OnProjectModified();
+            if (addToModel) {
+                this.TryRaiseLargestFrameInUseChanged();
+            }
         }
 
         public bool RemoveClip(ClipViewModel clip) {
@@ -155,6 +160,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.clips.RemoveAt(index);
             ClipViewModel.SetTrack(clip, null);
             this.OnProjectModified();
+            this.TryRaiseLargestFrameInUseChanged();
             return clip;
         }
 
@@ -229,6 +235,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
             this.Model.MakeTopMost(clip.Model, index, endIndex);
             this.clips.Move(index, endIndex);
+            this.TryRaiseLargestFrameInUseChanged();
         }
 
         public abstract bool CanDropResource(ResourceItemViewModel resource);
@@ -340,6 +347,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 newTrack.clips.Add(clip);
                 ClipViewModel.PostSetTrack(clip, newTrack);
                 this.OnProjectModified();
+                this.RaisePropertyChanged(nameof(this.LargestFrameInUse));
+                newTrack.RaisePropertyChanged(nameof(newTrack.LargestFrameInUse));
+            }
+        }
+
+        private void TryRaiseLargestFrameInUseChanged() {
+            if (this.Model.LargestFrameInUse != this.Model.PreviousLargestFrameInUse) {
+                this.RaisePropertyChanged(nameof(this.LargestFrameInUse));
             }
         }
     }

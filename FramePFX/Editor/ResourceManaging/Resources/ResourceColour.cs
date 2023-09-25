@@ -63,7 +63,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             this.Colour = new SKColor(data.GetUInt(nameof(this.Colour)));
         }
 
-        protected override void LoadCloneDataFromObject(BaseResourceObject obj) {
+        protected override void LoadCloneDataFromObject(BaseResource obj) {
             base.LoadCloneDataFromObject(obj);
             ResourceColour colour = (ResourceColour) obj;
             this.Colour = colour.Colour;

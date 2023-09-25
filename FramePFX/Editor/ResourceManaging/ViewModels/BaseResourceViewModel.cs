@@ -35,7 +35,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <summary>
         /// This resource view model's underlying model object
         /// </summary>
-        public BaseResourceObject Model { get; }
+        public BaseResource Model { get; }
 
         public string DisplayName {
             get => this.Model.DisplayName;
@@ -49,8 +49,9 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public AsyncRelayCommand DeleteCommand { get; }
 
-        protected BaseResourceViewModel(BaseResourceObject model) {
-            this.Model = model;
+        protected BaseResourceViewModel(BaseResource model) {
+            this.Model = model ?? throw new ArgumentNullException(nameof(model));
+            model.ViewModel = this;
             this.RenameCommand = new AsyncRelayCommand(this.RenameAsync, () => true);
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, () => this.Parent != null);
         }

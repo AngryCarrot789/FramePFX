@@ -247,6 +247,7 @@ namespace FramePFX.Editor.ViewModels {
                 return;
             }
 
+            this.Model.IsProjectChanging = true;
             PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null) {
@@ -274,6 +275,7 @@ namespace FramePFX.Editor.ViewModels {
                 this.RaisePropertyChanged(nameof(this.ActiveTimeline));
             }
 
+            this.Model.IsProjectChanging = false;
             this.RaisePropertyChanged(nameof(this.ActiveProject));
             this.IsEditorEnabled = project != null;
             this.ExportCommand.RaiseCanExecuteChanged();

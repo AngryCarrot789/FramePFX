@@ -16,7 +16,6 @@
     <Grid>
         <TextBlock FontFamily="{StaticResource FontOxanium}" FontWeight="DemiBold" FontSize="64" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12" ><Run Text="FramePFX v"/><Run Language="en-gb" Text="1"/><Run Text="."/><Run Language="en-gb" Text="0.1"/></TextBlock>
         <TextBlock x:Name="CurrentActivityTextBlock" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Padding="10" FontSize="12" />
-        <TextBlock FontFamily="{StaticResource FontOxanium}" Margin="0,92,0,228" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"><Run Text="A shitty video editor written by a shitty developer"/><Run Text="."/><LineBreak/><Run Text="Stands for "/><Run FontWeight="Bold" Text="Frame Pixel Effect"/><Run Text="... couldn't think of anything better"/></TextBlock>
-        <Image Margin="0,105,0,0" Width="128" Height="128" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/FramePFX-256.ico"/>
+        <Image Margin="0,75,0,0" Width="128" Height="128" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/FramePFX-256.ico"/>
     </Grid>
 </Window>

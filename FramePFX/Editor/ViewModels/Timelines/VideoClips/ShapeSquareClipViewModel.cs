@@ -8,17 +8,17 @@ using FramePFX.History.ViewModels;
 using FramePFX.Interactivity;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
-    public class ShapeClipViewModel : VideoClipViewModel {
-        private readonly HistoryBuffer<HistoryShapeSize> sizeHistory = new HistoryBuffer<HistoryShapeSize>();
+    public class ShapeSquareClipViewModel : VideoClipViewModel {
+        private readonly HistoryBuffer<HistoryShapeSquareSize> sizeHistory = new HistoryBuffer<HistoryShapeSquareSize>();
 
-        public new ShapeVideoClip Model => (ShapeVideoClip) base.Model;
+        public new ShapeSquareVideoClip Model => (ShapeSquareVideoClip) base.Model;
 
         public float Width {
             get => this.Model.Width;
             set {
                 if (!this.IsHistoryChanging && this.Track != null) {
-                    if (!this.sizeHistory.TryGetAction(out HistoryShapeSize action))
-                        this.sizeHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryShapeSize(this), "Edit shape size");
+                    if (!this.sizeHistory.TryGetAction(out HistoryShapeSquareSize action))
+                        this.sizeHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryShapeSquareSize(this), "Edit shape size");
                     action.Width.SetCurrent(value);
                 }
 
@@ -32,8 +32,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             get => this.Model.Height;
             set {
                 if (!this.IsHistoryChanging && this.Track != null) {
-                    if (!this.sizeHistory.TryGetAction(out HistoryShapeSize action))
-                        this.sizeHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryShapeSize(this), "Edit shape size");
+                    if (!this.sizeHistory.TryGetAction(out HistoryShapeSquareSize action))
+                        this.sizeHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryShapeSquareSize(this), "Edit shape size");
                     action.Height.SetCurrent(value);
                 }
 
@@ -43,7 +43,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             }
         }
 
-        public ShapeClipViewModel(ShapeVideoClip model) : base(model) {
+        public ShapeSquareClipViewModel(ShapeSquareVideoClip model) : base(model) {
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {

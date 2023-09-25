@@ -1,7 +1,6 @@
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.Tracks {
     public class VideoTrack : Track {

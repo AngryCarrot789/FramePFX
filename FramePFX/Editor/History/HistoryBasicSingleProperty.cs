@@ -5,7 +5,7 @@ using FramePFX.History;
 
 namespace FramePFX.Editor.History {
     public class HistoryBasicSingleProperty<TOwner, TValue> : BaseHistoryMultiHolderAction<TOwner> where TOwner : class, IHistoryHolder {
-        public readonly Transaction<TValue>[] Translations;
+        public readonly Transaction<TValue>[] Values;
         private readonly Func<TOwner, TValue> getter;
         private readonly Action<TOwner, TValue> setter;
         private readonly Action onHistoryApplied;
@@ -19,25 +19,25 @@ namespace FramePFX.Editor.History {
                 array[i] = Transactions.ForBoth(this.getter(this.Holders[i]));
             }
 
-            this.Translations = array;
+            this.Values = array;
         }
 
         public void SetCurrentValue(TValue value) {
             int i = 0;
             foreach (TOwner owner in this.Holders) {
                 this.setter(owner, value);
-                this.Translations[i++].Current = value;
+                this.Values[i++].Current = value;
             }
         }
 
         protected override Task UndoAsync(TOwner holder, int i) {
-            this.setter(holder, this.Translations[i].Original);
+            this.setter(holder, this.Values[i].Original);
             this.onHistoryApplied?.Invoke();
             return Task.CompletedTask;
         }
 
         protected override Task RedoAsync(TOwner holder, int i) {
-            this.setter(holder, this.Translations[i].Current);
+            this.setter(holder, this.Values[i].Current);
             this.onHistoryApplied?.Invoke();
             return Task.CompletedTask;
         }

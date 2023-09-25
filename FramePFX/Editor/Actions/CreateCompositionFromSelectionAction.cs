@@ -62,7 +62,9 @@ namespace FramePFX.Editor.Actions {
                 // based on the code above, this will always have at least 1 item
                 List<ClipViewModel> selection = oldTrack.SelectedClips.ToList();
 
-                timeline.RemoveTrack(oldTrack);
+                if (selection.Count == oldTrack.Clips.Count) {
+                    timeline.RemoveTrack(oldTrack);
+                }
 
                 Track clonedTrack = oldTrack.Model.Clone(TrackCloneFlags.DefaultFlags & ~TrackCloneFlags.CloneClips);
                 TrackViewModel clonedTrackVM = TrackFactory.Instance.CreateViewModelFromModel(clonedTrack);

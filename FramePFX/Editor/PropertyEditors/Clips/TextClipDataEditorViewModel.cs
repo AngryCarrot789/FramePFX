@@ -8,7 +8,7 @@ using FramePFX.History.Tasks;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Editor;
 
-namespace FramePFX.Editor.PropertyEditors.Clips.Text {
+namespace FramePFX.Editor.PropertyEditors.Clips {
     public class TextClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
         private readonly HistoryBuffer<HistoryFontFamilty> historyFontFamily;
         private readonly HistoryBuffer<HistoryText> historyText;

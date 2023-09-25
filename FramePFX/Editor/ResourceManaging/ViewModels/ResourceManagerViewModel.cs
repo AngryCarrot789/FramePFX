@@ -124,7 +124,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         private async Task CreateResourceAction(string type) {
-            BaseResourceObject resourceItem;
+            BaseResource resourceItem;
             switch (type) {
                 case nameof(ResourceColour):
                     resourceItem = new ResourceColour() {

@@ -9,7 +9,7 @@
                     xmlns:tc="clr-namespace:FramePFX.WPF.Editor.Timeline.Controls"
                     xmlns:cx="clr-namespace:FramePFX.Editor.Contexts;assembly=FramePFX"
                     xmlns:automation="clr-namespace:FramePFX.WPF.Editor.Automation"
-                    xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
+                    xmlns:dr="clr-namespace:FramePFX.WPF.Controls.Dragger"
                     xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
                     xmlns:ap2="clr-namespace:FramePFX.WPF.AttachedProperties"
                     xmlns:rulerWpf="clr-namespace:FramePFX.WPF.Controls.xclemence.RulerWPF"
@@ -308,7 +308,7 @@
                             <DockPanel>
                                 <Border Background="{TemplateBinding Background}" DockPanel.Dock="Right" Width="50" Panel.ZIndex="1">
                                     <Grid>
-                                        <dragger:NumberDragger IsEnabled="True" Focusable="False"
+                                        <dr:NumberDragger IsEnabled="True" Focusable="False"
                                                                Background="{TemplateBinding Background}" BorderThickness="0,0,0,0"
                                                                Style="{StaticResource AbletonNumberDraggerStyle}"
                                                                ToolTip="The timeline zoom level (use CTRL + MouseWheel to zoom)"
@@ -470,7 +470,7 @@
                                     <rulerWpf:Ruler VerticalAlignment="Stretch"
                                                     HorizontalAlignment="Stretch"
                                                     MarkerControlReference="{Binding ElementName=PART_rootGrid}"
-                                                    MaxValue="{Binding MaxDuration}"
+                                                    MaxValue="{Binding MaxDuration, Mode=OneWay}"
                                                     MinorStepRatio="0.5"
                                                     MajorLineThickness="1"
                                                     MinorLineThickness="0.5"
@@ -515,7 +515,7 @@
                             </StackPanel>
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
-                            <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
+                            <dr:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
                                                    TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                                    Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                                    HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
@@ -549,7 +549,7 @@
                             </StackPanel>
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
-                            <dragger:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
+                            <dr:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
                                                    DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static c:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
                                                    TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
                                                    Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
@@ -777,9 +777,12 @@
                                 <DockPanel Margin="8,0,0,0">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Medium" />
-                                        <TextBlock FontSize="15" Text="/" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,-2,3,0" />
-                                        <TextBlock FontSize="12" Text="{Binding MaxDuration, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                        <TextBlock FontSize="15" Text="/" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,-1,3,0" />
+                                        <dr:NumberDragger Background="Transparent" BorderThickness="0" FontSize="12" Value="{Binding MaxDuration, Mode=TwoWay}" Minimum="1" Maximum="9999999999999999" RoundedPlaces="0" PreviewRoundedPlaces="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                          ToolTip="Modifies the timeline's maximum duration before wrapping around to the start. Be careful reducing this such that clips fall outside of the timeline range, because it could crash the editor"/>
+
                                     </StackPanel>
+                                    <TextBlock Text="{Binding LargestFrameInUse, Mode=OneWay, StringFormat='({0})'}" DockPanel.Dock="Left" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource ABrush.Foreground.Disabled}" Padding="5,0"/>
                                 </DockPanel>
                             </Border>
                             <Border sc:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"

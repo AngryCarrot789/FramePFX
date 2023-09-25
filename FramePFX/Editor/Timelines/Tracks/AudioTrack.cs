@@ -4,7 +4,6 @@ using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Audio;
 using FramePFX.Editor.Timelines.AudioClips;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.Tracks {
     public class AudioTrack : Track {

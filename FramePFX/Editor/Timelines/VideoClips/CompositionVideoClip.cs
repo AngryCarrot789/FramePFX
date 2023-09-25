@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Rendering;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public class CompositionVideoClip : VideoClip, IResourceClip<ResourceComposition> {
@@ -11,6 +12,9 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public ResourceHelper<ResourceComposition> ResourceHelper { get; }
 
         private CancellationTokenSource tokenSource;
+
+        private long relativeRenderFrame;
+        private long relativePeriodicFrame;
 
         public CompositionVideoClip() {
             this.ResourceHelper = new ResourceHelper<ResourceComposition>(this);
@@ -27,8 +31,9 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             }
 
             this.tokenSource = new CancellationTokenSource(project.IsExporting ? -1 : 3000);
-            frame = this.GetRelativeFrame(frame);
-            return resource.Timeline.BeginCompositeRender(frame, CancellationToken.None);
+            this.relativeRenderFrame = this.GetRelativeFrame(frame);
+            this.relativePeriodicFrame = this.relativeRenderFrame % resource.Timeline.LargestFrameInUse;
+            return resource.Timeline.BeginCompositeRender(this.relativePeriodicFrame, CancellationToken.None);
         }
 
         public override Task OnEndRender(RenderContext rc, long frame) {
@@ -36,13 +41,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 return Task.CompletedTask;
             }
 
-            return resource.Timeline.EndCompositeRenderAsync(rc, frame, this.tokenSource.Token);
+            return resource.Timeline.EndCompositeRenderAsync(rc, this.relativePeriodicFrame, this.tokenSource.Token);
         }
 
         public override void OnRenderCompleted(long frame, bool isCancelled) {
             base.OnRenderCompleted(frame, isCancelled);
             this.tokenSource?.Dispose();
             this.tokenSource = null;
+            this.relativeRenderFrame = 0;
+            this.relativePeriodicFrame = 0;
         }
 
         protected override Clip NewInstance() {

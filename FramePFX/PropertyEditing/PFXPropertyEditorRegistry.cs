@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editor.PropertyEditors.Clips;
-using FramePFX.Editor.PropertyEditors.Clips.Text;
 using FramePFX.Editor.PropertyEditors.Effects;
 using FramePFX.Editor.PropertyEditors.Tracks;
 using FramePFX.Editor.PropertyEditors.Tracks.Video;

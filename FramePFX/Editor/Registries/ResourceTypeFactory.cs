@@ -7,7 +7,7 @@ namespace FramePFX.Editor.Registries {
     /// <summary>
     /// The registry for resource items (including the resource folder)
     /// </summary>
-    public class ResourceTypeFactory : ModelFactory<BaseResourceObject, BaseResourceViewModel> {
+    public class ResourceTypeFactory : ModelFactory<BaseResource, BaseResourceViewModel> {
         public static ResourceTypeFactory Instance { get; } = new ResourceTypeFactory();
 
         private ResourceTypeFactory() {
@@ -21,14 +21,14 @@ namespace FramePFX.Editor.Registries {
             base.Register<ResourceComposition, ResourceCompositionViewModel>("r_comp");
         }
 
-        public new void Register<TModel, TViewModel>(string id) where TModel : BaseResourceObject where TViewModel : BaseResourceViewModel {
+        public new void Register<TModel, TViewModel>(string id) where TModel : BaseResource where TViewModel : BaseResourceViewModel {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public new BaseResourceObject CreateModel(string id) => base.CreateModel(id);
+        public new BaseResource CreateModel(string id) => base.CreateModel(id);
 
         public new BaseResourceViewModel CreateViewModel(string id) => base.CreateViewModel(id);
 
-        public new BaseResourceViewModel CreateViewModelFromModel(BaseResourceObject item) => base.CreateViewModelFromModel(item);
+        public new BaseResourceViewModel CreateViewModelFromModel(BaseResource item) => base.CreateViewModelFromModel(item);
     }
 }

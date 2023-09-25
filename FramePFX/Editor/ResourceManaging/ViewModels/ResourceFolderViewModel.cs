@@ -29,7 +29,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 }
                 return true;
             };
-            foreach (BaseResourceObject item in model.Items) {
+            foreach (BaseResource item in model.Items) {
                 // no need to set manager to ours because it will be null as we are in the ctor
                 BaseResourceViewModel viewModel = item.CreateViewModel();
                 PreSetParent(viewModel, this);
@@ -255,7 +255,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 }
 
                 if (dropType == EnumDropType.Copy) {
-                    BaseResourceObject clone = BaseResourceObject.CloneAndRegister(resource.Model);
+                    BaseResource clone = BaseResource.CloneAndRegister(resource.Model);
                     if (!TextIncrement.GetIncrementableString(this.PredicateIsNameFree, clone.DisplayName, out string name))
                         name = clone.DisplayName;
                     clone.DisplayName = name;

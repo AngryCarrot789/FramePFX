@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using SkiaSharp;
 
 namespace FramePFX.Utils {
     public static class Vectors {
@@ -36,6 +37,10 @@ namespace FramePFX.Utils {
 
         public static Vector2 Lerp(in this Vector2 a, in Vector2 b, float blend) {
             return new Vector2(blend * (b.X - a.X) + a.X, blend * (b.Y - a.Y) + a.Y);
+        }
+
+        public static SKRect ToRectAsSize(in this Vector2 a, float left, float top) {
+            return new SKRect(left, top, left + a.X, top + a.Y);
         }
     }
 }

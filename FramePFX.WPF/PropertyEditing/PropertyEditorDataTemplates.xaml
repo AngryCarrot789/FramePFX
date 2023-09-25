@@ -6,7 +6,6 @@
                     xmlns:dr="clr-namespace:FramePFX.WPF.Controls.Dragger"
                     xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
                     xmlns:clips="clr-namespace:FramePFX.Editor.PropertyEditors.Clips;assembly=FramePFX"
-                    xmlns:text="clr-namespace:FramePFX.Editor.PropertyEditors.Clips.Text;assembly=FramePFX"
                     xmlns:effects="clr-namespace:FramePFX.Editor.PropertyEditors.Effects;assembly=FramePFX"
                     xmlns:primitives="clr-namespace:FramePFX.PropertyEditing.Editor;assembly=FramePFX"
                     xmlns:tracks="clr-namespace:FramePFX.Editor.PropertyEditors.Tracks;assembly=FramePFX"
@@ -117,7 +116,7 @@
     </DataTemplate>
 
     <!-- Text Clip -->
-    <DataTemplate DataType="{x:Type text:TextClipDataEditorViewModel}">
+    <DataTemplate DataType="{x:Type clips:TextClipDataEditorViewModel}">
         <Grid Margin="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />

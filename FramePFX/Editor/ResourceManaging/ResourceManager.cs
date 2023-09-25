@@ -86,7 +86,7 @@ namespace FramePFX.Editor.ResourceManaging {
             this.currId = data.GetULong("CurrId", 0UL);
         }
 
-        private static void AccumulateEntriesRecursive(ResourceManager manager, BaseResourceObject obj, Dictionary<ulong, ResourceItem> resources) {
+        private static void AccumulateEntriesRecursive(ResourceManager manager, BaseResource obj, Dictionary<ulong, ResourceItem> resources) {
             if (obj is ResourceItem item) {
                 if (resources.TryGetValue(item.UniqueId, out ResourceItem entry))
                     throw new Exception($"A resource already exists with the id '{item.UniqueId}': {entry}");
@@ -94,7 +94,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 manager.ResourceAdded?.Invoke(manager, item);
             }
             else if (obj is ResourceFolder group) {
-                foreach (BaseResourceObject subItem in group.Items) {
+                foreach (BaseResource subItem in group.Items) {
                     AccumulateEntriesRecursive(manager, subItem, resources);
                 }
             }

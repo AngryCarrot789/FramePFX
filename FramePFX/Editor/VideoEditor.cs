@@ -5,6 +5,9 @@ namespace FramePFX.Editor {
     public class VideoEditor {
         private readonly List<Timeline> activeTimelines;
         public volatile bool IsProjectSaving;
+        public volatile bool IsProjectChanging;
+
+        public bool CanRender => !this.IsProjectSaving && !this.IsProjectChanging;
 
         /// <summary>
         /// Gets the editor playback instance for this video editor

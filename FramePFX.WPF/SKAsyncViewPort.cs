@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Utils;
 using SkiaSharp;
 using Rect = System.Windows.Rect;
@@ -47,6 +48,14 @@ namespace FramePFX.WPF {
         private SKImageInfo skImageInfo;
 
         public SKImageInfo FrameInfo => this.skImageInfo;
+
+        public static readonly DependencyProperty RenderGizmoClipProperty = DependencyProperty.Register(
+            "RenderGizmoClip", typeof(ClipViewModel), typeof(SKAsyncViewPort), new PropertyMetadata(default(ClipViewModel)));
+
+        public ClipViewModel RenderGizmoClip {
+            get { return (ClipViewModel) GetValue(RenderGizmoClipProperty); }
+            set { SetValue(RenderGizmoClipProperty, value); }
+        }
 
         public SKAsyncViewPort() => this.designMode = DesignerProperties.GetIsInDesignMode(this);
 

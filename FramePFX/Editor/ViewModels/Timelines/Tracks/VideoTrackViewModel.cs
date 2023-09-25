@@ -232,7 +232,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             // }
             else {
                 if (resource.Model is ResourceColour argb) {
-                    ShapeVideoClip clip = new ShapeVideoClip() {
+                    ShapeSquareVideoClip clip = new ShapeSquareVideoClip() {
                         FrameSpan = new FrameSpan(frame, defaultDuration),
                         Width = 200, Height = 200,
                         DisplayName = "Shape Clip"

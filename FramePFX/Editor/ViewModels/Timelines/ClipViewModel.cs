@@ -302,6 +302,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.RaisePropertyChanged(nameof(this.FrameEndIndex));
             this.RaisePropertyChanged(nameof(this.RelativePlayHead));
             if (this.Track != null) {
+                this.Track.RaisePropertyChanged(nameof(this.Track.LargestFrameInUse));
                 this.Track.OnProjectModified();
                 long frame = this.Track.Timeline.PlayHeadFrame;
                 if (this.LastSeekedFrame != -1) {

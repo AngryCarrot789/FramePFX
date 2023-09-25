@@ -7,13 +7,13 @@ namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// A group of resource items
     /// </summary>
-    public sealed class ResourceFolder : BaseResourceObject {
-        private readonly List<BaseResourceObject> items;
+    public sealed class ResourceFolder : BaseResource {
+        private readonly List<BaseResource> items;
 
-        public IReadOnlyList<BaseResourceObject> Items => this.items;
+        public IReadOnlyList<BaseResource> Items => this.items;
 
         public ResourceFolder() {
-            this.items = new List<BaseResourceObject>();
+            this.items = new List<BaseResource>();
         }
 
         public ResourceFolder(string displayName) : this() {
@@ -22,13 +22,13 @@ namespace FramePFX.Editor.ResourceManaging {
 
         protected internal override void OnParentChainChanged() {
             base.OnParentChainChanged();
-            foreach (BaseResourceObject obj in this.items)
+            foreach (BaseResource obj in this.items)
                 obj.OnParentChainChanged();
         }
 
         protected internal override void SetManager(ResourceManager manager) {
             base.SetManager(manager);
-            foreach (BaseResourceObject item in this.items) {
+            foreach (BaseResource item in this.items) {
                 item.SetManager(manager);
             }
         }
@@ -36,7 +36,7 @@ namespace FramePFX.Editor.ResourceManaging {
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             RBEList list = data.CreateList("Items");
-            foreach (BaseResourceObject item in this.items) {
+            foreach (BaseResource item in this.items) {
                 list.Add(WriteSerialisedWithType(item));
             }
         }
@@ -49,18 +49,18 @@ namespace FramePFX.Editor.ResourceManaging {
             }
         }
 
-        protected override void LoadCloneDataFromObject(BaseResourceObject obj) {
+        protected override void LoadCloneDataFromObject(BaseResource obj) {
             base.LoadCloneDataFromObject(obj);
-            foreach (BaseResourceObject child in ((ResourceFolder) obj).items) {
+            foreach (BaseResource child in ((ResourceFolder) obj).items) {
                 this.AddItem(Clone(child));
             }
         }
 
-        public void AddItem(BaseResourceObject item) {
+        public void AddItem(BaseResource item) {
             this.InsertItem(this.items.Count, item);
         }
 
-        public void InsertItem(int index, BaseResourceObject item) {
+        public void InsertItem(int index, BaseResource item) {
             if (this.items.Contains(item))
                 throw new Exception("Value already stored in this group");
             this.items.Insert(index, item);
@@ -68,7 +68,7 @@ namespace FramePFX.Editor.ResourceManaging {
             item.SetManager(this.Manager);
         }
 
-        public bool RemoveItem(BaseResourceObject item) {
+        public bool RemoveItem(BaseResource item) {
             int index = this.items.IndexOf(item);
             if (index < 0)
                 return false;
@@ -77,7 +77,7 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         public void RemoveItemAt(int index) {
-            BaseResourceObject item = this.items[index];
+            BaseResource item = this.items[index];
             ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
             ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
             this.items.RemoveAt(index);
@@ -90,7 +90,7 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         public void MoveItemTo(int srcIndex, ResourceFolder target, int dstIndex) {
-            BaseResourceObject item = this.items[srcIndex];
+            BaseResource item = this.items[srcIndex];
             ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
             ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
             this.items.RemoveAt(srcIndex);
@@ -115,7 +115,7 @@ namespace FramePFX.Editor.ResourceManaging {
         public override void Dispose() {
             base.Dispose();
             using (ErrorList list = new ErrorList("Exception disposing child resources", false)) {
-                foreach (BaseResourceObject resource in this.items) {
+                foreach (BaseResource resource in this.items) {
                     try {
                         resource.Dispose();
                     }
@@ -132,12 +132,12 @@ namespace FramePFX.Editor.ResourceManaging {
         /// </summary>
         /// <param name="manager">The (non-null) manager to register items with</param>
         /// <param name="resource">Target item</param>
-        public static void RegisterHierarchy(ResourceManager manager, BaseResourceObject resource) {
+        public static void RegisterHierarchy(ResourceManager manager, BaseResource resource) {
             if (resource is ResourceItem) {
                 manager.RegisterEntry((ResourceItem) resource);
             }
             else if (resource is ResourceFolder) {
-                foreach (BaseResourceObject obj in ((ResourceFolder) resource).items) {
+                foreach (BaseResource obj in ((ResourceFolder) resource).items) {
                     RegisterHierarchy(manager, obj);
                 }
             }

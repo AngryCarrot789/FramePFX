@@ -63,6 +63,12 @@ namespace FramePFX.WPF {
         private DateTime lastInput;
 
         public App() {
+            // SortedList<long, string> aaaa = null;
+            // Dictionary<long, string> aa = null;
+            // aa[233] = ";";
+            // aaaa[23] = "";
+            // aaaa.Remove(23);
+
             // ICollection<FontFamily> fonts = Fonts.GetFontFamilies(new Uri("pack://application:,,,/Resources/Fonts/Oxanium/#"));
             // this.lastInput = DateTime.Now;
             // this.monitor = new InputDrivenTaskExecutor(() => {
@@ -432,7 +438,7 @@ namespace FramePFX.WPF {
                 track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
                 track.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
 
-                ShapeVideoClip clip1 = new ShapeVideoClip {
+                ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
@@ -444,7 +450,7 @@ namespace FramePFX.WPF {
                 clip1.ResourceHelper.SetTargetResourceId(id_r);
                 track.AddClip(clip1);
 
-                ShapeVideoClip clip2 = new ShapeVideoClip {
+                ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip {
                     Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
@@ -462,7 +468,7 @@ namespace FramePFX.WPF {
                 };
 
                 project.Timeline.AddTrack(track);
-                ShapeVideoClip clip1 = new ShapeVideoClip {
+                ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip {
                     Width = 400, Height = 400,
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
@@ -473,7 +479,7 @@ namespace FramePFX.WPF {
 
                 clip1.ResourceHelper.SetTargetResourceId(id_b);
                 track.AddClip(clip1);
-                ShapeVideoClip clip2 = new ShapeVideoClip {
+                ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip {
                     Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip blueish"

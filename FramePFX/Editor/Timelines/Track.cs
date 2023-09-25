@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.RBC;
@@ -37,6 +36,10 @@ namespace FramePFX.Editor.Timelines {
         public double Height { get; set; }
         public string TrackColour { get; set; }
 
+        public long PreviousLargestFrameInUse => this.cache.PreviousLargestActiveFrame;
+
+        public long LargestFrameInUse => this.cache.LargestActiveFrame;
+
         /// <summary>
         /// This track's automation data
         /// </summary>
@@ -45,6 +48,7 @@ namespace FramePFX.Editor.Timelines {
         public bool IsAutomationChangeInProgress { get; set; }
 
         private readonly ClipRangeCache cache;
+        private bool isPerformingOptimisedCacheRemoval;
 
         protected Track() {
             this.clips = new List<Clip>();
@@ -63,6 +67,7 @@ namespace FramePFX.Editor.Timelines {
             if (!ReferenceEquals(clip.Track, this))
                 throw new Exception("Clip's track does not match the current instance");
             this.cache.OnLocationChanged(clip, oldSpan);
+            // this.Timeline?.UpdateLargestFrame();
         }
 
         public static void SetTimeline(Track track, Timeline timeline) {
@@ -202,8 +207,17 @@ namespace FramePFX.Editor.Timelines {
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception("Expected clip's track to equal this instance");
             this.clips.RemoveAt(index);
-            this.cache.OnClipRemoved(clip);
+            if (!this.isPerformingOptimisedCacheRemoval)
+                this.cache.OnClipRemoved(clip);
             Clip.SetTrack(clip, null);
+        }
+
+        public void RemoveClips(IEnumerable<int> indices) {
+            int offset = 0;
+            this.isPerformingOptimisedCacheRemoval = true;
+            foreach (int index in indices)
+                this.RemoveClipAt(index + offset++);
+            this.isPerformingOptimisedCacheRemoval = false;
         }
 
         public void MakeTopMost(Clip clip, int oldIndex, int newIndex) {

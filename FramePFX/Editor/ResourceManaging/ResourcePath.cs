@@ -162,7 +162,8 @@ namespace FramePFX.Editor.ResourceManaging {
             }
 
             if (ReferenceEquals(oldItem, item)) {
-                Debug.WriteLine($"[{this.GetType().Name}] Attempted to set resource to same instance");
+                AppLogger.WriteLine($"Attempted to set resource to the same instance: {oldItem} -> {item}");
+                AppLogger.WriteLine(Environment.StackTrace);
                 return;
             }
 
@@ -366,7 +367,8 @@ namespace FramePFX.Editor.ResourceManaging {
             }
 
             if (ReferenceEquals(oldItem, item)) {
-                Debug.WriteLine($"[{this.GetType().Name}] Attempted to set resource to same instance");
+                AppLogger.WriteLine($"Attempted to set resource to the same instance: {oldItem} -> {item}");
+                AppLogger.WriteLine(Environment.StackTrace);
                 return;
             }
 
@@ -431,7 +433,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
         public bool TryGetResource(out T resource, bool requireIsOnline = true) {
             this.EnsureNotDisposed();
-            this.EnsureNotReplacingManager("Cannot attempt to get resource while manager is being set");
+            this.EnsureNotReplacingManager("Cannot attempt to get resource while manager is being changed");
             switch (this.IsValid) {
                 case false:
                     if (this.cached != null)

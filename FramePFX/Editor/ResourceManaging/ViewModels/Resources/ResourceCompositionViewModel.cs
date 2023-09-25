@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
     public class ResourceCompositionViewModel : ResourceItemViewModel {

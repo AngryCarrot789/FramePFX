@@ -135,7 +135,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         }
 
         public void TriggerClipRender() {
-            if (this.Clip is VideoClip clip) {
+            if (this.Clip is VideoClip clip && (clip.Project?.Editor?.CanRender ?? false)) {
                 clip.InvalidateRender();
             }
         }

@@ -5,7 +5,7 @@ using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging {
-    public abstract class ResourceItem : BaseResourceObject, IRBESerialisable, IDisposable {
+    public abstract class ResourceItem : BaseResource, IRBESerialisable, IDisposable {
         public const ulong EmptyId = ResourceManager.EmptyId;
         private bool isOnline;
 

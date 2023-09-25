@@ -1,12 +1,13 @@
 using System;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResourceObject {
+    public abstract class BaseResource {
         /// <summary>
         /// The manager that this resource belongs to. Null if the resource is unregistered
         /// </summary>
@@ -24,7 +25,13 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public string DisplayName { get; set; }
 
-        protected BaseResourceObject() {
+        /// <summary>
+        /// Gets or sets the view model associated with this resource item. This is a horrible hack around the
+        /// fact that there's currently no other way to access a resource item view model by a resource ID
+        /// </summary>
+        public BaseResourceViewModel ViewModel { get; set; }
+
+        protected BaseResource() {
         }
 
         /// <summary>
@@ -34,8 +41,8 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <param name="item">The item to clone</param>
         /// <returns>A cloned and fully registered but offline resource</returns>
         /// <exception cref="Exception">Internal error with the resource registry; cloned item type does not match the original item</exception>
-        public static BaseResourceObject Clone(BaseResourceObject item) {
-            BaseResourceObject clone = ResourceTypeFactory.Instance.CreateModel(item.FactoryId);
+        public static BaseResource Clone(BaseResource item) {
+            BaseResource clone = ResourceTypeFactory.Instance.CreateModel(item.FactoryId);
             if (clone.GetType() != item.GetType())
                 throw new Exception("Cloned object type does not match the item type");
             clone.LoadCloneDataFromObject(item);
@@ -48,14 +55,14 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <param name="item">The item to clone</param>
         /// <returns>A cloned and fully registered but offline resource</returns>
         /// <exception cref="Exception">Internal error with the resource registry; cloned item type does not match the original item</exception>
-        public static BaseResourceObject CloneAndRegister(BaseResourceObject item) {
-            BaseResourceObject clone = Clone(item);
+        public static BaseResource CloneAndRegister(BaseResource item) {
+            BaseResource clone = Clone(item);
             if (item.Manager != null)
                 ResourceFolder.RegisterHierarchy(item.Manager, clone);
             return clone;
         }
 
-        public static void SetParent(BaseResourceObject obj, ResourceFolder parent) {
+        public static void SetParent(BaseResource obj, ResourceFolder parent) {
             obj.Parent = parent;
             obj.OnParentChainChanged();
         }
@@ -75,24 +82,24 @@ namespace FramePFX.Editor.ResourceManaging {
             this.Manager = manager;
         }
 
-        public static BaseResourceObject ReadSerialisedWithType(RBEDictionary dictionary) {
+        public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary) {
             string registryId = dictionary.GetString(nameof(FactoryId), null);
             if (string.IsNullOrEmpty(registryId))
                 throw new Exception("Missing the registry ID for item");
             RBEDictionary data = dictionary.GetDictionary("Data");
-            BaseResourceObject resource = ResourceTypeFactory.Instance.CreateModel(registryId);
+            BaseResource resource = ResourceTypeFactory.Instance.CreateModel(registryId);
             resource.ReadFromRBE(data);
             return resource;
         }
 
-        public static void WriteSerialisedWithType(RBEDictionary dictionary, BaseResourceObject item) {
+        public static void WriteSerialisedWithType(RBEDictionary dictionary, BaseResource item) {
             if (!(item.FactoryId is string id))
                 throw new Exception("Unknown resource item type: " + item.GetType());
             dictionary.SetString(nameof(FactoryId), id);
             item.WriteToRBE(dictionary.CreateDictionary("Data"));
         }
 
-        public static RBEDictionary WriteSerialisedWithType(BaseResourceObject clip) {
+        public static RBEDictionary WriteSerialisedWithType(BaseResource clip) {
             RBEDictionary dictionary = new RBEDictionary();
             WriteSerialisedWithType(dictionary, clip);
             return dictionary;
@@ -112,7 +119,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// load data from the given object into the current instance
         /// </summary>
         /// <param name="obj">An object to copy data from</param>
-        protected virtual void LoadCloneDataFromObject(BaseResourceObject obj) {
+        protected virtual void LoadCloneDataFromObject(BaseResource obj) {
             this.DisplayName = obj.DisplayName;
         }
 

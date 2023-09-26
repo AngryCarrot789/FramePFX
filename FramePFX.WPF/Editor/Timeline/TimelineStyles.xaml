@@ -737,31 +737,40 @@
                     <DockPanel d:DataContext="{d:DesignInstance ctl:TimelineViewModel}" IsEnabled="{Binding Project, Converter={x:Static c:NullToBoolConverter.NullToFalse}}">
                         <Border DockPanel.Dock="Bottom" Height="28" Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
-                            <StackPanel Orientation="Horizontal" Margin="2">
-                                <StackPanel Orientation="Horizontal" DataContext="{Binding Project.Editor.Playback}">
-                                    <Button Command="{Binding PlayFromStartCommand, Mode=OneTime}" Focusable="False" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
-                                        <Grid Width="20" Height="14">
-                                            <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                                            <Polygon Margin="7,0,0,0" HorizontalAlignment="Left" Width="14" Height="14" Points="0,14 0,0 13,7" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                                        </Grid>
-                                    </Button>
-                                    <Button Command="{Binding PlayCommand, Mode=OneTime}" Focusable="False" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" >
-                                        <Polygon Width="14" Height="14" Points="0,14 0,0 14,7" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                                    </Button>
-                                    <Button Command="{Binding PauseCommand, Mode=OneTime}" Focusable="False" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
-                                        <Grid Width="14" Height="14">
-                                            <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                                            <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                                        </Grid>
-                                    </Button>
-                                    <Button Command="{Binding StopCommand, Mode=OneTime}" Focusable="False" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
-                                        <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                                    </Button>
+                            <DockPanel Margin="2">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                    <ToggleButton IsChecked="{Binding ElementName=PART_TimelineEditor, Path=ScrollTimelineDuringPlayback}" 
+                                                  Focusable="False" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left"
+                                                  ToolTip="Auto-scroll the timeline to the right (during playback) when the timeline is almost out of view">
+                                        <TextBlock Text="T" FontFamily="Consolas" FontSize="20"/>
+                                    </ToggleButton>
                                 </StackPanel>
-                                <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" Height="20" Background="{DynamicResource PanelBorderBrush}"/>
-                                <ToggleButton IsChecked="{Binding IsRecordingKeyFrames, Mode=TwoWay}" Focusable="False" Background="Transparent" BorderThickness="0" Width="25"
-                                              Content="Rec" ToolTip="Record automation parameters. Modify any automatable parameter and a keyframe will automatically get created at the playhead"/>
-                            </StackPanel>
+                                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" DataContext="{Binding Project.Editor.Playback}">
+                                        <Button Command="{Binding PlayFromStartCommand, Mode=OneTime}" Focusable="False" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+                                            <Grid Width="20" Height="14">
+                                                <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                                                <Polygon Margin="7,0,0,0" HorizontalAlignment="Left" Width="14" Height="14" Points="0,14 0,0 13,7" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                                            </Grid>
+                                        </Button>
+                                        <Button Command="{Binding PlayCommand, Mode=OneTime}" Focusable="False" Width="26" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" >
+                                            <Polygon Width="14" Height="14" Points="0,14 0,0 14,7" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                                        </Button>
+                                        <Button Command="{Binding PauseCommand, Mode=OneTime}" Focusable="False" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+                                            <Grid Width="14" Height="14">
+                                                <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                                                <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                                            </Grid>
+                                        </Button>
+                                        <Button Command="{Binding StopCommand, Mode=OneTime}" Focusable="False" Width="24" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+                                            <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                                        </Button>
+                                    </StackPanel>
+                                    <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" Height="20" Background="{DynamicResource PanelBorderBrush}"/>
+                                    <ToggleButton IsChecked="{Binding IsRecordingKeyFrames, Mode=TwoWay}" Focusable="False" Background="Transparent" BorderThickness="0" Width="25"
+                                                  Content="Rec" ToolTip="Record automation parameters. Modify any automatable parameter and a keyframe will automatically get created at the playhead"/>
+                                </StackPanel>
+                            </DockPanel>
                         </Border>
                         <Grid Grid.IsSharedSizeScope="True">
                             <Grid.RowDefinitions>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using FramePFX.Editor;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
@@ -43,8 +44,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     (d, e) => ((TimelineEditorControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
-        public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineEditorControl), new FrameworkPropertyMetadata(0L, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineEditorControl), new FrameworkPropertyMetadata(0L, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => ((TimelineEditorControl) d).OnPlayHeadChanged((long) e.OldValue, (long) e.NewValue)));
+
         public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRect?), typeof(TimelineEditorControl), new PropertyMetadata((SelectionRect?) null));
+
+        public static readonly DependencyProperty ScrollTimelineDuringPlaybackProperty = DependencyProperty.Register("ScrollTimelineDuringPlayback", typeof(bool), typeof(TimelineEditorControl), new PropertyMetadata(BoolBox.False));
 
         /// <summary>
         /// The horizontal zoom multiplier of this timeline, which affects the size of all tracks
@@ -68,6 +72,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public SelectionRect? SelectionRectangle {
             get => (SelectionRect?) this.GetValue(SelectionRectangleProperty);
             set => this.SetValue(SelectionRectangleProperty, value);
+        }
+
+        public bool ScrollTimelineDuringPlayback {
+            get => (bool) this.GetValue(ScrollTimelineDuringPlaybackProperty);
+            set => this.SetValue(ScrollTimelineDuringPlaybackProperty, value);
         }
 
         /// <summary>
@@ -143,6 +152,22 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             this.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
             this.PART_SelectionRange = this.GetTemplateElement<Border>("PART_SelectionRange");
+        }
+
+        private void OnPlayHeadChanged(long oldValue, long newValue) {
+            if (this.PART_ScrollViewer == null || !this.ScrollTimelineDuringPlayback || !(this.DataContext is TimelineViewModel timeline)) {
+                return;
+            }
+
+            if (timeline.Project?.Editor?.Playback?.IsPlaying ?? false) {
+                double pixel = TimelineUtils.FrameToPixel(newValue, this.UnitZoom);
+                double vpw = this.PART_ScrollViewer.ViewportWidth;
+                double edge = (vpw / 12);
+                double max = this.PART_ScrollViewer.HorizontalOffset + vpw - edge;
+                if (pixel > max) {
+                    this.PART_ScrollViewer.ScrollToHorizontalOffset(pixel - edge);
+                }
+            }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
@@ -289,6 +314,43 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 double new_offset = scaled_target_offset - center_x;
                 scroller.ScrollToHorizontalOffset(new_offset);
             }
+        }
+
+        public enum ScrollType {
+            /// <summary>
+            /// Scroll to the point such that it ends up in the center of the view port
+            /// </summary>
+            Center,
+            /// <summary>
+            /// Scroll to the point such that it ends up on the very left side of the view port
+            /// </summary>
+            Left,
+            /// <summary>
+            /// Scroll to the point such that it ends up on the very right side of the view port
+            /// </summary>
+            Right
+        }
+
+        public bool ScrollToFrame(long frame, ScrollType type = ScrollType.Center) {
+            if (this.PART_ScrollViewer == null) {
+                return false;
+            }
+
+            // double target_offset = (this.PART_ScrollViewer.HorizontalOffset + pixel) / oldzoom;
+            // double scaled_target_offset = target_offset * newzoom;
+            // double new_offset = scaled_target_offset - pixel;
+            // this.PART_ScrollViewer.ScrollToHorizontalOffset(new_offset);
+
+            double pixel = TimelineUtils.FrameToPixel(frame, this.UnitZoom);
+            if (type == ScrollType.Center) {
+                pixel -= (this.PART_ScrollViewer.ViewportWidth / 2d);
+            }
+            else if (type == ScrollType.Right) {
+                pixel -= this.PART_ScrollViewer.ViewportWidth;
+            }
+
+            this.PART_ScrollViewer.ScrollToHorizontalOffset(pixel);
+            return true;
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {

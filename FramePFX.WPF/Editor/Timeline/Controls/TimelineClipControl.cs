@@ -217,7 +217,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnLeftThumbDragStart(object sender, DragStartedEventArgs e) {
-            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingLeftThumb) {
+            if ((Keyboard.Modifiers & ModifierKeys.Alt) != 0 && this.Timeline is TimelineEditorControl timeline) {
+                e.Handled = true;
+                timeline.ScrollToFrame(this.FrameBegin);
+            }
+            else if (this.DataContext is ClipViewModel handler && !handler.IsDraggingLeftThumb) {
                 this.OnAnyThumbDragStart();
                 handler.OnLeftThumbDragStart();
             }
@@ -247,7 +251,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnRightThumbDragStart(object sender, DragStartedEventArgs e) {
-            if (this.DataContext is ClipViewModel handler && !handler.IsDraggingRightThumb) {
+            if ((Keyboard.Modifiers & ModifierKeys.Alt) != 0 && this.Timeline is TimelineEditorControl timeline) {
+                e.Handled = true;
+                timeline.ScrollToFrame(this.FrameBegin + this.FrameDuration);
+            }
+            else if (this.DataContext is ClipViewModel handler && !handler.IsDraggingRightThumb) {
                 this.OnAnyThumbDragStart();
                 handler.OnRightThumbDragStart();
             }
@@ -380,6 +388,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             TimelineEditorControl timeline = this.Timeline;
             if (wasDragging != true) {
+                if (timeline != null && KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Alt)) {
+                    timeline.ScrollToFrame(this.FrameBegin + (this.FrameDuration / 2));
+                    e.Handled = true;
+                    return;
+                }
+
                 if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
                     this.IsSelected = !this.IsSelected;
                 }

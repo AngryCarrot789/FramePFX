@@ -4,11 +4,11 @@ using FramePFX.History;
 
 namespace FramePFX.Editor.History {
     public class HistoryShapeSquareSize : HistoryAction {
-        public ShapeSquareClipViewModel Clip { get; }
+        public ShapeSquareVideoClipViewModel Clip { get; }
         public Transaction<float> Width { get; }
         public Transaction<float> Height { get; }
 
-        public HistoryShapeSquareSize(ShapeSquareClipViewModel clip) {
+        public HistoryShapeSquareSize(ShapeSquareVideoClipViewModel clip) {
             this.Clip = clip;
             this.Width = Transactions.ImmutableType(clip.Width);
             this.Height = Transactions.ImmutableType(clip.Height);

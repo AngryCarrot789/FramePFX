@@ -1,7 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.RBC;
+using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.Effects {
     /// <summary>
@@ -33,6 +38,27 @@ namespace FramePFX.Editor.Timelines.Effects {
         protected BaseEffect() {
             this.IsRemoveable = true;
             this.AutomationData = new AutomationData(this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ProcessEffectList(List<BaseEffect> effects, RenderContext render, Vector2? frameSize, bool isPreProcess) {
+            // pre-process clip effects, such as translation, scale, etc.
+            int count = effects.Count;
+            if (count == 0) {
+                return;
+            }
+
+            for (int i = 0; i < count; i++) {
+                BaseEffect effect = effects[i];
+                if (effect is VideoEffect) {
+                    if (isPreProcess) {
+                        ((VideoEffect) effect).PreProcessFrame(render, frameSize);
+                    }
+                    else {
+                        ((VideoEffect) effect).PostProcessFrame(render, frameSize);
+                    }
+                }
+            }
         }
 
         public static void AddEffectToClip(Clip clip, BaseEffect effect) {
@@ -95,6 +121,13 @@ namespace FramePFX.Editor.Timelines.Effects {
             clip.Effects.RemoveAt(index);
             effect.OwnerClip = null;
             effect.OnRemovedFromClip(clip);
+        }
+
+        public static void ClearEffects(Clip clip) {
+            List<BaseEffect> list = clip.Effects;
+            for (int i = list.Count - 1; i >= 0; i--) {
+                RemoveEffectAt(clip, i);
+            }
         }
 
         /// <summary>

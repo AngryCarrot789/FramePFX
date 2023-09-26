@@ -44,6 +44,8 @@ using UndoAction = FramePFX.History.Actions.UndoAction;
 
 namespace FramePFX.WPF {
     public partial class App : Application {
+        /// private readonly Dictionary<Type, List<Type>> AttributeProcessorMap;
+
         public static ThemeType CurrentTheme { get; set; }
 
         public static ResourceDictionary ThemeDictionary {
@@ -68,6 +70,7 @@ namespace FramePFX.WPF {
         public App() {
             Services.Application = new ApplicationDelegate(this);
             AppLogger.WriteLine("Application entry point");
+
             // SortedList<long, string> aaaa = null;
             // Dictionary<long, string> aa = null;
             // aa[233] = ";";

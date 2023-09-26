@@ -52,7 +52,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
-            this.Effects.Clear();
             base.ReadFromRBE(data);
             this.Opacity = data.GetDouble(nameof(this.Opacity));
         }
@@ -61,9 +60,9 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// Gets the amount of space this clip takes up on screen (unaffected by <see cref="MediaPosition"/> or <see cref="MediaScale"/>).
         /// If the value is unavailable, then the render viewport's width and height are used as a fallback
         /// </summary>
-        /// <param name="renderContext"></param>
+        /// <param name="rc">The rendering context, which contains frame information and a target drawing canvas</param>
         /// <returns>A nullable vector (null indicating to use the current view port size)</returns>
-        public virtual Vector2? GetSize(RenderContext renderContext) => null;
+        public virtual Vector2? GetSize(RenderContext rc) => null;
 
         /// <summary>
         /// Prepares this clip for being rendered at the given frame. This is called before anything should

@@ -8,7 +8,7 @@ using FramePFX.History.ViewModels;
 using FramePFX.Interactivity;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
-    public class ShapeSquareClipViewModel : VideoClipViewModel {
+    public class ShapeSquareVideoClipViewModel : VideoClipViewModel {
         private readonly HistoryBuffer<HistoryShapeSquareSize> sizeHistory = new HistoryBuffer<HistoryShapeSquareSize>();
 
         public new ShapeSquareVideoClip Model => (ShapeSquareVideoClip) base.Model;
@@ -43,7 +43,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             }
         }
 
-        public ShapeSquareClipViewModel(ShapeSquareVideoClip model) : base(model) {
+        public ShapeSquareVideoClipViewModel(ShapeSquareVideoClip model) : base(model) {
         }
 
         public override bool CanDropResource(ResourceItemViewModel resource) {

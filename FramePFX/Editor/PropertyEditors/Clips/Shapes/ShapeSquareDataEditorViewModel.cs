@@ -24,7 +24,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips.Shapes {
                 float change = value - oldVal;
                 Transaction<float>[] array = ((HistorySquareWidth) this.WidthEditStateChangedCommand.HistoryAction)?.Values;
                 for (int i = 0, c = this.Handlers.Count; i < c; i++) {
-                    ShapeSquareClipViewModel clip = (ShapeSquareClipViewModel) this.Handlers[i];
+                    ShapeSquareVideoClipViewModel clip = (ShapeSquareVideoClipViewModel) this.Handlers[i];
                     float val = useAddition ? (clip.Width + change) : value;
                     clip.Width = val;
                     if (array != null) {
@@ -46,7 +46,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips.Shapes {
                 float change = value - oldVal;
                 Transaction<float>[] array = ((HistorySquareHeight) this.HeightEditStateChangedCommand.HistoryAction)?.Values;
                 for (int i = 0, c = this.Handlers.Count; i < c; i++) {
-                    ShapeSquareClipViewModel clip = (ShapeSquareClipViewModel) this.Handlers[i];
+                    ShapeSquareVideoClipViewModel clip = (ShapeSquareVideoClipViewModel) this.Handlers[i];
                     float val = useAddition ? (clip.Height + change) : value;
                     clip.Height = val;
                     if (array != null) {
@@ -64,8 +64,8 @@ namespace FramePFX.Editor.PropertyEditors.Clips.Shapes {
         public EditStateCommand WidthEditStateChangedCommand { get; }
         public EditStateCommand HeightEditStateChangedCommand { get; }
 
-        public ShapeSquareClipViewModel SingleSelection => (ShapeSquareClipViewModel) this.Handlers[0];
-        public IEnumerable<ShapeSquareClipViewModel> Clips => this.Handlers.Cast<ShapeSquareClipViewModel>();
+        public ShapeSquareVideoClipViewModel SingleSelection => (ShapeSquareVideoClipViewModel) this.Handlers[0];
+        public IEnumerable<ShapeSquareVideoClipViewModel> Clips => this.Handlers.Cast<ShapeSquareVideoClipViewModel>();
 
 
         public ShapeSquareDataEditorViewModel() : base(typeof(ShapeSquareVideoClip)) {
@@ -85,21 +85,21 @@ namespace FramePFX.Editor.PropertyEditors.Clips.Shapes {
         }
 
         public void RequeryWidthFromHandlers() {
-            this.width = GetEqualValue(this.Handlers, (x) => ((ShapeSquareClipViewModel) x).Width, out float d) ? d : default;
+            this.width = GetEqualValue(this.Handlers, (x) => ((ShapeSquareVideoClipViewModel) x).Width, out float d) ? d : default;
             this.RaisePropertyChanged(nameof(this.Width));
         }
 
         public void RequeryHeightFromHandlers() {
-            this.width = GetEqualValue(this.Handlers, (x) => ((ShapeSquareClipViewModel) x).Height, out float d) ? d : default;
+            this.width = GetEqualValue(this.Handlers, (x) => ((ShapeSquareVideoClipViewModel) x).Height, out float d) ? d : default;
             this.RaisePropertyChanged(nameof(this.Height));
         }
 
-        protected class HistorySquareWidth : HistoryBasicSingleProperty<ShapeSquareClipViewModel, float> {
+        protected class HistorySquareWidth : HistoryBasicSingleProperty<ShapeSquareVideoClipViewModel, float> {
             public HistorySquareWidth(ShapeSquareDataEditorViewModel editor) : base(editor.Clips, (x) => x.Width, (a, b) => a.Width = b, editor.RequeryWidthFromHandlers) {
             }
         }
 
-        protected class HistorySquareHeight : HistoryBasicSingleProperty<ShapeSquareClipViewModel, float> {
+        protected class HistorySquareHeight : HistoryBasicSingleProperty<ShapeSquareVideoClipViewModel, float> {
             public HistorySquareHeight(ShapeSquareDataEditorViewModel editor) : base(editor.Clips, (x) => x.Height, (a, b) => a.Height = b, editor.RequeryHeightFromHandlers) {
             }
         }

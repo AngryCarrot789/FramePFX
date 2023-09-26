@@ -20,8 +20,9 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             this.DisplayName = "Effects";
             this.IsSelected = true;
             this.IsHeaderBold = true;
+            this.IsVisibleWhenNotApplicable = true;
 
-            this.CanExecuteSingleSelection = () => this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup && this.handler != null;
+            this.CanExecuteSingleSelection = () => this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup || this.handler != null;
             this.AddMotionEffectCommand = new RelayCommand(() => {
                 if (!this.CanExecuteSingleSelection())
                     return;
@@ -33,6 +34,9 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             base.SetupHierarchyState(input);
             if (this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup) {
                 this.handler = ((BaseEffectViewModel) input[0]).OwnerClip;
+            }
+            else if (this.Parent.Handlers?.Count == 1) {
+                this.handler = (ClipViewModel) this.Parent.Handlers[0];
             }
 
             this.AddMotionEffectCommand.RaiseCanExecuteChanged();

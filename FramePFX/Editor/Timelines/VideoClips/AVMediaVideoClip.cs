@@ -36,7 +36,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceHelper.TryGetResource(out resource);
 
-        public override Vector2? GetSize(RenderContext renderContext) {
+        public override Vector2? GetSize(RenderContext rc) {
             return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
         }
 

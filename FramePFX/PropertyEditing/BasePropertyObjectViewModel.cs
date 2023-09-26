@@ -7,6 +7,7 @@ namespace FramePFX.PropertyEditing {
     public class BasePropertyObjectViewModel : BaseViewModel, IPropertyEditorItem {
         private PropertyEditorRegistry propertyEditor;
         private bool isCurrentlyApplicable;
+        private bool isVisibleWhenNotApplicable;
 
         /// <summary>
         /// Whether or not this item should be visible to the end user or not.
@@ -18,8 +19,19 @@ namespace FramePFX.PropertyEditing {
                 if (this.isCurrentlyApplicable == value)
                     return;
                 this.RaisePropertyChanged(ref this.isCurrentlyApplicable, value);
+                this.RaisePropertyChanged(nameof(this.IsVisible));
             }
         }
+
+        public bool IsVisibleWhenNotApplicable {
+            get => this.isVisibleWhenNotApplicable;
+            protected set {
+                this.RaisePropertyChanged(ref this.isVisibleWhenNotApplicable, value);
+                this.RaisePropertyChanged(nameof(this.IsVisible));
+            }
+        }
+
+        public bool IsVisible => this.IsCurrentlyApplicable || this.IsVisibleWhenNotApplicable;
 
         public PropertyEditorRegistry PropertyEditor {
             get => this.propertyEditor;

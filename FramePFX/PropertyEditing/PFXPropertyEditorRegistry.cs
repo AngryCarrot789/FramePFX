@@ -31,7 +31,7 @@ namespace FramePFX.PropertyEditing {
                 this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Multi", new VideoClipDataMultipleEditorViewModel());
 
                 {
-                    FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(TextClipViewModel), "Text Info");
+                    FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(TextVideoClipViewModel), "Text Info");
                     group.AddPropertyEditor("TextEditor", new TextClipDataEditorViewModel());
                 }
             }

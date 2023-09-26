@@ -35,8 +35,15 @@ namespace FramePFX.AdvancedContextService {
 
         protected BaseContextEntry(object dataContext, string header, string description, IEnumerable<IContextEntry> children = null) {
             this.context = new DataContext();
-            if (dataContext != null)
-                this.context.AddContext(dataContext);
+            if (dataContext != null) {
+                if (dataContext is IDataContext ctx) {
+                    this.context.Merge(ctx);
+                }
+                else {
+                    this.context.AddContext(dataContext);
+                }
+            }
+
             this.Children = children;
             this.header = header;
             this.description = description;

@@ -16,12 +16,13 @@ namespace FramePFX.Editor.Registries {
             #region video
 
             // clipvideo_type
-            this.Register<ImageVideoClip, ImageClipViewModel>("cv_img");
-            this.Register<ShapeSquareVideoClip, ShapeSquareClipViewModel>("cv_square");
-            this.Register<TextVideoClip, TextClipViewModel>("cv_txt");
-            this.Register<AVMediaVideoClip, AVMediaClipViewModel>("cv_av_media");
+            this.Register<ImageVideoClip, ImageVideoClipViewModel>("cv_img");
+            this.Register<ShapeSquareVideoClip, ShapeSquareVideoClipViewModel>("cv_square");
+            this.Register<TextVideoClip, TextVideoClipViewModel>("cv_txt");
+            this.Register<AVMediaVideoClip, AVMediaVideoClipViewModel>("cv_av_media");
             this.Register<MpegMediaVideoClip, MpegMediaVideoClipViewModel>("cv_media");
             this.Register<CompositionVideoClip, CompositionVideoClipViewModel>("cv_comp");
+            this.Register<AdjustmentVideoClip, AdjustmentVideoClipViewModel>("cv_adjust");
 
             #endregion
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Automation;
@@ -10,6 +11,7 @@ using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
@@ -22,6 +24,7 @@ namespace FramePFX.Editor.Timelines {
     public class Timeline : IAutomatable, IRBESerialisable {
         private readonly List<Track> tracks;
         private readonly List<VideoClip> RenderList = new List<VideoClip>();
+        private readonly List<AdjustmentVideoClip> AdjustmentStack = new List<AdjustmentVideoClip>();
         private volatile bool isBeginningRender;
 
         // not a chance anyone's creating more than 9 quintillion clips or tracks
@@ -253,6 +256,7 @@ namespace FramePFX.Editor.Timelines {
                 }
 
                 renderList.Clear();
+                this.AdjustmentStack.Clear();
             }
         }
 
@@ -280,6 +284,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         private bool BeginCompositeRenderInternal(long frame, CancellationToken token) {
+            List<AdjustmentVideoClip> adjustments = this.AdjustmentStack;
             List<VideoClip> renderList = this.RenderList;
             List<Track> trackList = this.tracks;
             // Render timeline from the bottom to the top
@@ -291,22 +296,27 @@ namespace FramePFX.Editor.Timelines {
                 }
 
                 if (trackList[i] is VideoTrack track && track.IsActuallyVisible) {
-                    VideoClip clip = (VideoClip) track.GetClipAtFrame(frame);
+                    Clip clip = track.GetClipAtFrame(frame);
                     if (clip == null) {
                         continue;
                     }
 
-                    bool render;
-                    try {
-                        render = clip.OnBeginRender(frame);
+                    if (clip is AdjustmentVideoClip) {
+                        adjustments.Add((AdjustmentVideoClip) clip);
                     }
-                    catch (Exception e) {
-                        this.CompleteRenderList(frame, true, e);
-                        throw new Exception("Failed to invoke " + nameof(clip.OnBeginRender) + " for clip", e);
-                    }
+                    else {
+                        bool render;
+                        try {
+                            render = ((VideoClip) clip).OnBeginRender(frame);
+                        }
+                        catch (Exception e) {
+                            this.CompleteRenderList(frame, true, e);
+                            throw new Exception("Failed to invoke " + nameof(VideoClip.OnBeginRender) + " for clip", e);
+                        }
 
-                    if (render) {
-                        renderList.Add(clip);
+                        if (render) {
+                            renderList.Add((VideoClip) clip);
+                        }
                     }
                 }
             }
@@ -314,13 +324,59 @@ namespace FramePFX.Editor.Timelines {
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PreProcessAjustments(long frame, RenderContext render) {
+            List<AdjustmentVideoClip> list = this.AdjustmentStack;
+            int count = list.Count;
+            if (count == 0) {
+                return;
+            }
+
+            Vector2 size = render.FrameSize;
+            try {
+                for (int i = 0; i < count; i++) {
+                    BaseEffect.ProcessEffectList(list[i].Effects, render, size, true);
+                }
+            }
+            catch (Exception e) {
+                this.CompleteRenderList(frame, true, e);
+                throw new Exception("Failed to pre-process adjustment layer effects", e);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PostProcessAjustments(long frame, RenderContext render) {
+            List<AdjustmentVideoClip> list = this.AdjustmentStack;
+            int count = list.Count;
+            if (count == 0) {
+                return;
+            }
+
+            Vector2 size = render.FrameSize;
+            try {
+                for (int i = count - 1; i >= 0; i--) {
+                    BaseEffect.ProcessEffectList(list[i].Effects, render, size, false);
+                }
+            }
+            catch (Exception e) {
+                if (this.RenderList.Count > 0) {
+                    AppLogger.WriteLine("Did not expect render list to have clips during adjustment layer effects post processing");
+                    this.CompleteRenderList(frame, true, e);
+                }
+
+                throw new Exception("Failed to post-process adjustment layer effects", e);
+            }
+        }
+
         public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token) {
             List<VideoClip> renderList = this.RenderList;
             SKPaint trackPaint = null, clipPaint = null;
-            int clipSaveIndex = render.Canvas.Save();
+            int timelineCanvasSaveIndex = render.Canvas.Save();
+            render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
+            this.PreProcessAjustments(frame, render);
+            int i = 0, count = renderList.Count;
             try {
-                render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
-                for (int i = 0, k = renderList.Count, j; i < k; i++) {
+                for (; i < count; i++) {
                     if (token.IsCancellationRequested) {
                         // Rendering took too long. Some clips may have already drawn. Cancel the rest
                         this.CompleteRenderList(frame, true, i);
@@ -330,22 +386,14 @@ namespace FramePFX.Editor.Timelines {
                     VideoClip clip = renderList[i];
                     int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                    List<BaseEffect> effects = clip.Effects;
-                    int m = effects.Count;
-                    BaseEffect effect;
-
                     Vector2? frameSize = clip.GetSize(render);
+
                     try {
-                        // pre-process clip effects, such as translation, scale, etc.
-                        for (j = 0; j < m; j++) {
-                            if ((effect = effects[j]) is VideoEffect) {
-                                ((VideoEffect) effect).PreProcessFrame(render, frameSize);
-                            }
-                        }
+                        BaseEffect.ProcessEffectList(clip.Effects, render, frameSize, true);
                     }
                     catch (Exception e) {
                         this.CompleteRenderList(frame, true, e, i);
-                        throw new Exception("Failed to pre-process effects", e);
+                        throw new RenderException("Failed to pre-process effects", e);
                     }
 
                     try {
@@ -361,16 +409,11 @@ namespace FramePFX.Editor.Timelines {
                     }
                     catch (Exception e) {
                         this.CompleteRenderList(frame, true, e, i);
-                        throw new Exception($"Failed to render '{clip}'", e);
+                        throw new RenderException($"Failed to render '{clip}'", e);
                     }
 
                     try {
-                        // post process clip, e.g. twirl or whatever
-                        for (j = 0; j < m; j++) {
-                            if ((effect = effects[j]) is VideoEffect) {
-                                ((VideoEffect) effect).PostProcessFrame(render);
-                            }
-                        }
+                        BaseEffect.ProcessEffectList(clip.Effects, render, frameSize, false);
                     }
                     catch (Exception e) {
                         try {
@@ -381,7 +424,7 @@ namespace FramePFX.Editor.Timelines {
                         }
 
                         this.CompleteRenderList(frame, true, e, i + 1);
-                        throw new Exception("Failed to post-process effects", e);
+                        throw new RenderException("Failed to post-process effects", e);
                     }
 
                     try {
@@ -389,18 +432,28 @@ namespace FramePFX.Editor.Timelines {
                     }
                     catch (Exception e) {
                         this.CompleteRenderList(frame, true, e, i + 1);
-                        throw new Exception($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
+                        throw new RenderException($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
                     }
 
                     EndOpacityLayer(render, clipSaveCount, ref clipPaint);
                     EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                 }
             }
-            finally {
-                renderList.Clear();
+            catch (TaskCanceledException) {
+                throw;
+            }
+            catch (RenderException) {
+                throw;
+            }
+            catch (Exception e) {
+                this.CompleteRenderList(frame, true, e, i + 1);
+                throw new Exception("Unexpected exception occurred during render", e);
             }
 
-            render.Canvas.RestoreToCount(clipSaveIndex);
+            this.AdjustmentStack.Clear();
+            this.RenderList.Clear();
+            this.PostProcessAjustments(frame, render);
+            render.Canvas.RestoreToCount(timelineCanvasSaveIndex);
         }
 
         // SaveLayer requires a temporary drawing bitmap, which can slightly

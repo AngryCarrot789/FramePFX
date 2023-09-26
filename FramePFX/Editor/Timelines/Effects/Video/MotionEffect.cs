@@ -73,8 +73,8 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
 
         // apply transformation
 
-        public override void PreProcessFrame(RenderContext rc, Vector2? frame) {
-            base.PreProcessFrame(rc, frame);
+        public override void PreProcessFrame(RenderContext rc, Vector2? frameSize) {
+            base.PreProcessFrame(rc, frameSize);
             Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;
@@ -84,16 +84,16 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
             if (this.UseAbsoluteScaleOrigin) {
                 rc.Canvas.Scale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y);
             }
-            else if (frame.HasValue) {
-                Vector2 size = frame.Value;
+            else if (frameSize.HasValue) {
+                Vector2 size = frameSize.Value;
                 rc.Canvas.Scale(scale.X, scale.Y, size.X * scaleOrigin.X, size.Y * scaleOrigin.Y);
             }
 
             if (this.UseAbsoluteRotationOrigin) {
                 rc.Canvas.RotateDegrees((float) rotation, rotationOrigin.X, rotationOrigin.Y);
             }
-            else if (frame.HasValue) {
-                Vector2 size = frame.Value;
+            else if (frameSize.HasValue) {
+                Vector2 size = frameSize.Value;
                 rc.Canvas.RotateDegrees((float) rotation, size.X * rotationOrigin.X, size.Y * rotationOrigin.Y);
             }
         }

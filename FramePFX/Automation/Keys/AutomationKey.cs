@@ -114,7 +114,7 @@ namespace FramePFX.Automation.Keys {
                 RegistryMap[key.Domain] = map = new Dictionary<string, AutomationKey>();
             }
             else if (map.TryGetValue(key.Id, out AutomationKey existingKey)) {
-                throw new Exception($"Key already exists: {existingKey}");
+                throw new Exception($"Key already exists with the ID '{key.Id}': {existingKey}");
             }
 
             map[key.Id] = key;

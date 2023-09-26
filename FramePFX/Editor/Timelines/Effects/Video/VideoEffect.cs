@@ -18,8 +18,8 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// video frame location via the <see cref="RenderContext.Canvas"/> property
         /// </summary>
         /// <param name="rc">The rendering context</param>
-        /// <param name="frame"></param>
-        public virtual void PreProcessFrame(RenderContext rc, Vector2? frame) {
+        /// <param name="frameSize"></param>
+        public virtual void PreProcessFrame(RenderContext rc, Vector2? frameSize) {
 
         }
 
@@ -28,7 +28,8 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// This can be used to, for example, create some weird effects on the clip. This is where you'd actually do your frame modification
         /// </summary>
         /// <param name="rc">The rendering context</param>
-        public virtual void PostProcessFrame(RenderContext rc) {
+        /// <param name="frameSize"></param>
+        public virtual void PostProcessFrame(RenderContext rc, Vector2? frameSize) {
 
         }
     }

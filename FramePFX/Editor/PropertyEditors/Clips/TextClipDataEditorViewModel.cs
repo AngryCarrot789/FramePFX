@@ -13,8 +13,8 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
         private readonly HistoryBuffer<HistoryFontFamilty> historyFontFamily;
         private readonly HistoryBuffer<HistoryText> historyText;
 
-        public TextClipViewModel SingleSelection => (TextClipViewModel) this.Handlers[0];
-        public IEnumerable<TextClipViewModel> Clips => this.Handlers.Cast<TextClipViewModel>();
+        public TextVideoClipViewModel SingleSelection => (TextVideoClipViewModel) this.Handlers[0];
+        public IEnumerable<TextVideoClipViewModel> Clips => this.Handlers.Cast<TextVideoClipViewModel>();
 
         private string fontFamily;
         public string FontFamily {
@@ -42,7 +42,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
 
         public static string DifferentValueText => Services.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
 
-        public TextClipDataEditorViewModel() : base(typeof(TextClipViewModel)) {
+        public TextClipDataEditorViewModel() : base(typeof(TextVideoClipViewModel)) {
             this.historyFontFamily = new HistoryBuffer<HistoryFontFamilty>();
             this.historyText = new HistoryBuffer<HistoryText>();
         }
@@ -58,12 +58,12 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
         }
 
         public void RequeryFontFamiltyFromHandlers() {
-            this.fontFamily = GetEqualValue(this.Handlers, x => ((TextClipViewModel) x).FontFamily, out string d) ? d : DifferentValueText;
+            this.fontFamily = GetEqualValue(this.Handlers, x => ((TextVideoClipViewModel) x).FontFamily, out string d) ? d : DifferentValueText;
             this.RaisePropertyChanged(nameof(this.FontFamily));
         }
 
         public void RequeryTextFromHandlers() {
-            this.text = GetEqualValue(this.Handlers, x => ((TextClipViewModel) x).Text, out string d) ? d : DifferentValueText;
+            this.text = GetEqualValue(this.Handlers, x => ((TextVideoClipViewModel) x).Text, out string d) ? d : DifferentValueText;
             this.RaisePropertyChanged(nameof(this.Text));
         }
 
@@ -78,12 +78,12 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             this.RaisePropertyChanged(ref this.fontFamily, this.SingleSelection.FontFamily, nameof(this.FontFamily));
         }
 
-        protected class HistoryFontFamilty : HistoryBasicSingleProperty<TextClipViewModel, string> {
+        protected class HistoryFontFamilty : HistoryBasicSingleProperty<TextVideoClipViewModel, string> {
             public HistoryFontFamilty(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.FontFamily, (x, v) => x.FontFamily = v, editor.RequeryFontFamiltyFromHandlers) {
             }
         }
 
-        protected class HistoryText : HistoryBasicSingleProperty<TextClipViewModel, string> {
+        protected class HistoryText : HistoryBasicSingleProperty<TextVideoClipViewModel, string> {
             public HistoryText(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.Text, (x, v) => x.Text = v, editor.RequeryTextFromHandlers) {
             }
         }

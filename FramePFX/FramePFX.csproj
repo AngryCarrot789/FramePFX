@@ -20,8 +20,8 @@
 
   <ItemGroup>
     <Folder Include="Automation\Actions\" />
-    <Folder Include="Editor\Actions\Timelines" />
     <Folder Include="Editor\Exporting\Exporters\Services\" />
+    <Folder Include="Editor\ViewModels\Timelines\Context" />
     <Folder Include="Plugins\Demo\" />
   </ItemGroup>
 

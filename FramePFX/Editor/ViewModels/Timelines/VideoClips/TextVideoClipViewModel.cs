@@ -2,7 +2,7 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
-    public class TextClipViewModel : VideoClipViewModel {
+    public class TextVideoClipViewModel : VideoClipViewModel {
         public new TextVideoClip Model => (TextVideoClip) ((ClipViewModel) this).Model;
 
         public string Text {
@@ -45,7 +45,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             }
         }
 
-        public TextClipViewModel(TextVideoClip model) : base(model) {
+        public TextVideoClipViewModel(TextVideoClip model) : base(model) {
             model.ResourceHelper.ResourceDataModified += this.OnResourceModified;
             model.ResourceHelper.ResourceChanged += this.OnResourceChanged;
         }

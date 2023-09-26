@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
+using FramePFX.Editor.ViewModels.Timelines;
 
-namespace FramePFX.Editor.ViewModels.Timelines.Context {
+namespace FramePFX.Editor.Contexts {
     public class TrackContextGenerator : IContextGenerator {
         public static TrackContextGenerator Instance { get; } = new TrackContextGenerator();
 

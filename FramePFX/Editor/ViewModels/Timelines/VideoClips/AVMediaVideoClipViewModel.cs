@@ -1,10 +1,10 @@
 using FramePFX.Editor.Timelines.VideoClips;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
-    public class AVMediaClipViewModel : VideoClipViewModel {
+    public class AVMediaVideoClipViewModel : VideoClipViewModel {
         public new AVMediaVideoClip Model => (AVMediaVideoClip) ((ClipViewModel) this).Model;
 
-        public AVMediaClipViewModel(AVMediaVideoClip model) : base(model) {
+        public AVMediaVideoClipViewModel(AVMediaVideoClip model) : base(model) {
         }
     }
 }

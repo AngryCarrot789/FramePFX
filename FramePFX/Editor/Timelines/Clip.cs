@@ -146,6 +146,8 @@ namespace FramePFX.Editor.Timelines {
         public bool RemoveEffect(BaseEffect effect) => BaseEffect.RemoveEffectFromClip(this, effect);
         public void RemoveEffectAt(int index) => BaseEffect.RemoveEffectAt(this, index);
 
+        public void ClearEffects() => BaseEffect.ClearEffects(this);
+
         /// <summary>
         /// Writes this clip's data
         /// </summary>
@@ -178,6 +180,7 @@ namespace FramePFX.Editor.Timelines {
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             this.AutomationData.UpdateBackingStorage();
+            this.ClearEffects(); // this shouldn't be necessary... but just in case
             foreach (RBEBase entry in data.GetList("Effects").List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Effect resource dictionary contained a non dictionary child: {entry.Type}");

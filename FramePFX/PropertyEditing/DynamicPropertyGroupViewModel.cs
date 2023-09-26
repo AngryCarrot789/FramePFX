@@ -62,7 +62,6 @@ namespace FramePFX.PropertyEditing {
             this.UseSingleHandlerPerGroup = true;
         }
 
-
         private void AddAndSetup(BasePropertyGroupViewModel group, IReadOnlyList<object> handlers) {
             // WPF will attempt to begin binding as soon as the group is added to the activeObjects list,
             // but most bindings rely on the state of the group having handlers, so this is a little hack that

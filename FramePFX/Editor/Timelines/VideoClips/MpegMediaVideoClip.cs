@@ -23,7 +23,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new MpegMediaVideoClip();
         }
 
-        public override Vector2? GetSize(RenderContext renderContext) {
+        public override Vector2? GetSize(RenderContext rc) {
             return null;
         }
     }

@@ -22,7 +22,6 @@
                     xmlns:b="clr-namespace:FramePFX.WPF.Shortcuts.Bindings"
                     xmlns:videoClips="clr-namespace:FramePFX.Editor.ViewModels.Timelines.VideoClips;assembly=FramePFX"
                     xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
-                    xmlns:ctx="clr-namespace:FramePFX.Editor.ViewModels.Timelines.Context;assembly=FramePFX"
                     mc:Ignorable="d">
     <c:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed"/>
     <Style TargetType="{x:Type ctrl:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
@@ -131,7 +130,6 @@
         <Setter Property="FrameDuration" Value="{Binding FrameDuration}"/>
         <Setter Property="Height" Value="{Binding Track.Height, Mode=OneWay}"/>
         <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
-        <Setter Property="acs:AdvancedContextMenu.ContextGenerator" Value="{x:Static cx:ClipContextGenerator.Instance}"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -800,7 +798,7 @@
                                     BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
                             <ListBox x:Name="PART_TrackList"
                                      sc:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
-                                     acs:AdvancedContextMenu.ContextGenerator="{x:Static ctx:TrackContextGenerator.Instance}"
+                                     acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TrackContextGenerator.Instance}"
                                      Style="{StaticResource TrackListBoxStyle}"
                                      Grid.Row="1" Grid.Column="0"
                                      SelectionMode="Extended"
@@ -817,7 +815,8 @@
                                                       MaxDuration="{Binding MaxDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                       sc:UIInputManager.FocusPath="Application/Editor/Timeline/Surface"
                                                       UnitZoom="{Binding UnitZoom, Mode=OneWayToSource}"
-                                                      PlayHeadFrame="{Binding PlayHeadFrame, Mode=TwoWay}">
+                                                      PlayHeadFrame="{Binding PlayHeadFrame, Mode=TwoWay}"
+                                                      acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TimelineContextGenerator.Instance}">
                                 <b:ShortcutCommandCollection.Collection>
                                     <b:ShortcutCommandCollection>
                                         <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/Surface/MoveSelectedTrackUp" Command="{Binding MoveSelectedUpCommand, Mode=OneTime}" />

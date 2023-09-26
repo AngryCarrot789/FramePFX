@@ -12,6 +12,7 @@ using FramePFX.Editor;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History.ViewModels;
+using FramePFX.Logger;
 using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
 using FramePFX.Rendering;

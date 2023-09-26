@@ -11,6 +11,7 @@ using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
+using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 using FramePFX.ServiceManaging;
 using FramePFX.Utils;

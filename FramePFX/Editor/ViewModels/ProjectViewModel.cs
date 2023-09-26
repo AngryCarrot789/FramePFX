@@ -9,6 +9,7 @@ using FramePFX.Commands;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
@@ -175,7 +176,13 @@ namespace FramePFX.Editor.ViewModels {
                     return false;
                 }
 
-                return await this.SaveProjectData(this.DataFolder);
+                try {
+                    AppLogger.PushHeader("Begin save project (SaveActionAsync)");
+                    return await this.SaveProjectData(this.DataFolder);
+                }
+                finally {
+                    AppLogger.PopHeader();
+                }
             }
         }
 
@@ -189,7 +196,16 @@ namespace FramePFX.Editor.ViewModels {
 
             string initialPath = !string.IsNullOrEmpty(this.DataFolder) ? Path.GetDirectoryName(this.DataFolder) : null;
             string file = await Services.FilePicker.SaveFile(Filters.ProjectTypeAndAllFiles, initialPath, "Select a folder, in which the project data will be saved into");
-            return !string.IsNullOrEmpty(file) && await this.SaveProjectData(file);
+            if (string.IsNullOrEmpty(file))
+                return false;
+
+            try {
+                AppLogger.PushHeader("Begin save project (SaveAsActionAsync)");
+                return await this.SaveProjectData(file);
+            }
+            finally {
+                AppLogger.PopHeader();
+            }
         }
 
         // Use debug and release versions in order for the debugger to pickup exceptions or Debugger.Break() (for debugging of course)
@@ -249,8 +265,11 @@ namespace FramePFX.Editor.ViewModels {
                 }
             }
 
+            AppLogger.WriteLine($"Saving project to '{pfxFile}'");
+
             // copy temp project files into actual project dir
             if (this.Model.IsTempDataFolder && this.Model.DataFolder != null && Directory.Exists(this.Model.DataFolder)) {
+                AppLogger.WriteLine($"Copying temporary resources to new data folder:\n'{this.Model.DataFolder}' -> '{dataFolder}'");
                 await this.ResourceManager.OfflineAllAsync(false);
                 IEnumerable<string> enumerable = null;
                 try {
@@ -320,6 +339,7 @@ namespace FramePFX.Editor.ViewModels {
 
             // TODO: maybe add methods to allow resources or clips to save stuff to file here?
 
+            AppLogger.WriteLine("Serialising to RBE");
             Exception exception = null;
             RBEDictionary dictionary = new RBEDictionary();
             try {
@@ -331,6 +351,7 @@ namespace FramePFX.Editor.ViewModels {
             }
 
             if (exception == null) {
+                AppLogger.WriteLine("Writing packed RBE to file");
                 try {
                     RBEUtils.WriteToFilePacked(dictionary, pfxFile);
                 }
@@ -351,11 +372,12 @@ namespace FramePFX.Editor.ViewModels {
             }
 
             this.DataFolder = pfxFile;
-
+            AppLogger.WriteLine("Save project successful");
             return true;
         }
 
         public void Dispose() {
+            AppLogger.WriteLine("Disposing project...");
             using (ErrorList list = new ErrorList("Encountered an error while disposing project")) {
                 try {
                     this.Timeline.ClearAndDispose();
@@ -370,6 +392,8 @@ namespace FramePFX.Editor.ViewModels {
                 catch (Exception e) {
                     list.Add(e);
                 }
+
+                AppLogger.WriteLine("Project disposed " + (list.IsEmpty ? "successfully" : "potentially unsuccessfully"));
             }
         }
 

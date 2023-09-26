@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.WPF.Utils {
+namespace FramePFX.Utils {
     /// <summary>
     /// A class used for executing a tasks when an input signal is received, and ensuring the task is not
     /// executed too quickly (time since last execution will exceed <see cref="MinimumInterval"/>)
@@ -10,7 +10,7 @@ namespace FramePFX.WPF.Utils {
         private volatile bool condition;
         private volatile bool isTaskRunning;
         private volatile bool isExecutingTask;
-        private volatile bool isCriticalCondition;
+        private volatile bool conditionCritical;
         private DateTime lastExecutionTime = DateTime.MinValue;
         private readonly object locker = new object();
 
@@ -39,7 +39,7 @@ namespace FramePFX.WPF.Utils {
         public void OnInput() {
             lock (this.locker) {
                 if (this.isExecutingTask) {
-                    this.isCriticalCondition = true;
+                    this.conditionCritical = true;
                 }
                 else {
                     this.condition = true;
@@ -72,9 +72,10 @@ namespace FramePFX.WPF.Utils {
 
                 this.isExecutingTask = true;
                 try {
-                    Func<Task> task = this.Execute;
-                    if (task != null) {
-                        await task();
+                    Func<Task> func = this.Execute;
+                    Task task = func?.Invoke();
+                    if (task != null && !task.IsCompleted) {
+                        await task;
                     }
                 }
                 finally {
@@ -88,9 +89,9 @@ namespace FramePFX.WPF.Utils {
                     // update (that occurred a few microseconds~ after the task completed)
                     // So hopefully, the usage of isExecutingTask and isCriticalCondition will help against that
                     lock (this.locker) {
-                        if (this.isCriticalCondition) {
+                        if (this.conditionCritical) {
                             this.condition = true;
-                            this.isCriticalCondition = false;
+                            this.conditionCritical = false;
                         }
                         else {
                             this.condition = false;

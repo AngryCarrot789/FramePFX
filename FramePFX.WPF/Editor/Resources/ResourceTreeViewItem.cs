@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
+using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
 using FramePFX.WPF.Editor.Timeline.Utils;

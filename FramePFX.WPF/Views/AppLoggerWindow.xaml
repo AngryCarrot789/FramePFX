@@ -5,16 +5,82 @@
                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                 xmlns:views="clr-namespace:FramePFX.WPF.Views"
                 xmlns:ap="clr-namespace:FramePFX.WPF.AttachedProperties"
+                xmlns:local="clr-namespace:FramePFX.Logger;assembly=FramePFX"
                 mc:Ignorable="d"
-                Title="Application Logs" Height="450" Width="600"
+                Title="Application Logs" Height="576" Width="856"
                 Style="{DynamicResource CustomWindowStyleEx}"
-                BorderBrush="{DynamicResource PanelBorderBrush}">
-    <Border BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
-        <TextBox x:Name="LoggerTextBox"
-                 Background="{DynamicResource PanelBackground1}"
-                 IsReadOnly="True"
-                 ap:HorizontalScrolling.UseHorizontalScrolling="True"
-                 BorderThickness="0"
-                 FontFamily="Consolas"/>
-    </Border>
+                BorderBrush="{DynamicResource PanelBorderBrush}"
+                d:DataContext="{d:DesignInstance local:LoggerViewModel}">
+    <Window.Resources>
+        <Style TargetType="{x:Type ItemsControl}" x:Key="LogTreeItemsControlStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ItemsControl}">
+                        <ItemsPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel IsItemsHost="True" ScrollUnit="Pixel"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate DataType="{x:Type local:LogEntry}">
+            <Grid IsSharedSizeScope="True" MinHeight="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="25" MaxWidth="25"/>
+                    <ColumnDefinition SharedSizeGroup="Date" Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding LogTime, Mode=OneTime, StringFormat={}HH:mm:ss}" Grid.Column="1" FontWeight="Bold" Margin="5,0,5,0"/>
+                <TextBlock Text="{Binding Content, Mode=OneTime}" Grid.Column="2" TextWrapping="Wrap"/>
+                <Button Command="{x:Static local:LogEntry.ShowStackTraceCommand}" CommandParameter="{Binding}" Content="S" Background="Transparent" BorderThickness="0" Width="20" VerticalAlignment="Top" ToolTip="Show stack trace"/>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type local:HeaderedLogEntry}">
+            <Grid IsSharedSizeScope="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="25" MaxWidth="25"/>
+                    <ColumnDefinition SharedSizeGroup="Date" Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding LogTime, Mode=OneTime, StringFormat={}HH:mm:ss}" Grid.Row="0" Grid.Column="1" FontWeight="Bold" Margin="5,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Content, Mode=OneTime}" Grid.Row="0" Grid.Column="3" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <StackPanel x:Name="ContentStackPanel" Visibility="Collapsed" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Background="{DynamicResource PanelBackground2}" Margin="0,0,0,3">
+                    <Separator Margin="0,0,0,2"/>
+                    <ItemsControl x:Name="Contents" ItemsSource="{Binding Entries, Mode=OneTime}" 
+                                  Style="{StaticResource LogTreeItemsControlStyle}"
+                                  Padding="10,0,0,0"
+                                  ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                    <Separator Margin="0,2,0,0"/>
+                </StackPanel>
+                <ToggleButton x:Name="Expander" IsChecked="true" Grid.Row="0" Grid.Column="0" Width="22" Height="22" 
+                              VerticalAlignment="Top" Content="+" HorizontalAlignment="Center" 
+                              Background="Transparent" BorderThickness="0"
+                              Style="{StaticResource ExpanderDownHeaderStyle}"/>
+            </Grid>
+            <DataTemplate.Triggers>
+                <Trigger SourceName="Expander" Property="IsChecked" Value="True">
+                    <Setter TargetName="ContentStackPanel" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="Expander" Property="Content" Value="-"/>
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+    <ScrollViewer ap:HorizontalScrolling.UseHorizontalScrolling="True"
+                  HorizontalScrollBarVisibility="Auto" 
+                  VerticalScrollBarVisibility="Auto" 
+                  FontFamily="{StaticResource FontOxanium}">
+        <ItemsControl ItemsSource="{Binding Entries, Mode=OneTime}" Style="{StaticResource LogTreeItemsControlStyle}"/>
+    </ScrollViewer>
 </views:WindowEx>

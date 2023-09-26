@@ -5,6 +5,7 @@ using System.Windows.Media;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.ViewModels;
+using FramePFX.Logger;
 using FramePFX.Utils;
 using Rect = System.Windows.Rect;
 

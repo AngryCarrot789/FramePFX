@@ -37,6 +37,7 @@ using FramePFX.WPF.Editor.MainWindow;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.PropertyEditing;
 using System.Windows.Controls;
+using FramePFX.Logger;
 using UndoAction = FramePFX.History.Actions.UndoAction;
 
 namespace FramePFX.WPF {
@@ -63,6 +64,8 @@ namespace FramePFX.WPF {
         private DateTime lastInput;
 
         public App() {
+            Services.Application = new ApplicationDelegate(this);
+            AppLogger.WriteLine("Application entry point");
             // SortedList<long, string> aaaa = null;
             // Dictionary<long, string> aa = null;
             // aa[233] = ";";
@@ -113,6 +116,7 @@ namespace FramePFX.WPF {
         }
 
         private async Task SetActivity(string activity) {
+            AppLogger.WriteLine(activity);
             this.splash.CurrentActivity = activity;
             await this.Dispatcher.InvokeAsync(() => {
             }, DispatcherPriority.ApplicationIdle);
@@ -125,7 +129,8 @@ namespace FramePFX.WPF {
                 Directory.SetCurrentDirectory(dir);
             }
 
-            Services.Application = new ApplicationDelegate(this);
+            await AppLogger.FlushEntries();
+
             Services.ServiceManager.Register(Services.Application);
             List<(TypeInfo, ServiceImplementationAttribute)> list_serviceAttributes = new List<(TypeInfo, ServiceImplementationAttribute)>();
             List<(TypeInfo, ActionRegistrationAttribute)> list_actionAttributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
@@ -189,6 +194,7 @@ namespace FramePFX.WPF {
             }
 
             this.RegisterActions();
+            AppLogger.WriteLine($"Registered {ActionManager.Instance.Count} actions");
 
             // TODO: user modifiable keymap, and also save it to user documents
             // also, use version attribute to check out of date keymap, and offer to
@@ -232,6 +238,7 @@ namespace FramePFX.WPF {
             ToolTipService.InitialShowDelayProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(400));
 
             try {
+                AppLogger.PushHeader("FramePFX initialisation");
                 await this.InitApp();
             }
             catch (Exception ex) {
@@ -246,6 +253,9 @@ namespace FramePFX.WPF {
                     this.Shutdown(0);
                 }, DispatcherPriority.Background);
                 return;
+            }
+            finally{
+                AppLogger.PopHeader();
             }
 
             await this.SetActivity("Loading FramePFX main window...");

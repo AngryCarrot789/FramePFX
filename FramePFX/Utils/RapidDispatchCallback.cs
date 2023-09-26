@@ -55,4 +55,53 @@ namespace FramePFX.Utils {
             return Task.FromResult(false);
         }
     }
+
+    public class RapidDispatchCallback<T> {
+        private volatile int state;
+        private readonly Action<T> action;
+        private readonly Action<T> executeAction;
+
+        public readonly Func<T, bool> CachedInvoke;
+        public readonly Action<T> CachedInvokeNoRet;
+        private readonly object locker;
+
+        private readonly string debugId; // allows debugger breakpoint to match this
+        private volatile bool invokeLater;
+        private readonly ExecutionPriority priority;
+
+        public RapidDispatchCallback(Action<T> action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null) {
+            this.debugId = debugId;
+            this.locker = new object();
+            this.action = action;
+            this.priority = priority;
+            this.executeAction = (t) => {
+                this.action(t);
+                this.state = 0;
+            };
+
+            this.CachedInvoke = this.Invoke;
+            this.CachedInvokeNoRet = t => this.Invoke(t);
+        }
+
+        public RapidDispatchCallback(Action<T> action, string debugId) : this(action, ExecutionPriority.Send, debugId) {
+        }
+
+        public bool Invoke(T parameter) {
+            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
+                Services.Application.Invoke(this.executeAction, parameter, this.priority);
+                return true;
+            }
+
+            return false;
+        }
+
+        public Task<bool> InvokeAsync(T parameter) {
+            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
+                // i hope this works...
+                return Services.Application.InvokeAsync(this.executeAction, parameter, this.priority).ContinueWith(t => true);
+            }
+
+            return Task.FromResult(false);
+        }
+    }
 }

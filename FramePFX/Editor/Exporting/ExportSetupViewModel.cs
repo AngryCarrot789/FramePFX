@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting.Exporters;
 using FramePFX.Editor.ViewModels;
+using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs;
 using FramePFX.Views.Windows;

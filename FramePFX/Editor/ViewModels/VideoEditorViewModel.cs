@@ -10,6 +10,7 @@ using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.FileBrowser;
 using FramePFX.History.ViewModels;
+using FramePFX.Logger;
 using FramePFX.Notifications.Types;
 using FramePFX.PropertyEditing;
 using FramePFX.RBC;
@@ -187,19 +188,18 @@ namespace FramePFX.Editor.ViewModels {
                 return;
             }
 
+            AppLogger.WriteLine("Reading packed RBE project from file");
             RBEDictionary dictionary;
 
-#if DEBUG
-            dictionary = RBEUtils.ReadFromFilePacked(path) as RBEDictionary;
-#else
             try {
                 dictionary = RBEUtils.ReadFromFilePacked(path) as RBEDictionary;
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Read error", "Failed to read project from file", e.GetToString());
+                AppLogger.WriteLine("Failed to read packed RBE data");
+                AppLogger.WriteLine(e.GetToString());
+                await Services.DialogService.ShowMessageAsync("Read error", "Failed to read project from file. See logs for more info");
                 return;
             }
-#endif
 
             if (dictionary == null) {
                 await Services.DialogService.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");

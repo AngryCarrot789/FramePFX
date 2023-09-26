@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.Reflection;
+using System.Security;
 using System.Text;
 
 namespace FramePFX.Utils {
@@ -35,7 +38,7 @@ namespace FramePFX.Utils {
             StackFrame[] trace = new StackTrace(e, fileInfo).GetFrames() ?? new StackFrame[0];
             // Print our stack trace
             foreach (StackFrame frame in trace) {
-                list.Add($"    at {FormatFrame(frame)}");
+                list.Add($"    at {FormatFrame(frame, fileInfo)}");
             }
 
             // Print suppressed exceptions, if any
@@ -98,7 +101,7 @@ namespace FramePFX.Utils {
             // Print our stack trace
             list.Add($"{prefix}{caption}{GetExceptionHeader(e, message)}");
             for (int i = 0; i <= m; i++)
-                list.Add($"{prefix}    at {FormatFrame(trace[i])}");
+                list.Add($"{prefix}    at {FormatFrame(trace[i], fileInfo)}");
             if (framesInCommon != 0)
                 list.Add($"{prefix}    ... {framesInCommon} more");
 
@@ -117,8 +120,73 @@ namespace FramePFX.Utils {
             }
         }
 
-        public static string FormatFrame(StackFrame frame) {
-            return frame.ToString(); // default formatting
+        public static string FormatFrame(StackFrame frame, bool fileInfo) {
+            // return frame.ToString(); // default formatting
+            MethodBase method = frame.GetMethod();
+            if (method == null) {
+                return frame.ToString();
+            }
+
+            StringBuilder sb = new StringBuilder(byte.MaxValue);
+            Type declaringType = method.DeclaringType;
+            if (declaringType != null) {
+                sb.Append(declaringType.FullName?.Replace('+', '$') ?? "??");
+                sb.Append(".");
+            }
+
+            bool isFirst;
+            sb.Append(method.Name);
+            if (method is MethodInfo && method.IsGenericMethod) {
+                Type[] genericArguments = method.GetGenericArguments();
+                sb.Append("[");
+                int i = 0;
+                isFirst = true;
+                for (; i < genericArguments.Length; ++i) {
+                    if (isFirst) {
+                        isFirst = false;
+                    }
+                    else {
+                        sb.Append(",");
+                    }
+
+                    sb.Append(genericArguments[i].Name);
+                }
+
+                sb.Append("]");
+            }
+
+            sb.Append("(");
+            ParameterInfo[] parameters = method.GetParameters();
+            isFirst = true;
+            foreach (ParameterInfo param in parameters) {
+                if (!isFirst)
+                    sb.Append(", ");
+                else
+                    isFirst = false;
+                string a = "<UnknownType>";
+                if (param.ParameterType != null)
+                    a = param.ParameterType.Name;
+                sb.Append(a + " " + param.Name);
+            }
+
+            sb.Append(")");
+            if (fileInfo && frame.GetILOffset() != -1) {
+                string fileName = null;
+                try {
+                    fileName = frame.GetFileName();
+                }
+                catch (NotSupportedException ex) {
+                }
+                catch (SecurityException ex) {
+                }
+
+                if (fileName != null) {
+                    sb.Append(' ');
+                    sb.Append($"in '{fileName}' on line {frame.GetFileLineNumber()}");
+                }
+            }
+
+            return sb.ToString();
         }
 
         public static void Assert(bool condition, string msg) {

@@ -6,6 +6,7 @@ using System.Windows.Input;
 using FramePFX.FileBrowser;
 using FramePFX.FileBrowser.FileTree;
 using FramePFX.FileBrowser.FileTree.Physical;
+using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 

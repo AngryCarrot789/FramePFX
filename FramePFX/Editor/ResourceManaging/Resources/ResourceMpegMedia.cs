@@ -1,5 +1,6 @@
 using System;
 using FramePFX.FFmpeg;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 

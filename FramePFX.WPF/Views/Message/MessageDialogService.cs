@@ -12,7 +12,7 @@ namespace FramePFX.WPF.Views.Message {
         public async Task ShowMessageAsync(string caption, string message) {
             await Services.Application.Invoke(() => {
                 MessageWindow.DODGY_PRIMARY_SELECTION = "ok";
-                return Dialogs.OkDialog.ShowAsync(caption, message);
+                return Dialogs.OkDialog.ShowAsync(caption, "", message);
             });
         }
 

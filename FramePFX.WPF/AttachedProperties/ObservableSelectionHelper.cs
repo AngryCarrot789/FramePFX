@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
 using ListBox = System.Windows.Controls.ListBox;

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Interactivity;
+using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {

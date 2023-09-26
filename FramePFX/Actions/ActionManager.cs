@@ -15,6 +15,8 @@ namespace FramePFX.Actions {
         private readonly List<CanExecuteChangedEventHandler> globalUpdateEventMap;
         private readonly Dictionary<string, AnAction> actions;
 
+        public int Count => this.actions.Count;
+
         public ActionManager() {
             this.actions = new Dictionary<string, AnAction>();
             this.updateEventMap = new Dictionary<string, LinkedList<CanExecuteChangedEventHandler>>();

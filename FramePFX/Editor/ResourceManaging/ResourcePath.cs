@@ -1,11 +1,12 @@
 using System;
 using System.Diagnostics;
 using FramePFX.Editor.ResourceManaging.Events;
+using FramePFX.Logger;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
-    /// Base class the non-generic and generic resource path classes
+    /// Base class for the non-generic and generic resource path classes
     /// </summary>
     public abstract class ResourcePathBase : IDisposable {
         protected readonly ResourceItemEventHandler resourceAddedHandler;
@@ -14,9 +15,9 @@ namespace FramePFX.Editor.ResourceManaging {
         protected readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         // volatile juuust in case...
-        protected volatile bool isDisposing;
-        protected volatile bool isDisposed;
-        protected bool isManagerBeingReplaced;
+        protected bool isDisposing;
+        protected bool isDisposed;
+        protected bool isManagerChanging;
 
         public bool IsDisposing => this.isDisposing;
         public bool IsDisposed => this.isDisposed;
@@ -49,7 +50,8 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public void SetManager(ResourceManager manager) {
             this.EnsureNotDisposed();
-            this.EnsureNotReplacingManager("Cannot set manager while it is already being set");
+            this.EnsureNotDisposing();
+            this.EnsureManagerNotChanging("Cannot set manager while it is already being set");
             ResourceManager oldManager = this.Manager;
             if (ReferenceEquals(oldManager, manager)) {
                 if (manager != null) {
@@ -60,8 +62,8 @@ namespace FramePFX.Editor.ResourceManaging {
                 return;
             }
 
-            this.isManagerBeingReplaced = true;
-            this.ClearInternalResource(true);
+            this.isManagerChanging = true;
+            this.ClearInternalResource();
             if (oldManager != null) {
                 this.DetachManager(oldManager);
             }
@@ -71,19 +73,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 this.AttachManager(manager);
             }
 
-            this.isManagerBeingReplaced = false;
-        }
-
-        protected void AttachManager(ResourceManager manager) {
-            manager.ResourceAdded += this.resourceAddedHandler;
-            manager.ResourceRemoved += this.resourceRemovedHandler;
-            manager.ResourceReplaced += this.resourceReplacedHandler;
-        }
-
-        protected void DetachManager(ResourceManager manager) {
-            manager.ResourceAdded -= this.resourceAddedHandler;
-            manager.ResourceRemoved -= this.resourceRemovedHandler;
-            manager.ResourceReplaced -= this.resourceReplacedHandler;
+            this.isManagerChanging = false;
         }
 
         protected abstract void OnManagerResourceAdded(ResourceManager manager, ResourceItem item);
@@ -115,12 +105,16 @@ namespace FramePFX.Editor.ResourceManaging {
         /// to null
         /// </summary>
         public virtual void Dispose() {
+            this.isDisposing = true;
             this.ClearInternalResource();
             ResourceManager manager = this.Manager;
             if (manager != null) {
                 this.Manager = null;
                 this.DetachManager(manager);
             }
+
+            this.isDisposed = true;
+            this.isDisposing = false;
         }
 
         protected void EnsureNotDisposed(string message = null) {
@@ -129,10 +123,28 @@ namespace FramePFX.Editor.ResourceManaging {
             }
         }
 
-        protected void EnsureNotReplacingManager(string message) {
-            if (this.isManagerBeingReplaced) {
+        protected void EnsureNotDisposing(string message = null) {
+            if (this.isDisposed) {
+                throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is being disposed");
+            }
+        }
+
+        protected void EnsureManagerNotChanging(string message) {
+            if (this.isManagerChanging) {
                 throw new InvalidOperationException(message);
             }
+        }
+
+        private void AttachManager(ResourceManager manager) {
+            manager.ResourceAdded += this.resourceAddedHandler;
+            manager.ResourceRemoved += this.resourceRemovedHandler;
+            manager.ResourceReplaced += this.resourceReplacedHandler;
+        }
+
+        private void DetachManager(ResourceManager manager) {
+            manager.ResourceAdded -= this.resourceAddedHandler;
+            manager.ResourceRemoved -= this.resourceRemovedHandler;
+            manager.ResourceReplaced -= this.resourceReplacedHandler;
         }
     }
 
@@ -222,7 +234,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
         public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
             this.EnsureNotDisposed();
-            this.EnsureNotReplacingManager("Cannot attempt to get resource while manager is being set");
+            this.EnsureManagerNotChanging("Cannot attempt to get resource while manager is being set");
             switch (this.IsValid) {
                 case false: {
                     if (this.cached != null)
@@ -433,7 +445,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
         public bool TryGetResource(out T resource, bool requireIsOnline = true) {
             this.EnsureNotDisposed();
-            this.EnsureNotReplacingManager("Cannot attempt to get resource while manager is being changed");
+            this.EnsureManagerNotChanging("Cannot attempt to get resource while manager is being changed");
             switch (this.IsValid) {
                 case false:
                     if (this.cached != null)

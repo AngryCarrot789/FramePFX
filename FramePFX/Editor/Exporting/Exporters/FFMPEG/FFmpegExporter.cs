@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FramePFX.Automation;
+using FramePFX.Logger;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;

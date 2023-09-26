@@ -55,7 +55,7 @@ namespace FramePFX.WPF.AttachedProperties {
                 if (Keyboard.Modifiers == ModifierKeys.Shift || Mouse.MiddleButton == MouseButtonState.Pressed || GetForceHorizontalScrollingValue(element)) {
                     int count = (e.Delta / 120) * amount;
                     if (e.Delta < 0) {
-                        for (int i = 0; i < count; i++) {
+                        for (int i = -count; i > 0; i--) {
                             scroller.LineRight();
                         }
                     }

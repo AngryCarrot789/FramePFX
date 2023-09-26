@@ -28,8 +28,13 @@ namespace FramePFX.WPF.Utils {
             }
         }
 
-        public void InvokeLater(Action action, bool wayLater = false) {
-            this.dispatcher.Invoke(action, wayLater ? DispatcherPriority.Background : DispatcherPriority.Normal);
+        public void Invoke<T>(Action<T> action, T parameter, ExecutionPriority priority) {
+            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess()) {
+                action(parameter);
+            }
+            else {
+                this.dispatcher.Invoke(action, ConvertPriority(priority), parameter);
+            }
         }
 
         public T Invoke<T>(Func<T> function, ExecutionPriority priority) {
@@ -51,8 +56,13 @@ namespace FramePFX.WPF.Utils {
             return this.dispatcher.InvokeAsync(action, ConvertPriority(priority), CancellationToken.None).Task;
         }
 
-        public Task InvokeLaterAsync(Action action, bool wayLater = false) {
-            return this.dispatcher.InvokeAsync(action, wayLater ? DispatcherPriority.Background : DispatcherPriority.Normal).Task;
+        public Task InvokeAsync<T>(Action<T> action, T parameter, ExecutionPriority priority) {
+            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess()) {
+                action(parameter);
+                return Task.CompletedTask;
+            }
+
+            return this.dispatcher.InvokeAsync(() => action(parameter), ConvertPriority(priority), CancellationToken.None).Task;
         }
 
         public Task<T> InvokeAsync<T>(Func<T> function, ExecutionPriority priority) {
@@ -69,10 +79,16 @@ namespace FramePFX.WPF.Utils {
             switch (priority) {
                 case ExecutionPriority.Send:
                     return DispatcherPriority.Send;
+
                 case ExecutionPriority.Normal:
                     return DispatcherPriority.Normal;
+
+                case ExecutionPriority.Render:
+                    return DispatcherPriority.Render;
+
                 case ExecutionPriority.Background:
                     return DispatcherPriority.Background;
+
                 case ExecutionPriority.AppIdle:
                     return DispatcherPriority.ApplicationIdle;
                 default: throw new ArgumentOutOfRangeException(nameof(priority), priority, null);

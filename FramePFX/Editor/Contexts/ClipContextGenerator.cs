@@ -16,6 +16,9 @@ namespace FramePFX.Editor.Contexts {
             if (clip.AutomationData.ActiveSequence != null) {
                 list.Add(new ActionContextEntry(null, "actions.automation.AddKeyFrame", "Add key frame"));
             }
+
+            list.Add(SeparatorEntry.Instance);
+            list.Add(new ActionContextEntry(clip, "actions.editor.timeline.CreateCompositionFromSelection", "Create composition from selection", "Creates a composition clip from the selected clips"));
         }
     }
 }

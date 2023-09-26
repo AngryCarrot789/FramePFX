@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Rendering;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public class CompositionVideoClip : VideoClip, IResourceClip<ResourceComposition> {

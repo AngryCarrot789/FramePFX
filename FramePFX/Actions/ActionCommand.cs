@@ -14,7 +14,7 @@ namespace FramePFX.Actions {
         public string ActionId { get; set; }
 
         /// <summary>
-        /// Additional data context to
+        /// Data to pass to the action. Adding data to this is necessary, as actions rely contextual data
         /// </summary>
         public DataContext Context { get; }
 

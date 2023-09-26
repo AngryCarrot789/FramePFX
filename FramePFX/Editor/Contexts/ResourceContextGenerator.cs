@@ -3,11 +3,13 @@ using System.Collections.ObjectModel;
 using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
+using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ResourceManaging {
+namespace FramePFX.Editor.Contexts {
     /// <summary>
     /// A context generator for a resource manager and its items
     /// </summary>
@@ -20,15 +22,16 @@ namespace FramePFX.Editor.ResourceManaging {
                 if (selected.Count > 0 && selected.Contains(resItem)) {
                     if (selected.Count == 1) {
                         list.Add(new ActionContextEntry(resItem.Manager, "actions.general.RenameItem", "Rename"));
-                        list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.GroupSelection", "Add to group"));
                         list.Add(SeparatorEntry.Instance);
                     }
-                    else {
-                        list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.GroupSelection", "Add to group"));
-                    }
 
+                    list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.GroupSelectionIntoFolder", "Group into folder"));
                     list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.DeleteItems", "Delete"));
                     list.Add(SeparatorEntry.Instance);
+
+                    if (resItem is ResourceCompositionViewModel) {
+                        list.Add(new ActionContextEntry(resItem, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
+                    }
 
                     if (resItem is ResourceItemViewModel item) {
                         if (selected.Count == 1) {
@@ -62,18 +65,22 @@ namespace FramePFX.Editor.ResourceManaging {
 
             if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null)) {
                 ResourceFolderViewModel folder = resItem as ResourceFolderViewModel ?? manager.CurrentFolder;
-                List<IContextEntry> newList = new List<IContextEntry>();
+                List<IContextEntry> newList = new List<IContextEntry> {
+                    new CommandContextEntry("New Folder", manager.CreateResourceCommand, nameof(ResourceFolder)),
+                    SeparatorEntry.Instance,
+                    new ActionContextEntry(folder, "actions.resources.newitem.NewText", "New Text", "Create a new text resource, and clip"),
+                    new CommandContextEntry("New ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)),
+                    new CommandContextEntry("New Image", manager.CreateResourceCommand, nameof(ResourceImage)),
+                    new CommandContextEntry("New Composition Sequence", manager.CreateResourceCommand, nameof(ResourceComposition))
+                };
 
                 if (list.Count > 0) {
-                    list.Add(SeparatorEntry.Instance);
+                    list.Insert(0, new GroupContextEntry("New...", newList));
+                    list.Insert(1, SeparatorEntry.Instance);
                 }
-
-                list.Add(new CommandContextEntry("New Folder", manager.CreateResourceCommand, nameof(ResourceFolder)));
-                list.Add(SeparatorEntry.Instance);
-                list.Add(new ActionContextEntry(folder, "actions.resources.newitem.NewText", "New Text", "Create a new text resource, and clip"));
-                list.Add(new CommandContextEntry("New ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)));
-                list.Add(new CommandContextEntry("New Image", manager.CreateResourceCommand, nameof(ResourceImage)));
-                list.Add(new CommandContextEntry("New Composition Sequence", manager.CreateResourceCommand, nameof(ResourceComposition)));
+                else {
+                    list.Insert(0, new GroupContextEntry("New...", newList));
+                }
             }
         }
     }

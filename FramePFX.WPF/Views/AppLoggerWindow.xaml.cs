@@ -1,4 +1,3 @@
-using System;
 using FramePFX.Logger;
 
 namespace FramePFX.WPF.Views {

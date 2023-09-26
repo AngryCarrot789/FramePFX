@@ -96,6 +96,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             set => this.RaisePropertyChanged(ref this.isRecordingKeyFrames, value);
         }
 
+        public string DisplayName {
+            get => this.Model.DisplayName;
+            set {
+                this.Model.DisplayName = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
         public long LargestFrameInUse => this.Model.LargestFrameInUse;
 
         public bool IsAutomationRefreshInProgress { get; set; }

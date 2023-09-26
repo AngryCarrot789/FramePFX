@@ -67,7 +67,7 @@
                 <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
                     <KeyStroke Key="Delete"/>
                 </Shortcut>
-                <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupSelection" Description="Puts the selected items into their own group">
+                <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupSelectionIntoFolder" Description="Puts the selected items into their own group">
                     <KeyStroke Mods="CTRL" Key="G"/>
                 </Shortcut>
             </Group>

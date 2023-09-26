@@ -10,10 +10,11 @@
              xmlns:r="clr-namespace:FramePFX.WPF.Editor.Resources"
              xmlns:ap="clr-namespace:FramePFX.WPF.AttachedProperties"
              xmlns:c="clr-namespace:FramePFX.WPF.Converters"
+             xmlns:contexts="clr-namespace:FramePFX.Editor.Contexts;assembly=FramePFX"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance vms:ResourceManagerViewModel}">
-    <Grid Margin="0" sc:UIInputManager.FocusPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static rm:ResourceContextGenerator.Instance}">
+    <Grid Margin="0" sc:UIInputManager.FocusPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static contexts:ResourceContextGenerator.Instance}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="164" />
             <ColumnDefinition Width="1" />

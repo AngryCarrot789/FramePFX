@@ -501,6 +501,23 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     }
                 }
 
+                TimelineEditorControl timeline = this.Timeline;
+                if (timeline != null && timeline.PART_ScrollViewer != null) {
+                    const double tolerance = 60;
+                    double min = Math.Max(timeline.PART_ScrollViewer.HorizontalOffset + tolerance, 0);
+                    double max = Math.Max(timeline.PART_ScrollViewer.HorizontalOffset + timeline.PART_ScrollViewer.ViewportWidth - tolerance, 0);
+                    double beginPixel = TimelineUtils.FrameToPixel(this.FrameBegin, timeline.UnitZoom);
+                    double endPixel = TimelineUtils.FrameToPixel(this.FrameBegin + this.FrameDuration, timeline.UnitZoom);
+                    const double offset = 20;
+
+                    if (beginPixel < min) {
+                        timeline.PART_ScrollViewer.ScrollToHorizontalOffset(timeline.PART_ScrollViewer.HorizontalOffset - offset);
+                    }
+                    else if (endPixel > max) {
+                        timeline.PART_ScrollViewer.ScrollToHorizontalOffset(timeline.PART_ScrollViewer.HorizontalOffset + offset);
+                    }
+                }
+
                 if (!didJustDragTrack && Math.Abs(diffY) >= 1.0d) {
                     int index = 0;
                     List<TimelineTrackControl> tracks = this.Timeline.GetTrackContainers().ToList();

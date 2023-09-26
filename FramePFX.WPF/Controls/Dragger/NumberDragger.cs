@@ -21,137 +21,28 @@ namespace FramePFX.WPF.Controls.Dragger {
 
         #region Dependency Properties
 
-        public static readonly DependencyProperty TinyChangeProperty =
-            DependencyProperty.Register(
-                "TinyChange",
-                typeof(double),
-                typeof(NumberDragger),
-                new PropertyMetadata(0.001d));
-
-        public static readonly DependencyProperty MassiveChangeProperty =
-            DependencyProperty.Register(
-                "MassiveChange",
-                typeof(double),
-                typeof(NumberDragger),
-                new PropertyMetadata(5d));
-
-        protected static readonly DependencyPropertyKey IsDraggingPropertyKey =
-            DependencyProperty.RegisterReadOnly(
-                "IsDragging",
-                typeof(bool),
-                typeof(NumberDragger),
-                new PropertyMetadata(BoolBox.False, (d, e) => ((NumberDragger) d).OnIsDraggingChanged((bool) e.OldValue, (bool) e.NewValue)));
-
+        public static readonly DependencyProperty TinyChangeProperty = DependencyProperty.Register("TinyChange", typeof(double), typeof(NumberDragger), new PropertyMetadata(0.001d));
+        public static readonly DependencyProperty MassiveChangeProperty = DependencyProperty.Register("MassiveChange", typeof(double), typeof(NumberDragger), new PropertyMetadata(5d));
+        protected static readonly DependencyPropertyKey IsDraggingPropertyKey =DependencyProperty.RegisterReadOnly("IsDragging",typeof(bool),typeof(NumberDragger),new PropertyMetadata(BoolBox.False, (d, e) => ((NumberDragger) d).OnIsDraggingChanged((bool) e.OldValue, (bool) e.NewValue)));
         public static readonly DependencyProperty IsDraggingProperty = IsDraggingPropertyKey.DependencyProperty;
-
-        public static readonly DependencyProperty CompleteEditOnTextBoxLostFocusProperty =
-            DependencyProperty.Register(
-                "CompleteEditOnTextBoxLostFocus",
-                typeof(bool?),
-                typeof(NumberDragger),
-                new PropertyMetadata(BoolBox.True));
-
-        public static readonly DependencyProperty OrientationProperty =
-            DependencyProperty.Register(
-                "Orientation",
-                typeof(Orientation),
-                typeof(NumberDragger),
-                new PropertyMetadata(Orientation.Horizontal, (d, e) => ((NumberDragger) d).OnOrientationChanged((Orientation) e.OldValue, (Orientation) e.NewValue)));
-
-        public static readonly DependencyProperty HorizontalIncrementProperty =
-            DependencyProperty.Register(
-                "HorizontalIncrement",
-                typeof(HorizontalIncrement),
-                typeof(NumberDragger),
-                new PropertyMetadata(HorizontalIncrement.LeftDecrRightIncr));
-
-        public static readonly DependencyProperty VerticalIncrementProperty =
-            DependencyProperty.Register(
-                "VerticalIncrement",
-                typeof(VerticalIncrement),
-                typeof(NumberDragger),
-                new PropertyMetadata(VerticalIncrement.UpDecrDownIncr));
-
-        public static readonly DependencyPropertyKey IsEditingTextBoxPropertyKey =
-            DependencyProperty.RegisterReadOnly(
-                "IsEditingTextBox",
-                typeof(bool),
-                typeof(NumberDragger),
-                new PropertyMetadata(BoolBox.False,
-                    (d, e) => ((NumberDragger) d).OnIsEditingTextBoxChanged((bool) e.OldValue, (bool) e.NewValue),
-                    (d, v) => ((NumberDragger) d).OnCoerceIsEditingTextBox(v)));
-
+        public static readonly DependencyProperty CompleteEditOnTextBoxLostFocusProperty =DependencyProperty.Register("CompleteEditOnTextBoxLostFocus",typeof(bool?),typeof(NumberDragger),new PropertyMetadata(BoolBox.True));
+        public static readonly DependencyProperty OrientationProperty =DependencyProperty.Register(    "Orientation",    typeof(Orientation),    typeof(NumberDragger),    new PropertyMetadata(Orientation.Horizontal, (d, e) => ((NumberDragger) d).OnOrientationChanged((Orientation) e.OldValue, (Orientation) e.NewValue)));
+        public static readonly DependencyProperty HorizontalIncrementProperty =DependencyProperty.Register(    "HorizontalIncrement",    typeof(HorizontalIncrement),    typeof(NumberDragger),    new PropertyMetadata(HorizontalIncrement.LeftDecrRightIncr));
+        public static readonly DependencyProperty VerticalIncrementProperty = DependencyProperty.Register("VerticalIncrement", typeof(VerticalIncrement), typeof(NumberDragger), new PropertyMetadata(VerticalIncrement.UpDecrDownIncr));
+        public static readonly DependencyPropertyKey IsEditingTextBoxPropertyKey = DependencyProperty.RegisterReadOnly("IsEditingTextBox", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.False, (d, e) => ((NumberDragger) d).OnIsEditingTextBoxChanged((bool) e.OldValue, (bool) e.NewValue), (d, v) => ((NumberDragger) d).OnCoerceIsEditingTextBox(v)));
         public static readonly DependencyProperty IsEditingTextBoxProperty = IsEditingTextBoxPropertyKey.DependencyProperty;
-
-        public static readonly DependencyProperty RoundedPlacesProperty =
-            DependencyProperty.Register(
-                "RoundedPlaces",
-                typeof(int?),
-                typeof(NumberDragger),
-                new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
-
-        public static readonly DependencyProperty PreviewRoundedPlacesProperty =
-            DependencyProperty.Register(
-                "PreviewRoundedPlaces",
-                typeof(int?),
-                typeof(NumberDragger),
-                new PropertyMetadata((int?) 4, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
-
-        public static readonly DependencyProperty LockCursorWhileDraggingProperty =
-            DependencyProperty.Register(
-                "LockCursorWhileDragging",
-                typeof(bool),
-                typeof(NumberDragger),
-                new PropertyMetadata(BoolBox.True));
-
-        public static readonly DependencyProperty DisplayTextOverrideProperty =
-            DependencyProperty.Register(
-                "DisplayTextOverride",
-                typeof(string),
-                typeof(NumberDragger),
-                new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
-
-        public static readonly DependencyProperty EditingHintProperty =
-            DependencyProperty.Register(
-                "EditingHint",
-                typeof(string),
-                typeof(NumberDragger),
-                new PropertyMetadata(null));
-
-        public static readonly DependencyProperty ForcedReadOnlyStateProperty =
-            DependencyProperty.Register(
-                "ForcedReadOnlyState",
-                typeof(bool?),
-                typeof(NumberDragger),
-                new PropertyMetadata(null));
-
-        public static readonly DependencyProperty RestoreValueOnCancelProperty =
-            DependencyProperty.Register(
-                "RestoreValueOnCancel",
-                typeof(bool),
-                typeof(NumberDragger),
-                new PropertyMetadata(BoolBox.True));
-
-        public static readonly DependencyProperty ChangeMapperProperty =
-            DependencyProperty.Register(
-                "ChangeMapper",
-                typeof(IChangeMapper),
-                typeof(NumberDragger),
-                new PropertyMetadata(null));
-
-        public static readonly DependencyProperty ValuePreProcessorProperty =
-            DependencyProperty.Register(
-                "ValuePreProcessor",
-                typeof(IValuePreProcessor),
-                typeof(NumberDragger),
-                new PropertyMetadata(null));
-
-        public static readonly DependencyProperty EditStateChangedCommandProperty =
-            DependencyProperty.Register(
-                "EditStateChangedCommand",
-                typeof(ICommand),
-                typeof(NumberDragger),
-                new PropertyMetadata(null));
+        public static readonly DependencyProperty RoundedPlacesProperty = DependencyProperty.Register("RoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
+        public static readonly DependencyProperty PreviewRoundedPlacesProperty = DependencyProperty.Register("PreviewRoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata((int?) 4, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
+        public static readonly DependencyProperty LockCursorWhileDraggingProperty = DependencyProperty.Register("LockCursorWhileDragging", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
+        public static readonly DependencyProperty DisplayTextOverrideProperty = DependencyProperty.Register("DisplayTextOverride", typeof(string), typeof(NumberDragger), new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
+        public static readonly DependencyProperty EditingHintProperty = DependencyProperty.Register("EditingHint", typeof(string), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty ForcedReadOnlyStateProperty = DependencyProperty.Register("ForcedReadOnlyState", typeof(bool?), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty RestoreValueOnCancelProperty = DependencyProperty.Register("RestoreValueOnCancel", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
+        public static readonly DependencyProperty ChangeMapperProperty = DependencyProperty.Register("ChangeMapper", typeof(IChangeMapper), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty ValuePreProcessorProperty = DependencyProperty.Register("ValuePreProcessor", typeof(IValuePreProcessor), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty EditStateChangedCommandProperty = DependencyProperty.Register("EditStateChangedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty IsDoubleClickToEditProperty = DependencyProperty.Register("IsDoubleClickToEdit", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty ResetValueCommandProperty = DependencyProperty.Register("ResetValueCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
 
         #endregion
 
@@ -291,6 +182,16 @@ namespace FramePFX.WPF.Controls.Dragger {
         public ICommand EditStateChangedCommand {
             get => (ICommand) this.GetValue(EditStateChangedCommandProperty);
             set => this.SetValue(EditStateChangedCommandProperty, value);
+        }
+
+        public bool IsDoubleClickToEdit {
+            get => (bool) this.GetValue(IsDoubleClickToEditProperty);
+            set => this.SetValue(IsDoubleClickToEditProperty, value.Box());
+        }
+
+        public ICommand ResetValueCommand {
+            get => (ICommand) this.GetValue(ResetValueCommandProperty);
+            set => this.SetValue(ResetValueCommandProperty, value);
         }
 
         public bool IsValueReadOnly {
@@ -610,21 +511,26 @@ namespace FramePFX.WPF.Controls.Dragger {
             }
         }
 
+        private bool canActivateInputEdit;
+
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             if (!this.IsDragging && !this.IsValueReadOnly) {
                 e.Handled = true;
                 this.Focus();
 
-                this.ignoreMouseMove = true;
-                try {
-                    this.CaptureMouse();
-                }
-                finally {
-                    this.ignoreMouseMove = false;
-                }
-
                 this.lastMouseMove = this.lastClickPoint = e.GetPosition(this);
-                this.UpdateCursor();
+                if (!this.IsDoubleClickToEdit || e.ClickCount > 1) {
+                    this.canActivateInputEdit = this.IsDoubleClickToEdit;
+                    this.ignoreMouseMove = true;
+                    try {
+                        this.CaptureMouse();
+                    }
+                    finally {
+                        this.ignoreMouseMove = false;
+                    }
+
+                    this.UpdateCursor();
+                }
             }
 
             base.OnMouseLeftButtonDown(e);
@@ -638,7 +544,7 @@ namespace FramePFX.WPF.Controls.Dragger {
             else if (this.hasCancelled_ignoreMouseUp) {
                 this.hasCancelled_ignoreMouseUp = false;
             }
-            else if (this.IsMouseOver && !this.IsValueReadOnly) {
+            else if (this.canActivateInputEdit && this.IsMouseOver && !this.IsValueReadOnly) {
                 if (this.IsMouseCaptured) {
                     this.ReleaseMouseCapture();
                 }
@@ -646,6 +552,7 @@ namespace FramePFX.WPF.Controls.Dragger {
                 this.OnBeginInputEdit();
             }
 
+            this.canActivateInputEdit = false;
             base.OnMouseLeftButtonUp(e);
         }
 

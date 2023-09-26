@@ -16,7 +16,7 @@ using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Actions {
+namespace FramePFX.Editor.Actions.Clips {
     [ActionRegistration("actions.editor.timeline.CreateCompositionFromSelection")]
     public class CreateCompositionFromClipsAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
@@ -87,7 +87,11 @@ namespace FramePFX.Editor.Actions {
             newTracks.Reverse();
 
             // create composition resource and add the tracks to its timeline
-            ResourceComposition composition = new ResourceComposition();
+            ResourceComposition composition = new ResourceComposition() {
+                DisplayName = $"New Composition with {totalClips} clips",
+            };
+
+            composition.Timeline.DisplayName = "Composition timeline";
             if (composition.Timeline.MaxDuration < finalTrackDuration) {
                 composition.Timeline.MaxDuration = finalTrackDuration + 1000;
             }
@@ -101,11 +105,16 @@ namespace FramePFX.Editor.Actions {
             await ResourceItemViewModel.TryAddAndLoadNewResource(activeFolder, comp);
 
             {
+                FrameSpan span = new FrameSpan(trackBegin, finalTrackDuration);
+                VideoTrackViewModel track = (VideoTrackViewModel) oldTracks.FirstOrDefault(x => x is VideoTrackViewModel vid && !vid.Clips.Any(cl => cl.FrameSpan.Intersects(span)));
+                if (track == null) {
+                    track = await timeline.InsertNewVideoTrackAction(0, false);
+                }
+
                 // create composition clip
-                VideoTrackViewModel track = await timeline.InsertNewVideoTrackAction(0, false);
                 CompositionVideoClip clip = new CompositionVideoClip();
                 clip.ResourceHelper.SetTargetResourceId(comp.UniqueId);
-                clip.FrameSpan = new FrameSpan(trackBegin, finalTrackDuration);
+                clip.FrameSpan = span;
                 clip.DisplayName = $"New Composition ({totalClips} clips)";
                 clip.AddEffect(new MotionEffect());
                 CompositionVideoClipViewModel clipVM = new CompositionVideoClipViewModel(clip);
@@ -114,7 +123,7 @@ namespace FramePFX.Editor.Actions {
             }
 
             VideoEditorViewModel editor = timeline.Project.Editor;
-            editor?.View.OpenTimeline(comp.Timeline);
+            editor.OpenAndSelectTimeline(comp.Timeline);
             await comp.Timeline.DoAutomationTickAndRenderToPlayback();
             return true;
         }

@@ -37,6 +37,8 @@ using FramePFX.WPF.Editor.MainWindow;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.PropertyEditing;
 using System.Windows.Controls;
+using FramePFX.Editor.Actions.Clips;
+using FramePFX.Editor.Actions.Tracks;
 using FramePFX.Logger;
 using UndoAction = FramePFX.History.Actions.UndoAction;
 
@@ -107,7 +109,7 @@ namespace FramePFX.WPF {
             ActionManager.Instance.Register("actions.editor.timeline.TogglePlayPause", new TogglePlayPauseAction());
             ActionManager.Instance.Register("actions.editor.timeline.PlayAtLastStopFrame", new PlayAtLastFrameAction());
             ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
-            ActionManager.Instance.Register("actions.resources.GroupSelection", new GroupSelectedResourcesAction());
+            ActionManager.Instance.Register("actions.resources.GroupSelectionIntoFolder", new GroupSelectedResourcesAction());
             ActionManager.Instance.Register("actions.resources.ToggleOnlineState", new ToggleResourceOnlineStateAction());
             ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedClips", new DeleteSelectedClips());
             ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());

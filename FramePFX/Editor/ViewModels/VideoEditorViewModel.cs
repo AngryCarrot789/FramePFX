@@ -56,25 +56,6 @@ namespace FramePFX.Editor.ViewModels {
             set => this.SetActiveTimeline(value);
         }
 
-        private void SetActiveTimeline(TimelineViewModel timeline) {
-            if (timeline == this.activeTimeline)
-                return;
-            if (!this.activeTimelines.Contains(timeline))
-                this.activeTimelines.Add(timeline);
-            if (this.activeTimeline != null) {
-                this.Playback.StopPlaybackForChangingTimeline();
-            }
-
-            this.RaisePropertyChanged(ref this.activeTimeline, timeline);
-            if (timeline != null) {
-                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
-                PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
-                PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
-                timeline.RefreshAutomationAndPlayhead();
-                this.DoDrawRenderFrame(timeline, true);
-            }
-        }
-
         public bool IsProjectSaving {
             get => this.Model.IsProjectSaving;
             private set {
@@ -121,6 +102,57 @@ namespace FramePFX.Editor.ViewModels {
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
             this.FileExplorer = new FileExplorerViewModel();
+        }
+
+        public void OnTimelineClosed(TimelineViewModel timeline) {
+            this.activeTimelines.Remove(timeline);
+            if (this.ActiveTimeline == timeline) {
+                this.ActiveTimeline = null;
+            }
+        }
+
+        public void OnTimelineOpened(TimelineViewModel timeline) {
+            if (!this.activeTimelines.Contains(timeline)) {
+                this.activeTimelines.Add(timeline);
+            }
+        }
+
+        public void OnTimelinesCleared() {
+            this.activeTimelines.Clear();
+            this.ActiveTimeline = null;
+        }
+
+        public void OpenAndSelectTimeline(TimelineViewModel timeline) {
+            if (!this.activeTimelines.Contains(timeline)) {
+                this.View.OpenTimeline(timeline);
+            }
+
+            if (this.ActiveTimeline != timeline) {
+                this.ActiveTimeline = timeline;
+            }
+        }
+
+        private void SetActiveTimeline(TimelineViewModel timeline) {
+            if (timeline == this.activeTimeline)
+                return;
+            if (timeline != null && !this.activeTimelines.Contains(timeline))
+                this.View.OpenTimeline(timeline);
+            if (this.activeTimeline != null) {
+                this.Playback.StopPlaybackForChangingTimeline();
+            }
+
+            if (timeline != null) {
+                this.View.SelectTimeline(timeline);
+            }
+
+            this.RaisePropertyChanged(ref this.activeTimeline, timeline);
+            if (timeline != null) {
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
+                PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
+                PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
+                timeline.RefreshAutomationAndPlayhead();
+                this.DoDrawRenderFrame(timeline, true);
+            }
         }
 
         public async Task ExportAction() {

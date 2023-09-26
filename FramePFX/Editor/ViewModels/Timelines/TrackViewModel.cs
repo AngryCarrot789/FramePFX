@@ -357,5 +357,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.RaisePropertyChanged(nameof(this.LargestFrameInUse));
             }
         }
+
+        public bool IsRegionEmpty(FrameSpan span) {
+            return !this.clips.Any(x => x.FrameSpan.Intersects(span));
+        }
     }
 }

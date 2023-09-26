@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using AvalonDock.Layout;
@@ -56,6 +59,34 @@ namespace FramePFX.WPF.Editor.MainWindow {
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
             this.TimelineLayoutPane.PropertyChanged += this.TimelineLayoutPaneOnPropertyChanged;
             this.MyDockingManager.ActiveContentChanged += this.MyDockingManagerOnActiveContentChanged;
+            this.TimelineLayoutPane.Children.CollectionChanged += (sender, e) => {
+                VideoEditorViewModel editor = this.Editor;
+                if (editor == null) {
+                    return;
+                }
+
+                switch (e.Action) {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (TimelineViewModel item in e.NewItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                            editor.OnTimelineOpened(item);
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (TimelineViewModel item in e.OldItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                            editor.OnTimelineClosed(item);
+                        break;
+                    case NotifyCollectionChangedAction.Replace:
+                        foreach (TimelineViewModel item in e.OldItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                            editor.OnTimelineClosed(item);
+                        foreach (TimelineViewModel item in e.NewItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                            editor.OnTimelineOpened(item);
+                        break;
+                    case NotifyCollectionChangedAction.Move: break;
+                    case NotifyCollectionChangedAction.Reset:
+                        editor.OnTimelinesCleared();
+                        break;
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            };
         }
 
         private void MyDockingManagerOnActiveContentChanged(object sender, EventArgs e) {
@@ -136,11 +167,30 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 Content = new PreAnchoredTimelineControl() {
                     DataContext = timeline
                 },
-                CanClose = true, CanDockAsTabbedDocument = true,
-                Title = "A timeline"
+                CanClose = true,
+                CanDockAsTabbedDocument = true
             };
 
+            BindingOperations.SetBinding(anchorable, LayoutContent.TitleProperty, new Binding(nameof(timeline.DisplayName)) {
+                Source = timeline,
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+            });
+
             this.TimelineLayoutPane.Children.Add(anchorable);
+        }
+
+        public void SelectTimeline(TimelineViewModel timeline) {
+            int i = 0;
+            foreach (LayoutAnchorable anchorable in this.TimelineLayoutPane.Children) {
+                TimelineViewModel openedTimeline = (TimelineViewModel) ((PreAnchoredTimelineControl) anchorable.Content).DataContext;
+                if (openedTimeline == timeline) {
+                    this.TimelineLayoutPane.SelectedContentIndex = i;
+                    return;
+                }
+
+                i++;
+            }
         }
 
         // protected override void OnActivated(EventArgs e) {

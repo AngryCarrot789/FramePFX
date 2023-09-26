@@ -54,6 +54,8 @@ namespace FramePFX.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
+        public string DisplayName { get; set; }
+
         public Timeline() {
             this.tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);

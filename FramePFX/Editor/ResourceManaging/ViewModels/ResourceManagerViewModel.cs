@@ -145,6 +145,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     break;
                 case nameof(ResourceComposition):
                     resourceItem = new ResourceComposition() { DisplayName = "New Composition Sequence" };
+                    ((ResourceComposition) resourceItem).Timeline.DisplayName = "Composition timeline";
                     ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack() {
                         DisplayName = "Track 1"
                     });
@@ -171,9 +172,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
             if (resObj is ResourceCompositionViewModel composition) {
                 VideoEditorViewModel editor = this.Project.Editor;
-                if (editor != null) {
-                    editor.View.OpenTimeline(composition.Timeline);
-                }
+                editor?.OpenAndSelectTimeline(composition.Timeline);
             }
         }
 

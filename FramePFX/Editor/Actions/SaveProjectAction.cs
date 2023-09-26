@@ -3,9 +3,9 @@ using FramePFX.Actions;
 using FramePFX.Editor.ViewModels;
 
 namespace FramePFX.Editor.Actions {
-    public class SaveProjectAction : EditorAction {
+    public class SaveProjectAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (GetProject(e.DataContext, out ProjectViewModel project)) {
+            if (EditorActionUtils.GetProject(e.DataContext, out ProjectViewModel project)) {
                 await project.SaveActionAsync();
                 return true;
             }
@@ -14,9 +14,9 @@ namespace FramePFX.Editor.Actions {
         }
     }
 
-    public class SaveProjectAsAction : EditorAction {
+    public class SaveProjectAsAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!GetProject(e.DataContext, out ProjectViewModel project)) {
+            if (!EditorActionUtils.GetProject(e.DataContext, out ProjectViewModel project)) {
                 return false;
             }
 

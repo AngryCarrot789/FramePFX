@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 
 namespace FramePFX.Editor.Contexts {
     public class ClipContextGenerator : IContextGenerator {
@@ -12,13 +13,16 @@ namespace FramePFX.Editor.Contexts {
                 return;
             }
 
-            list.Add(new CommandContextEntry("Remove", clip.RemoveClipCommand));
-            if (clip.AutomationData.ActiveSequence != null) {
-                list.Add(new ActionContextEntry(null, "actions.automation.AddKeyFrame", "Add key frame"));
+            if (clip is CompositionVideoClipViewModel compositionClip && compositionClip.TryGetResource(out _)) {
+                list.Add(new ActionContextEntry(clip, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
             }
 
+            list.Add(new CommandContextEntry("Remove", clip.RemoveClipCommand));
             list.Add(SeparatorEntry.Instance);
+            list.Add(new ActionContextEntry(clip, "actions.automation.AddKeyFrame", "Add key frame", "Adds a key frame to the active sequence"));
             list.Add(new ActionContextEntry(clip, "actions.editor.timeline.CreateCompositionFromSelection", "Create composition from selection", "Creates a composition clip from the selected clips"));
+            list.Add(SeparatorEntry.Instance);
+            list.Add(new ActionContextEntry(clip, "actions.general.RenameItem", "Rename"));
         }
     }
 }

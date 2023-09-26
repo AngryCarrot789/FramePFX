@@ -45,7 +45,9 @@ namespace FramePFX.Editor.Timelines {
         public bool IsDisposing { get; private set; }
 
         /// <summary>
-        /// The position of this clip in terms of video frames, in the form of a <see cref="Utils.FrameSpan"/> which has a begin and duration property
+        /// The position of this clip in terms of video frames, in the form of a <see cref="Utils.FrameSpan"/> which
+        /// has a begin and duration property. This should only be set directly if the clip is not placed in a track,
+        /// otherwise, use <see cref="SetFrameSpan"/> in order to update the track's clip position cache
         /// </summary>
         public FrameSpan FrameSpan;
 
@@ -88,6 +90,12 @@ namespace FramePFX.Editor.Timelines {
         protected Clip() {
             this.AutomationData = new AutomationData(this);
             this.Effects = new List<BaseEffect>();
+        }
+
+        public void SetFrameSpan(FrameSpan span) {
+            FrameSpan oldSpan = this.FrameSpan;
+            this.FrameSpan = span;
+            this.Track?.OnClipFrameSpanChanged(this, oldSpan);
         }
 
         /// <summary>

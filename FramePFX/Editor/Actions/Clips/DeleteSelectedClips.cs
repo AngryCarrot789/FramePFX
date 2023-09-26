@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
+using FramePFX.Editor.History;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.History.ViewModels;
+using FramePFX.RBC;
 
-namespace FramePFX.Editor.Actions {
-    public class SliceClipsAction : AnAction {
-        public SliceClipsAction() {
-        }
-
+namespace FramePFX.Editor.Actions.Clips {
+    public class DeleteSelectedClips : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
             if (timeline == null) {
@@ -19,17 +20,22 @@ namespace FramePFX.Editor.Actions {
                 return false;
             }
 
-            long frame = timeline.PlayHeadFrame;
-            List<ClipViewModel> selected = timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
-            if (selected.Count > 0) {
-                foreach (ClipViewModel clip in (IEnumerable<ClipViewModel>) selected) {
-                    if (clip.IntersectsFrameAt(frame)) {
-                        await clip.Track.SliceClipAction(clip, frame);
-                    }
+            bool deleted = false;
+            List<List<RBEDictionary>> list = new List<List<RBEDictionary>>();
+            foreach (TrackViewModel track in timeline.Tracks.ToList()) {
+                List<RBEDictionary> clips = new List<RBEDictionary>();
+                if (track.SelectedClips.Count > 0) {
+                    List<ClipViewModel> selection = track.SelectedClips.ToList();
+                    clips.AddRange(selection.Select(clip => Clip.WriteSerialisedWithId(clip.Model)));
+                    await track.DisposeAndRemoveItemsAction(selection);
+                    deleted = true;
                 }
+
+                list.Add(clips);
             }
-            else {
-                await CutAllOnPlayHead(timeline);
+
+            if (deleted) {
+                HistoryManagerViewModel.Instance.AddAction(new HistoryClipDeletion(timeline, list));
             }
 
             return true;

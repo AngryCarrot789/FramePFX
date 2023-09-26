@@ -46,7 +46,8 @@ namespace FramePFX.Editor {
 
             this.ResourceManager = new ResourceManager(this);
             this.Timeline = new Timeline() {
-                MaxDuration = 5000L
+                MaxDuration = 5000L,
+                DisplayName = "Project Timeline"
             };
 
             this.Timeline.SetProject(this);

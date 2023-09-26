@@ -5,7 +5,7 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Actions {
+namespace FramePFX.Editor.Actions.Tracks {
     public class NewVideoTrackAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             if (!EditorActionUtils.GetNewTrackData(e.DataContext, out TimelineViewModel timeline, out int index, AVType.Video)) {

@@ -5,8 +5,10 @@ using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions {
-    public class AddKeyFrameAction : EditorAction {
+    public class AddKeyFrameAction : AnAction {
         public override Task<bool> ExecuteAsync(AnActionEventArgs e) {
+
+
             AutomationSequenceViewModel sequence;
             if (e.DataContext.TryGetContext(out ClipViewModel clip) && clip.Track != null) {
                 if ((sequence = clip.AutomationData.ActiveSequence) != null) {

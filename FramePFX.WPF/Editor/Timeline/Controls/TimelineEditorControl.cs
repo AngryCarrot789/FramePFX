@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 using FramePFX.Editor;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
@@ -14,7 +13,6 @@ using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 using FramePFX.WPF.Utils;
-using Rect = System.Windows.Rect;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
     public class TimelineEditorControl : ItemsControl, IHasZoom {
@@ -46,7 +44,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineEditorControl), new FrameworkPropertyMetadata(0L, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => ((TimelineEditorControl) d).OnPlayHeadChanged((long) e.OldValue, (long) e.NewValue)));
 
-        public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRect?), typeof(TimelineEditorControl), new PropertyMetadata((SelectionRect?) null));
+        public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRange?), typeof(TimelineEditorControl), new PropertyMetadata((SelectionRange?) null));
 
         public static readonly DependencyProperty ScrollTimelineDuringPlaybackProperty = DependencyProperty.Register("ScrollTimelineDuringPlayback", typeof(bool), typeof(TimelineEditorControl), new PropertyMetadata(BoolBox.False));
 
@@ -69,8 +67,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             set => this.SetValue(PlayHeadFrameProperty, value);
         }
 
-        public SelectionRect? SelectionRectangle {
-            get => (SelectionRect?) this.GetValue(SelectionRectangleProperty);
+        public SelectionRange? SelectionRectangle {
+            get => (SelectionRange?) this.GetValue(SelectionRectangleProperty);
             set => this.SetValue(SelectionRectangleProperty, value);
         }
 
@@ -216,22 +214,17 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
 
             Point origin = this.selectionBeginPoint;
-            Point point = e.GetPosition(this);
-            point.X = Maths.Clamp(point.X, 0, this.ActualWidth);
-            point.Y = Maths.Clamp(point.Y, 0, this.ActualHeight);
+            Point mPos = e.GetPosition(this);
+            mPos.X = Maths.Clamp(mPos.X, 0, this.ActualWidth);
+            mPos.Y = Maths.Clamp(mPos.Y, 0, this.ActualHeight);
 
-            Vector diff = (this.selectionBeginPoint - point);
             if (!this.isSelectionActive) {
-                if (Math.Abs(diff.X) < 4d || Math.Abs(diff.Y) < 4d) {
-                    return;
-                }
-
                 this.isSelectionActive = true;
             }
 
             double zoom = this.UnitZoom;
             long a = TimelineUtils.PixelToFrame(origin.X, zoom);
-            long b = TimelineUtils.PixelToFrame(point.X, zoom);
+            long b = TimelineUtils.PixelToFrame(mPos.X, zoom);
             long begin = Math.Min(a, b);
             long end = Math.Max(a, b);
             long duration = end - begin;
@@ -239,46 +232,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
             }
 
-            double accumulatedHeight = 0d;
-            int originIndex = -1;
-            int pointIndex = -1;
-            List<TimelineTrackControl> list = this.GetTrackContainers().ToList();
-            Rect templateRect = new Rect(0, 0, this.ActualWidth, 0);
-            for (int i = 0; i < list.Count && (originIndex == -1 || pointIndex == -1); i++) {
-                templateRect.Y += accumulatedHeight;
-                Rect rect = templateRect;
-                rect.Height = list[i].Height;
-                accumulatedHeight += rect.Height;
-                if (originIndex == -1 && rect.Contains(origin)) {
-                    originIndex = i;
-                }
-
-                if (pointIndex == -1 && rect.Contains(point)) {
-                    pointIndex = i;
-                }
-            }
-
-            if (originIndex == -1 || pointIndex == -1) {
-                return;
-            }
-
-            int index = Math.Min(originIndex, pointIndex);
-            int length = Math.Abs(pointIndex - originIndex);
-
-            this.SelectionRectangle = new SelectionRect(new FrameSpan(begin, duration), index, length);
+            this.SelectionRectangle = new SelectionRange(new FrameSpan(begin, duration));
             if (this.PART_SelectionRange != null) {
                 this.PART_SelectionRange.Visibility = Visibility.Visible;
-                double y = 0d;
-                for (int i = 0; i < index; i++)
-                    y += list[i].Height;
-
-                this.PART_SelectionRange.Margin = new Thickness(TimelineUtils.FrameToPixel(begin, zoom), y, 0, 0);
+                this.PART_SelectionRange.Margin = new Thickness(TimelineUtils.FrameToPixel(begin, zoom), 0, 0, 0);
                 this.PART_SelectionRange.Width = TimelineUtils.FrameToPixel(duration, zoom);
-
-                double height = 0d;
-                for (int i = index, j = index + length; i < j; i++)
-                    height += list[i].Height;
-                this.PART_SelectionRange.Height = height;
             }
         }
 
@@ -351,6 +309,36 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
             this.PART_ScrollViewer.ScrollToHorizontalOffset(pixel);
             return true;
+        }
+
+        /// <summary>
+        /// Scrolls the editor when the given range (minX, maxX) do not fall within the range of the editor's
+        /// visible view port, accounting for a tolerance (which is the width divided by the tolerance percentage).
+        /// This can be called during a clip's mouse move event, so that scrolling happens when the mouse moves
+        /// </summary>
+        /// <param name="minX"></param>
+        /// <param name="maxX"></param>
+        /// <param name="tolerancePercent"></param>
+        /// <param name="offset">Scroll amount per call of this method</param>
+        public void AutoScroll(double minX, double maxX, double tolerancePercent = 15, double offset = 25) {
+            if (this.PART_ScrollViewer != null) {
+                double scrollX = this.PART_ScrollViewer.HorizontalOffset;
+                double vpW = this.PART_ScrollViewer.ViewportWidth;
+                double tolerance = vpW / tolerancePercent;
+                double min = Math.Max(scrollX + tolerance, 0);
+                double max = Math.Max(scrollX + vpW - tolerance, 0);
+                if (minX < min) {
+                    this.PART_ScrollViewer.ScrollToHorizontalOffset(scrollX - offset);
+                }
+                else if (maxX > max) {
+                    this.PART_ScrollViewer.ScrollToHorizontalOffset(scrollX + offset);
+                }
+            }
+        }
+
+        public void AutoScrollFrame(long min, long max, double tolerancePercent = 15, double offset = 25) {
+            double zoom = this.UnitZoom;
+            this.AutoScroll(TimelineUtils.FrameToPixel(min, zoom), TimelineUtils.FrameToPixel(max, zoom), tolerancePercent, offset);
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {

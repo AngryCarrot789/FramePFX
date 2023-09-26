@@ -19,5 +19,7 @@ namespace FramePFX.Editor {
         NotificationPanelViewModel NotificationPanel { get; }
 
         void OpenTimeline(TimelineViewModel timeline);
+
+        void SelectTimeline(TimelineViewModel timeline);
     }
 }

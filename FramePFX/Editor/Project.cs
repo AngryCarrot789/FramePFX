@@ -32,7 +32,14 @@ namespace FramePFX.Editor {
         /// calling <see cref="GetDataFolderPath"/> or any similar function will generate it
         /// </para>
         /// </summary>
-        public string DataFolder { get; private set; }
+        public string DataFolder { get; set; }
+
+        /// <summary>
+        /// Gets the name of the project file (without directory info), relative to the <see cref="DataFolder"/>. This will not be null, and defaults to "Project.fpx"
+        /// </summary>
+        public string ProjectFileName { get; set; } = "Project" + Filters.DotFrameFPXExtension;
+
+        public string FullProjectFilePath { get; set; }
 
         /// <summary>
         /// Whether or not <see cref="DataFolder"/> is located in the tmp folder
@@ -59,12 +66,20 @@ namespace FramePFX.Editor {
             this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
         }
 
-        public void ReadFromRBE(RBEDictionary data, string dataFolder) {
+        public void ReadFromRBE(RBEDictionary data, string dataFolder, string projectFileName) {
             if (this.DataFolder != null) {
                 throw new Exception("Our data folder is not invalid; cannot replace it");
             }
 
             this.DataFolder = dataFolder;
+            this.ProjectFileName = projectFileName;
+            try {
+                this.FullProjectFilePath = Path.Combine(dataFolder, projectFileName);
+            }
+            catch (Exception e) {
+                throw new Exception($"Data folder or project file name contain invalid chars.\n'{dataFolder}', {projectFileName}", e);
+            }
+
             this.Settings.ReadFromRBE(data.GetDictionary(nameof(this.Settings)));
             this.ResourceManager.ReadFromRBE(data.GetDictionary(nameof(this.ResourceManager)));
             this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
@@ -93,12 +108,19 @@ namespace FramePFX.Editor {
             if (string.IsNullOrEmpty(this.DataFolder)) {
                 this.IsTempDataFolder = isTemp = true;
                 this.DataFolder = RandomUtils.RandomLettersWhere(Path.GetTempPath(), 16, x => !Directory.Exists(x));
+                this.FullProjectFilePath = Path.Combine(this.DataFolder, this.ProjectFileName);
             }
             else {
                 isTemp = false;
             }
 
             return this.DataFolder;
+        }
+
+        public void SetProjectFileLocation(string dataFolder, string projectFileName, string projectFilePath) {
+            this.DataFolder = dataFolder;
+            this.ProjectFileName = projectFileName;
+            this.FullProjectFilePath = projectFilePath;
         }
 
         /// <summary>
@@ -122,10 +144,6 @@ namespace FramePFX.Editor {
         /// </summary>
         public void UpdateAutomationBackingStorage() {
             this.Timeline.UpdateAutomationBackingStorage();
-        }
-
-        public static void SetDataFolder(Project project, string value) {
-            project.DataFolder = value;
         }
     }
 }

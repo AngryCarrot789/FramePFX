@@ -10,6 +10,7 @@
                     xmlns:primitives="clr-namespace:FramePFX.PropertyEditing.Editor;assembly=FramePFX"
                     xmlns:tracks="clr-namespace:FramePFX.Editor.PropertyEditors.Tracks;assembly=FramePFX"
                     xmlns:video="clr-namespace:FramePFX.Editor.PropertyEditors.Tracks.Video;assembly=FramePFX"
+                    xmlns:wpf="clr-namespace:FramePFX.WPF"
                     mc:Ignorable="d">
 
     <Style x:Key="AutomationEllipse" TargetType="{x:Type Ellipse}">
@@ -128,7 +129,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Normal" Padding="6,0" Text="Font" Height="18" Margin="0" />
-            <TextBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="1,1" Text="{Binding FontFamily, UpdateSourceTrigger=PropertyChanged}" TextWrapping="NoWrap" Margin="0" />
+            <ComboBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="1,1"  SelectedItem="{Binding FontFamily, Mode=TwoWay}" ItemsSource="{x:Static wpf:App.FontFamilies}" Margin="0" />
             <TextBlock Grid.Row="1" Grid.Column="0" FontWeight="Normal" Padding="6,0" Text="Text" Height="18" Margin="0" />
             <TextBox Grid.Row="1" Grid.Column="2" AcceptsReturn="True" AcceptsTab="True" FontWeight="Normal" Padding="1,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0"/>
         </Grid>

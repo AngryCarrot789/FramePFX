@@ -9,11 +9,11 @@ namespace FramePFX.WPF.Editor {
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
             if (values[0] is ProjectViewModel project) {
-                if (string.IsNullOrEmpty(project.DataFolder)) {
+                if (string.IsNullOrEmpty(project.FullProjectFilePath)) {
                     return Modifiable(this.DefaultTitle, project.HasUnsavedChanges);
                 }
                 else {
-                    return Modifiable(this.DefaultTitle + $" [{project.DataFolder}]", project.HasUnsavedChanges);
+                    return Modifiable(this.DefaultTitle + $" [{project.FullProjectFilePath}]", project.HasUnsavedChanges);
                 }
             }
             else {

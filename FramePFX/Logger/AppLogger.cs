@@ -20,7 +20,7 @@ namespace FramePFX.Logger {
         static AppLogger() {
             Headers = new ThreadLocal<Stack<HeaderedLogEntry>>(() => new Stack<HeaderedLogEntry>());
             ViewModel = new LoggerViewModel();
-            driver = new InputDrivenTaskExecutor(() => Services.Application?.InvokeAsync(WriteEntriesToViewModel));
+            driver = new InputDrivenTaskExecutor(() => Services.Application.InvokeAsync(WriteEntriesToViewModel), TimeSpan.FromMilliseconds(50));
             cachedEntries = new List<(HeaderedLogEntry, LogEntry)>();
         }
 
@@ -41,7 +41,7 @@ namespace FramePFX.Logger {
         /// </para>
         /// </summary>
         /// <param name="header"></param>
-        public static void PushHeader(string header) {
+        public static void PushHeader(string header, bool autoExpand = true) {
             Stack<HeaderedLogEntry> stack = Headers.Value;
             if (stack.Count < 10) {
                 if (string.IsNullOrEmpty(header))
@@ -50,6 +50,8 @@ namespace FramePFX.Logger {
                 HeaderedLogEntry top = stack.Count > 0 ? stack.Peek() : null;
                 lock (PRINTLOCK) {
                     HeaderedLogEntry entry = new HeaderedLogEntry(DateTime.Now, GetNextIndex(stack), Environment.StackTrace, header);
+                    if (!autoExpand)
+                        entry.IsExpanded = false;
                     stack.Push(entry);
                     cachedEntries.Add((top, entry));
                     driver.OnInput();

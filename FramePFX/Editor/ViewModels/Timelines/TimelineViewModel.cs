@@ -104,6 +104,18 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
+        private bool autoScrollOnClipDrag;
+        public bool AutoScrollOnClipDrag {
+            get => this.autoScrollOnClipDrag;
+            set => this.RaisePropertyChanged(ref this.autoScrollOnClipDrag, value);
+        }
+
+        private bool autoScrollDuringPlayback;
+        public bool AutoScrollDuringPlayback {
+            get => this.autoScrollDuringPlayback;
+            set => this.RaisePropertyChanged(ref this.autoScrollDuringPlayback, value);
+        }
+
         public long LargestFrameInUse => this.Model.LargestFrameInUse;
 
         public bool IsAutomationRefreshInProgress { get; set; }

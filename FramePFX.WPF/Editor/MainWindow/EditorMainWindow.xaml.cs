@@ -163,6 +163,10 @@ namespace FramePFX.WPF.Editor.MainWindow {
         }
 
         public void OpenTimeline(TimelineViewModel timeline) {
+            if (this.TimelineLayoutPane.Children.Any(x => ((PreAnchoredTimelineControl) x.Content).DataContext == timeline)) {
+                return;
+            }
+
             LayoutAnchorable anchorable = new LayoutAnchorable {
                 Content = new PreAnchoredTimelineControl() {
                     DataContext = timeline

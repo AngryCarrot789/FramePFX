@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
+using FramePFX.Actions.Contexts;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Clips {
@@ -10,8 +11,7 @@ namespace FramePFX.Editor.Actions.Clips {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
-            if (timeline == null) {
+            if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
                 if (e.IsUserInitiated) {
                     await Services.DialogService.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
                 }
@@ -20,7 +20,7 @@ namespace FramePFX.Editor.Actions.Clips {
             }
 
             long frame = timeline.PlayHeadFrame;
-            List<ClipViewModel> selected = timeline.Tracks.SelectMany(x => x.SelectedClips).ToList();
+            List<ClipViewModel> selected = timeline.GetSelectedClips().ToList();
             if (selected.Count > 0) {
                 foreach (ClipViewModel clip in (IEnumerable<ClipViewModel>) selected) {
                     if (clip.IntersectsFrameAt(frame)) {
@@ -36,7 +36,7 @@ namespace FramePFX.Editor.Actions.Clips {
         }
 
         public override bool CanExecute(AnActionEventArgs e) {
-            return EditorActionUtils.FindTimeline(e.DataContext) != null;
+            return EditorActionUtils.GetTimeline(e.DataContext, out _);
         }
 
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {

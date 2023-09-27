@@ -26,7 +26,6 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         }
 
         public override void OnDataModified(string propertyName = null) {
-            base.OnDataModified(propertyName);
             switch (propertyName) {
                 case nameof(this.FontFamily):
                 case nameof(this.FontSize):
@@ -38,6 +37,8 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
                     this.GenerateSkiaData();
                     break;
             }
+
+            base.OnDataModified(propertyName);
         }
 
         public void InvalidateSkiaData() {

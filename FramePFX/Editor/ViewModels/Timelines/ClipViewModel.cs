@@ -193,7 +193,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.AutomationData.ActiveSequenceChanged += this.AutomationDataOnActiveSequenceChanged;
-            this.AutomationData.SetActiveSequenceFromModelDeserialisation();
             this.effects = new ObservableCollection<BaseEffectViewModel>();
             this.Effects = new ReadOnlyObservableCollection<BaseEffectViewModel>(this.effects);
             this.skipUpdatePropertyEditor = true;
@@ -212,6 +211,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.RemoveClipCommand = new RelayCommand(() => {
                 this.Track?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {this});
             });
+
+            this.AutomationData.SetActiveSequenceFromModelDeserialisation();
         }
 
         public static void SetSelectedAndShowPropertyEditor(ClipViewModel clip) {

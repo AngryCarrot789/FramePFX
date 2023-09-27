@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
+using FramePFX.Actions.Contexts;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
@@ -11,8 +12,7 @@ using FramePFX.RBC;
 namespace FramePFX.Editor.Actions.Clips {
     public class DeleteSelectedClips : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            TimelineViewModel timeline = EditorActionUtils.FindTimeline(e.DataContext);
-            if (timeline == null) {
+            if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
                 if (e.IsUserInitiated) {
                     await Services.DialogService.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
                 }
@@ -42,7 +42,7 @@ namespace FramePFX.Editor.Actions.Clips {
         }
 
         public override bool CanExecute(AnActionEventArgs e) {
-            return EditorActionUtils.FindTimeline(e.DataContext) != null;
+            return EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline);
         }
 
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {

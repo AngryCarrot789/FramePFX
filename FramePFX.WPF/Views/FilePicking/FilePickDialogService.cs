@@ -1,8 +1,11 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using FramePFX.Logger;
+using FramePFX.Utils;
 using Microsoft.Win32;
 using FramePFX.Views.Dialogs.FilePicking;
 
@@ -82,7 +85,13 @@ namespace FramePFX.WPF.Views.FilePicking {
             };
 
             if (defaultPath != null) {
-                dialog.FileName = defaultPath;
+                try {
+                    dialog.InitialDirectory = Path.GetDirectoryName(defaultPath) ?? "";
+                    dialog.FileName = Path.GetFileName(defaultPath);
+                }
+                catch (Exception e) {
+                    AppLogger.WriteLine("An error occurred calculating default path for save file dialog\n" + e.GetToString());
+                }
             }
 
             return dialog.ShowDialog() == true && !string.IsNullOrEmpty(dialog.FileName) ? dialog.FileName : null;

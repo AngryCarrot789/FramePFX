@@ -196,7 +196,7 @@ namespace FramePFX.Editor.ViewModels {
                 await this.CloseProjectAction();
             }
 
-            await this.SetProject(project);
+            await this.LoadProject(project);
             this.ActiveProject.SetHasUnsavedChanges(false);
         }
 
@@ -212,8 +212,17 @@ namespace FramePFX.Editor.ViewModels {
 
             string path = result[0];
             string parentFolder;
+            string projectFileName;
             try {
                 parentFolder = Path.GetDirectoryName(path);
+            }
+            catch (ArgumentException) {
+                await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
+                return;
+            }
+
+            try {
+                projectFileName = Path.GetFileName(path);
             }
             catch (ArgumentException) {
                 await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
@@ -242,7 +251,7 @@ namespace FramePFX.Editor.ViewModels {
             ProjectViewModel pvm;
 
             try {
-                projectModel.ReadFromRBE(dictionary, parentFolder);
+                projectModel.ReadFromRBE(dictionary, parentFolder, projectFileName);
                 pvm = new ProjectViewModel(projectModel);
             }
             catch (Exception e) {
@@ -259,7 +268,7 @@ namespace FramePFX.Editor.ViewModels {
                 }
             }
 
-            await this.SetProject(pvm);
+            await this.LoadProject(pvm);
             pvm.HasSavedOnce = true;
 
             ResourceCheckerViewModel checker = new ResourceCheckerViewModel() {
@@ -267,14 +276,20 @@ namespace FramePFX.Editor.ViewModels {
             };
 
             if (!await ResourceCheckerViewModel.LoadProjectResources(checker, pvm, true)) {
-                await this.SetProject(null);
+                AppLogger.WriteLine("Project load cancelled due to invalid resources. Unloading newly loaded project...");
+                await this.LoadProject(null);
                 return;
             }
 
             this.ActiveProject.SetHasUnsavedChanges(false);
+            AppLogger.WriteLine("Loaded project at " + pvm.FullProjectFilePath);
         }
 
-        public async Task SetProject(ProjectViewModel project) {
+        /// <summary>
+        /// Unloads and disposes the previous project (if one is loaded), then loads the new given project (or does nothing else if it's null)
+        /// </summary>
+        /// <param name="project"></param>
+        public async Task LoadProject(ProjectViewModel project) {
             if (ReferenceEquals(this.activeProject, project)) {
                 return;
             }
@@ -348,9 +363,7 @@ namespace FramePFX.Editor.ViewModels {
                 return false;
             }
 
-            this.IsClosingProject = true;
             await this.CloseProjectAction();
-            this.IsClosingProject = false;
             return true;
         }
 
@@ -371,18 +384,11 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task CloseProjectAction() {
-            if (this.ActiveProject == null) {
-                throw new Exception("No active project");
+            if (this.ActiveProject != null) {
+                this.IsClosingProject = true;
+                await this.LoadProject(null);
+                this.IsClosingProject = false;
             }
-
-            try {
-                this.ActiveProject.Dispose();
-            }
-            catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Close Project", "An exception occurred while closing project", e.GetToString());
-            }
-
-            await this.SetProject(null);
         }
 
         public async Task OnProjectSaving() {

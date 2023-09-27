@@ -136,6 +136,12 @@
                 <Shortcut Name="CreateCompositionFromSelection" ActionId="actions.editor.timeline.CreateCompositionFromSelection">
                     <KeyStroke Mods="ALT" Key="C"/>
                 </Shortcut>
+                <Shortcut Name="ToggleDragScroll" ActionId="actions.editor.timeline.ToggleAutoScrollOnClipDrag">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="D"/>
+                </Shortcut>
+                <Shortcut Name="ToggleAutoPlaybackScroll" ActionId="actions.editor.timeline.ToggleAutoScrollDuringPlayback">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="T"/>
+                </Shortcut>
             </Group>
         </Group>
     </Group>

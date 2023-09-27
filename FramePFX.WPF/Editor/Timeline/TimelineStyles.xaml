@@ -742,6 +742,11 @@
                                                   ToolTip="Auto-scroll the timeline to the right (during playback) when the timeline is almost out of view">
                                         <TextBlock Text="T" FontFamily="Consolas" FontSize="20"/>
                                     </ToggleButton>
+                                    <ToggleButton IsChecked="{Binding ElementName=PART_TimelineEditor, Path=AutoScrollOnClipDrag}"
+                                                  Focusable="False" Width="28" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left"
+                                                  ToolTip="Drag-scroll: scroll the timeline when dragging a clip. At the moment, this is a big buggy when you are zoom in and a clip takes up most of the timeline view; it will constant drag, and I can't figure out how to stop it">
+                                        <TextBlock Text="DS" FontFamily="Consolas" FontSize="20"/>
+                                    </ToggleButton>
                                 </StackPanel>
                                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                                     <StackPanel Orientation="Horizontal" DataContext="{Binding Project.Editor.Playback}">
@@ -816,7 +821,9 @@
                                                       sc:UIInputManager.FocusPath="Application/Editor/Timeline/Surface"
                                                       UnitZoom="{Binding UnitZoom, Mode=OneWayToSource}"
                                                       PlayHeadFrame="{Binding PlayHeadFrame, Mode=TwoWay}"
-                                                      acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TimelineContextGenerator.Instance}">
+                                                      acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TimelineContextGenerator.Instance}"
+                                                      AutoScrollOnClipDrag="{Binding AutoScrollOnClipDrag, Mode=TwoWay}"
+                                                      ScrollTimelineDuringPlayback="{Binding AutoScrollDuringPlayback, Mode=TwoWay}">
                                 <b:ShortcutCommandCollection.Collection>
                                     <b:ShortcutCommandCollection>
                                         <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/Surface/MoveSelectedTrackUp" Command="{Binding MoveSelectedUpCommand, Mode=OneTime}" />

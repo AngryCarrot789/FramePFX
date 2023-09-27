@@ -502,7 +502,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 }
 
                 TimelineEditorControl timeline = this.Timeline;
-                if (timeline != null && timeline.PART_ScrollViewer != null) {
+                if (timeline != null && timeline.PART_ScrollViewer != null && timeline.AutoScrollOnClipDrag) {
                     timeline.AutoScrollFrame(this.FrameBegin, this.FrameBegin + this.FrameDuration);
                 }
 

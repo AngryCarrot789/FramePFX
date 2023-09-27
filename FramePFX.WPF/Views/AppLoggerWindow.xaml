@@ -64,7 +64,9 @@
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
                     <Separator Margin="0,2,0,0"/>
                 </StackPanel>
-                <ToggleButton x:Name="Expander" IsChecked="true" Grid.Row="0" Grid.Column="0" Width="22" Height="22" 
+                <ToggleButton x:Name="Expander"
+                              IsChecked="{Binding IsExpanded, Mode=OneTime}"
+                              Grid.Row="0" Grid.Column="0" Width="22" Height="22"
                               VerticalAlignment="Top" Content="+" HorizontalAlignment="Center" 
                               Background="Transparent" BorderThickness="0"
                               Style="{StaticResource ExpanderDownHeaderStyle}"/>

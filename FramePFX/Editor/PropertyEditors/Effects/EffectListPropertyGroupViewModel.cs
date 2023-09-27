@@ -37,6 +37,7 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             }
             else if (this.Parent.Handlers?.Count == 1) {
                 this.handler = (ClipViewModel) this.Parent.Handlers[0];
+                this.IsCurrentlyApplicable = true;
             }
 
             this.AddMotionEffectCommand.RaiseCanExecuteChanged();

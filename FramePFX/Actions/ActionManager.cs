@@ -17,6 +17,8 @@ namespace FramePFX.Actions {
 
         public int Count => this.actions.Count;
 
+        public IEnumerable<KeyValuePair<string, AnAction>> Actions => this.actions;
+
         public ActionManager() {
             this.actions = new Dictionary<string, AnAction>();
             this.updateEventMap = new Dictionary<string, LinkedList<CanExecuteChangedEventHandler>>();

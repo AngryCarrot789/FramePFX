@@ -7,6 +7,7 @@ using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History.Tasks;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Editor;
+using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Editor.PropertyEditors.Clips {
     public class TextClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
@@ -45,6 +46,9 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
         public TextClipDataEditorViewModel() : base(typeof(TextVideoClipViewModel)) {
             this.historyFontFamily = new HistoryBuffer<HistoryFontFamilty>();
             this.historyText = new HistoryBuffer<HistoryText>();
+        }
+
+        static TextClipDataEditorViewModel() {
         }
 
         protected override void OnHandlersLoaded() {

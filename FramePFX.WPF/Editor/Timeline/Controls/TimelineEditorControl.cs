@@ -43,10 +43,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
         public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineEditorControl), new FrameworkPropertyMetadata(0L, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => ((TimelineEditorControl) d).OnPlayHeadChanged((long) e.OldValue, (long) e.NewValue)));
-
         public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRange?), typeof(TimelineEditorControl), new PropertyMetadata((SelectionRange?) null));
-
         public static readonly DependencyProperty ScrollTimelineDuringPlaybackProperty = DependencyProperty.Register("ScrollTimelineDuringPlayback", typeof(bool), typeof(TimelineEditorControl), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty AutoScrollOnClipDragProperty = DependencyProperty.Register("AutoScrollOnClipDrag", typeof(bool), typeof(TimelineEditorControl), new PropertyMetadata(BoolBox.False));
 
         /// <summary>
         /// The horizontal zoom multiplier of this timeline, which affects the size of all tracks
@@ -74,7 +73,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public bool ScrollTimelineDuringPlayback {
             get => (bool) this.GetValue(ScrollTimelineDuringPlaybackProperty);
-            set => this.SetValue(ScrollTimelineDuringPlaybackProperty, value);
+            set => this.SetValue(ScrollTimelineDuringPlaybackProperty, value.Box());
+        }
+
+        public bool AutoScrollOnClipDrag {
+            get => (bool) this.GetValue(AutoScrollOnClipDragProperty);
+            set => this.SetValue(AutoScrollOnClipDragProperty, value.Box());
         }
 
         /// <summary>

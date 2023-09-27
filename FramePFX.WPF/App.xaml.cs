@@ -37,14 +37,18 @@ using FramePFX.WPF.Editor.MainWindow;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.PropertyEditing;
 using System.Windows.Controls;
+using System.Windows.Media;
 using FramePFX.Editor.Actions.Clips;
 using FramePFX.Editor.Actions.Tracks;
 using FramePFX.Logger;
+using FontFamily = System.Windows.Media.FontFamily;
 using UndoAction = FramePFX.History.Actions.UndoAction;
 
 namespace FramePFX.WPF {
     public partial class App : Application {
-        /// private readonly Dictionary<Type, List<Type>> AttributeProcessorMap;
+        private AttributeProcessor processor;
+
+        public static List<FontFamily> FontFamilies { get; }
 
         public static ThemeType CurrentTheme { get; set; }
 
@@ -67,9 +71,19 @@ namespace FramePFX.WPF {
         private readonly InputDrivenTaskExecutor monitor;
         private DateTime lastInput;
 
+        static App() {
+            FontFamilies = new List<FontFamily>();
+        }
+
         public App() {
+            this.processor = new AttributeProcessor();
             Services.Application = new ApplicationDelegate(this);
+            Services.ServiceManager.Register(Services.Application);
             AppLogger.WriteLine("Application entry point");
+
+            foreach (FontFamily fontFamily in Fonts.SystemFontFamilies) {
+                FontFamilies.Add(fontFamily);
+            }
 
             // SortedList<long, string> aaaa = null;
             // Dictionary<long, string> aa = null;
@@ -129,43 +143,42 @@ namespace FramePFX.WPF {
 
         public async Task InitApp() {
             await this.SetActivity("Loading services...");
+            this.processor.RegisterProcessor<ServiceImplementationAttribute>((typeInfo, attribute) => {
+                object instance;
+                try {
+                    instance = Activator.CreateInstance(typeInfo);
+                }
+                catch (Exception e) {
+                    throw new Exception($"Failed to create implementation of {attribute.Type} as {typeInfo}", e);
+                }
+
+                Services.ServiceManager.Register(attribute.Type, instance);
+            });
+
+            this.processor.RegisterProcessor<ActionRegistrationAttribute>((typeInfo, attribute) => {
+                AnAction action;
+                try {
+                    action = (AnAction)Activator.CreateInstance(typeInfo, true);
+                }
+                catch (Exception e) {
+                    throw new Exception($"Failed to create an instance of the registered action '{typeInfo.FullName}'", e);
+                }
+
+                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null) {
+                    ActionManager.Instance.Unregister(attribute.ActionId);
+                }
+
+                ActionManager.Instance.Register(attribute.ActionId, action);
+            });
+
             string[] envArgs = Environment.GetCommandLineArgs();
             if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
                 Directory.SetCurrentDirectory(dir);
             }
 
             await AppLogger.FlushEntries();
-
-            Services.ServiceManager.Register(Services.Application);
-            List<(TypeInfo, ServiceImplementationAttribute)> list_serviceAttributes = new List<(TypeInfo, ServiceImplementationAttribute)>();
-            List<(TypeInfo, ActionRegistrationAttribute)> list_actionAttributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
-
-            // Process all attributes in a single scan, instead of multiple scans for services, actions, etc
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
-                    ServiceImplementationAttribute serviceAttribute = typeInfo.GetCustomAttribute<ServiceImplementationAttribute>();
-                    if (serviceAttribute?.Type != null) {
-                        list_serviceAttributes.Add((typeInfo, serviceAttribute));
-                    }
-
-                    ActionRegistrationAttribute actionAttribute = typeInfo.GetCustomAttribute<ActionRegistrationAttribute>();
-                    if (actionAttribute != null) {
-                        list_actionAttributes.Add((typeInfo, actionAttribute));
-                    }
-                }
-            }
-
-            foreach ((TypeInfo, ServiceImplementationAttribute) tuple in list_serviceAttributes) {
-                object instance;
-                try {
-                    instance = Activator.CreateInstance(tuple.Item1);
-                }
-                catch (Exception e) {
-                    throw new Exception($"Failed to create implementation of {tuple.Item2.Type} as {tuple.Item1}", e);
-                }
-
-                Services.ServiceManager.Register(tuple.Item2.Type, instance);
-            }
+            this.processor.Run();
+            this.processor.Process(typeof(ServiceImplementationAttribute));
 
             await this.SetActivity("Loading localization...");
             LocalizationController.SetLang(LangType.En);
@@ -182,24 +195,13 @@ namespace FramePFX.WPF {
             InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
             InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
 
-            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in list_actionAttributes.OrderBy(x => x.Item2.RegistrationOrder)) {
-                AnAction action;
-                try {
-                    action = (AnAction)Activator.CreateInstance(type, true);
-                }
-                catch (Exception e) {
-                    throw new Exception($"Failed to create an instance of the registered action '{type.FullName}'", e);
-                }
-
-                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null) {
-                    ActionManager.Instance.Unregister(attribute.ActionId);
-                }
-
-                ActionManager.Instance.Register(attribute.ActionId, action);
-            }
-
+            this.processor.Process(typeof(ActionRegistrationAttribute));
             this.RegisterActions();
-            AppLogger.WriteLine($"Registered {ActionManager.Instance.Count} actions");
+            AppLogger.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);
+            foreach (KeyValuePair<string, AnAction> pair in ActionManager.Instance.Actions) {
+                AppLogger.WriteLine($"{pair.Key}: {pair.Value.GetType()}");
+            }
+            AppLogger.PopHeader();
 
             // TODO: user modifiable keymap, and also save it to user documents
             // also, use version attribute to check out of date keymap, and offer to
@@ -282,7 +284,7 @@ namespace FramePFX.WPF {
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
             await editor.FileExplorer.LoadDefaultLocation();
 
-            await editor.SetProject(new ProjectViewModel(CreateDemoProject()));
+            await editor.LoadProject(new ProjectViewModel(CreateDemoProject()));
 
             ClipViewModel demoClip = editor.ActiveProject.Timeline.Tracks[1].Clips[0];
             demoClip.IsSelected = true;

@@ -189,7 +189,6 @@
     <Compile Include="AttachedProperties\TextBoxHelper.cs" />
     <Compile Include="AttachedProperties\ToggleButtonHelper.cs" />
     <Compile Include="AttachedProperties\TopmostFocus.cs" />
-    <Compile Include="AttributeProcessor.cs" />
     <Compile Include="BindingErrorListener.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\CursorUtils.cs" />
@@ -826,6 +825,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Editor\Actions" />
     <Folder Include="Editor\Timeline\Actions\" />
   </ItemGroup>
   <ItemGroup>

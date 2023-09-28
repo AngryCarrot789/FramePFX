@@ -11,7 +11,7 @@ namespace FramePFX.Editor {
         bool CanDropResource(ResourceItemViewModel resource);
 
         /// <summary>
-        /// Called when a resource item is dropped. <see cref="CanDropResource"/> may not get called
+        /// Called when a resource item is dropped. <see cref="CanDropResource"/> will always get checked just before this function
         /// </summary>
         /// <param name="resource">
         /// The dropped resource (not null, but it's owning manager and parent hierarchy should be checked)

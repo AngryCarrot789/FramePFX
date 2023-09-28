@@ -1,5 +1,6 @@
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.RBC.Events;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines {
     /// <summary>
@@ -15,6 +16,11 @@ namespace FramePFX.Editor.Timelines {
         /// Gets the track that this clip is currently placed in
         /// </summary>
         Track Track { get; }
+
+        /// <summary>
+        /// Gets this clip's frame span
+        /// </summary>
+        FrameSpan FrameSpan { get; }
 
         /// <summary>
         /// An event fired when this clip is being removed from a track (where new track is null), being

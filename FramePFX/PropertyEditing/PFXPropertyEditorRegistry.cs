@@ -5,10 +5,12 @@ using FramePFX.Editor.PropertyEditors.Effects;
 using FramePFX.Editor.PropertyEditors.Tracks;
 using FramePFX.Editor.PropertyEditors.Tracks.Video;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
+using FramePFX.PropertyEditing.Editors;
 
 namespace FramePFX.PropertyEditing {
     public class PFXPropertyEditorRegistry : PropertyEditorRegistry {
@@ -33,6 +35,12 @@ namespace FramePFX.PropertyEditing {
                 {
                     FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(TextVideoClipViewModel), "Text Info");
                     group.AddPropertyEditor("TextEditor", new TextClipDataEditorViewModel());
+                }
+
+                {
+                    FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(ShapeSquareVideoClipViewModel), "Shape Info");
+                    group.AddPropertyEditor("Width", new AutomatableFloatEditorViewModel(ShapeSquareVideoClip.WidthKey, x => ((ShapeSquareVideoClipViewModel) x).Width, (x, y) => ((ShapeSquareVideoClipViewModel) x).Width = y));
+                    group.AddPropertyEditor("Height", new AutomatableFloatEditorViewModel(ShapeSquareVideoClip.HeightKey, x => ((ShapeSquareVideoClipViewModel) x).Height, (x, y) => ((ShapeSquareVideoClipViewModel) x).Height = y));
                 }
             }
 

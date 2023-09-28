@@ -66,7 +66,7 @@ namespace FramePFX.Editor.Actions.Clips {
                     timeline.RemoveTrack(oldTrack);
                 }
 
-                Track clonedTrack = oldTrack.Model.Clone(TrackCloneFlags.DefaultFlags & ~TrackCloneFlags.CloneClips);
+                Track clonedTrack = oldTrack.Model.Clone(TrackCloneFlags.DefaultFlags & ~TrackCloneFlags.Clips);
                 TrackViewModel clonedTrackVM = TrackFactory.Instance.CreateViewModelFromModel(clonedTrack);
                 newTracks.Add(clonedTrackVM);
 

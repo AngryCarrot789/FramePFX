@@ -511,7 +511,7 @@ namespace FramePFX.WPF.Controls.Dragger {
             }
         }
 
-        private bool canActivateInputEdit;
+        private bool? canActivateInputEdit;
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             if (!this.IsDragging && !this.IsValueReadOnly) {
@@ -519,8 +519,11 @@ namespace FramePFX.WPF.Controls.Dragger {
                 this.Focus();
 
                 this.lastMouseMove = this.lastClickPoint = e.GetPosition(this);
-                if (!this.IsDoubleClickToEdit || e.ClickCount > 1) {
-                    this.canActivateInputEdit = this.IsDoubleClickToEdit;
+                if (this.IsDoubleClickToEdit && e.ClickCount < 2) {
+                    this.canActivateInputEdit = false;
+                }
+                else {
+                    this.canActivateInputEdit = true;
                     this.ignoreMouseMove = true;
                     try {
                         this.CaptureMouse();
@@ -544,7 +547,7 @@ namespace FramePFX.WPF.Controls.Dragger {
             else if (this.hasCancelled_ignoreMouseUp) {
                 this.hasCancelled_ignoreMouseUp = false;
             }
-            else if (this.canActivateInputEdit && this.IsMouseOver && !this.IsValueReadOnly) {
+            else if ((!this.canActivateInputEdit.HasValue || this.canActivateInputEdit.Value) && this.IsMouseOver && !this.IsValueReadOnly) {
                 if (this.IsMouseCaptured) {
                     this.ReleaseMouseCapture();
                 }

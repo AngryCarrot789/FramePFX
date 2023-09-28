@@ -134,6 +134,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Rational FPS => this.Project.Settings.FrameRate;
 
+        public bool IsHistoryChanging { get; set; }
+
         private readonly PropertyChangedEventHandler CachedTrackPropertyChangedHandler;
 
         public TimelineViewModel(Timeline model) {

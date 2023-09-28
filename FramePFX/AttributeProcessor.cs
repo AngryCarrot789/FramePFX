@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using FramePFX.Editor;
 
 namespace FramePFX {
     /// <summary>
@@ -73,6 +72,11 @@ namespace FramePFX {
             foreach ((TypeInfo typeInfo, Attribute attribute) in list) {
                 processor(typeInfo, attribute);
             }
+        }
+
+        public void Clear() {
+            this.AccumulationMap.Clear();
+            this.ProcessorMap.Clear();
         }
     }
 }

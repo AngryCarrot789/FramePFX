@@ -48,12 +48,12 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return Task.CompletedTask;
         }
 
-        protected override Clip NewInstance() {
+        protected override Clip NewInstanceForClone() {
             return new ImageVideoClip();
         }
 
-        protected override void LoadDataIntoClone(Clip clone) {
-            base.LoadDataIntoClone(clone);
+        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags) {
+            base.LoadDataIntoClone(clone, flags);
             this.ResourceHelper.LoadDataIntoClone(((ImageVideoClip) clone).ResourceHelper);
         }
     }

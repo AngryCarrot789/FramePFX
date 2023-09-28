@@ -54,6 +54,8 @@ namespace FramePFX.Utils {
         }
 
         public static void MoveItem<T>(this IList<T> list, int oldIndex, int newIndex) {
+            if (newIndex < 0 || newIndex >= list.Count)
+                throw new IndexOutOfRangeException($"{nameof(newIndex)} is not within range: {(newIndex < 0 ? "less than zero" : "greater than list length")} ({newIndex})");
             T removedItem = list[oldIndex];
             list.RemoveAt(oldIndex);
             list.Insert(newIndex, removedItem);
@@ -63,6 +65,21 @@ namespace FramePFX.Utils {
             object removedItem = list[oldIndex];
             list.RemoveAt(oldIndex);
             list.Insert(newIndex, removedItem);
+        }
+
+        public static int IndexOf<T>(this IReadOnlyList<T> list, T value) {
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            for (int i = 0; i < list.Count; i++) {
+                if (comparer.Equals(value, list[i])) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public static bool Contains<T>(this IReadOnlyList<T> list, T value) {
+            return IndexOf(list, value) != -1;
         }
 
         public static SingletonList<T> Singleton<T>(in T value) {

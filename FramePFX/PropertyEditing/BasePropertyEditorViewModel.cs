@@ -122,10 +122,10 @@ namespace FramePFX.PropertyEditing {
             }
 
             this.Handlers = list;
-            this.OnHandlersLoaded();
             this.RaisePropertyChanged(nameof(this.HasHandlers));
             this.RaisePropertyChanged(nameof(this.IsEmpty));
             this.RaisePropertyChanged(nameof(this.IsMultiSelection));
+            this.OnHandlersLoaded();
         }
 
         /// <summary>

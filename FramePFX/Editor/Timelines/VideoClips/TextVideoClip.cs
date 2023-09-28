@@ -71,12 +71,12 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return this.clipProps[index];
         }
 
-        protected override Clip NewInstance() {
+        protected override Clip NewInstanceForClone() {
             return new TextVideoClip();
         }
 
-        protected override void LoadDataIntoClone(Clip clone) {
-            base.LoadDataIntoClone(clone);
+        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags) {
+            base.LoadDataIntoClone(clone, flags);
             TextVideoClip clip = (TextVideoClip) clone;
             clip.Text = this.Text;
 

@@ -28,17 +28,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
 
         public double Opacity {
             get => this.Model.Opacity;
-            set {
-                this.ValidateNotInAutomationChange();
-                TimelineViewModel timeline = this.Timeline;
-                if (AutomationUtils.GetNewKeyFrameTime(this, VideoClip.OpacityKey, out long frame)) {
-                    this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(frame).SetDoubleValue(value);
-                }
-                else {
-                    this.AutomationData[VideoClip.OpacityKey].GetOverride().SetDoubleValue(value);
-                    this.AutomationData[VideoClip.OpacityKey].RaiseOverrideValueChanged();
-                }
-            }
+            set => AutomationUtils.GetKeyFrameForPropertyChanged(this, VideoClip.OpacityKey).SetDoubleValue(value);
         }
 
         public RelayCommand ResetOpacityCommand { get; }
@@ -129,8 +119,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             }
         }
 
-        [Conditional("DEBUG")]
-        private void ValidateNotInAutomationChange() {
+        protected void ValidateNotInAutomationChange() {
             if (this.IsAutomationRefreshInProgress) {
                 Debugger.Break();
                 throw new Exception("Cannot modify view-model parameter property while automation refresh is in progress. " +

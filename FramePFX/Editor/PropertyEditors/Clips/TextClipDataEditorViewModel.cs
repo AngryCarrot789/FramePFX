@@ -6,8 +6,7 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History.Tasks;
 using FramePFX.PropertyEditing;
-using FramePFX.PropertyEditing.Editor;
-using OpenTK.Graphics.OpenGL;
+using FramePFX.PropertyEditing.Editors;
 
 namespace FramePFX.Editor.PropertyEditors.Clips {
     public class TextClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {

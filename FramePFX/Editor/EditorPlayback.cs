@@ -3,7 +3,7 @@ using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor {
-    public class EditorPlayback : IRBESerialisable {
+    public class EditorPlayback {
         private volatile bool isPlaying;
 
         public PrecisionTimer PlaybackTimer { get; }

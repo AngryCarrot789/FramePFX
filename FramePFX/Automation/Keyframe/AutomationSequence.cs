@@ -9,7 +9,7 @@ namespace FramePFX.Automation.Keyframe {
     /// <summary>
     /// Contains all of the key frames for a specific <see cref="AutomationKey"/>
     /// </summary>
-    public class AutomationSequence : IRBESerialisable {
+    public class AutomationSequence {
         private static readonly Func<KeyFrame, float> FuncGetFloat = k => ((KeyFrameFloat) k).Value;
         private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
         private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
@@ -28,9 +28,10 @@ namespace FramePFX.Automation.Keyframe {
         public bool IsEmpty => this.keyFrameList.Count < 1;
 
         /// <summary>
-        /// A keyframe that stores an override value, which overrides any automation
+        /// A keyframe that stores the default backing value for an automation sequence. This is used
+        /// when <see cref="IsOverrideEnabled"/> is true (bypassing any key frames) or when there are no key frames
         /// </summary>
-        public KeyFrame OverrideKeyFrame { get; }
+        public KeyFrame DefaultKeyFrame { get; }
 
         /// <summary>
         /// Gets or sets whether or not the current automation sequence is in override mode.
@@ -67,8 +68,8 @@ namespace FramePFX.Automation.Keyframe {
             this.Key = key;
             this.keyFrameList = new List<KeyFrame>();
             this.DataType = key.DataType;
-            this.OverrideKeyFrame = key.CreateKeyFrame();
-            this.OverrideKeyFrame.sequence = this;
+            this.DefaultKeyFrame = key.CreateKeyFrame();
+            this.DefaultKeyFrame.sequence = this;
         }
 
         public void Clear() {
@@ -119,7 +120,7 @@ namespace FramePFX.Automation.Keyframe {
                 return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(frame, this.keyFrameList[a], this.keyFrameList[b]);
             }
             else {
-                return toValue(this.OverrideKeyFrame);
+                return toValue(this.DefaultKeyFrame);
             }
         }
 
@@ -158,10 +159,13 @@ namespace FramePFX.Automation.Keyframe {
         /// If the time directly intersects a key frame, then the last keyframe that intersects frame will be set as a, and b will be -1
         /// </para>
         /// <para>
-        /// If the time is before the first key frame or after the last key frame, the first/last key frame index is set as a, and b will be -1
+        /// If the time is before the first key frame or after the last key frame, the first or last key frame index is set as a, and b will be -1
         /// </para>
         /// <para>
         /// If all other cases are false, and the list is not empty, then a and b will point to a pair of key frames that frame can be interpolated between (based on a's interpolation method)
+        /// </para>
+        /// <para>
+        /// Otherwise, the method returns false when the list is empty or frame is a negative number
         /// </para>
         /// </summary>
         /// <param name="frame">The time</param>
@@ -301,7 +305,7 @@ namespace FramePFX.Automation.Keyframe {
         public void WriteToRBE(RBEDictionary data) {
             data.SetByte(nameof(this.DataType), (byte) this.DataType);
             data.SetBool(nameof(this.IsOverrideEnabled), this.IsOverrideEnabled);
-            this.OverrideKeyFrame.WriteToRBE(data.CreateDictionary(nameof(this.OverrideKeyFrame)));
+            this.DefaultKeyFrame.WriteToRBE(data.CreateDictionary(nameof(this.DefaultKeyFrame)));
 
             RBEList list = data.CreateList(nameof(this.KeyFrames));
             foreach (KeyFrame keyFrame in this.keyFrameList) {
@@ -317,11 +321,11 @@ namespace FramePFX.Automation.Keyframe {
             }
 
             this.IsOverrideEnabled = data.GetBool(nameof(this.IsOverrideEnabled), false);
-            this.OverrideKeyFrame.ReadFromRBE(data.GetDictionary(nameof(this.OverrideKeyFrame)));
+            this.DefaultKeyFrame.ReadFromRBE(data.GetDictionary(nameof(this.DefaultKeyFrame)));
 
             List<KeyFrame> frames = new List<KeyFrame>();
             RBEList list = data.GetList(nameof(this.KeyFrames));
-            foreach (RBEDictionary rbe in list.OfType<RBEDictionary>()) {
+            foreach (RBEDictionary rbe in list.Cast<RBEDictionary>()) {
                 KeyFrame keyFrame = this.Key.CreateKeyFrame();
                 keyFrame.ReadFromRBE(rbe);
                 frames.Add(keyFrame);
@@ -354,7 +358,7 @@ namespace FramePFX.Automation.Keyframe {
         }
 
         public override string ToString() {
-            return $"{nameof(AutomationSequence)}[{this.Key.FullId} of type {this.DataType} ({this.keyFrameList.Count} keyframes)]";
+            return $"{nameof(AutomationSequence)}<{this.Key.FullId} of type {this.DataType} ({this.keyFrameList.Count} keyframes)>";
         }
     }
 }

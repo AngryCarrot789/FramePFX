@@ -7,7 +7,7 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
-using FramePFX.PropertyEditing.Editor;
+using FramePFX.PropertyEditing.Editors;
 
 namespace FramePFX.Editor.PropertyEditors.Clips.Shapes {
     public class ShapeSquareDataEditorViewModel : HistoryAwarePropertyEditorViewModel {

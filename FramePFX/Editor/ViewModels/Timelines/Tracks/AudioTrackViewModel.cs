@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Automation.Events;
+using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.History;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines.Tracks;
@@ -48,7 +49,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
                 else {
                     this.AutomationData[AudioTrack.VolumeKey].GetOverride().SetFloatValue(value);
-                    this.AutomationData[AudioTrack.VolumeKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -74,7 +74,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
                 else {
                     this.AutomationData[AudioTrack.IsMutedKey].GetOverride().SetBooleanValue(value);
-                    this.AutomationData[AudioTrack.IsMutedKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -88,6 +87,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             AudioTrackViewModel track = (AudioTrackViewModel) s.AutomationData.Owner;
             track.RaisePropertyChanged(nameof(track.IsMuted));
         };
+
+        public AutomationSequenceViewModel VolumeAutomationSequence => this.AutomationData[AudioTrack.VolumeKey];
 
         public AudioTrackViewModel(AudioTrack model) : base(model) {
             this.AutomationData.AssignRefreshHandler(AudioTrack.VolumeKey, RefreshVolumeHandler);

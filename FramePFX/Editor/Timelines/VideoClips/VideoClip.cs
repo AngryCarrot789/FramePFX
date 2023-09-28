@@ -34,7 +34,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         protected VideoClip() {
             // using `(VideoClip) s.AutomationData.Owner` instead of `this` saves closure allocation
             this.AutomationData.AssignKey(OpacityKey, (s, f) => ((VideoClip) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f));
-            this.Opacity = OpacityKey.Descriptor.DefaultValue;
         }
 
         /// <summary>
@@ -90,8 +89,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         /// <summary>
-        /// Called when an async render is finalized. This will only be called if <see cref="OnBeginRender"/> was ever
-        /// called. This will ALWAYS follow a call to either <see cref="OnBeginRender"/> or <see cref="OnEndRender"/>
+        /// Called when an async render is finalized. This will only be called if <see cref="OnBeginRender"/> did not
+        /// throw and returned true. This will ALWAYS follow a call to either <see cref="OnBeginRender"/> or <see cref="OnEndRender"/>
         /// </summary>
         /// <param name="frame">The frame being rendered</param>
         /// <param name="isCancelled">

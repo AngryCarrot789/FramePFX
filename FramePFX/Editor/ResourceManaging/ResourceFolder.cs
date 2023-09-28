@@ -44,7 +44,7 @@ namespace FramePFX.Editor.ResourceManaging {
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             RBEList list = data.GetList("Items");
-            foreach (RBEDictionary dictionary in list.OfType<RBEDictionary>()) {
+            foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
                 this.AddItem(ReadSerialisedWithType(dictionary));
             }
         }

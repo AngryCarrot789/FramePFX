@@ -9,7 +9,7 @@ using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.History;
 using FramePFX.PropertyEditing;
-using FramePFX.PropertyEditing.Editor;
+using FramePFX.PropertyEditing.Editors;
 
 namespace FramePFX.Editor.PropertyEditors.Tracks.Video {
     public class VideoTrackDataEditorViewModel : HistoryAwarePropertyEditorViewModel {

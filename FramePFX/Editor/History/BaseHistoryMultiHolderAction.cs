@@ -19,7 +19,7 @@ namespace FramePFX.Editor.History {
             this.holders = new List<T>(holders);
         }
 
-        protected override async Task UndoAsyncCore() {
+        protected sealed override async Task UndoAsyncCore() {
             if (this.isRedoNext) {
                 throw new Exception("Cannot undo action twice; it must be re-done");
             }
@@ -41,10 +41,12 @@ namespace FramePFX.Editor.History {
                         holder.IsHistoryChanging = false;
                     }
                 }
+
+                await this.OnUndoCompleteAsync(stack);
             }
         }
 
-        protected override async Task RedoAsyncCore() {
+        protected sealed override async Task RedoAsyncCore() {
             if (!this.isRedoNext) {
                 throw new Exception("Action has not been un-done yet; cannot redo before undo");
             }
@@ -66,11 +68,21 @@ namespace FramePFX.Editor.History {
                         holder.IsHistoryChanging = false;
                     }
                 }
+
+                await this.OnRedoCompleteAsync(stack);
             }
         }
 
         protected abstract Task UndoAsync(T holder, int i);
 
         protected abstract Task RedoAsync(T holder, int i);
+
+        protected virtual Task OnUndoCompleteAsync(ErrorList errors) {
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task OnRedoCompleteAsync(ErrorList errors) {
+            return Task.CompletedTask;
+        }
     }
 }

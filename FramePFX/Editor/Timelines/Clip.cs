@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Automation;
+using FramePFX.Automation.Keyframe;
+using FramePFX.Automation.Keys;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Effects;
@@ -15,6 +17,8 @@ namespace FramePFX.Editor.Timelines {
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
     public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable {
+        private readonly List<BaseEffect> internalEffectList;
+
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
         /// </summary>
@@ -51,6 +55,8 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         public FrameSpan FrameSpan;
 
+        FrameSpan IClip.FrameSpan => this.FrameSpan;
+
         /// <summary>
         /// Helper property for getting and setting the <see cref="Utils.FrameSpan.Begin"/> property
         /// </summary>
@@ -78,7 +84,7 @@ namespace FramePFX.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
-        public List<BaseEffect> Effects { get; }
+        public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
 
         public event TrackChangedEventHandler TrackChanged;
         public event TimelineChangedEventHandler TrackTimelineChanged;
@@ -89,7 +95,11 @@ namespace FramePFX.Editor.Timelines {
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
-            this.Effects = new List<BaseEffect>();
+            this.internalEffectList = new List<BaseEffect>();
+        }
+
+        public KeyFrame GetDefaultKeyFrame(AutomationKey key) {
+            return this.AutomationData[key].DefaultKeyFrame;
         }
 
         public void SetFrameSpan(FrameSpan span) {
@@ -143,7 +153,12 @@ namespace FramePFX.Editor.Timelines {
 
         public void AddEffect(BaseEffect effect) => BaseEffect.AddEffectToClip(this, effect);
         public void InsertEffect(BaseEffect effect, int index) => BaseEffect.InsertEffectIntoClip(this, effect, index);
-        public bool RemoveEffect(BaseEffect effect) => BaseEffect.RemoveEffectFromClip(this, effect);
+        public bool RemoveEffect(BaseEffect effect) {
+            if (effect.OwnerClip != null && !ReferenceEquals(effect.OwnerClip, this))
+                throw new Exception("Effect does not belong to this clip");
+            return BaseEffect.RemoveEffectFromOwner(effect);
+        }
+
         public void RemoveEffectAt(int index) => BaseEffect.RemoveEffectAt(this, index);
 
         public void ClearEffects() => BaseEffect.ClearEffects(this);
@@ -179,7 +194,6 @@ namespace FramePFX.Editor.Timelines {
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            this.AutomationData.UpdateBackingStorage();
             this.ClearEffects(); // this shouldn't be necessary... but just in case
             foreach (RBEBase entry in data.GetList("Effects").List) {
                 if (!(entry is RBEDictionary dictionary))
@@ -204,26 +218,39 @@ namespace FramePFX.Editor.Timelines {
             return frame >= begin && frame < (begin + duration);
         }
 
+        #region Cloning
+
         /// <summary>
         /// Creates a clone of this clip, referencing the same resources, same display name, media
         /// transformations, etc (but not the same Clip ID, if one is present). This is typically called when
         /// splitting or duplicating clips, or even duplicating a track
         /// </summary>
         /// <returns></returns>
-        public Clip Clone() {
-            Clip clip = this.NewInstance();
-            this.LoadDataIntoClone(clip);
-            return clip;
-        }
-
-        protected abstract Clip NewInstance();
-
-        protected virtual void LoadDataIntoClone(Clip clone) {
+        public Clip Clone(ClipCloneFlags flags = ClipCloneFlags.DefaultFlags) {
+            Clip clone = this.NewInstanceForClone();
             clone.DisplayName = this.DisplayName;
             clone.FrameSpan = this.FrameSpan;
             clone.MediaFrameOffset = this.MediaFrameOffset;
-            this.AutomationData.LoadDataIntoClone(clone.AutomationData);
+            if ((flags & ClipCloneFlags.AutomationData) != 0) {
+                this.AutomationData.LoadDataIntoClone(clone.AutomationData);
+            }
+
+            if ((flags & ClipCloneFlags.Effects) != 0) {
+                foreach (BaseEffect effect in this.internalEffectList) {
+                    BaseEffect.AddEffectToClip(clone, effect.Clone());
+                }
+            }
+
+            this.LoadDataIntoClone(clone, flags);
+            return clone;
         }
+
+        protected abstract Clip NewInstanceForClone();
+
+        protected virtual void LoadDataIntoClone(Clip clone, ClipCloneFlags flags) {
+        }
+
+        #endregion
 
         #region Dispose
 
@@ -259,19 +286,7 @@ namespace FramePFX.Editor.Timelines {
         /// </para>
         /// </summary>
         protected virtual void DisposeCore() {
-            for (int i = this.Effects.Count - 1; i >= 0; i--) {
-                try {
-                    this.RemoveEffectAt(i);
-                }
-                catch (Exception e) {
-#if DEBUG
-                    throw new Exception("Failed to remove effect", e);
-#else
-                    AppLogger.WriteLine("Exception while removing effect: " + e.GetToString());
-#endif
-                }
-            }
-
+            this.ClearEffects();
             if (this is IBaseResourceClip resourceClip) {
                 resourceClip.ResourceHelper.Dispose();
             }
@@ -310,26 +325,6 @@ namespace FramePFX.Editor.Timelines {
 
         #endregion
 
-        #region Static Helpers
-
-        public static void SetTrack(Clip clip, Track track) {
-            Track oldTrack = clip.Track;
-            if (!ReferenceEquals(oldTrack, track)) {
-                clip.Track = track;
-                clip.OnTrackChanged(oldTrack, track);
-            }
-        }
-
-        public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
-            clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
-        }
-
-        public static void OnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
-            clip.OnTrackTimelineProjectChanged(oldProject, newProject);
-        }
-
-        #endregion
-
         public long ConvertRelativeToTimelineFrame(long relative) => this.FrameBegin + relative;
 
         public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange) {
@@ -352,5 +347,33 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="effect">The non-null effect to check</param>
         /// <returns>True if the effect can be added, otherwise false</returns>
         public abstract bool IsEffectTypeAllowed(BaseEffect effect);
+
+        #region Static Helpers
+
+        public static void SetTrack(Clip clip, Track track) {
+            Track oldTrack = clip.Track;
+            if (!ReferenceEquals(oldTrack, track)) {
+                clip.Track = track;
+                clip.OnTrackChanged(oldTrack, track);
+            }
+        }
+
+        public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
+            clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
+        }
+
+        public static void OnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
+            clip.OnTrackTimelineProjectChanged(oldProject, newProject);
+        }
+
+        public static void InternalInsertEffect(Clip clip, int index, BaseEffect effect) {
+            clip.internalEffectList.Insert(index, effect);
+        }
+
+        public static void InternalRemoveEffect(Clip clip, int index) {
+            clip.internalEffectList.RemoveAt(index);
+        }
+
+        #endregion
     }
 }

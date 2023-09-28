@@ -8,7 +8,7 @@ namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// Stores registered <see cref="ResourceItem"/> entries and maps <see cref="ResourceItem.UniqueId"/> to a <see cref="ResourceItem"/>
     /// </summary>
-    public class ResourceManager : IRBESerialisable {
+    public class ResourceManager {
         private ulong currId; // starts at 0, incremented by GetNextId()
         public const ulong EmptyId = 0UL;
         private const string EmptyIdErrorMessage = "ID cannot be zero (null)";

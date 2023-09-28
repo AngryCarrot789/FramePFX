@@ -28,6 +28,11 @@ namespace FramePFX.Automation.Keys {
         public override AutomationDataType DataType => AutomationDataType.Float;
 
         public KeyDescriptorFloat(float defaultValue, float minimum = float.NegativeInfinity, float maximum = float.PositiveInfinity, int precision = -1, float step = float.NaN) {
+            if (defaultValue < minimum || defaultValue > maximum)
+                throw new ArgumentOutOfRangeException(nameof(defaultValue), "Default value must be between minimum and maximum");
+            if (minimum > maximum)
+                throw new ArgumentException("Minimum value must not exceed maximum value");
+
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
             this.Maximum = maximum;
@@ -55,6 +60,11 @@ namespace FramePFX.Automation.Keys {
         public override AutomationDataType DataType => AutomationDataType.Double;
 
         public KeyDescriptorDouble(double defaultValue, double minimum = double.NegativeInfinity, double maximum = double.PositiveInfinity, int precision = -1, double step = double.NaN) {
+            if (defaultValue < minimum || defaultValue > maximum)
+                throw new ArgumentOutOfRangeException(nameof(defaultValue), "Default value must be between minimum and maximum");
+            if (minimum > maximum)
+                throw new ArgumentException("Minimum value must not exceed maximum value");
+
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
             this.Maximum = maximum;
@@ -83,6 +93,9 @@ namespace FramePFX.Automation.Keys {
                 throw new ArgumentOutOfRangeException(nameof(step), "Step must be greater than zero");
             if (defaultValue < minimum || defaultValue > maximum)
                 throw new ArgumentOutOfRangeException(nameof(defaultValue), "Default value must be between minimum and maximum");
+            if (minimum > maximum)
+                throw new ArgumentException("Minimum value must not exceed maximum value");
+
             this.DefaultValue = defaultValue;
             this.Minimum = minimum;
             this.Maximum = maximum;
@@ -123,29 +136,6 @@ namespace FramePFX.Automation.Keys {
         }
 
         public Vector2 Clamp(Vector2 value) {
-            value = value.Clamp(this.Minimum, this.Maximum);
-            return this.Precision >= 0 ? value.Round(this.Precision) : value;
-        }
-    }
-
-    public class KeyDescriptorVector3 : KeyDescriptor {
-        public Vector3 DefaultValue { get; }
-        public Vector3 Minimum { get; }
-        public Vector3 Maximum { get; }
-        public int Precision { get; }
-
-        public bool HasPrecision => this.Precision >= 0;
-
-        public override AutomationDataType DataType => AutomationDataType.Vector3;
-
-        public KeyDescriptorVector3(Vector3 defaultValue, Vector3 minimum, Vector3 maximum, int precision = -1) {
-            this.DefaultValue = defaultValue;
-            this.Minimum = minimum;
-            this.Maximum = maximum;
-            this.Precision = precision;
-        }
-
-        public Vector3 Clamp(Vector3 value) {
             value = value.Clamp(this.Minimum, this.Maximum);
             return this.Precision >= 0 ? value.Round(this.Precision) : value;
         }

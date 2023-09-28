@@ -2,7 +2,7 @@ using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor {
-    public class ProjectSettings : IRBESerialisable {
+    public class ProjectSettings {
         #region Video
 
         public Resolution Resolution;

@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines.Effects;
-using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
@@ -21,7 +19,7 @@ namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// A timeline or sequence, which contains a collection of tracks (which contain a collection of clips)
     /// </summary>
-    public class Timeline : IAutomatable, IRBESerialisable {
+    public class Timeline : IAutomatable {
         private readonly List<Track> tracks;
         private readonly List<VideoClip> RenderList = new List<VideoClip>();
         private readonly List<AdjustmentVideoClip> AdjustmentStack = new List<AdjustmentVideoClip>();
@@ -103,16 +101,6 @@ namespace FramePFX.Editor.Timelines {
 
         }
 
-        public void UpdateAutomationBackingStorage() {
-            this.AutomationData.UpdateBackingStorage();
-            foreach (Track track in this.Tracks) {
-                track.AutomationData.UpdateBackingStorage();
-                foreach (Clip clip in track.Clips) {
-                    clip.AutomationData.UpdateBackingStorage();
-                }
-            }
-        }
-
         public FrameSpan GetUsedFrameSpan() {
             return FrameSpan.UnionAll(this.Tracks.SelectMany(x => x.Clips.Select(y => y.FrameSpan)));
         }
@@ -148,8 +136,7 @@ namespace FramePFX.Editor.Timelines {
             this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            this.AutomationData.UpdateBackingStorage();
-            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).OfType<RBEDictionary>()) {
+            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>()) {
                 string registryId = dictionary.GetString(nameof(Track.FactoryId));
                 Track track = TrackFactory.Instance.CreateModel(registryId);
                 track.ReadFromRBE(dictionary.GetDictionary("Data"));
@@ -160,11 +147,26 @@ namespace FramePFX.Editor.Timelines {
             this.MaxDuration = Math.Max(this.MaxDuration, this.tracks.Count < 1 ? 0 : this.tracks.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
         }
 
+        // true = adding, false = removing, null = moving track from timeline A to B
+        private void ValidateTrack(Track track, bool isAdding) {
+            if (isAdding) {
+                if (track.Timeline != null) {
+                    throw new Exception($"Track already belongs to another timeline: '{track.Timeline.DisplayName}'");
+                }
+
+                if (this.tracks.Contains(track)) {
+                    throw new Exception($"Track has no timeline associated but is stored in our track list?");
+                }
+            }
+            else if (track.Timeline != this) {
+                throw new Exception($"Expected track's timeline to equal the current instance, but instead {(track.Timeline == null ? "it's null" : $" equals {track.Timeline.DisplayName}")}");
+            }
+        }
+
         public void AddTrack(Track track) => this.InsertTrack(this.tracks.Count, track);
 
         public void InsertTrack(int index, Track track) {
-            if (this.tracks.Contains(track))
-                throw new Exception("Track already stored in timeline");
+            this.ValidateTrack(track, true);
             this.tracks.Insert(index, track);
             Track.SetTimeline(track, this);
         }
@@ -179,14 +181,13 @@ namespace FramePFX.Editor.Timelines {
 
         public void RemoveTrackAt(int index) {
             Track track = this.tracks[index];
+            this.ValidateTrack(track, false);
             ExceptionUtils.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
             this.tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
         }
 
-        public void MoveTrackIndex(int oldIndex, int newIndex) {
-            this.tracks.MoveItem(oldIndex, newIndex);
-        }
+        public void MoveTrackIndex(int oldIndex, int newIndex) => this.tracks.MoveItem(oldIndex, newIndex);
 
         public void MoveTrackToTimeline(Track track, Timeline timeline) {
             int index = this.tracks.IndexOf(track);
@@ -197,9 +198,11 @@ namespace FramePFX.Editor.Timelines {
 
         public void MoveTrackToTimeline(int index, Timeline timeline) {
             Track track = this.tracks[index];
-            ExceptionUtils.Assert(track.Timeline == this, "Track is stored in current timeline, but its parent timeline does not match");
-            if (timeline.tracks.Contains(track))
-                throw new Exception("Target timeline already contains the track");
+            this.ValidateTrack(track, false);
+            if (timeline.tracks.Contains(track)) {
+                throw new Exception("Target timeline is already storing the track?");
+            }
+
             this.tracks.RemoveAt(index);
             timeline.tracks.Insert(index, track);
             Track.SetTimeline(track, timeline);
@@ -207,14 +210,20 @@ namespace FramePFX.Editor.Timelines {
 
         public void ClearTracks() {
             using (ErrorList list = new ErrorList()) {
-                try {
-                    for (int i = this.tracks.Count - 1; i >= 0; i--) {
+                for (int i = this.tracks.Count - 1; i >= 0; i--) {
+                    try {
                         this.tracks[i].Clear();
+                    }
+                    catch (Exception e) {
+                        list.Add(e);
+                    }
+
+                    try {
                         this.RemoveTrackAt(i);
                     }
-                }
-                catch (Exception e) {
-                    list.Add(e);
+                    catch (Exception e) {
+                        list.Add(e);
+                    }
                 }
             }
         }
@@ -246,7 +255,7 @@ namespace FramePFX.Editor.Timelines {
         private void CompleteRenderList(long frame, bool isCancelled, int i = 0) {
             using (ErrorList list = new ErrorList("Failed to " + (isCancelled ? "cancel" : "finalize") + " one or more clip renders")) {
                 List<VideoClip> renderList = this.RenderList;
-                for (int k = renderList.Count; i < k; i++) {
+                for (int count = renderList.Count; i < count; i++) {
                     try {
                         renderList[i].OnRenderCompleted(frame, isCancelled);
                     }
@@ -335,7 +344,7 @@ namespace FramePFX.Editor.Timelines {
             Vector2 size = render.FrameSize;
             try {
                 for (int i = 0; i < count; i++) {
-                    BaseEffect.ProcessEffectList(list[i].Effects, render, size, true);
+                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, true);
                 }
             }
             catch (Exception e) {
@@ -355,15 +364,10 @@ namespace FramePFX.Editor.Timelines {
             Vector2 size = render.FrameSize;
             try {
                 for (int i = count - 1; i >= 0; i--) {
-                    BaseEffect.ProcessEffectList(list[i].Effects, render, size, false);
+                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, false);
                 }
             }
             catch (Exception e) {
-                if (this.RenderList.Count > 0) {
-                    AppLogger.WriteLine("Did not expect render list to have clips during adjustment layer effects post processing");
-                    this.CompleteRenderList(frame, true, e);
-                }
-
                 throw new Exception("Failed to post-process adjustment layer effects", e);
             }
         }
@@ -389,7 +393,7 @@ namespace FramePFX.Editor.Timelines {
                     Vector2? frameSize = clip.GetSize(render);
 
                     try {
-                        BaseEffect.ProcessEffectList(clip.Effects, render, frameSize, true);
+                        BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, true);
                     }
                     catch (Exception e) {
                         this.CompleteRenderList(frame, true, e, i);
@@ -413,7 +417,7 @@ namespace FramePFX.Editor.Timelines {
                     }
 
                     try {
-                        BaseEffect.ProcessEffectList(clip.Effects, render, frameSize, false);
+                        BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, false);
                     }
                     catch (Exception e) {
                         try {

@@ -1,7 +1,7 @@
 using FramePFX.RBC;
 
 namespace FramePFX.Settings {
-    public class AppSettings : IRBESerialisable {
+    public class AppSettings {
         // fields so that the view models can use these easier
         public bool UseVerticalTrackNumberDraggerBehaviour;
         public bool StopOnTogglePlay;

@@ -8,7 +8,10 @@ using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Automation.Keyframe {
-    public abstract class KeyFrame : IRBESerialisable {
+    /// <summary>
+    /// A keyframe stores a time and value
+    /// </summary>
+    public abstract class KeyFrame {
         public AutomationSequence sequence;
 
         // The key frame time, relative to the project FPS. Converted when the project FPS changes

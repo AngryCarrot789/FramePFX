@@ -79,7 +79,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
                 else {
                     this.AutomationData[VideoTrack.OpacityKey].GetOverride().SetDoubleValue(value);
-                    this.AutomationData[VideoTrack.OpacityKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -105,7 +104,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 }
                 else {
                     this.AutomationData[VideoTrack.IsVisibleKey].GetOverride().SetBooleanValue(value);
-                    this.AutomationData[VideoTrack.IsVisibleKey].RaiseOverrideValueChanged();
                 }
             }
         }
@@ -154,16 +152,16 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             }
 
             if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
-                await Services.DialogService.ShowMessageAsync("Invalid resource", "This resource is not registered yet");
+                await Services.DialogService.ShowMessageAsync("Invalid resource", "This resource is not registered yet. This is a bug");
                 return;
             }
 
             double fps = this.Timeline.Project.Settings.FrameRate.ToDouble;
             long defaultDuration = (long) (fps * 5);
 
-            Clip newClip = null;
-            if (resource.Model is ResourceAVMedia media) {
-                if (media.IsValidMediaFile) {
+            Clip newClip;
+            switch (resource.Model) {
+                case ResourceAVMedia media when media.IsValidMediaFile: {
                     TimeSpan span = media.GetDuration();
                     long dur = (long) Math.Floor(span.TotalSeconds * fps);
                     if (dur < 2) {
@@ -189,59 +187,25 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                         await Services.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
                         return;
                     }
+
+                    break;
                 }
-                else {
+                case ResourceAVMedia media:
                     await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
                     return;
-                }
-            }
-            // else if (resource.Model is ResourceMpegMedia media2) {
-            //     try {
-            //         media2.LoadMedia(media2.FilePath);
-            //     }
-            //     catch (Exception e) {
-            //         await Services.DialogService.ShowMessageExAsync("Exception", "Failed to open media", e.GetToString());
-            //         return;
-            //     }
-            //     foreach (VideoStream steam in media2.reader.GetVideoStreams()) {
-            //         if (!(steam.Stream.Duration is TimeSpan duration)) {
-            //             continue;
-            //         }
-            //         long dur = (long) Math.Floor(duration.TotalSeconds * fps);
-            //         if (dur < 2) { // image files are 1
-            //             dur = defaultDuration;
-            //         }
-            //         if (dur > 0) {
-            //             long newProjectDuration = frameBegin + dur + 600;
-            //             if (newProjectDuration > this.Timeline.MaxDuration) {
-            //                 this.Timeline.MaxDuration = newProjectDuration;
-            //             }
-            //             MpegMediaVideoClip mediaClip = new MpegMediaVideoClip();
-            //             MpegMediaVideoClipViewModel clip = new MpegMediaVideoClipViewModel(mediaClip) {
-            //                 FrameSpan = new FrameSpan(frameBegin, dur),
-            //                 DisplayName = "Media Clip"
-            //             };
-            //             clip.SetTargetResourceId(media2.UniqueId);
-            //             newClip = clip;
-            //         }
-            //         else {
-            //             await Services.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
-            //             return;
-            //         }
-            //     }
-            // }
-            else {
-                if (resource.Model is ResourceColour argb) {
+                case ResourceColour argb: {
                     ShapeSquareVideoClip clip = new ShapeSquareVideoClip() {
                         FrameSpan = new FrameSpan(frame, defaultDuration),
-                        Width = 200, Height = 200,
                         DisplayName = "Shape Clip"
                     };
 
+                    clip.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(200);
+                    clip.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(200);
                     clip.ResourceHelper.SetTargetResourceId(argb.UniqueId);
                     newClip = clip;
+                    break;
                 }
-                else if (resource.Model is ResourceImage img) {
+                case ResourceImage img: {
                     ImageVideoClip clip = new ImageVideoClip() {
                         FrameSpan = new FrameSpan(frame, defaultDuration),
                         DisplayName = "Image Clip"
@@ -249,8 +213,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
                     clip.ResourceHelper.SetTargetResourceId(img.UniqueId);
                     newClip = clip;
+                    break;
                 }
-                else if (resource.Model is ResourceTextStyle text) {
+                case ResourceTextStyle text: {
                     TextVideoClip clip = new TextVideoClip() {
                         FrameSpan = new FrameSpan(frame, defaultDuration),
                         DisplayName = "Text Clip"
@@ -258,8 +223,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
                     clip.ResourceHelper.SetTargetResourceId(text.UniqueId);
                     newClip = clip;
+                    break;
                 }
-                else if (resource.Model is ResourceComposition comp) {
+                case ResourceComposition comp: {
                     CompositionVideoClip clip = new CompositionVideoClip() {
                         FrameSpan = new FrameSpan(frame, defaultDuration),
                         DisplayName = "Composition clip"
@@ -267,10 +233,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
                     clip.ResourceHelper.SetTargetResourceId(comp.UniqueId);
                     newClip = clip;
+                    break;
                 }
-                else {
-                    return;
-                }
+                default: return;
             }
 
             newClip.AddEffect(new MotionEffect());

@@ -478,13 +478,13 @@ namespace FramePFX.WPF.Editor.Automation {
 
         protected virtual void OnSequencePropertyChanged(AutomationSequenceViewModel oldValue, AutomationSequenceViewModel newValue) {
             if (oldValue != null) {
-                oldValue.OverrideKeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
+                oldValue.DefaultKeyFrame.PropertyChanged -= this.keyFramePropertyChangedEventHandler;
                 ((INotifyCollectionChanged) oldValue.KeyFrames).CollectionChanged -= this.OnCollectionChanged;
             }
 
             this.ClearKeyFrameList();
             if (newValue != null) {
-                newValue.OverrideKeyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
+                newValue.DefaultKeyFrame.PropertyChanged += this.keyFramePropertyChangedEventHandler;
                 ((INotifyCollectionChanged) newValue.KeyFrames).CollectionChanged += this.OnCollectionChanged;
                 this.SetupRenderingInfo(newValue);
                 this.GenerateBackingList(newValue);
@@ -523,7 +523,6 @@ namespace FramePFX.WPF.Editor.Automation {
                 }
                 case AutomationDataType.Boolean: break;
                 case AutomationDataType.Vector2: break;
-                case AutomationDataType.Vector3: break;
                 default: throw new ArgumentOutOfRangeException();
             }
         }
@@ -578,7 +577,7 @@ namespace FramePFX.WPF.Editor.Automation {
         private void OnKeyFrameViewModelPropertyChanged(object sender, PropertyChangedEventArgs e) {
             KeyFrameViewModel keyFrame = (KeyFrameViewModel) sender;
             AutomationSequenceViewModel seq = this.Sequence;
-            if (seq != null && !ReferenceEquals(keyFrame, seq.OverrideKeyFrame)) {
+            if (seq != null && !ReferenceEquals(keyFrame, seq.DefaultKeyFrame)) {
                 KeyFramePoint point = this.backingList.First(x => x.keyFrame == keyFrame);
                 point.InvalidateRenderData();
                 point.Prev?.InvalidateRenderData();
@@ -843,7 +842,7 @@ namespace FramePFX.WPF.Editor.Automation {
             if (this.isOverrideEnabled) {
                 AutomationSequenceViewModel seq = this.Sequence;
                 if (seq != null) {
-                    double y = this.ActualHeight - KeyPointUtils.GetYHelper(this, seq.OverrideKeyFrame, this.ActualHeight);
+                    double y = this.ActualHeight - KeyPointUtils.GetYHelper(this, seq.DefaultKeyFrame, this.ActualHeight);
                     dc.DrawLine(this.OverrideModeValueLinePen, new Point(0, y), new Point(visible.Right, y));
                 }
 

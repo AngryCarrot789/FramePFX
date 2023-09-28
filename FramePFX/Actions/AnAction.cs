@@ -35,8 +35,9 @@ namespace FramePFX.Actions {
         public abstract Task<bool> ExecuteAsync(AnActionEventArgs e);
 
         /// <summary>
-        /// Gets this action's presentation. This is used by the UI to determine how to present the action. For example, this may return a visible
-        /// but disabled presentation, meaning a context menu item or button (that fires this action) is visible, but cannot be clicked
+        /// Checks if this action can actually be executed. This typically isn't checked before
+        /// <see cref="ExecuteAsync"/> is invoked; this is mainly used by the UI to determine if
+        /// something like a button or menu item is actually clickable
         /// <para>
         /// This method should be quick to execute, as it may be called quite often
         /// </para>

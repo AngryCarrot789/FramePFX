@@ -29,7 +29,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             }
         }
 
-        public KeyFrameViewModel OverrideKeyFrame { get; }
+        public KeyFrameViewModel DefaultKeyFrame { get; }
 
         public AutomationSequence Model { get; }
 
@@ -81,11 +81,12 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         public AutomationSequenceViewModel(AutomationDataViewModel automationData, AutomationSequence model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = automationData ?? throw new ArgumentNullException(nameof(automationData));
-            this.OverrideKeyFrame = KeyFrameViewModel.NewInstance(model.OverrideKeyFrame);
-            this.OverrideKeyFrame.OwnerSequence = this;
+            this.keyFramePropertyChangedHandler = this.OnKeyFrameOnPropertyChanged;
+            this.DefaultKeyFrame = KeyFrameViewModel.NewInstance(model.DefaultKeyFrame);
+            this.DefaultKeyFrame.OwnerSequence = this;
+            this.DefaultKeyFrame.PropertyChanged += this.keyFramePropertyChangedHandler;
             this.keyFrames = new ObservableCollection<KeyFrameViewModel>();
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
-            this.keyFramePropertyChangedHandler = this.OnKeyFrameOnPropertyChanged;
             foreach (KeyFrame frame in model.KeyFrames) {
                 this.AddInternalUnsafe(this.keyFrames.Count, KeyFrameViewModel.NewInstance(frame));
             }
@@ -105,6 +106,15 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         }
 
         public void DoRefreshValue(RefreshAutomationValueEventArgs e) => this.RefreshValue?.Invoke(this, e);
+
+        /// <summary>
+        /// Assigns the default key frame (for our key) to its default value
+        /// </summary>
+        public void AssignDefaultValue() {
+            KeyFrameViewModel keyFrame = this.AutomationData[this.Key].DefaultKeyFrame;
+            keyFrame.Model.AssignDefaultValue(this.Key.Descriptor);
+            this.RaiseKeyFrameChanged(keyFrame);
+        }
 
         private void AddInternalUnsafe(int index, KeyFrameViewModel keyFrame) {
             keyFrame.OwnerSequence = this;
@@ -178,7 +188,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
                 this.IsOverrideEnabled = true;
             }
 
-            return this.OverrideKeyFrame;
+            return this.DefaultKeyFrame;
         }
 
         public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long frame) {
@@ -193,7 +203,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
 
         private void OnKeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             KeyFrameViewModel keyFrame = (KeyFrameViewModel) sender;
-            if (e.PropertyName == KeyFrameViewModel.GetPropertyName(keyFrame) || e.PropertyName == nameof(KeyFrameViewModel.Frame)) {
+            if (e.PropertyName == KeyFrameViewModel.GetValuePropertyName(keyFrame) || e.PropertyName == nameof(KeyFrameViewModel.Frame)) {
                 this.RaiseKeyFrameChanged(keyFrame);
             }
         }
@@ -204,17 +214,6 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         /// <param name="keyFrame">The key frame whose value has been modified</param>
         public void RaiseKeyFrameChanged(KeyFrameViewModel keyFrame) {
             this.AutomationData.OnKeyFrameChanged(this, keyFrame);
-        }
-
-        /// <summary>
-        /// Invokes <see cref="RaiseKeyFrameChanged"/>, passing the override key frame.
-        /// <para>
-        /// By default, the override key frame's value changed events are
-        /// not listened to, so a notification must be manually fired
-        /// </para>
-        /// </summary>
-        public void RaiseOverrideValueChanged() {
-            this.AutomationData.OnKeyFrameChanged(this, this.OverrideKeyFrame);
         }
 
         public void ToggleOverrideAction() => this.IsOverrideEnabled = !this.IsOverrideEnabled;

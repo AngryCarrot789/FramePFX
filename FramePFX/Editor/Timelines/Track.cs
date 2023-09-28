@@ -240,15 +240,7 @@ namespace FramePFX.Editor.Timelines {
             newTrack.AddClip(clip);
         }
 
-        protected abstract Track NewInstanceForClone();
-
-        protected virtual void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
-
-        }
-
-        protected virtual void LoadDataIntoClonePost(Track clone, TrackCloneFlags flags) {
-
-        }
+        #region Cloning
 
         public Track Clone(TrackCloneFlags flags = TrackCloneFlags.DefaultFlags) {
             Track clone = this.NewInstanceForClone();
@@ -260,7 +252,7 @@ namespace FramePFX.Editor.Timelines {
                 this.AutomationData.LoadDataIntoClone(clone.AutomationData);
             }
 
-            if ((flags & TrackCloneFlags.CloneClips) != 0) {
+            if ((flags & TrackCloneFlags.Clips) != 0) {
                 foreach (Clip clip in this.Clips) {
                     clone.AddClip(clip.Clone());
                 }
@@ -269,6 +261,18 @@ namespace FramePFX.Editor.Timelines {
             this.LoadDataIntoClonePost(clone, flags);
             return clone;
         }
+
+        protected abstract Track NewInstanceForClone();
+
+        protected virtual void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
+
+        }
+
+        protected virtual void LoadDataIntoClonePost(Track clone, TrackCloneFlags flags) {
+
+        }
+
+        #endregion
 
         public virtual void WriteToRBE(RBEDictionary data) {
             data.SetString(nameof(this.DisplayName), this.DisplayName);
@@ -286,7 +290,6 @@ namespace FramePFX.Editor.Timelines {
             this.Height = data.GetDouble(nameof(this.Height), 60);
             this.TrackColour = data.TryGetString(nameof(this.TrackColour), out string colour) ? colour : TrackColours.GetRandomColour();
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            this.AutomationData.UpdateBackingStorage();
             foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
@@ -326,8 +329,15 @@ namespace FramePFX.Editor.Timelines {
         /// Clears all clips in this track
         /// </summary>
         public void Clear() {
-            for (int i = this.clips.Count - 1; i >= 0; i--) {
-                this.RemoveClipAt(i);
+            using (ErrorList list = new ErrorList()) {
+                for (int i = this.clips.Count - 1; i >= 0; i--) {
+                    try {
+                        this.RemoveClipAt(i);
+                    }
+                    catch (Exception e) {
+                        list.Add(e);
+                    }
+                }
             }
         }
     }

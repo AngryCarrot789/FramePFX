@@ -61,20 +61,12 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
             this.AutomationData.AssignKey(MediaRotationKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaRotation = s.GetDoubleValue(f));
             this.AutomationData.AssignKey(MediaRotationOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaRotationOrigin = s.GetVector2Value(f));
             this.AutomationData.AssignKey(UseAbsoluteRotationOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).UseAbsoluteRotationOrigin = s.GetBooleanValue(f));
-
-            this.MediaPosition = MediaPositionKey.Descriptor.DefaultValue;
-            this.MediaScale = MediaScaleKey.Descriptor.DefaultValue;
-            this.MediaScaleOrigin = MediaScaleOriginKey.Descriptor.DefaultValue;
-            this.UseAbsoluteScaleOrigin = UseAbsoluteScaleOriginKey.Descriptor.DefaultValue;
-            this.MediaRotation = MediaRotationKey.Descriptor.DefaultValue;
-            this.MediaRotationOrigin = MediaRotationOriginKey.Descriptor.DefaultValue;
-            this.UseAbsoluteRotationOrigin = UseAbsoluteRotationOriginKey.Descriptor.DefaultValue;
         }
 
         // apply transformation
 
-        public override void PreProcessFrame(RenderContext rc, Vector2? frameSize) {
-            base.PreProcessFrame(rc, frameSize);
+        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
+            base.PreProcessFrame(frame, rc, frameSize);
             Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;

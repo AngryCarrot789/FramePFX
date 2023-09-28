@@ -1,10 +1,11 @@
 using FramePFX.Editor;
+using FramePFX.History;
 
 namespace FramePFX.Automation.ViewModels {
     /// <summary>
     /// An interface for automatable view model objects
     /// </summary>
-    public interface IAutomatableViewModel : ITimelineViewModelBound {
+    public interface IAutomatableViewModel : ITimelineViewModelBound, IHistoryHolder {
         /// <summary>
         /// Gets a reference to this automatable view model's backing model
         /// </summary>

@@ -514,10 +514,11 @@
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
                             <dr:NumberDragger Minimum="0" Maximum="1" Value="{Binding Opacity, Mode=TwoWay}"
-                                                   TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
-                                                   Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
-                                                   HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
-                                                   ap2:HistoryHelper.DragId="{x:Static tt:VideoTrackViewModel.OpacityHistoryKey}"/>
+                                              TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
+                                              Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
+                                              HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
+                                              ap2:HistoryHelper.DragId="{x:Static tt:VideoTrackViewModel.OpacityHistoryKey}"
+                                              IsDoubleClickToEdit="True" GotFocus="VideoTrackOpacityNumberDragger_GotFocus"/>
                             <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
                                 <Button DockPanel.Dock="Right" Width="18" Content="O" ToolTip="Disables the current override, or all overrides"
                                         Command="{Binding ToggleOverrideCommand, Mode=OneTime}" BorderThickness="0"
@@ -548,11 +549,12 @@
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
                             <dr:NumberDragger Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay}"
-                                                   DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static c:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
-                                                   TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
-                                                   Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
-                                                   HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
-                                                   ap2:HistoryHelper.DragId="{x:Static tt:VideoTrackViewModel.OpacityHistoryKey}"/>
+                                              DisplayTextOverride="{Binding Volume, Mode=OneWay, Converter={x:Static c:VolumeToDbConverter.Instance}, StringFormat={}{0:F1} dB}"
+                                              TinyChange="0.0001" SmallChange="0.0005" LargeChange="0.0025" MassiveChange="0.05"
+                                              Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
+                                              HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
+                                              ap2:HistoryHelper.DragId="{x:Static tt:VideoTrackViewModel.OpacityHistoryKey}"
+                                              IsDoubleClickToEdit="True" GotFocus="AudioTrackOpacityNumberDragger_GotFocus"/>
                             <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
                                 <Button DockPanel.Dock="Right" Width="18" Content="O" ToolTip="Disables the current override, or all overrides"
                                         Command="{Binding ToggleOverrideCommand, Mode=OneTime}" BorderThickness="0"

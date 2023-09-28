@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.PropertyEditing;
-using FramePFX.PropertyEditing.Editor;
+using FramePFX.PropertyEditing.Editors;
 
 namespace FramePFX.Editor.PropertyEditors.Effects {
     public abstract class BaseEffectDataEditorViewModel : HistoryAwarePropertyEditorViewModel {

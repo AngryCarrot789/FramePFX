@@ -20,9 +20,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         private static readonly UpdateAutomationValueEventHandler UpdateWidth = (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Width = s.GetFloatValue(f);
         private static readonly UpdateAutomationValueEventHandler UpdateHeight = (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Height = s.GetFloatValue(f);
 
-        public float Width { get; set; }
-
-        public float Height { get; set; }
+        public float Width;
+        public float Height;
 
         public override bool UseCustomOpacityCalculation => true;
 
@@ -30,15 +29,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
 
         public ShapeSquareVideoClip() {
+            this.AutomationData.AssignKey(WidthKey, (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Width = s.GetFloatValue(f));
+            this.AutomationData.AssignKey(HeightKey, (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Height = s.GetFloatValue(f));
             this.ResourceHelper = new ResourceHelper<ResourceColour>(this);
             this.ResourceHelper.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
         private void ResourceHelperOnResourceDataModified(ResourceColour resource, string property) {
             switch (property) {
-                case nameof(ResourceColour.Colour):
-                    this.InvalidateRender();
-                    break;
+                case nameof(ResourceColour.Colour): this.InvalidateRender(); break;
             }
         }
 
@@ -91,12 +90,12 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             // }
         }
 
-        protected override Clip NewInstance() {
+        protected override Clip NewInstanceForClone() {
             return new ShapeSquareVideoClip();
         }
 
-        protected override void LoadDataIntoClone(Clip clone) {
-            base.LoadDataIntoClone(clone);
+        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags) {
+            base.LoadDataIntoClone(clone, flags);
             ShapeSquareVideoClip clip = (ShapeSquareVideoClip) clone;
             this.ResourceHelper.LoadDataIntoClone(clip.ResourceHelper);
             clip.Width = this.Width;

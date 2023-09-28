@@ -5,6 +5,7 @@ using System.Linq;
 namespace FramePFX.Actions.Contexts {
     public class DataContext : IDataContext {
         public Dictionary<string, object> EntryMap { get; set; }
+
         public List<object> InternalContext { get; }
 
         public IEnumerable<object> Context => this.InternalContext;

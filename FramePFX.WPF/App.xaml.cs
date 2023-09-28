@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -265,6 +264,9 @@ namespace FramePFX.WPF {
                 AppLogger.PopHeader();
             }
 
+            this.processor.Clear();
+            this.processor = null;
+
             await this.SetActivity("Loading FramePFX main window...");
             BindingErrorListener.Listen();
             EditorMainWindow window = new EditorMainWindow();
@@ -456,10 +458,12 @@ namespace FramePFX.WPF {
                 track.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
 
                 ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip {
-                    Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
+
+                clip1.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(200);
+                clip1.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(200);
 
                 clip1.AddEffect(motion = new MotionEffect());
                 motion.MediaPosition = new Vector2(0, 0);
@@ -468,10 +472,12 @@ namespace FramePFX.WPF {
                 track.AddClip(clip1);
 
                 ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip {
-                    Width = 200, Height = 200,
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
+
+                clip2.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(200);
+                clip2.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(200);
 
                 clip2.AddEffect(motion = new MotionEffect());
                 motion.MediaPosition = new Vector2(200, 200);
@@ -486,10 +492,12 @@ namespace FramePFX.WPF {
 
                 project.Timeline.AddTrack(track);
                 ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip {
-                    Width = 400, Height = 400,
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
                 };
+
+                clip1.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(400);
+                clip1.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(400);
 
                 clip1.AddEffect(motion = new MotionEffect());
                 motion.MediaPosition = new Vector2(200, 200);
@@ -497,11 +505,12 @@ namespace FramePFX.WPF {
                 clip1.ResourceHelper.SetTargetResourceId(id_b);
                 track.AddClip(clip1);
                 ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip {
-                    Width = 100, Height = 1000,
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip blueish"
                 };
 
+                clip2.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(100);
+                clip2.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(1000);
                 clip2.AddEffect(motion = new MotionEffect());
                 motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
                 motion.AutomationData[MotionEffect.MediaPositionKey].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
@@ -517,7 +526,7 @@ namespace FramePFX.WPF {
                 DisplayName = "Empty track"
             });
 
-            project.UpdateAutomationBackingStorage();
+            project.UpdateTimelineBackingStorage();
             return project;
         }
 

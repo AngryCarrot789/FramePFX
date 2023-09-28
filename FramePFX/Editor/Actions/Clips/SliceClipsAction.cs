@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
-using FramePFX.Actions.Contexts;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Clips {

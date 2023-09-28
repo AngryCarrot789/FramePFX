@@ -1,3 +1,6 @@
+using System;
+using System.Numerics;
+using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
@@ -40,6 +43,27 @@ namespace FramePFX.Utils {
 
                 return false;
             }
+        }
+
+        public static void SetValue(KeyFrame keyFrame, object value) {
+            switch (keyFrame.DataType) {
+                case AutomationDataType.Float:   keyFrame.SetFloatValue((float) value); break;
+                case AutomationDataType.Double:  keyFrame.SetDoubleValue((double) value); break;
+                case AutomationDataType.Long:    keyFrame.SetLongValue((long) value); break;
+                case AutomationDataType.Boolean: keyFrame.SetBooleanValue((bool) value); break;
+                case AutomationDataType.Vector2: keyFrame.SetVector2Value((Vector2) value); break;
+                default: throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static KeyFrameViewModel GetKeyFrameForPropertyChanged(IAutomatableViewModel automatable, AutomationKey key) {
+            if (automatable.IsAutomationRefreshInProgress) {
+                throw new Exception("Object is currently refreshing an automation value");
+            }
+
+            if (GetNewKeyFrameTime(automatable, key, out long frame))
+                return automatable.AutomationData[key].GetActiveKeyFrameOrCreateNew(frame);
+            return automatable.AutomationData[key].GetOverride();
         }
     }
 }

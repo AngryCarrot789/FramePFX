@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Actions {
     [ActionRegistration("actions.editor.timeline.ToggleAutoScrollDuringPlayback")]

@@ -14,12 +14,12 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.ResourceHelper = new ResourceHelper<ResourceMpegMedia>(this);
         }
 
-        protected override void LoadDataIntoClone(Clip clone) {
-            base.LoadDataIntoClone(clone);
+        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags) {
+            base.LoadDataIntoClone(clone, flags);
             this.ResourceHelper.LoadDataIntoClone(((MpegMediaVideoClip) clone).ResourceHelper);
         }
 
-        protected override Clip NewInstance() {
+        protected override Clip NewInstanceForClone() {
             return new MpegMediaVideoClip();
         }
 

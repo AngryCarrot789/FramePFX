@@ -30,7 +30,7 @@ namespace FramePFX.Automation.History {
             }
 
             this.undoList = new List<KeyFrameViewModel>();
-            foreach (RBEDictionary dictionary in this.SerialisedData.OfType<RBEDictionary>()) {
+            foreach (RBEDictionary dictionary in this.SerialisedData.Cast<RBEDictionary>()) {
                 KeyFrame rawKeyFrame = KeyFrame.CreateInstance(this.Holder.Model.DataType);
                 rawKeyFrame.ReadFromRBE(dictionary);
                 KeyFrameViewModel keyFrame = KeyFrameViewModel.NewInstance(rawKeyFrame);

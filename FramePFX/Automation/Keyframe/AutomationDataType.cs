@@ -15,7 +15,6 @@ namespace FramePFX.Automation.Keyframe {
         Double,
         Long,
         Boolean,
-        Vector2,
-        Vector3,
+        Vector2
     }
 }

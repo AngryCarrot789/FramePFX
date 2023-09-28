@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using FramePFX.Automation;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines;
 using FramePFX.RBC;
@@ -83,6 +84,7 @@ namespace FramePFX.Editor {
             this.Settings.ReadFromRBE(data.GetDictionary(nameof(this.Settings)));
             this.ResourceManager.ReadFromRBE(data.GetDictionary(nameof(this.ResourceManager)));
             this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
+            this.UpdateTimelineBackingStorage();
         }
 
         /// <summary>
@@ -142,8 +144,6 @@ namespace FramePFX.Editor {
         /// <summary>
         /// Updates the backing storage of the timeline, all tracks and all clips
         /// </summary>
-        public void UpdateAutomationBackingStorage() {
-            this.Timeline.UpdateAutomationBackingStorage();
-        }
+        public void UpdateTimelineBackingStorage() => AutomationEngine.UpdateBackingStorage(this.Timeline);
     }
 }

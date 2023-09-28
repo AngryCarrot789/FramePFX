@@ -12,7 +12,6 @@ using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
-using FramePFX.Utils;
 
 namespace FramePFX.Automation {
     public static class AutomationEngine {
@@ -93,6 +92,23 @@ namespace FramePFX.Automation {
             }
         }
 
+        public static void UpdateBackingStorage(Timeline timeline) {
+            timeline.AutomationData.UpdateBackingStorage();
+            foreach (Track track in timeline.Tracks) {
+                track.AutomationData.UpdateBackingStorage();
+                foreach (Clip clip in track.Clips) {
+                    clip.AutomationData.UpdateBackingStorage();
+                    foreach (BaseEffect effect in clip.Effects) {
+                        effect.AutomationData.UpdateBackingStorage();
+                    }
+
+                    if (clip is CompositionVideoClip composition && composition.ResourceHelper.TryGetResource(out ResourceComposition resource)) {
+                        UpdateBackingStorage(resource.Timeline);
+                    }
+                }
+            }
+        }
+
         public static void OnOverrideStateChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence) {
             TimelineViewModel timeline = data.Owner.Timeline;
             if (timeline == null) {
@@ -100,13 +116,12 @@ namespace FramePFX.Automation {
             }
 
             long frame = timeline.PlayHeadFrame;
-            if (data.Owner is ClipViewModel clip) {
-                FrameSpan span = clip.FrameSpan;
-                frame = Maths.Clamp(frame - span.Begin, 0, span.Duration - 1);
+            if (data.Owner is IStrictFrameRange strict) {
+                frame = strict.ConvertTimelineToRelativeFrame(frame, out bool isValid);
             }
 
             if (sequence.IsOverrideEnabled) {
-                sequence.OverrideKeyFrame.Model.AssignCurrentValue(frame, sequence.Model);
+                sequence.DefaultKeyFrame.Model.AssignCurrentValue(frame, sequence.Model);
             }
 
             sequence.Model.DoUpdateValue(frame);
@@ -120,9 +135,8 @@ namespace FramePFX.Automation {
             }
 
             long frame = timeline.PlayHeadFrame;
-            if (data.Owner is ClipViewModel clip) {
-                FrameSpan span = clip.FrameSpan;
-                frame = Maths.Clamp(frame - span.Begin, 0, span.Duration - 1);
+            if (data.Owner is IStrictFrameRange strict) {
+                frame = strict.ConvertTimelineToRelativeFrame(frame, out bool isValid);
             }
 
             sequence.Model.DoUpdateValue(frame);

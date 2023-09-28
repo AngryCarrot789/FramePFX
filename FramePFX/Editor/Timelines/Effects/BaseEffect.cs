@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines.Effects.Video;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.Effects {
     /// <summary>
@@ -41,7 +44,7 @@ namespace FramePFX.Editor.Timelines.Effects {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessEffectList(List<BaseEffect> effects, RenderContext render, Vector2? frameSize, bool isPreProcess) {
+        public static void ProcessEffectList(IReadOnlyList<BaseEffect> effects, long frame, RenderContext render, Vector2? frameSize, bool isPreProcess) {
             // pre-process clip effects, such as translation, scale, etc.
             int count = effects.Count;
             if (count == 0) {
@@ -52,10 +55,10 @@ namespace FramePFX.Editor.Timelines.Effects {
                 BaseEffect effect = effects[i];
                 if (effect is VideoEffect) {
                     if (isPreProcess) {
-                        ((VideoEffect) effect).PreProcessFrame(render, frameSize);
+                        ((VideoEffect) effect).PreProcessFrame(frame, render, frameSize);
                     }
                     else {
-                        ((VideoEffect) effect).PostProcessFrame(render, frameSize);
+                        ((VideoEffect) effect).PostProcessFrame(frame, render, frameSize);
                     }
                 }
             }
@@ -81,51 +84,39 @@ namespace FramePFX.Editor.Timelines.Effects {
 
             effect.OwnerClip = clip;
             effect.OnAddingToClip();
-            clip.Effects.Insert(index, effect);
+            Clip.InternalInsertEffect(clip, index, effect);
             effect.OnAddedToClip();
         }
 
-        public static bool RemoveEffectFromOwnerClip(BaseEffect effect) {
+        public static bool RemoveEffectFromOwner(BaseEffect effect) {
             Clip owner = effect.OwnerClip;
             if (owner == null)
                 return false;
-            int index = owner.Effects.IndexOf(effect);
-            if (index < 0)
-                return false;
-            RemoveEffectAt(owner, index);
-            return true;
-        }
 
-        // this one only really exists to handle the case when we try and remove an effect
-        // from a clip that doesn't own the effect, which throws because something bad happened
-        public static bool RemoveEffectFromClip(Clip clip, BaseEffect effect) {
-            Clip owner = effect.OwnerClip;
-            if (owner == null)
-                return false;
-            if (owner != clip)
-                throw new Exception("Effect does not belong to the clip");
             int index = owner.Effects.IndexOf(effect);
-            if (index < 0)
+            if (index < 0) {
+                AppLogger.WriteLine("Fatal error: Effect's owner was non-null but was not stored in its effects list");
+                Debugger.Break();
+                effect.OwnerClip = null;
                 return false;
+            }
+
             RemoveEffectAt(owner, index);
             return true;
         }
 
         public static void RemoveEffectAt(Clip clip, int index) {
             BaseEffect effect = clip.Effects[index];
-            if (effect.OwnerClip != clip) {
-                throw new Exception("Internal error: effect is in the clip's effect list but the effect's owner is not said clip");
-            }
-
+            if (!ReferenceEquals(effect.OwnerClip, clip))
+                throw new Exception("The effect was stored in the clip's effect list but the owner did not match the clip");
             effect.OnRemovingFromClip();
-            clip.Effects.RemoveAt(index);
+            Clip.InternalRemoveEffect(clip, index);
+            effect.OnRemovedFromClip();
             effect.OwnerClip = null;
-            effect.OnRemovedFromClip(clip);
         }
 
         public static void ClearEffects(Clip clip) {
-            List<BaseEffect> list = clip.Effects;
-            for (int i = list.Count - 1; i >= 0; i--) {
+            for (int i = clip.Effects.Count - 1; i >= 0; i--) {
                 RemoveEffectAt(clip, i);
             }
         }
@@ -149,14 +140,15 @@ namespace FramePFX.Editor.Timelines.Effects {
         }
 
         /// <summary>
-        /// Invoked when this effect has been removed from our previous owner (passed as a parameter)'s effect list
+        /// Invoked when this effect has been removed from our previous owner's effect list.
+        /// <see cref="OwnerClip"/> will be set to null after this call, meaning it is non-null when this is invoked
         /// </summary>
-        /// <param name="clip">Our previous owner (<see cref="OwnerClip"/>, which is set to null prior to this call)</param>
-        protected virtual void OnRemovedFromClip(Clip clip) {
+        protected virtual void OnRemovedFromClip() {
+
         }
 
-        // add/remove event handlers to TrackChanged and TrackTimelineChanged in
-        // the added/removed methods, or adding/removing; it doesn't matter
+        // TrackChanged and TrackTimelineChanged can be added or removed in
+        // the added/removed methods or adding/removing methods; it doesn't matter
 
         // public virtual void OnClipTrackChanged(Track oldTrack, Track track) { }
         // public virtual void OnClipTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) { }
@@ -167,7 +159,6 @@ namespace FramePFX.Editor.Timelines.Effects {
 
         public virtual void ReadFromRBE(RBEDictionary data) {
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            this.AutomationData.UpdateBackingStorage();
         }
 
         public long ConvertRelativeToTimelineFrame(long relative) {
@@ -183,6 +174,14 @@ namespace FramePFX.Editor.Timelines.Effects {
 
         public bool IsTimelineFrameInRange(long timeline) {
             return this.OwnerClip?.IsTimelineFrameInRange(timeline) ?? false;
+        }
+
+        public BaseEffect Clone() {
+            RBEDictionary dictionary = new RBEDictionary();
+            this.WriteToRBE(dictionary);
+            BaseEffect effect = EffectFactory.Instance.CreateModel(this.FactoryId);
+            effect.ReadFromRBE(dictionary);
+            return effect;
         }
     }
 }

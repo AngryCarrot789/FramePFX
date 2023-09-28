@@ -112,7 +112,7 @@ namespace FramePFX.Automation {
 
         /// <summary>
         /// Fires the <see cref="AutomationSequence.UpdateValue"/> event for each sequence stored in this data, and
-        /// updates it with a frame of -1, indicating that the <see cref="AutomationSequence.OverrideKeyFrame"/> should
+        /// updates it with a frame of -1, indicating that the <see cref="AutomationSequence.DefaultKeyFrame"/> should
         /// be used to query the value instead of any actual key frame. Useful just after reading the state of an automation owner's data
         /// </summary>
         public void UpdateBackingStorage() {

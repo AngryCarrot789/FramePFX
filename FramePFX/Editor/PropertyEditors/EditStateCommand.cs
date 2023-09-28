@@ -20,6 +20,8 @@ namespace FramePFX.Editor.PropertyEditors {
 
         public HistoryAction HistoryAction => this.historyAction;
 
+        private bool isProcessingCancellation;
+
         public EditStateCommand(Func<HistoryAction> historyFunction, string historyMessage = "Unnamed action") {
             this.HistoryMessage = historyMessage ?? throw new ArgumentNullException(nameof(historyMessage));
             this.historyFunction = historyFunction;
@@ -38,30 +40,49 @@ namespace FramePFX.Editor.PropertyEditors {
                 throw new Exception("Parameter must be " + nameof(ValueModState));
             }
 
-            HistoryAction history;
             switch (state) {
                 case ValueModState.Begin: {
-                    if (this.historyAction != null) { // shouldn't be true... but just in case
-                        HistoryManagerViewModel.Instance.AddAction(this.historyAction, this.HistoryMessage);
-                        Debug.WriteLine("Begin was called excessively");
-                    }
-
-                    this.historyAction = this.historyFunction();
-                    this.IsEditing = true;
+                    this.OnBeginEdit();
                     break;
                 }
                 case ValueModState.Finish: {
-                    this.IsEditing = false;
-                    if (Helper.Exchange(ref this.historyAction, null, out history))
-                        HistoryManagerViewModel.Instance.AddAction(history, this.HistoryMessage);
+                    this.OnFinishEdit();
                     break;
                 }
                 case ValueModState.Cancelled: {
-                    this.IsEditing = false;
-                    if (Helper.Exchange(ref this.historyAction, null, out history))
-                        await history.UndoAsync();
+                    if (this.isProcessingCancellation)
+                        return;
+                    await this.OnCancelledEdit();
                     break;
                 }
+            }
+        }
+
+        public void OnBeginEdit() {
+            if (this.historyAction != null) { // shouldn't be true... but just in case
+                HistoryManagerViewModel.Instance.AddAction(this.historyAction, this.HistoryMessage);
+                Debug.WriteLine("Begin was called excessively");
+            }
+
+            this.historyAction = this.historyFunction();
+            this.IsEditing = true;
+        }
+
+        public void OnFinishEdit() {
+            this.IsEditing = false;
+            if (Helper.Exchange(ref this.historyAction, null, out HistoryAction history))
+                HistoryManagerViewModel.Instance.AddAction(history, this.HistoryMessage);
+        }
+
+        public async Task OnCancelledEdit() {
+            if (this.isProcessingCancellation)
+                return;
+
+            this.IsEditing = false;
+            if (Helper.Exchange(ref this.historyAction, null, out HistoryAction history)) {
+                this.isProcessingCancellation = true;
+                await history.UndoAsync();
+                this.isProcessingCancellation = false;
             }
         }
 

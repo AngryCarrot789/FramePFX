@@ -38,7 +38,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             set {
                 this.Model.curveBend = value;
                 this.RaisePropertyChanged();
-                this.RaisePropertyChanged(GetPropertyName(this));
+                this.RaisePropertyChanged(GetValuePropertyName(this));
             }
         }
 
@@ -54,7 +54,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         /// <param name="keyFrame"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GetPropertyName(KeyFrameViewModel keyFrame) {
+        public static string GetValuePropertyName(KeyFrameViewModel keyFrame) {
             // Use fixed name so that an abstract property is not required
             // return keyFrame.ValuePropertyName;
             return "Value";

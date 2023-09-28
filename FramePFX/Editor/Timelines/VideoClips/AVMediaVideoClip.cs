@@ -29,8 +29,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.ResourceHelper.ResourceChanged += this.OnResourceChanged;
         }
 
-        protected override void LoadDataIntoClone(Clip clone) {
-            base.LoadDataIntoClone(clone);
+        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags) {
+            base.LoadDataIntoClone(clone, flags);
             this.ResourceHelper.LoadDataIntoClone(((AVMediaVideoClip) clone).ResourceHelper);
         }
 
@@ -158,7 +158,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                    dst->height == dstFmt.Height;
         }
 
-        protected override Clip NewInstance() {
+        protected override Clip NewInstanceForClone() {
             return new AVMediaVideoClip();
         }
 

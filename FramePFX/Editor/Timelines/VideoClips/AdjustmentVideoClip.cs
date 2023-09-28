@@ -8,7 +8,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override Vector2? GetSize(RenderContext rc) => rc.FrameSize;
 
-        protected override Clip NewInstance() {
+        protected override Clip NewInstanceForClone() {
             return new AdjustmentVideoClip();
         }
     }

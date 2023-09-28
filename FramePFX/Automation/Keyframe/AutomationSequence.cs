@@ -61,7 +61,7 @@ namespace FramePFX.Automation.Keyframe {
         /// <summary>
         /// An event fired, notifying any listeners to query their live value from the automation data
         /// </summary>
-        public UpdateAutomationValueEventHandler UpdateValue;
+        public event UpdateAutomationValueEventHandler UpdateValue;
 
         public AutomationSequence(AutomationData automationData, AutomationKey key) {
             this.AutomationData = automationData;

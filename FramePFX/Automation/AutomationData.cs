@@ -67,6 +67,7 @@ namespace FramePFX.Automation {
             this.sequences.Add(sequence);
             if (updateValueHandler != null) {
                 sequence.UpdateValue += updateValueHandler;
+                sequence.DoUpdateValue(-1);
             }
 
             return sequence;

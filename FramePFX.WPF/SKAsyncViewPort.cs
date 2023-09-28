@@ -57,8 +57,6 @@ namespace FramePFX.WPF {
             set { SetValue(RenderGizmoClipProperty, value); }
         }
 
-        private bool hasDrawnImage;
-
         public SKAsyncViewPort() => this.designMode = DesignerProperties.GetIsInDesignMode(this);
 
         public bool BeginRender(out SKSurface surface) {
@@ -84,7 +82,6 @@ namespace FramePFX.WPF {
                     scaleX == 1d ? 96d : (96d * scaleX),
                     scaleY == 1d ? 96d : (96d * scaleY),
                     PixelFormats.Pbgra32, null);
-                this.hasDrawnImage = false;
             }
 
             this.bitmap.Lock();
@@ -103,18 +100,12 @@ namespace FramePFX.WPF {
             SKImageInfo info = this.skImageInfo;
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
-            if (!this.hasDrawnImage)
-                this.Dispatcher.Invoke(this.InvalidateVisual);
+            this.Dispatcher.Invoke(this.InvalidateVisual);
             this.targetSurface.Dispose();
             this.targetSurface = null;
         }
 
         protected override void OnRender(DrawingContext dc) {
-            if (this.hasDrawnImage) {
-                return;
-            }
-
-            this.hasDrawnImage = true;
             WriteableBitmap bmp = this.bitmap;
             if (bmp != null) {
                 dc.DrawImage(bmp, new Rect(0d, 0d, this.ActualWidth, this.ActualHeight));
@@ -124,7 +115,10 @@ namespace FramePFX.WPF {
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
             base.OnRenderSizeChanged(sizeInfo);
             this.InvalidateVisual();
-            this.hasDrawnImage = false;
+        }
+
+        protected override void OnStyleChanged(Style oldStyle, Style newStyle) {
+            base.OnStyleChanged(oldStyle, newStyle);
         }
 
         private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source) {

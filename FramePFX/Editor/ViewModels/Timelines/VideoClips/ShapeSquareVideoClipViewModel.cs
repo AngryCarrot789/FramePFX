@@ -48,13 +48,11 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             });
         }
 
-        public override bool CanDropResource(ResourceItemViewModel resource) {
-            return resource is ResourceColourViewModel;
-        }
-
-        public override Task OnDropResource(ResourceItemViewModel resource, EnumDropType dropType) {
-            this.Model.ResourceHelper.SetTargetResourceId(resource.UniqueId);
-            return Task.CompletedTask;
+        static ShapeSquareVideoClipViewModel() {
+            DropRegistry.Register<ShapeSquareVideoClipViewModel, ResourceColourViewModel>((c, h, dt) => true, (c, h, dt) => {
+                c.Model.ResourceHelper.SetTargetResourceId(h.UniqueId);
+                return Task.CompletedTask;
+            });
         }
     }
 }

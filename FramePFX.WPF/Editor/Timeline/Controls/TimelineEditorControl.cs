@@ -345,6 +345,13 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.AutoScroll(TimelineUtils.FrameToPixel(min, zoom), TimelineUtils.FrameToPixel(max, zoom), tolerancePercent, offset);
         }
 
+        public void OnProjectFrameRateRatioChanged(double ratio) {
+            // ratio = 2.0: zoom in by 2x
+            double amount = 1 / ratio;
+            this.UnitZoom *= amount;
+            this.PlayHeadFrame = (long) Math.Round(this.PlayHeadFrame * ratio);
+        }
+
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
             base.OnPreviewMouseWheel(e);
             if (e.Delta == 0) {

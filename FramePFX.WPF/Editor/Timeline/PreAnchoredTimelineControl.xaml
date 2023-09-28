@@ -14,7 +14,7 @@
              d:DataContext="{d:DesignInstance tl:TimelineViewModel}">
     <Border IsEnabled="{Binding ., Converter={x:Static c:NullToBoolConverter.NullToFalse}, Mode=TwoWay}"
             sc:UIInputManager.FocusPath="Application/Editor/Timeline">
-        <ctrl:TimelineControl>
+        <ctrl:TimelineControl x:Name="PART_TimelineControl">
             <b:ShortcutCommandCollection.Collection>
                 <b:ShortcutCommandCollection>
                     <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/TogglePlayPause" Command="{Binding Project.Editor.Playback.TogglePlayCommand, Mode=OneWay}" />

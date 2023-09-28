@@ -28,11 +28,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
     /// The base view model for all types of clips (video, audio, etc)
     /// </summary>
-    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget, IStrictFrameRange, IResourceItemDropHandler {
+    public abstract class ClipViewModel : BaseViewModel, IHistoryHolder, IAutomatableViewModel, IDisplayName, IProjectViewModelBound, IDisposable, IRenameTarget, IStrictFrameRange {
         protected readonly HistoryBuffer<HistoryVideoClipPosition> clipPositionHistory = new HistoryBuffer<HistoryVideoClipPosition>();
         private readonly ObservableCollection<BaseEffectViewModel> effects;
         private bool skipUpdatePropertyEditor;
         private bool isSelected;
+
+        public static DragDropRegistry DropRegistry { get; }
 
         public Clip Model { get; }
 
@@ -214,6 +216,23 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
         }
+
+        static ClipViewModel() {
+            DropRegistry = new DragDropRegistry();
+            DropRegistry.Register<ClipViewModel, EffectProviderViewModel>((clip, x, dt) => true, async (clip, x, dt) => {
+                BaseEffect effect;
+                try {
+                    effect = EffectFactory.Instance.CreateModel(x.EffectFactoryId);
+                }
+                catch (Exception e) {
+                    await Services.DialogService.ShowMessageExAsync("Error", "Failed to create effect from the dropped effect", e.GetToString());
+                    return;
+                }
+
+                clip.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(effect));
+            });
+        }
+
 
         public static void SetSelectedAndShowPropertyEditor(ClipViewModel clip) {
             clip.IsSelected = true;
@@ -550,14 +569,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public static void SetTrack(ClipViewModel clip, TrackViewModel track) {
             PreSetTrack(clip, track);
             PostSetTrack(clip, track);
-        }
-
-        public virtual bool CanDropResource(ResourceItemViewModel resource) {
-            return false;
-        }
-
-        public virtual Task OnDropResource(ResourceItemViewModel resource, EnumDropType dropType) {
-            return Task.CompletedTask;
         }
 
         /// <summary>

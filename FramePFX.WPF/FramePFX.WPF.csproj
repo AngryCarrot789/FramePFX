@@ -255,6 +255,8 @@
     <Compile Include="Editor\Automation\KeyFramePoint.cs" />
     <Compile Include="Editor\Automation\KeyPointUtils.cs" />
     <Compile Include="Editor\Automation\LineHitType.cs" />
+    <Compile Include="Editor\Effects\EffectProviderTreeView.cs" />
+    <Compile Include="Editor\Effects\EffectProviderTreeViewItem.cs" />
     <Compile Include="Editor\Resources\ResourcesPanelControl.xaml.cs">
       <DependentUpon>ResourcesPanelControl.xaml</DependentUpon>
     </Compile>
@@ -825,7 +827,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Editor\Actions" />
     <Folder Include="Editor\Timeline\Actions\" />
   </ItemGroup>
   <ItemGroup>

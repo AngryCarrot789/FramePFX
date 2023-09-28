@@ -21,5 +21,7 @@ namespace FramePFX.Editor {
         void OpenTimeline(TimelineViewModel timeline);
 
         void SelectTimeline(TimelineViewModel timeline);
+
+        void ConvertTimelineZoomForRatioChange(TimelineViewModel timeline, double ratio);
     }
 }

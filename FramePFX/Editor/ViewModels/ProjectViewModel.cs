@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security;
 using System.Threading.Tasks;
+using FramePFX.Automation;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
@@ -125,29 +126,13 @@ namespace FramePFX.Editor.ViewModels {
 
                 if (oldFps != this.Settings.FrameRate) {
                     if (await Services.DialogService.ShowYesNoDialogAsync("Convert Framerate", "Do you want to convert clip and automation to match the new FPS?")) {
-                        this.ConvertProjectFrameRate(oldFps, this.Settings.FrameRate);
+                        AutomationEngine.ConvertProjectFrameRate(this, oldFps, result.TimeBase);
+
+                        if (this.editor != null && this.editor.ActiveTimeline != null) {
+                            double ratio = result.TimeBase.ToDouble / oldFps.ToDouble;
+                            this.Editor?.View?.ConvertTimelineZoomForRatioChange(this.editor.ActiveTimeline, ratio);
+                        }
                     }
-                }
-            }
-        }
-
-        private void ConvertProjectFrameRate(Rational oldFps, Rational newFps) {
-            double ratio = newFps.ToDouble / oldFps.ToDouble;
-            foreach (TrackViewModel track in this.Timeline.Tracks) {
-                ConvertTimeRatios(track.AutomationData, ratio);
-                foreach (ClipViewModel clip in track.Clips) {
-                    ConvertTimeRatios(clip.AutomationData, ratio);
-                    FrameSpan span = clip.FrameSpan;
-                    clip.FrameSpan = new FrameSpan((long) Math.Round(ratio * span.Begin), (long) Math.Round(ratio * span.Duration));
-                }
-            }
-        }
-
-        private static void ConvertTimeRatios(AutomationDataViewModel data, double ratio) {
-            foreach (AutomationSequenceViewModel sequence in data.Sequences) {
-                for (int i = sequence.KeyFrames.Count - 1; i >= 0; i--) {
-                    KeyFrameViewModel keyFrame = sequence.KeyFrames[i];
-                    keyFrame.Frame = (long) Math.Round(ratio * keyFrame.Frame);
                 }
             }
         }

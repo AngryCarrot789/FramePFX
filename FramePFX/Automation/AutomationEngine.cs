@@ -4,14 +4,18 @@ using FramePFX.Automation.Events;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
+using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
+using FramePFX.Utils;
 
 namespace FramePFX.Automation {
     public static class AutomationEngine {
@@ -105,6 +109,47 @@ namespace FramePFX.Automation {
                     if (clip is CompositionVideoClip composition && composition.ResourceHelper.TryGetResource(out ResourceComposition resource)) {
                         UpdateBackingStorage(resource.Timeline);
                     }
+                }
+            }
+        }
+
+        public static void ConvertProjectFrameRate(ProjectViewModel project, Rational oldFps, Rational newFps) {
+            double ratio = newFps.ToDouble / oldFps.ToDouble;
+            ConvertResourceManagerFrameRateRecursive(project.ResourceManager.Root, ratio);
+            ConvertTimelineFrameRate(project.Timeline, ratio);
+        }
+
+        public static void ConvertTimelineFrameRate(TimelineViewModel timeline, double ratio) {
+            ConvertTimeRatios(timeline.AutomationData, ratio);
+            foreach (TrackViewModel track in timeline.Tracks) {
+                ConvertTimeRatios(track.AutomationData, ratio);
+                foreach (ClipViewModel clip in track.Clips) {
+                    ConvertTimeRatios(clip.AutomationData, ratio);
+                    FrameSpan span = clip.FrameSpan;
+                    clip.FrameSpan = new FrameSpan((long) Math.Round(ratio * span.Begin), (long) Math.Round(ratio * span.Duration));
+                    foreach (BaseEffectViewModel effect in clip.Effects) {
+                        ConvertTimeRatios(effect.AutomationData, ratio);
+                    }
+                }
+            }
+        }
+
+        public static void ConvertResourceManagerFrameRateRecursive(BaseResourceViewModel resource, double ratio) {
+            if (resource is ResourceFolderViewModel folder) {
+                foreach (BaseResourceViewModel item in folder.Items) {
+                    ConvertResourceManagerFrameRateRecursive(item, ratio);
+                }
+            }
+            else if (resource is ResourceCompositionViewModel composition) {
+                ConvertTimelineFrameRate(composition.Timeline, ratio);
+            }
+        }
+
+        public static void ConvertTimeRatios(AutomationDataViewModel data, double ratio) {
+            foreach (AutomationSequenceViewModel sequence in data.Sequences) {
+                for (int i = sequence.KeyFrames.Count - 1; i >= 0; i--) {
+                    KeyFrameViewModel keyFrame = sequence.KeyFrames[i];
+                    keyFrame.Frame = (long) Math.Round(ratio * keyFrame.Frame);
                 }
             }
         }

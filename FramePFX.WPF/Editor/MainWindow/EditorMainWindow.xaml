@@ -20,6 +20,7 @@
             xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
             xmlns:explorer="clr-namespace:FramePFX.WPF.Explorer"
             xmlns:timeline="clr-namespace:FramePFX.WPF.Editor.Timeline"
+            xmlns:e="clr-namespace:FramePFX.WPF.Editor.Effects"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="840"
@@ -106,6 +107,24 @@
                                             </LayoutAnchorable>
                                             <LayoutAnchorable Title="File Explorer" ContentId="FileExplorerAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                                 <explorer:BasicFileExplorerControl DataContext="{Binding FileExplorer, Mode=OneTime}" sc:UIInputManager.FocusPath="Application/Editor/FileExplorer"/>
+                                            </LayoutAnchorable>
+                                            <LayoutAnchorable Title="Effects" ContentId="EffectListAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
+                                                <DockPanel>
+                                                    <TextBlock DockPanel.Dock="Top" Text="Drag effects from the tree onto a clip in the timeline" Padding="3,5"/>
+                                                    <e:EffectProviderTreeView DataContext="{Binding EffectsProviderList, Mode=OneTime}" ItemsSource="{Binding Effects, Mode=OneTime}">
+                                                        <e:EffectProviderTreeView.Style>
+                                                            <Style TargetType="{x:Type e:EffectProviderTreeView}" BasedOn="{StaticResource {x:Type TreeView}}"/>
+                                                        </e:EffectProviderTreeView.Style>
+                                                        <e:EffectProviderTreeView.ItemContainerStyle>
+                                                            <Style TargetType="{x:Type e:EffectProviderTreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}"/>
+                                                        </e:EffectProviderTreeView.ItemContainerStyle>
+                                                        <e:EffectProviderTreeView.Resources>
+                                                            <DataTemplate DataType="{x:Type evm:EffectProviderViewModel}">
+                                                                <TextBlock Text="{Binding Name, Mode=OneTime}"/>
+                                                            </DataTemplate>
+                                                        </e:EffectProviderTreeView.Resources>
+                                                    </e:EffectProviderTreeView>
+                                                </DockPanel>
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>
                                         <LayoutAnchorablePane DockWidth="550*">

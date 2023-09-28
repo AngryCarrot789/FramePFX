@@ -78,6 +78,8 @@ namespace FramePFX.Editor.ViewModels {
 
         public FileExplorerViewModel FileExplorer { get; }
 
+        public EffectProviderListViewModel EffectsProviderList { get; }
+
         public VideoEditor Model { get; }
 
         public IVideoEditor View { get; }
@@ -102,6 +104,7 @@ namespace FramePFX.Editor.ViewModels {
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
             this.FileExplorer = new FileExplorerViewModel();
+            this.EffectsProviderList = new EffectProviderListViewModel();
         }
 
         public void OnTimelineClosed(TimelineViewModel timeline) {

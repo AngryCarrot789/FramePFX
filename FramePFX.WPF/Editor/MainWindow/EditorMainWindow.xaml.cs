@@ -21,6 +21,7 @@ using FramePFX.Notifications.Types;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline;
+using FramePFX.WPF.Editor.Timeline.Controls;
 using FramePFX.WPF.Notifications;
 using FramePFX.WPF.Themes;
 using FramePFX.WPF.Views;
@@ -194,6 +195,30 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 }
 
                 i++;
+            }
+        }
+
+        public bool GetTimelineControlForTimeline(TimelineViewModel timeline, out TimelineControl control) {
+            foreach (LayoutAnchorable anchorable in this.TimelineLayoutPane.Children) {
+                PreAnchoredTimelineControl preAnchorControl = (PreAnchoredTimelineControl) anchorable.Content;
+                if (preAnchorControl.PART_TimelineControl == null) {
+                    continue;
+                }
+
+                TimelineViewModel openedTimeline = (TimelineViewModel) preAnchorControl.DataContext;
+                if (openedTimeline == timeline) {
+                    control = preAnchorControl.PART_TimelineControl;
+                    return true;
+                }
+            }
+
+            control = null;
+            return false;
+        }
+
+        public void ConvertTimelineZoomForRatioChange(TimelineViewModel timeline, double ratio) {
+            if (this.GetTimelineControlForTimeline(timeline, out TimelineControl control) && control.TimelineEditor != null) {
+                control.TimelineEditor.OnProjectFrameRateRatioChanged(ratio);
             }
         }
 

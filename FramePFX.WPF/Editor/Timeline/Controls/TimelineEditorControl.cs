@@ -102,6 +102,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         private TimelinePlayHeadControl PART_PlayHead;
         private Border PART_TimestampBoard;
         private Border PART_SelectionRange;
+        private Border PART_TrackListBorder;
 
         public Point selectionBeginPoint;
         public bool isLMBDownForSelection;
@@ -153,16 +154,21 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            this.PART_ScrollViewer = this.GetTemplateElement<ScrollViewer>("PART_ScrollViewer");
-            this.PART_ItemsPresenter = this.GetTemplateElement<ItemsPresenter>("PART_ItemsPresenter");
-            this.PART_PlayHead = this.GetTemplateElement<TimelinePlayHeadControl>("PART_PlayHead");
-            this.PART_TimestampBoard = this.GetTemplateElement<Border>("PART_TimestampBoard");
+            this.PART_ScrollViewer = this.GetTemplateElement<ScrollViewer>(nameof(this.PART_ScrollViewer));
+            this.PART_ItemsPresenter = this.GetTemplateElement<ItemsPresenter>(nameof(this.PART_ItemsPresenter));
+            this.PART_PlayHead = this.GetTemplateElement<TimelinePlayHeadControl>(nameof(this.PART_PlayHead));
+            this.PART_TimestampBoard = this.GetTemplateElement<Border>(nameof(this.PART_TimestampBoard));
             if (this.PART_TimestampBoard != null) {
-                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X, e, true);
+                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement)s).X, e, true);
             }
 
-            this.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
-            this.PART_SelectionRange = this.GetTemplateElement<Border>("PART_SelectionRange");
+            this.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement)s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
+            this.PART_SelectionRange = this.GetTemplateElement<Border>(nameof(this.PART_SelectionRange));
+
+            this.PART_TrackListBorder = this.GetTemplateElement<Border>(nameof(this.PART_TrackListBorder));
+            this.PART_TrackListBorder.MouseMove += this.PART_TrackListBorder_MouseMove;
+            this.PART_TrackListBorder.MouseLeftButtonDown += this.PART_TrackListBorder_MouseLeftButtonDown;
+            this.PART_TrackListBorder.MouseLeftButtonUp += this.PART_TrackListBorder_MouseLeftButtonUp;
         }
 
         private void OnPlayHeadChanged(long oldValue, long newValue) {
@@ -179,30 +185,31 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     this.PART_ScrollViewer.ScrollToHorizontalOffset(pixel - edge);
                 }
             }
+            else {
+                ClearSelection();
+            }
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
-            base.OnMouseLeftButtonDown(e);
-            this.OnLeftButtonDown(e.GetPosition(this));
+        private void PART_TrackListBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            if (!e.Handled) {
+                this.OnSelectionAreaLeftMouseDown(e.GetPosition(this));
+            }
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
-            base.OnMouseLeftButtonUp(e);
-            this.OnLeftButtonUp(e.GetPosition(this));
+        private void PART_TrackListBorder_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            if (!e.Handled) {
+                this.OnSelectionAreaLeftMouseUp(e.GetPosition(this));
+            }
         }
 
-        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
-            base.OnPreviewMouseLeftButtonUp(e);
-        }
-
-        private void OnLeftButtonDown(Point point) {
+        private void OnSelectionAreaLeftMouseDown(Point point) {
             this.selectionBeginPoint = point;
             this.isLMBDownForSelection = true;
             this.isSelectionActive = false;
             this.ClearSelection();
         }
 
-        private void OnLeftButtonUp(Point point) {
+        private void OnSelectionAreaLeftMouseUp(Point point) {
             if (!this.isLMBDownForSelection) {
                 return;
             }
@@ -220,9 +227,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             base.OnMouseMove(e);
             if (!this.isLMBDownForSelection)
                 return;
-            if (e.LeftButton != MouseButtonState.Pressed) {
+        }
+
+        private void PART_TrackListBorder_MouseMove(object sender, MouseEventArgs e) {
+            if (e.LeftButton != MouseButtonState.Pressed || e.Handled) {
                 if (this.isLMBDownForSelection)
-                    this.OnLeftButtonUp(e.GetPosition(this));
+                    this.OnSelectionAreaLeftMouseUp(e.GetPosition(this));
                 return;
             }
 
@@ -236,21 +246,20 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
 
             double zoom = this.UnitZoom;
-            long a = TimelineUtils.PixelToFrame(origin.X, zoom);
-            long b = TimelineUtils.PixelToFrame(mPos.X, zoom);
-            long begin = Math.Min(a, b);
-            long end = Math.Max(a, b);
+            long begin = TimelineUtils.PixelToFrame(Math.Min(origin.X, mPos.X), zoom);
+            long end = TimelineUtils.PixelToFrame(Math.Max(origin.X, mPos.X), zoom);
             long duration = end - begin;
             if (duration < 1) {
                 return;
             }
 
             this.SelectionRectangle = new SelectionRange(new FrameSpan(begin, duration));
-            if (this.PART_SelectionRange != null) {
-                this.PART_SelectionRange.Visibility = Visibility.Visible;
-                this.PART_SelectionRange.Margin = new Thickness(TimelineUtils.FrameToPixel(begin, zoom), 0, 0, 0);
-                this.PART_SelectionRange.Width = TimelineUtils.FrameToPixel(duration, zoom);
-            }
+            // if (this.PART_SelectionRange != null) {
+            //     this.PART_SelectionRange.Visibility = Visibility.Visible;
+            //     this.PART_SelectionRange.Margin = new Thickness(TimelineUtils.FrameToPixel(begin, zoom), 0, 0, 0);
+            //     this.PART_SelectionRange.Width = TimelineUtils.FrameToPixel(duration, zoom);
+            //     // this.PART_SelectionRange.Height = this.ActualHeight;
+            // }
         }
 
         public void ClearSelection() {
@@ -476,7 +485,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public void OnSelectionOperationCompleted() {
             if (this.DataContext is TimelineViewModel timeline) {
-                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline);
             }
         }
     }

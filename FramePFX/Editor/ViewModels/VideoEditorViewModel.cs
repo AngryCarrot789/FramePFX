@@ -105,14 +105,24 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline) {
+            if (timeline == null) {
+                timeline = editor.ActiveProject?.Timeline;
+            }
+
             editor.SelectedTimeline = timeline;
             editor.RaisePropertyChanged(nameof(editor.SelectedTimeline));
 
-            PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
-            PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
-            PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
-            timeline.RefreshAutomationAndPlayhead();
-            editor.DoDrawRenderFrame(timeline, true);
+            if (timeline != null) {
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
+                PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
+                PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
+                timeline.RefreshAutomationAndPlayhead();
+                editor.DoDrawRenderFrame(timeline, true);
+            }
+            else {
+                PFXPropertyEditorRegistry.Instance.ClipInfo.ClearHierarchyState();
+                PFXPropertyEditorRegistry.Instance.TrackInfo.ClearHierarchyState();
+            }
         }
 
         public void OnTimelineClosed(TimelineViewModel timeline) {

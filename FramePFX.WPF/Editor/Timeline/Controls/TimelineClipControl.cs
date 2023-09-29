@@ -325,7 +325,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                                             }
                                         }
 
-                                        PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(vm);
+                                        timeline.OnSelectionOperationCompleted();
                                     }
                                 }
                             }
@@ -365,7 +365,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 Maths.Swap(ref srcFrame, ref targetFrame);
             }
 
-            FrameSpan range = FrameSpan.FromIndex(timeline.PlayHeadFrame, targetFrame + 1);
+            FrameSpan range = FrameSpan.FromIndex(srcFrame, targetFrame + 1);
             for (int i = iA; i <= iB; i++) {
                 TrackViewModel track = timeline.Tracks[i];
                 foreach (ClipViewModel clip in track.Clips) {
@@ -399,6 +399,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
                 if (KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
                     this.IsSelected = !this.IsSelected;
+                    timeline?.OnSelectionOperationCompleted();
                 }
                 else if (this.IsSelected) {
                     if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Shift)) {

@@ -477,14 +477,15 @@
                                                     Background="{DynamicResource ABrush.Tone4.Background.Static}"
                                                     FontFamily="{StaticResource FontOxanium}"/>
                                 </Border>
-                                <Border Margin="0" Background="{TemplateBinding Background}"
+                                <Border x:Name="PART_TrackListBorder" Margin="0" Background="{TemplateBinding Background}"
                                         BorderBrush="{TemplateBinding BorderBrush}"
                                         BorderThickness="{TemplateBinding BorderThickness}"
                                         Grid.Row="1">
                                     <!-- A collection of TimelineTrackControls -->
                                     <ItemsPresenter HorizontalAlignment="Left" x:Name="PART_ItemsPresenter" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </Border>
-                                <Border x:Name="PART_SelectionRange" HorizontalAlignment="Left" VerticalAlignment="Top" Background="DodgerBlue"/>
+                                <Border x:Name="PART_SelectionRange" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+                                        Background="DodgerBlue" Grid.Row="1" Opacity="0.1" IsHitTestVisible="False"/>
                                 <tc:TimelinePlayHeadControl Background="{DynamicResource ABrush.Tone7.Border.Static}"
                                                             x:Name="PART_PlayHead" Width="1"
                                                             Grid.Row="0" Grid.RowSpan="2"

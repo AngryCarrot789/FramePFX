@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
+using FramePFX.Editor.PropertyEditors.Effects;
 using FramePFX.Editor.Timelines.Effects.Video;
 
 namespace FramePFX.PropertyEditing.Editors {
@@ -37,7 +38,6 @@ namespace FramePFX.PropertyEditing.Editors {
         protected override void OnResetValue(IReadOnlyList<IAutomatableViewModel> handlers) {
             this.SetValuesAndHistory(((KeyDescriptorFloat) this.AutomationKey.Descriptor).DefaultValue);
         }
-
 
         protected override void InsertKeyFrame(IAutomatableViewModel handler, long frame) {
             handler.AutomationData[this.AutomationKey].GetActiveKeyFrameOrCreateNew(frame).SetFloatValue(this.Getter(handler));

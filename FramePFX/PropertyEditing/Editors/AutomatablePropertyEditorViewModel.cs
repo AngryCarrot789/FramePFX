@@ -38,6 +38,38 @@ namespace FramePFX.PropertyEditing.Editors {
             }
         }
 
+        private bool isSelected;
+        public bool IsSelected {
+            get => this.isSelected;
+            set {
+                this.RaisePropertyChanged(ref this.isSelected, value);
+                if (this.IsEmpty)
+                    return;
+
+                if (value) {
+                    foreach (IAutomatableViewModel item in this.MyHandlers) {
+                        item.AutomationData[this.AutomationKey].IsActiveSequence = true;
+                    }
+                }
+            }
+        }
+
+        private bool isOverrideEnabled;
+        public bool IsOverrideEnabled {
+            get => this.isOverrideEnabled;
+            set {
+                this.RaisePropertyChanged(ref this.isOverrideEnabled, value);
+                if (this.IsEmpty)
+                    return;
+
+                if (value) {
+                    foreach (IAutomatableViewModel item in this.MyHandlers) {
+                        item.AutomationData[this.AutomationKey].IsOverrideEnabled = value;
+                    }
+                }
+            }
+        }
+
         public RelayCommand ResetValueCommand { get; }
 
         public RelayCommand InsertKeyFrameCommand { get; }
@@ -54,10 +86,7 @@ namespace FramePFX.PropertyEditing.Editors {
 
         public Action<IAutomatableViewModel, TValue> Setter { get; }
 
-        public Func<IAutomatableViewModel, AutomationSequence> AutomationSequenceGetter { get; }
-        public Func<IAutomatableViewModel, AutomationSequenceViewModel> AutomationSequenceViewModelGetter { get; }
-
-        public AutomationSequenceViewModel SingleHandlerAutomationSequence => this.AutomationSequenceViewModelGetter(this.SingleHandler);
+        public AutomationSequenceViewModel SingleHandlerAutomationSequence => this.SingleHandler.AutomationData[this.AutomationKey];
 
         private readonly Func<object, TValue> nonGenericOwnerGetter;
         private readonly Action<object, TValue> nonGenericOwnerSetter;
@@ -70,8 +99,6 @@ namespace FramePFX.PropertyEditing.Editors {
             this.nonGenericOwnerGetter = x => this.Getter((IAutomatableViewModel) x);
             this.nonGenericOwnerSetter = (x, y) => this.Setter((IAutomatableViewModel) x, y);
             this.AutomationKey = automationKey ?? throw new ArgumentNullException(nameof(automationKey));
-            this.AutomationSequenceGetter = x => x.AutomationModel.AutomationData[this.AutomationKey];
-            this.AutomationSequenceViewModelGetter = x => x.AutomationData[this.AutomationKey];
             this.RefreshValueForSingleHandler = (sender, e) => this.RaisePropertyChanged(ref this.value, this.Getter(this.SingleHandler), nameof(this.Value));
             this.EditStateChangedCommand = new EditStateCommand(() => new HistoryValue(this), "Modify opacity");
             this.ResetValueCommand = new RelayCommand(this.ResetValue, () => this.HasHandlers);

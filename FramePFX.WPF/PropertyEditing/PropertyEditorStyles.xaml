@@ -417,7 +417,7 @@
                             Background="{TemplateBinding Background}"
                             Padding="0"
                             SnapsToDevicePixels="true">
-                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Top"/>
+                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Top" Margin="0"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
@@ -545,7 +545,7 @@
                                                         <Binding Path="Parent" Mode="OneWay"/>
                                                     </MultiBinding>
                                                 </Expander.ToolTip>
-                                                <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,0,0,0"
+                                                <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,2,0,0"
                                                                                Visibility="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                                                ItemsSource="{Binding PropertyObjects, Mode=OneTime}"
                                                                                ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}"/>

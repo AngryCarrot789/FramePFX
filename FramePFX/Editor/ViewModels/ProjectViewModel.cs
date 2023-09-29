@@ -128,9 +128,9 @@ namespace FramePFX.Editor.ViewModels {
                     if (await Services.DialogService.ShowYesNoDialogAsync("Convert Framerate", "Do you want to convert clip and automation to match the new FPS?")) {
                         AutomationEngine.ConvertProjectFrameRate(this, oldFps, result.TimeBase);
 
-                        if (this.editor != null && this.editor.ActiveTimeline != null) {
+                        if (this.editor != null && this.editor.SelectedTimeline != null) {
                             double ratio = result.TimeBase.ToDouble / oldFps.ToDouble;
-                            this.Editor?.View?.ConvertTimelineZoomForRatioChange(this.editor.ActiveTimeline, ratio);
+                            this.Editor?.View?.OnFrameRateRatioChanged(this.editor.SelectedTimeline, ratio);
                         }
                     }
                 }

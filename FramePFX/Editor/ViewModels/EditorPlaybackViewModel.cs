@@ -96,7 +96,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public Task PlayAction() {
-            TimelineViewModel timeline = this.Editor.ActiveTimeline;
+            TimelineViewModel timeline = this.Editor.SelectedTimeline;
             if (timeline != null && this.Project != null && !this.IsPlaying) {
                 timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
                 this.PlayInternal();
@@ -115,7 +115,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public Task PlayFromFrame(long frame) {
-            TimelineViewModel timeline = this.Editor.ActiveTimeline;
+            TimelineViewModel timeline = this.Editor.SelectedTimeline;
             if (timeline != null && this.Project != null) {
                 if (!this.IsPlaying) {
                     timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
@@ -134,7 +134,7 @@ namespace FramePFX.Editor.ViewModels {
             if (this.Project != null && this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
-                TimelineViewModel timeline = this.Editor.ActiveTimeline;
+                TimelineViewModel timeline = this.Editor.SelectedTimeline;
                 if (timeline != null) {
                     timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
                 }
@@ -145,7 +145,7 @@ namespace FramePFX.Editor.ViewModels {
             if (this.Project != null && this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
-                TimelineViewModel timeline = this.Editor.ActiveTimeline;
+                TimelineViewModel timeline = this.Editor.SelectedTimeline;
                 if (timeline != null) {
                     timeline.PlayHeadFrame = timeline.InternalLastPlayHeadBeforePlaying;
                 }

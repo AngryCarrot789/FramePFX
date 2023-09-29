@@ -15,6 +15,8 @@ namespace FramePFX.Logger {
 
         public static LoggerViewModel ViewModel { get; }
 
+        public static event EventHandler OnLogEntryBlockPosted;
+
         static AppLogger() {
             Headers = new ThreadLocal<Stack<HeaderedLogEntry>>(() => new Stack<HeaderedLogEntry>());
             ViewModel = new LoggerViewModel();
@@ -111,6 +113,8 @@ namespace FramePFX.Logger {
                 int j = Math.Min(i + blockSize, count);
                 await Services.Application.InvokeAsync(() => ProcessEntryBlock(list, i, j), ExecutionPriority.Render);
             }
+
+            OnLogEntryBlockPosted?.Invoke(null, EventArgs.Empty);
         }
 
         private static void ProcessEntryBlock(List<(HeaderedLogEntry, LogEntry)> entries, int i, int j) {

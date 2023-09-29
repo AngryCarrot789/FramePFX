@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -94,7 +95,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
             VideoEditorViewModel editor = this.Editor;
             if (editor != null && this.MyDockingManager.ActiveContent is PreAnchoredTimelineControl control) {
                 if (control.DataContext is TimelineViewModel timeline) {
-                    editor.ActiveTimeline = timeline;
+                    VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, timeline);
                 }
             }
         }
@@ -102,18 +103,20 @@ namespace FramePFX.WPF.Editor.MainWindow {
         private void TimelineLayoutPaneOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             if (e.PropertyName == nameof(this.TimelineLayoutPane.SelectedContent)) {
                 VideoEditorViewModel editor = this.Editor;
-                if (editor != null) {
-                    LayoutContent selected = this.TimelineLayoutPane.SelectedContent;
-                    if (selected != null && selected.Content is PreAnchoredTimelineControl control) {
-                        if (control.DataContext is TimelineViewModel timeline) {
-                            editor.ActiveTimeline = timeline;
-                            return;
-                        }
-                    }
+                if (editor == null) {
+                    return;
+                }
 
-                    if (editor.ActiveProject != null) {
-                        editor.ActiveTimeline = editor.ActiveProject.Timeline;
+                LayoutContent selected = this.TimelineLayoutPane.SelectedContent;
+                if (selected != null && selected.Content is PreAnchoredTimelineControl control) {
+                    if (control.DataContext is TimelineViewModel timeline) {
+                        VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, timeline);
+                        return;
                     }
+                }
+
+                if (editor.ActiveProject != null) {
+                    VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, editor.ActiveProject.Timeline);
                 }
             }
         }
@@ -163,12 +166,24 @@ namespace FramePFX.WPF.Editor.MainWindow {
             }
         }
 
-        public void OpenTimeline(TimelineViewModel timeline) {
-            if (this.TimelineLayoutPane.Children.Any(x => ((PreAnchoredTimelineControl) x.Content).DataContext == timeline)) {
-                return;
+        private IEnumerable<PreAnchoredTimelineControl> PreAnchoredTimelineControls => this.TimelineLayoutPane.Children.Select(x => (PreAnchoredTimelineControl) x.Content);
+
+        public void OpenAndSelectTimeline(TimelineViewModel timeline) {
+            int i = 0;
+            foreach (LayoutAnchorable anchorable in this.TimelineLayoutPane.Children) {
+                if (ReferenceEquals(((PreAnchoredTimelineControl) anchorable.Content).DataContext, timeline)) {
+                    this.TimelineLayoutPane.SelectedContentIndex = i;
+                    if (anchorable.IsHidden) {
+                        anchorable.Show();
+                    }
+
+                    return;
+                }
+
+                i++;
             }
 
-            LayoutAnchorable anchorable = new LayoutAnchorable {
+            LayoutAnchorable timelineAnchorable = new LayoutAnchorable {
                 Content = new PreAnchoredTimelineControl() {
                     DataContext = timeline
                 },
@@ -176,26 +191,13 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 CanDockAsTabbedDocument = true
             };
 
-            BindingOperations.SetBinding(anchorable, LayoutContent.TitleProperty, new Binding(nameof(timeline.DisplayName)) {
+            BindingOperations.SetBinding(timelineAnchorable, LayoutContent.TitleProperty, new Binding(nameof(timeline.DisplayName)) {
                 Source = timeline,
                 Mode = BindingMode.TwoWay,
                 UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
             });
 
-            this.TimelineLayoutPane.Children.Add(anchorable);
-        }
-
-        public void SelectTimeline(TimelineViewModel timeline) {
-            int i = 0;
-            foreach (LayoutAnchorable anchorable in this.TimelineLayoutPane.Children) {
-                TimelineViewModel openedTimeline = (TimelineViewModel) ((PreAnchoredTimelineControl) anchorable.Content).DataContext;
-                if (openedTimeline == timeline) {
-                    this.TimelineLayoutPane.SelectedContentIndex = i;
-                    return;
-                }
-
-                i++;
-            }
+            this.TimelineLayoutPane.Children.Add(timelineAnchorable);
         }
 
         public bool GetTimelineControlForTimeline(TimelineViewModel timeline, out TimelineControl control) {
@@ -216,9 +218,9 @@ namespace FramePFX.WPF.Editor.MainWindow {
             return false;
         }
 
-        public void ConvertTimelineZoomForRatioChange(TimelineViewModel timeline, double ratio) {
-            if (this.GetTimelineControlForTimeline(timeline, out TimelineControl control) && control.TimelineEditor != null) {
-                control.TimelineEditor.OnProjectFrameRateRatioChanged(ratio);
+        public void OnFrameRateRatioChanged(TimelineViewModel timeline, double ratio) {
+            if (this.GetTimelineControlForTimeline(timeline, out TimelineControl control)) {
+                control.TimelineEditor?.OnFrameRateRatioChanged(ratio);
             }
         }
 
@@ -289,6 +291,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                     try {
                         RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                        context.GrContext = this.ViewPortElement.grContext;
                         context.ClearContext();
                         try {
                             await timeline.Model.RenderAsync(context, frame, source.Token);

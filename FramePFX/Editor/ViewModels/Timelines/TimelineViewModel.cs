@@ -26,8 +26,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         private TrackViewModel primarySelectedTrack;
         private volatile bool isRendering;
         private bool isRecordingKeyFrames;
+        private long lastPlayHeadSeek;
         public long InternalLastPlayHeadBeforePlaying; // used for play/pause/stop
-        public long LastSeekPlayHead;
+
+        // used for things like PlayAtLastFrameAction
+        public bool DoNotSetLastPlayHeadSeek;
 
         TimelineViewModel ITimelineViewModelBound.Timeline => this;
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
@@ -72,9 +75,20 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     return;
                 }
 
-                this.LastSeekPlayHead = this.PlayHeadFrame;
+                long oldPlayHead = this.PlayHeadFrame;
+                AppLogger.WriteLine($"PlayHead seeked: {oldPlayHead} -> {value}");
+                if (!this.DoNotSetLastPlayHeadSeek)
+                    this.LastPlayHeadSeek = value;
                 this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, value, true);
             }
+        }
+
+        /// <summary>
+        /// The frame at which the playhead was last seeked to
+        /// </summary>
+        public long LastPlayHeadSeek {
+            get => this.lastPlayHeadSeek;
+            set => this.RaisePropertyChanged(ref this.lastPlayHeadSeek, value);
         }
 
         /// <summary>

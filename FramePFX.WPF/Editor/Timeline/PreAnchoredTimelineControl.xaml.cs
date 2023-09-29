@@ -6,7 +6,7 @@ namespace FramePFX.WPF.Editor.Timeline {
     /// </summary>
     public partial class PreAnchoredTimelineControl : UserControl {
         public PreAnchoredTimelineControl() {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

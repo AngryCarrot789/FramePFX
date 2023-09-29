@@ -23,7 +23,7 @@
             <Setter Property="ItemsPanel">
                 <Setter.Value>
                     <ItemsPanelTemplate>
-                        <VirtualizingStackPanel IsItemsHost="True" ScrollUnit="Pixel"/>
+                        <VirtualizingStackPanel IsItemsHost="True" ScrollUnit="Pixel" IsVirtualizing="True" VirtualizationMode="Recycling"/>
                     </ItemsPanelTemplate>
                 </Setter.Value>
             </Setter>
@@ -79,10 +79,16 @@
             </DataTemplate.Triggers>
         </DataTemplate>
     </Window.Resources>
+    <!-- virtualization won't work :'( -->
     <ScrollViewer ap:HorizontalScrolling.UseHorizontalScrolling="True"
-                  HorizontalScrollBarVisibility="Auto" 
-                  VerticalScrollBarVisibility="Auto" 
-                  FontFamily="{StaticResource FontOxanium}">
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  FontFamily="{StaticResource FontOxanium}"
+                  x:Name="MainScrollViewer"
+                  VirtualizingPanel.ScrollUnit="Pixel"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  CanContentScroll="True">
         <ItemsControl ItemsSource="{Binding Entries, Mode=OneTime}" Style="{StaticResource LogTreeItemsControlStyle}"/>
     </ScrollViewer>
 </views:WindowEx>

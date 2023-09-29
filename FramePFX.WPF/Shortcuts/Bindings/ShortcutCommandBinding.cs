@@ -6,7 +6,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.WPF.Shortcuts.Bindings {
     /// <summary>
-    /// An input binding that is triggered by a shortcut. <see cref="InputBinding.Gesture"/> is unused
+    /// An input binding that is triggered by a shortcut
     /// </summary>
     public class ShortcutCommandBinding : Freezable {
         public static readonly DependencyProperty CommandProperty = InputBinding.CommandProperty.AddOwner(typeof(ShortcutCommandBinding));

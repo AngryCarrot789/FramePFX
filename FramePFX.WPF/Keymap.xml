@@ -130,6 +130,9 @@
                 <Shortcut Name="TogglePlayPause" ActionId="actions.editor.timeline.TogglePlayPause">
                     <KeyStroke Key="Space"/>
                 </Shortcut>
+                <Shortcut Name="PlayAtLastStopFrame" ActionId="actions.editor.timeline.PlayAtLastStopFrame">
+                    <KeyStroke Mods="CTRL" Key="Space"/>
+                </Shortcut>
                 <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
                     <KeyStroke Key="K"/>
                 </Shortcut>

@@ -42,7 +42,16 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     (d, e) => ((TimelineEditorControl) d).OnMaxDurationChanged((long) e.OldValue, (long) e.NewValue),
                     (d, v) => (long) v < 0 ? TimelineUtils.ZeroLongBox : v));
 
-        public static readonly DependencyProperty PlayHeadFrameProperty = DependencyProperty.Register("PlayHeadFrame", typeof(long), typeof(TimelineEditorControl), new FrameworkPropertyMetadata(0L, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => ((TimelineEditorControl) d).OnPlayHeadChanged((long) e.OldValue, (long) e.NewValue)));
+        public static readonly DependencyProperty PlayHeadFrameProperty =
+            DependencyProperty.Register(
+                "PlayHeadFrame",
+                typeof(long),
+                typeof(TimelineEditorControl),
+                new FrameworkPropertyMetadata(
+                    0L,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    (d, e) => ((TimelineEditorControl) d).OnPlayHeadChanged((long) e.OldValue, (long) e.NewValue)));
+
         public static readonly DependencyProperty SelectionRectangleProperty = DependencyProperty.Register("SelectionRectangle", typeof(SelectionRange?), typeof(TimelineEditorControl), new PropertyMetadata((SelectionRange?) null));
         public static readonly DependencyProperty ScrollTimelineDuringPlaybackProperty = DependencyProperty.Register("ScrollTimelineDuringPlayback", typeof(bool), typeof(TimelineEditorControl), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty AutoScrollOnClipDragProperty = DependencyProperty.Register("AutoScrollOnClipDrag", typeof(bool), typeof(TimelineEditorControl), new PropertyMetadata(BoolBox.False));
@@ -345,7 +354,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.AutoScroll(TimelineUtils.FrameToPixel(min, zoom), TimelineUtils.FrameToPixel(max, zoom), tolerancePercent, offset);
         }
 
-        public void OnProjectFrameRateRatioChanged(double ratio) {
+        public void OnFrameRateRatioChanged(double ratio) {
             // ratio = 2.0: zoom in by 2x
             double amount = 1 / ratio;
             this.UnitZoom *= amount;

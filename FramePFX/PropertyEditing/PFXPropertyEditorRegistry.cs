@@ -28,7 +28,6 @@ namespace FramePFX.PropertyEditing {
             {
                 this.ClipInfo = this.CreateRootGroup(typeof(ClipViewModel), "Clip Info");
                 this.ClipInfo.AddPropertyEditor("ClipDataEditor", new ClipDataEditorViewModel());
-                this.ClipInfo.AddSeparator(true);
                 this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Single", new VideoClipDataSingleEditorViewModel());
                 this.ClipInfo.AddPropertyEditor("VideoClipDataEditor_Multi", new VideoClipDataMultipleEditorViewModel());
 
@@ -39,8 +38,8 @@ namespace FramePFX.PropertyEditing {
 
                 {
                     FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(ShapeSquareVideoClipViewModel), "Shape Info");
-                    group.AddPropertyEditor("Width", new AutomatableFloatEditorViewModel(ShapeSquareVideoClip.WidthKey, x => ((ShapeSquareVideoClipViewModel) x).Width, (x, y) => ((ShapeSquareVideoClipViewModel) x).Width = y));
-                    group.AddPropertyEditor("Height", new AutomatableFloatEditorViewModel(ShapeSquareVideoClip.HeightKey, x => ((ShapeSquareVideoClipViewModel) x).Height, (x, y) => ((ShapeSquareVideoClipViewModel) x).Height = y));
+                    group.AddPropertyEditor("Width", AutomatableFloatEditorViewModel.NewInstance<ShapeSquareVideoClipViewModel>(ShapeSquareVideoClip.WidthKey, x => x.Width, (x, y) => x.Width = y));
+                    group.AddPropertyEditor("Height", AutomatableFloatEditorViewModel.NewInstance<ShapeSquareVideoClipViewModel>(ShapeSquareVideoClip.HeightKey, x => x.Height, (x, y) => x.Height = y));
                 }
             }
 
@@ -59,7 +58,7 @@ namespace FramePFX.PropertyEditing {
                 return motion;
             });
 
-            this.ClipInfo.AddSeparator(false);
+            this.Root.AddSeparator(false);
 
             {
                 this.TrackInfo = this.CreateRootGroup(typeof(TrackViewModel), "Track Info");
@@ -69,7 +68,7 @@ namespace FramePFX.PropertyEditing {
                 this.TrackInfo.AddPropertyEditor("VideoTrackDataEditor_Multi", new VideoTrackDataMultipleEditorViewModel());
             }
 
-            this.ClipInfo.AddSeparator(false);
+            this.Root.AddSeparator(false);
 
             this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceViewModel), "Resource Info");
         }
@@ -86,27 +85,17 @@ namespace FramePFX.PropertyEditing {
         public void OnClipSelectionChanged(IReadOnlyList<ClipViewModel> clips) {
             // List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
             this.ClipInfo.SetupHierarchyState(clips);
-            foreach (IPropertyEditorObject obj in this.ClipInfo.PropertyObjects) {
-                if (obj is FixedPropertyGroupViewModel group && this.ClipInfo.IsDisconnectedFromHandlerHierarchy(group)) {
-                    group.SetupHierarchyState(clips);
-                }
-            }
+            // foreach (IPropertyEditorObject obj in this.ClipInfo.PropertyObjects) {
+            //     if (obj is FixedPropertyGroupViewModel group && this.ClipInfo.IsDisconnectedFromHandlerHierarchy(group)) {
+            //         group.SetupHierarchyState(clips);
+            //     }
+            // }
 
             this.EffectInfo.SetupHierarchyStateExtended(clips.Select(x => x.Effects).ToList());
             this.Root.CleanSeparators();
         }
 
         public void OnEffectCollectionChanged() {
-            IReadOnlyList<object> clips = this.ClipInfo.Handlers;
-            if (clips != null && clips.Count > 0) {
-                this.EffectInfo.SetupHierarchyStateExtended(clips.Cast<ClipViewModel>().Select(x => x.Effects).ToList());
-            }
-            else {
-                this.EffectInfo.ClearHierarchyState();
-            }
-        }
-
-        public void OnEffectCollectionChanged(IReadOnlyList<BaseEffectViewModel> added, IReadOnlyList<BaseEffectViewModel> removed) {
             IReadOnlyList<object> clips = this.ClipInfo.Handlers;
             if (clips != null && clips.Count > 0) {
                 this.EffectInfo.SetupHierarchyStateExtended(clips.Cast<ClipViewModel>().Select(x => x.Effects).ToList());

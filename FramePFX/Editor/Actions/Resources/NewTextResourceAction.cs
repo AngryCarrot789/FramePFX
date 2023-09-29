@@ -63,7 +63,7 @@ namespace FramePFX.Editor.Actions.Resources {
 
             folder.Manager.SelectedItems.Add(textStyle);
             if (manager.Project != null) {
-                TimelineViewModel timeline = manager.Project.Editor?.ActiveTimeline;
+                TimelineViewModel timeline = manager.Project.Editor?.SelectedTimeline;
                 if (timeline != null) {
                     VideoTrackViewModel track;
                     if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !track.GetSpanUntilClip(timeline.PlayHeadFrame, out FrameSpan span)) {

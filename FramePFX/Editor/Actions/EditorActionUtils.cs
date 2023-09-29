@@ -46,7 +46,7 @@ namespace FramePFX.Editor.Actions {
             else if (context.TryGetContext(out timeline)) {
                 return true;
             }
-            else if (context.TryGetContext(out VideoEditorViewModel editor) && (timeline = editor.ActiveTimeline) != null) {
+            else if (context.TryGetContext(out VideoEditorViewModel editor) && (timeline = editor.SelectedTimeline) != null) {
                 return true;
             }
             else if (context.TryGetContext(out ProjectViewModel project) && (timeline = project.Timeline) != null) {
@@ -88,7 +88,7 @@ namespace FramePFX.Editor.Actions {
             else if (context.TryGetContext(out timeline) && (editor = timeline.Project?.Editor) != null) {
                 return true;
             }
-            else if (context.TryGetContext(out editor) && (timeline = editor.ActiveTimeline) != null) {
+            else if (context.TryGetContext(out editor) && (timeline = editor.SelectedTimeline) != null) {
                 return true;
             }
             else if (context.TryGetContext(out ProjectViewModel project) && (editor = project.Editor) != null) {
@@ -114,7 +114,7 @@ namespace FramePFX.Editor.Actions {
                 selectedTrackIndex = (track = timeline.PrimarySelectedTrack) != null ? timeline.Tracks.IndexOf(track) : -1;
             }
             else if (context.TryGetContext(out VideoEditorViewModel editor)) {
-                if ((timeline = editor.ActiveTimeline) == null)
+                if ((timeline = editor.SelectedTimeline) == null)
                     return false;
                 selectedTrackIndex = (track = timeline.PrimarySelectedTrack) != null ? timeline.Tracks.IndexOf(track) : -1;
             }

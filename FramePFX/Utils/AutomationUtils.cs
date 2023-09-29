@@ -9,6 +9,24 @@ using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Utils {
     public static class AutomationUtils {
+        public static bool GetSuitableFrameForAutomatable(IAutomatableViewModel automatable, AutomationKey key, out long frame) {
+            TimelineViewModel timeline = automatable.Timeline;
+            if (timeline == null) {
+                frame = 0;
+                return false;
+            }
+
+            frame = timeline.PlayHeadFrame;
+            if (automatable is IStrictFrameRange range) {
+                frame = range.ConvertTimelineToRelativeFrame(frame, out bool inRange);
+                if (!inRange) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static bool GetNewKeyFrameTime(IAutomatableViewModel automatable, AutomationKey key, out long frame) {
             TimelineViewModel timeline = automatable.Timeline;
             if (timeline == null) {

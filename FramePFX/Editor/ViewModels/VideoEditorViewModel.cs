@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting;
@@ -26,7 +27,6 @@ namespace FramePFX.Editor.ViewModels {
         private bool isClosingProject;
         private bool isEditorEnabled;
         private bool areAutomationShortcutsEnabled;
-        private TimelineViewModel activeTimeline;
 
         public bool IsEditorEnabled {
             get => this.isEditorEnabled;
@@ -51,10 +51,7 @@ namespace FramePFX.Editor.ViewModels {
         /// Gets or sets the timeline that is currently active in the UI.
         /// Updating this may cause a render to be triggered asynchronously
         /// </summary>
-        public TimelineViewModel ActiveTimeline {
-            get => this.activeTimeline;
-            set => this.SetActiveTimeline(value);
-        }
+        public TimelineViewModel SelectedTimeline { get; private set; }
 
         public bool IsProjectSaving {
             get => this.Model.IsProjectSaving;
@@ -99,7 +96,7 @@ namespace FramePFX.Editor.ViewModels {
             this.ActiveTimelines = new ReadOnlyObservableCollection<TimelineViewModel>(this.activeTimelines);
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
-            this.Playback.Model.OnStepFrame = () => this.ActiveTimeline?.OnStepFrameCallback();
+            this.Playback.Model.OnStepFrame = () => this.SelectedTimeline?.OnStepFrameCallback();
             this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
@@ -107,10 +104,21 @@ namespace FramePFX.Editor.ViewModels {
             this.EffectsProviderList = new EffectProviderListViewModel();
         }
 
+        public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline) {
+            editor.SelectedTimeline = timeline;
+            editor.RaisePropertyChanged(nameof(editor.SelectedTimeline));
+
+            PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
+            PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
+            PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
+            timeline.RefreshAutomationAndPlayhead();
+            editor.DoDrawRenderFrame(timeline, true);
+        }
+
         public void OnTimelineClosed(TimelineViewModel timeline) {
             this.activeTimelines.Remove(timeline);
-            if (this.ActiveTimeline == timeline) {
-                this.ActiveTimeline = null;
+            if (this.SelectedTimeline == timeline) {
+                OnSelectedTimelineChangedInternal(this, null);
             }
         }
 
@@ -122,39 +130,20 @@ namespace FramePFX.Editor.ViewModels {
 
         public void OnTimelinesCleared() {
             this.activeTimelines.Clear();
-            this.ActiveTimeline = null;
+            OnSelectedTimelineChangedInternal(this, null);
         }
 
         public void OpenAndSelectTimeline(TimelineViewModel timeline) {
-            if (!this.activeTimelines.Contains(timeline)) {
-                this.View.OpenTimeline(timeline);
-            }
-
-            if (this.ActiveTimeline != timeline) {
-                this.ActiveTimeline = timeline;
-            }
-        }
-
-        private void SetActiveTimeline(TimelineViewModel timeline) {
-            if (timeline == this.activeTimeline)
-                return;
-            if (timeline != null && !this.activeTimelines.Contains(timeline))
-                this.View.OpenTimeline(timeline);
-            if (this.activeTimeline != null) {
+            if (this.SelectedTimeline != null) {
                 this.Playback.StopPlaybackForChangingTimeline();
             }
 
-            if (timeline != null) {
-                this.View.SelectTimeline(timeline);
+            if (timeline != null || (timeline = this.ActiveProject?.Timeline) != null) {
+                this.View.OpenAndSelectTimeline(timeline);
             }
 
-            this.RaisePropertyChanged(ref this.activeTimeline, timeline);
-            if (timeline != null) {
-                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
-                PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
-                PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
-                timeline.RefreshAutomationAndPlayhead();
-                this.DoDrawRenderFrame(timeline, true);
+            if (this.SelectedTimeline != timeline) {
+                OnSelectedTimelineChangedInternal(this, timeline);
             }
         }
 
@@ -301,8 +290,8 @@ namespace FramePFX.Editor.ViewModels {
             PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null) {
-                this.activeTimeline = null;
-                this.RaisePropertyChanged(nameof(this.ActiveTimeline));
+                this.SelectedTimeline = null;
+                this.RaisePropertyChanged(nameof(this.SelectedTimeline));
                 this.Model.ActiveTimeline = null;
                 this.activeTimelines.Clear();
                 this.Model.SetProject(null);
@@ -321,8 +310,8 @@ namespace FramePFX.Editor.ViewModels {
                 this.Model.SetProject(project.Model);
                 this.activeProject.OnConnectToEditor(this);
                 this.activeTimelines.Add(project.Timeline);
-                this.activeTimeline = project.Timeline;
-                this.RaisePropertyChanged(nameof(this.ActiveTimeline));
+                this.SelectedTimeline = project.Timeline;
+                this.RaisePropertyChanged(nameof(this.SelectedTimeline));
             }
 
             this.Model.IsProjectChanging = false;

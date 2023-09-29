@@ -173,7 +173,7 @@
                                 </LayoutPanel>
                                 <LayoutAnchorablePane DockWidth="320*">
                                     <LayoutAnchorable Title="Property Editor" ContentId="PropertyEditorAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}" />
+                                        <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}" FontFamily="{StaticResource FontOxanium}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutPanel>

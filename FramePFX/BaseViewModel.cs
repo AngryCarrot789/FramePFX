@@ -69,12 +69,8 @@ namespace FramePFX {
 
         #region Internal data
 
-        private static Dictionary<object, object> GetMap(BaseViewModel vm) {
-            return vm.internalData ?? (vm.internalData = new Dictionary<object, object>());
-        }
-
         /// <summary>
-        /// Gets an object with the given key. Returns the default value of
+        /// Gets a generic object with the given key. Returns the default value of
         /// <see cref="T"/> if the internal dictionary is null/empty or no such key is present
         /// </summary>
         /// <param name="viewModel">View model instance</param>
@@ -96,13 +92,13 @@ namespace FramePFX {
         /// <returns>The value, or default</returns>
         /// <exception cref="NullReferenceException">The view model is null</exception>
         /// <exception cref="ArgumentNullException">The key is null</exception>
-        public static object GetInternalData(BaseViewModel viewModel, object key) {
+        public static object GetInternalData(BaseViewModel viewModel, object key, object def = null) {
             if (viewModel == null)
                 throw new NullReferenceException(nameof(viewModel));
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
             Dictionary<object, object> map = viewModel.internalData;
-            return map == null ? null : map.TryGetValue(key, out object data) ? data : null;
+            return map != null && map.TryGetValue(key, out object data) ? data : def;
         }
 
         /// <summary>
@@ -111,7 +107,8 @@ namespace FramePFX {
         /// <param name="viewModel">View model instance</param>
         /// <param name="key">The key</param>
         /// <param name="value">
-        /// The output value, or default, if the internal dictionary is null/empty or the key is not present
+        /// The output value, or default, if the internal dictionary is null/empty
+        /// or the key is not present or not of the correct type
         /// </param>
         /// <typeparam name="T">The type of value</typeparam>
         /// <returns>True if the key was found, otherwise false</returns>
@@ -145,7 +142,7 @@ namespace FramePFX {
                 throw new NullReferenceException(nameof(viewModel));
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
-            GetMap(viewModel)[key] = value;
+            (viewModel.internalData ?? (viewModel.internalData = new Dictionary<object, object>()))[key] = value;
         }
 
         /// <summary>

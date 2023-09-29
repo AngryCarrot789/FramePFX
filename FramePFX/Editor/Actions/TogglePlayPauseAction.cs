@@ -5,7 +5,7 @@ using FramePFX.Editor.ViewModels;
 namespace FramePFX.Editor.Actions {
     public class TogglePlayPauseAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!EditorActionUtils.GetVideoEditor(e.DataContext, out VideoEditorViewModel editor) || editor.ActiveTimeline == null) {
+            if (!EditorActionUtils.GetVideoEditor(e.DataContext, out VideoEditorViewModel editor) || editor.SelectedTimeline == null) {
                 return false;
             }
 

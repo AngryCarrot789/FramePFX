@@ -23,6 +23,8 @@ namespace FramePFX.Rendering {
         /// </summary>
         public Vector2 FrameSize { get; }
 
+        public GRContext GrContext { get; set; }
+
         public RenderContext(SKSurface surface, SKCanvas canvas, SKImageInfo frameInfo) {
             this.Surface = surface;
             this.Canvas = canvas;

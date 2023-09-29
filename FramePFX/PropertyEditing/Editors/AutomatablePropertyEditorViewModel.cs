@@ -10,6 +10,8 @@ using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.PropertyEditors;
+using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.History;
 using FramePFX.Utils;
 
@@ -38,6 +40,8 @@ namespace FramePFX.PropertyEditing.Editors {
 
         public RelayCommand ResetValueCommand { get; }
 
+        public RelayCommand InsertKeyFrameCommand { get; }
+
         public EditStateCommand EditStateChangedCommand { get; }
 
         public IAutomatableViewModel SingleHandler => (IAutomatableViewModel) this.Handlers[0];
@@ -60,7 +64,7 @@ namespace FramePFX.PropertyEditing.Editors {
         private readonly RefreshAutomationValueEventHandler RefreshValueForSingleHandler;
         private CastingList<IAutomatableViewModel> castedHandlerList;
 
-        public AutomatablePropertyEditorViewModel(AutomationKey automationKey, Func<IAutomatableViewModel, TValue> getter, Action<IAutomatableViewModel, TValue> setter) : base(typeof(IAutomatableViewModel)) {
+        protected AutomatablePropertyEditorViewModel(Type applicableType, AutomationKey automationKey, Func<IAutomatableViewModel, TValue> getter, Action<IAutomatableViewModel, TValue> setter) : base(applicableType) {
             this.Getter = getter ?? throw new ArgumentNullException(nameof(getter));
             this.Setter = setter ?? throw new ArgumentNullException(nameof(setter));
             this.nonGenericOwnerGetter = x => this.Getter((IAutomatableViewModel) x);
@@ -69,8 +73,15 @@ namespace FramePFX.PropertyEditing.Editors {
             this.AutomationSequenceGetter = x => x.AutomationModel.AutomationData[this.AutomationKey];
             this.AutomationSequenceViewModelGetter = x => x.AutomationData[this.AutomationKey];
             this.RefreshValueForSingleHandler = (sender, e) => this.RaisePropertyChanged(ref this.value, this.Getter(this.SingleHandler), nameof(this.Value));
-            this.ResetValueCommand = new RelayCommand(this.ResetValue, () => this.HasHandlers);
             this.EditStateChangedCommand = new EditStateCommand(() => new HistoryValue(this), "Modify opacity");
+            this.ResetValueCommand = new RelayCommand(this.ResetValue, () => this.HasHandlers);
+            this.InsertKeyFrameCommand = new RelayCommand(() => {
+                foreach (IAutomatableViewModel handler in this.MyHandlers) {
+                    if (AutomationUtils.GetSuitableFrameForAutomatable(handler, this.AutomationKey, out long frame)) {
+                        this.InsertKeyFrame(handler, frame);
+                    }
+                }
+            }, () => this.HasHandlers);
         }
 
         /// <summary>
@@ -86,6 +97,11 @@ namespace FramePFX.PropertyEditing.Editors {
         /// </summary>
         /// <param name="handlers">All of our handlers. Will always have at least 1 value</param>
         protected abstract void OnResetValue(IReadOnlyList<IAutomatableViewModel> handlers);
+
+        /// <summary>
+        /// Invoked to invoke a key frame at the given frame
+        /// </summary>
+        protected abstract void InsertKeyFrame(IAutomatableViewModel handler, long frame);
 
         public void ResetValue() {
             if (!this.HasHandlers) {

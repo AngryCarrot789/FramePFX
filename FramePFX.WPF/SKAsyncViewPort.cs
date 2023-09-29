@@ -1,11 +1,17 @@
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Utils;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
+using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using Rect = System.Windows.Rect;
+using Size = System.Windows.Size;
 
 namespace FramePFX.WPF {
     public sealed class SKAsyncViewPort : FrameworkElement {
@@ -19,17 +25,19 @@ namespace FramePFX.WPF {
                     FrameworkPropertyMetadataOptions.AffectsRender,
                     (d, e) => RenderOptions.SetBitmapScalingMode(d, (bool) e.NewValue ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.Unspecified)));
 
-        private readonly bool designMode;
-        private WriteableBitmap bitmap;
-        private bool ignorePixelScaling;
+        public static readonly DependencyProperty RenderGizmoClipProperty = DependencyProperty.Register("RenderGizmoClip", typeof(ClipViewModel), typeof(SKAsyncViewPort), new PropertyMetadata(null));
 
         public bool UseNearestNeighbourRendering {
             get => (bool) this.GetValue(UseNearestNeighbourRenderingProperty);
             set => this.SetValue(UseNearestNeighbourRenderingProperty, value);
         }
 
+        public ClipViewModel RenderGizmoClip {
+            get { return (ClipViewModel) this.GetValue(RenderGizmoClipProperty); }
+            set { this.SetValue(RenderGizmoClipProperty, value); }
+        }
+
         /// <summary>Gets the current canvas size.</summary>
-        /// <value />
         /// <remarks>The canvas size may be different to the view size as a result of the current device's pixel density.</remarks>
         public SKSize CanvasSize { get; private set; }
 
@@ -44,20 +52,26 @@ namespace FramePFX.WPF {
             }
         }
 
-        private volatile SKSurface targetSurface;
-        private SKImageInfo skImageInfo;
-
         public SKImageInfo FrameInfo => this.skImageInfo;
 
-        public static readonly DependencyProperty RenderGizmoClipProperty = DependencyProperty.Register(
-            "RenderGizmoClip", typeof(ClipViewModel), typeof(SKAsyncViewPort), new PropertyMetadata(default(ClipViewModel)));
+        private volatile SKSurface targetSurface;
+        private SKImageInfo skImageInfo;
+        private readonly bool designMode;
+        private WriteableBitmap bitmap;
+        private bool ignorePixelScaling;
 
-        public ClipViewModel RenderGizmoClip {
-            get { return (ClipViewModel) GetValue(RenderGizmoClipProperty); }
-            set { SetValue(RenderGizmoClipProperty, value); }
+        // unused... for now
+        private GameWindow gameWindow;
+        private readonly GRGlInterface grgInterface;
+        public readonly GRContext grContext;
+
+        public SKAsyncViewPort() {
+            this.designMode = DesignerProperties.GetIsInDesignMode(this);
+            // this.gameWindow = new GameWindow(100, 100, GraphicsMode.Default, "ok!");
+            // this.gameWindow.MakeCurrent();
+            // this.grgInterface = GRGlInterface.Create();
+            // this.grContext = GRContext.CreateGl(this.grgInterface, new GRContextOptions());
         }
-
-        public SKAsyncViewPort() => this.designMode = DesignerProperties.GetIsInDesignMode(this);
 
         public bool BeginRender(out SKSurface surface) {
             PresentationSource source;
@@ -82,11 +96,14 @@ namespace FramePFX.WPF {
                     scaleX == 1d ? 96d : (96d * scaleX),
                     scaleY == 1d ? 96d : (96d * scaleY),
                     PixelFormats.Pbgra32, null);
+                // this.gameWindow.Width = (int) this.bitmap.Width;
+                // this.gameWindow.Height = (int) this.bitmap.Height;
             }
 
             this.bitmap.Lock();
 
             this.targetSurface = surface = SKSurface.Create(frameInfo, this.bitmap.BackBuffer, this.bitmap.BackBufferStride);
+            // this.targetSurface = surface = SKSurface.Create((GRRecordingContext) this.grContext, true, frameInfo, 0, GRSurfaceOrigin.TopLeft);
             if (this.IgnorePixelScaling) {
                 SKCanvas canvas = surface.Canvas;
                 canvas.Scale((float) scaleX, (float) scaleY);
@@ -98,11 +115,16 @@ namespace FramePFX.WPF {
 
         public void EndRender() {
             SKImageInfo info = this.skImageInfo;
+            // this.targetSurface.Flush();
+            // // this.gameWindow.SwapBuffers();
+            // GL.ReadBuffer(ReadBufferMode.Back);
+            // GL.ReadPixels(0, 0, this.bitmap.PixelWidth, this.bitmap.PixelHeight, PixelFormat.Bgra, PixelType.UnsignedByte, this.bitmap.BackBuffer);
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
-            this.Dispatcher.Invoke(this.InvalidateVisual);
+            // this.Dispatcher.Invoke(this.InvalidateVisual);
             this.targetSurface.Dispose();
             this.targetSurface = null;
+            this.InvalidateVisual();
         }
 
         protected override void OnRender(DrawingContext dc) {
@@ -117,22 +139,17 @@ namespace FramePFX.WPF {
             this.InvalidateVisual();
         }
 
-        protected override void OnStyleChanged(Style oldStyle, Style newStyle) {
-            base.OnStyleChanged(oldStyle, newStyle);
-        }
-
         private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source) {
             unscaledSize = SKSizeI.Empty;
             scaleX = 1f;
             scaleY = 1f;
-            double actualWidth = this.ActualWidth;
-            double actualHeight = this.ActualHeight;
-            if (IsPositive(actualWidth) && IsPositive(actualHeight)) {
-                unscaledSize = new SKSizeI((int) actualWidth, (int) actualHeight);
-                Matrix transformToDevice = source.CompositionTarget.TransformToDevice;
+            Size size = this.RenderSize;
+            if (IsPositive(size.Width) && IsPositive(size.Height)) {
+                unscaledSize = new SKSizeI((int) size.Width, (int) size.Height);
+                Matrix transformToDevice = source.CompositionTarget?.TransformToDevice ?? Matrix.Identity;
                 scaleX = transformToDevice.M11;
                 scaleY = transformToDevice.M22;
-                return new SKSizeI((int) (actualWidth * scaleX), (int) (actualHeight * scaleY));
+                return new SKSizeI((int) (size.Width * scaleX), (int) (size.Height * scaleY));
             }
 
             return SKSizeI.Empty;

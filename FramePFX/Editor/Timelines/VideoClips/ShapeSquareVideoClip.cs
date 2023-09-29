@@ -58,18 +58,54 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override bool OnBeginRender(long frame) {
-            return this.ResourceHelper.TryGetResource(out ResourceColour _);
+            if (!this.ResourceHelper.TryGetResource(out ResourceColour _)) {
+                return false;
+            }
+
+            return true;
         }
 
         public override Task OnEndRender(RenderContext rc, long frame) {
-            if (!this.ResourceHelper.TryGetResource(out ResourceColour r)) {
-                return Task.CompletedTask;
+            if (this.ResourceHelper.TryGetResource(out ResourceColour r)) {
+                SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
+                using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
+                    rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
+                }
             }
 
-            SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
-            using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
-                rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
-            }
+            // {
+            //     GL.Disable(EnableCap.Blend);
+            //     GL.Disable(EnableCap.VertexProgramPointSize);
+            //     GL.BindVertexArray(0);
+            //     GL.FrontFace(FrontFaceDirection.Cw);
+            //     GL.Enable(EnableCap.FramebufferSrgb);
+            //     GL.ActiveTexture(TextureUnit.Texture0);
+            //     GL.PixelStore(PixelStoreParameter.UnpackAlignment, 4);
+            //     GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
+            //     GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+            //     GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            //     GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+            //     GL.UseProgram(0);
+            //     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            //     GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            //     GL.DrawBuffer(DrawBufferMode.Back);
+            //     GL.Enable(EnableCap.Dither);
+            //     GL.DepthMask(true);
+            //     GL.Enable(EnableCap.Multisample);
+            //     GL.Disable(EnableCap.ScissorTest);
+            // }
+            // {
+            //     GL.Flush();
+            //     GL.Begin(PrimitiveType.Triangles);
+            //     GL.Vertex3(0.5f, -0.5f, 0f);
+            //     GL.Vertex3(0.0f, 0.5f, 0f);
+            //     GL.Vertex3(-0.5f, -0.5f, 0f);
+            //     GL.End();
+            //     GL.Flush();
+            // }
+            // {
+            //     rc.GrContext?.ResetContext(GRGlBackendState.All);
+            // }
 
             return Task.CompletedTask;
         }

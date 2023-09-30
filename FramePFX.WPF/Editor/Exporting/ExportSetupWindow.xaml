@@ -3,7 +3,6 @@
               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-              xmlns:wpf="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
               xmlns:views="clr-namespace:FramePFX.WPF.Views"
               xmlns:dragger="clr-namespace:FramePFX.WPF.Controls.Dragger"
               xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"

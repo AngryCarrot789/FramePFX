@@ -52,8 +52,7 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers {
         /// <see cref="T:FramePFX.WPF.Controls.TreeViews.Automation.Peers.MultiSelectTreeViewItemAutomationPeer"/>
         /// zugeordnet ist.
         /// </param>
-        public MultiSelectTreeViewItemAutomationPeer(MultiSelectTreeViewItem owner)
-            : base(owner) {
+        public MultiSelectTreeViewItemAutomationPeer(MultiSelectTreeViewItem owner) : base(owner) {
         }
 
         #endregion Constructor

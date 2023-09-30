@@ -76,7 +76,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 long oldPlayHead = this.PlayHeadFrame;
-                AppLogger.WriteLine($"PlayHead seeked: {oldPlayHead} -> {value}");
+                // AppLogger.WriteLine($"PlayHead seeked: {oldPlayHead} -> {value}");
                 if (!this.DoNotSetLastPlayHeadSeek)
                     this.LastPlayHeadSeek = value;
                 this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, value, true);

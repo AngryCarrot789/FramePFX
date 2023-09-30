@@ -44,8 +44,7 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers {
 
         #region Constructor
 
-        public MultiSelectTreeViewItemDataAutomationPeer(object item, ItemsControlAutomationPeer itemsControlAutomationPeer)
-            : base(item, itemsControlAutomationPeer) {
+        public MultiSelectTreeViewItemDataAutomationPeer(object item, ItemsControlAutomationPeer itemsControlAutomationPeer) : base(item, itemsControlAutomationPeer) {
         }
 
         #endregion Constructor

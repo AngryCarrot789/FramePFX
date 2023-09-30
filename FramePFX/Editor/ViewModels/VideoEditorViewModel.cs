@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting;
@@ -300,12 +299,12 @@ namespace FramePFX.Editor.ViewModels {
             PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null) {
-                this.SelectedTimeline = null;
-                this.RaisePropertyChanged(nameof(this.SelectedTimeline));
-                this.Model.ActiveTimeline = null;
+                OnSelectedTimelineChangedInternal(this, null);
+                this.Model.ClearTimelines();
                 this.activeTimelines.Clear();
-                this.Model.SetProject(null);
+
                 this.activeProject.OnDisconnectFromEditor();
+                this.Model.SetProject(null);
                 try {
                     this.activeProject.Dispose();
                 }
@@ -320,8 +319,7 @@ namespace FramePFX.Editor.ViewModels {
                 this.Model.SetProject(project.Model);
                 this.activeProject.OnConnectToEditor(this);
                 this.activeTimelines.Add(project.Timeline);
-                this.SelectedTimeline = project.Timeline;
-                this.RaisePropertyChanged(nameof(this.SelectedTimeline));
+                OnSelectedTimelineChangedInternal(this, project.Timeline);
             }
 
             this.Model.IsProjectChanging = false;

@@ -9,8 +9,7 @@ namespace FramePFX.FFmpegWrapper.Containers {
 
         private bool _leaveOpen;
 
-        public StreamIOContext(Stream stream, bool leaveOpen = false, int bufferSize = 4096)
-            : base(bufferSize, stream.CanRead, stream.CanWrite, stream.CanSeek) {
+        public StreamIOContext(Stream stream, bool leaveOpen = false, int bufferSize = 4096) : base(bufferSize, stream.CanRead, stream.CanWrite, stream.CanSeek) {
             this.BaseStream = stream;
             this._leaveOpen = leaveOpen;
         }

@@ -4,8 +4,6 @@ using System.IO;
 using System.Security;
 using System.Threading.Tasks;
 using FramePFX.Automation;
-using FramePFX.Automation.ViewModels;
-using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ResourceManaging.ViewModels;
@@ -399,10 +397,12 @@ namespace FramePFX.Editor.ViewModels {
 
         public void OnDisconnectFromEditor() {
             this.Editor = null;
+            this.Model.OnDisconnectedFromEditor();
         }
 
         public void OnConnectToEditor(VideoEditorViewModel editor) {
             this.Editor = editor; // this also sets the project model's editor
+            this.Model.OnConnectedToEditor(editor.Model);
         }
     }
 }

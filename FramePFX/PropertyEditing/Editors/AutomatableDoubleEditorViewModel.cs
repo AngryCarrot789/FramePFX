@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
-using FramePFX.Editor.Timelines.Effects.Video;
 
 namespace FramePFX.PropertyEditing.Editors {
     public class AutomatableDoubleEditorViewModel : AutomatablePropertyEditorViewModel<double> {

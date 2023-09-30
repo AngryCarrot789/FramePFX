@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
-using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Interactivity;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {

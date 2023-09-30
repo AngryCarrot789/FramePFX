@@ -28,8 +28,7 @@ namespace FramePFX.FFmpegWrapper {
         public int Capacity => this.Stride / (ffmpeg.av_get_bytes_per_sample(this.SampleFormat) * (this.IsPlanar ? 1 : this.NumChannels));
 
         /// <summary> Allocates a new empty <see cref="AVFrame"/>. </summary>
-        public AudioFrame()
-            : this(ffmpeg.av_frame_alloc(), takeOwnership: true) {
+        public AudioFrame() : this(ffmpeg.av_frame_alloc(), takeOwnership: true) {
         }
 
         public AudioFrame(AudioFormat fmt, int capacity) {
@@ -42,8 +41,7 @@ namespace FramePFX.FFmpegWrapper {
             FFUtils.CheckError(ffmpeg.av_frame_get_buffer(this.frame, 0), "Failed to allocate frame buffers.");
         }
 
-        public AudioFrame(AVSampleFormat fmt, int sampleRate, int numChannels, int capacity)
-            : this(new AudioFormat(fmt, sampleRate, numChannels), capacity) {
+        public AudioFrame(AVSampleFormat fmt, int sampleRate, int numChannels, int capacity) : this(new AudioFormat(fmt, sampleRate, numChannels), capacity) {
         }
 
         /// <summary> Wraps an existing <see cref="AVFrame"/> into an <see cref="AudioFrame"/> instance. </summary>

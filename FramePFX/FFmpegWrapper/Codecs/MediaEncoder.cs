@@ -8,8 +8,7 @@ namespace FramePFX.FFmpegWrapper.Codecs {
             set => this.SetOrThrowIfOpen(ref this.ctx->bit_rate, value);
         }
 
-        public MediaEncoder(AVCodecContext* ctx, AVMediaType expectedType, bool takeOwnership = true)
-            : base(ctx, expectedType, takeOwnership) {
+        public MediaEncoder(AVCodecContext* ctx, AVMediaType expectedType, bool takeOwnership = true) : base(ctx, expectedType, takeOwnership) {
         }
 
         public void SetOption(string name, string value) {

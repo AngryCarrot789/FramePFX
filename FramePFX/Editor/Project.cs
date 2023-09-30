@@ -145,5 +145,13 @@ namespace FramePFX.Editor {
         /// Updates the backing storage of the timeline, all tracks and all clips
         /// </summary>
         public void UpdateTimelineBackingStorage() => AutomationEngine.UpdateBackingStorage(this.Timeline);
+
+        public void OnDisconnectedFromEditor() {
+            this.Editor = null;
+        }
+
+        public void OnConnectedToEditor(VideoEditor editor) {
+            this.Editor = editor;
+        }
     }
 }

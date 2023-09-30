@@ -7,7 +7,6 @@ using FramePFX.Editor.PropertyEditors.Tracks.Video;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.PropertyEditing.Editors;

@@ -9,16 +9,13 @@ namespace FramePFX.FFmpegWrapper.Codecs {
 
         public AudioFormat Format => new AudioFormat(this.ctx);
 
-        public AudioDecoder(AVCodecID codecId)
-            : this(FindCodecFromId(codecId, enc: false)) {
+        public AudioDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false)) {
         }
 
-        public AudioDecoder(AVCodec* codec)
-            : this(AllocContext(codec)) {
+        public AudioDecoder(AVCodec* codec) : this(AllocContext(codec)) {
         }
 
-        public AudioDecoder(AVCodecContext* ctx, bool takeOwnership = true)
-            : base(ctx, MediaTypes.Audio, takeOwnership) {
+        public AudioDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Audio, takeOwnership) {
         }
     }
 }

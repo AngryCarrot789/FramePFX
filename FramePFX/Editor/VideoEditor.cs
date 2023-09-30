@@ -46,5 +46,10 @@ namespace FramePFX.Editor {
                 this.ActiveTimeline = this.activeTimelines[0];
             }
         }
+
+        public void ClearTimelines() {
+            this.ActiveTimeline = null;
+            this.activeTimelines.Clear();
+        }
     }
 }

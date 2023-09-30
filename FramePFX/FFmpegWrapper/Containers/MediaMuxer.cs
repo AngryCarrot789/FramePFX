@@ -33,8 +33,7 @@ namespace FramePFX.FFmpegWrapper.Containers {
             FFUtils.CheckError(ffmpeg.avio_open(&this._ctx->pb, filename, ffmpeg.AVIO_FLAG_WRITE), "Could not open output file");
         }
 
-        public MediaMuxer(IOContext ioc, string formatExtension, bool leaveOpen = false)
-            : this(ioc, ContainerTypes.GetOutputFormat(formatExtension), leaveOpen) {
+        public MediaMuxer(IOContext ioc, string formatExtension, bool leaveOpen = false) : this(ioc, ContainerTypes.GetOutputFormat(formatExtension), leaveOpen) {
         }
 
         public MediaMuxer(IOContext ioc, AVOutputFormat* format, bool leaveOpen = false) {

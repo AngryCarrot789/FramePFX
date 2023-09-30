@@ -56,24 +56,20 @@ namespace FramePFX.FFmpegWrapper.Codecs {
         public ReadOnlySpan<AVPixelFormat> SupportedPixelFormats
             => FFUtils.GetSpanFromSentinelTerminatedPtr(this.ctx->codec->pix_fmts, PixelFormats.None);
 
-        public VideoEncoder(AVCodecID codecId, in PictureFormat format, double frameRate, int bitrate)
-            : this(FindCodecFromId(codecId, enc: true), format, frameRate, bitrate) {
+        public VideoEncoder(AVCodecID codecId, in PictureFormat format, double frameRate, int bitrate) : this(FindCodecFromId(codecId, enc: true), format, frameRate, bitrate) {
         }
 
-        public VideoEncoder(AVCodec* codec, in PictureFormat format, double frameRate, int bitrate)
-            : this(AllocContext(codec)) {
+        public VideoEncoder(AVCodec* codec, in PictureFormat format, double frameRate, int bitrate) : this(AllocContext(codec)) {
             this.FrameFormat = format;
             this.FrameRate = ffmpeg.av_d2q(frameRate, 100_000);
             this.TimeBase = ffmpeg.av_inv_q(this.FrameRate);
             this.BitRate = bitrate;
         }
 
-        public VideoEncoder(AVCodecContext* ctx, bool takeOwnership = true)
-            : base(ctx, MediaTypes.Video, takeOwnership) {
+        public VideoEncoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Video, takeOwnership) {
         }
 
-        public VideoEncoder(CodecHardwareConfig config, in PictureFormat format, double frameRate, int bitrate, HardwareDevice device, HardwareFramePool framePool)
-            : this(config.Codec, in format, frameRate, bitrate) {
+        public VideoEncoder(CodecHardwareConfig config, in PictureFormat format, double frameRate, int bitrate, HardwareDevice device, HardwareFramePool framePool) : this(config.Codec, in format, frameRate, bitrate) {
             this.ctx->hw_device_ctx = ffmpeg.av_buffer_ref(device.Handle);
             this.ctx->hw_frames_ctx = framePool == null ? null : ffmpeg.av_buffer_ref(framePool.Handle);
 

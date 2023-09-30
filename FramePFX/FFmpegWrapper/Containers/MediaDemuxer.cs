@@ -22,12 +22,10 @@ namespace FramePFX.FFmpegWrapper.Containers {
 
         public bool CanSeek => this._ctx->pb->seek.Pointer != IntPtr.Zero;
 
-        public MediaDemuxer(string filename)
-            : this(filename, null) {
+        public MediaDemuxer(string filename) : this(filename, null) {
         }
 
-        public MediaDemuxer(IOContext ioc, bool leaveOpen = false)
-            : this(null, ioc.Handle) {
+        public MediaDemuxer(IOContext ioc, bool leaveOpen = false) : this(null, ioc.Handle) {
             this.IOC = ioc;
             this._iocLeaveOpen = leaveOpen;
         }

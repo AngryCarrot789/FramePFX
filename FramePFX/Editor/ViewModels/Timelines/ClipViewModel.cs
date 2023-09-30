@@ -10,7 +10,6 @@ using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Registries;
-using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Dragging;

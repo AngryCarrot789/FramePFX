@@ -6,8 +6,7 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers {
     public class MultiSelectTreeViewAutomationPeer : ItemsControlAutomationPeer, ISelectionProvider {
         #region Constructor
 
-        public MultiSelectTreeViewAutomationPeer(MultiSelectTreeView owner)
-            : base(owner) {
+        public MultiSelectTreeViewAutomationPeer(MultiSelectTreeView owner) : base(owner) {
         }
 
         #endregion Constructor

@@ -1,15 +1,10 @@
 using System.ComponentModel;
-using System.Drawing;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Utils;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
-using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using Rect = System.Windows.Rect;
 using Size = System.Windows.Size;
 
@@ -59,9 +54,10 @@ namespace FramePFX.WPF {
         private readonly bool designMode;
         private WriteableBitmap bitmap;
         private bool ignorePixelScaling;
+        private bool isRendering;
 
         // unused... for now
-        private GameWindow gameWindow;
+        // private GameWindow gameWindow;
         private readonly GRGlInterface grgInterface;
         public readonly GRContext grContext;
 
@@ -75,34 +71,38 @@ namespace FramePFX.WPF {
 
         public bool BeginRender(out SKSurface surface) {
             PresentationSource source;
-            if (this.targetSurface != null || this.designMode || (source = PresentationSource.FromVisual(this)) == null) {
+            if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null) {
                 surface = null;
                 return false;
             }
 
-            SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
-            SKSizeI size = this.IgnorePixelScaling ? unscaledSize : pixelSize;
+            SKSizeI scaledSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
+            SKSizeI size = this.IgnorePixelScaling ? unscaledSize : scaledSize;
             this.CanvasSize = size;
-            if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
+            if (scaledSize.Width <= 0 || scaledSize.Height <= 0) {
                 surface = null;
                 return false;
             }
 
-            SKImageInfo frameInfo = new SKImageInfo(pixelSize.Width, pixelSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            SKImageInfo frameInfo = new SKImageInfo(scaledSize.Width, scaledSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             this.skImageInfo = frameInfo;
-            if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelWidth || frameInfo.Height != this.bitmap.PixelHeight) {
-                this.bitmap = new WriteableBitmap(
-                    frameInfo.Width, pixelSize.Height,
-                    scaleX == 1d ? 96d : (96d * scaleX),
-                    scaleY == 1d ? 96d : (96d * scaleY),
+            WriteableBitmap bitmap = this.bitmap;
+            if (bitmap == null || frameInfo.Width != bitmap.PixelWidth || frameInfo.Height != bitmap.PixelHeight) {
+                this.bitmap = bitmap = new WriteableBitmap(
+                    frameInfo.Width, scaledSize.Height,
+                    unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
+                    unscaledSize.Height == scaledSize.Height ? 96d : (96d * scaleY),
                     PixelFormats.Pbgra32, null);
                 // this.gameWindow.Width = (int) this.bitmap.Width;
                 // this.gameWindow.Height = (int) this.bitmap.Height;
+                bitmap.Lock();
+                this.targetSurface?.Dispose();
+                this.targetSurface = SKSurface.Create(frameInfo, bitmap.BackBuffer, bitmap.BackBufferStride);
+                bitmap.Unlock();
             }
 
-            this.bitmap.Lock();
+            surface = this.targetSurface;
 
-            this.targetSurface = surface = SKSurface.Create(frameInfo, this.bitmap.BackBuffer, this.bitmap.BackBufferStride);
             // this.targetSurface = surface = SKSurface.Create((GRRecordingContext) this.grContext, true, frameInfo, 0, GRSurfaceOrigin.TopLeft);
             if (this.IgnorePixelScaling) {
                 SKCanvas canvas = surface.Canvas;
@@ -110,6 +110,7 @@ namespace FramePFX.WPF {
                 canvas.Save();
             }
 
+            this.isRendering = true;
             return true;
         }
 
@@ -119,11 +120,14 @@ namespace FramePFX.WPF {
             // // this.gameWindow.SwapBuffers();
             // GL.ReadBuffer(ReadBufferMode.Back);
             // GL.ReadPixels(0, 0, this.bitmap.PixelWidth, this.bitmap.PixelHeight, PixelFormat.Bgra, PixelType.UnsignedByte, this.bitmap.BackBuffer);
+            this.bitmap.Lock();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
             // this.Dispatcher.Invoke(this.InvalidateVisual);
-            this.targetSurface.Dispose();
-            this.targetSurface = null;
+            // this.targetSurface.Dispose();
+            // this.targetSurface = null;
+            this.targetSurface.Canvas.Restore();
+            this.isRendering = false;
             this.InvalidateVisual();
         }
 

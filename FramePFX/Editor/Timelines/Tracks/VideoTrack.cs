@@ -1,6 +1,7 @@
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Rendering.ObjectTK;
 
 namespace FramePFX.Editor.Timelines.Tracks {
     public class VideoTrack : Track {
@@ -27,6 +28,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
         /// Returns when <see cref="IsVisible"/> is true and <see cref="Opacity"/> is greater than <see cref="MinimumVisibleOpacity"/>
         /// </summary>
         public bool IsActuallyVisible => this.IsVisible && this.Opacity > MinimumVisibleOpacity;
+
+        public Texture DrawingTexture { get; }
 
         public VideoTrack() {
             this.Opacity = 1d;

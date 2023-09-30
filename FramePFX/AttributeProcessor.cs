@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using FramePFX.Logger;
 
 namespace FramePFX {
     /// <summary>
@@ -42,17 +44,49 @@ namespace FramePFX {
         }
 
         public void ScanAssembly(Assembly assembly) {
-            foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
-                foreach (KeyValuePair<Type, List<(TypeInfo, Attribute)>> pair in this.AccumulationMap) {
-                    if (!Attribute.IsDefined(typeInfo, pair.Key)) {
-                        continue;
+            IEnumerable<TypeInfo> types;
+            try {
+                types = assembly.DefinedTypes;
+            }
+            catch (ReflectionTypeLoadException e) {
+                AppLogger.WriteLine($"Encountered exception while accessing defined types for assembly '{assembly}'");
+                foreach (Exception ex in e.LoaderExceptions) {
+                    string str;
+                    if (ex is FileNotFoundException fileNotFound && !string.IsNullOrEmpty(str = fileNotFound.FusionLog)) {
+                        AppLogger.PushHeader("An assembly file was not found");
+                        AppLogger.WriteLine(ex.ToString());
+                        AppLogger.WriteLine("Fusion logs: " + str);
+                        AppLogger.PopHeader();
                     }
+                    else if (ex is FileLoadException loadException && !string.IsNullOrEmpty(str = loadException.FusionLog)) {
+                        AppLogger.PushHeader("An assembly file was not found");
+                        AppLogger.WriteLine(ex.ToString());
+                        AppLogger.WriteLine("Fusion logs: " + str);
+                        AppLogger.PopHeader();
+                    }
+                    else {
+                        AppLogger.WriteLine(ex.ToString());
+                    }
+                }
 
-                    Attribute[] attributes = Attribute.GetCustomAttributes(typeInfo, pair.Key);
-                    if (attributes.Length != 0) {
-                        foreach (Attribute attribute in attributes) {
-                            pair.Value.Add((typeInfo, attribute));
-                        }
+                return;
+            }
+
+            foreach (TypeInfo typeInfo in types) {
+                this.ScanType(typeInfo);
+            }
+        }
+
+        public void ScanType(TypeInfo type) {
+            foreach (KeyValuePair<Type, List<(TypeInfo, Attribute)>> pair in this.AccumulationMap) {
+                if (!Attribute.IsDefined(type, pair.Key)) {
+                    continue;
+                }
+
+                Attribute[] attributes = Attribute.GetCustomAttributes(type, pair.Key);
+                if (attributes.Length != 0) {
+                    foreach (Attribute attribute in attributes) {
+                        pair.Value.Add((type, attribute));
                     }
                 }
             }

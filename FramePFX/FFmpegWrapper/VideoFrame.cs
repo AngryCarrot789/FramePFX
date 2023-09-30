@@ -29,12 +29,10 @@ namespace FramePFX.FFmpegWrapper {
         public bool IsVerticallyFlipped => this.frame->linesize[0] < 0;
 
         /// <summary> Allocates a new empty <see cref="AVFrame"/>. </summary>
-        public VideoFrame()
-            : this(ffmpeg.av_frame_alloc(), clearToBlack: false, takeOwnership: true) {
+        public VideoFrame() : this(ffmpeg.av_frame_alloc(), clearToBlack: false, takeOwnership: true) {
         }
 
-        public VideoFrame(PictureFormat fmt, bool clearToBlack = true)
-            : this(fmt.Width, fmt.Height, fmt.PixelFormat, clearToBlack) {
+        public VideoFrame(PictureFormat fmt, bool clearToBlack = true) : this(fmt.Width, fmt.Height, fmt.PixelFormat, clearToBlack) {
         }
 
         public VideoFrame(int width, int height, AVPixelFormat fmt = AVPixelFormat.AV_PIX_FMT_RGBA, bool clearToBlack = true) {

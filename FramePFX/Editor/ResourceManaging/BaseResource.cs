@@ -1,6 +1,7 @@
 using System;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Logger;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.ResourceManaging {
@@ -72,6 +73,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// this method is called for every single child of the group that was moved (recursively)
         /// </summary>
         protected internal virtual void OnParentChainChanged() {
+
         }
 
         /// <summary>
@@ -80,6 +82,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <param name="manager">The new manager</param>
         protected internal virtual void SetManager(ResourceManager manager) {
             this.Manager = manager;
+            AppLogger.WriteLine($"Set manager for {this.GetType().Name}: {manager}");
         }
 
         public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary) {

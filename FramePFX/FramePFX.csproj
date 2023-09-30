@@ -11,7 +11,7 @@
     <PackageReference Include="FFmpeg.AutoGen" Version="6.0.0.2" />
     <PackageReference Include="libsoundio-sharp-net" Version="1.0.0" />
     <PackageReference Include="OpenTK" Version="3.3.3" />
-    <PackageReference Include="SkiaSharp" Version="2.88.5" />
+    <PackageReference Include="SkiaSharp" Version="2.88.6" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
@@ -23,6 +23,7 @@
     <Folder Include="Editor\Exporting\Exporters\Services\" />
     <Folder Include="Editor\ViewModels\Timelines\Context" />
     <Folder Include="Plugins\Demo\" />
+    <Folder Include="Rendering\ObjectTK\Textures" />
   </ItemGroup>
 
 </Project>

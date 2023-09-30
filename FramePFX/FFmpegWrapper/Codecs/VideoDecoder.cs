@@ -13,16 +13,13 @@ namespace FramePFX.FFmpegWrapper.Codecs {
 
         public PictureFormat FrameFormat => new PictureFormat(this.Width, this.Height, this.PixelFormat);
 
-        public VideoDecoder(AVCodecID codecId)
-            : this(FindCodecFromId(codecId, enc: false)) {
+        public VideoDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false)) {
         }
 
-        public VideoDecoder(AVCodec* codec)
-            : this(AllocContext(codec)) {
+        public VideoDecoder(AVCodec* codec) : this(AllocContext(codec)) {
         }
 
-        public VideoDecoder(AVCodecContext* ctx, bool takeOwnership = true)
-            : base(ctx, MediaTypes.Video, takeOwnership) {
+        public VideoDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Video, takeOwnership) {
         }
 
         public void SetupHardwareAccelerator(HardwareDevice device, params AVPixelFormat[] preferredPixelFormats) {

@@ -73,8 +73,8 @@ namespace FramePFX.Editor.Timelines {
         public static void SetTimeline(Track track, Timeline timeline) {
             Timeline oldTimeline = track.Timeline;
             if (!ReferenceEquals(oldTimeline, timeline)) {
-                track.OnTimelineChanging(timeline);
                 track.Timeline = timeline;
+                track.OnTimelineChanging(oldTimeline);
                 foreach (Clip clip in track.Clips) {
                     Clip.OnTrackTimelineChanged(clip, oldTimeline, timeline);
                 }
@@ -96,8 +96,8 @@ namespace FramePFX.Editor.Timelines {
         /// Called when this track is about to be moved to a new timeline. <see cref="Timeline"/> is
         /// the previous timeline, and <see cref="newTimeline"/> is the new one
         /// </summary>
-        /// <param name="newTimeline">The new timeline. May be null, meaning this track is being removed</param>
-        protected virtual void OnTimelineChanging(Timeline newTimeline) {
+        /// <param name="oldTimeline">The previous timeline. May be null, meaning this track was added to a timeline</param>
+        protected virtual void OnTimelineChanging(Timeline oldTimeline) {
 
         }
 
@@ -116,6 +116,24 @@ namespace FramePFX.Editor.Timelines {
         protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
 
         }
+
+        // /// <summary>
+        // /// Sets up any OpenGL rendering data (e.g. textures) that this track needs to render.
+        // /// This is always called at least once before rendering ever beings
+        // /// <para>
+        // /// This is called when a track is added to a timeline, or when the video editor has been loaded
+        // /// and is ready to be used by the user, or when the user modifies the project settings (such as resolution).
+        // /// This is not called when a track is moved between timelines
+        // /// </para>
+        // /// </summary>
+        // public virtual void SetupRenderData() {
+        // }
+        // /// <summary>
+        // /// Clears any rendering data that this track previously allocated with <see cref="SetupRenderData"/>.
+        // /// This may be called multiple times in a row or when <see cref="SetupRenderData"/> was never called
+        // /// </summary>
+        // public virtual void ClearRenderData() {
+        // }
 
         public void GetClipsAtFrame(long frame, List<Clip> list) {
             List<Clip> src = this.clips;

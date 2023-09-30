@@ -42,19 +42,16 @@ namespace FramePFX.FFmpegWrapper.Codecs {
         public ReadOnlySpan<int> SupportedSampleRates
             => FFUtils.GetSpanFromSentinelTerminatedPtr(this.ctx->codec->supported_samplerates, 0);
 
-        public AudioEncoder(AVCodecID codecId, in AudioFormat format, int bitrate)
-            : this(FindCodecFromId(codecId, enc: true), format, bitrate) {
+        public AudioEncoder(AVCodecID codecId, in AudioFormat format, int bitrate) : this(FindCodecFromId(codecId, enc: true), format, bitrate) {
         }
 
-        public AudioEncoder(AVCodec* codec, in AudioFormat format, int bitrate)
-            : this(AllocContext(codec)) {
+        public AudioEncoder(AVCodec* codec, in AudioFormat format, int bitrate) : this(AllocContext(codec)) {
             this.Format = format;
             this.BitRate = bitrate;
             this.TimeBase = new AVRational() {den = format.SampleRate, num = 1};
         }
 
-        public AudioEncoder(AVCodecContext* ctx, bool takeOwnership = true)
-            : base(ctx, MediaTypes.Audio, takeOwnership) {
+        public AudioEncoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Audio, takeOwnership) {
         }
     }
 }

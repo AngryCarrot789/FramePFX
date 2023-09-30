@@ -2,8 +2,7 @@
 
 namespace FramePFX.FFmpegWrapper.Codecs {
     public abstract unsafe class MediaDecoder : CodecBase {
-        public MediaDecoder(AVCodecContext* ctx, AVMediaType expectedType, bool takeOwnership = true)
-            : base(ctx, expectedType, takeOwnership) {
+        public MediaDecoder(AVCodecContext* ctx, AVMediaType expectedType, bool takeOwnership = true) : base(ctx, expectedType, takeOwnership) {
         }
 
         public void SendPacket(MediaPacket pkt) {

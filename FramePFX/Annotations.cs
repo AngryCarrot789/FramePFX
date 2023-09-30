@@ -338,8 +338,7 @@ namespace FramePFX {
     /// </list></examples>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class ContractAnnotationAttribute : Attribute {
-        public ContractAnnotationAttribute([NotNull] string contract)
-            : this(contract, false) {
+        public ContractAnnotationAttribute([NotNull] string contract) : this(contract, false) {
         }
 
         public ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates) {
@@ -423,16 +422,13 @@ namespace FramePFX {
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
     public sealed class UsedImplicitlyAttribute : Attribute {
-        public UsedImplicitlyAttribute()
-            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) {
+        public UsedImplicitlyAttribute() : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) {
         }
 
-        public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags)
-            : this(useKindFlags, ImplicitUseTargetFlags.Default) {
+        public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags) : this(useKindFlags, ImplicitUseTargetFlags.Default) {
         }
 
-        public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
-            : this(ImplicitUseKindFlags.Default, targetFlags) {
+        public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags) : this(ImplicitUseKindFlags.Default, targetFlags) {
         }
 
         public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags) {
@@ -453,16 +449,13 @@ namespace FramePFX {
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.GenericParameter | AttributeTargets.Parameter)]
     public sealed class MeansImplicitUseAttribute : Attribute {
-        public MeansImplicitUseAttribute()
-            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) {
+        public MeansImplicitUseAttribute() : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) {
         }
 
-        public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags)
-            : this(useKindFlags, ImplicitUseTargetFlags.Default) {
+        public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags) : this(useKindFlags, ImplicitUseTargetFlags.Default) {
         }
 
-        public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags)
-            : this(ImplicitUseKindFlags.Default, targetFlags) {
+        public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags) : this(ImplicitUseKindFlags.Default, targetFlags) {
         }
 
         public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags) {

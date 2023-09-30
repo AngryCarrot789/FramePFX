@@ -247,8 +247,11 @@ namespace FramePFX.Editor.ResourceManaging {
         // need millions of added resources. Their system would run out of RAM before these functions fail
 
         public static bool GetDisplayNameForMediaStream(Predicate<string> accept, out string output, string filePath, string streamName) {
-            if (!TextIncrement.GenerateFileString(accept, filePath, out string file))
-                return (output = null) == null;
+            if (!TextIncrement.GenerateFileString(accept, filePath, out string file)) {
+                output = null;
+                return true;
+            }
+
             return TextIncrement.GetIncrementableString(accept, $"{file}::{streamName}", out output, 10000);
         }
 

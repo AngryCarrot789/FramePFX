@@ -19,8 +19,7 @@ namespace FramePFX.FFmpegWrapper {
         public int Space => ffmpeg.av_audio_fifo_space(this._fifo);
         public int Capacity => this.Space + this.Size;
 
-        public AudioQueue(AudioFormat fmt, int initialCapacity)
-            : this(fmt.SampleFormat, fmt.NumChannels, initialCapacity) {
+        public AudioQueue(AudioFormat fmt, int initialCapacity) : this(fmt.SampleFormat, fmt.NumChannels, initialCapacity) {
         }
 
         public AudioQueue(AVSampleFormat fmt, int numChannels, int initialCapacity) {

@@ -36,7 +36,12 @@ similar to how OBS can run without the front-end entirely, not that you'd want t
 View models still take a good few big responsibilities of the models though, such as firing the model events when view model properties change in order to force a re-render
 
 ### Rendering
-Rendering the main view port is done with SkiaSharp. Originally was done with OpenGL (using OpenTK) but SkiaSharp is much simpler to use (easy image/texture loading, text drawing, etc.)
+Previously rendering was done with SkiaSharp for simplicity, but I decided to move back to OpenGL to make use of shaders and general GPU rendering, at the price of having to deal with device-independent coordinates and manually allocating/deallocating rendering data (textures, meshes, shaders, etc.) which I still need to fully implement.
+
+Each track has its own framebuffer and texture, which the clip is rendered to (first found clip intersecting the playhead. will soon try to implement fading somehow). 
+Then each track's texture is drawn into the timeline's framebuffer, and then that is finally drawn into the default framebuffer. 
+
+The render context class contains a stack of active framebuffers, so recursive rendering (composition timelines) work
 
 ### Resource list
 `ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)

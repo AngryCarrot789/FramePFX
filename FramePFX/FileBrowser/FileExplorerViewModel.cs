@@ -6,8 +6,10 @@ using FramePFX.Commands;
 using FramePFX.FileBrowser.FileTree;
 using FramePFX.FileBrowser.FileTree.Physical;
 
-namespace FramePFX.FileBrowser {
-    public class FileExplorerViewModel : BaseViewModel {
+namespace FramePFX.FileBrowser
+{
+    public class FileExplorerViewModel : BaseViewModel
+    {
         public FileTreeViewModel FileTree { get; }
 
         public TreeEntry CurrentFolder { get; private set; }
@@ -16,7 +18,8 @@ namespace FramePFX.FileBrowser {
 
         public ObservableCollection<TreeEntry> SelectedFiles { get; }
 
-        public FileExplorerViewModel() {
+        public FileExplorerViewModel()
+        {
             this.OpenFolderCommand = new AsyncRelayCommand(this.OpenFolderAction);
             this.SelectedFiles = new ObservableCollection<TreeEntry>();
             this.FileTree = new FileTreeViewModel();
@@ -26,22 +29,28 @@ namespace FramePFX.FileBrowser {
             this.CurrentFolder = this.FileTree.Root;
         }
 
-        public async Task NavigateToPhyicalFolder(string directory) {
+        public async Task NavigateToPhyicalFolder(string directory)
+        {
             PhysicalVirtualFolder folder = Win32FileSystem.Instance.ForDirectory(directory);
-            if (await Win32FileSystem.Instance.LoadContent(folder)) {
+            if (await Win32FileSystem.Instance.LoadContent(folder))
+            {
                 await this.FileTreeOnNavigateToItem(folder);
             }
         }
 
-        private Task FileTreeOnNavigateToItem(TreeEntry file) {
+        private Task FileTreeOnNavigateToItem(TreeEntry file)
+        {
             this.SelectedFiles.Clear();
-            if (file.IsDirectory) {
+            if (file.IsDirectory)
+            {
                 this.CurrentFolder = file;
             }
-            else if (file.Parent != null) {
+            else if (file.Parent != null)
+            {
                 this.CurrentFolder = file.Parent;
             }
-            else {
+            else
+            {
                 this.CurrentFolder = this.FileTree.Root;
             }
 
@@ -49,36 +58,46 @@ namespace FramePFX.FileBrowser {
             return Task.CompletedTask;
         }
 
-        private async Task ExplorerOnOpenFile(TreeEntry file) {
-            if (file is PhysicalVirtualFile virtualFile) {
-                if (!File.Exists(virtualFile.FilePath)) {
-                    if (virtualFile.Parent != null) {
+        private async Task ExplorerOnOpenFile(TreeEntry file)
+        {
+            if (file is PhysicalVirtualFile virtualFile)
+            {
+                if (!File.Exists(virtualFile.FilePath))
+                {
+                    if (virtualFile.Parent != null)
+                    {
                         await virtualFile.Parent.RefreshAsync();
                     }
                 }
-                else {
+                else
+                {
                     // navigate
                 }
             }
         }
 
-        private async Task OpenFolderAction() {
+        private async Task OpenFolderAction()
+        {
             string path = await Services.FilePicker.OpenFolder(null, "Select a folder to open");
-            if (string.IsNullOrEmpty(path)) {
+            if (string.IsNullOrEmpty(path))
+            {
                 return;
             }
 
             this.FileTree.Root.AddItemCore(Win32FileSystem.Instance.ForDirectory(path));
         }
 
-        public void AddPhyicalFolder(string directory) {
+        public void AddPhyicalFolder(string directory)
+        {
             this.FileTree.Root.AddItemCore(Win32FileSystem.Instance.ForDirectory(directory));
         }
 
-        public async Task LoadDefaultLocation() {
+        public async Task LoadDefaultLocation()
+        {
             this.AddPhyicalFolder(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
             this.AddPhyicalFolder(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            foreach (DriveInfo drive in DriveInfo.GetDrives()) {
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
                 this.AddPhyicalFolder(drive.Name);
             }
 

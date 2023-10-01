@@ -6,7 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using FramePFX.Utils;
 
-namespace FramePFX.WPF.AttachedProperties {
+namespace FramePFX.WPF.AttachedProperties
+{
     /// <summary>
     /// A helper class for binding selected item collections.
     /// <para>
@@ -18,7 +19,8 @@ namespace FramePFX.WPF.AttachedProperties {
     /// allowing you to handle the change in your property's setter
     /// </para>
     /// </summary>
-    public static class MultiSelectorHelper {
+    public static class MultiSelectorHelper
+    {
         public static readonly DependencyProperty SelectedItemsProperty =
             DependencyProperty.RegisterAttached(
                 "SelectedItems",
@@ -62,34 +64,44 @@ namespace FramePFX.WPF.AttachedProperties {
 
         private static bool GetIsSelectionChangedRegistered(DependencyObject element) => (bool) element.GetValue(IsSelectionChangedRegisteredProperty);
 
-        private static void OnSelectedItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (IsUpdatingSelection(d)) {
+        private static void OnSelectedItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (IsUpdatingSelection(d))
+            {
                 return;
             }
 
-            if (d is Selector) {
+            if (d is Selector)
+            {
                 IList newList = (IList) e.NewValue;
                 SetUpdatingSelection(d, true);
-                try {
+                try
+                {
                     IList list = null;
-                    if (d is ListBox box) {
+                    if (d is ListBox box)
+                    {
                         if (box.SelectionMode != SelectionMode.Single)
                             list = box.SelectedItems;
                     }
-                    else if (d is MultiSelector ms) {
+                    else if (d is MultiSelector ms)
+                    {
                         list = ms.SelectedItems;
                     }
 
-                    if (list != null) {
+                    if (list != null)
+                    {
                         list.Clear();
-                        if (newList != null && newList.Count > 0) {
-                            foreach (object item in newList) {
+                        if (newList != null && newList.Count > 0)
+                        {
+                            foreach (object item in newList)
+                            {
                                 list.Add(item);
                             }
                         }
                     }
                 }
-                finally {
+                finally
+                {
                     SetUpdatingSelection(d, false);
                 }
             }
@@ -97,29 +109,38 @@ namespace FramePFX.WPF.AttachedProperties {
             AutoRegisterSelectionChangedHandler(d);
         }
 
-        private static void AutoRegisterSelectionChangedHandler(DependencyObject d) {
-            if (d is Selector s) {
-                if (GetIsSelectionChangedRegistered(d)) {
-                    if (!GetUpdatePropertyOnSelectionChanged(d)) {
+        private static void AutoRegisterSelectionChangedHandler(DependencyObject d)
+        {
+            if (d is Selector s)
+            {
+                if (GetIsSelectionChangedRegistered(d))
+                {
+                    if (!GetUpdatePropertyOnSelectionChanged(d))
+                    {
                         SetIsSelectionChangedRegistered(d, false);
                         s.SelectionChanged -= OnUISelectionChanged;
                     }
                 }
-                else if (GetUpdatePropertyOnSelectionChanged(d)) {
+                else if (GetUpdatePropertyOnSelectionChanged(d))
+                {
                     SetIsSelectionChangedRegistered(d, true);
                     s.SelectionChanged += OnUISelectionChanged;
                 }
             }
         }
 
-        private static bool ListEquals(IList a, IList b) {
+        private static bool ListEquals(IList a, IList b)
+        {
             int cA = a.Count, cB = b.Count;
-            if (cA != cB) {
+            if (cA != cB)
+            {
                 return false;
             }
 
-            for (int i = 0; i < cA; i++) {
-                if (!ReferenceEquals(a[i], b[i])) {
+            for (int i = 0; i < cA; i++)
+            {
+                if (!ReferenceEquals(a[i], b[i]))
+                {
                     return false;
                 }
             }
@@ -127,8 +148,10 @@ namespace FramePFX.WPF.AttachedProperties {
             return true;
         }
 
-        private static void OnUISelectionChanged(object sender, SelectionChangedEventArgs e) {
-            if (sender is Selector selector) {
+        private static void OnUISelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is Selector selector)
+            {
                 if (IsUpdatingSelection(selector))
                     return;
 
@@ -137,9 +160,11 @@ namespace FramePFX.WPF.AttachedProperties {
                     return;
 
                 bool update = false;
-                try {
+                try
+                {
                     IList srcList;
-                    switch (selector) {
+                    switch (selector)
+                    {
                         case ListBox lb when lb.SelectionMode != SelectionMode.Single:
                             srcList = lb.SelectedItems;
                             break;
@@ -151,28 +176,34 @@ namespace FramePFX.WPF.AttachedProperties {
                             break;
                     }
 
-                    if (srcList != null) {
+                    if (srcList != null)
+                    {
                         // Can massively improve performance for property pages
-                        if (ListEquals(srcList, dstList)) {
+                        if (ListEquals(srcList, dstList))
+                        {
                             return;
                         }
 
                         SetUpdatingSelection(selector, update = true);
-                        if (srcList.Count < 2) {
+                        if (srcList.Count < 2)
+                        {
                             // most likely more efficient to clear and add a possible single selection
                             dstList.Clear();
                             foreach (object item in srcList)
                                 dstList.Add(item);
                         }
-                        else {
+                        else
+                        {
                             int expected = dstList.Count - e.RemovedItems.Count + e.AddedItems.Count;
-                            if (expected == srcList.Count) {
+                            if (expected == srcList.Count)
+                            {
                                 foreach (object o in e.RemovedItems)
                                     dstList.Remove(o);
                                 foreach (object o in e.AddedItems)
                                     dstList.Add(o);
                             }
-                            else {
+                            else
+                            {
                                 Debug.WriteLine($"Selection discrepancy: Expected {expected} selected items in the source list, but got {srcList.Count}");
                                 dstList.Clear();
                                 foreach (object item in srcList)
@@ -180,7 +211,8 @@ namespace FramePFX.WPF.AttachedProperties {
                             }
                         }
                     }
-                    else {
+                    else
+                    {
                         SetUpdatingSelection(selector, update = true);
                         foreach (object o in e.RemovedItems)
                             dstList.Remove(o);
@@ -191,7 +223,8 @@ namespace FramePFX.WPF.AttachedProperties {
                     if (!(dstList is INotifyCollectionChanged))
                         SetSelectedItems(selector, dstList);
                 }
-                finally {
+                finally
+                {
                     if (update)
                         SetUpdatingSelection(selector, false);
                 }

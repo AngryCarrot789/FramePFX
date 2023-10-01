@@ -1,11 +1,13 @@
 using System;
 using FramePFX.Actions.Contexts;
 
-namespace FramePFX.Actions {
+namespace FramePFX.Actions
+{
     /// <summary>
     /// Action event arguments for when an action is about to be executed
     /// </summary>
-    public class AnActionEventArgs {
+    public class AnActionEventArgs
+    {
         /// <summary>
         /// The action manager associated with this event
         /// </summary>
@@ -39,8 +41,10 @@ namespace FramePFX.Actions {
         /// </summary>
         public string ActionId { get; }
 
-        public AnActionEventArgs(ActionManager manager, string actionId, IDataContext dataContext, bool isUserInitiated) {
-            if (actionId != null && actionId.Length < 1) {
+        public AnActionEventArgs(ActionManager manager, string actionId, IDataContext dataContext, bool isUserInitiated)
+        {
+            if (actionId != null && actionId.Length < 1)
+            {
                 throw new ArgumentException("ActionId must be null or a non-empty string");
             }
 

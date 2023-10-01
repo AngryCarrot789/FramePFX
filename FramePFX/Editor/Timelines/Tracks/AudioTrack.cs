@@ -5,8 +5,10 @@ using FramePFX.Automation.Keys;
 using FramePFX.Editor.Audio;
 using FramePFX.Editor.Timelines.AudioClips;
 
-namespace FramePFX.Editor.Timelines.Tracks {
-    public class AudioTrack : Track {
+namespace FramePFX.Editor.Timelines.Tracks
+{
+    public class AudioTrack : Track
+    {
         public static readonly AutomationKeyFloat VolumeKey = AutomationKey.RegisterFloat(nameof(AudioTrack), nameof(Volume), new KeyDescriptorFloat(1f, 0f, 1f));
         public static readonly AutomationKeyBoolean IsMutedKey = AutomationKey.RegisterBool(nameof(AudioTrack), nameof(IsMuted), new KeyDescriptorBoolean(false));
 
@@ -21,7 +23,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
         public double sampleRate = 44100;
         public double frequency = 441;
 
-        public AudioTrack() {
+        public AudioTrack()
+        {
             this.AutomationData.AssignKey(VolumeKey, UpdateVolume);
             this.AutomationData.AssignKey(IsMutedKey, UpdateIsMuted);
         }
@@ -33,17 +36,21 @@ namespace FramePFX.Editor.Timelines.Tracks {
         /// <param name="vf">The video frame being played</param>
         /// <param name="offset">The sample offset to start at</param>
         /// <param name="count">The number of samples to process</param>
-        public void ProcessAudio(AudioEngine engine, long vf, int offset, int count) {
-            if (!this.Clips.Any(x => x.IntersectsFrameAt(vf))) {
+        public void ProcessAudio(AudioEngine engine, long vf, int offset, int count)
+        {
+            if (!this.Clips.Any(x => x.IntersectsFrameAt(vf)))
+            {
                 return;
             }
 
             byte[] buffer = new byte[count];
-            if (this.phasePerSample == 0.0) {
+            if (this.phasePerSample == 0.0)
+            {
                 this.phasePerSample = Math.PI * 2.0 / (this.sampleRate / this.frequency);
             }
 
-            for (int i = 0; i < count; ++i) {
+            for (int i = 0; i < count; ++i)
+            {
                 double sample = this.amplitude * Math.Sin(this.currentPhase);
                 this.currentPhase += this.phasePerSample;
                 buffer[i] = (byte) (sample * 255d);
@@ -53,8 +60,10 @@ namespace FramePFX.Editor.Timelines.Tracks {
             // this.Timeline.Project.AudioEngine.AddSamples(buffer, 0, count);
         }
 
-        public unsafe void ProcessAudio(AudioEngine engine, ref AudioProcessData data, long frame) {
-            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame))) {
+        public unsafe void ProcessAudio(AudioEngine engine, ref AudioProcessData data, long frame)
+        {
+            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame)))
+            {
                 return;
             }
 
@@ -65,7 +74,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
             double* out_l = output[0];
             double* out_r = output[1];
 
-            for (int i = 0; i < data.numSamples; i++) {
+            for (int i = 0; i < data.numSamples; i++)
+            {
                 double sample = (0.5d * this.Volume) * Math.Sin(this.currentPhase);
                 out_l[i] = sample;
                 out_r[i] = sample;
@@ -73,24 +83,29 @@ namespace FramePFX.Editor.Timelines.Tracks {
             }
         }
 
-        public unsafe void ProcessAudio(AudioEngine engine, float[] data, int offset, int count, long frame) {
-            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame))) {
+        public unsafe void ProcessAudio(AudioEngine engine, float[] data, int offset, int count, long frame)
+        {
+            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame)))
+            {
                 return;
             }
         }
 
-        protected override Track NewInstanceForClone() {
+        protected override Track NewInstanceForClone()
+        {
             return new AudioTrack();
         }
 
-        protected override void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
+        protected override void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags)
+        {
             base.LoadDataIntoClonePre(clone, flags);
             AudioTrack track = (AudioTrack) clone;
             track.Volume = this.Volume;
             track.IsMuted = this.IsMuted;
         }
 
-        public override bool IsClipTypeAcceptable(Clip clip) {
+        public override bool IsClipTypeAcceptable(Clip clip)
+        {
             return clip is AudioClip;
         }
     }

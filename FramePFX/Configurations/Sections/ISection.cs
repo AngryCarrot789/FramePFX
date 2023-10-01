@@ -1,8 +1,10 @@
-namespace FramePFX.Configurations.Sections {
+namespace FramePFX.Configurations.Sections
+{
     /// <summary>
     /// A configuration section
     /// </summary>
-    public interface ISection {
+    public interface ISection
+    {
         /// <summary>
         /// This section's parent section, or null if this is the root section
         /// </summary>

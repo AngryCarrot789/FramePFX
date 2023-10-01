@@ -5,11 +5,13 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace FramePFX.WPF.Explorer.Controls {
+namespace FramePFX.WPF.Explorer.Controls
+{
     /// <summary>
     /// Interaction logic for DoubleClickEditBox.xaml
     /// </summary>
-    public partial class DoubleClickEditBox : UserControl {
+    public partial class DoubleClickEditBox : UserControl
+    {
         private bool ignoreLostFocus;
         private string preEditText;
 
@@ -21,8 +23,10 @@ namespace FramePFX.WPF.Explorer.Controls {
                 new FrameworkPropertyMetadata(
                     false,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => {
-                        if (e.OldValue == e.NewValue) {
+                    (d, e) =>
+                    {
+                        if (e.OldValue == e.NewValue)
+                        {
                             return;
                         }
 
@@ -40,7 +44,9 @@ namespace FramePFX.WPF.Explorer.Controls {
                 new FrameworkPropertyMetadata(
                     string.Empty,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    (d, e) => { },
+                    (d, e) =>
+                    {
+                    },
                     (obj, value) => value ?? "",
                     true,
                     UpdateSourceTrigger.PropertyChanged));
@@ -52,12 +58,15 @@ namespace FramePFX.WPF.Explorer.Controls {
                 typeof(DoubleClickEditBox),
                 new PropertyMetadata(TextWrapping.NoWrap));
 
-        public DoubleClickEditBox() {
+        public DoubleClickEditBox()
+        {
             this.InitializeComponent();
         }
 
-        private void OnIsEditingChanged(bool oldValue, bool newValue) {
-            if (newValue) {
+        private void OnIsEditingChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
                 this.PART_Preview.Visibility = Visibility.Collapsed;
                 this.PART_Editor.Visibility = Visibility.Visible;
                 this.PART_Editor.Focus();
@@ -65,17 +74,20 @@ namespace FramePFX.WPF.Explorer.Controls {
                 // textbox's visual features (RenderScope) only exist after a callback from the rendering engine,
                 // so this code will (hopefully) be executed right after that callback, because DispatcherPriority.Loaded
                 // is right below the render priority (aka processed after rendering)
-                Application.Current.Dispatcher.Invoke(() => {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
                     Point point = Mouse.GetPosition(this.PART_Editor);
                     int index = this.PART_Editor.GetCharacterIndexFromPoint(point, true);
-                    if (index != -1) {
+                    if (index != -1)
+                    {
                         this.PART_Editor.CaretIndex = index;
                     }
                 }, DispatcherPriority.Loaded);
 
                 this.preEditText = this.Text;
             }
-            else {
+            else
+            {
                 this.Focus();
                 this.PART_Editor.Visibility = Visibility.Collapsed;
                 this.PART_Preview.Visibility = Visibility.Visible;
@@ -83,25 +95,30 @@ namespace FramePFX.WPF.Explorer.Controls {
         }
 
         [Category("Appearance")]
-        public bool IsEditing {
+        public bool IsEditing
+        {
             get => (bool) this.GetValue(IsEditingProperty);
             set => this.SetValue(IsEditingProperty, value);
         }
 
         [Category("Appearance")]
-        public string Text {
+        public string Text
+        {
             get => (string) this.GetValue(TextProperty);
             set => this.SetValue(TextProperty, value);
         }
 
         [Category("Appearance")]
-        public TextWrapping TextWrapping {
+        public TextWrapping TextWrapping
+        {
             get => (TextWrapping) this.GetValue(TextWrappingProperty);
             set => this.SetValue(TextWrappingProperty, value);
         }
 
-        private void Editor_OnLostFocus(object sender, RoutedEventArgs e) {
-            if (this.ignoreLostFocus) {
+        private void Editor_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (this.ignoreLostFocus)
+            {
                 return;
             }
 
@@ -110,10 +127,14 @@ namespace FramePFX.WPF.Explorer.Controls {
             this.ignoreLostFocus = false;
         }
 
-        private void Editor_OnKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Enter || e.Key == Key.Escape) {
-                if (e.Key == Key.Escape) {
-                    if (this.preEditText != null && !this.preEditText.Equals(this.Text)) {
+        private void Editor_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter || e.Key == Key.Escape)
+            {
+                if (e.Key == Key.Escape)
+                {
+                    if (this.preEditText != null && !this.preEditText.Equals(this.Text))
+                    {
                         this.Text = this.preEditText;
                     }
                 }
@@ -123,13 +144,16 @@ namespace FramePFX.WPF.Explorer.Controls {
             }
         }
 
-        protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseDoubleClick(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseDoubleClick(e);
-            if (e.ChangedButton != MouseButton.Left) {
+            if (e.ChangedButton != MouseButton.Left)
+            {
                 return;
             }
 
-            if (this.IsEditing) {
+            if (this.IsEditing)
+            {
                 return;
             }
 
@@ -137,9 +161,11 @@ namespace FramePFX.WPF.Explorer.Controls {
             e.Handled = true;
         }
 
-        protected override void OnPreviewKeyDown(KeyEventArgs e) {
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
             base.OnPreviewKeyDown(e);
-            if (e.Key == Key.F2 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control)) {
+            if (e.Key == Key.F2 || (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control))
+            {
                 this.IsEditing = true;
                 e.Handled = true;
             }

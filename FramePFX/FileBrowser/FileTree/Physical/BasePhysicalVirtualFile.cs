@@ -3,15 +3,19 @@ using System.IO;
 using FramePFX.FileBrowser.FileTree.Interfaces;
 using FramePFX.Utils;
 
-namespace FramePFX.FileBrowser.FileTree.Physical {
+namespace FramePFX.FileBrowser.FileTree.Physical
+{
     /// <summary>
     /// The base class that represents all physical virtual files
     /// </summary>
-    public abstract class BasePhysicalVirtualFile : TreeEntry, IHaveFilePath {
+    public abstract class BasePhysicalVirtualFile : TreeEntry, IHaveFilePath
+    {
         public string FilePath => this.GetDataValue<string>(Win32FileSystem.FilePathKey);
 
-        public string FileName {
-            get {
+        public string FileName
+        {
+            get
+            {
                 if (string.IsNullOrWhiteSpace(this.FilePath))
                     return null;
                 string name = Path.GetFileName(this.FilePath);
@@ -19,21 +23,25 @@ namespace FramePFX.FileBrowser.FileTree.Physical {
             }
         }
 
-        protected BasePhysicalVirtualFile(bool isDirectory) : base(isDirectory) {
-
+        protected BasePhysicalVirtualFile(bool isDirectory) : base(isDirectory)
+        {
         }
 
-        public override void AddItemCore(TreeEntry item) {
+        public override void AddItemCore(TreeEntry item)
+        {
             this.InsertItemCore(CollectionUtils.GetSortInsertionIndex(this.Items, item, EntrySorters.ComparePhysicalDirectoryAndFileName), item);
         }
 
-        protected override void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        protected override void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
             base.OnChildrenCollectionChanged(sender, e);
         }
 
-        protected override void OnDataChanged(string key, object value) {
+        protected override void OnDataChanged(string key, object value)
+        {
             base.OnDataChanged(key, value);
-            switch (key) {
+            switch (key)
+            {
                 case Win32FileSystem.FilePathKey:
                     this.RaisePropertyChanged(nameof(this.FilePath));
                     this.RaisePropertyChanged(nameof(this.FileName));

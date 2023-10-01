@@ -8,9 +8,12 @@ using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.ViewModels.Timelines.Events;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
-    public class MotionEffectViewModel : VideoEffectViewModel {
-        private static readonly RefreshAutomationValueEventHandler RefreshMediaPositionHandler = (s, e) => {
+namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video
+{
+    public class MotionEffectViewModel : VideoEffectViewModel
+    {
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaPositionHandler = (s, e) =>
+        {
             MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
             vfx.RaisePropertyChanged(nameof(vfx.MediaPosition));
             vfx.RaisePropertyChanged(nameof(vfx.MediaPositionX));
@@ -18,7 +21,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             vfx.InvalidateRenderForAutomationRefresh(in e);
         };
 
-        private static readonly RefreshAutomationValueEventHandler RefreshMediaScaleHandler = (s, e) => {
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaScaleHandler = (s, e) =>
+        {
             MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
             vfx.RaisePropertyChanged(nameof(vfx.MediaScale));
             vfx.RaisePropertyChanged(nameof(vfx.MediaScaleX));
@@ -26,7 +30,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             vfx.InvalidateRenderForAutomationRefresh(in e);
         };
 
-        private static readonly RefreshAutomationValueEventHandler RefreshMediaScaleOriginHandler = (s, e) => {
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaScaleOriginHandler = (s, e) =>
+        {
             MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
             vfx.RaisePropertyChanged(nameof(vfx.MediaScaleOrigin));
             vfx.RaisePropertyChanged(nameof(vfx.MediaScaleOriginX));
@@ -34,13 +39,15 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             vfx.InvalidateRenderForAutomationRefresh(in e);
         };
 
-        private static readonly RefreshAutomationValueEventHandler RefreshMediaRotationHandler = (s, e) => {
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaRotationHandler = (s, e) =>
+        {
             MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
             vfx.RaisePropertyChanged(nameof(vfx.MediaRotation));
             vfx.InvalidateRenderForAutomationRefresh(in e);
         };
 
-        private static readonly RefreshAutomationValueEventHandler RefreshMediaRotationOriginHandler = (s, e) => {
+        private static readonly RefreshAutomationValueEventHandler RefreshMediaRotationOriginHandler = (s, e) =>
+        {
             MotionEffectViewModel vfx = (MotionEffectViewModel) s.AutomationData.Owner;
             vfx.RaisePropertyChanged(nameof(vfx.MediaRotationOrigin));
             vfx.RaisePropertyChanged(nameof(vfx.MediaRotationOriginX));
@@ -50,12 +57,14 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
 
         public new MotionEffect Model => (MotionEffect) base.Model;
 
-        public float MediaPositionX {
+        public float MediaPositionX
+        {
             get => this.MediaPosition.X;
             set => this.MediaPosition = new Vector2(value, this.MediaPosition.Y);
         }
 
-        public float MediaPositionY {
+        public float MediaPositionY
+        {
             get => this.MediaPosition.Y;
             set => this.MediaPosition = new Vector2(this.MediaPosition.X, value);
         }
@@ -63,17 +72,20 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
         /// <summary>
         /// The x and y coordinates of the video's media
         /// </summary>
-        public Vector2 MediaPosition {
+        public Vector2 MediaPosition
+        {
             get => this.Model.MediaPosition;
             set => AutomationUtils.GetKeyFrameForPropertyChanged(this, MotionEffect.MediaPositionKey).SetVector2Value(value);
         }
 
-        public float MediaScaleX {
+        public float MediaScaleX
+        {
             get => this.MediaScale.X;
             set => this.MediaScale = new Vector2(value, this.MediaScale.Y);
         }
 
-        public float MediaScaleY {
+        public float MediaScaleY
+        {
             get => this.MediaScale.Y;
             set => this.MediaScale = new Vector2(this.MediaScale.X, value);
         }
@@ -81,17 +93,20 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
         /// <summary>
         /// The x and y scale of the video's media (relative to <see cref="MediaScaleOrigin"/>)
         /// </summary>
-        public Vector2 MediaScale {
+        public Vector2 MediaScale
+        {
             get => this.Model.MediaScale;
             set => AutomationUtils.GetKeyFrameForPropertyChanged(this, MotionEffect.MediaScaleKey).SetVector2Value(value);
         }
 
-        public float MediaScaleOriginX {
+        public float MediaScaleOriginX
+        {
             get => this.MediaScaleOrigin.X;
             set => this.MediaScaleOrigin = new Vector2(value, this.MediaScaleOrigin.Y);
         }
 
-        public float MediaScaleOriginY {
+        public float MediaScaleOriginY
+        {
             get => this.MediaScaleOrigin.Y;
             set => this.MediaScaleOrigin = new Vector2(this.MediaScaleOrigin.X, value);
         }
@@ -99,7 +114,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
         /// <summary>
         /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
         /// </summary>
-        public Vector2 MediaScaleOrigin {
+        public Vector2 MediaScaleOrigin
+        {
             get => this.Model.MediaScaleOrigin;
             set => AutomationUtils.GetKeyFrameForPropertyChanged(this, MotionEffect.MediaScaleOriginKey).SetVector2Value(value);
         }
@@ -107,17 +123,20 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
         /// <summary>
         /// The clockwise rotation of the video's media (relative to <see cref="MediaScaleOrigin"/>)
         /// </summary>
-        public double MediaRotation {
+        public double MediaRotation
+        {
             get => this.Model.MediaRotation;
             set => AutomationUtils.GetKeyFrameForPropertyChanged(this, MotionEffect.MediaRotationKey).SetDoubleValue(value);
         }
 
-        public float MediaRotationOriginX {
+        public float MediaRotationOriginX
+        {
             get => this.MediaRotationOrigin.X;
             set => this.MediaRotationOrigin = new Vector2(value, this.MediaRotationOrigin.Y);
         }
 
-        public float MediaRotationOriginY {
+        public float MediaRotationOriginY
+        {
             get => this.MediaRotationOrigin.Y;
             set => this.MediaRotationOrigin = new Vector2(this.MediaRotationOrigin.X, value);
         }
@@ -125,7 +144,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
         /// <summary>
         /// The scaling origin point of this video's media. Default value is 0.5,0.5 (the center of the frame)
         /// </summary>
-        public Vector2 MediaRotationOrigin {
+        public Vector2 MediaRotationOrigin
+        {
             get => this.Model.MediaRotationOrigin;
             set => AutomationUtils.GetKeyFrameForPropertyChanged(this, MotionEffect.MediaRotationOriginKey).SetVector2Value(value);
         }
@@ -163,12 +183,14 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
         private readonly ClipMovedOverPlayeHeadEventHandler handler2;
         private readonly PlayHeadLeaveClipEventHandler handler3;
 
-        public MotionEffectViewModel(MotionEffect model) : base(model) {
+        public MotionEffectViewModel(MotionEffect model) : base(model)
+        {
             this.handler1 = (sender, frame, newFrame) => this.UpdateCommands();
             this.handler2 = (clip, frame) => this.UpdateCommands();
             this.handler3 = (clip, movement) => this.UpdateCommands();
 
-            this.ResetTransformationCommand = new RelayCommand(() => {
+            this.ResetTransformationCommand = new RelayCommand(() =>
+            {
                 this.AutomationData[MotionEffect.MediaPositionKey].AssignDefaultValue();
                 this.AutomationData[MotionEffect.MediaScaleKey].AssignDefaultValue();
                 this.AutomationData[MotionEffect.MediaScaleOriginKey].AssignDefaultValue();
@@ -208,7 +230,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             this.AutomationData.AssignRefreshHandler(MotionEffect.MediaRotationOriginKey, RefreshMediaRotationOriginHandler);
         }
 
-        protected override void OnAddedToClip() {
+        protected override void OnAddedToClip()
+        {
             base.OnAddedToClip();
             this.OwnerClip.Model.FrameSeeked += this.handler1;
             this.OwnerClip.ClipMovedOverPlayHead += this.handler2;
@@ -216,7 +239,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             this.UpdateCommands();
         }
 
-        protected override void OnRemovingFromClip() {
+        protected override void OnRemovingFromClip()
+        {
             base.OnRemovingFromClip();
             this.OwnerClip.Model.FrameSeeked -= this.handler1;
             this.OwnerClip.ClipMovedOverPlayHead -= this.handler2;
@@ -224,7 +248,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
             this.UpdateCommands();
         }
 
-        private void UpdateCommands() {
+        private void UpdateCommands()
+        {
             this.InsertMediaPositionKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleKeyFrameCommand.RaiseCanExecuteChanged();
             this.InsertMediaScaleOriginKeyFrameCommand.RaiseCanExecuteChanged();

@@ -6,8 +6,10 @@ using System.Windows.Controls;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.WPF.Editor.Timeline.Utils;
 
-namespace FramePFX.WPF.Editor.Timeline.Controls.V2 {
-    public class TimelineControlV2 : Control {
+namespace FramePFX.WPF.Editor.Timeline.Controls.V2
+{
+    public class TimelineControlV2 : Control
+    {
         public static readonly DependencyProperty UnitZoomProperty =
             DependencyProperty.Register(
                 "UnitZoom",
@@ -48,60 +50,74 @@ namespace FramePFX.WPF.Editor.Timeline.Controls.V2 {
         /// The horizontal zoom multiplier of this timeline, which affects the size of all tracks
         /// and therefore clips. This is a value used for converting frames into pixels
         /// </summary>
-        public double UnitZoom {
+        public double UnitZoom
+        {
             get => (double) this.GetValue(UnitZoomProperty);
             set => this.SetValue(UnitZoomProperty, value);
         }
 
-        public long MaxDuration {
+        public long MaxDuration
+        {
             get => (long) this.GetValue(MaxDurationProperty);
             set => this.SetValue(MaxDurationProperty, value);
         }
 
-        public long PlayHeadPosition {
+        public long PlayHeadPosition
+        {
             get => (long) this.GetValue(PlayHeadPositionProperty);
             set => this.SetValue(PlayHeadPositionProperty, value);
         }
 
-        public IEnumerable<TrackViewModel> Tracks {
+        public IEnumerable<TrackViewModel> Tracks
+        {
             get => (IEnumerable<TrackViewModel>) this.GetValue(TracksProperty);
             set => this.SetValue(TracksProperty, value);
         }
 
-        public TimelineControlV2() {
+        public TimelineControlV2()
+        {
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
         }
 
-        protected override Size MeasureOverride(Size constraint) {
+        protected override Size MeasureOverride(Size constraint)
+        {
             Size size = base.MeasureOverride(constraint);
             double width = this.MaxDuration * this.UnitZoom;
-            if (double.IsNaN(size.Width) || double.IsPositiveInfinity(size.Width)) {
+            if (double.IsNaN(size.Width) || double.IsPositiveInfinity(size.Width))
+            {
                 return new Size(width, size.Height);
             }
 
             return new Size(Math.Max(width, size.Width), size.Height);
         }
 
-        private void OnUnitZoomChanged(double oldZoom, double newZoom) {
+        private void OnUnitZoomChanged(double oldZoom, double newZoom)
+        {
         }
 
-        private void OnMaxDurationChanged(long oldDuration, long newDuration) {
+        private void OnMaxDurationChanged(long oldDuration, long newDuration)
+        {
         }
 
-        private void OnTracksPropertyChanged(IEnumerable<TrackViewModel> oldValue, IEnumerable<TrackViewModel> newValue) {
-            if (oldValue is INotifyCollectionChanged a) {
+        private void OnTracksPropertyChanged(IEnumerable<TrackViewModel> oldValue, IEnumerable<TrackViewModel> newValue)
+        {
+            if (oldValue is INotifyCollectionChanged a)
+            {
                 a.CollectionChanged -= this.OnTrackCollectionChanged;
             }
 
-            if (newValue is INotifyCollectionChanged b) {
+            if (newValue is INotifyCollectionChanged b)
+            {
                 b.CollectionChanged += this.OnTrackCollectionChanged;
             }
         }
 
-        private void OnTrackCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        private void OnTrackCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
         }
     }
 }

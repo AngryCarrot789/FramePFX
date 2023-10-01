@@ -8,7 +8,8 @@ using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Utils;
 
-namespace FramePFX.WPF.PropertyEditing {
+namespace FramePFX.WPF.PropertyEditing
+{
     /// <summary>
     /// A control that just acts as an invisible layer between the contents of
     /// an <see cref="PropertyEditorItem"/> and the actual property editor rows.
@@ -19,7 +20,8 @@ namespace FramePFX.WPF.PropertyEditing {
     /// where this control comes in; you place the editor row's contents in the place of this control
     /// </para>
     /// </summary>
-    public class PropertyEditorSelectionSlot : ContentControl, ISelectablePropertyControl {
+    public class PropertyEditorSelectionSlot : ContentControl, ISelectablePropertyControl
+    {
         public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(PropertyEditorSelectionSlot));
         public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(PropertyEditorSelectionSlot));
 
@@ -36,7 +38,8 @@ namespace FramePFX.WPF.PropertyEditing {
         /// our <see cref="PropertyEditing.PropertyEditor"/>'s selected items
         /// </summary>
         [Category("Appearance")]
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value);
         }
@@ -47,25 +50,31 @@ namespace FramePFX.WPF.PropertyEditing {
 
         public PropertyEditorItemsControl ParentItemsControl => PropertyEditorItem.GetParentItemsControl(this);
 
-        public PropertyEditorSelectionSlot() {
+        public PropertyEditorSelectionSlot()
+        {
         }
 
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseLeftButtonDown(e);
-            if (!this.IsSelected) {
+            if (!this.IsSelected)
+            {
                 this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
             }
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
             base.OnMouseLeftButtonDown(e);
             if (!this.IsSelected)
                 this.SetSelected(true, (Keyboard.Modifiers & ModifierKeys.Control) == 0);
             e.Handled = true;
         }
 
-        private void OnSelectionChanged(bool oldValue, bool newValue) {
-            if (oldValue == newValue) {
+        private void OnSelectionChanged(bool oldValue, bool newValue)
+        {
+            if (oldValue == newValue)
+            {
                 return;
             }
 
@@ -83,22 +92,27 @@ namespace FramePFX.WPF.PropertyEditing {
                 return;
 
             object data = parent.GetItemOrContainerFromContainer(item);
-            if (data is IPropertyEditorObject) {
+            if (data is IPropertyEditorObject)
+            {
                 editor.SetContainerSelection((IPropertyEditorObject) data, this, newValue, false);
-                if (newValue && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
+                if (newValue && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin)
+                {
                     this.Focus();
                 }
             }
 
-            if (newValue) {
+            if (newValue)
+            {
                 this.OnSelected(new RoutedEventArgs(Selector.SelectedEvent, this));
             }
-            else {
+            else
+            {
                 this.OnUnselected(new RoutedEventArgs(Selector.UnselectedEvent, this));
             }
         }
 
-        public bool SetSelected(bool selected, bool isPrimarySelection) {
+        public bool SetSelected(bool selected, bool isPrimarySelection)
+        {
             PropertyEditor editor = this.PropertyEditor;
             if (editor == null)
                 return false;
@@ -115,14 +129,17 @@ namespace FramePFX.WPF.PropertyEditing {
                 throw new Exception("Data context does not match property item editor data");
 
             editor.SetContainerSelection((IPropertyEditorObject) data, this, selected, isPrimarySelection);
-            if (selected && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin) {
+            if (selected && editor.IsKeyboardFocusWithin && !this.IsKeyboardFocusWithin)
+            {
                 this.Focus();
             }
 
-            if (selected) {
+            if (selected)
+            {
                 this.OnSelected(new RoutedEventArgs(Selector.SelectedEvent, this));
             }
-            else {
+            else
+            {
                 this.OnUnselected(new RoutedEventArgs(Selector.UnselectedEvent, this));
             }
 

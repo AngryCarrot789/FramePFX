@@ -4,12 +4,15 @@ using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
 
-namespace FramePFX.Editor.Timelines.ResourceHelpers {
+namespace FramePFX.Editor.Timelines.ResourceHelpers
+{
     /// <summary>
     /// A class that helps with managing a single resource object for use by a clip
     /// </summary>
-    public class ResourceHelper<T> : BaseResourceHelper where T : ResourceItem {
+    public class ResourceHelper<T> : BaseResourceHelper where T : ResourceItem
+    {
         public delegate void ClipResourceModifiedEventHandler(T resource, string property);
+
         public delegate void ClipResourceChangedEventHandler(T oldItem, T newItem);
 
         private readonly ResourcePath<T>.ResourceChangedEventHandler resourceChangedHandler;
@@ -42,7 +45,8 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         // the dirty OOP trick of 'if (this is BaseResourceHelper)' to dispose it
         // the only thing that must be manually handled is LoadDataIntoClone
 
-        public ResourceHelper(IResourceClip<T> clip) {
+        public ResourceHelper(IResourceClip<T> clip)
+        {
             this.Clip = clip ?? throw new ArgumentNullException(nameof(clip));
             this.resourceChangedHandler = this.OnResourceChangedInternal;
             this.dataModifiedHandler = this.OnResourceDataModifiedInternal;
@@ -54,32 +58,40 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             clip.DeserialiseExtension += (c, data) => this.ReadFromRBE(data);
         }
 
-        private void DisposePath() {
+        private void DisposePath()
+        {
             ResourcePath<T> path = this.ResourcePath;
             this.ResourcePath = null; // just in case the code below throws, don't reference a disposed instance
-            if (path != null) {
-                try {
+            if (path != null)
+            {
+                try
+                {
                     path.Dispose();
                 }
-                finally {
+                finally
+                {
                     path.ResourceChanged -= this.resourceChangedHandler;
                 }
             }
         }
 
-        private void OnTrackChanged(Track oldTrack, Track newTrack) {
+        private void OnTrackChanged(Track oldTrack, Track newTrack)
+        {
             this.UpdateManager(newTrack?.Timeline?.Project?.ResourceManager);
         }
 
-        private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
+        private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline)
+        {
             this.UpdateManager(timeline?.Project?.ResourceManager);
         }
 
-        private void OnTrackTimelineProjectChanged(Project oldproject, Project newproject) {
+        private void OnTrackTimelineProjectChanged(Project oldproject, Project newproject)
+        {
             this.UpdateManager(newproject?.ResourceManager);
         }
 
-        private void UpdateManager(ResourceManager manager) {
+        private void UpdateManager(ResourceManager manager)
+        {
             if (this.ResourcePath != null && manager != this.ResourcePath.Manager)
                 this.ResourcePath.SetManager(manager);
         }
@@ -89,12 +101,15 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         /// disposed and replace with a new instance using the same <see cref="ResourceManager"/>
         /// </summary>
         /// <param name="id">The target resource ID</param>
-        public void SetTargetResourceId(ulong id) {
-            if (id == 0) {
+        public void SetTargetResourceId(ulong id)
+        {
+            if (id == 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(id), "ID must not be the null value (0)");
             }
 
-            if (this.ResourcePath != null && this.ResourcePath.ResourceId == id) {
+            if (this.ResourcePath != null && this.ResourcePath.ResourceId == id)
+            {
                 return;
             }
 
@@ -103,13 +118,16 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             this.ResourcePath.ResourceChanged += this.resourceChangedHandler;
         }
 
-        private void OnResourceChangedInternal(T oldItem, T newItem) {
-            if (oldItem != null) {
+        private void OnResourceChangedInternal(T oldItem, T newItem)
+        {
+            if (oldItem != null)
+            {
                 oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
                 oldItem.DataModified -= this.dataModifiedHandler;
             }
 
-            if (newItem != null) {
+            if (newItem != null)
+            {
                 newItem.OnlineStateChanged += this.onlineStateChangedHandler;
                 newItem.DataModified += this.dataModifiedHandler;
             }
@@ -118,7 +136,8 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             this.TriggerClipRender();
         }
 
-        private void OnResourceDataModifiedInternal(ResourceItem sender, string property) {
+        private void OnResourceDataModifiedInternal(ResourceItem sender, string property)
+        {
             if (this.ResourcePath == null)
                 throw new InvalidOperationException("Expected resource path to be non-null");
             if (!this.ResourcePath.IsCachedItemEqualTo(sender))
@@ -127,33 +146,42 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             this.TriggerClipRender();
         }
 
-        private void OnOnlineStateChangedInternal(ResourceManager manager, ResourceItem item) {
+        private void OnOnlineStateChangedInternal(ResourceManager manager, ResourceItem item)
+        {
             if (!this.ResourcePath.IsCachedItemEqualTo(item))
                 throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
             this.OnOnlineStateChanged(manager, item);
             this.TriggerClipRender();
         }
 
-        public void TriggerClipRender() {
-            if (this.Clip is VideoClip clip && (clip.Project?.Editor?.CanRender ?? false)) {
+        public void TriggerClipRender()
+        {
+            if (this.Clip is VideoClip clip && (clip.Project?.Editor?.CanRender ?? false))
+            {
                 clip.InvalidateRender();
             }
         }
 
-        public void WriteToRBE(RBEDictionary data) {
-            if (this.ResourcePath != null) {
+        public void WriteToRBE(RBEDictionary data)
+        {
+            if (this.ResourcePath != null)
+            {
                 ResourcePath<T>.WriteToRBE(this.ResourcePath, data.CreateDictionary(nameof(this.ResourcePath)));
             }
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
-            if (data.TryGetElement(nameof(this.ResourcePath), out RBEDictionary resource)) {
+        public void ReadFromRBE(RBEDictionary data)
+        {
+            if (data.TryGetElement(nameof(this.ResourcePath), out RBEDictionary resource))
+            {
                 this.ResourcePath = ResourcePath<T>.ReadFromRBE(this.Clip.Project?.ResourceManager, resource);
             }
         }
 
-        public bool TryGetResource(out T resource) {
-            if (this.ResourcePath != null) {
+        public bool TryGetResource(out T resource)
+        {
+            if (this.ResourcePath != null)
+            {
                 return this.ResourcePath.TryGetResource(out resource);
             }
 
@@ -161,14 +189,18 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             return false;
         }
 
-        public override void Dispose() {
-            if (this.ResourcePath != null && !this.ResourcePath.IsDisposed) {
+        public override void Dispose()
+        {
+            if (this.ResourcePath != null && !this.ResourcePath.IsDisposed)
+            {
                 this.DisposePath();
             }
         }
 
-        public void LoadDataIntoClone(ResourceHelper<T> helper) {
-            if (this.ResourcePath != null) {
+        public void LoadDataIntoClone(ResourceHelper<T> helper)
+        {
+            if (this.ResourcePath != null)
+            {
                 helper.SetTargetResourceId(this.ResourcePath.ResourceId);
             }
         }

@@ -18,10 +18,10 @@
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Padding="5" Text="Bitrate" VerticalAlignment="Center" />
             <dragger:NumberDragger Minimum="10" Maximum="10000000000" Value="{Binding BitRate, Mode=TwoWay}"
-                              DisplayTextOverride="{Binding BitRate, Converter={x:Static converters:BitRateToAltSizeConverter.Instance}}"
-                              ChangeMapper="{x:Static converters:BitRateChangeMapper.Instance}"
-                              Grid.Row="0" Grid.Column="1" Padding="4,3" Margin="0,0,0,0" Height="25"
-                              HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                   DisplayTextOverride="{Binding BitRate, Converter={x:Static converters:BitRateToAltSizeConverter.Instance}}"
+                                   ChangeMapper="{x:Static converters:BitRateChangeMapper.Instance}"
+                                   Grid.Row="0" Grid.Column="1" Padding="4,3" Margin="0,0,0,0" Height="25"
+                                   HorizontalAlignment="Stretch" VerticalAlignment="Center" />
         </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -30,9 +30,9 @@
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Padding="5" Text="GOP" VerticalAlignment="Center" />
             <dragger:NumberDragger Minimum="0" Maximum="100" Value="{Binding GopValue, Mode=TwoWay}"
-                              TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="3"
-                              Grid.Row="0" Grid.Column="1" Padding="4,3" Margin="0,0,0,0" Height="25"
-                              HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                   TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="3"
+                                   Grid.Row="0" Grid.Column="1" Padding="4,3" Margin="0,0,0,0" Height="25"
+                                   HorizontalAlignment="Stretch" VerticalAlignment="Center" />
         </Grid>
     </StackPanel>
 </UserControl>

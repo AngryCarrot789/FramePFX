@@ -1,15 +1,20 @@
 using FramePFX.Shortcuts.Dialogs;
 using FramePFX.Shortcuts.Inputs;
 
-namespace FramePFX.WPF.Shortcuts.Dialogs {
+namespace FramePFX.WPF.Shortcuts.Dialogs
+{
     [ServiceImplementation(typeof(IKeyboardDialogService))]
-    public class KeyboardDialogService : IKeyboardDialogService {
-        public KeyStroke? ShowGetKeyStrokeDialog() {
+    public class KeyboardDialogService : IKeyboardDialogService
+    {
+        public KeyStroke? ShowGetKeyStrokeDialog()
+        {
             KeyStrokeInputWindow window = new KeyStrokeInputWindow();
-            if (window.ShowDialog() != true || window.Stroke.Equals(default)) {
+            if (window.ShowDialog() != true || window.Stroke.Equals(default))
+            {
                 return null;
             }
-            else {
+            else
+            {
                 return window.Stroke;
             }
         }

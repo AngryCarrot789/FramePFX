@@ -55,8 +55,8 @@ namespace FramePFX.Rendering.ObjectTK
             this.Height = height;
             this.Samples = samples;
             this.FixedSampleLocations = fixedSampleLocations;
-            GL.BindTexture(this.TextureTarget, Handle);
-            GL.TexStorage2DMultisample((TextureTargetMultisample2d)this.TextureTarget, this.Samples, internalFormat, this.Width, this.Height, this.FixedSampleLocations);
+            GL.BindTexture(this.TextureTarget, this.Handle);
+            GL.TexStorage2DMultisample((TextureTargetMultisample2d) this.TextureTarget, this.Samples, internalFormat, this.Width, this.Height, this.FixedSampleLocations);
         }
     }
 }

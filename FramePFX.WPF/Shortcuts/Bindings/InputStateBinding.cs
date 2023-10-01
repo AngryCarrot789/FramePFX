@@ -3,8 +3,10 @@ using System.Windows;
 using System.Windows.Input;
 using FramePFX.Utils;
 
-namespace FramePFX.WPF.Shortcuts.Bindings {
-    public class InputStateBinding : Freezable {
+namespace FramePFX.WPF.Shortcuts.Bindings
+{
+    public class InputStateBinding : Freezable
+    {
         public static readonly DependencyProperty CommandProperty = InputBinding.CommandProperty.AddOwner(typeof(InputStateBinding));
         public static readonly DependencyProperty InputStatePathProperty = DependencyProperty.Register(nameof(InputStatePath), typeof(string), typeof(InputStateBinding));
 
@@ -19,11 +21,13 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
                     // since OneWayToSource isn't available by default, TwoWay will work
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PropertyChangedCallback, CoerceValueCallback));
 
-        private static object CoerceValueCallback(DependencyObject d, object basevalue) {
+        private static object CoerceValueCallback(DependencyObject d, object basevalue)
+        {
             return basevalue;
         }
 
-        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
         }
 
         /// <summary>
@@ -31,7 +35,8 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
         /// </summary>
         [Localizability(LocalizationCategory.NeverLocalize)]
         [TypeConverter(typeof(CommandConverter))]
-        public ICommand Command {
+        public ICommand Command
+        {
             get => (ICommand) this.GetValue(CommandProperty);
             set => this.SetValue(CommandProperty, value);
         }
@@ -39,7 +44,8 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
         /// <summary>
         /// The full path of the shortcut that must be activated in order for this binding's command to be executed
         /// </summary>
-        public string InputStatePath {
+        public string InputStatePath
+        {
             get => (string) this.GetValue(InputStatePathProperty);
             set => this.SetValue(InputStatePathProperty, value);
         }
@@ -47,12 +53,14 @@ namespace FramePFX.WPF.Shortcuts.Bindings {
         /// <summary>
         /// Whether or not the input state binding (whose full path matches <see cref="InputStatePath"/>) is active or not
         /// </summary>
-        public bool IsActive {
+        public bool IsActive
+        {
             get => (bool) this.GetValue(IsActiveProperty);
             set => this.SetValue(IsActiveProperty, value.Box());
         }
 
-        public InputStateBinding() {
+        public InputStateBinding()
+        {
         }
 
         protected override Freezable CreateInstanceCore() => new InputStateBinding();

@@ -1,11 +1,14 @@
 ﻿using System.Windows.Controls;
 
-namespace FramePFX.WPF.Editor.Timeline {
+namespace FramePFX.WPF.Editor.Timeline
+{
     /// <summary>
     /// Interaction logic for TimelineLayoutAnchorable.xaml
     /// </summary>
-    public partial class PreAnchoredTimelineControl : UserControl {
-        public PreAnchoredTimelineControl() {
+    public partial class PreAnchoredTimelineControl : UserControl
+    {
+        public PreAnchoredTimelineControl()
+        {
             this.InitializeComponent();
         }
     }

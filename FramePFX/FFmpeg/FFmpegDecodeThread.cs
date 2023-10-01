@@ -3,11 +3,13 @@ using System.Threading;
 using FFmpeg.AutoGen;
 using MediaStream = FramePFX.FFmpegWrapper.Containers.MediaStream;
 
-namespace FramePFX.FFmpeg {
+namespace FramePFX.FFmpeg
+{
     /// <summary>
     /// A thread-based FFmpeg decoder
     /// </summary>
-    public class FFmpegDecodeThread : IDisposable {
+    public class FFmpegDecodeThread : IDisposable
+    {
         private long lastFrame;
         private readonly string filePath;
 
@@ -20,19 +22,23 @@ namespace FramePFX.FFmpeg {
 
         private volatile bool stop;
 
-        public FFmpegDecodeThread(string filePath) {
+        public FFmpegDecodeThread(string filePath)
+        {
             this.filePath = filePath;
             this.getFrameMutex = new object();
             this.thread = new Thread(this.ThreadMain);
         }
 
-        private void ThreadMain() {
-            while (!this.stop) {
+        private void ThreadMain()
+        {
+            while (!this.stop)
+            {
                 Thread.Sleep(1);
             }
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
         }
     }
 }

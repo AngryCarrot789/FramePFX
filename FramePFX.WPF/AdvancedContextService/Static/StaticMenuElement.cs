@@ -1,4 +1,6 @@
-namespace FramePFX.WPF.AdvancedContextService.Static {
-    public class StaticMenuElement {
+namespace FramePFX.WPF.AdvancedContextService.Static
+{
+    public class StaticMenuElement
+    {
     }
 }

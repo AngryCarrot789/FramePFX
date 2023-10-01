@@ -1,8 +1,10 @@
 using System;
 using System.Threading;
 
-namespace FramePFX.WPF.Utils {
-    public class UsageCounter {
+namespace FramePFX.WPF.Utils
+{
+    public class UsageCounter
+    {
         private volatile int count;
 
         public bool IsInUse => this.count > 0;
@@ -15,7 +17,8 @@ namespace FramePFX.WPF.Utils {
         /// <returns>
         /// True if it was originally not in use, otherwise false if it was already in use
         /// </returns>
-        public bool Increment() {
+        public bool Increment()
+        {
             int value = Interlocked.Increment(ref this.count);
             return value == 1;
         }
@@ -26,15 +29,19 @@ namespace FramePFX.WPF.Utils {
         /// <returns>
         /// True if there are no more objects in use, otherwise false if there are still usages
         /// </returns>
-        public bool Decrement() {
+        public bool Decrement()
+        {
             int result = Interlocked.Decrement(ref this.count);
-            if (result == 0) {
+            if (result == 0)
+            {
                 return true;
             }
-            else if (result < 0) {
+            else if (result < 0)
+            {
                 throw new Exception("Too many calls to Decrement()");
             }
-            else {
+            else
+            {
                 return false;
             }
         }

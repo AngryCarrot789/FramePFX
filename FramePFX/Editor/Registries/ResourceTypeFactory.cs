@@ -3,14 +3,17 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 
-namespace FramePFX.Editor.Registries {
+namespace FramePFX.Editor.Registries
+{
     /// <summary>
     /// The registry for resource items (including the resource folder)
     /// </summary>
-    public class ResourceTypeFactory : ModelFactory<BaseResource, BaseResourceViewModel> {
+    public class ResourceTypeFactory : ModelFactory<BaseResource, BaseResourceViewModel>
+    {
         public static ResourceTypeFactory Instance { get; } = new ResourceTypeFactory();
 
-        private ResourceTypeFactory() {
+        private ResourceTypeFactory()
+        {
             base.Register<ResourceFolder, ResourceFolderViewModel>("r_group");
             base.Register<ResourceColour, ResourceColourViewModel>("r_argb");
             base.Register<ResourceImage, ResourceImageViewModel>("r_img");
@@ -21,7 +24,8 @@ namespace FramePFX.Editor.Registries {
             base.Register<ResourceComposition, ResourceCompositionViewModel>("r_comp");
         }
 
-        public new void Register<TModel, TViewModel>(string id) where TModel : BaseResource where TViewModel : BaseResourceViewModel {
+        public new void Register<TModel, TViewModel>(string id) where TModel : BaseResource where TViewModel : BaseResourceViewModel
+        {
             base.Register<TModel, TViewModel>(id);
         }
 

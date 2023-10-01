@@ -1,5 +1,7 @@
-namespace FramePFX.RBC {
-    public enum RBEType : byte {
+namespace FramePFX.RBC
+{
+    public enum RBEType : byte
+    {
         // In order for old data to be compatible, the existing type values
         // should not be modified. There can only be 255 different types of element (1-255)
 

@@ -3,27 +3,36 @@ using FramePFX.Actions;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 
-namespace FramePFX.Editor.Actions.Clips {
+namespace FramePFX.Editor.Actions.Clips
+{
     [ActionRegistration("actions.timeline.OpenCompositionObjectsTimeline")]
-    public class OpenCompositionObjectsTimelineAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (e.DataContext.TryGetContext(out CompositionVideoClipViewModel clip)) {
-                if (clip.TryGetResource(out ResourceCompositionViewModel resource)) {
+    public class OpenCompositionObjectsTimelineAction : AnAction
+    {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
+        {
+            if (e.DataContext.TryGetContext(out CompositionVideoClipViewModel clip))
+            {
+                if (clip.TryGetResource(out ResourceCompositionViewModel resource))
+                {
                     await OpenTimeline(resource);
                 }
             }
-            else if (e.DataContext.TryGetContext(out ResourceCompositionViewModel resource)) {
+            else if (e.DataContext.TryGetContext(out ResourceCompositionViewModel resource))
+            {
                 await OpenTimeline(resource);
             }
-            else {
+            else
+            {
                 return false;
             }
 
             return true;
         }
 
-        public static async Task OpenTimeline(ResourceCompositionViewModel composition) {
-            if (composition.Manager?.Project.Editor == null) {
+        public static async Task OpenTimeline(ResourceCompositionViewModel composition)
+        {
+            if (composition.Manager?.Project.Editor == null)
+            {
                 return;
             }
 

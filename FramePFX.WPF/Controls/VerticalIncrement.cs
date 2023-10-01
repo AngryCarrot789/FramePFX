@@ -1,5 +1,7 @@
-namespace FramePFX.WPF.Controls {
-    public enum VerticalIncrement {
+namespace FramePFX.WPF.Controls
+{
+    public enum VerticalIncrement
+    {
         /// <summary>
         /// Decrement the value when dragged up, and increment when dragged down (default)
         /// </summary>

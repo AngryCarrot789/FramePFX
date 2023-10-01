@@ -2,7 +2,8 @@ using System;
 using System.Linq;
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Rendering.ObjectTK {
+namespace FramePFX.Rendering.ObjectTK
+{
     /// <summary>
     /// Represents a texture object.
     /// </summary>
@@ -23,7 +24,8 @@ namespace FramePFX.Rendering.ObjectTK {
     /// TextureBuffer
     /// </code>
     /// </remarks>
-    public abstract class Texture : OGLObject {
+    public abstract class Texture : OGLObject
+    {
         /// <summary>
         /// Specifies the texture target.
         /// </summary>
@@ -56,7 +58,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// </summary>
         /// <param name="internalFormat">The internal format of the texture.</param>
         /// <param name="levels">The number of mipmap levels.</param>
-        public Texture(SizedInternalFormat internalFormat, int levels) : this(GL.GenTexture(), internalFormat, levels) {
+        public Texture(SizedInternalFormat internalFormat, int levels) : this(GL.GenTexture(), internalFormat, levels)
+        {
         }
 
         /// <summary>
@@ -66,7 +69,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// <param name="textureHandle">The texture handle.</param>
         /// <param name="internalFormat">The internal format of the texture.</param>
         /// <param name="levels">The number of mipmap levels.</param>
-        public Texture(int textureHandle, SizedInternalFormat internalFormat, int levels) : base(textureHandle) {
+        public Texture(int textureHandle, SizedInternalFormat internalFormat, int levels) : base(textureHandle)
+        {
             this.InternalFormat = internalFormat;
             this.Levels = levels;
         }
@@ -82,14 +86,16 @@ namespace FramePFX.Rendering.ObjectTK {
         /// <param name="levels">Specifies the number of desired mipmap levels.</param>
         /// <param name="dimensions">Specifies the size of the textures base image in each dimension.</param>
         /// <returns>A valid number of mipmap levels.</returns>
-        protected static int GetLevels(int levels, params int[] dimensions) {
+        protected static int GetLevels(int levels, params int[] dimensions)
+        {
             int maxLevels = TextureFactory.CalculateMaxMipmapLevels(dimensions);
             if (levels > maxLevels || levels < 0)
                 throw new ArgumentOutOfRangeException(nameof(levels), levels, $"The valid range of mipmapping levels for a maximum texture dimension of {dimensions.Max()} is [0,{maxLevels}]");
             return levels == 0 ? maxLevels : levels;
         }
 
-        protected override void Dispose(bool manual) {
+        protected override void Dispose(bool manual)
+        {
             if (!manual)
                 return;
             GL.DeleteTexture(this.Handle);
@@ -98,7 +104,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// <summary>
         /// Binds the texture to the current texture unit at its default texture target.
         /// </summary>
-        public void Bind() {
+        public void Bind()
+        {
             GL.BindTexture(this.TextureTarget, this.Handle);
         }
 
@@ -106,7 +113,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// Binds the texture to the given texture unit at its default texture target.
         /// </summary>
         /// <param name="unit">The texture unit to bind to.</param>
-        public void Bind(TextureUnit unit) {
+        public void Bind(TextureUnit unit)
+        {
             GL.ActiveTexture(unit);
             this.Bind();
         }
@@ -114,7 +122,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// <summary>
         /// Automatically generates all mipmaps.
         /// </summary>
-        public void GenerateMipMaps() {
+        public void GenerateMipMaps()
+        {
             if (!this.SupportsMipmaps)
                 throw new InvalidOperationException("Texture does not support mipmaps.");
             this.Bind();
@@ -126,7 +135,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// </summary>
         /// <param name="parameterName"></param>
         /// <param name="value"></param>
-        public void SetParameter(TextureParameterName parameterName, int value) {
+        public void SetParameter(TextureParameterName parameterName, int value)
+        {
             GL.TexParameter(this.TextureTarget, parameterName, value);
         }
 
@@ -134,7 +144,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// Sets the given wrap mode on all dimensions R, S and T.
         /// </summary>
         /// <param name="wrapMode">The wrap mode to apply.</param>
-        public void SetWrapMode(TextureWrapMode wrapMode) {
+        public void SetWrapMode(TextureWrapMode wrapMode)
+        {
             var mode = (int) wrapMode;
             this.SetParameter(TextureParameterName.TextureWrapR, mode);
             this.SetParameter(TextureParameterName.TextureWrapS, mode);
@@ -146,7 +157,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// </summary>
         /// <param name="minFilter"></param>
         /// <param name="magFilter"></param>
-        public void SetFilter(TextureMinFilter minFilter, TextureMagFilter magFilter) {
+        public void SetFilter(TextureMinFilter minFilter, TextureMagFilter magFilter)
+        {
             this.SetParameter(TextureParameterName.TextureMinFilter, (int) minFilter);
             this.SetParameter(TextureParameterName.TextureMagFilter, (int) magFilter);
         }
@@ -155,7 +167,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// Sets default texture parameters to ensure texture completeness.<br/>
         /// Enables mipmapping if the texture supports it, otherwise filtering is set to linear interpolation.
         /// </summary>
-        public virtual void SetDefaultTexParameters() {
+        public virtual void SetDefaultTexParameters()
+        {
             this.SetParameter(TextureParameterName.TextureMinFilter, (int) (this.Levels > 1 ? TextureMinFilter.NearestMipmapLinear : TextureMinFilter.Linear));
             this.SetParameter(TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear);
         }
@@ -167,7 +180,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// </summary>
         /// <param name="level">The mipmap level of the texture.</param>
         /// <returns>True if the level is supported, otherwise false.</returns>
-        public bool SupportsLevel(int level) {
+        public bool SupportsLevel(int level)
+        {
             return (this.SupportsMipmaps || level == 0) && (level < this.Levels || !this.SupportsMipmaps);
         }
 
@@ -176,7 +190,8 @@ namespace FramePFX.Rendering.ObjectTK {
         /// The mipmap level must be zero for all texture types which do not support mipmaps.
         /// </summary>
         /// <param name="level">Specifies a mipmap level of the texture.</param>
-        internal void AssertLevel(int level) {
+        internal void AssertLevel(int level)
+        {
             if (!this.SupportsLevel(level))
                 throw new ArgumentException($"Texture does not contain the mipmap level {level} or does not support mipmapping at all.");
         }

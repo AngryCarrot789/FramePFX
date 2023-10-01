@@ -1,12 +1,15 @@
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Rendering {
-    public static class GLUtils {
+namespace FramePFX.Rendering
+{
+    public static class GLUtils
+    {
         // Prepare
         // IoC.SkiaOGLContext.ResetContext(GRGlBackendState.All);
         // then...
 
-        public static void CleanGL() {
+        public static void CleanGL()
+        {
             // Reset (using OpenTK's GL bindings)
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.VertexProgramPointSize);

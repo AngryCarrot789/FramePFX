@@ -1,16 +1,22 @@
 using System;
 
-namespace FramePFX.WPF.Shortcuts {
-    public class ActivationHandlerReference {
+namespace FramePFX.WPF.Shortcuts
+{
+    public class ActivationHandlerReference
+    {
         private readonly WeakReference<ShortcutActivateHandler> weakReference;
         private readonly ShortcutActivateHandler strongReference;
 
-        public ShortcutActivateHandler Value {
-            get {
-                if (this.weakReference != null) {
+        public ShortcutActivateHandler Value
+        {
+            get
+            {
+                if (this.weakReference != null)
+                {
                     return this.weakReference.TryGetTarget(out ShortcutActivateHandler target) ? target : null;
                 }
-                else {
+                else
+                {
                     return this.strongReference;
                 }
             }
@@ -20,11 +26,14 @@ namespace FramePFX.WPF.Shortcuts {
 
         public bool IsStrong => this.weakReference == null;
 
-        public ActivationHandlerReference(ShortcutActivateHandler handler, bool weak) {
-            if (weak) {
+        public ActivationHandlerReference(ShortcutActivateHandler handler, bool weak)
+        {
+            if (weak)
+            {
                 this.weakReference = new WeakReference<ShortcutActivateHandler>(handler);
             }
-            else {
+            else
+            {
                 this.strongReference = handler;
             }
         }

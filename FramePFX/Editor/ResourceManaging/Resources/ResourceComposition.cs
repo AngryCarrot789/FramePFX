@@ -2,37 +2,67 @@ using System;
 using FramePFX.Editor.Timelines;
 using FramePFX.RBC;
 
-namespace FramePFX.Editor.ResourceManaging.Resources {
+namespace FramePFX.Editor.ResourceManaging.Resources
+{
     /// <summary>
     /// A resource for storing information about a composition sequence,
     /// which is a separate timeline that can be used as a clip
     /// </summary>
-    public class ResourceComposition : ResourceItem {
+    public class ResourceComposition : ResourceItem
+    {
         /// <summary>
         /// This composition sequence's timeline
         /// </summary>
         public CompositionTimeline Timeline { get; }
 
-        public ResourceComposition() : this(new CompositionTimeline()) {
+        public ResourceComposition() : this(new CompositionTimeline())
+        {
             this.Timeline.MaxDuration = 5000;
         }
 
-        public ResourceComposition(CompositionTimeline timeline) {
+        public ResourceComposition(CompositionTimeline timeline)
+        {
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             timeline.Owner = this;
         }
 
-        protected internal override void SetManager(ResourceManager manager) {
-            base.SetManager(manager);
-            this.Timeline.SetProject(manager?.Project);
+        public override void OnAttachedToManager()
+        {
+            base.OnAttachedToManager();
+            this.Timeline.SetProject(this.Manager.Project);
+            if (this.Manager.Project?.IsLoaded ?? false)
+            {
+                this.Timeline.SetupRenderData();
+            }
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void OnDetatchedFromManager()
+        {
+            base.OnDetatchedFromManager();
+            this.Timeline.ClearRenderData();
+            this.Timeline.SetProject(null);
+        }
+
+        public override void OnProjectLoaded()
+        {
+            base.OnProjectLoaded();
+            this.Timeline.SetupRenderData();
+        }
+
+        public override void OnProjectUnloaded()
+        {
+            base.OnProjectUnloaded();
+            this.Timeline.ClearRenderData();
+        }
+
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
         }

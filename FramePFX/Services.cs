@@ -6,16 +6,24 @@ using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.Progression;
 using FramePFX.Views.Dialogs.UserInputs;
 
-namespace FramePFX {
+namespace FramePFX
+{
     /// <summary>
     /// A class that
     /// </summary>
-    public static class Services {
+    public static class Services
+    {
         public static ServiceManager ServiceManager { get; } = new ServiceManager();
 
         public static IShortcutManagerDialogService ShortcutManagerDialog => GetService<IShortcutManagerDialogService>();
-        public static Action<string> OnShortcutModified { get; set; } = (x) => { };
-        public static Action<string> BroadcastShortcutActivity { get; set; } = (x) => { };
+
+        public static Action<string> OnShortcutModified { get; set; } = (x) =>
+        {
+        };
+
+        public static Action<string> BroadcastShortcutActivity { get; set; } = (x) =>
+        {
+        };
 
         /// <summary>
         /// An interface which wraps the application

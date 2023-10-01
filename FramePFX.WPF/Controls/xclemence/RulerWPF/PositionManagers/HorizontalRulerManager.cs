@@ -7,16 +7,20 @@
 using System.Windows;
 using System.Windows.Shapes;
 
-namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers {
-    public abstract class HorizontalRulerManager : RulerPositionManager {
+namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers
+{
+    public abstract class HorizontalRulerManager : RulerPositionManager
+    {
         protected HorizontalRulerManager(RulerBase control) : base(control) { }
 
         public override double GetSize() => this.Control.ActualWidth;
         public override double GetHeight() => this.Control.ActualHeight;
         public override double GetMajorSize() => this.Control.MajorLineSize ?? (this.Control.ActualHeight / 2d);
 
-        public override bool OnUpdateMakerPosition(Line marker, Point position) {
-            if (position.X <= 0 || position.X >= this.GetSize()) {
+        public override bool OnUpdateMakerPosition(Line marker, Point position)
+        {
+            if (position.X <= 0 || position.X >= this.GetSize())
+            {
                 return false;
             }
 

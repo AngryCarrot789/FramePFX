@@ -3,8 +3,10 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace FramePFX.WPF.Controls {
-    public class SelectionAdorder : Adorner {
+namespace FramePFX.WPF.Controls
+{
+    public class SelectionAdorder : Adorner
+    {
         public static readonly DependencyProperty BackgroundProperty =
             DependencyProperty.Register(
                 "Background",
@@ -33,22 +35,26 @@ namespace FramePFX.WPF.Controls {
                 typeof(SelectionAdorder),
                 new FrameworkPropertyMetadata(default(Rect), FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public Brush Background {
+        public Brush Background
+        {
             get => (Brush) this.GetValue(BackgroundProperty);
             set => this.SetValue(BackgroundProperty, value);
         }
 
-        public Brush BorderBrush {
+        public Brush BorderBrush
+        {
             get => (Brush) this.GetValue(BorderBrushProperty);
             set => this.SetValue(BorderBrushProperty, value);
         }
 
-        public Thickness BorderThickness {
+        public Thickness BorderThickness
+        {
             get => (Thickness) this.GetValue(BorderThicknessProperty);
             set => this.SetValue(BorderThicknessProperty, value);
         }
 
-        public Rect RenderRect {
+        public Rect RenderRect
+        {
             get => (Rect) this.GetValue(RenderRectProperty);
             set => this.SetValue(RenderRectProperty, value);
         }
@@ -58,26 +64,30 @@ namespace FramePFX.WPF.Controls {
         private Pen penR;
         private Pen penB;
 
-        public SelectionAdorder(UIElement adornedElement) : base(adornedElement) {
+        public SelectionAdorder(UIElement adornedElement) : base(adornedElement)
+        {
             this.IsHitTestVisible = false;
             this.Opacity = 0.5d;
         }
 
-        private void InvalidateResources() {
+        private void InvalidateResources()
+        {
             this.penL = null;
             this.penT = null;
             this.penR = null;
             this.penB = null;
         }
 
-        private static Pen NewPen(Brush brush, double thickness) {
+        private static Pen NewPen(Brush brush, double thickness)
+        {
             Pen pen = new Pen(brush, thickness);
             if (brush.IsFrozen)
                 pen.Freeze();
             return pen;
         }
 
-        public void SetRect(double x, double y, double w, double h) {
+        public void SetRect(double x, double y, double w, double h)
+        {
             // this.Margin = new Thickness(x, y, 0, 0);
             // this.Width = w;
             // this.Height = h;
@@ -85,7 +95,8 @@ namespace FramePFX.WPF.Controls {
             this.RenderRect = new Rect(x, y, w, h);
         }
 
-        protected override void OnRender(DrawingContext dc) {
+        protected override void OnRender(DrawingContext dc)
+        {
             Rect rect = this.RenderRect;
             dc.PushClip(new RectangleGeometry(new Rect(new Point(), this.AdornedElement.RenderSize)));
             dc.PushTransform(new TranslateTransform(rect.X, rect.Y));
@@ -94,25 +105,31 @@ namespace FramePFX.WPF.Controls {
             dc.Pop();
         }
 
-        private void DoRender(DrawingContext dc) {
+        private void DoRender(DrawingContext dc)
+        {
             Rect rect = this.RenderRect;
             Thickness border = this.BorderThickness;
             Brush borderBrush;
-            if ((border.Left > 0d || border.Top > 0d || border.Right > 0d || border.Bottom > 0d) && (borderBrush = this.BorderBrush) != null) {
+            if ((border.Left > 0d || border.Top > 0d || border.Right > 0d || border.Bottom > 0d) && (borderBrush = this.BorderBrush) != null)
+            {
                 bool isUniform = Math.Abs(border.Left - border.Top) < 0.01d && Math.Abs(border.Left - border.Right) < 0.01d && Math.Abs(border.Left - border.Bottom) < 0.01d;
                 Pen penMain = this.penL ?? (this.penL = NewPen(borderBrush, border.Left));
-                if (isUniform) {
+                if (isUniform)
+                {
                     double thicc = penMain.Thickness * 0.5d;
                     Rect uniform = new Rect(new Point(thicc, thicc), new Point(rect.Width - thicc, rect.Height - thicc));
                     dc.DrawRectangle(null, penMain, uniform);
                 }
-                else {
-                    if (border.Left > 0) {
+                else
+                {
+                    if (border.Left > 0)
+                    {
                         double thicc = penMain.Thickness * 0.5;
                         dc.DrawLine(penMain, new Point(thicc, 0.0), new Point(thicc, rect.Height));
                     }
 
-                    if (border.Top > 0) {
+                    if (border.Top > 0)
+                    {
                         Pen pen = this.penT ?? (this.penT = NewPen(borderBrush, border.Top));
                         double thicc = pen.Thickness * 0.5;
                         Point point0 = new Point(0.0, thicc);
@@ -120,7 +137,8 @@ namespace FramePFX.WPF.Controls {
                         dc.DrawLine(pen, point0, point1);
                     }
 
-                    if (border.Right > 0) {
+                    if (border.Right > 0)
+                    {
                         Pen pen = this.penR ?? (this.penR = NewPen(borderBrush, border.Right));
                         double thicc = pen.Thickness * 0.5;
                         Point point0 = new Point(rect.Width - thicc, 0.0);
@@ -129,7 +147,8 @@ namespace FramePFX.WPF.Controls {
                         rect.Width -= pen.Thickness;
                     }
 
-                    if (border.Bottom > 0) {
+                    if (border.Bottom > 0)
+                    {
                         Pen pen = this.penB ?? (this.penB = NewPen(borderBrush, border.Bottom));
                         double thicc = pen.Thickness * 0.5;
                         Point point0 = new Point(0.0, rect.Height - thicc);
@@ -140,13 +159,15 @@ namespace FramePFX.WPF.Controls {
             }
 
             Brush background = this.Background;
-            if (background != null) {
+            if (background != null)
+            {
                 double x = rect.Width - border.Right;
                 double y = rect.Height - border.Bottom;
                 Point p1 = new Point(border.Left, border.Top);
                 Point p2 = new Point(x, y);
 
-                if (!(p2.X <= p1.X) && !(p2.Y <= p1.Y)) {
+                if (!(p2.X <= p1.X) && !(p2.Y <= p1.Y))
+                {
                     dc.DrawRectangle(background, null, new Rect(p1, p2));
                 }
             }

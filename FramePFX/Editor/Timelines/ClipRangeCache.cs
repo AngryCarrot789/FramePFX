@@ -3,32 +3,39 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines {
+namespace FramePFX.Editor.Timelines
+{
     /// <summary>
     /// A class that caches clips in chunks in order to make lookup by frame index faster, due to track clips being unordered
     /// <para>
     /// Chunks are 128 frames (0-127)
     /// </para>
     /// </summary>
-    public class ClipRangeCache {
+    public class ClipRangeCache
+    {
         private readonly SortedList<long, List<Clip>> Map;
 
         public long LargestActiveFrame { get; private set; }
 
         public long PreviousLargestActiveFrame { get; private set; }
 
-        public ClipRangeCache() {
+        public ClipRangeCache()
+        {
             this.Map = new SortedList<long, List<Clip>>();
         }
 
-        public Clip GetPrimaryClipAt(long frame) {
-            if (!this.Map.TryGetValue(GetIndex(frame), out List<Clip> list)) {
+        public Clip GetPrimaryClipAt(long frame)
+        {
+            if (!this.Map.TryGetValue(GetIndex(frame), out List<Clip> list))
+            {
                 return null;
             }
 
-            for (int i = list.Count - 1; i >= 0; i--) {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
                 Clip clip = list[i];
-                if (clip.IntersectsFrameAt(frame)) {
+                if (clip.IntersectsFrameAt(frame))
+                {
                     return clip;
                 }
             }
@@ -42,8 +49,10 @@ namespace FramePFX.Editor.Timelines {
 
         #region Processor functions
 
-        public void AddClipInRange(Clip clip, long min, long max) {
-            for (long frame = min; frame <= max; frame++) {
+        public void AddClipInRange(Clip clip, long min, long max)
+        {
+            for (long frame = min; frame <= max; frame++)
+            {
                 if (!this.Map.TryGetValue(frame, out List<Clip> list))
                     this.Map[frame] = list = new List<Clip>();
                 else if (list.Contains(clip))
@@ -52,19 +61,24 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        public void RemoveClipInRange(Clip clip, long min, long max) {
-            for (long frame = min; frame <= max; frame++) {
+        public void RemoveClipInRange(Clip clip, long min, long max)
+        {
+            for (long frame = min; frame <= max; frame++)
+            {
                 int index = this.Map.IndexOfKey(frame);
-                if (index != -1) {
+                if (index != -1)
+                {
                     List<Clip> list = this.Map.Values[index];
-                    if (list.Remove(clip) && list.Count < 1) {
+                    if (list.Remove(clip) && list.Count < 1)
+                    {
                         this.Map.RemoveAt(index);
                     }
                 }
             }
         }
 
-        public void Add(Clip clip) {
+        public void Add(Clip clip)
+        {
             FrameSpan span = clip.FrameSpan;
             GetRange(span, out long a, out long b);
             this.AddClipInRange(clip, a, b);
@@ -72,33 +86,42 @@ namespace FramePFX.Editor.Timelines {
             this.LargestActiveFrame = Math.Max(this.LargestActiveFrame, span.EndIndex);
         }
 
-        public void Remove(FrameSpan location, Clip clip) {
+        public void Remove(FrameSpan location, Clip clip)
+        {
             GetRange(location, out long a, out long b);
             this.RemoveClipInRange(clip, a, b);
             this.ProcessLargestFrame();
         }
 
-        public void OnLocationChanged(Clip clip, FrameSpan oldSpan) {
+        public void OnLocationChanged(Clip clip, FrameSpan oldSpan)
+        {
             FrameSpan newSpan = clip.FrameSpan;
-            if (oldSpan == newSpan) {
+            if (oldSpan == newSpan)
+            {
                 return;
             }
 
             GetRange(oldSpan, out long oldA, out long oldB);
             GetRange(newSpan, out long newA, out long newB);
-            if (oldA != newA || oldB != newB) {
-                for (long frame = oldA; frame <= oldB; frame++) {
-                    if (this.Map.TryGetValue(frame, out List<Clip> list)) {
+            if (oldA != newA || oldB != newB)
+            {
+                for (long frame = oldA; frame <= oldB; frame++)
+                {
+                    if (this.Map.TryGetValue(frame, out List<Clip> list))
+                    {
                         list.Remove(clip);
-                        if (list.Count == 0) {
+                        if (list.Count == 0)
+                        {
                             this.Map.Remove(frame);
                         }
                     }
                 }
 
                 // Add the clip to the new grouped range
-                for (long frame = newA; frame <= newB; frame++) {
-                    if (!this.Map.TryGetValue(frame, out List<Clip> list)) {
+                for (long frame = newA; frame <= newB; frame++)
+                {
+                    if (!this.Map.TryGetValue(frame, out List<Clip> list))
+                    {
                         this.Map[frame] = list = new List<Clip>();
                     }
 
@@ -119,26 +142,32 @@ namespace FramePFX.Editor.Timelines {
             // }
         }
 
-        public void MakeTopMost(Clip clip) {
-            if (this.Map.TryGetValue(GetIndex(clip.FrameBegin), out List<Clip> list)) {
+        public void MakeTopMost(Clip clip)
+        {
+            if (this.Map.TryGetValue(GetIndex(clip.FrameBegin), out List<Clip> list))
+            {
                 int index = list.IndexOf(clip);
-                if (index == -1) {
+                if (index == -1)
+                {
                     throw new Exception("Clip does not exist in cache mapped list");
                 }
 
                 list.MoveItem(index, list.Count - 1);
             }
-            else {
+            else
+            {
                 throw new Exception("Clip does not exist in cache");
             }
         }
 
         #endregion
 
-        private void ProcessLargestFrame() {
+        private void ProcessLargestFrame()
+        {
             long max = 0;
             int index = this.Map.Count - 1;
-            if (index >= 0) {
+            if (index >= 0)
+            {
                 foreach (Clip clp in this.Map.Values[index])
                     max = Math.Max(clp.FrameEndIndex, max);
             }
@@ -150,7 +179,8 @@ namespace FramePFX.Editor.Timelines {
         #region Util functions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetRange(FrameSpan span, out long a, out long b) {
+        public static void GetRange(FrameSpan span, out long a, out long b)
+        {
             a = GetIndex(span.Begin);
             b = GetIndex(span.EndIndex);
         }

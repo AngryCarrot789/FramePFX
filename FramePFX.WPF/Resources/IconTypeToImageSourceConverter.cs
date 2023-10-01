@@ -6,17 +6,20 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace FramePFX.WPF.Resources {
+namespace FramePFX.WPF.Resources
+{
     /// <summary>
     /// A converter for converting an <see cref="IconType"/> into an <see cref="ImageSource"/>
     /// </summary>
     [ValueConversion(typeof(IconType), typeof(ImageSource))]
-    public class IconTypeToImageSourceConverter : IValueConverter {
+    public class IconTypeToImageSourceConverter : IValueConverter
+    {
         public static IconTypeToImageSourceConverter Instance { get; } = new IconTypeToImageSourceConverter();
 
         public static Dictionary<IconType, Uri> UriMap { get; } = new Dictionary<IconType, Uri>();
 
-        static IconTypeToImageSourceConverter() {
+        static IconTypeToImageSourceConverter()
+        {
             // Copied from MCNBTEditor, leaving here so i don't forget how to add icons lel
             // UriMap[IconType.ITEM_TAG_End]                = GetUri("Icons/FileIcon-TagEnd.png");
             // UriMap[IconType.ITEM_TAG_Byte]               = GetUri("Icons/FileIcon-TagByte8.png");
@@ -45,10 +48,12 @@ namespace FramePFX.WPF.Resources {
             // UriMap[IconType.ACTION_ITEM_Refresh]         = GetUri("Icons/UIGeneral/icons8-sync-48.png");
         }
 
-        private IconTypeToImageSourceConverter() {
+        private IconTypeToImageSourceConverter()
+        {
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
             if (value == null || value == DependencyProperty.UnsetValue)
                 return DependencyProperty.UnsetValue;
 
@@ -58,23 +63,28 @@ namespace FramePFX.WPF.Resources {
             return IconTypeToImageSource(type);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
             throw new NotImplementedException();
         }
 
-        private static string GetResourcePath(string fileInResources) {
+        private static string GetResourcePath(string fileInResources)
+        {
             return $"/FramePFX.WPF;component/Resources/{fileInResources}";
         }
 
-        private static Uri GetUri(string fileInResources) {
+        private static Uri GetUri(string fileInResources)
+        {
             return new Uri(GetResourcePath(fileInResources), UriKind.RelativeOrAbsolute);
         }
 
-        public static Uri IconTypeToUri(IconType type) {
+        public static Uri IconTypeToUri(IconType type)
+        {
             return UriMap.TryGetValue(type, out Uri uri) ? uri : null;
         }
 
-        public static ImageSource IconTypeToImageSource(IconType type) {
+        public static ImageSource IconTypeToImageSource(IconType type)
+        {
             Uri uri = IconTypeToUri(type);
             return uri == null ? null : new BitmapImage(uri);
         }

@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.ServiceManaging {
+namespace FramePFX.ServiceManaging
+{
     /// <summary>
     /// An interface used to do things with the main application
     /// </summary>
-    public interface IApplication {
+    public interface IApplication
+    {
         /// <summary>
         /// Whether or not the caller is on the application thread or not. When true, using any of the dispatcher functions is typically unnecessary
         /// </summary>

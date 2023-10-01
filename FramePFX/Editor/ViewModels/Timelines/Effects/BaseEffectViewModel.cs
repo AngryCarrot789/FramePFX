@@ -6,8 +6,10 @@ using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.History;
 
-namespace FramePFX.Editor.ViewModels.Timelines.Effects {
-    public class BaseEffectViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound, IHistoryHolder, IStrictFrameRange {
+namespace FramePFX.Editor.ViewModels.Timelines.Effects
+{
+    public class BaseEffectViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound, IHistoryHolder, IStrictFrameRange
+    {
         public BaseEffect Model { get; }
 
         public bool IsRemoveable => this.Model.IsRemoveable;
@@ -26,7 +28,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
 
         public bool IsAutomationRefreshInProgress { get; set; }
 
-        public BaseEffectViewModel(BaseEffect model) {
+        public BaseEffectViewModel(BaseEffect model)
+        {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.AutomationData.ActiveSequenceChanged += this.OnActiveSequenceChanged;
@@ -38,30 +41,35 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects {
         /// <summary>
         /// Invoked when this effect is about to be added to <see cref="OwnerClip"/> (which is set prior to this call)
         /// </summary>
-        protected virtual void OnAddingToClip() {
+        protected virtual void OnAddingToClip()
+        {
         }
 
         /// <summary>
         /// Invoked when this effect is added to the <see cref="OwnerClip"/>'s effect list
         /// </summary>
-        protected virtual void OnAddedToClip() {
+        protected virtual void OnAddedToClip()
+        {
         }
 
         /// <summary>
         /// Invoked when this effect is about to be removed from the <see cref="OwnerClip"/>
         /// </summary>
-        protected virtual void OnRemovingFromClip() {
+        protected virtual void OnRemovingFromClip()
+        {
         }
 
         /// <summary>
         /// Invoked when this effect has been removed from our previous owner (passed as a parameter)'s effect list
         /// </summary>
         /// <param name="clip">Our previous owner (<see cref="OwnerClip"/>, which is set to null prior to this call)</param>
-        protected virtual void OnRemovedFromClip(ClipViewModel clip) {
+        protected virtual void OnRemovedFromClip(ClipViewModel clip)
+        {
         }
 
         // called when our automation data's active sequence changes
-        private void OnActiveSequenceChanged(AutomationDataViewModel sender, ActiveSequenceChangedEventArgs e) {
+        private void OnActiveSequenceChanged(AutomationDataViewModel sender, ActiveSequenceChangedEventArgs e)
+        {
             this.OwnerClip?.SetActiveAutomationSequence(e.Sequence, true);
         }
 

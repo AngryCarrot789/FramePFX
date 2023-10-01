@@ -1,10 +1,14 @@
 using FramePFX.Shortcuts.Events;
 using FramePFX.Shortcuts.Managing;
 
-namespace FramePFX.Shortcuts.ViewModels {
-    public class ShortcutManagerViewModel : BaseViewModel {
+namespace FramePFX.Shortcuts.ViewModels
+{
+    public class ShortcutManagerViewModel : BaseViewModel
+    {
         private ShortcutGroupViewModel root;
-        public ShortcutGroupViewModel Root {
+
+        public ShortcutGroupViewModel Root
+        {
             get => this.root;
             private set => this.RaisePropertyChanged(ref this.root, value);
         }
@@ -16,16 +20,19 @@ namespace FramePFX.Shortcuts.ViewModels {
         /// </summary>
         public event ShortcutModifiedEventHandler<ShortcutViewModel> ShortcutModified;
 
-        public ShortcutManagerViewModel(ShortcutManager manager) {
+        public ShortcutManagerViewModel(ShortcutManager manager)
+        {
             this.Manager = manager;
             this.root = ShortcutGroupViewModel.CreateFrom(this, null, manager.Root);
         }
 
-        public virtual ShortcutGroup SaveToRoot() {
+        public virtual ShortcutGroup SaveToRoot()
+        {
             return this.root.SaveToRealGroup();
         }
 
-        public virtual void OnShortcutModified(ShortcutViewModel shortcut, IShortcut oldShortcut) {
+        public virtual void OnShortcutModified(ShortcutViewModel shortcut, IShortcut oldShortcut)
+        {
             this.Manager.OnShortcutModified(shortcut.Model, oldShortcut);
             this.ShortcutModified?.Invoke(shortcut, oldShortcut);
             Services.OnShortcutModified?.Invoke(shortcut.Path);

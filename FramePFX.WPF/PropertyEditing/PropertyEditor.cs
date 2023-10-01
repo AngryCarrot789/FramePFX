@@ -8,12 +8,14 @@ using System.Windows.Input;
 using FramePFX.PropertyEditing;
 using FramePFX.WPF.Utils;
 
-namespace FramePFX.WPF.PropertyEditing {
+namespace FramePFX.WPF.PropertyEditing
+{
     /// <summary>
     /// The root level of a property editor tree.
     /// </summary>
     [TemplatePart(Name = "PART_ItemsControl", Type = typeof(PropertyEditorItemsControl))]
-    public class PropertyEditor : Control {
+    public class PropertyEditor : Control
+    {
         private static readonly GridLength Star = new GridLength(1, GridUnitType.Star);
 
         #region Dependency Properties
@@ -32,7 +34,8 @@ namespace FramePFX.WPF.PropertyEditing {
         private List<ISelectablePropertyControl> selectedContainers = new List<ISelectablePropertyControl>();
         private List<IPropertyEditorObject> selectedObjects = new List<IPropertyEditorObject>();
 
-        public PropertyEditorRegistry EditorRegistry {
+        public PropertyEditorRegistry EditorRegistry
+        {
             get => (PropertyEditorRegistry) this.GetValue(EditorRegistryProperty);
             set => this.SetValue(EditorRegistryProperty, value);
         }
@@ -42,7 +45,8 @@ namespace FramePFX.WPF.PropertyEditing {
         /// <summary>
         /// Gets or sets a collection of root-level items that this editor should preset. This is bound by our <see cref="ChildItemsControl"/>
         /// </summary>
-        public IEnumerable<IPropertyEditorObject> ApplicableItems {
+        public IEnumerable<IPropertyEditorObject> ApplicableItems
+        {
             get => (IEnumerable<IPropertyEditorObject>) this.GetValue(ApplicableItemsProperty);
             set => this.SetValue(ApplicableItemsProperty, value);
         }
@@ -58,7 +62,8 @@ namespace FramePFX.WPF.PropertyEditing {
         public IList<IPropertyEditorObject> SelectedItems => (IList<IPropertyEditorObject>) this.GetValue(SelectedItemsProperty);
 
         [Category("Behavior")]
-        public event RoutedPropertyChangedEventHandler<IList<IPropertyEditorObject>> SelectedItemsChanged {
+        public event RoutedPropertyChangedEventHandler<IList<IPropertyEditorObject>> SelectedItemsChanged
+        {
             add => this.AddHandler(SelectedItemsChangedEvent, value);
             remove => this.RemoveHandler(SelectedItemsChangedEvent, value);
         }
@@ -67,35 +72,44 @@ namespace FramePFX.WPF.PropertyEditing {
 
         public bool IsSelectionChangeActive { get; set; }
 
-        public PropertyEditor() {
+        public PropertyEditor()
+        {
         }
 
-        static PropertyEditor() {
-
+        static PropertyEditor()
+        {
         }
 
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseLeftButtonDown(e);
-            if (e.OriginalSource is DependencyObject obj) {
+            if (e.OriginalSource is DependencyObject obj)
+            {
                 PropertyEditorItemsControl parent = VisualTreeUtils.GetParent<PropertyEditorItemsControl>(obj);
-                if (parent == null || parent.myPropertyEditor == this) {
+                if (parent == null || parent.myPropertyEditor == this)
+                {
                     this.ClearSelection();
                 }
             }
         }
 
-        private static void OnEditorRegistryPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (e.NewValue is PropertyEditorRegistry editor) {
+        private static void OnEditorRegistryPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is PropertyEditorRegistry editor)
+            {
                 ((PropertyEditor) d).ApplicableItems = editor.Root.PropertyObjects;
             }
-            else {
+            else
+            {
                 d.ClearValue(ApplicableItemsProperty);
             }
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
-            if (this.ChildItemsControl != null) {
+            if (this.ChildItemsControl != null)
+            {
                 this.ChildItemsControl.myPropertyEditor = null;
             }
 
@@ -103,7 +117,8 @@ namespace FramePFX.WPF.PropertyEditing {
             this.ChildItemsControl.myPropertyEditor = this;
         }
 
-        internal void SetContainerSelection(IPropertyEditorObject data, ISelectablePropertyControl container, bool selected, bool setPrimarySelection) {
+        internal void SetContainerSelection(IPropertyEditorObject data, ISelectablePropertyControl container, bool selected, bool setPrimarySelection)
+        {
             if (this.IsSelectionChangeActive)
                 return;
 
@@ -112,7 +127,8 @@ namespace FramePFX.WPF.PropertyEditing {
             if (container == null)
                 throw new Exception("Container must not be null");
 
-            if (!container.IsSelectable) {
+            if (!container.IsSelectable)
+            {
                 return;
                 // throw new Exception("Container is not selectable");
             }
@@ -122,33 +138,41 @@ namespace FramePFX.WPF.PropertyEditing {
             bool flag = false;
 
             this.IsSelectionChangeActive = true;
-            try {
+            try
+            {
                 int index;
-                if (selected) {
-                    if ((index = this.selectedContainers.IndexOf(container)) == -1 || setPrimarySelection) {
-                        if (setPrimarySelection) {
-                            foreach (ISelectablePropertyControl t in this.selectedContainers) {
+                if (selected)
+                {
+                    if ((index = this.selectedContainers.IndexOf(container)) == -1 || setPrimarySelection)
+                    {
+                        if (setPrimarySelection)
+                        {
+                            foreach (ISelectablePropertyControl t in this.selectedContainers)
+                            {
                                 t.IsSelected = false;
                             }
 
-                            this.selectedContainers = new List<ISelectablePropertyControl>() { container };
-                            this.selectedObjects = new List<IPropertyEditorObject>() { data };
+                            this.selectedContainers = new List<ISelectablePropertyControl>() {container};
+                            this.selectedObjects = new List<IPropertyEditorObject>() {data};
                         }
-                        else {
+                        else
+                        {
                             this.selectedContainers.Add(container);
                             this.selectedObjects.Add(data);
                         }
 
                         flag = true;
                     }
-                    else {
+                    else
+                    {
                         this.selectedContainers.RemoveAt(index);
                         this.selectedObjects.RemoveAt(index);
                         selected = false;
                         flag = true;
                     }
                 }
-                else if ((index = this.selectedContainers.IndexOf(container)) != -1) {
+                else if ((index = this.selectedContainers.IndexOf(container)) != -1)
+                {
                     this.selectedContainers.RemoveAt(index);
                     this.selectedObjects.RemoveAt(index);
                     flag = true;
@@ -157,30 +181,37 @@ namespace FramePFX.WPF.PropertyEditing {
                 if (container.IsSelected != selected)
                     container.IsSelected = selected;
 
-                if (flag) {
+                if (flag)
+                {
                     newValue = this.selectedObjects.ToList();
                     this.SetValue(SelectedItemsPropertyKey, newValue);
                 }
             }
-            finally {
+            finally
+            {
                 this.IsSelectionChangeActive = false;
             }
 
-            if (flag) {
+            if (flag)
+            {
                 this.RaiseEvent(new RoutedPropertyChangedEventArgs<IList<IPropertyEditorObject>>(oldValue, newValue, SelectedItemsChangedEvent));
             }
         }
 
-        public void ClearSelection() {
-            if (this.selectedContainers.Count < 1) {
+        public void ClearSelection()
+        {
+            if (this.selectedContainers.Count < 1)
+            {
                 return;
             }
 
             IList<IPropertyEditorObject> oldValue = this.selectedObjects.ToList();
             IList<IPropertyEditorObject> newValue = null;
-            try {
+            try
+            {
                 this.IsSelectionChangeActive = true;
-                foreach (ISelectablePropertyControl t in this.selectedContainers) {
+                foreach (ISelectablePropertyControl t in this.selectedContainers)
+                {
                     t.IsSelected = false;
                 }
 
@@ -189,7 +220,8 @@ namespace FramePFX.WPF.PropertyEditing {
                 newValue = this.selectedObjects.ToList();
                 this.SetValue(SelectedItemsPropertyKey, newValue);
             }
-            finally {
+            finally
+            {
                 this.IsSelectionChangeActive = false;
             }
 

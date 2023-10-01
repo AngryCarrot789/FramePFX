@@ -24,61 +24,61 @@
               d:DataContext="{d:DesignInstance ICommand}"
               DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Popup}}, Path=PlacementTarget.DataContext}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="5"/>
+                <RowDefinition Height="5" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="5" />
             </Grid.RowDefinitions>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="0" Grid.Column="1" Grid.Row="1" BorderThickness="0" ToolTip="Top-left corner (0.0, 0.0)">
-                <Path Data="M 2,12 2,2 12,2" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Data="M 2,12 2,2 12,2" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="1" Grid.Column="3" Grid.Row="1" BorderThickness="0" ToolTip="Top-middle (0.5, 0.0)">
-                <Path Margin="0,-3,0,0" Data="M 2,0 12,0" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Margin="0,-3,0,0" Data="M 2,0 12,0" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="2" Grid.Column="5" Grid.Row="1" BorderThickness="0" ToolTip="Top-right corner (1.0, 0.0)">
-                <Path Data="M 2,2 12,2 12,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Data="M 2,2 12,2 12,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="3" Grid.Column="1" Grid.Row="3" BorderThickness="0" ToolTip="Middle-left side (0.0, 0.5)">
-                <Path Margin="-3,0,0,0" Data="M 0,2 0,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Margin="-3,0,0,0" Data="M 0,2 0,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="4" Grid.Column="3" Grid.Row="3" BorderThickness="0" ToolTip="Middle (0.5, 0.5)">
-                <Path Margin="-3,0,0,0" Data="M 2,2 12,2 12,12 2,12 Z" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Margin="-3,0,0,0" Data="M 2,2 12,2 12,12 2,12 Z" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="5" Grid.Column="5" Grid.Row="3" BorderThickness="0" ToolTip="Middle-right side (1.0, 0.5)">
-                <Path Data="M 11,2 11,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Data="M 11,2 11,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="6" Grid.Column="1" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-left corner (0, 1.0)">
-                <Path Data="M 2,2 2,12 12,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Data="M 2,2 2,12 12,12" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="7" Grid.Column="3" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-middle (0.5, 1.0)">
-                <Path Margin="0,0,0,-3" Data="M 2,11 12,11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Margin="0,0,0,-3" Data="M 2,11 12,11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
             <Button Command="{Binding ., Mode=OneTime}" CommandParameter="8" Grid.Column="5" Grid.Row="5" BorderThickness="0" ToolTip="Bottom-right (1.0, 1.0)">
-                <Path Data="M 2,12 12,12 12,2" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round"/>
+                <Path Data="M 2,12 12,12 12,2" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="3" StrokeLineJoin="Round" />
             </Button>
         </Grid>
     </DataTemplate>
 
     <Style x:Key="OriginGridPopupStyle" TargetType="{x:Type Popup}">
-        <Setter Property="StaysOpen" Value="False"/>
-        <Setter Property="Placement" Value="MousePoint"/>
+        <Setter Property="StaysOpen" Value="False" />
+        <Setter Property="Placement" Value="MousePoint" />
     </Style>
 
     <Style x:Key="HierarchicalExpanderToggleButtonStyle" TargetType="{x:Type ToggleButton}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -100,9 +100,9 @@
                                       StrokeThickness="2" VerticalAlignment="Center"
                                       Width="10" Margin="5,1,0,0" />
                                 <ContentPresenter Margin="19,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
-                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Grid>
-                            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="Transparent" Margin="-4,0"/>
+                            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="Transparent" Margin="-4,0" />
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -125,8 +125,8 @@
     </Style>
 
     <Style x:Key="HierarchicalExpanderSelectableToggleButtonStyle" TargetType="{x:Type ToggleButton}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -142,23 +142,23 @@
                         -->
                             <Grid Background="{TemplateBinding Background}" Grid.ColumnSpan="3" SnapsToDevicePixels="False" Margin="0,3" HorizontalAlignment="Left">
                                 <Path x:Name="arrow" Data="M 2,0 L 6,4 L 2,8"
-                                  HorizontalAlignment="Left"
-                                  SnapsToDevicePixels="false"
-                                  Stroke="{DynamicResource Expander.Static.Arrow.Stroke}"
-                                  StrokeThickness="2" VerticalAlignment="Center"
-                                  Width="10" Margin="5,1,0,0" />
+                                      HorizontalAlignment="Left"
+                                      SnapsToDevicePixels="false"
+                                      Stroke="{DynamicResource Expander.Static.Arrow.Stroke}"
+                                      StrokeThickness="2" VerticalAlignment="Center"
+                                      Width="10" Margin="5,1,0,0" />
                                 <ContentPresenter Margin="19,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
-                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Grid>
                             <Button Command="{Binding CollapseHierarchyCommand, Mode=OneTime}" ToolTip="Collapse hierarchy" HorizontalAlignment="Right" Width="23" Grid.Column="2" BorderThickness="0" Background="Transparent">
                                 <TextBlock Text="&gt;&lt;" FontSize="12">
                                     <TextBlock.LayoutTransform>
                                         <TransformGroup>
-                                            <RotateTransform Angle="90"/>
+                                            <RotateTransform Angle="90" />
                                         </TransformGroup>
                                     </TextBlock.LayoutTransform>
                                     <TextBlock.RenderTransform>
-                                        <TranslateTransform X="1"/>
+                                        <TranslateTransform X="1" />
                                     </TextBlock.RenderTransform>
                                 </TextBlock>
                             </Button>
@@ -166,15 +166,15 @@
                                 <TextBlock Text="&lt;-&gt;" FontFamily="Consolas" FontSize="10">
                                     <TextBlock.LayoutTransform>
                                         <TransformGroup>
-                                            <RotateTransform Angle="90"/>
+                                            <RotateTransform Angle="90" />
                                         </TransformGroup>
                                     </TextBlock.LayoutTransform>
                                     <TextBlock.RenderTransform>
-                                        <TranslateTransform X="1"/>
+                                        <TranslateTransform X="1" />
                                     </TextBlock.RenderTransform>
                                 </TextBlock>
                             </Button>
-                            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="Transparent" Margin="-4,0"/>
+                            <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="Transparent" Margin="-4,0" />
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -231,16 +231,16 @@
                                               HorizontalAlignment="Stretch"
                                               Background="{TemplateBinding Background}"
                                               Style="{StaticResource HierarchicalExpanderToggleButtonStyle}"
-                                              Margin="0,0,46,0"/>
+                                              Margin="0,0,46,0" />
                                 <Button DockPanel.Dock="Right" Command="{Binding CollapseHierarchyCommand, Mode=OneTime}" ToolTip="Collapse hierarchy" HorizontalAlignment="Right" Width="23" Grid.Column="2" BorderThickness="0" Background="Transparent">
                                     <TextBlock Text="&gt;&lt;" FontSize="12">
                                         <TextBlock.LayoutTransform>
                                             <TransformGroup>
-                                                <RotateTransform Angle="90"/>
+                                                <RotateTransform Angle="90" />
                                             </TransformGroup>
                                         </TextBlock.LayoutTransform>
                                         <TextBlock.RenderTransform>
-                                            <TranslateTransform X="1"/>
+                                            <TranslateTransform X="1" />
                                         </TextBlock.RenderTransform>
                                     </TextBlock>
                                 </Button>
@@ -248,11 +248,11 @@
                                     <TextBlock Text="&lt;-&gt;" FontFamily="Consolas" FontSize="10">
                                         <TextBlock.LayoutTransform>
                                             <TransformGroup>
-                                                <RotateTransform Angle="90"/>
+                                                <RotateTransform Angle="90" />
                                             </TransformGroup>
                                         </TextBlock.LayoutTransform>
                                         <TextBlock.RenderTransform>
-                                            <TranslateTransform X="1"/>
+                                            <TranslateTransform X="1" />
                                         </TextBlock.RenderTransform>
                                     </TextBlock>
                                 </Button>
@@ -261,12 +261,12 @@
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               Margin="{TemplateBinding Padding}" Visibility="Collapsed"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              ToolTip="{x:Null}"/>
+                                              ToolTip="{x:Null}" />
                         </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsSelectable, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True">
-                            <Setter TargetName="HeaderSite" Property="HorizontalAlignment" Value="Left"/>
+                            <Setter TargetName="HeaderSite" Property="HorizontalAlignment" Value="Left" />
                         </DataTrigger>
                         <Trigger Property="IsExpanded" Value="true">
                             <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible" />
@@ -276,10 +276,10 @@
                         </Trigger>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True"/>
-                                <Condition Binding="{Binding IsSelectable, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True"/>
+                                <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True" />
+                                <Condition Binding="{Binding IsSelectable, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItem}}}" Value="True" />
                             </MultiDataTrigger.Conditions>
-                            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}" />
                         </MultiDataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -387,10 +387,10 @@
     <!--
     -->
     <Style x:Key="OuterHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}" />
     </Style>
     <Style x:Key="InnerHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}" />
     </Style>
 
     <!--
@@ -408,7 +408,7 @@
     <!-- fuckin visual studio -->
     <!-- d:DataContext="{d:DesignInstance {x:Type pec:BasePropertyObjectViewModel}}" -->
     <Style TargetType="{x:Type pe:PropertyEditorItem}">
-        <Setter Property="Visibility" Value="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
+        <Setter Property="Visibility" Value="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type pe:PropertyEditorItem}">
@@ -417,20 +417,20 @@
                             Background="{TemplateBinding Background}"
                             Padding="0"
                             SnapsToDevicePixels="true">
-                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Top" Margin="0"/>
+                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Top" Margin="0" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsSelectable" Value="True"/>
-                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
-                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="IsSelectable" Value="True" />
+                                <Condition Property="Selector.IsSelectionActive" Value="True" />
+                                <Condition Property="IsSelected" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Background}" />
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.SelectedActive.Border}" />
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -444,20 +444,20 @@
     </Style>
 
     <Style TargetType="{x:Type pe:PropertyEditorSelectionSlot}">
-        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItemsControl}}}"/>
-        <Setter Property="Padding" Value="0,1"/>
+        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditorItemsControl}}}" />
+        <Setter Property="Padding" Value="0,1" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type pe:PropertyEditorSelectionSlot}">
                     <Border x:Name="Bd" BorderBrush="Transparent" BorderThickness="0" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Stretch"/>
+                        <ContentPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="Stretch" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone1.Background.Static}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone1.Background.Static}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -471,40 +471,40 @@
     </Style>
 
     <Style TargetType="{x:Type pe:PropertyEditorItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone3.Background.Static}"/>
-        <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone3.Background.Static}" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
                     <!-- Cannot use virtualization because this control can contain PropertyEditorItem and Separator -->
-                    <StackPanel IsItemsHost="True"/>
+                    <StackPanel IsItemsHost="True" />
                 </ItemsPanelTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
     <Style x:Key="BasePropertyObjectSeparator" TargetType="{x:Type Separator}" BasedOn="{StaticResource {x:Type Separator}}">
-        <Setter Property="Visibility" Value="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"/>
+        <Setter Property="Visibility" Value="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}" />
     </Style>
     <Style x:Key="GroupSeparatorStyle" TargetType="{x:Type Separator}" BasedOn="{StaticResource BasePropertyObjectSeparator}">
-        <Setter Property="Margin" Value="0,5,0,3"/>
+        <Setter Property="Margin" Value="0,5,0,3" />
     </Style>
     <Style x:Key="EditorSeparatorStyle" TargetType="{x:Type Separator}" BasedOn="{StaticResource BasePropertyObjectSeparator}">
-        <Setter Property="Margin" Value="0,3"/>
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Border.Static}"/>
+        <Setter Property="Margin" Value="0,3" />
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Border.Static}" />
     </Style>
 
     <pe:PropertyEditorItemStyleSelector x:Key="PropertyEditorItemStyleSelector"
                                         PropertyItemsControlStyle="{StaticResource {x:Type pe:PropertyEditorItemsControl}}"
                                         PropertyItemStyle="{StaticResource {x:Type pe:PropertyEditorItem}}"
                                         GroupSeparatorStyle="{StaticResource GroupSeparatorStyle}"
-                                        EditorSeparatorStyle="{StaticResource EditorSeparatorStyle}"/>
+                                        EditorSeparatorStyle="{StaticResource EditorSeparatorStyle}" />
 
-        <ResourceDictionary x:Key="PropertyEditorDataTemplateDictionary" Source="PropertyEditorDataTemplates.xaml"/>
-    <c:BoolConverter x:Key="BoldHeaderToExpanderStyleConverter" TrueValue="{StaticResource OuterHierarchicalExpanderStyle}" FalseValue="{StaticResource InnerHierarchicalExpanderStyle}"/>
+    <ResourceDictionary x:Key="PropertyEditorDataTemplateDictionary" Source="PropertyEditorDataTemplates.xaml" />
+    <c:BoolConverter x:Key="BoldHeaderToExpanderStyleConverter" TrueValue="{StaticResource OuterHierarchicalExpanderStyle}" FalseValue="{StaticResource InnerHierarchicalExpanderStyle}" />
 
-    <c:BoolConverter x:Key="SeparatorStyleConverter" TrueValue="{StaticResource EditorSeparatorStyle}" FalseValue="{StaticResource GroupSeparatorStyle}"/>
+    <c:BoolConverter x:Key="SeparatorStyleConverter" TrueValue="{StaticResource EditorSeparatorStyle}" FalseValue="{StaticResource GroupSeparatorStyle}" />
 
     <Style TargetType="{x:Type pe:PropertyEditor}">
         <Setter Property="Template">
@@ -520,11 +520,11 @@
                             <ItemsControl.Resources>
                                 <ResourceDictionary>
                                     <ResourceDictionary.MergedDictionaries>
-                                        <StaticResource ResourceKey="PropertyEditorDataTemplateDictionary"/>
+                                        <StaticResource ResourceKey="PropertyEditorDataTemplateDictionary" />
                                     </ResourceDictionary.MergedDictionaries>
                                     <DataTemplate DataType="{x:Type pec:PropertyObjectSeparator}">
                                         <Separator Visibility="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
-                                                   Style="{Binding IsEditorSeparator, Converter={StaticResource SeparatorStyleConverter}}"/>
+                                                   Style="{Binding IsEditorSeparator, Converter={StaticResource SeparatorStyleConverter}}" />
                                     </DataTemplate>
                                     <DataTemplate DataType="{x:Type pec:BasePropertyGroupViewModel}">
                                         <Grid>
@@ -541,14 +541,14 @@
                                                       x:Name="PART_Expander">
                                                 <Expander.ToolTip>
                                                     <MultiBinding Converter="{x:Static converters:PropertyItemToolTipConverter.Instance}">
-                                                        <Binding Path="DisplayName" Mode="OneWay"/>
-                                                        <Binding Path="Parent" Mode="OneWay"/>
+                                                        <Binding Path="DisplayName" Mode="OneWay" />
+                                                        <Binding Path="Parent" Mode="OneWay" />
                                                     </MultiBinding>
                                                 </Expander.ToolTip>
                                                 <pe:PropertyEditorItemsControl FontWeight="Normal" Margin="0,2,0,0"
                                                                                Visibility="{Binding IsVisible, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                                                ItemsSource="{Binding PropertyObjects, Mode=OneTime}"
-                                                                               ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}"/>
+                                                                               ItemContainerStyleSelector="{StaticResource PropertyEditorItemStyleSelector}" />
                                             </Expander>
                                         </Grid>
                                     </DataTemplate>

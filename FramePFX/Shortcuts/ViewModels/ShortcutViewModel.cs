@@ -7,8 +7,10 @@ using FramePFX.Commands;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 
-namespace FramePFX.Shortcuts.ViewModels {
-    public class ShortcutViewModel : BaseShortcutItemViewModel, IContextProvider {
+namespace FramePFX.Shortcuts.ViewModels
+{
+    public class ShortcutViewModel : BaseShortcutItemViewModel, IContextProvider
+    {
         private bool isGlobal;
         private bool inherit;
         private RepeatMode repeatMode;
@@ -40,17 +42,20 @@ namespace FramePFX.Shortcuts.ViewModels {
 
         public string Description { get; }
 
-        public bool IsGlobal {
+        public bool IsGlobal
+        {
             get => this.isGlobal;
             set => this.RaisePropertyChanged(ref this.isGlobal, value);
         }
 
-        public bool Inherit {
+        public bool Inherit
+        {
             get => this.inherit;
             set => this.RaisePropertyChanged(ref this.inherit, value);
         }
 
-        public RepeatMode RepeatMode {
+        public RepeatMode RepeatMode
+        {
             get => this.repeatMode;
             set => this.RaisePropertyChanged(ref this.repeatMode, value);
         }
@@ -61,7 +66,8 @@ namespace FramePFX.Shortcuts.ViewModels {
 
         public RelayCommand<InputStrokeViewModel> RemoveStrokeCommand { get; }
 
-        public ShortcutViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, GroupedShortcut reference) : base(manager, parent) {
+        public ShortcutViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent, GroupedShortcut reference) : base(manager, parent)
+        {
             this.Model = reference;
             this.Name = reference.Name;
             this.DisplayName = reference.DisplayName ?? reference.Name;
@@ -74,65 +80,81 @@ namespace FramePFX.Shortcuts.ViewModels {
             this.AddKeyStrokeCommand = new RelayCommand(this.AddKeyStrokeAction);
             this.AddMouseStrokeCommand = new RelayCommand(this.AddMouseStrokeAction);
             this.RemoveStrokeCommand = new RelayCommand<InputStrokeViewModel>(this.RemoveStrokeAction, (x) => x != null);
-            foreach (IInputStroke stroke in reference.Shortcut.InputStrokes) {
+            foreach (IInputStroke stroke in reference.Shortcut.InputStrokes)
+            {
                 this.InputStrokes.Add(InputStrokeViewModel.CreateFrom(stroke));
             }
         }
 
-        public void GetContext(List<IContextEntry> list) {
+        public void GetContext(List<IContextEntry> list)
+        {
             list.Add(new CommandContextEntry("Add key stroke...", this.AddKeyStrokeCommand));
             list.Add(new CommandContextEntry("Add mouse stroke...", this.AddMouseStrokeCommand));
-            if (this.InputStrokes.Count > 0) {
+            if (this.InputStrokes.Count > 0)
+            {
                 list.Add(SeparatorEntry.Instance);
-                foreach (InputStrokeViewModel stroke in this.InputStrokes) {
+                foreach (InputStrokeViewModel stroke in this.InputStrokes)
+                {
                     list.Add(new CommandContextEntry("Remove " + stroke.ToReadableString(), this.RemoveStrokeCommand, stroke));
                 }
             }
         }
 
-        public void AddKeyStrokeAction() {
+        public void AddKeyStrokeAction()
+        {
             KeyStroke? result = Services.KeyboardDialogs.ShowGetKeyStrokeDialog();
-            if (result.HasValue) {
+            if (result.HasValue)
+            {
                 this.InputStrokes.Add(new KeyStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
             }
         }
 
-        public void AddMouseStrokeAction() {
+        public void AddMouseStrokeAction()
+        {
             MouseStroke? result = Services.MouseDialogs.ShowGetMouseStrokeDialog();
-            if (result.HasValue) {
+            if (result.HasValue)
+            {
                 this.InputStrokes.Add(new MouseStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
             }
         }
 
-        public void UpdateShortcutReference() {
+        public void UpdateShortcutReference()
+        {
             IShortcut shortcut = this.Model.Shortcut;
             this.Model.Shortcut = this.SaveToRealShortcut() ?? KeyboardShortcut.EmptyKeyboardShortcut;
             this.Manager.OnShortcutModified(this, shortcut);
         }
 
-        public void RemoveStrokeAction(InputStrokeViewModel stroke) {
-            if (this.InputStrokes.Remove(stroke)) {
+        public void RemoveStrokeAction(InputStrokeViewModel stroke)
+        {
+            if (this.InputStrokes.Remove(stroke))
+            {
                 this.UpdateShortcutReference();
             }
         }
 
-        public IShortcut SaveToRealShortcut() {
+        public IShortcut SaveToRealShortcut()
+        {
             bool hasKey = this.InputStrokes.Any(x => x is KeyStrokeViewModel);
             bool hasMouse = this.InputStrokes.Any(x => x is MouseStrokeViewModel);
             // These 3 different shortcut types only really exist for a performance reason. You can
             // always fall back to MouseKeyboardShortcut, and just ignore the other types
-            if (hasKey && hasMouse) {
+            if (hasKey && hasMouse)
+            {
                 return new MouseKeyboardShortcut(this.InputStrokes.Select(a => a.ToInputStroke()));
             }
-            else if (hasKey) {
+            else if (hasKey)
+            {
                 return new KeyboardShortcut(this.InputStrokes.Select(a => ((KeyStrokeViewModel) a).ToKeyStroke()));
             }
-            else if (hasMouse) {
+            else if (hasMouse)
+            {
                 return new MouseShortcut(this.InputStrokes.Select(a => ((MouseStrokeViewModel) a).ToMouseStroke()));
             }
-            else {
+            else
+            {
                 return null;
             }
         }

@@ -1,4 +1,6 @@
-namespace FramePFX.WPF.Themes {
-    public class ToneGenerator {
+namespace FramePFX.WPF.Themes
+{
+    public class ToneGenerator
+    {
     }
 }

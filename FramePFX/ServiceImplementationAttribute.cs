@@ -1,6 +1,7 @@
 using System;
 
-namespace FramePFX {
+namespace FramePFX
+{
     /// <summary>
     /// An attribute applied to the implementation of a service
     /// <para>
@@ -8,13 +9,15 @@ namespace FramePFX {
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public class ServiceImplementationAttribute : Attribute {
+    public class ServiceImplementationAttribute : Attribute
+    {
         /// <summary>
         /// The target service type (typically an interface or view model type)
         /// </summary>
         public Type Type { get; set; }
 
-        public ServiceImplementationAttribute(Type type) {
+        public ServiceImplementationAttribute(Type type)
+        {
             this.Type = type;
         }
     }

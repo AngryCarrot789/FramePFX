@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Reflection;
 
-namespace FramePFX.Exceptions.Trace {
-    public class StackFrameViewModel : BaseViewModel {
+namespace FramePFX.Exceptions.Trace
+{
+    public class StackFrameViewModel : BaseViewModel
+    {
         public StackTraceViewModel StackTrace { get; }
 
         public StackFrame TheFrame { get; }
@@ -19,7 +21,8 @@ namespace FramePFX.Exceptions.Trace {
 
         public int NativeOffset { get; }
 
-        public StackFrameViewModel(StackTraceViewModel stackTrace, StackFrame frame) {
+        public StackFrameViewModel(StackTraceViewModel stackTrace, StackFrame frame)
+        {
             this.StackTrace = stackTrace;
             this.TheFrame = frame;
             this.FileColumnNumber = frame.GetFileColumnNumber();

@@ -3,11 +3,14 @@ using System.IO;
 using FramePFX.Automation;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor {
-    public class Project {
+namespace FramePFX.Editor
+{
+    public class Project
+    {
         public volatile bool IsSaving;
 
         public ProjectSettings Settings { get; }
@@ -25,6 +28,8 @@ namespace FramePFX.Editor {
         public VideoEditor Editor { get; set; }
 
         public bool IsExporting { get; set; }
+
+        public bool IsLoaded { get; private set; }
 
         /// <summary>
         /// This project's data folder, which is where file-based data is stored (that isn't stored using an absolute path).
@@ -47,13 +52,16 @@ namespace FramePFX.Editor {
         /// </summary>
         public bool IsTempDataFolder { get; private set; }
 
-        public Project() {
-            this.Settings = new ProjectSettings() {
+        public Project()
+        {
+            this.Settings = new ProjectSettings()
+            {
                 Resolution = new Resolution(1920, 1080)
             };
 
             this.ResourceManager = new ResourceManager(this);
-            this.Timeline = new Timeline() {
+            this.Timeline = new Timeline()
+            {
                 MaxDuration = 5000L,
                 DisplayName = "Project Timeline"
             };
@@ -61,23 +69,28 @@ namespace FramePFX.Editor {
             this.Timeline.SetProject(this);
         }
 
-        public void WriteToRBE(RBEDictionary data) {
+        public void WriteToRBE(RBEDictionary data)
+        {
             this.Settings.WriteToRBE(data.CreateDictionary(nameof(this.Settings)));
             this.ResourceManager.WriteToRBE(data.CreateDictionary(nameof(this.ResourceManager)));
             this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
         }
 
-        public void ReadFromRBE(RBEDictionary data, string dataFolder, string projectFileName) {
-            if (this.DataFolder != null) {
+        public void ReadFromRBE(RBEDictionary data, string dataFolder, string projectFileName)
+        {
+            if (this.DataFolder != null)
+            {
                 throw new Exception("Our data folder is not invalid; cannot replace it");
             }
 
             this.DataFolder = dataFolder;
             this.ProjectFileName = projectFileName;
-            try {
+            try
+            {
                 this.FullProjectFilePath = Path.Combine(dataFolder, projectFileName);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception($"Data folder or project file name contain invalid chars.\n'{dataFolder}', {projectFileName}", e);
             }
 
@@ -88,38 +101,66 @@ namespace FramePFX.Editor {
         }
 
         /// <summary>
+        /// Sets this project in a loaded state. The OpenGL context must be current before calling this
+        /// </summary>
+        public void OnLoaded()
+        {
+            if (this.IsLoaded)
+                return;
+            AppLogger.WriteLine("Load project internal");
+            this.IsLoaded = true;
+            this.ResourceManager.OnProjectLoaded();
+            this.Timeline.SetupRenderData();
+        }
+
+        /// <summary>
+        /// Sets the project in an unloaded state. The OpenGL context must be current before calling this
+        /// </summary>
+        public void OnUnloaded()
+        {
+            if (!this.IsLoaded)
+                return;
+            AppLogger.WriteLine("Unload project internal");
+            this.IsLoaded = false;
+            this.ResourceManager.OnProjectUnloaded();
+            this.Timeline.ClearRenderData();
+        }
+
+        /// <summary>
         /// Gets the absolute file path from a project path
         /// </summary>
         /// <param name="file">Input relative path</param>
         /// <returns>Output absolute filepath that may exist on the system</returns>
         /// <exception cref="ArgumentException">The path's file path is null or empty... somehow</exception>
-        public string GetFilePath(ProjectPath file) {
-            if (string.IsNullOrEmpty(file.FilePath)) {
+        public string GetFilePath(ProjectPath file)
+        {
+            if (string.IsNullOrEmpty(file.FilePath))
                 throw new ArgumentException("File's path cannot be null or empty (corrupted project path)", nameof(file));
-            }
 
-            if (file.IsAbsolute) {
+            if (file.IsAbsolute)
                 return Path.GetFullPath(file.FilePath);
-            }
-            else {
+            else
                 return Path.Combine(this.GetDataFolderPath(out _), file.FilePath);
-            }
         }
 
-        public string GetDataFolderPath(out bool isTemp) {
-            if (string.IsNullOrEmpty(this.DataFolder)) {
+        public string GetDataFolderPath(out bool isTemp)
+        {
+            if (string.IsNullOrEmpty(this.DataFolder))
+            {
                 this.IsTempDataFolder = isTemp = true;
                 this.DataFolder = RandomUtils.RandomLettersWhere(Path.GetTempPath(), 16, x => !Directory.Exists(x));
                 this.FullProjectFilePath = Path.Combine(this.DataFolder, this.ProjectFileName);
             }
-            else {
+            else
+            {
                 isTemp = false;
             }
 
             return this.DataFolder;
         }
 
-        public void SetProjectFileLocation(string dataFolder, string projectFileName, string projectFilePath) {
+        public void SetProjectFileLocation(string dataFolder, string projectFileName, string projectFilePath)
+        {
             this.DataFolder = dataFolder;
             this.ProjectFileName = projectFileName;
             this.FullProjectFilePath = projectFilePath;
@@ -130,7 +171,8 @@ namespace FramePFX.Editor {
         /// </summary>
         /// <param name="isTemp">Whether or not the current data folder is in the temp directory</param>
         /// <returns>The directory info for the data folder</returns>
-        public DirectoryInfo GetDataFolder(out bool isTemp) {
+        public DirectoryInfo GetDataFolder(out bool isTemp)
+        {
             // Cleaner and also faster than manual existence check (exists() ? new DirectoryInfo(dir) : create())
             return Directory.CreateDirectory(this.GetDataFolderPath(out isTemp));
         }
@@ -146,11 +188,13 @@ namespace FramePFX.Editor {
         /// </summary>
         public void UpdateTimelineBackingStorage() => AutomationEngine.UpdateBackingStorage(this.Timeline);
 
-        public void OnDisconnectedFromEditor() {
+        public void OnDisconnectedFromEditor()
+        {
             this.Editor = null;
         }
 
-        public void OnConnectedToEditor(VideoEditor editor) {
+        public void OnConnectedToEditor(VideoEditor editor)
+        {
             this.Editor = editor;
         }
     }

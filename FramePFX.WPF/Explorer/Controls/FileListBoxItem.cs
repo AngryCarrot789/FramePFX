@@ -10,28 +10,36 @@ using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 
-namespace FramePFX.WPF.Explorer.Controls {
-    public class FileListBoxItem : ListBoxItem {
+namespace FramePFX.WPF.Explorer.Controls
+{
+    public class FileListBoxItem : ListBoxItem
+    {
         private Point originMousePoint;
         private bool isDragActive;
         private bool isDragDropping;
 
         private FileListBox ParentFileListBox => ItemsControl.ItemsControlFromItemContainer(this) as FileListBox;
 
-        public FileListBoxItem() {
+        public FileListBoxItem()
+        {
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
-            if (e.ClickCount > 1) {
-                if (this.DataContext is TreeEntry entry && entry.FileTree != null) {
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            if (e.ClickCount > 1)
+            {
+                if (this.DataContext is TreeEntry entry && entry.FileTree != null)
+                {
                     entry.FileTree.OnNavigate(entry);
                     e.Handled = true;
                     return;
                 }
             }
 
-            if (!e.Handled && (this.IsFocused || this.Focus())) {
-                if (!this.isDragDropping) {
+            if (!e.Handled && (this.IsFocused || this.Focus()))
+            {
+                if (!this.isDragDropping)
+                {
                     this.CaptureMouse();
                     this.originMousePoint = e.GetPosition(this);
                     this.isDragActive = true;
@@ -43,22 +51,27 @@ namespace FramePFX.WPF.Explorer.Controls {
             base.OnMouseLeftButtonDown(e);
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
             // weird... this method isn't called when the `DoDragDrop` method
             // returns, even if you release the left mouse button. This means,
             // isDragDropping is always false here
 
-            if (this.isDragActive) {
+            if (this.isDragActive)
+            {
                 this.isDragActive = false;
-                if (this.IsMouseCaptured) {
+                if (this.IsMouseCaptured)
+                {
                     this.ReleaseMouseCapture();
                 }
             }
 
-            if (KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control)) {
+            if (KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control))
+            {
                 this.IsSelected = true;
             }
-            else if (this.ParentFileListBox is FileListBox listBox && listBox.SelectionMode != SelectionMode.Single) {
+            else if (this.ParentFileListBox is FileListBox listBox && listBox.SelectionMode != SelectionMode.Single)
+            {
                 listBox.SelectedItems.Clear();
                 this.IsSelected = true;
             }
@@ -66,24 +79,30 @@ namespace FramePFX.WPF.Explorer.Controls {
             base.OnMouseLeftButtonUp(e);
         }
 
-        protected override void OnMouseMove(MouseEventArgs e) {
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
             base.OnMouseMove(e);
-            if (!this.isDragActive || this.isDragDropping) {
+            if (!this.isDragActive || this.isDragDropping)
+            {
                 return;
             }
 
-            if (e.LeftButton == MouseButtonState.Pressed) {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
                 Point posA = e.GetPosition(this);
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
-                if (change.X > 5 || change.Y > 5) {
+                if (change.X > 5 || change.Y > 5)
+                {
                     FileListBox parent = this.ParentFileListBox;
-                    if (parent == null || !(parent.DataContext is FileExplorerViewModel explorer)) {
+                    if (parent == null || !(parent.DataContext is FileExplorerViewModel explorer))
+                    {
                         return;
                     }
 
                     StringCollection paths = new StringCollection();
-                    foreach (TreeEntry entry in explorer.SelectedFiles) {
+                    foreach (TreeEntry entry in explorer.SelectedFiles)
+                    {
                         if (!(entry is BasePhysicalVirtualFile file))
                             continue;
                         string path = file.FilePath;
@@ -92,26 +111,32 @@ namespace FramePFX.WPF.Explorer.Controls {
                         paths.Add(path);
                     }
 
-                    if (paths.Count < 1) {
+                    if (paths.Count < 1)
+                    {
                         return;
                     }
 
-                    try {
+                    try
+                    {
                         this.isDragDropping = true;
                         DataObject obj = new DataObject();
                         obj.SetFileDropList(paths);
                         DragDrop.DoDragDrop(this, obj, DragDropEffects.Copy | DragDropEffects.Link);
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex)
+                    {
                         AppLogger.WriteLine("Exception while executing resource item drag drop: " + ex.GetToString());
                     }
-                    finally {
+                    finally
+                    {
                         this.isDragDropping = false;
                     }
                 }
             }
-            else {
-                if (ReferenceEquals(e.MouseDevice.Captured, this)) {
+            else
+            {
+                if (ReferenceEquals(e.MouseDevice.Captured, this))
+                {
                     this.ReleaseMouseCapture();
                 }
 

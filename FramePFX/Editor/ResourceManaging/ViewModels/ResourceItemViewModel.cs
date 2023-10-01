@@ -6,8 +6,10 @@ using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Logger;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ResourceManaging.ViewModels {
-    public abstract class ResourceItemViewModel : BaseResourceViewModel {
+namespace FramePFX.Editor.ResourceManaging.ViewModels
+{
+    public abstract class ResourceItemViewModel : BaseResourceViewModel
+    {
         private readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         public new ResourceItem Model => (ResourceItem) base.Model;
@@ -16,9 +18,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public bool IsOnline => this.Model.IsOnline;
 
-        public bool IsOfflineByUser {
+        public bool IsOfflineByUser
+        {
             get => this.Model.IsOfflineByUser;
-            set {
+            set
+            {
                 if (this.IsOfflineByUser == value)
                     return;
                 this.Model.IsOfflineByUser = value;
@@ -30,16 +34,20 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public AsyncRelayCommand SetOnlineCommand { get; }
 
-        protected ResourceItemViewModel(ResourceItem model) : base(model) {
-            this.onlineStateChangedHandler = (a, b) => {
+        protected ResourceItemViewModel(ResourceItem model) : base(model)
+        {
+            this.onlineStateChangedHandler = (a, b) =>
+            {
                 this.RaisePropertyChanged(nameof(this.IsOnline));
                 this.RaisePropertyChanged(nameof(this.IsOfflineByUser));
             };
 
             model.OnlineStateChanged += this.onlineStateChangedHandler;
             this.SetOfflineCommand = new AsyncRelayCommand(() => this.SetOfflineAsync(true), () => this.IsOnline);
-            this.SetOnlineCommand = new AsyncRelayCommand(async () => {
-                ResourceCheckerViewModel checker = new ResourceCheckerViewModel() {
+            this.SetOnlineCommand = new AsyncRelayCommand(async () =>
+            {
+                ResourceCheckerViewModel checker = new ResourceCheckerViewModel()
+                {
                     Caption = "This resource could not be loaded"
                 };
 
@@ -47,11 +55,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }, () => !this.IsOnline);
         }
 
-        public virtual async Task SetOfflineAsync(bool user) {
-            using (ErrorList stack = ErrorList.NoAutoThrow) {
+        public virtual async Task SetOfflineAsync(bool user)
+        {
+            using (ErrorList stack = ErrorList.NoAutoThrow)
+            {
                 // TODO: remove ErrorList usage and replace with something like an exception viewer
                 this.Model.Disable(stack, user);
-                if (stack.TryGetException(out Exception exception)) {
+                if (stack.TryGetException(out Exception exception))
+                {
                     await Services.DialogService.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting resource to offline", exception.GetToString());
                 }
             }
@@ -63,7 +74,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// </summary>
         /// <param name="checker">An optional checker to use</param>
         /// <returns>The value of <see cref="IsOnline"/></returns>
-        public Task<bool> LoadResourceAsync(ResourceCheckerViewModel checker = null, bool reloadIfOnline = false) {
+        public Task<bool> LoadResourceAsync(ResourceCheckerViewModel checker = null, bool reloadIfOnline = false)
+        {
             return TryLoadResource(this, checker, reloadIfOnline);
         }
 
@@ -91,7 +103,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <returns>
         /// True if the resource was loaded successfully and can be used (online), otherwise false (offline)
         /// </returns>
-        protected virtual Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list) {
+        protected virtual Task<bool> LoadResource(ResourceCheckerViewModel checker, ErrorList list)
+        {
             return Task.FromResult(true);
         }
 
@@ -111,16 +124,21 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <returns>True if the resource was loaded and set online, otherwise false meaning it is offline</returns>
         /// <exception cref="ArgumentNullException">The resource was null</exception>
         /// <exception cref="Exception">An unexpected error occurred while loading the resource</exception>
-        public static async Task<bool> TryLoadResource(ResourceItemViewModel resource, ResourceCheckerViewModel checker, bool reloadIfOnline = false) {
-            if (resource == null) {
+        public static async Task<bool> TryLoadResource(ResourceItemViewModel resource, ResourceCheckerViewModel checker, bool reloadIfOnline = false)
+        {
+            if (resource == null)
+            {
                 throw new ArgumentNullException(nameof(resource));
             }
 
-            if (resource.IsOnline) {
-                if (reloadIfOnline) {
+            if (resource.IsOnline)
+            {
+                if (reloadIfOnline)
+                {
                     await resource.SetOfflineAsync(false);
                 }
-                else {
+                else
+                {
                     return true;
                 }
             }
@@ -129,10 +147,12 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
             bool isOnline;
             ErrorList list = ErrorList.NoAutoThrow;
-            try {
+            try
+            {
                 isOnline = await resource.LoadResource(checker, list);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 string msg = e.GetToString();
                 string typeName = resource.GetType().Name;
                 AppLogger.WriteLine($"[FATAL] An unexpected exception occurred while loading resource: {typeName}\n{msg}");
@@ -141,11 +161,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
 
             ResourceItem.SetOnlineState(resource.Model, isOnline);
-            if (list.TryGetException(out Exception exception)) {
-                if (isOnline) {
+            if (list.TryGetException(out Exception exception))
+            {
+                if (isOnline)
+                {
                     await Services.DialogService.ShowMessageExAsync("Resource warning", $"Resource loaded with one or more errors", exception.GetToString());
                 }
-                else {
+                else
+                {
                     AppLogger.WriteLine("Resource could not be loaded due to one or more errors: " + exception.GetToString());
                 }
             }
@@ -163,25 +186,30 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <returns>True if the resource was loaded and set online, otherwise false</returns>
         /// <exception cref="ArgumentNullException">The group or resource was null</exception>
         /// <exception cref="Exception">No manager associated with the group, or <see cref="TryLoadResource"/> encountered an unexpected exception</exception>
-        public static async Task<bool> TryAddAndLoadNewResource(ResourceFolderViewModel folder, ResourceItemViewModel resource, ResourceCheckerViewModel checker = null, bool keepInHierarchyOnLoadFailure = false) {
+        public static async Task<bool> TryAddAndLoadNewResource(ResourceFolderViewModel folder, ResourceItemViewModel resource, ResourceCheckerViewModel checker = null, bool keepInHierarchyOnLoadFailure = false)
+        {
             if (folder == null)
                 throw new ArgumentNullException(nameof(folder));
             if (resource == null)
                 throw new ArgumentNullException(nameof(resource));
 
             ResourceManagerViewModel manager = folder.Manager;
-            if (manager == null) {
+            if (manager == null)
+            {
                 throw new Exception("Group has no manager associated with it");
             }
 
             bool result = false;
             folder.AddItem(resource);
             ulong id = manager.Model.RegisterEntry(resource.Model);
-            if (resource.IsOnline || await TryLoadResource(resource, checker)) {
+            if (resource.IsOnline || await TryLoadResource(resource, checker))
+            {
                 result = true;
             }
-            else {
-                if (!keepInHierarchyOnLoadFailure) {
+            else
+            {
+                if (!keepInHierarchyOnLoadFailure)
+                {
                     folder.RemoveItem(resource, unregisterHierarcy: true);
                 }
             }
@@ -190,7 +218,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return result;
         }
 
-        protected override void OnModelDisposed() {
+        protected override void OnModelDisposed()
+        {
             this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
             base.OnModelDisposed();
         }

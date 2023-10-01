@@ -8,16 +8,21 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Contexts {
+namespace FramePFX.Editor.Contexts
+{
     /// <summary>
     /// A context generator which generates context menus for clips, tracks and the timeline
     /// </summary>
-    public class TimelineContextGenerator : IContextGenerator {
+    public class TimelineContextGenerator : IContextGenerator
+    {
         public static TimelineContextGenerator Instance { get; } = new TimelineContextGenerator();
 
-        public void Generate(List<IContextEntry> list, IDataContext context) {
-            if (context.TryGetContext(out ClipViewModel clip)) {
-                if (clip is CompositionVideoClipViewModel compositionClip && compositionClip.TryGetResource(out _)) {
+        public void Generate(List<IContextEntry> list, IDataContext context)
+        {
+            if (context.TryGetContext(out ClipViewModel clip))
+            {
+                if (clip is CompositionVideoClipViewModel compositionClip && compositionClip.TryGetResource(out _))
+                {
                     list.Add(new ActionContextEntry(clip, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
                 }
 
@@ -29,8 +34,10 @@ namespace FramePFX.Editor.Contexts {
             }
 
             TimelineViewModel timeline = null;
-            if (context.TryGetContext(out TrackViewModel track)) {
-                if (list.Count > 0) {
+            if (context.TryGetContext(out TrackViewModel track))
+            {
+                if (list.Count > 0)
+                {
                     list.Add(SeparatorEntry.Instance);
                 }
 
@@ -49,8 +56,10 @@ namespace FramePFX.Editor.Contexts {
                 list.Add(SeparatorEntry.Instance);
                 list.Add(new CommandContextEntry("Delete track", track.Timeline.RemoveSelectedTracksCommand));
             }
-            else if (context.TryGetContext(out timeline)) {
-                if (list.Count > 0) {
+            else if (context.TryGetContext(out timeline))
+            {
+                if (list.Count > 0)
+                {
                     list.Add(SeparatorEntry.Instance);
                 }
 
@@ -58,25 +67,31 @@ namespace FramePFX.Editor.Contexts {
                 list.Add(new ActionContextEntry(timeline, "actions.editor.NewAudioTrack", "Add Audio Track"));
             }
 
-            if (timeline != null || context.TryGetContext(out timeline)) {
-
+            if (timeline != null || context.TryGetContext(out timeline))
+            {
             }
         }
     }
 
     [ActionRegistration("actions.timeline.NewAdjustmentClip")]
-    public class NewAdjustmentClipAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!e.DataContext.TryGetContext(out TrackViewModel track)) {
+    public class NewAdjustmentClipAction : AnAction
+    {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
+        {
+            if (!e.DataContext.TryGetContext(out TrackViewModel track))
+            {
                 return false;
             }
 
-            if (track.Timeline != null) {
-                AdjustmentVideoClip clip = new AdjustmentVideoClip {
+            if (track.Timeline != null)
+            {
+                AdjustmentVideoClip clip = new AdjustmentVideoClip
+                {
                     FrameSpan = new FrameSpan(track.Timeline.PlayHeadFrame, track.Timeline.FPS.ToInt)
                 };
 
-                if (track.IsRegionEmpty(clip.FrameSpan)) {
+                if (track.IsRegionEmpty(clip.FrameSpan))
+                {
                     track.CreateClip(clip);
                 }
             }

@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="FramePFX.WPF.Editor.Resources.ResourcesPanelControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
              xmlns:acs="clr-namespace:FramePFX.WPF.AdvancedContextService"
@@ -11,7 +11,7 @@
              xmlns:ap="clr-namespace:FramePFX.WPF.AttachedProperties"
              xmlns:c="clr-namespace:FramePFX.WPF.Converters"
              xmlns:contexts="clr-namespace:FramePFX.Editor.Contexts;assembly=FramePFX"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance vms:ResourceManagerViewModel}">
     <Grid Margin="0" sc:UIInputManager.FocusPath="Application/Editor/Resources" acs:AdvancedContextMenu.ContextGenerator="{x:Static contexts:ResourceContextGenerator.Instance}">
@@ -24,7 +24,7 @@
             <RowDefinition Height="24" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Border Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" BorderThickness="0"/>
+        <Border Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" BorderThickness="0" />
         <r:ResourceTreeView ItemsSource="{Binding Root.Items, Mode=OneTime}"
                             BorderThickness="0" BorderBrush="{DynamicResource PanelBorderBrush}"
                             SelectedItems="{Binding SelectedItems, Mode=OneTime}"
@@ -32,15 +32,15 @@
                             x:Name="PART_ResourceTree">
             <FrameworkElement.Resources>
                 <DataTemplate DataType="{x:Type vms:ResourceItemViewModel}">
-                    <TextBlock Text="{Binding DisplayName}"/>
+                    <TextBlock Text="{Binding DisplayName}" />
                 </DataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type vms:ResourceFolderViewModel}" ItemsSource="{Binding Items, Mode=OneTime}">
-                    <TextBlock Text="{Binding DisplayName}"/>
+                    <TextBlock Text="{Binding DisplayName}" />
                 </HierarchicalDataTemplate>
             </FrameworkElement.Resources>
         </r:ResourceTreeView>
         <!-- ap:MultiSelectorHelper.SelectedItems="{Binding SelectedItems}" -->
-        
+
         <r:ResourceListControl Background="{DynamicResource PanelBackground3}"
                                ItemsSource="{Binding CurrentFolder.Items}" BorderThickness="0"
                                ap:ObservableSelectionHelper.SelectedItems="{Binding SelectedItems, Mode=OneTime}"
@@ -53,7 +53,7 @@
         </Border>
         <Border DockPanel.Dock="Left" Grid.RowSpan="2" Grid.Column="0"
                 BorderBrush="OrangeRed" BorderThickness="1"
-                Visibility="{Binding ElementName=PART_ResourceTree, Path=IsDroppableTargetOver, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrHidden}}"/>
-        <GridSplitter Grid.Column="1" Grid.RowSpan="2" Margin="-5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderThickness="0"/>
+                Visibility="{Binding ElementName=PART_ResourceTree, Path=IsDroppableTargetOver, Mode=OneWay, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrHidden}}" />
+        <GridSplitter Grid.Column="1" Grid.RowSpan="2" Margin="-5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderThickness="0" />
     </Grid>
 </UserControl>

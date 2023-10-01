@@ -25,8 +25,9 @@ namespace FramePFX.Rendering.ObjectTK
 
         protected override void Dispose(bool manual)
         {
-            if (!manual) return;
-            GL.DeleteSampler(Handle);
+            if (!manual)
+                return;
+            GL.DeleteSampler(this.Handle);
         }
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace FramePFX.Rendering.ObjectTK
         /// <param name="textureUnit">The texture unit to bind to.</param>
         public void Bind(TextureUnit textureUnit)
         {
-            this.Bind((int)textureUnit - (int)TextureUnit.Texture0);
+            this.Bind((int) textureUnit - (int) TextureUnit.Texture0);
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace FramePFX.Rendering.ObjectTK
         /// <param name="unit">The texture unit to bind to.</param>
         public void Bind(int unit)
         {
-            GL.BindSampler(unit, Handle);
+            GL.BindSampler(unit, this.Handle);
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace FramePFX.Rendering.ObjectTK
         /// <param name="value">The value to set.</param>
         public void SetParameter(SamplerParameterName parameterName, int value)
         {
-            GL.SamplerParameter(Handle, parameterName, value);
+            GL.SamplerParameter(this.Handle, parameterName, value);
         }
     }
 }

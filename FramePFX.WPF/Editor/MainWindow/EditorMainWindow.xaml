@@ -28,11 +28,11 @@
             Background="{DynamicResource PanelBackground1}"
             BorderBrush="{DynamicResource PanelBorderBrush}"
             TitlebarBrush="{DynamicResource ABrush.Tone6.Background.Static}"
-            sc:UIInputManager.FocusPath="Application/Editor" 
+            sc:UIInputManager.FocusPath="Application/Editor"
             Icon="/FramePFX-256.ico" FontWeight="SemiBold">
     <Window.Resources>
         <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v1.0.2)" />
-        <converters:NullToBoolConverter x:Key="NullToDisabledConverter"/>
+        <converters:NullToBoolConverter x:Key="NullToDisabledConverter" />
         <Style TargetType="{x:Type Slider}">
             <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
             <Setter Property="Background" Value="Transparent" />
@@ -80,9 +80,7 @@
                             <MenuItem Header="Show logs" Click="ShowLogsClick" />
                         </MenuItem>
                     </Menu>
-                    <Grid>
-                        
-                    </Grid>
+                    <Grid />
                 </DockPanel>
             </Border>
             <Border DockPanel.Dock="Bottom" Background="{DynamicResource ABrush.Tone4.Border.Static}" VerticalAlignment="Bottom" Height="20" BorderThickness="0,1,0,0">
@@ -95,7 +93,7 @@
                 <Border Background="{DynamicResource PanelBackground1}" IsEnabled="{Binding IsEditorEnabled, Mode=OneWay}">
                     <DockingManager x:Name="MyDockingManager">
                         <DockingManager.Theme>
-                            <av:GeneralDockTheme/>
+                            <av:GeneralDockTheme />
                         </DockingManager.Theme>
                         <LayoutRoot x:Name="LayoutRoot">
                             <LayoutPanel Orientation="Horizontal">
@@ -103,24 +101,24 @@
                                     <LayoutPanel Orientation="Horizontal" DockHeight="350*">
                                         <LayoutAnchorablePane DockWidth="555*">
                                             <LayoutAnchorable Title="Resources" ContentId="ResourcesAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                                <resources:ResourcesPanelControl DataContext="{Binding ActiveProject.ResourceManager}" sc:UIInputManager.FocusPath="Application/Editor/Resources"/>
+                                                <resources:ResourcesPanelControl DataContext="{Binding ActiveProject.ResourceManager}" sc:UIInputManager.FocusPath="Application/Editor/Resources" />
                                             </LayoutAnchorable>
                                             <LayoutAnchorable Title="File Explorer" ContentId="FileExplorerAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                                <explorer:BasicFileExplorerControl DataContext="{Binding FileExplorer, Mode=OneTime}" sc:UIInputManager.FocusPath="Application/Editor/FileExplorer"/>
+                                                <explorer:BasicFileExplorerControl DataContext="{Binding FileExplorer, Mode=OneTime}" sc:UIInputManager.FocusPath="Application/Editor/FileExplorer" />
                                             </LayoutAnchorable>
                                             <LayoutAnchorable Title="Effects" ContentId="EffectListAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                                 <DockPanel>
-                                                    <TextBlock DockPanel.Dock="Top" Text="Drag effects from the tree onto a clip in the timeline" Padding="3,5"/>
+                                                    <TextBlock DockPanel.Dock="Top" Text="Drag effects from the tree onto a clip in the timeline" Padding="3,5" />
                                                     <e:EffectProviderTreeView DataContext="{Binding EffectsProviderList, Mode=OneTime}" ItemsSource="{Binding Effects, Mode=OneTime}">
                                                         <e:EffectProviderTreeView.Style>
-                                                            <Style TargetType="{x:Type e:EffectProviderTreeView}" BasedOn="{StaticResource {x:Type TreeView}}"/>
+                                                            <Style TargetType="{x:Type e:EffectProviderTreeView}" BasedOn="{StaticResource {x:Type TreeView}}" />
                                                         </e:EffectProviderTreeView.Style>
                                                         <e:EffectProviderTreeView.ItemContainerStyle>
-                                                            <Style TargetType="{x:Type e:EffectProviderTreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}"/>
+                                                            <Style TargetType="{x:Type e:EffectProviderTreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}" />
                                                         </e:EffectProviderTreeView.ItemContainerStyle>
                                                         <e:EffectProviderTreeView.Resources>
                                                             <DataTemplate DataType="{x:Type evm:EffectProviderViewModel}">
-                                                                <TextBlock Text="{Binding Name, Mode=OneTime}"/>
+                                                                <TextBlock Text="{Binding Name, Mode=OneTime}" />
                                                             </DataTemplate>
                                                         </e:EffectProviderTreeView.Resources>
                                                     </e:EffectProviderTreeView>
@@ -128,15 +126,15 @@
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>
                                         <LayoutAnchorablePane DockWidth="550*">
-                                            <LayoutAnchorable Title="Viewport" ContentId="VideoEditorViewPort" CanHide="False" CanClose="False" 
+                                            <LayoutAnchorable Title="Viewport" ContentId="VideoEditorViewPort" CanHide="False" CanClose="False"
                                                               CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                                 <Grid DataContext="{Binding Playback}" sc:UIInputManager.FocusPath="Application/Editor/ViewPort">
                                                     <Border Background="{DynamicResource PanelBackground3}" VerticalAlignment="Bottom" Height="35" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
                                                             </Grid.ColumnDefinitions>
                                                             <Button Grid.Column="0" Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,5,0,5" Click="OnFitContentToWindowClick" />
                                                             <CheckBox Grid.Column="0" Focusable="False" IsChecked="{Binding PanToCursorOnUserZoom, ElementName=VPViewBox}" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5" />
@@ -154,12 +152,15 @@
                                                             </StackPanel>
                                                             <CheckBox Grid.Column="2" Focusable="False" HorizontalAlignment="Right" IsChecked="{Binding UseNearestNeighbourRendering, ElementName=ViewPortElement, Mode=TwoWay}"
                                                                       Content="Use NN Render" Padding="1,0,0,0" Margin="0,0,90,0"
-                                                                      ToolTip="Toggle between Nearest-Neighbour and Linear scaling for the VIEW PORT ONLY. Nearest-neighbour does not use smoothing between pixels, and is closer to what you will see in the final render. This is only really apparent when zoomed in or with low resolution frames"/>
+                                                                      ToolTip="Toggle between Nearest-Neighbour and Linear scaling for the VIEW PORT ONLY. Nearest-neighbour does not use smoothing between pixels, and is closer to what you will see in the final render. This is only really apparent when zoomed in or with low resolution frames" />
                                                             <Button Grid.Column="2" Focusable="False" Content="Settings" Width="75" HorizontalAlignment="Right" Padding="3,0,2,0" DataContext="{Binding Editor.ActiveProject}" Command="{Binding OpenSettingsCommand, Mode=OneTime}" Margin="0,5,5,5" />
                                                         </Grid>
                                                     </Border>
                                                     <controls:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource PanelBackground1}">
+                                                        <!--
                                                         <wpf:SKAsyncViewPort Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" />
+                                                        -->
+                                                        <wpf:OGLAsyncViewPort Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" />
                                                     </controls:FreeMoveViewPortV2>
                                                 </Grid>
                                             </LayoutAnchorable>
@@ -167,13 +168,13 @@
                                     </LayoutPanel>
                                     <LayoutAnchorablePane DockHeight="380*" x:Name="TimelineLayoutPane">
                                         <LayoutAnchorable Title="Project Timeline" ContentId="TimelineAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                            <timeline:PreAnchoredTimelineControl DataContext="{Binding ActiveProject.Timeline}"/>
+                                            <timeline:PreAnchoredTimelineControl DataContext="{Binding ActiveProject.Timeline}" />
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                 </LayoutPanel>
                                 <LayoutAnchorablePane DockWidth="320*">
                                     <LayoutAnchorable Title="Property Editor" ContentId="PropertyEditorAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}" FontFamily="{StaticResource FontOxanium}"/>
+                                        <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static cpe:PFXPropertyEditorRegistry.Instance}" FontFamily="{StaticResource FontOxanium}" />
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutPanel>
@@ -186,10 +187,10 @@
                       VerticalAlignment="Bottom"
                       MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}">
                     <Border Background="Transparent">
-                        <ScrollViewer VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" 
+                        <ScrollViewer VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Auto" CanContentScroll="False">
-                            <nn:NotificationList x:Name="PopupNotificationList" 
-                                                 ItemsSource="{Binding Notifications, Mode=OneTime}" 
+                            <nn:NotificationList x:Name="PopupNotificationList"
+                                                 ItemsSource="{Binding Notifications, Mode=OneTime}"
                                                  ItemTemplateSelector="{StaticResource NotificationTemplateSelector}" MinWidth="300" />
                         </ScrollViewer>
                     </Border>

@@ -6,11 +6,11 @@
                     xmlns:c="clr-namespace:FramePFX.WPF.Converters"
                     xmlns:controls="clr-namespace:FramePFX.WPF.Explorer.Controls"
                     mc:Ignorable="d">
-    <c:FileSizeConverter x:Key="FileSizeConverter"/>
+    <c:FileSizeConverter x:Key="FileSizeConverter" />
 
     <system:Double x:Key="HiddenTextOpacity">0.5</system:Double>
     <system:Double x:Key="VisibleTextOpacity">1.0</system:Double>
-    <c:BoolConverter x:Key="FileHiddenOpacityConverter" FalseValue="{StaticResource VisibleTextOpacity}" TrueValue="{StaticResource HiddenTextOpacity}"/>
+    <c:BoolConverter x:Key="FileHiddenOpacityConverter" FalseValue="{StaticResource VisibleTextOpacity}" TrueValue="{StaticResource HiddenTextOpacity}" />
 
     <!-- File Explorer Styles -->
 
@@ -24,16 +24,16 @@
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal"/>
+                    <WrapPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <controls:ExplorerViewModeDataTemplateSelector x:Key="ExplorerViewModeDataTemplateSelector"/>
+    <controls:ExplorerViewModeDataTemplateSelector x:Key="ExplorerViewModeDataTemplateSelector" />
     <Style TargetType="{x:Type controls:FileExplorerControl}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:FileExplorerControl}">
@@ -41,7 +41,7 @@
                         <!--
                         <ContentControl Content="{TemplateBinding CurrentFolder}" ContentTemplateSelector="{StaticResource ExplorerViewModeDataTemplateSelector}"/>
                         -->
-                        <controls:ListBasedExplorerControl DataContext="{TemplateBinding Explorer}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                        <controls:ListBasedExplorerControl DataContext="{TemplateBinding Explorer}" BorderThickness="{TemplateBinding BorderThickness}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

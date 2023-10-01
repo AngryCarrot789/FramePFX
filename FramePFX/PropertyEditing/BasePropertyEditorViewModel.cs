@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FramePFX.PropertyEditing {
+namespace FramePFX.PropertyEditing
+{
     /// <summary>
     /// The base property editor view model class for handling any type of property modification
     /// and reflecting those changes back to one or more handlers (via the <see cref="Handlers"/> list)
     /// </summary>
-    public abstract class BasePropertyEditorViewModel : BasePropertyObjectViewModel {
+    public abstract class BasePropertyEditorViewModel : BasePropertyObjectViewModel
+    {
         private static readonly List<object> EmptyList = new List<object>();
 
         private readonly Dictionary<object, PropertyHandler> handlerToDataMap;
@@ -44,7 +46,8 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public virtual ApplicabilityMode ApplicabilityMode => ApplicabilityMode.All;
 
-        protected BasePropertyEditorViewModel(Type applicableType) : base(applicableType) {
+        protected BasePropertyEditorViewModel(Type applicableType) : base(applicableType)
+        {
             this.handlerToDataMap = new Dictionary<object, PropertyHandler>();
             this.Handlers = EmptyList;
         }
@@ -59,18 +62,23 @@ namespace FramePFX.PropertyEditing {
         /// </param>
         /// <typeparam name="T">Type of object to get</typeparam>
         /// <returns>True if there is 1 object, or more than 1 and they have the same value, otherwise false</returns>
-        public static bool GetEqualValue<T>(IReadOnlyList<object> objects, Func<object, T> getter, out T equal) {
+        public static bool GetEqualValue<T>(IReadOnlyList<object> objects, Func<object, T> getter, out T equal)
+        {
             int count;
-            if (objects == null || (count = objects.Count) < 1) {
+            if (objects == null || (count = objects.Count) < 1)
+            {
                 equal = default;
                 return false;
             }
 
             equal = getter(objects[0]);
-            if (count > 1) {
+            if (count > 1)
+            {
                 EqualityComparer<T> comparator = EqualityComparer<T>.Default;
-                for (int i = 1; i < count; i++) {
-                    if (!comparator.Equals(getter(objects[i]), equal)) {
+                for (int i = 1; i < count; i++)
+                {
+                    if (!comparator.Equals(getter(objects[i]), equal))
+                    {
                         return false;
                     }
                 }
@@ -85,8 +93,10 @@ namespace FramePFX.PropertyEditing {
         /// If there are no handlers currently loaded, then this function does nothing
         /// </para>
         /// </summary>
-        public void ClearHandlers() {
-            if (this.Handlers.Count < 1) {
+        public void ClearHandlers()
+        {
+            if (this.Handlers.Count < 1)
+            {
                 return;
             }
 
@@ -106,18 +116,22 @@ namespace FramePFX.PropertyEditing {
         /// <see cref="BasePropertyObjectViewModel.IsCurrentlyApplicable"/> is set to true and the handlers are loaded
         /// </summary>
         /// <param name="input">Input list of objects</param>
-        public void SetHandlers(IReadOnlyList<object> targets) {
+        public void SetHandlers(IReadOnlyList<object> targets)
+        {
             this.ClearHandlers();
-            if (!this.IsHandlerCountAcceptable(targets.Count)) {
+            if (!this.IsHandlerCountAcceptable(targets.Count))
+            {
                 return;
             }
 
-            if (!GetApplicable(this, targets, out IReadOnlyList<object> list)) {
+            if (!GetApplicable(this, targets, out IReadOnlyList<object> list))
+            {
                 return;
             }
 
             this.IsCurrentlyApplicable = true;
-            foreach (object entry in list) {
+            foreach (object entry in list)
+            {
                 this.handlerToDataMap[entry] = null;
             }
 
@@ -131,13 +145,15 @@ namespace FramePFX.PropertyEditing {
         /// <summary>
         /// Called just before the handlers are cleared. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
-        protected virtual void OnClearHandlers() {
+        protected virtual void OnClearHandlers()
+        {
         }
 
         /// <summary>
         /// Called just after all handlers are fulled loaded. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
-        protected virtual void OnHandlersLoaded() {
+        protected virtual void OnHandlersLoaded()
+        {
         }
 
         /// <summary>
@@ -148,7 +164,8 @@ namespace FramePFX.PropertyEditing {
         /// <returns></returns>
         protected virtual PropertyHandler NewHandler(object target) => new PropertyHandler(target);
 
-        protected PropertyHandler GetHandlerData(object target) {
+        protected PropertyHandler GetHandlerData(object target)
+        {
             PropertyHandler data = this.handlerToDataMap[target];
             if (data == null)
                 this.handlerToDataMap[target] = data = this.NewHandler(target);
@@ -167,18 +184,25 @@ namespace FramePFX.PropertyEditing {
         /// There are very few reason to use this
         /// </para>
         /// </summary>
-        protected void PreallocateHandlerData() {
-            foreach (object obj in this.Handlers) {
+        protected void PreallocateHandlerData()
+        {
+            foreach (object obj in this.Handlers)
+            {
                 this.handlerToDataMap[obj] = this.NewHandler(obj);
             }
         }
 
-        private static bool GetApplicable(BasePropertyEditorViewModel editor, IReadOnlyList<object> input, out IReadOnlyList<object> output) {
-            switch (editor.ApplicabilityMode) {
-                case ApplicabilityMode.All: {
+        private static bool GetApplicable(BasePropertyEditorViewModel editor, IReadOnlyList<object> input, out IReadOnlyList<object> output)
+        {
+            switch (editor.ApplicabilityMode)
+            {
+                case ApplicabilityMode.All:
+                {
                     // return sources.All(x => editor.IsApplicable(x));
-                    for (int i = 0, c = input.Count; i < c; i++) {
-                        if (!editor.IsApplicable(input[i])) {
+                    for (int i = 0, c = input.Count; i < c; i++)
+                    {
+                        if (!editor.IsApplicable(input[i]))
+                        {
                             output = null;
                             return false;
                         }
@@ -187,11 +211,15 @@ namespace FramePFX.PropertyEditing {
                     output = input;
                     return true;
                 }
-                case ApplicabilityMode.Any: {
-                    for (int i = 0, c = input.Count; i < c; i++) {
-                        if (editor.IsApplicable(input[i])) {
+                case ApplicabilityMode.Any:
+                {
+                    for (int i = 0, c = input.Count; i < c; i++)
+                    {
+                        if (editor.IsApplicable(input[i]))
+                        {
                             List<object> list = new List<object>();
-                            do {
+                            do
+                            {
                                 list.Add(input[i++]);
                             } while (i < c);
 

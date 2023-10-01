@@ -17,7 +17,7 @@ namespace FramePFX.Rendering.ObjectTK
     /// </summary>
     public sealed class Texture2D : Texture
     {
-        public override TextureTarget TextureTarget { get { return TextureTarget.Texture2D; } }
+        public override TextureTarget TextureTarget => TextureTarget.Texture2D;
 
         /// <summary>
         /// The width of the texture.
@@ -41,8 +41,8 @@ namespace FramePFX.Rendering.ObjectTK
         {
             this.Width = width;
             this.Height = height;
-            GL.BindTexture(this.TextureTarget, Handle);
-            GL.TexStorage2D((TextureTarget2d)this.TextureTarget, Levels, internalFormat, this.Width, this.Height);
+            GL.BindTexture(this.TextureTarget, this.Handle);
+            GL.TexStorage2D((TextureTarget2d) this.TextureTarget, this.Levels, internalFormat, this.Width, this.Height);
         }
 
         /// <summary>

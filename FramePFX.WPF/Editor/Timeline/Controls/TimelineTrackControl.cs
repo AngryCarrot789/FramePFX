@@ -13,9 +13,11 @@ using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Track;
 using FramePFX.WPF.Editor.Timeline.Utils;
 
-namespace FramePFX.WPF.Editor.Timeline.Controls {
+namespace FramePFX.WPF.Editor.Timeline.Controls
+{
     [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(TimelineClipControl))]
-    public sealed class TimelineTrackControl : MultiSelector {
+    public sealed class TimelineTrackControl : MultiSelector
+    {
         /// <summary>
         /// The timeline that contains this track
         /// </summary>
@@ -33,7 +35,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         private bool isProcessingDrop;
         public TimelineClipControl lastSelectedItem;
 
-        public TimelineTrackControl() {
+        public TimelineTrackControl()
+        {
             this.CanSelectMultipleItems = true;
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
@@ -41,8 +44,10 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.DragOver += this.OnDragOver;
         }
 
-        protected override void OnPreviewKeyDown(KeyEventArgs e) {
-            if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt) && e.OriginalSource is TimelineClipControl) {
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt) && e.OriginalSource is TimelineClipControl)
+            {
                 e.Handled = true;
                 return;
             }
@@ -50,11 +55,15 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             base.OnPreviewKeyDown(e);
         }
 
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseLeftButtonDown(e);
-            if (this.DataContext is TrackViewModel track && track.Timeline != null) {
-                if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Control)) {
-                    if (track.Timeline.PrimarySelectedTrack != track) {
+            if (this.DataContext is TrackViewModel track && track.Timeline != null)
+            {
+                if (!KeyboardUtils.AreModifiersPressed(ModifierKeys.Control))
+                {
+                    if (track.Timeline.PrimarySelectedTrack != track)
+                    {
                         track.Timeline.PrimarySelectedTrack = track;
                         PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(track.Timeline.SelectedTracks.ToList());
                     }
@@ -64,9 +73,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         private bool canSetPlayHead;
 
-        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseLeftButtonUp(e);
-            if (this.canSetPlayHead && !e.Handled && this.DataContext is TrackViewModel track && track.Timeline != null) {
+            if (this.canSetPlayHead && !e.Handled && this.DataContext is TrackViewModel track && track.Timeline != null)
+            {
                 Point point = e.GetPosition(this);
                 track.Timeline.PlayHeadFrame = TimelineUtils.PixelToFrame(point.X, this.Timeline.UnitZoom, true);
             }
@@ -74,15 +85,19 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.canSetPlayHead = false;
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
             base.OnMouseLeftButtonDown(e);
             // this.canSetPlayHead = true;
-            if (this.Timeline.GetSelectedClipContainers().Any(clip => ReferenceEquals(clip.Track, this) && clip.IsMouseOver)) {
+            if (this.Timeline.GetSelectedClipContainers().Any(clip => ReferenceEquals(clip.Track, this) && clip.IsMouseOver))
+            {
                 return;
             }
 
-            foreach (TimelineTrackControl trackElement in this.Timeline.GetTrackContainers()) {
-                if (trackElement.SelectedItems.Count > 0) {
+            foreach (TimelineTrackControl trackElement in this.Timeline.GetTrackContainers())
+            {
+                if (trackElement.SelectedItems.Count > 0)
+                {
                     trackElement.UnselectAll();
                 }
             }
@@ -91,27 +106,36 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.OnSelectionOperationCompleted();
         }
 
-        public IEnumerable<TimelineClipControl> GetClipContainers() {
+        public IEnumerable<TimelineClipControl> GetClipContainers()
+        {
             return this.GetClipContainers(this.Items);
         }
 
-        public IEnumerable<TimelineClipControl> GetSelectedClipContainers() {
+        public IEnumerable<TimelineClipControl> GetSelectedClipContainers()
+        {
             return this.GetClipContainers(this.SelectedItems);
         }
 
-        public IEnumerable<TimelineClipControl> GetClipContainers(IEnumerable items, bool canUseIcgIndex = true) {
+        public IEnumerable<TimelineClipControl> GetClipContainers(IEnumerable items, bool canUseIcgIndex = true)
+        {
             int i = 0;
-            foreach (object item in items) {
-                if (item is TimelineClipControl a) {
+            foreach (object item in items)
+            {
+                if (item is TimelineClipControl a)
+                {
                     yield return a;
                 }
-                else if (canUseIcgIndex) {
-                    if (this.ItemContainerGenerator.ContainerFromIndex(i) is TimelineClipControl b) {
+                else if (canUseIcgIndex)
+                {
+                    if (this.ItemContainerGenerator.ContainerFromIndex(i) is TimelineClipControl b)
+                    {
                         yield return b;
                     }
                 }
-                else {
-                    if (this.ItemContainerGenerator.ContainerFromItem(item) is TimelineClipControl b) {
+                else
+                {
+                    if (this.ItemContainerGenerator.ContainerFromItem(item) is TimelineClipControl b)
+                    {
                         yield return b;
                     }
                 }
@@ -122,27 +146,34 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public IEnumerable<TimelineClipControl> GetClipsThatIntersect(FrameSpan span) => this.GetClipContainers().Where(x => x.Span.Intersects(span));
 
-        private void OnDragDropEnter(object sender, DragEventArgs e) {
-            if (this.isProcessingDrop || this.ResourceItemDropHandler == null) {
+        private void OnDragDropEnter(object sender, DragEventArgs e)
+        {
+            if (this.isProcessingDrop || this.ResourceItemDropHandler == null)
+            {
                 e.Effects = DragDropEffects.None;
             }
 
             e.Handled = true;
         }
 
-        private void OnDragOver(object sender, DragEventArgs e) {
+        private void OnDragOver(object sender, DragEventArgs e)
+        {
             ITrackResourceDropHandler handler;
-            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null) {
+            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null)
+            {
                 goto end;
             }
 
-            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType))
+            {
                 object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (!(obj is List<BaseResourceViewModel> resources) || resources.Count != 1) {
+                if (!(obj is List<BaseResourceViewModel> resources) || resources.Count != 1)
+                {
                     goto end;
                 }
 
-                if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item)) {
+                if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item))
+                {
                     e.Effects = DragDropEffects.Copy;
                     e.Handled = true;
                     return;
@@ -154,18 +185,23 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             e.Handled = true;
         }
 
-        private void OnDrop(object sender, DragEventArgs e) {
+        private void OnDrop(object sender, DragEventArgs e)
+        {
             ITrackResourceDropHandler handler;
-            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null) {
+            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null)
+            {
                 e.Effects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
 
-            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType))
+            {
                 object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (obj is List<BaseResourceViewModel> resources && resources.Count == 1) {
-                    if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item)) {
+                if (obj is List<BaseResourceViewModel> resources && resources.Count == 1)
+                {
+                    if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item))
+                    {
                         this.isProcessingDrop = true;
                         this.OnDropResource(handler, item, e.GetPosition(this));
                     }
@@ -173,22 +209,27 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
         }
 
-        private async void OnDropResource(ITrackResourceDropHandler handler, ResourceItemViewModel item, Point mouse) {
+        private async void OnDropResource(ITrackResourceDropHandler handler, ResourceItemViewModel item, Point mouse)
+        {
             long frame = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
             frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
             await handler.OnResourceDropped(item, frame);
             this.isProcessingDrop = false;
         }
 
-        public void OnUnitZoomChanged() {
-            foreach (TimelineClipControl element in this.GetClipContainers()) {
+        public void OnUnitZoomChanged()
+        {
+            foreach (TimelineClipControl element in this.GetClipContainers())
+            {
                 element.OnUnitZoomChanged();
             }
         }
 
-        public void MakeTopElement(TimelineClipControl control) {
+        public void MakeTopElement(TimelineClipControl control)
+        {
             TrackViewModel track = this.ViewModel;
-            if (track != null && control.DataContext is ClipViewModel clip) {
+            if (track != null && control.DataContext is ClipViewModel clip)
+            {
                 track.MakeTopMost(clip);
             }
         }
@@ -199,7 +240,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         /// and cache the unordered and ordered indices for fast access in dictionaries
         /// </summary>
         /// <returns></returns>
-        public IndexMap<TimelineClipControl> CreateIndexMap() {
+        public IndexMap<TimelineClipControl> CreateIndexMap()
+        {
             // Dictionary<TimelineClipControl, long> clipToFrame = new Dictionary<TimelineClipControl, long>(this.Items.Count);
             // Dictionary<long, TimelineClipControl> frameToClip = new Dictionary<long, TimelineClipControl>(this.Items.Count);
             int count = this.Items.Count;
@@ -211,7 +253,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             IndexMap<TimelineClipControl> map = new IndexMap<TimelineClipControl>(clipToRealIndex, realIndexToClip, clipToFakeIndex, clips);
             int i = 0;
 
-            foreach (TimelineClipControl clip in this.GetClipContainers()) {
+            foreach (TimelineClipControl clip in this.GetClipContainers())
+            {
                 clipToRealIndex[clip] = i;
                 realIndexToClip[i++] = clip;
                 clips.Add(clip);
@@ -223,11 +266,14 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             return map;
         }
 
-        public void MakeRangedSelection(TimelineClipControl a, TimelineClipControl b) {
-            if (a == b) {
+        public void MakeRangedSelection(TimelineClipControl a, TimelineClipControl b)
+        {
+            if (a == b)
+            {
                 this.MakeSingleSelection(a);
             }
-            else {
+            else
+            {
                 IndexMap<TimelineClipControl> map = this.CreateIndexMap();
                 int indexA = map.OrderedIndexOf(a);
                 if (indexA == -1)
@@ -236,28 +282,35 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 if (indexB == -1)
                     return;
 
-                if (indexA < indexB) {
+                if (indexA < indexB)
+                {
                     this.UnselectAll();
-                    for (int i = indexA; i <= indexB; i++) {
+                    for (int i = indexA; i <= indexB; i++)
+                    {
                         int index = map.OrderedIndexToRealIndex(i);
-                        if (index != -1) {
+                        if (index != -1)
+                        {
                             // using RealIndexToClip may be faster than using ItemContainerGenerator indexing... maybe
                             this.SetItemSelectedProperty(map.RealIndexToValue[index], true, index);
                             // this.SetItemSelectedPropertyAtIndex(index, true);
                         }
                     }
                 }
-                else if (indexA > indexB) {
+                else if (indexA > indexB)
+                {
                     this.UnselectAll();
-                    for (int i = indexB; i <= indexA; i++) {
+                    for (int i = indexB; i <= indexA; i++)
+                    {
                         int index = map.OrderedIndexToRealIndex(i);
-                        if (index != -1) {
+                        if (index != -1)
+                        {
                             this.SetItemSelectedProperty(map.RealIndexToValue[index], true, index);
                             // this.SetItemSelectedPropertyAtIndex(index, true);
                         }
                     }
                 }
-                else {
+                else
+                {
                     this.MakeSingleSelection(a);
                 }
             }
@@ -265,28 +318,35 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.OnSelectionOperationCompleted();
         }
 
-        public void MakeSingleSelection(TimelineClipControl container) {
+        public void MakeSingleSelection(TimelineClipControl container)
+        {
             this.UnselectAll();
             this.SetItemSelectedProperty(container, true);
             this.lastSelectedItem = container;
         }
 
-        public void SetItemSelectedProperty(TimelineClipControl container, bool selected, int index = -1) {
+        public void SetItemSelectedProperty(TimelineClipControl container, bool selected, int index = -1)
+        {
             container.IsSelected = selected;
             object x = this.ItemContainerGenerator.ItemFromContainer(container);
-            if (x == null || x == DependencyProperty.UnsetValue) {
+            if (x == null || x == DependencyProperty.UnsetValue)
+            {
                 x = container;
             }
 
             if (index == -1)
                 index = this.SelectedItems.IndexOf(x);
-            if (selected) {
-                if (index == -1) {
+            if (selected)
+            {
+                if (index == -1)
+                {
                     this.SelectedItems.Add(x);
                 }
             }
-            else {
-                if (index != -1) {
+            else
+            {
+                if (index != -1)
+                {
                     this.SelectedItems.RemoveAt(index);
                 }
             }
@@ -294,7 +354,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public void OnSelectionOperationCompleted() => this.Timeline.OnSelectionOperationCompleted();
 
-        protected override Size MeasureOverride(Size constraint) {
+        protected override Size MeasureOverride(Size constraint)
+        {
             Size size = base.MeasureOverride(constraint);
             return this.Timeline is TimelineEditorControl timeline ? new Size(timeline.MaxDuration * this.UnitZoom, constraint.Height) : size;
         }

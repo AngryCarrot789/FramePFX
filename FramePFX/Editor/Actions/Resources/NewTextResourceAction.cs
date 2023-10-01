@@ -11,27 +11,36 @@ using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Actions.Resources {
+namespace FramePFX.Editor.Actions.Resources
+{
     [ActionRegistration("actions.resources.newitem.NewText")]
-    public class NewTextResourceAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+    public class NewTextResourceAction : AnAction
+    {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
+        {
             ResourceManagerViewModel manager;
             ResourceFolderViewModel folder;
 
-            if (!e.DataContext.TryGetContext(out folder)) {
-                if (!e.DataContext.TryGetContext(out manager)) {
+            if (!e.DataContext.TryGetContext(out folder))
+            {
+                if (!e.DataContext.TryGetContext(out manager))
+                {
                     TimelineViewModel timeline;
-                    if (e.DataContext.TryGetContext(out ClipViewModel clip)) {
+                    if (e.DataContext.TryGetContext(out ClipViewModel clip))
+                    {
                         timeline = clip.Timeline;
                     }
-                    else if (e.DataContext.TryGetContext(out TrackViewModel track)) {
+                    else if (e.DataContext.TryGetContext(out TrackViewModel track))
+                    {
                         timeline = track.Timeline;
                     }
-                    else if (!e.DataContext.TryGetContext(out timeline)) {
+                    else if (!e.DataContext.TryGetContext(out timeline))
+                    {
                         return false;
                     }
-                    
-                    if (timeline == null) {
+
+                    if (timeline == null)
+                    {
                         return false;
                     }
 
@@ -40,33 +49,41 @@ namespace FramePFX.Editor.Actions.Resources {
                         return false;
                     folder = manager.CurrentFolder;
                 }
-                else if (manager.CurrentFolder == null) {
+                else if (manager.CurrentFolder == null)
+                {
                     return false;
                 }
-                else {
+                else
+                {
                     folder = manager.CurrentFolder;
                 }
             }
-            else {
+            else
+            {
                 manager = folder.Manager;
             }
 
             if (!TextIncrement.GetIncrementableString(folder.PredicateIsNameFree, "Sample Text", out string name))
                 name = "Sample Text";
-            ResourceTextStyle resource = new ResourceTextStyle() {
+            ResourceTextStyle resource = new ResourceTextStyle()
+            {
                 DisplayName = name
             };
             ResourceTextStyleViewModel textStyle = resource.CreateViewModel<ResourceTextStyleViewModel>();
-            if (!await ResourceItemViewModel.TryAddAndLoadNewResource(folder, textStyle)) {
+            if (!await ResourceItemViewModel.TryAddAndLoadNewResource(folder, textStyle))
+            {
                 return true;
             }
 
             folder.Manager.SelectedItems.Add(textStyle);
-            if (manager.Project != null) {
+            if (manager.Project != null)
+            {
                 TimelineViewModel timeline = manager.Project.Editor?.SelectedTimeline;
-                if (timeline != null) {
+                if (timeline != null)
+                {
                     VideoTrackViewModel track;
-                    if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !track.GetSpanUntilClip(timeline.PlayHeadFrame, out FrameSpan span)) {
+                    if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !track.GetSpanUntilClip(timeline.PlayHeadFrame, out FrameSpan span))
+                    {
                         track = await timeline.InsertNewVideoTrackAction(0);
                         span = new FrameSpan(0, 300);
                     }

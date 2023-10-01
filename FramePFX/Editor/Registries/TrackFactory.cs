@@ -3,31 +3,38 @@ using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
 
-namespace FramePFX.Editor.Registries {
+namespace FramePFX.Editor.Registries
+{
     /// <summary>
     /// The registry for tracks; audio, video, etc
     /// </summary>
-    public class TrackFactory : ModelFactory<Track, TrackViewModel> {
+    public class TrackFactory : ModelFactory<Track, TrackViewModel>
+    {
         public static TrackFactory Instance { get; } = new TrackFactory();
 
-        private TrackFactory() {
+        private TrackFactory()
+        {
             this.Register<VideoTrack, VideoTrackViewModel>("t_vid");
             this.Register<AudioTrack, AudioTrackViewModel>("t_aud");
         }
 
-        public new void Register<TModel, TViewModel>(string id) where TModel : Track where TViewModel : TrackViewModel {
+        public new void Register<TModel, TViewModel>(string id) where TModel : Track where TViewModel : TrackViewModel
+        {
             base.Register<TModel, TViewModel>(id);
         }
 
-        public new Track CreateModel(string id) {
+        public new Track CreateModel(string id)
+        {
             return base.CreateModel(id);
         }
 
-        public new TrackViewModel CreateViewModel(string id) {
+        public new TrackViewModel CreateViewModel(string id)
+        {
             return base.CreateViewModel(id);
         }
 
-        public new TrackViewModel CreateViewModelFromModel(Track model) {
+        public new TrackViewModel CreateViewModelFromModel(Track model)
+        {
             return base.CreateViewModelFromModel(model);
         }
     }

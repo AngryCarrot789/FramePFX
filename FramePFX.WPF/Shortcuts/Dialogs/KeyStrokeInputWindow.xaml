@@ -1,17 +1,17 @@
 ﻿<views:BaseDialog x:Class="FramePFX.WPF.Shortcuts.Dialogs.KeyStrokeInputWindow"
-                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                   xmlns:views="clr-namespace:FramePFX.WPF.Views"
-                   xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
-                   xmlns:dialogs="clr-namespace:FramePFX.Views.Dialogs;assembly=FramePFX"
-                   mc:Ignorable="d"
-                   d:DataContext="{d:DesignInstance dialogs:BaseConfirmableDialogViewModel}"
-                   Title="Input a keystroke" Height="199.167" Width="300"
-                   WindowStartupLocation="CenterOwner"
-                   WindowStyle="ToolWindow" ResizeMode="NoResize"
-                   Style="{DynamicResource CustomWindowStyleEx}">
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:views="clr-namespace:FramePFX.WPF.Views"
+                  xmlns:attached="clr-namespace:FramePFX.WPF.Themes.Attached"
+                  xmlns:dialogs="clr-namespace:FramePFX.Views.Dialogs;assembly=FramePFX"
+                  mc:Ignorable="d"
+                  d:DataContext="{d:DesignInstance dialogs:BaseConfirmableDialogViewModel}"
+                  Title="Input a keystroke" Height="199.167" Width="300"
+                  WindowStartupLocation="CenterOwner"
+                  WindowStyle="ToolWindow" ResizeMode="NoResize"
+                  Style="{DynamicResource CustomWindowStyleEx}">
     <Grid>
         <TextBlock Margin="10,10,10,0" VerticalAlignment="Top" Padding="2" Text="Press any key combination in here:" />
         <TextBox x:Name="InputBox" Text="Input" KeyDown="InputBox_KeyDown" Padding="5" VerticalContentAlignment="Center" Margin="10,35,10,73" />

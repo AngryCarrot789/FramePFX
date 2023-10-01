@@ -2,19 +2,22 @@ using System.Numerics;
 using FramePFX.Automation.Keys;
 using FramePFX.Rendering;
 using FramePFX.Utils;
+using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Editor.Timelines.Effects.Video {
+namespace FramePFX.Editor.Timelines.Effects.Video
+{
     /// <summary>
     /// An effect that deals with picture transformations (as in position, scale and scale origin)
     /// </summary>
-    public class MotionEffect : VideoEffect {
-        public static readonly AutomationKeyVector2 MediaPositionKey             = AutomationKey.RegisterVec2(nameof(MotionEffect),   nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyVector2 MediaScaleKey                = AutomationKey.RegisterVec2(nameof(MotionEffect),   nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyVector2 MediaScaleOriginKey          = AutomationKey.RegisterVec2(nameof(MotionEffect),   nameof(MediaScaleOrigin), new Vector2(), Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyBoolean UseAbsoluteScaleOriginKey    = AutomationKey.RegisterBool(nameof(MotionEffect),   nameof(UseAbsoluteScaleOrigin));
-        public static readonly AutomationKeyDouble  MediaRotationKey             = AutomationKey.RegisterDouble(nameof(MotionEffect), nameof(MediaRotation), 0d);
-        public static readonly AutomationKeyVector2 MediaRotationOriginKey       = AutomationKey.RegisterVec2(nameof(MotionEffect),   nameof(MediaRotationOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyBoolean UseAbsoluteRotationOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect),   nameof(UseAbsoluteRotationOrigin));
+    public class MotionEffect : VideoEffect
+    {
+        public static readonly AutomationKeyVector2 MediaPositionKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), new Vector2(), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyBoolean UseAbsoluteScaleOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect), nameof(UseAbsoluteScaleOrigin));
+        public static readonly AutomationKeyDouble MediaRotationKey = AutomationKey.RegisterDouble(nameof(MotionEffect), nameof(MediaRotation), 0d);
+        public static readonly AutomationKeyVector2 MediaRotationOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaRotationOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyBoolean UseAbsoluteRotationOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect), nameof(UseAbsoluteRotationOrigin));
 
         /// <summary>
         /// The x and y coordinates of the video's media
@@ -53,7 +56,8 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// </summary>
         public bool UseAbsoluteRotationOrigin;
 
-        public MotionEffect() {
+        public MotionEffect()
+        {
             this.AutomationData.AssignKey(MediaPositionKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f));
             this.AutomationData.AssignKey(MediaScaleKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScale = s.GetVector2Value(f));
             this.AutomationData.AssignKey(MediaScaleOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScaleOrigin = s.GetVector2Value(f));
@@ -65,29 +69,69 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
 
         // apply transformation
 
-        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
+        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize)
+        {
             base.PreProcessFrame(frame, rc, frameSize);
             Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;
-            double rotation = this.MediaRotation;
-            Vector2 rotationOrigin = this.MediaRotationOrigin;
-            rc.Canvas.Translate(pos.X, pos.Y);
-            if (this.UseAbsoluteScaleOrigin) {
-                rc.Canvas.Scale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y);
-            }
-            else if (frameSize.HasValue) {
+            Vector2 rotOrigin = this.MediaRotationOrigin;
+
+            scaleOrigin.X -= 0.5f;
+            scaleOrigin.Y -= 0.5f;
+            rotOrigin.X -= 0.5f;
+            rotOrigin.Y -= 0.5f;
+
+            float rotation = (float) (this.MediaRotation * System.Math.PI / 180d);
+
+            Matrix4x4 matrix = Matrix4x4.Identity;
+            if (frameSize.HasValue)
+            {
+                // clip has size info that we can use to transform relative top-left corner
                 Vector2 size = frameSize.Value;
-                rc.Canvas.Scale(scale.X, scale.Y, size.X * scaleOrigin.X, size.Y * scaleOrigin.Y);
+                if (this.UseAbsoluteRotationOrigin)
+                {
+                    matrix *= Matrix4x4.CreateRotationZ(rotation, new Vector3(rotOrigin.X, rotOrigin.Y, 0f));
+                }
+                else
+                {
+                    matrix *= Matrix4x4.CreateRotationZ(rotation, new Vector3(size.X * rotOrigin.X, size.Y * rotOrigin.Y, 0f));
+                }
+
+                if (this.UseAbsoluteScaleOrigin)
+                {
+                    matrix *= Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f));
+                }
+                else
+                {
+                    matrix *= Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(size.X * scaleOrigin.X, size.Y * scaleOrigin.Y, 0f));
+                }
+
+                matrix *= Matrix4x4.CreateTranslation(pos.X + (size.X / 2), pos.Y + (size.Y / 2), 0f);
+            }
+            else
+            {
+                // worst case; clip has no size data so we assume it takes up 0 pixels
+                if (this.UseAbsoluteRotationOrigin)
+                {
+                    matrix *= Matrix4x4.CreateRotationZ(rotation, new Vector3(rotOrigin.X, rotOrigin.Y, 0f));
+                }
+
+                if (this.UseAbsoluteScaleOrigin)
+                {
+                    matrix *= Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f));
+                }
+
+                matrix *= Matrix4x4.CreateTranslation(pos.X, pos.Y, 0f);
             }
 
-            if (this.UseAbsoluteRotationOrigin) {
-                rc.Canvas.RotateDegrees((float) rotation, rotationOrigin.X, rotationOrigin.Y);
-            }
-            else if (frameSize.HasValue) {
-                Vector2 size = frameSize.Value;
-                rc.Canvas.RotateDegrees((float) rotation, size.X * rotationOrigin.X, size.Y * rotationOrigin.Y);
-            }
+            rc.MatrixStack.PushMatrix(ref matrix);
+        }
+
+        public override void PostProcessFrame(long frame, RenderContext rc, Vector2? frameSize)
+        {
+            base.PostProcessFrame(frame, rc, frameSize);
+            rc.MatrixStack.PopMatrix();
         }
     }
 }

@@ -7,19 +7,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
 using FramePFX.Rendering;
+using FramePFX.Rendering.ObjectTK;
+using FramePFX.Rendering.Utils;
 using FramePFX.Utils;
+using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
-namespace FramePFX.Editor.Timelines {
+namespace FramePFX.Editor.Timelines
+{
     /// <summary>
     /// A timeline or sequence, which contains a collection of tracks (which contain a collection of clips)
     /// </summary>
-    public class Timeline : IAutomatable {
+    public class Timeline : IAutomatable
+    {
         private readonly List<Track> tracks;
         private readonly List<VideoClip> RenderList = new List<VideoClip>();
         private readonly List<AdjustmentVideoClip> AdjustmentStack = new List<AdjustmentVideoClip>();
@@ -30,7 +36,10 @@ namespace FramePFX.Editor.Timelines {
         private long nextTrackId;
 
         /// <summary>
-        /// The project associated with this timeline
+        /// The project associated with this timeline. This is set to a non-null value immediately
+        /// after creating the project's main timeline. However, for composition timelines, this will
+        /// be null until that resource is added to the resource manager hierarchy, and is set to null
+        /// when removed from a manager (which typically only happens once)
         /// </summary>
         public Project Project { get; private set; }
 
@@ -57,68 +66,150 @@ namespace FramePFX.Editor.Timelines {
 
         public string DisplayName { get; set; }
 
-        public Timeline() {
+        public FrameBufferImage FrameBuffer { get; private set; }
+        public BasicMesh BasicRectangle { get; set; }
+        public Shader BasicShader { get; set; }
+
+        public Timeline()
+        {
             this.tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
         }
 
-        public void UpdateLargestFrame() {
+        public void UpdateLargestFrame()
+        {
             IReadOnlyList<Track> list = this.Tracks;
             int count = list.Count;
-            if (count > 0) {
+            if (count > 0)
+            {
                 long max = list[0].LargestFrameInUse;
-                for (int i = 1; i < count; i++) {
+                for (int i = 1; i < count; i++)
+                {
                     max = Math.Max(max, list[i].LargestFrameInUse);
                 }
 
                 this.LargestFrameInUse = max;
             }
-            else {
+            else
+            {
                 this.LargestFrameInUse = 0;
             }
         }
 
-        public void SetProject(Project project) {
+        /// <summary>
+        /// Sets the project associated with this timeline
+        /// <para>
+        /// For the project's main timeline, it is called in the project's constructor and therefore only once
+        /// </para>
+        /// <para>
+        /// For composition timelines, this is called when a composition resource's manager changes
+        /// </para>
+        /// </summary>
+        /// <param name="project"></param>
+        public void SetProject(Project project)
+        {
             Project oldProject = this.Project;
-            if (ReferenceEquals(oldProject, project)) {
+            if (ReferenceEquals(oldProject, project))
                 return;
-            }
 
             this.OnProjectChanging(project);
             this.Project = project;
-            foreach (Track track in this.Tracks) {
+            foreach (Track track in this.Tracks)
+            {
                 Track.OnTimelineProjectChanged(track, oldProject, project);
             }
 
             this.OnProjectChanged(oldProject);
         }
 
-        protected virtual void OnProjectChanging(Project newProject) {
-
+        protected virtual void OnProjectChanging(Project newProject)
+        {
         }
 
-        protected virtual void OnProjectChanged(Project oldProject) {
-
+        protected virtual void OnProjectChanged(Project oldProject)
+        {
         }
 
-        public FrameSpan GetUsedFrameSpan() {
+        public void SetupRenderData()
+        {
+            this.BasicRectangle = new BasicMesh(new[]
+            {
+                 1f,  1f, 0f,
+                -1f,  1f, 0f,
+                -1f, -1f, 0f,
+                 1f,  1f, 0f,
+                -1f, -1f, 0f,
+                 1f, -1f, 0f
+            });
+
+            this.BasicShader = new Shader(@"
+#version 150
+
+// Globals
+uniform mat4 mvp;
+
+// Inputs
+in vec3 in_pos;
+
+void main(void) {
+	gl_Position = mvp * vec4(in_pos, 1.0);
+}
+", /* fragment */ @"
+#version 150
+precision highp float;
+
+// Inputs
+uniform vec4 in_colour;
+
+void main(void) {
+    gl_FragColor = in_colour;
+}
+");
+
+            Resolution size = this.Project.Settings.Resolution;
+            this.FrameBuffer = new FrameBufferImage(size.Width, size.Height);
+
+            foreach (Track track in this.tracks)
+            {
+                track.SetupRenderData();
+            }
+        }
+
+        public void ClearRenderData()
+        {
+            this.BasicRectangle?.Dispose();
+            this.BasicRectangle = null;
+            this.FrameBuffer?.Dispose();
+            this.FrameBuffer = null;
+            foreach (Track track in this.tracks)
+            {
+                track.ClearRenderData();
+            }
+        }
+
+        public FrameSpan GetUsedFrameSpan()
+        {
             return FrameSpan.UnionAll(this.Tracks.SelectMany(x => x.Clips.Select(y => y.FrameSpan)));
         }
 
-        public void GetClipIndicesAt(long frame, ICollection<int> indices) {
-            foreach (Track track in this.tracks) {
+        public void GetClipIndicesAt(long frame, ICollection<int> indices)
+        {
+            foreach (Track track in this.tracks)
+            {
                 track.GetClipIndicesAt(frame, indices);
             }
         }
 
-        public void WriteToRBE(RBEDictionary data) {
+        public void WriteToRBE(RBEDictionary data)
+        {
             data.SetLong("NextClipId", this.nextClipId);
             data.SetLong("NextTrackId", this.nextTrackId);
             data.SetLong(nameof(this.PlayHeadFrame), this.PlayHeadFrame);
             data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Tracks));
-            foreach (Track track in this.tracks) {
+            foreach (Track track in this.tracks)
+            {
                 if (!(track.FactoryId is string registryId))
                     throw new Exception("Unknown track type: " + track.GetType());
                 RBEDictionary dictionary = list.AddDictionary();
@@ -127,7 +218,8 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
+        public void ReadFromRBE(RBEDictionary data)
+        {
             if ((this.nextClipId = data.GetLong("NextClipId")) < 0)
                 throw new Exception("Invalid next clip id");
             if ((this.nextTrackId = data.GetLong("NextTrackId")) < 0)
@@ -136,7 +228,8 @@ namespace FramePFX.Editor.Timelines {
             this.PlayHeadFrame = data.GetLong(nameof(this.PlayHeadFrame));
             this.MaxDuration = data.GetLong(nameof(this.MaxDuration));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>()) {
+            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>())
+            {
                 string registryId = dictionary.GetString(nameof(Track.FactoryId));
                 Track track = TrackFactory.Instance.CreateModel(registryId);
                 track.ReadFromRBE(dictionary.GetDictionary("Data"));
@@ -148,30 +241,41 @@ namespace FramePFX.Editor.Timelines {
         }
 
         // true = adding, false = removing, null = moving track from timeline A to B
-        private void ValidateTrack(Track track, bool isAdding) {
-            if (isAdding) {
-                if (track.Timeline != null) {
+        private void ValidateTrack(Track track, bool isAdding)
+        {
+            if (isAdding)
+            {
+                if (track.Timeline != null)
+                {
                     throw new Exception($"Track already belongs to another timeline: '{track.Timeline.DisplayName}'");
                 }
 
-                if (this.tracks.Contains(track)) {
+                if (this.tracks.Contains(track))
+                {
                     throw new Exception($"Track has no timeline associated but is stored in our track list?");
                 }
             }
-            else if (track.Timeline != this) {
+            else if (track.Timeline != this)
+            {
                 throw new Exception($"Expected track's timeline to equal the current instance, but instead {(track.Timeline == null ? "it's null" : $" equals {track.Timeline.DisplayName}")}");
             }
         }
 
         public void AddTrack(Track track) => this.InsertTrack(this.tracks.Count, track);
 
-        public void InsertTrack(int index, Track track) {
+        public void InsertTrack(int index, Track track)
+        {
             this.ValidateTrack(track, true);
             this.tracks.Insert(index, track);
             Track.SetTimeline(track, this);
+            if (this.Project?.IsLoaded ?? false)
+            {
+                track.SetupRenderData();
+            }
         }
 
-        public bool RemoveTrack(Track track) {
+        public bool RemoveTrack(Track track)
+        {
             int index = this.tracks.IndexOf(track);
             if (index < 0)
                 return false;
@@ -179,27 +283,38 @@ namespace FramePFX.Editor.Timelines {
             return true;
         }
 
-        public void RemoveTrackAt(int index) {
+        public void RemoveTrackAt(int index)
+        {
             Track track = this.tracks[index];
             this.ValidateTrack(track, false);
             ExceptionUtils.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
+            if (this.Project?.IsLoaded ?? false)
+            {
+                track.SetupRenderData();
+            }
+
             this.tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
+
+
         }
 
         public void MoveTrackIndex(int oldIndex, int newIndex) => this.tracks.MoveItem(oldIndex, newIndex);
 
-        public void MoveTrackToTimeline(Track track, Timeline timeline) {
+        public void MoveTrackToTimeline(Track track, Timeline timeline)
+        {
             int index = this.tracks.IndexOf(track);
             if (index == -1)
                 throw new Exception("Track is not stored in the current instance");
             this.MoveTrackToTimeline(index, timeline);
         }
 
-        public void MoveTrackToTimeline(int index, Timeline timeline) {
+        public void MoveTrackToTimeline(int index, Timeline timeline)
+        {
             Track track = this.tracks[index];
             this.ValidateTrack(track, false);
-            if (timeline.tracks.Contains(track)) {
+            if (timeline.tracks.Contains(track))
+            {
                 throw new Exception("Target timeline is already storing the track?");
             }
 
@@ -208,31 +323,30 @@ namespace FramePFX.Editor.Timelines {
             Track.SetTimeline(track, timeline);
         }
 
-        public void ClearTracks() {
-            using (ErrorList list = new ErrorList()) {
-                for (int i = this.tracks.Count - 1; i >= 0; i--) {
-                    try {
+        public void ClearTracks()
+        {
+            using (ErrorList list = new ErrorList())
+            {
+                for (int i = this.tracks.Count - 1; i >= 0; i--)
+                {
+                    try
+                    {
                         this.tracks[i].Clear();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         list.Add(e);
                     }
 
-                    try {
+                    try
+                    {
                         this.RemoveTrackAt(i);
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         list.Add(e);
                     }
                 }
-            }
-        }
-
-        private static void EndOpacityLayer(RenderContext render, int count, ref SKPaint paint) {
-            render.Canvas.RestoreToCount(count);
-            if (paint != null) {
-                paint.Dispose();
-                paint = null;
             }
         }
 
@@ -246,20 +360,26 @@ namespace FramePFX.Editor.Timelines {
 
         // Anyway these methods are really messy but a lot of it is just avoiding the usage of enumerators
         // in order to re-use local variables... because I like fast apps ;-)
-        public async Task RenderAsync(RenderContext render, long frame, CancellationToken token) {
+        public async Task RenderAsync(RenderContext render, long frame, CancellationToken token)
+        {
             if (!this.BeginCompositeRender(frame, token))
                 throw new TaskCanceledException("Begin render took too long to complete");
             await this.EndCompositeRenderAsync(render, frame, token);
         }
 
-        private void CompleteRenderList(long frame, bool isCancelled, int i = 0) {
-            using (ErrorList list = new ErrorList("Failed to " + (isCancelled ? "cancel" : "finalize") + " one or more clip renders")) {
+        private void CompleteRenderList(long frame, bool isCancelled, int i = 0)
+        {
+            using (ErrorList list = new ErrorList("Failed to " + (isCancelled ? "cancel" : "finalize") + " one or more clip renders"))
+            {
                 List<VideoClip> renderList = this.RenderList;
-                for (int count = renderList.Count; i < count; i++) {
-                    try {
+                for (int count = renderList.Count; i < count; i++)
+                {
+                    try
+                    {
                         renderList[i].OnRenderCompleted(frame, isCancelled);
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         list.Add(e);
                     }
                 }
@@ -269,61 +389,77 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
-        private void CompleteRenderList(long frame, bool isCancelled, Exception e, int i = 0) {
-            try {
+        private void CompleteRenderList(long frame, bool isCancelled, Exception e, int i = 0)
+        {
+            try
+            {
                 this.CompleteRenderList(frame, isCancelled, i);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 e.AddSuppressed(ex);
             }
         }
 
-        public bool BeginCompositeRender(long frame, CancellationToken token) {
+        public bool BeginCompositeRender(long frame, CancellationToken token)
+        {
             if (this.isBeginningRender)
                 throw new Exception("Already rendering. Possible asynchronous render");
             if (this.RenderList.Count > 0)
                 throw new Exception("Render queue already loaded. Possible asynchronous render or " + nameof(this.EndCompositeRenderAsync) + " was not called");
-            try {
+            try
+            {
                 this.isBeginningRender = true;
                 return this.BeginCompositeRenderInternal(frame, token);
             }
-            finally {
+            finally
+            {
                 this.isBeginningRender = false;
             }
         }
 
-        private bool BeginCompositeRenderInternal(long frame, CancellationToken token) {
+        private bool BeginCompositeRenderInternal(long frame, CancellationToken token)
+        {
             List<AdjustmentVideoClip> adjustments = this.AdjustmentStack;
             List<VideoClip> renderList = this.RenderList;
             List<Track> trackList = this.tracks;
             // Render timeline from the bottom to the top
-            for (int i = trackList.Count - 1; i >= 0; i--) {
-                if (token.IsCancellationRequested) {
+            for (int i = trackList.Count - 1; i >= 0; i--)
+            {
+                if (token.IsCancellationRequested)
+                {
                     // BeginRender phase must have taken too long; call cancel to all clips that were prepared
                     this.CompleteRenderList(frame, true);
                     return false;
                 }
 
-                if (trackList[i] is VideoTrack track && track.IsActuallyVisible) {
+                if (trackList[i] is VideoTrack track && track.IsActuallyVisible)
+                {
                     Clip clip = track.GetClipAtFrame(frame);
-                    if (clip == null) {
+                    if (clip == null)
+                    {
                         continue;
                     }
 
-                    if (clip is AdjustmentVideoClip) {
+                    if (clip is AdjustmentVideoClip)
+                    {
                         adjustments.Add((AdjustmentVideoClip) clip);
                     }
-                    else {
+                    else
+                    {
                         bool render;
-                        try {
+                        try
+                        {
                             render = ((VideoClip) clip).OnBeginRender(frame);
                         }
-                        catch (Exception e) {
+                        catch (Exception e)
+                        {
                             this.CompleteRenderList(frame, true, e);
                             throw new Exception("Failed to invoke " + nameof(VideoClip.OnBeginRender) + " for clip", e);
                         }
 
-                        if (render) {
+                        if (render)
+                        {
                             renderList.Add((VideoClip) clip);
                         }
                     }
@@ -334,149 +470,173 @@ namespace FramePFX.Editor.Timelines {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PreProcessAjustments(long frame, RenderContext render) {
+        private void PreProcessAjustments(long frame, RenderContext render)
+        {
             List<AdjustmentVideoClip> list = this.AdjustmentStack;
             int count = list.Count;
-            if (count == 0) {
+            if (count == 0)
+            {
                 return;
             }
 
             Vector2 size = render.FrameSize;
-            try {
-                for (int i = 0; i < count; i++) {
+            try
+            {
+                for (int i = 0; i < count; i++)
+                {
                     BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, true);
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 this.CompleteRenderList(frame, true, e);
                 throw new Exception("Failed to pre-process adjustment layer effects", e);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PostProcessAjustments(long frame, RenderContext render) {
+        private void PostProcessAjustments(long frame, RenderContext render)
+        {
             List<AdjustmentVideoClip> list = this.AdjustmentStack;
             int count = list.Count;
-            if (count == 0) {
+            if (count == 0)
+            {
                 return;
             }
 
             Vector2 size = render.FrameSize;
-            try {
-                for (int i = count - 1; i >= 0; i--) {
+            try
+            {
+                for (int i = count - 1; i >= 0; i--)
+                {
                     BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, false);
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception("Failed to post-process adjustment layer effects", e);
             }
         }
 
-        public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token) {
+        public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token)
+        {
             List<VideoClip> renderList = this.RenderList;
-            SKPaint trackPaint = null, clipPaint = null;
-            int timelineCanvasSaveIndex = render.Canvas.Save();
-            render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
+            render.PushFrameBuffer(this.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
+            this.FrameBuffer.Clear();
+
+            // TODO: clipping
             this.PreProcessAjustments(frame, render);
             int i = 0, count = renderList.Count;
-            try {
-                for (; i < count; i++) {
-                    if (token.IsCancellationRequested) {
+            try
+            {
+                for (; i < count; i++)
+                {
+                    if (token.IsCancellationRequested)
+                    {
                         // Rendering took too long. Some clips may have already drawn. Cancel the rest
                         this.CompleteRenderList(frame, true, i);
                         throw new TaskCanceledException();
                     }
 
                     VideoClip clip = renderList[i];
-                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
-                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
+                    VideoTrack track = (VideoTrack) clip.Track;
+
+                    // TODO: track and clip opacity
+                    render.PushFrameBuffer(track.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
+                    track.FrameBuffer.Clear();
+
                     Vector2? frameSize = clip.GetSize(render);
 
-                    try {
+                    try
+                    {
                         BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, true);
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         this.CompleteRenderList(frame, true, e, i);
+                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException("Failed to pre-process effects", e);
                     }
 
-                    try {
+                    try
+                    {
                         // actual render the clip
                         Task task = clip.OnEndRender(render, frame);
-                        if (!task.IsCompleted) {
+                        if (!task.IsCompleted)
+                        {
                             // possibly help with performance a tiny bit
                             await task;
                         }
                     }
-                    catch (TaskCanceledException) {
+                    catch (TaskCanceledException)
+                    {
                         // do nothing
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         this.CompleteRenderList(frame, true, e, i);
+                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException($"Failed to render '{clip}'", e);
                     }
 
-                    try {
+                    try
+                    {
                         BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, false);
                     }
-                    catch (Exception e) {
-                        try {
+                    catch (Exception e)
+                    {
+                        try
+                        {
                             clip.OnRenderCompleted(frame, false);
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex)
+                        {
                             e.AddSuppressed(new Exception("Failed to finalize clip just after post effect error", ex));
                         }
 
                         this.CompleteRenderList(frame, true, e, i + 1);
+                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException("Failed to post-process effects", e);
                     }
 
-                    try {
+                    try
+                    {
                         clip.OnRenderCompleted(frame, false);
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         this.CompleteRenderList(frame, true, e, i + 1);
+                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
                     }
 
-                    EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                    EndOpacityLayer(render, trackSaveCount, ref trackPaint);
+                    render.PopFrameBuffer(null);
+                    track.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer);
                 }
             }
-            catch (TaskCanceledException) {
+            catch (TaskCanceledException)
+            {
                 throw;
             }
-            catch (RenderException) {
+            catch (RenderException)
+            {
                 throw;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 this.CompleteRenderList(frame, true, e, i + 1);
                 throw new Exception("Unexpected exception occurred during render", e);
             }
+            finally
+            {
+                RenderContext.TryPopFrameBuffer(render);
+            }
 
+            this.FrameBuffer.DrawIntoTargetBuffer(0);
             this.AdjustmentStack.Clear();
             this.RenderList.Clear();
             this.PostProcessAjustments(frame, render);
-            render.Canvas.RestoreToCount(timelineCanvasSaveIndex);
-        }
-
-        // SaveLayer requires a temporary drawing bitmap, which can slightly
-        // decrease performance, so only SaveLayer when absolutely necessary
-        private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
-            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
-        }
-
-        private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint) {
-            if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d)) {
-                return render.Canvas.Save();
-            }
-            else {
-                return SaveLayerForOpacity(render.Canvas, clip.Opacity, ref paint);
-            }
-        }
-
-        private static int BeginTrackOpacityLayer(RenderContext render, VideoTrack track, ref SKPaint paint) {
-            return !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref paint) : render.Canvas.Save();
+            // TODO: restore clipping
         }
     }
 }

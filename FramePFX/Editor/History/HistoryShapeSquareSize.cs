@@ -2,45 +2,55 @@ using System.Threading.Tasks;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 
-namespace FramePFX.Editor.History {
-    public class HistoryShapeSquareSize : HistoryAction {
+namespace FramePFX.Editor.History
+{
+    public class HistoryShapeSquareSize : HistoryAction
+    {
         public ShapeSquareVideoClipViewModel Clip { get; }
         public Transaction<float> Width { get; }
         public Transaction<float> Height { get; }
 
-        public HistoryShapeSquareSize(ShapeSquareVideoClipViewModel clip) {
+        public HistoryShapeSquareSize(ShapeSquareVideoClipViewModel clip)
+        {
             this.Clip = clip;
             this.Width = Transactions.ImmutableType(clip.Width);
             this.Height = Transactions.ImmutableType(clip.Height);
         }
 
-        protected override Task UndoAsyncCore() {
+        protected override Task UndoAsyncCore()
+        {
             this.Clip.IsHistoryChanging = true;
-            try {
+            try
+            {
                 this.Clip.Width = this.Width.Original;
                 this.Clip.Height = this.Height.Original;
             }
-            finally {
+            finally
+            {
                 this.Clip.IsHistoryChanging = false;
             }
 
             return Task.CompletedTask;
         }
 
-        protected override Task RedoAsyncCore() {
+        protected override Task RedoAsyncCore()
+        {
             this.Clip.IsHistoryChanging = true;
-            try {
+            try
+            {
                 this.Clip.Width = this.Width.Current;
                 this.Clip.Height = this.Height.Current;
             }
-            finally {
+            finally
+            {
                 this.Clip.IsHistoryChanging = false;
             }
 
             return Task.CompletedTask;
         }
 
-        public override void OnRemoved() {
+        public override void OnRemoved()
+        {
         }
     }
 }

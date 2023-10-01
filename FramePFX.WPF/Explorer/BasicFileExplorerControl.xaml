@@ -1,8 +1,8 @@
 ﻿<UserControl x:Class="FramePFX.WPF.Explorer.BasicFileExplorerControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:wpf="clr-namespace:FramePFX.WPF.Explorer"
              xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
              xmlns:ap="clr-namespace:FramePFX.WPF.AttachedProperties"
@@ -15,35 +15,35 @@
              xmlns:controls="clr-namespace:FramePFX.WPF.Explorer.Controls"
              xmlns:fileBrowser="clr-namespace:FramePFX.FileBrowser;assembly=FramePFX"
              xmlns:fileTree="clr-namespace:FramePFX.FileBrowser.FileTree;assembly=FramePFX"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance fileBrowser:FileExplorerViewModel}">
     <Grid>
         <Grid.Resources>
             <!-- d:DataContext="{d:DesignInstance fileTree:TreeEntry}" -->
             <Style TargetType="{x:Type wpf:FileTreeItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
             </Style>
             <wpf:DummyTreeItemStyleSelector x:Key="DummyTreeItemStyleSelector">
                 <wpf:DummyTreeItemStyleSelector.DefaultStyle>
                     <Style TargetType="{x:Type wpf:FileTreeItem}" BasedOn="{StaticResource {x:Type wpf:FileTreeItem}}">
-                        <Setter Property="ap:HandleRequestBringIntoView.IsEnabled" Value="True"/>
+                        <Setter Property="ap:HandleRequestBringIntoView.IsEnabled" Value="True" />
                     </Style>
                 </wpf:DummyTreeItemStyleSelector.DefaultStyle>
                 <wpf:DummyTreeItemStyleSelector.WithDummyStyle>
                     <!-- d:DataContext="{d:DesignInstance fileTree:TreeEntry}" -->
                     <Style TargetType="{x:Type wpf:FileTreeItem}" BasedOn="{StaticResource {x:Type wpf:FileTreeItem}}">
-                        <Setter Property="ap:HandleRequestBringIntoView.IsEnabled" Value="True"/>
-                        <Setter Property="cs:TreeExtension.IsInitiallyExpandable" Value="{Binding HasExpandedOnce, Converter={StaticResource InvertBoolConverter}}"/>
+                        <Setter Property="ap:HandleRequestBringIntoView.IsEnabled" Value="True" />
+                        <Setter Property="cs:TreeExtension.IsInitiallyExpandable" Value="{Binding HasExpandedOnce, Converter={StaticResource InvertBoolConverter}}" />
                     </Style>
                 </wpf:DummyTreeItemStyleSelector.WithDummyStyle>
             </wpf:DummyTreeItemStyleSelector>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="14*"/>
-            <ColumnDefinition Width="1"/>
-            <ColumnDefinition Width="32*"/>
+            <ColumnDefinition Width="14*" />
+            <ColumnDefinition Width="1" />
+            <ColumnDefinition Width="32*" />
         </Grid.ColumnDefinitions>
         <wpf:FileTreeControl DataContext="{Binding FileTree}"
                              ItemsSource="{Binding Root.Items}"
@@ -56,38 +56,38 @@
                              ItemContainerStyleSelector="{StaticResource DummyTreeItemStyleSelector}">
             <wpf:FileTreeControl.Style>
                 <Style TargetType="{x:Type wpf:FileTreeControl}" BasedOn="{StaticResource {x:Type TreeView}}">
-                    <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+                    <Setter Property="ScrollViewer.PanningMode" Value="Both" />
                 </Style>
             </wpf:FileTreeControl.Style>
             <wpf:FileTreeControl.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type zip:NestedZipVirtualFile}" ItemsSource="{Binding Items, Mode=OneTime}">
                     <!-- A zip file within another zip file -->
-                    <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}"/>
+                    <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}" />
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type zip:PhysicalZipVirtualFile}" ItemsSource="{Binding Items, Mode=OneTime}">
                     <!-- A zip file inside of a physical folder -->
-                    <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent"/>
+                    <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent" />
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type physical:PhysicalVirtualFolder}" ItemsSource="{Binding Items, Mode=OneTime}">
                     <!-- A physical folder -->
-                    <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent"/>
+                    <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent" />
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type zip:ZipEntryVirtualFolder}" ItemsSource="{Binding Items, Mode=OneTime}">
                     <!-- A zip folder; todo, put an icon in here somewhere -->
-                    <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}"/>
+                    <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}" />
                 </HierarchicalDataTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type zip:ZipEntryVirtualFile}" ItemsSource="{Binding Items, Mode=OneTime}">
                     <!-- A zip file; todo, put an icon in here somewhere -->
-                    <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}"/>
+                    <TextBlock Text="{Binding ZipFileName}" ToolTip="{Binding FullZipPath}" />
                 </HierarchicalDataTemplate>
                 <DataTemplate DataType="{x:Type physical:PhysicalVirtualFile}">
                     <!-- A physical file -->
-                    <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent"/>
+                    <cs:IconTextPairControl Text="{Binding FileName}" TargetFilePath="{Binding FilePath}" Background="Transparent" />
                 </DataTemplate>
             </wpf:FileTreeControl.Resources>
         </wpf:FileTreeControl>
-        <controls:FileExplorerControl Grid.Column="2" CurrentFolder="{Binding CurrentFolder, Mode=OneWay}" Explorer="{Binding .}" BorderThickness="0"/>
-        <GridSplitter Grid.Column="1" Margin="-5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderThickness="0"/>
-        <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" BorderThickness="0"/>
+        <controls:FileExplorerControl Grid.Column="2" CurrentFolder="{Binding CurrentFolder, Mode=OneWay}" Explorer="{Binding .}" BorderThickness="0" />
+        <GridSplitter Grid.Column="1" Margin="-5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" BorderThickness="0" />
+        <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource PanelBorderBrush}" BorderThickness="0" />
     </Grid>
 </UserControl>

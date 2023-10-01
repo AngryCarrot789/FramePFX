@@ -16,10 +16,13 @@ using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Actions.Clips {
+namespace FramePFX.Editor.Actions.Clips
+{
     [ActionRegistration("actions.editor.timeline.CreateCompositionFromSelection")]
-    public class CreateCompositionFromClipsAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+    public class CreateCompositionFromClipsAction : AnAction
+    {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
+        {
             // TODO: probably clean this function up a bit LOL
             // Find timeline from possible selected items
             TimelineViewModel timeline = null;
@@ -38,31 +41,38 @@ namespace FramePFX.Editor.Actions.Clips {
             int totalClips = 0;
             long trackBegin = long.MaxValue;
             long trackEndIndex = 0;
-            for (int i = oldTracks.Count - 1; i >= 0; i--) {
+            for (int i = oldTracks.Count - 1; i >= 0; i--)
+            {
                 TrackViewModel oldTrack = oldTracks[i];
-                if (oldTrack.SelectedClips.Count < 1) {
+                if (oldTrack.SelectedClips.Count < 1)
+                {
                     oldTracks.RemoveAt(i);
                 }
-                else {
-                    foreach (ClipViewModel clip in oldTrack.SelectedClips) {
+                else
+                {
+                    foreach (ClipViewModel clip in oldTrack.SelectedClips)
+                    {
                         trackBegin = Math.Min(clip.FrameBegin, trackBegin);
                         trackEndIndex = Math.Max(clip.FrameEndIndex, trackEndIndex);
                     }
                 }
             }
 
-            if (trackBegin == long.MaxValue || trackBegin >= trackEndIndex) {
+            if (trackBegin == long.MaxValue || trackBegin >= trackEndIndex)
+            {
                 return true;
             }
 
             long finalTrackDuration = trackEndIndex - trackBegin;
-            for (int i = oldTracks.Count - 1; i >= 0; i--) {
+            for (int i = oldTracks.Count - 1; i >= 0; i--)
+            {
                 TrackViewModel oldTrack = oldTracks[i];
 
                 // based on the code above, this will always have at least 1 item
                 List<ClipViewModel> selection = oldTrack.SelectedClips.ToList();
 
-                if (selection.Count == oldTrack.Clips.Count) {
+                if (selection.Count == oldTrack.Clips.Count)
+                {
                     timeline.RemoveTrack(oldTrack);
                 }
 
@@ -71,7 +81,8 @@ namespace FramePFX.Editor.Actions.Clips {
                 newTracks.Add(clonedTrackVM);
 
                 // This code keeps the same clip view model references, as cloning isn't necessary
-                foreach (ClipViewModel clip in selection) {
+                foreach (ClipViewModel clip in selection)
+                {
                     oldTrack.RemoveClip(clip);
                     clip.Model.FrameSpan = clip.Model.FrameSpan.AddBegin(-trackBegin);
 
@@ -87,17 +98,20 @@ namespace FramePFX.Editor.Actions.Clips {
             newTracks.Reverse();
 
             // create composition resource and add the tracks to its timeline
-            ResourceComposition composition = new ResourceComposition() {
+            ResourceComposition composition = new ResourceComposition()
+            {
                 DisplayName = $"New Composition with {totalClips} clips",
             };
 
             composition.Timeline.DisplayName = "Composition timeline";
-            if (composition.Timeline.MaxDuration < finalTrackDuration) {
+            if (composition.Timeline.MaxDuration < finalTrackDuration)
+            {
                 composition.Timeline.MaxDuration = finalTrackDuration + 1000;
             }
 
             ResourceCompositionViewModel comp = new ResourceCompositionViewModel(composition);
-            foreach (TrackViewModel track in newTracks) {
+            foreach (TrackViewModel track in newTracks)
+            {
                 comp.Timeline.AddTrack(track);
             }
 
@@ -107,7 +121,8 @@ namespace FramePFX.Editor.Actions.Clips {
             {
                 FrameSpan span = new FrameSpan(trackBegin, finalTrackDuration);
                 VideoTrackViewModel track = (VideoTrackViewModel) oldTracks.FirstOrDefault(x => x is VideoTrackViewModel vid && !vid.Clips.Any(cl => cl.FrameSpan.Intersects(span)));
-                if (track == null) {
+                if (track == null)
+                {
                     track = await timeline.InsertNewVideoTrackAction(0, false);
                 }
 

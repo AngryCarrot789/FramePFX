@@ -1,6 +1,9 @@
-namespace FramePFX.Utils {
-    public static class Helper {
-        public static T Exchange<T>(ref T location, T newValue) {
+namespace FramePFX.Utils
+{
+    public static class Helper
+    {
+        public static T Exchange<T>(ref T location, T newValue)
+        {
             T value = location;
             location = newValue;
             return value;
@@ -18,11 +21,14 @@ namespace FramePFX.Utils {
         /// <param name="oldValue">The previous value of location</param>
         /// <typeparam name="T">The type of value</typeparam>
         /// <returns>True if the location is non-null, otherwise false</returns>
-        public static bool Exchange<T>(ref T location, T newValue, out T oldValue) where T : class {
-            if ((oldValue = location) == null) {
+        public static bool Exchange<T>(ref T location, T newValue, out T oldValue) where T : class
+        {
+            if ((oldValue = location) == null)
+            {
                 return false;
             }
-            else {
+            else
+            {
                 location = newValue;
                 return true;
             }

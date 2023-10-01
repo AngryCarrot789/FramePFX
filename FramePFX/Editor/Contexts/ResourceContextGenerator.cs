@@ -9,21 +9,27 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Contexts {
+namespace FramePFX.Editor.Contexts
+{
     /// <summary>
     /// A context generator for a resource manager and its items
     /// </summary>
-    public class ResourceContextGenerator : IContextGenerator {
+    public class ResourceContextGenerator : IContextGenerator
+    {
         public static ResourceContextGenerator Instance { get; } = new ResourceContextGenerator();
 
-        public void Generate(List<IContextEntry> list, IDataContext context) {
-            if (context.TryGetContext(out BaseResourceViewModel resItem)) {
+        public void Generate(List<IContextEntry> list, IDataContext context)
+        {
+            if (context.TryGetContext(out BaseResourceViewModel resItem))
+            {
                 List<BaseResourceViewModel> selected = resItem.Manager.SelectedItems.ToList();
-                if (!selected.Contains(resItem)) {
+                if (!selected.Contains(resItem))
+                {
                     selected.Add(resItem);
                 }
 
-                if (selected.Count == 1) {
+                if (selected.Count == 1)
+                {
                     list.Add(new ActionContextEntry(resItem.Manager, "actions.general.RenameItem", "Rename"));
                     list.Add(SeparatorEntry.Instance);
                 }
@@ -32,29 +38,37 @@ namespace FramePFX.Editor.Contexts {
                 list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.DeleteItems", "Delete"));
                 list.Add(SeparatorEntry.Instance);
 
-                if (resItem is ResourceCompositionViewModel) {
+                if (resItem is ResourceCompositionViewModel)
+                {
                     list.Add(new ActionContextEntry(resItem, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
                 }
 
-                if (resItem is ResourceItemViewModel item) {
-                    if (selected.Count == 1) {
-                        if (item.IsOnline) {
+                if (resItem is ResourceItemViewModel item)
+                {
+                    if (selected.Count == 1)
+                    {
+                        if (item.IsOnline)
+                        {
                             list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
                         }
-                        else {
+                        else
+                        {
                             list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
                         }
                     }
-                    else {
+                    else
+                    {
                         list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set All Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
                         list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set All Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
                     }
                 }
             }
 
-            if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null)) {
+            if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null))
+            {
                 ResourceFolderViewModel folder = resItem as ResourceFolderViewModel ?? manager.CurrentFolder;
-                List<IContextEntry> newList = new List<IContextEntry> {
+                List<IContextEntry> newList = new List<IContextEntry>
+                {
                     new CommandContextEntry("New Folder", manager.CreateResourceCommand, nameof(ResourceFolder)),
                     SeparatorEntry.Instance,
                     new ActionContextEntry(folder, "actions.resources.newitem.NewText", "New Text", "Create a new text resource, and clip"),
@@ -63,11 +77,13 @@ namespace FramePFX.Editor.Contexts {
                     new CommandContextEntry("New Composition Sequence", manager.CreateResourceCommand, nameof(ResourceComposition))
                 };
 
-                if (list.Count > 0) {
+                if (list.Count > 0)
+                {
                     list.Insert(0, new GroupContextEntry("New...", newList));
                     list.Insert(1, SeparatorEntry.Instance);
                 }
-                else {
+                else
+                {
                     list.Insert(0, new GroupContextEntry("New...", newList));
                 }
             }

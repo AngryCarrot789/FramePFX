@@ -1,8 +1,10 @@
 using System;
 using FramePFX.Automation.Keys;
 
-namespace FramePFX.Automation.Events {
-    public class AutomationEventArgs : EventArgs {
+namespace FramePFX.Automation.Events
+{
+    public class AutomationEventArgs : EventArgs
+    {
         public AutomationKey Key { get; }
 
         /// <summary>
@@ -19,7 +21,8 @@ namespace FramePFX.Automation.Events {
         /// </summary>
         public bool IsRendering { get; }
 
-        public AutomationEventArgs(AutomationKey key, AutomationData automationData, bool isRendering) {
+        public AutomationEventArgs(AutomationKey key, AutomationData automationData, bool isRendering)
+        {
             this.Key = key;
             this.AutomationData = automationData;
             this.IsRendering = isRendering;

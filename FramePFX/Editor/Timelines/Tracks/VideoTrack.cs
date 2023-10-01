@@ -2,9 +2,13 @@ using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Rendering.ObjectTK;
+using FramePFX.Rendering.Utils;
+using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines.Tracks {
-    public class VideoTrack : Track {
+namespace FramePFX.Editor.Timelines.Tracks
+{
+    public class VideoTrack : Track
+    {
         public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrack), nameof(Opacity), new KeyDescriptorDouble(1d, 0d, 1d));
         public static readonly AutomationKeyBoolean IsVisibleKey = AutomationKey.RegisterBool(nameof(VideoTrack), nameof(IsVisible), new KeyDescriptorBoolean(true));
         public const double MinimumVisibleOpacity = 0.0001d;
@@ -29,27 +33,49 @@ namespace FramePFX.Editor.Timelines.Tracks {
         /// </summary>
         public bool IsActuallyVisible => this.IsVisible && this.Opacity > MinimumVisibleOpacity;
 
-        public Texture DrawingTexture { get; }
+        // TODO: to implement fading, could use 2 frame buffers for 2 clips, then merge into a single one?
 
-        public VideoTrack() {
+        public FrameBufferImage FrameBuffer { get; private set; }
+
+        public BasicMesh BasicRectangle => this.Timeline.BasicRectangle;
+
+        public VideoTrack()
+        {
             this.Opacity = 1d;
             this.IsVisible = true;
             this.AutomationData.AssignKey(OpacityKey, UpdateOpacity);
             this.AutomationData.AssignKey(IsVisibleKey, UpdateIsVisible);
         }
 
-        protected override Track NewInstanceForClone() {
+        public override void SetupRenderData()
+        {
+            base.SetupRenderData();
+            Resolution size = this.Timeline.Project.Settings.Resolution;
+            this.FrameBuffer = new FrameBufferImage(size.Width, size.Height);
+        }
+
+        public override void ClearRenderData()
+        {
+            base.ClearRenderData();
+            this.FrameBuffer?.Dispose();
+            this.FrameBuffer = null;
+        }
+
+        protected override Track NewInstanceForClone()
+        {
             return new VideoTrack();
         }
 
-        protected override void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
+        protected override void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags)
+        {
             base.LoadDataIntoClonePre(clone, flags);
             VideoTrack track = (VideoTrack) clone;
             track.Opacity = this.Opacity;
             track.IsVisible = this.IsVisible;
         }
 
-        public override bool IsClipTypeAcceptable(Clip clip) {
+        public override bool IsClipTypeAcceptable(Clip clip)
+        {
             return clip is VideoClip;
         }
     }

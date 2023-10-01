@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace FramePFX.WPF.Themes {
-    public enum ThemeType {
+namespace FramePFX.WPF.Themes
+{
+    public enum ThemeType
+    {
         SoftDark,
         RedBlackTheme,
         DeepDark,
@@ -10,9 +12,12 @@ namespace FramePFX.WPF.Themes {
         LightTheme,
     }
 
-    public static class ThemeTypeExtension {
-        public static string GetName(this ThemeType type) {
-            switch (type) {
+    public static class ThemeTypeExtension
+    {
+        public static string GetName(this ThemeType type)
+        {
+            switch (type)
+            {
                 case ThemeType.SoftDark: return "SoftDark";
                 case ThemeType.RedBlackTheme: return "RedBlackTheme";
                 case ThemeType.DeepDark: return "DeepDark";

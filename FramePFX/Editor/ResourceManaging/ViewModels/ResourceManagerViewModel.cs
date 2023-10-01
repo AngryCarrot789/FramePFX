@@ -12,8 +12,10 @@ using FramePFX.Editor.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editor.ResourceManaging.ViewModels {
-    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation {
+namespace FramePFX.Editor.ResourceManaging.ViewModels
+{
+    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation
+    {
         private ResourceFolderViewModel currentFolder;
 
         /// <summary>
@@ -24,24 +26,30 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <summary>
         /// The group that the UI is currently exploring in
         /// </summary>
-        public ResourceFolderViewModel CurrentFolder {
+        public ResourceFolderViewModel CurrentFolder
+        {
             get => this.currentFolder;
-            set {
+            set
+            {
                 this.SelectedItems.Clear();
                 this.RaisePropertyChanged(ref this.currentFolder, value ?? this.Root);
                 this.RaisePropertyChanged(nameof(this.DisplayPath));
             }
         }
 
-        public string DisplayPath {
-            get {
-                if (this.currentFolder == this.Root) {
+        public string DisplayPath
+        {
+            get
+            {
+                if (this.currentFolder == this.Root)
+                {
                     return "Root";
                 }
 
                 List<string> names = new List<string>();
                 ResourceFolderViewModel folder = this.currentFolder;
-                for (; folder.Parent != null; folder = folder.Parent) {
+                for (; folder.Parent != null; folder = folder.Parent)
+                {
                     names.Add(folder.DisplayName);
                 }
 
@@ -64,14 +72,16 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// </summary>
         public ObservableCollection<BaseResourceViewModel> SelectedItems { get; }
 
-        public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager) {
+        public ResourceManagerViewModel(ProjectViewModel project, ResourceManager manager)
+        {
             this.Model = manager ?? throw new ArgumentNullException(nameof(manager));
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.Root = new ResourceFolderViewModel(manager.RootFolder);
             this.Root.SetManager(this);
             this.currentFolder = this.Root;
             this.SelectedItems = new ObservableCollection<BaseResourceViewModel>();
-            this.SelectedItems.CollectionChanged += (sender, args) => {
+            this.SelectedItems.CollectionChanged += (sender, args) =>
+            {
                 PFXPropertyEditorRegistry.Instance.OnResourcesSelectionChanged(this.SelectedItems.ToList());
             };
 
@@ -80,7 +90,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.redoGroup = new LinkedList<ResourceFolderViewModel>();
         }
 
-        public void NavigateToGroup(ResourceFolderViewModel folder, bool pushHistory = true) {
+        public void NavigateToGroup(ResourceFolderViewModel folder, bool pushHistory = true)
+        {
             if (ReferenceEquals(this.CurrentFolder, folder))
                 return;
 
@@ -90,7 +101,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             if (folder == null)
                 folder = this.Root;
 
-            if (pushHistory) {
+            if (pushHistory)
+            {
                 this.redoGroup.Clear();
                 this.undoGroup.AddLast(this.CurrentFolder);
             }
@@ -99,11 +111,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.CurrentFolder = folder;
         }
 
-        public void GoBackward() {
-            while (this.undoGroup.Count > 0) {
+        public void GoBackward()
+        {
+            while (this.undoGroup.Count > 0)
+            {
                 ResourceFolderViewModel last = this.undoGroup.Last.Value;
                 this.undoGroup.RemoveLast();
-                if (ReferenceEquals(last.Manager, this)) {
+                if (ReferenceEquals(last.Manager, this))
+                {
                     this.redoGroup.AddLast(this.CurrentFolder);
                     this.NavigateToGroup(last, false);
                     return;
@@ -111,11 +126,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public void GoForward() {
-            while (this.redoGroup.Count > 0) {
+        public void GoForward()
+        {
+            while (this.redoGroup.Count > 0)
+            {
                 ResourceFolderViewModel last = this.redoGroup.Last.Value;
                 this.redoGroup.RemoveLast();
-                if (ReferenceEquals(last.Manager, this)) {
+                if (ReferenceEquals(last.Manager, this))
+                {
                     this.undoGroup.AddLast(this.CurrentFolder);
                     this.NavigateToGroup(last, false);
                     return;
@@ -123,34 +141,39 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        private async Task CreateResourceAction(string type) {
+        private async Task CreateResourceAction(string type)
+        {
             BaseResource resourceItem;
-            switch (type) {
+            switch (type)
+            {
                 case nameof(ResourceColour):
-                    resourceItem = new ResourceColour() {
+                    resourceItem = new ResourceColour()
+                    {
                         DisplayName = "New Colour"
                     };
                     break;
                 case nameof(ResourceImage):
-                    resourceItem = new ResourceImage() { DisplayName = "New Image" };
+                    resourceItem = new ResourceImage() {DisplayName = "New Image"};
                     break;
                 case nameof(ResourceTextFile):
-                    resourceItem = new ResourceTextFile() { DisplayName = "New Text File" };
+                    resourceItem = new ResourceTextFile() {DisplayName = "New Text File"};
                     break;
                 case nameof(ResourceTextStyle):
-                    resourceItem = new ResourceTextStyle() { DisplayName = "New Text Style" };
+                    resourceItem = new ResourceTextStyle() {DisplayName = "New Text Style"};
                     break;
                 case nameof(ResourceFolder):
-                    resourceItem = new ResourceFolder() { DisplayName = "New Folder" };
+                    resourceItem = new ResourceFolder() {DisplayName = "New Folder"};
                     break;
                 case nameof(ResourceComposition):
-                    resourceItem = new ResourceComposition() { DisplayName = "New Composition Sequence" };
+                    resourceItem = new ResourceComposition() {DisplayName = "New Composition Sequence"};
                     ((ResourceComposition) resourceItem).Timeline.DisplayName = "Composition timeline";
-                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack() {
+                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack()
+                    {
                         DisplayName = "Track 1"
                     });
 
-                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack() {
+                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack()
+                    {
                         DisplayName = "Track 2"
                     });
                     break;
@@ -160,42 +183,53 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
 
             BaseResourceViewModel resObj = resourceItem.CreateViewModel();
-            if (resObj is ResourceItemViewModel item) {
-                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, item)) {
+            if (resObj is ResourceItemViewModel item)
+            {
+                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, item))
+                {
                     await Services.DialogService.ShowMessageAsync("Resource error", "Could not load resource. See app logs for more details");
                 }
             }
-            else if (resObj is ResourceFolderViewModel group) {
+            else if (resObj is ResourceFolderViewModel group)
+            {
                 await group.RenameAsync();
                 this.CurrentFolder.AddItem(group);
             }
 
-            if (resObj is ResourceCompositionViewModel composition) {
+            if (resObj is ResourceCompositionViewModel composition)
+            {
                 VideoEditorViewModel editor = this.Project.Editor;
                 editor?.OpenAndSelectTimeline(composition.Timeline);
             }
         }
 
-        public EnumDropType GetFileDropType(string[] paths) {
+        public EnumDropType GetFileDropType(string[] paths)
+        {
             return paths.Length == 1 ? (EnumDropType.All) : EnumDropType.None;
         }
 
-        public async Task OnFilesDropped(string[] paths, EnumDropType dropType) {
-            foreach (string path in paths) {
-                switch (Path.GetExtension(path).ToLower()) {
+        public async Task OnFilesDropped(string[] paths, EnumDropType dropType)
+        {
+            foreach (string path in paths)
+            {
+                switch (Path.GetExtension(path).ToLower())
+                {
                     case ".mp3":
                     case ".wav":
                     case ".ogg":
                     case ".mp4":
                     case ".mov":
                     case ".mkv":
-                    case ".flv": {
-                        ResourceAVMedia media = new ResourceAVMedia() {
+                    case ".flv":
+                    {
+                        ResourceAVMedia media = new ResourceAVMedia()
+                        {
                             FilePath = path, DisplayName = Path.GetFileName(path)
                         };
 
                         ResourceAVMediaViewModel vm = media.CreateViewModel<ResourceAVMediaViewModel>();
-                        if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, vm)) {
+                        if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, vm))
+                        {
                             await Services.DialogService.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
                         }
 
@@ -222,9 +256,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".png":
                     case ".bmp":
                     case ".jpg":
-                    case ".jpeg": {
+                    case ".jpeg":
+                    {
                         ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path, DisplayName = Path.GetFileName(path)});
-                        if (!await ResourceItemViewModel.TryLoadResource(image, null)) {
+                        if (!await ResourceItemViewModel.TryLoadResource(image, null))
+                        {
                             return;
                         }
 
@@ -244,13 +280,16 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     case ".h":
                     case ".c":
                     case ".hpp":
-                    case ".cpp": {
-                        ResourceTextFileViewModel file = new ResourceTextFile() {
+                    case ".cpp":
+                    {
+                        ResourceTextFileViewModel file = new ResourceTextFile()
+                        {
                             Path = new ProjectPath(path, EnumPathFlags.AbsoluteFilePath),
                             DisplayName = Path.GetFileName(path)
                         }.CreateViewModel<ResourceTextFileViewModel>();
 
-                        if (await ResourceItemViewModel.TryLoadResource(file, null)) {
+                        if (await ResourceItemViewModel.TryLoadResource(file, null))
+                        {
                             this.Model.RegisterEntry(file.Model);
                             this.CurrentFolder.AddItem(file, true);
                         }
@@ -261,13 +300,15 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public void ClearAndDispose() {
+        public void ClearAndDispose()
+        {
             this.Root.UnregisterHierarchy();
             this.Root.DisposeChildrenAndClear(false);
             this.Root.Dispose();
         }
 
-        public async Task OfflineAllAsync(bool user) {
+        public async Task OfflineAllAsync(bool user)
+        {
             await this.Root.OfflineRecursiveAsync(user);
         }
     }

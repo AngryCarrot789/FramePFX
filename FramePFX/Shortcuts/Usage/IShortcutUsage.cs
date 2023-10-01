@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using FramePFX.Shortcuts.Inputs;
 
-namespace FramePFX.Shortcuts.Usage {
+namespace FramePFX.Shortcuts.Usage
+{
     /// <summary>
     /// An interface for all shortcut "usages". Usages are used when a shortcut requires
     /// more than 1 input stroke to activate it
     /// </summary>
-    public interface IShortcutUsage {
+    public interface IShortcutUsage
+    {
         /// <summary>
         /// A reference to the shortcut that created this usage instance
         /// </summary>

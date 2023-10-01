@@ -1,19 +1,22 @@
-namespace FramePFX.Plugins {
+namespace FramePFX.Plugins
+{
     /// <summary>
     /// Base class for a PFX plugin
     /// </summary>
-    public abstract class Plugin {
+    public abstract class Plugin
+    {
         public abstract string Name { get; }
 
-        protected Plugin() {
+        protected Plugin()
+        {
         }
 
         /// <summary>
         /// Called when this an instance of this plugin is created, but before any plugin has been loaded
         /// </summary>
         /// <param name="loader"></param>
-        public virtual void OnConstructed(PluginLoader loader) {
-
+        public virtual void OnConstructed(PluginLoader loader)
+        {
         }
 
         /// <summary>

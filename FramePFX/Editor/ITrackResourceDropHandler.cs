@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 
-namespace FramePFX.Editor {
-    public interface ITrackResourceDropHandler {
+namespace FramePFX.Editor
+{
+    public interface ITrackResourceDropHandler
+    {
         /// <summary>
         /// Gets if this track can accept the given resource to be dropped
         /// </summary>

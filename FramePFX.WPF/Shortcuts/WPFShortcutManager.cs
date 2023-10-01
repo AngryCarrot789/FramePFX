@@ -11,17 +11,21 @@ using FramePFX.Shortcuts.Managing;
 using FramePFX.Utils;
 using FramePFX.WPF.Shortcuts.Bindings;
 
-namespace FramePFX.WPF.Shortcuts {
-    public class WPFShortcutManager : ShortcutManager {
+namespace FramePFX.WPF.Shortcuts
+{
+    public class WPFShortcutManager : ShortcutManager
+    {
         public const int BUTTON_WHEEL_UP = 143; // Away from the user
         public const int BUTTON_WHEEL_DOWN = 142; // Towards the user
         public const string DEFAULT_USAGE_ID = "DEF";
 
         public static WPFShortcutManager WPFInstance => (WPFShortcutManager) Instance ?? throw new Exception("No shortcut manager available");
 
-        static WPFShortcutManager() {
+        static WPFShortcutManager()
+        {
             KeyStroke.KeyCodeToStringProvider = (x) => ((Key) x).ToString();
-            KeyStroke.ModifierToStringProvider = (x, s) => {
+            KeyStroke.ModifierToStringProvider = (x, s) =>
+            {
                 StringJoiner joiner = new StringJoiner(s ? " + " : "+");
                 ModifierKeys keys = (ModifierKeys) x;
                 if ((keys & ModifierKeys.Control) != 0)
@@ -35,8 +39,10 @@ namespace FramePFX.WPF.Shortcuts {
                 return joiner.ToString();
             };
 
-            MouseStroke.MouseButtonToStringProvider = (x) => {
-                switch (x) {
+            MouseStroke.MouseButtonToStringProvider = (x) =>
+            {
+                switch (x)
+                {
                     case 0: return "LMB";
                     case 1: return "MMB";
                     case 2: return "RMB";
@@ -49,49 +55,61 @@ namespace FramePFX.WPF.Shortcuts {
             };
         }
 
-        public WPFShortcutManager() {
+        public WPFShortcutManager()
+        {
         }
 
         public override ShortcutInputManager NewProcessor() => new WPFShortcutInputManager(this);
 
-        public void DeserialiseRoot(Stream stream) {
+        public void DeserialiseRoot(Stream stream)
+        {
             this.InvalidateShortcutCache();
             Keymap map = WPFKeyMapSerialiser.Instance.Deserialise(this, stream);
             this.Root = map.Root; // invalidates cache automatically
-            try {
+            try
+            {
                 this.EnsureCacheBuilt(); // do keymap check; crash on errors (e.g. duplicate shortcut path)
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 this.InvalidateShortcutCache();
                 this.Root = ShortcutGroup.CreateRoot(this);
                 throw new Exception("Failed to process keymap and built caches", e);
             }
         }
 
-        protected override async Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+        protected override async Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut)
+        {
             bool result = false;
             List<ShortcutCommandBinding> bindings;
             DependencyObject src = ((WPFShortcutInputManager) inputManager).CurrentSource;
-            if (src != null && (bindings = ShortcutCommandCollection.GetCommandBindingHierarchy(src)).Count > 0) {
-                foreach (ShortcutCommandBinding binding in bindings) {
-                    if (!shortcut.FullPath.Equals(binding.ShortcutPath)) {
+            if (src != null && (bindings = ShortcutCommandCollection.GetCommandBindingHierarchy(src)).Count > 0)
+            {
+                foreach (ShortcutCommandBinding binding in bindings)
+                {
+                    if (!shortcut.FullPath.Equals(binding.ShortcutPath))
+                    {
                         continue;
                     }
 
                     ICommand cmd;
-                    if (result && !binding.AllowChainExecution || (cmd = binding.Command) == null) {
+                    if (result && !binding.AllowChainExecution || (cmd = binding.Command) == null)
+                    {
                         continue;
                     }
 
                     object param;
-                    if (cmd is BaseAsyncRelayCommand asyncCommand) {
+                    if (cmd is BaseAsyncRelayCommand asyncCommand)
+                    {
                         Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate.InProgress", shortcut));
-                        if (await asyncCommand.TryExecuteAsync(binding.CommandParameter)) {
+                        if (await asyncCommand.TryExecuteAsync(binding.CommandParameter))
+                        {
                             Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate.Completed", shortcut));
                             result = true;
                         }
                     }
-                    else if (cmd.CanExecute(param = binding.CommandParameter)) {
+                    else if (cmd.CanExecute(param = binding.CommandParameter))
+                    {
                         Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate", shortcut));
                         cmd.Execute(param);
                         result = true;

@@ -3,48 +3,59 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.History {
-    public class HistoryVideoClipPosition : HistoryAction {
+namespace FramePFX.Editor.History
+{
+    public class HistoryVideoClipPosition : HistoryAction
+    {
         public ClipViewModel Clip { get; }
         public Transaction<FrameSpan> Span { get; }
         public Transaction<long> MediaFrameOffset { get; }
 
-        public HistoryVideoClipPosition(ClipViewModel clip) {
+        public HistoryVideoClipPosition(ClipViewModel clip)
+        {
             this.Clip = clip;
             this.Span = Transactions.ImmutableType(clip.FrameSpan);
             this.MediaFrameOffset = Transactions.ImmutableType(clip.MediaFrameOffset);
         }
 
-        public void Undo() {
+        public void Undo()
+        {
             this.Clip.IsHistoryChanging = true;
-            try {
+            try
+            {
                 this.Clip.FrameSpan = this.Span.Original;
                 this.Clip.MediaFrameOffset = this.MediaFrameOffset.Original;
             }
-            finally {
+            finally
+            {
                 this.Clip.IsHistoryChanging = false;
             }
         }
 
-        protected override Task UndoAsyncCore() {
+        protected override Task UndoAsyncCore()
+        {
             this.Undo();
             return Task.CompletedTask;
         }
 
-        protected override Task RedoAsyncCore() {
+        protected override Task RedoAsyncCore()
+        {
             this.Clip.IsHistoryChanging = true;
-            try {
+            try
+            {
                 this.Clip.FrameSpan = this.Span.Current;
                 this.Clip.MediaFrameOffset = this.MediaFrameOffset.Current;
             }
-            finally {
+            finally
+            {
                 this.Clip.IsHistoryChanging = false;
             }
 
             return Task.CompletedTask;
         }
 
-        public override void OnRemoved() {
+        public override void OnRemoved()
+        {
         }
     }
 }

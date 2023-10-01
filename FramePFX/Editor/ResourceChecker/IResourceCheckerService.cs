@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.Editor.ResourceChecker {
-    public interface IResourceCheckerService {
+namespace FramePFX.Editor.ResourceChecker
+{
+    public interface IResourceCheckerService
+    {
         /// <summary>
         /// Shows the resource checker dialog which lets the user select how to load invalid resources
         /// </summary>

@@ -1,10 +1,12 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// An interface for an object that can be generally renamed by the user pressing generic rename hotkeys (F2, CTRL+R, etc.)
     /// </summary>
-    public interface IRenameTarget {
+    public interface IRenameTarget
+    {
         /// <summary>
         /// Renames this object, showing it's own custom dialog
         /// </summary>

@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using System.Windows;
 using FramePFX.AdvancedContextService;
 
-namespace FramePFX.WPF.AdvancedContextService {
+namespace FramePFX.WPF.AdvancedContextService
+{
     /// <summary>
     /// An interface for generating context entries based on a target object and its context
     /// </summary>
-    public interface IWPFContextGenerator : IContextGenerator {
+    public interface IWPFContextGenerator : IContextGenerator
+    {
         /// <summary>
         /// Generates context entries and adds them into the list parameter. Leading, repeated and trailing separators are automatically filtered out.
         /// <para>

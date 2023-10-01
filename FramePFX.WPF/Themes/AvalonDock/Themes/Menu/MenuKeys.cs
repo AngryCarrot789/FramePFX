@@ -1,12 +1,14 @@
 ﻿using System.Windows;
 
-namespace FramePFX.WPF.Themes.AvalonDock.Themes.Menu {
+namespace FramePFX.WPF.Themes.AvalonDock.Themes.Menu
+{
     /// <summary>
     /// Class implements static resource keys that should be referenced to configure
     /// menu specific colors, styles and other elements that are typically changed
     /// between themes.
     /// </summary>
-    internal static class MenuKeys {
+    internal static class MenuKeys
+    {
         /// <summary>
         /// Gets the Brush key for the normal Menu separator border color.
         /// </summary>

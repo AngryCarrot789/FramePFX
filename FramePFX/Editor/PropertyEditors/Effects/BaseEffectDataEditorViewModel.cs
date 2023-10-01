@@ -5,13 +5,16 @@ using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Editors;
 
-namespace FramePFX.Editor.PropertyEditors.Effects {
-    public abstract class BaseEffectDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
+namespace FramePFX.Editor.PropertyEditors.Effects
+{
+    public abstract class BaseEffectDataEditorViewModel : HistoryAwarePropertyEditorViewModel
+    {
         public IEnumerable<BaseEffectViewModel> Effects => this.Handlers.Cast<BaseEffectViewModel>();
 
         public override ApplicabilityMode ApplicabilityMode => ApplicabilityMode.Any;
 
-        protected BaseEffectDataEditorViewModel(Type applicableType) : base(applicableType) {
+        protected BaseEffectDataEditorViewModel(Type applicableType) : base(applicableType)
+        {
         }
     }
 }

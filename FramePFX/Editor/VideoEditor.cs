@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using FramePFX.Editor.Timelines;
 
-namespace FramePFX.Editor {
-    public class VideoEditor {
+namespace FramePFX.Editor
+{
+    public class VideoEditor
+    {
         private readonly List<Timeline> activeTimelines;
         public volatile bool IsProjectSaving;
         public volatile bool IsProjectChanging;
@@ -30,24 +32,29 @@ namespace FramePFX.Editor {
         /// </summary>
         public Timeline ActiveTimeline { get; set; }
 
-        public VideoEditor() {
+        public VideoEditor()
+        {
             this.Playback = new EditorPlayback(this);
             this.activeTimelines = new List<Timeline>();
         }
 
-        public void SetProject(Project project) {
-            if (this.ActiveProject != null) {
+        public void SetProject(Project project)
+        {
+            if (this.ActiveProject != null)
+            {
                 this.activeTimelines.Clear();
             }
 
             this.ActiveProject = project;
-            if (project != null) {
+            if (project != null)
+            {
                 this.activeTimelines.Add(project.Timeline);
                 this.ActiveTimeline = this.activeTimelines[0];
             }
         }
 
-        public void ClearTimelines() {
+        public void ClearTimelines()
+        {
             this.ActiveTimeline = null;
             this.activeTimelines.Clear();
         }

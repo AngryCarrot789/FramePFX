@@ -210,6 +210,7 @@
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
     <Compile Include="Converters\VolumeToDbConverter.cs" />
+    <Compile Include="DrawEventArgs.cs" />
     <Compile Include="Editor\Automation\AutomationActivityBrushConverter.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\DragMode.cs" />
@@ -314,6 +315,8 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
+    <Compile Include="OGLAsyncViewPort.cs" />
+    <Compile Include="OGLContextWrapper.cs" />
     <Compile Include="PropertyEditing\IPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\ISelectablePropertyControl.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemStyleSelector.cs" />
@@ -808,4 +811,7 @@
     <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets'))" />
   </Target>
   <Import Project="..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(SolutionDir)Assets" "$(TargetDir)Assets" /E /I /Y</PostBuildEvent>
+  </PropertyGroup>
 </Project>

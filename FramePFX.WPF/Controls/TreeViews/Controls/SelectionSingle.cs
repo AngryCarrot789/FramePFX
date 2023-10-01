@@ -1,4 +1,6 @@
-﻿namespace FramePFX.WPF.Controls.TreeViews.Controls {
-    public class SelectionSingle {
+﻿namespace FramePFX.WPF.Controls.TreeViews.Controls
+{
+    public class SelectionSingle
+    {
     }
 }

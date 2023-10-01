@@ -7,16 +7,20 @@ using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.Modal;
 
-namespace FramePFX.WPF.Views.Message {
+namespace FramePFX.WPF.Views.Message
+{
     /// <summary>
     /// Interaction logic for MessageWindow.xaml
     /// </summary>
-    public partial class MessageWindow : BaseDialog {
+    public partial class MessageWindow : BaseDialog
+    {
         public static string DODGY_PRIMARY_SELECTION; // lol this is so bad
 
-        public MessageWindow() : base() {
+        public MessageWindow() : base()
+        {
             this.InitializeComponent();
-            this.Loaded += (sender, args) => {
+            this.Loaded += (sender, args) =>
+            {
                 // 588x260 = window
                 // 580x140 = text
                 // Makes the window fit the size of the button bar + check boxes
@@ -28,7 +32,8 @@ namespace FramePFX.WPF.Views.Message {
                 double width = Math.Ceiling(this.ButtonBarBorder.DesiredSize.Width) + 2;
                 double actualWidth = this.ActualWidth;
                 this.ButtonBarBorder.InvalidateMeasure();
-                if (width > actualWidth) {
+                if (width > actualWidth)
+                {
                     this.Width = width;
                 }
 
@@ -41,19 +46,24 @@ namespace FramePFX.WPF.Views.Message {
                     this.Height = Math.Min((this.Height - this.PART_ScrollViewer.ActualHeight) + this.PART_ScrollViewer.ExtentHeight + 8, this.MaxHeight);
                 }
 
-                if (Helper.Exchange(ref DODGY_PRIMARY_SELECTION, null, out string id) && this.DataContext is MessageDialog dialog) {
+                if (Helper.Exchange(ref DODGY_PRIMARY_SELECTION, null, out string id) && this.DataContext is MessageDialog dialog)
+                {
                     DialogButton button = dialog.GetButtonById(id);
-                    if (button != null && this.ButtonBarList.ItemContainerGenerator.ContainerFromItem(button) is UIElement element) {
+                    if (button != null && this.ButtonBarList.ItemContainerGenerator.ContainerFromItem(button) is UIElement element)
+                    {
                         Button btn = null;
-                        if (element is ContentPresenter presenter && VisualTreeHelper.GetChildrenCount(presenter) == 1) {
+                        if (element is ContentPresenter presenter && VisualTreeHelper.GetChildrenCount(presenter) == 1)
+                        {
                             btn = VisualTreeHelper.GetChild(presenter, 0) as Button;
                         }
 
-                        if (btn == null && (btn = element as Button) == null) {
+                        if (btn == null && (btn = element as Button) == null)
+                        {
                             return;
                         }
 
-                        btn.Dispatcher.InvokeAsync(() => {
+                        btn.Dispatcher.InvokeAsync(() =>
+                        {
                             btn.Focus();
                         }, DispatcherPriority.Render);
                     }

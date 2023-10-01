@@ -1,5 +1,7 @@
-namespace FramePFX.Editor {
-    public interface IModifyProject {
+namespace FramePFX.Editor
+{
+    public interface IModifyProject
+    {
         event ProjectModifiedEvent ProjectModified;
     }
 }

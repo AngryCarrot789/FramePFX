@@ -9,8 +9,10 @@
 
 using OpenTK.Graphics.OpenGL;
 
-namespace FramePFX.Rendering.ObjectTK {
-    internal class BitmapFormat {
+namespace FramePFX.Rendering.ObjectTK
+{
+    internal class BitmapFormat
+    {
         public SizedInternalFormat InternalFormat;
         public PixelFormat PixelFormat;
         public PixelType PixelType;
@@ -18,7 +20,8 @@ namespace FramePFX.Rendering.ObjectTK {
         // prevent instantiation
         protected BitmapFormat() { }
 
-        static BitmapFormat() {
+        static BitmapFormat()
+        {
         }
     }
 }

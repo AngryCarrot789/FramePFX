@@ -5,10 +5,14 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Actions.Tracks {
-    public class NewVideoTrackAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!EditorActionUtils.GetNewTrackData(e.DataContext, out TimelineViewModel timeline, out int index, AVType.Video)) {
+namespace FramePFX.Editor.Actions.Tracks
+{
+    public class NewVideoTrackAction : AnAction
+    {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
+        {
+            if (!EditorActionUtils.GetNewTrackData(e.DataContext, out TimelineViewModel timeline, out int index, AVType.Video))
+            {
                 return true;
             }
 
@@ -20,9 +24,12 @@ namespace FramePFX.Editor.Actions.Tracks {
         }
     }
 
-    public class NewAudioTrackAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!EditorActionUtils.GetNewTrackData(e.DataContext, out TimelineViewModel timeline, out int index, AVType.Audio)) {
+    public class NewAudioTrackAction : AnAction
+    {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
+        {
+            if (!EditorActionUtils.GetNewTrackData(e.DataContext, out TimelineViewModel timeline, out int index, AVType.Audio))
+            {
                 return true;
             }
 

@@ -1,8 +1,10 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.WPF.Explorer.Controls.Bars {
-    public class VerticalButtonBar : ItemsControl {
+namespace FramePFX.WPF.Explorer.Controls.Bars
+{
+    public class VerticalButtonBar : ItemsControl
+    {
         // public static readonly DependencyProperty OrientationProperty =
         //     DependencyProperty.Register(
         //         "Orientation",
@@ -32,7 +34,8 @@ namespace FramePFX.WPF.Explorer.Controls.Bars {
                 typeof(VerticalButtonBar),
                 new FrameworkPropertyMetadata(ExpandDirection.Left));
 
-        public ExpandDirection Direction {
+        public ExpandDirection Direction
+        {
             get => (ExpandDirection) this.GetValue(DirectionProperty);
             set => this.SetValue(DirectionProperty, value);
         }

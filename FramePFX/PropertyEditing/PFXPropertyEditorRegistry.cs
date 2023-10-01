@@ -11,8 +11,10 @@ using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.PropertyEditing.Editors;
 
-namespace FramePFX.PropertyEditing {
-    public class PFXPropertyEditorRegistry : PropertyEditorRegistry {
+namespace FramePFX.PropertyEditing
+{
+    public class PFXPropertyEditorRegistry : PropertyEditorRegistry
+    {
         public static PFXPropertyEditorRegistry Instance { get; } = new PFXPropertyEditorRegistry();
 
         public FixedPropertyGroupViewModel ClipInfo { get; }
@@ -23,7 +25,8 @@ namespace FramePFX.PropertyEditing {
 
         public FixedPropertyGroupViewModel ResourceInfo { get; }
 
-        private PFXPropertyEditorRegistry() {
+        private PFXPropertyEditorRegistry()
+        {
             {
                 this.ClipInfo = this.CreateRootGroup(typeof(ClipViewModel), "Clip Info");
                 this.ClipInfo.AddPropertyEditor("ClipDataEditor", new ClipDataEditorViewModel());
@@ -44,8 +47,10 @@ namespace FramePFX.PropertyEditing {
 
             this.EffectInfo = new EffectListPropertyGroupViewModel();
             this.ClipInfo.AddSubGroup(this.EffectInfo, "Effects", false);
-            this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {
-                EffectPropertyGroupViewModel motion = new EffectPropertyGroupViewModel(typeof(MotionEffectViewModel)) {
+            this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) =>
+            {
+                EffectPropertyGroupViewModel motion = new EffectPropertyGroupViewModel(typeof(MotionEffectViewModel))
+                {
                     IsExpanded = true, IsHeaderBold = true, IsSelectable = true
                 };
 
@@ -72,16 +77,19 @@ namespace FramePFX.PropertyEditing {
             this.ResourceInfo = this.Root.CreateFixedSubGroup(typeof(BaseResourceViewModel), "Resource Info");
         }
 
-        public void OnTrackSelectionChanged(IReadOnlyList<TrackViewModel> tracks) {
+        public void OnTrackSelectionChanged(IReadOnlyList<TrackViewModel> tracks)
+        {
             this.TrackInfo.SetupHierarchyState(tracks);
             this.Root.CleanSeparators();
         }
 
-        public void OnClipSelectionChanged(TimelineViewModel timeline) {
+        public void OnClipSelectionChanged(TimelineViewModel timeline)
+        {
             this.OnClipSelectionChanged(timeline.Tracks.SelectMany(x => x.SelectedClips).ToList());
         }
 
-        public void OnClipSelectionChanged(IReadOnlyList<ClipViewModel> clips) {
+        public void OnClipSelectionChanged(IReadOnlyList<ClipViewModel> clips)
+        {
             // List<BaseEffectViewModel> effects = clips.SelectMany(clip => clip.Effects).ToList();
             this.ClipInfo.SetupHierarchyState(clips);
             // foreach (IPropertyEditorObject obj in this.ClipInfo.PropertyObjects) {
@@ -94,17 +102,21 @@ namespace FramePFX.PropertyEditing {
             this.Root.CleanSeparators();
         }
 
-        public void OnEffectCollectionChanged() {
+        public void OnEffectCollectionChanged()
+        {
             IReadOnlyList<object> clips = this.ClipInfo.Handlers;
-            if (clips != null && clips.Count > 0) {
+            if (clips != null && clips.Count > 0)
+            {
                 this.EffectInfo.SetupHierarchyStateExtended(clips.Cast<ClipViewModel>().Select(x => x.Effects).ToList());
             }
-            else {
+            else
+            {
                 this.EffectInfo.ClearHierarchyState();
             }
         }
 
-        public void OnResourcesSelectionChanged(IReadOnlyList<BaseResourceViewModel> list) {
+        public void OnResourcesSelectionChanged(IReadOnlyList<BaseResourceViewModel> list)
+        {
             this.ResourceInfo.SetupHierarchyState(list);
             this.Root.CleanSeparators();
         }

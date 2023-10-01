@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.Views.Dialogs.FilePicking {
-    public interface IFilePickDialogService {
+namespace FramePFX.Views.Dialogs.FilePicking
+{
+    public interface IFilePickDialogService
+    {
         /// <summary>
         /// Shows an open file dialog, allowing 1 or more files to be selected
         /// </summary>

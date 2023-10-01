@@ -10,10 +10,13 @@ using System.Windows.Media;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Automation.Peers;
 
-namespace FramePFX.WPF.Controls.TreeViews.Controls {
+namespace FramePFX.WPF.Controls.TreeViews.Controls
+{
     [TemplatePart(Name = "ItemsHost", Type = typeof(ItemsPresenter))]
     [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(MultiSelectTreeViewItem))]
-    public class MultiSelectTreeViewItem : HeaderedItemsControl { // IHierarchicalVirtualizationAndScrollInfo
+    public class MultiSelectTreeViewItem : HeaderedItemsControl
+    {
+        // IHierarchicalVirtualizationAndScrollInfo
         public static readonly DependencyProperty BackgroundFocusedProperty = DependencyProperty.Register("BackgroundFocused", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(SystemColors.HighlightBrush, null));
         public static readonly DependencyProperty BackgroundSelectedHoveredProperty = DependencyProperty.Register("BackgroundSelectedHovered", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(Brushes.DarkGray, null));
         public static readonly DependencyProperty BackgroundSelectedProperty = DependencyProperty.Register("BackgroundSelected", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(SystemColors.HighlightBrush, null));
@@ -86,10 +89,12 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
         //
         // public bool InBackgroundLayout { get; set; }
 
-        public MultiSelectTreeViewItem() {
+        public MultiSelectTreeViewItem()
+        {
         }
 
-        static MultiSelectTreeViewItem() {
+        static MultiSelectTreeViewItem()
+        {
             // {
             //     FIELD_HVCF_UncommonField = typeof(GroupItem).GetField("HierarchicalVirtualizationConstraintsField", BindingFlags.Static | BindingFlags.NonPublic) ?? throw new Exception("Could not find HierarchicalVirtualizationConstraintsField ");
             //     Type UncommonFieldType = FIELD_HVCF_UncommonField.FieldType;
@@ -107,12 +112,15 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             VirtualizingPanel.IsVirtualizingProperty.OverrideMetadata(typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(BoolBox.False));
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return this.DataContext != null ? $"{this.DataContext} ({base.ToString()})" : base.ToString();
         }
 
-        internal void InvokeMouseDown() {
-            MouseButtonEventArgs e = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right) {
+        internal void InvokeMouseDown()
+        {
+            MouseButtonEventArgs e = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right)
+            {
                 RoutedEvent = Mouse.MouseDownEvent
             };
             this.OnMouseDown(e);
@@ -127,117 +135,140 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
         //     }
         // }
 
-        public Brush BackgroundFocused {
+        public Brush BackgroundFocused
+        {
             get { return (Brush) this.GetValue(BackgroundFocusedProperty); }
             set { this.SetValue(BackgroundFocusedProperty, value); }
         }
 
-        public Brush BackgroundSelected {
+        public Brush BackgroundSelected
+        {
             get { return (Brush) this.GetValue(BackgroundSelectedProperty); }
             set { this.SetValue(BackgroundSelectedProperty, value); }
         }
 
-        public Brush ForegroundSelected {
+        public Brush ForegroundSelected
+        {
             get { return (Brush) this.GetValue(ForegroundSelectedProperty); }
             set { this.SetValue(ForegroundSelectedProperty, value); }
         }
 
-        public Brush BackgroundSelectedHovered {
+        public Brush BackgroundSelectedHovered
+        {
             get { return (Brush) this.GetValue(BackgroundSelectedHoveredProperty); }
             set { this.SetValue(BackgroundSelectedHoveredProperty, value); }
         }
 
-        public Brush BackgroundHovered {
+        public Brush BackgroundHovered
+        {
             get { return (Brush) this.GetValue(BackgroundHoveredProperty); }
             set { this.SetValue(BackgroundHoveredProperty, value); }
         }
 
-        public Brush BackgroundInactive {
+        public Brush BackgroundInactive
+        {
             get { return (Brush) this.GetValue(BackgroundInactiveProperty); }
             set { this.SetValue(BackgroundInactiveProperty, value); }
         }
 
-        public Brush ForegroundInactive {
+        public Brush ForegroundInactive
+        {
             get { return (Brush) this.GetValue(ForegroundInactiveProperty); }
             set { this.SetValue(ForegroundInactiveProperty, value); }
         }
 
-        public Brush BorderBrushInactive {
+        public Brush BorderBrushInactive
+        {
             get { return (Brush) this.GetValue(BorderBrushInactiveProperty); }
             set { this.SetValue(BorderBrushInactiveProperty, value); }
         }
 
-        public Brush BorderBrushHovered {
+        public Brush BorderBrushHovered
+        {
             get { return (Brush) this.GetValue(BorderBrushHoveredProperty); }
             set { this.SetValue(BorderBrushHoveredProperty, value); }
         }
 
-        public Brush BorderBrushFocused {
+        public Brush BorderBrushFocused
+        {
             get { return (Brush) this.GetValue(BorderBrushFocusedProperty); }
             set { this.SetValue(BorderBrushFocusedProperty, value); }
         }
 
-        public Brush BorderBrushSelected {
+        public Brush BorderBrushSelected
+        {
             get { return (Brush) this.GetValue(BorderBrushSelectedProperty); }
             set { this.SetValue(BorderBrushSelectedProperty, value); }
         }
 
-        public DataTemplate ContentTemplateEdit {
+        public DataTemplate ContentTemplateEdit
+        {
             get { return (DataTemplate) this.GetValue(ContentTemplateEditProperty); }
             set { this.SetValue(ContentTemplateEditProperty, value); }
         }
 
-        public bool IsExpanded {
+        public bool IsExpanded
+        {
             get { return (bool) this.GetValue(IsExpandedProperty); }
             set { this.SetValue(IsExpandedProperty, value.Box()); }
         }
 
-        public bool IsEditable {
+        public bool IsEditable
+        {
             get { return (bool) this.GetValue(IsEditableProperty); }
             set { this.SetValue(IsEditableProperty, value.Box()); }
         }
 
-        public new bool IsVisible {
+        public new bool IsVisible
+        {
             get { return (bool) this.GetValue(IsVisibleProperty); }
             set { this.SetValue(IsVisibleProperty, value.Box()); }
         }
 
-        public bool IsEditing {
+        public bool IsEditing
+        {
             get { return (bool) this.GetValue(IsEditingProperty); }
             set { this.SetValue(IsEditingProperty, value.Box()); }
         }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get { return (bool) this.GetValue(IsSelectedProperty); }
             set { this.SetValue(IsSelectedProperty, value.Box()); }
         }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get { return (string) this.GetValue(DisplayNameProperty); }
             set { this.SetValue(DisplayNameProperty, value); }
         }
 
-        public bool HoverHighlighting {
+        public bool HoverHighlighting
+        {
             get { return (bool) this.GetValue(HoverHighlightingProperty); }
             set { this.SetValue(HoverHighlightingProperty, value.Box()); }
         }
 
-        public int ItemIndent {
+        public int ItemIndent
+        {
             get { return (int) this.GetValue(ItemIndentProperty); }
             set { this.SetValue(ItemIndentProperty, value); }
         }
 
-        public bool IsKeyboardMode {
+        public bool IsKeyboardMode
+        {
             get { return (bool) this.GetValue(IsKeyboardModeProperty); }
             set { this.SetValue(IsKeyboardModeProperty, value.Box()); }
         }
 
-        public string Remarks {
+        public string Remarks
+        {
             get { return (string) this.GetValue(RemarksProperty); }
             set { this.SetValue(RemarksProperty, value); }
         }
 
-        public DataTemplate RemarksTemplate {
+        public DataTemplate RemarksTemplate
+        {
             get { return (DataTemplate) this.GetValue(RemarksTemplateProperty); }
             set { this.SetValue(RemarksTemplateProperty, value); }
         }
@@ -246,13 +277,17 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
 
         private MultiSelectTreeView lastParentTreeView;
 
-        internal MultiSelectTreeView ParentTreeView {
-            get {
+        internal MultiSelectTreeView ParentTreeView
+        {
+            get
+            {
                 for (ItemsControl itemsControl = this.ParentItemsControl;
                     itemsControl != null;
-                    itemsControl = ItemsControlFromItemContainer(itemsControl)) {
+                    itemsControl = ItemsControlFromItemContainer(itemsControl))
+                {
                     MultiSelectTreeView treeView = itemsControl as MultiSelectTreeView;
-                    if (treeView != null) {
+                    if (treeView != null)
+                    {
                         return this.lastParentTreeView = treeView;
                     }
                 }
@@ -271,56 +306,72 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
 
         private ItemsControl ParentItemsControl => ItemsControlFromItemContainer(this);
 
-        protected static void OnIsSelectedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        protected static void OnIsSelectedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             // The item has been selected through its IsSelected property. Update the SelectedItems
             // list accordingly (this is the authoritative collection). No PreviewSelectionChanged
             // event is fired - the item is already selected.
             MultiSelectTreeViewItem item = d as MultiSelectTreeViewItem;
-            if (item != null) {
-                if ((bool) e.NewValue) {
-                    if (!item.ParentTreeView.SelectedItems.Contains(item.DataContext)) {
+            if (item != null)
+            {
+                if ((bool) e.NewValue)
+                {
+                    if (!item.ParentTreeView.SelectedItems.Contains(item.DataContext))
+                    {
                         item.ParentTreeView.SelectedItems.Add(item.DataContext);
                     }
                 }
-                else {
+                else
+                {
                     item.ParentTreeView.SelectedItems.Remove(item.DataContext);
                 }
             }
         }
 
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
             if (this.ParentTreeView == null)
                 return;
 
             //System.Diagnostics.Debug.WriteLine("P(" + ParentTreeView.Name + "): " + e.Property + " " + e.NewValue);
-            if (e.Property.Name == "IsEditing") {
-                if ((bool) e.NewValue == false) {
+            if (e.Property.Name == "IsEditing")
+            {
+                if ((bool) e.NewValue == false)
+                {
                     this.StopEditing();
                 }
             }
 
-            if (e.Property.Name == "IsExpanded") {
+            if (e.Property.Name == "IsExpanded")
+            {
                 // Bring newly expanded child nodes into view if they'd be outside of the current view
-                if ((bool) e.NewValue == true) {
-                    if (this.VisualChildrenCount > 0) {
+                if ((bool) e.NewValue == true)
+                {
+                    if (this.VisualChildrenCount > 0)
+                    {
                         ((FrameworkElement) this.GetVisualChild(this.VisualChildrenCount - 1)).BringIntoView();
                     }
                 }
 
                 // Deselect children of collapsed item
                 // (If one resists, don't collapse)
-                if ((bool) e.NewValue == false) {
-                    if (!this.ParentTreeView.DeselectRecursive(this, false)) {
+                if ((bool) e.NewValue == false)
+                {
+                    if (!this.ParentTreeView.DeselectRecursive(this, false))
+                    {
                         this.IsExpanded = true;
                     }
                 }
             }
 
-            if (e.Property.Name == "IsVisible") {
+            if (e.Property.Name == "IsVisible")
+            {
                 // Deselect invisible item and its children
                 // (If one resists, don't hide)
-                if ((bool) e.NewValue == false) {
-                    if (!this.ParentTreeView.DeselectRecursive(this, true)) {
+                if ((bool) e.NewValue == false)
+                {
+                    if (!this.ParentTreeView.DeselectRecursive(this, true))
+                    {
                         this.IsVisible = true;
                     }
                 }
@@ -329,30 +380,37 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             base.OnPropertyChanged(e);
         }
 
-        protected override DependencyObject GetContainerForItemOverride() {
+        protected override DependencyObject GetContainerForItemOverride()
+        {
             return new MultiSelectTreeViewItem();
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item) {
+        protected override bool IsItemItsOwnContainerOverride(object item)
+        {
             return item is MultiSelectTreeViewItem;
         }
 
-        protected override AutomationPeer OnCreateAutomationPeer() {
+        protected override AutomationPeer OnCreateAutomationPeer()
+        {
             return new MultiSelectTreeViewItemAutomationPeer(this);
         }
 
-        protected override void OnInitialized(EventArgs e) {
+        protected override void OnInitialized(EventArgs e)
+        {
             base.OnInitialized(e);
-            if (this.ParentTreeView != null && this.ParentTreeView.SelectedItems.Contains(this.DataContext)) {
+            if (this.ParentTreeView != null && this.ParentTreeView.SelectedItems.Contains(this.DataContext))
+            {
                 this.IsSelected = true;
             }
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        {
             base.OnMouseDoubleClick(e);
 
             FrameworkElement itemContent = (FrameworkElement) this.Template.FindName("headerBorder", this);
-            if (!itemContent.IsMouseOver) {
+            if (!itemContent.IsMouseOver)
+            {
                 // A (probably disabled) child item was really clicked, do nothing here
                 return;
             }
@@ -361,27 +419,35 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
                 this.IsExpanded = !this.IsExpanded;
         }
 
-        protected override void OnKeyDown(KeyEventArgs e) {
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
             base.OnKeyDown(e);
-            if (!e.Handled) {
+            if (!e.Handled)
+            {
                 Key key = e.Key;
-                switch (key) {
+                switch (key)
+                {
                     case Key.Left:
-                        if (this.IsExpanded) {
+                        if (this.IsExpanded)
+                        {
                             this.IsExpanded = false;
                         }
-                        else {
+                        else
+                        {
                             this.ParentTreeView.Selection.SelectParentFromKey();
                         }
 
                         e.Handled = true;
                         break;
                     case Key.Right:
-                        if (this.CanExpand) {
-                            if (!this.IsExpanded) {
+                        if (this.CanExpand)
+                        {
+                            if (!this.IsExpanded)
+                            {
                                 this.IsExpanded = true;
                             }
-                            else {
+                            else
+                            {
                                 this.ParentTreeView.Selection.SelectNextFromKey();
                             }
                         }
@@ -413,28 +479,32 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
                         e.Handled = true;
                         break;
                     case Key.A:
-                        if (e.KeyboardDevice.Modifiers == ModifierKeys.Control) {
+                        if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+                        {
                             this.ParentTreeView.Selection.SelectAllFromKey();
                             e.Handled = true;
                         }
 
                         break;
                     case Key.Add:
-                        if (this.CanExpandOnInput && !this.IsExpanded) {
+                        if (this.CanExpandOnInput && !this.IsExpanded)
+                        {
                             this.IsExpanded = true;
                         }
 
                         e.Handled = true;
                         break;
                     case Key.Subtract:
-                        if (this.CanExpandOnInput && this.IsExpanded) {
+                        if (this.CanExpandOnInput && this.IsExpanded)
+                        {
                             this.IsExpanded = false;
                         }
 
                         e.Handled = true;
                         break;
                     case Key.F2:
-                        if (this.ParentTreeView.AllowEditItems && this.ContentTemplateEdit != null && this.IsFocused && this.IsEditable) {
+                        if (this.ParentTreeView.AllowEditItems && this.ContentTemplateEdit != null && this.IsFocused && this.IsEditable)
+                        {
                             this.IsEditing = true;
                             e.Handled = true;
                         }
@@ -457,12 +527,14 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             }
         }
 
-        private void StopEditing() {
+        private void StopEditing()
+        {
             FocusHelper.Focus(this, true);
             this.IsEditing = false;
         }
 
-        protected override void OnGotFocus(RoutedEventArgs e) {
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
             // Do not call the base method because it would bring all of its children into view on
             // selecting which is not the desired behaviour.
             //base.OnGotFocus(e);
@@ -471,30 +543,36 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             //System.Diagnostics.Debug.WriteLine(Environment.StackTrace);
         }
 
-        protected override void OnLostFocus(RoutedEventArgs e) {
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
             base.OnLostFocus(e);
             this.IsEditing = false;
             //System.Diagnostics.Debug.WriteLine("MultiSelectTreeViewItem.OnLostFocus(), DisplayName = " + DisplayName);
             //System.Diagnostics.Debug.WriteLine(Environment.StackTrace);
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e) {
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
             //System.Diagnostics.Debug.WriteLine("MultiSelectTreeViewItem.OnMouseDown(Item = " + this.DisplayName + ", Button = " + e.ChangedButton + ")");
             base.OnMouseDown(e);
 
             FrameworkElement itemContent = (FrameworkElement) this.Template.FindName("headerBorder", this);
-            if (!itemContent.IsMouseOver) {
+            if (!itemContent.IsMouseOver)
+            {
                 // A (probably disabled) child item was really clicked, do nothing here
                 return;
             }
 
-            if (e.ChangedButton == MouseButton.Left) {
+            if (e.ChangedButton == MouseButton.Left)
+            {
                 this.ParentTreeView.Selection.Select(this);
                 e.Handled = true;
             }
 
-            if (e.ChangedButton == MouseButton.Right) {
-                if (!this.IsSelected) {
+            if (e.ChangedButton == MouseButton.Right)
+            {
+                if (!this.IsSelected)
+                {
                     this.ParentTreeView.Selection.Select(this);
                 }
 
@@ -502,39 +580,50 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
             }
         }
 
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseDown(e);
-            if (e.MouseDevice.LeftButton == MouseButtonState.Pressed) {
+            if (e.MouseDevice.LeftButton == MouseButtonState.Pressed)
+            {
                 this.SetValue(IsLeftMousePressedPropertyKey, BoolBox.True);
             }
-            else if (this.IsLeftMousePressed) {
+            else if (this.IsLeftMousePressed)
+            {
                 this.ClearValue(IsLeftMousePressedPropertyKey);
             }
         }
 
-        protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseUp(e);
             this.ClearValue(IsLeftMousePressedPropertyKey);
         }
 
-        protected override void OnPreviewMouseMove(MouseEventArgs e) {
+        protected override void OnPreviewMouseMove(MouseEventArgs e)
+        {
             base.OnPreviewMouseMove(e);
-            if (this.IsLeftMousePressed && e.MouseDevice.LeftButton != MouseButtonState.Pressed) {
+            if (this.IsLeftMousePressed && e.MouseDevice.LeftButton != MouseButtonState.Pressed)
+            {
                 this.ClearValue(IsLeftMousePressedPropertyKey);
             }
         }
 
-        protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e) {
+        protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e)
+        {
             MultiSelectTreeView parentTV;
-            switch (e.Action) {
+            switch (e.Action)
+            {
                 case NotifyCollectionChangedAction.Remove:
                     // Remove all items from the SelectedItems list that have been removed from the
                     // Items list
                     parentTV = this.ParentTreeView ?? this.lastParentTreeView;
-                    if (parentTV != null) {
-                        foreach (object item in e.OldItems) {
+                    if (parentTV != null)
+                    {
+                        foreach (object item in e.OldItems)
+                        {
                             parentTV.SelectedItems.Remove(item);
-                            if (parentTV.Selection is SelectionMultiple multiselection) {
+                            if (parentTV.Selection is SelectionMultiple multiselection)
+                            {
                                 multiselection.InvalidateLastShiftRoot(item);
                             }
                             // Don't preview and ask, it is already gone so it must be removed from
@@ -547,12 +636,15 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls {
                     // Remove all items from the SelectedItems list that are no longer in the Items
                     // list
                     parentTV = this.ParentTreeView ?? this.lastParentTreeView;
-                    if (parentTV != null) {
+                    if (parentTV != null)
+                    {
                         object[] selection = new object[parentTV.SelectedItems.Count];
                         parentTV.SelectedItems.CopyTo(selection, 0);
                         HashSet<object> dataItems = new HashSet<object>(MultiSelectTreeView.GetEntireTreeRecursive(parentTV, true).Select(x => x.DataContext));
-                        foreach (object item in selection) {
-                            if (!dataItems.Contains(item)) {
+                        foreach (object item in selection)
+                        {
+                            if (!dataItems.Contains(item))
+                            {
                                 parentTV.SelectedItems.Remove(item);
                                 // Don't preview and ask, it is already gone so it must be removed
                                 // from the SelectedItems list

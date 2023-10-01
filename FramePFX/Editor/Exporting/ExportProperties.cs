@@ -1,7 +1,9 @@
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Exporting {
-    public class ExportProperties {
+namespace FramePFX.Editor.Exporting
+{
+    public class ExportProperties
+    {
         public FrameSpan Span { get; }
 
         public string FilePath { get; }
@@ -11,7 +13,8 @@ namespace FramePFX.Editor.Exporting {
         /// </summary>
         public bool EncounteredError { get; set; }
 
-        public ExportProperties(FrameSpan span, string filePath) {
+        public ExportProperties(FrameSpan span, string filePath)
+        {
             this.Span = span;
             this.FilePath = filePath;
         }

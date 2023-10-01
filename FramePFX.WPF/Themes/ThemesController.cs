@@ -2,11 +2,15 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace FramePFX.WPF.Themes {
-    public static class ThemesController {
-        public static void SetTheme(ThemeType theme) {
+namespace FramePFX.WPF.Themes
+{
+    public static class ThemesController
+    {
+        public static void SetTheme(ThemeType theme)
+        {
             string themeName = theme.GetName();
-            if (string.IsNullOrEmpty(themeName)) {
+            if (string.IsNullOrEmpty(themeName))
+            {
                 return;
             }
 

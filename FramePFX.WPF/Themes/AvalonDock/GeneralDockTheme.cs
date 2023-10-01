@@ -1,11 +1,14 @@
 ﻿using System;
 using AvalonDock.Themes;
 
-namespace FramePFX.WPF.Themes.AvalonDock {
+namespace FramePFX.WPF.Themes.AvalonDock
+{
     /// <inheritdoc/>
-    public class GeneralDockTheme : Theme {
+    public class GeneralDockTheme : Theme
+    {
         /// <inheritdoc/>
-        public override Uri GetResourceUri() {
+        public override Uri GetResourceUri()
+        {
             return new Uri("/FramePFX.WPF;component/Themes/AvalonDock/GeneralDockTheme.xaml", UriKind.Relative);
         }
     }

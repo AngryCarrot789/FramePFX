@@ -2,11 +2,13 @@ using FramePFX.Editor.Timelines.Events;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines {
+namespace FramePFX.Editor.Timelines
+{
     /// <summary>
     /// An interface for clip objects, including the base <see cref="Clip"/> class
     /// </summary>
-    public interface IClip {
+    public interface IClip
+    {
         /// <summary>
         /// Gets the project associated with this clip. May be null if the clip is disconnected
         /// </summary>

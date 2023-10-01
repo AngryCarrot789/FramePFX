@@ -1,7 +1,9 @@
 using System.Numerics;
 
-namespace FramePFX.Rendering {
-    public class Camera {
+namespace FramePFX.Rendering
+{
+    public class Camera
+    {
         public Quaternion orientation;
         public Vector3 pos;
         public CamMode mode;
@@ -9,8 +11,10 @@ namespace FramePFX.Rendering {
         public float near;
         public float far;
 
-        public static Camera CreateDefault() {
-            Camera cam = new Camera() {
+        public static Camera CreateDefault()
+        {
+            Camera cam = new Camera()
+            {
                 orientation = Quaternion.CreateFromAxisAngle(new Vector3(0, -180f, 0), 0f),
                 pos = new Vector3(),
                 fov = 75f
@@ -19,7 +23,8 @@ namespace FramePFX.Rendering {
             return cam;
         }
 
-        public enum CamMode {
+        public enum CamMode
+        {
             Orthographic, Perspective
         }
     }

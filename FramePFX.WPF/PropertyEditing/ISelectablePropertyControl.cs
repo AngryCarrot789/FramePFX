@@ -1,8 +1,10 @@
-namespace FramePFX.WPF.PropertyEditing {
+namespace FramePFX.WPF.PropertyEditing
+{
     /// <summary>
     /// An interface for property editor controls that are selectable
     /// </summary>
-    public interface ISelectablePropertyControl : IPropertyEditorControl {
+    public interface ISelectablePropertyControl : IPropertyEditorControl
+    {
         bool IsSelected { get; set; }
 
         /// <summary>

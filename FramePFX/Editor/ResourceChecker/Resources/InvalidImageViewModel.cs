@@ -4,13 +4,16 @@ using FramePFX.Commands;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ResourceChecker.Resources {
-    public class InvalidImageViewModel : InvalidResourceViewModel {
+namespace FramePFX.Editor.ResourceChecker.Resources
+{
+    public class InvalidImageViewModel : InvalidResourceViewModel
+    {
         public new ResourceImageViewModel Resource => (ResourceImageViewModel) base.Resource;
 
         private string filePath;
 
-        public string FilePath {
+        public string FilePath
+        {
             get => this.filePath;
             set => this.RaisePropertyChanged(ref this.filePath, value);
         }
@@ -19,26 +22,32 @@ namespace FramePFX.Editor.ResourceChecker.Resources {
 
         public AsyncRelayCommand LoadImageCommand { get; }
 
-        public InvalidImageViewModel(ResourceImageViewModel resource) : base(resource) {
+        public InvalidImageViewModel(ResourceImageViewModel resource) : base(resource)
+        {
             this.filePath = resource.FilePath;
             this.SelectFileCommand = new AsyncRelayCommand(this.SelectFileAction);
             this.LoadImageCommand = new AsyncRelayCommand(this.LoadImageAction);
         }
 
-        public async Task SelectFileAction() {
+        public async Task SelectFileAction()
+        {
             string[] result = await Services.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
-            if (result != null && !string.IsNullOrEmpty(result[0])) {
+            if (result != null && !string.IsNullOrEmpty(result[0]))
+            {
                 this.FilePath = result[0];
                 this.Resource.FilePath = this.FilePath;
                 await this.LoadImageAction();
             }
         }
 
-        public async Task<bool> LoadImageAction() {
-            try {
+        public async Task<bool> LoadImageAction()
+        {
+            try
+            {
                 await this.Resource.Model.LoadImageAsync(this.FilePath);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 await Services.DialogService.ShowMessageExAsync("Error opening image", $"Exception occurred while opening {this.FilePath}", e.GetToString());
                 return false;
             }

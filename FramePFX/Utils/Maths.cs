@@ -1,7 +1,9 @@
 using System;
 
-namespace FramePFX.Utils {
-    public static class Maths {
+namespace FramePFX.Utils
+{
+    public static class Maths
+    {
         /// <summary>
         /// Maps a double value from the input range to the output range
         /// <code>17.5 = Map(75, 0, 100, 10, 20)</code>
@@ -12,35 +14,43 @@ namespace FramePFX.Utils {
         /// <param name="outA">Output range lower bound</param>
         /// <param name="outB">Output range upper bound</param>
         /// <returns>The output value, between outA and outB</returns>
-        public static double Map(double dIn, double inA, double inB, double outA, double outB) {
+        public static double Map(double dIn, double inA, double inB, double outA, double outB)
+        {
             return outA + ((outB - outA) / (inB - inA) * (dIn - inA));
         }
 
-        public static float Clamp(float value, float min, float max) {
+        public static float Clamp(float value, float min, float max)
+        {
             return Math.Max(Math.Min(value, max), min);
         }
 
-        public static double Clamp(double value, double min, double max) {
+        public static double Clamp(double value, double min, double max)
+        {
             return Math.Max(Math.Min(value, max), min);
         }
 
-        public static byte Clamp(byte value, byte min, byte max) {
+        public static byte Clamp(byte value, byte min, byte max)
+        {
             return Math.Max(Math.Min(value, max), min);
         }
 
-        public static int Clamp(int value, int min, int max) {
+        public static int Clamp(int value, int min, int max)
+        {
             return Math.Max(Math.Min(value, max), min);
         }
 
-        public static long Clamp(long value, long min, long max) {
+        public static long Clamp(long value, long min, long max)
+        {
             return Math.Max(Math.Min(value, max), min);
         }
 
-        public static bool Equals(double a, double b, double tolerance = 0.0001d) {
+        public static bool Equals(double a, double b, double tolerance = 0.0001d)
+        {
             return Math.Abs(a - b) < tolerance;
         }
 
-        public static bool Equals(float a, float b, float tolerance = 0.001f) {
+        public static bool Equals(float a, float b, float tolerance = 0.001f)
+        {
             return Math.Abs(a - b) < tolerance;
         }
 
@@ -48,7 +58,8 @@ namespace FramePFX.Utils {
 
         public static bool IsZero(double value) => Math.Abs(value) < 2.22044604925031E-15; // 0.00000000000000222044604925031
 
-        public static double Lerp(double a, double b, double blend) {
+        public static double Lerp(double a, double b, double blend)
+        {
             return blend * (b - a) + a;
         }
 
@@ -60,10 +71,12 @@ namespace FramePFX.Utils {
         /// <param name="blend">Blend</param>
         /// <param name="roundingMode">0 = cast to long, 1 = floor, 2 = ceil, 3 = round</param>
         /// <returns>A lerp-ed long value</returns>
-        public static long Lerp(long a, long b, double blend, int roundingMode) {
+        public static long Lerp(long a, long b, double blend, int roundingMode)
+        {
             double nA = a, nB = b;
             double val = blend * (nB - nA) + nA;
-            switch (roundingMode) {
+            switch (roundingMode)
+            {
                 case 0: return (long) val;
                 case 1: return (long) Math.Floor(val);
                 case 2: return (long) Math.Ceiling(val);
@@ -72,17 +85,20 @@ namespace FramePFX.Utils {
             }
         }
 
-        public static int Ceil(int value, int multiple) {
+        public static int Ceil(int value, int multiple)
+        {
             int mod = value % multiple;
             return mod == 0 ? value : value + (multiple - mod);
         }
 
-        public static long Ceil(long value, int multiple) {
+        public static long Ceil(long value, int multiple)
+        {
             long mod = value % multiple;
             return mod == 0 ? value : value + (multiple - mod);
         }
 
-        public static double Ceil(double value, int multiple) {
+        public static double Ceil(double value, int multiple)
+        {
             double mod = value % multiple;
             return mod == 0D ? value : value + (multiple - mod);
         }
@@ -97,7 +113,8 @@ namespace FramePFX.Utils {
         public static bool WillUnderflow(long a, long b) => b < 0 && a < long.MinValue - b;
 
         // https://stackoverflow.com/a/51099524/11034928
-        public static int GetDigitCount(ulong v) {
+        public static int GetDigitCount(ulong v)
+        {
             if (v < 10L)
                 return 1;
             if (v < 100L)
@@ -137,31 +154,46 @@ namespace FramePFX.Utils {
             return v < 10000000000000000000L ? 19 : 20;
         }
 
-        public static void Swap(ref float a, ref float b) {
-            float A = a; a = b; b = A;
+        public static void Swap(ref float a, ref float b)
+        {
+            float A = a;
+            a = b;
+            b = A;
         }
 
-        public static void Swap(ref double a, ref double b) {
-            double A = a; a = b; b = A;
+        public static void Swap(ref double a, ref double b)
+        {
+            double A = a;
+            a = b;
+            b = A;
         }
 
-        public static void Swap(ref long a, ref long b) {
-            long A = a; a = b; b = A;
+        public static void Swap(ref long a, ref long b)
+        {
+            long A = a;
+            a = b;
+            b = A;
         }
 
-        public static void Swap(ref int a, ref int b) {
-            int A = a; a = b; b = A;
+        public static void Swap(ref int a, ref int b)
+        {
+            int A = a;
+            a = b;
+            b = A;
         }
 
-        public static double GetRange(float min, float max) {
+        public static double GetRange(float min, float max)
+        {
             return max < min ? (min - max) : (max - min);
         }
 
-        public static double GetRange(double min, double max) {
+        public static double GetRange(double min, double max)
+        {
             return max < min ? (min - max) : (max - min);
         }
 
-        public static double GetRange(long min, long max) {
+        public static double GetRange(long min, long max)
+        {
             return max < min ? (min - max) : (max - min);
         }
     }

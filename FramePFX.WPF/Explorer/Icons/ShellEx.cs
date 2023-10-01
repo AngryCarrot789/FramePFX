@@ -7,10 +7,12 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows.Media.Imaging;
 
-namespace FramePFX.WPF.Explorer.Icons {
+namespace FramePFX.WPF.Explorer.Icons
+{
     // Main credits:
     // https://www.c-sharpcorner.com/forums/getting-folders-icon-imageunable-to-take-large-icons
-    public static class ShellEx {
+    public static class ShellEx
+    {
         // Constants that we need in the function call
 
         private const int SHGFI_ICON = 0x100;
@@ -25,7 +27,8 @@ namespace FramePFX.WPF.Explorer.Icons {
 
         // This structure will contain information about the file
 
-        public struct SHFILEINFO {
+        public struct SHFILEINFO
+        {
             public IntPtr hIcon; // Handle to the icon representing the file
             public int iIcon; // Index of the icon within the image list
             public uint dwAttributes; // Various attributes of the file
@@ -35,11 +38,11 @@ namespace FramePFX.WPF.Explorer.Icons {
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
             public string szTypeName; // File type
-
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct RECT {
+        public struct RECT
+        {
             public int left;
             public int top;
             public int right;
@@ -52,22 +55,29 @@ namespace FramePFX.WPF.Explorer.Icons {
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CloseHandle(IntPtr hObject);
 
-        private static bool TryCloseHandle(IntPtr hObject) {
-            try {
+        private static bool TryCloseHandle(IntPtr hObject)
+        {
+            try
+            {
                 return CloseHandle(hObject);
             }
-            catch { // throws with 0 as a win32 error when a debugger is attached... for some reason :/
+            catch
+            {
+                // throws with 0 as a win32 error when a debugger is attached... for some reason :/
                 int error = Marshal.GetLastWin32Error();
-                if (error != 0) {
+                if (error != 0)
+                {
                     throw new Win32Exception(error);
                 }
-                else {
+                else
+                {
                     return true;
                 }
             }
         }
 
-        private struct IMAGELISTDRAWPARAMS {
+        private struct IMAGELISTDRAWPARAMS
+        {
             public int cbSize;
             public IntPtr himl;
             public int i;
@@ -88,7 +98,8 @@ namespace FramePFX.WPF.Explorer.Icons {
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct IMAGEINFO {
+        private struct IMAGEINFO
+        {
             public IntPtr hbmImage;
             public IntPtr hbmMask;
             public int Unused1;
@@ -97,20 +108,24 @@ namespace FramePFX.WPF.Explorer.Icons {
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct POINT {
+        public struct POINT
+        {
             public int X;
             public int Y;
 
-            public POINT(int x, int y) {
+            public POINT(int x, int y)
+            {
                 this.X = x;
                 this.Y = y;
             }
 
-            public static implicit operator Point(POINT p) {
+            public static implicit operator Point(POINT p)
+            {
                 return new Point(p.X, p.Y);
             }
 
-            public static implicit operator POINT(Point p) {
+            public static implicit operator POINT(Point p)
+            {
                 return new POINT(p.X, p.Y);
             }
         }
@@ -121,7 +136,8 @@ namespace FramePFX.WPF.Explorer.Icons {
         [Guid("46EB5926-582E-4017-9FDF-E8998DAA0950")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         //helpstring("Image List"),
-        interface IImageList {
+        interface IImageList
+        {
             [PreserveSig]
             int Add(IntPtr hbmImage, IntPtr hbmMask, ref int pi);
 
@@ -233,7 +249,8 @@ namespace FramePFX.WPF.Explorer.Icons {
         [DllImport("user32", SetLastError = true)]
         public static extern int DestroyIcon(IntPtr hIcon);
 
-        private static BitmapSource getBitmapSourceForIcon(Icon ic) {
+        private static BitmapSource getBitmapSourceForIcon(Icon ic)
+        {
             BitmapSource ic2 = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(ic.Handle,
                 System.Windows.Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
@@ -241,11 +258,12 @@ namespace FramePFX.WPF.Explorer.Icons {
             return ic2;
         }
 
-        public static BitmapSource GetBitmapSourceForSystemIcon(bool small, CSIDL csidl) {
-
+        public static BitmapSource GetBitmapSourceForSystemIcon(bool small, CSIDL csidl)
+        {
             IntPtr pidlTrash = IntPtr.Zero;
             int hr = SHGetSpecialFolderLocation(IntPtr.Zero, (int) csidl, ref pidlTrash);
-            if (hr != 0) {
+            if (hr != 0)
+            {
                 // most likely invalid CSIDL; unsupported icon maybe?
                 // i put [broken; invalid] infront of the enum entries that
                 // cause an exception to be thrown
@@ -257,15 +275,18 @@ namespace FramePFX.WPF.Explorer.Icons {
             // Get a handle to the large icon
             uint flags;
             uint SHGFI_PIDL = 0x000000008;
-            if (small) {
+            if (small)
+            {
                 flags = SHGFI_PIDL | SHGFI_ICON | SHGFI_SMALLICON | SHGFI_USEFILEATTRIBUTES;
             }
-            else {
+            else
+            {
                 flags = SHGFI_PIDL | SHGFI_ICON | SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES;
             }
 
             int res = SHGetFileInfo(pidlTrash, 0, ref shinfo, Marshal.SizeOf(shinfo), flags);
-            if (res == 0) {
+            if (res == 0)
+            {
                 throw new Win32Exception(res);
             }
 
@@ -277,17 +298,19 @@ namespace FramePFX.WPF.Explorer.Icons {
             DestroyIcon(shinfo.hIcon);
             TryCloseHandle(shinfo.hIcon);
             return bs;
-
         }
 
-        public static BitmapSource getBitmapSourceIconForPath(string path, bool small, bool checkDisk, bool addOverlay) {
+        public static BitmapSource getBitmapSourceIconForPath(string path, bool small, bool checkDisk, bool addOverlay)
+        {
             SHFILEINFO shinfo = new SHFILEINFO();
 
             uint flags;
-            if (small) {
+            if (small)
+            {
                 flags = SHGFI_ICON | SHGFI_SMALLICON;
             }
-            else {
+            else
+            {
                 flags = SHGFI_ICON | SHGFI_LARGEICON;
             }
 
@@ -297,7 +320,8 @@ namespace FramePFX.WPF.Explorer.Icons {
                 flags |= SHGFI_LINKOVERLAY;
 
             int res = SHGetFileInfo(path, 0, ref shinfo, Marshal.SizeOf(shinfo), flags);
-            if (res == 0) {
+            if (res == 0)
+            {
                 throw new FileNotFoundException();
             }
 
@@ -309,17 +333,18 @@ namespace FramePFX.WPF.Explorer.Icons {
             DestroyIcon(shinfo.hIcon);
             TryCloseHandle(shinfo.hIcon);
             return bs;
-
         }
 
-        public static BitmapSource GetBitmapSourceForPath(string path, bool jumbo, bool checkDisk) {
+        public static BitmapSource GetBitmapSourceForPath(string path, bool jumbo, bool checkDisk)
+        {
             SHFILEINFO shinfo = new SHFILEINFO();
             uint flags = SHGFI_SYSICONINDEX;
             if (!checkDisk) // This does not seem to work. If I try it, a folder icon is always returned.
                 flags |= SHGFI_USEFILEATTRIBUTES;
 
             int res = SHGetFileInfo(path, FILE_ATTRIBUTE_NORMAL, ref shinfo, Marshal.SizeOf(shinfo), flags);
-            if (res == 0) {
+            if (res == 0)
+            {
                 throw new FileNotFoundException("File not found", path);
             }
 
@@ -330,14 +355,16 @@ namespace FramePFX.WPF.Explorer.Icons {
 
             int size = jumbo ? SHIL_JUMBO : SHIL_EXTRALARGE;
             int hres = SHGetImageList(size, ref iidImageList, out IImageList imageList);
-            if (hres != 0) {
+            if (hres != 0)
+            {
                 throw new Win32Exception();
             }
 
             IntPtr hIcon = IntPtr.Zero;
             const int ILD_TRANSPARENT = 1;
             hres = imageList.GetIcon(iconIndex, ILD_TRANSPARENT, ref hIcon);
-            if (hres != 0) {
+            if (hres != 0)
+            {
                 throw new Win32Exception();
             }
 

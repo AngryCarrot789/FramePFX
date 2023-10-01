@@ -1,7 +1,9 @@
 using FramePFX.Automation.ViewModels.Keyframe;
 
-namespace FramePFX.Automation.Events {
-    public readonly struct ActiveSequenceChangedEventArgs {
+namespace FramePFX.Automation.Events
+{
+    public readonly struct ActiveSequenceChangedEventArgs
+    {
         /// <summary>
         /// The previously active sequence
         /// </summary>
@@ -12,7 +14,8 @@ namespace FramePFX.Automation.Events {
         /// </summary>
         public AutomationSequenceViewModel Sequence { get; }
 
-        public ActiveSequenceChangedEventArgs(AutomationSequenceViewModel oldSequence, AutomationSequenceViewModel sequence) {
+        public ActiveSequenceChangedEventArgs(AutomationSequenceViewModel oldSequence, AutomationSequenceViewModel sequence)
+        {
             this.OldSequence = oldSequence;
             this.Sequence = sequence;
         }

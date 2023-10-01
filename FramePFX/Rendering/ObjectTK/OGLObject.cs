@@ -1,24 +1,29 @@
 using System;
 using FramePFX.Logger;
 
-namespace FramePFX.Rendering.ObjectTK {
-    public abstract class OGLObject : IDisposable {
+namespace FramePFX.Rendering.ObjectTK
+{
+    public abstract class OGLObject : IDisposable
+    {
         public int Handle { get; protected set; }
 
-        protected OGLObject() : this(0) {
-
+        protected OGLObject() : this(0)
+        {
         }
 
-        protected OGLObject(int handle) {
+        protected OGLObject(int handle)
+        {
             this.Handle = handle;
         }
 
-        ~OGLObject() {
+        ~OGLObject()
+        {
             AppLogger.WriteLine("OGLObject leak: " + this.GetType());
             this.Dispose(false);
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             GC.SuppressFinalize(this);
             this.Dispose(true);
         }

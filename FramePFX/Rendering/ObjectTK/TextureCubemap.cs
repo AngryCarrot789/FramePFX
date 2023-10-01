@@ -34,8 +34,8 @@ namespace FramePFX.Rendering.ObjectTK
         public TextureCubemap(SizedInternalFormat internalFormat, int size, int levels = 0) : base(internalFormat, GetLevels(levels, size))
         {
             this.Size = size;
-            GL.BindTexture(this.TextureTarget, Handle);
-            GL.TexStorage2D((TextureTarget2d)this.TextureTarget, Levels, internalFormat, this.Size, this.Size);
+            GL.BindTexture(this.TextureTarget, this.Handle);
+            GL.TexStorage2D((TextureTarget2d) this.TextureTarget, this.Levels, internalFormat, this.Size, this.Size);
         }
     }
 }

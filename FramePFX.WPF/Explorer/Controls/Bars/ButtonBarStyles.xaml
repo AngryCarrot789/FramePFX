@@ -2,10 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:bars="clr-namespace:FramePFX.WPF.Explorer.Controls.Bars">
     <Style TargetType="{x:Type bars:VerticalButtonBar}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone7.Border.Static}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Direction" Value="Left"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone7.Border.Static}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Direction" Value="Left" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type bars:VerticalButtonBar}">
@@ -37,10 +37,10 @@
         <Setter Property="Background" Value="{DynamicResource Button.Static.Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone7.Border.Static}" />
         <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}" />
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="1"/>
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type bars:VerticalButtonBarItem}">
@@ -48,8 +48,8 @@
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="contentPresenter" ContentSource="Header" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
                             <FrameworkElement.LayoutTransform>
                                 <TransformGroup>
-                                    <RotateTransform Angle="90"/>
-                                    <ScaleTransform ScaleX="-1" ScaleY="-1"/>
+                                    <RotateTransform Angle="90" />
+                                    <ScaleTransform ScaleX="-1" ScaleY="-1" />
                                 </TransformGroup>
                             </FrameworkElement.LayoutTransform>
                         </ContentPresenter>
@@ -59,8 +59,8 @@
                             <Setter TargetName="contentPresenter" Property="LayoutTransform">
                                 <Setter.Value>
                                     <TransformGroup>
-                                        <RotateTransform Angle="90"/>
-                                        <ScaleTransform ScaleX="-1" ScaleY="-1"/>
+                                        <RotateTransform Angle="90" />
+                                        <ScaleTransform ScaleX="-1" ScaleY="-1" />
                                     </TransformGroup>
                                 </Setter.Value>
                             </Setter>
@@ -69,47 +69,47 @@
                             <Setter TargetName="contentPresenter" Property="LayoutTransform">
                                 <Setter.Value>
                                     <TransformGroup>
-                                        <RotateTransform Angle="-90"/>
-                                        <ScaleTransform ScaleX="-1" ScaleY="-1"/>
+                                        <RotateTransform Angle="-90" />
+                                        <ScaleTransform ScaleX="-1" ScaleY="-1" />
                                     </TransformGroup>
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
                         <Trigger Property="Button.IsDefaulted" Value="true">
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Defaulted.Border}"/>
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Defaulted.Border}" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="true">
-                            <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.MouseOver.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.MouseOver.Border}"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.MouseOver.Background}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.MouseOver.Border}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="true">
-                            <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Pressed.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Pressed.Border}"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Pressed.Background}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Pressed.Border}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Disabled.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Disabled.Border}"/>
-                            <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{DynamicResource Button.Disabled.Foreground}"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource Button.Disabled.Background}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource Button.Disabled.Border}" />
+                            <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{DynamicResource Button.Disabled.Foreground}" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ToggleButton.IsChecked.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource ToggleButton.IsChecked.Border}"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ToggleButton.IsChecked.Background}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource ToggleButton.IsChecked.Border}" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsChecked" Value="True"/>
-                                <Condition Property="IsPressed" Value="True"/>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsPressed" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ToggleButton.Pressed.IsChecked.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource ToggleButton.Pressed.IsChecked.Border}"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ToggleButton.Pressed.IsChecked.Background}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource ToggleButton.Pressed.IsChecked.Border}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsChecked" Value="True"/>
-                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ToggleButton.MouseOver.IsChecked.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource ToggleButton.MouseOver.IsChecked.Border}"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ToggleButton.MouseOver.IsChecked.Background}" />
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource ToggleButton.MouseOver.IsChecked.Border}" />
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

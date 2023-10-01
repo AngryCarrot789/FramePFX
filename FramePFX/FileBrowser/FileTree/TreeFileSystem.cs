@@ -1,11 +1,14 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.FileBrowser.FileTree {
+namespace FramePFX.FileBrowser.FileTree
+{
     /// <summary>
     /// Used to load a tree entry's contents
     /// </summary>
-    public abstract class TreeFileSystem {
-        protected TreeFileSystem() {
+    public abstract class TreeFileSystem
+    {
+        protected TreeFileSystem()
+        {
         }
 
         /// <summary>
@@ -29,7 +32,8 @@ namespace FramePFX.FileBrowser.FileTree {
         /// </summary>
         /// <param name="entry"></param>
         /// <returns></returns>
-        public virtual Task RefreshContent(TreeEntry entry) {
+        public virtual Task RefreshContent(TreeEntry entry)
+        {
             entry.ClearItemsRecursiveCore();
             return this.LoadContent(entry);
         }

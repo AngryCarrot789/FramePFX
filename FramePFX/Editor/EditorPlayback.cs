@@ -2,8 +2,10 @@ using System;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor {
-    public class EditorPlayback {
+namespace FramePFX.Editor
+{
+    public class EditorPlayback
+    {
         private volatile bool isPlaying;
 
         public PrecisionTimer PlaybackTimer { get; }
@@ -15,29 +17,34 @@ namespace FramePFX.Editor {
         /// </summary>
         public bool ZoomToCursor { get; set; }
 
-        public bool IsPlaying {
+        public bool IsPlaying
+        {
             get => this.isPlaying;
             set => this.isPlaying = value;
         }
 
-        public Action OnStepFrame {
+        public Action OnStepFrame
+        {
             get => this.PlaybackTimer.TickCallback;
             set => this.PlaybackTimer.TickCallback = value;
         }
 
         public VideoEditor Editor { get; }
 
-        public EditorPlayback(VideoEditor editor) {
+        public EditorPlayback(VideoEditor editor)
+        {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.PlaybackTimer = new PrecisionTimer();
         }
 
-        public void WriteToRBE(RBEDictionary data) {
+        public void WriteToRBE(RBEDictionary data)
+        {
             data.SetBool(nameof(this.UsePrecisionTimingMode), this.UsePrecisionTimingMode);
             data.SetBool(nameof(this.ZoomToCursor), this.ZoomToCursor);
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
+        public void ReadFromRBE(RBEDictionary data)
+        {
             this.UsePrecisionTimingMode = data.GetBool(nameof(this.UsePrecisionTimingMode));
             this.ZoomToCursor = data.GetBool(nameof(this.ZoomToCursor));
         }

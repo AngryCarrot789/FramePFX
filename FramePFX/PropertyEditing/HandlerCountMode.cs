@@ -1,5 +1,7 @@
-namespace FramePFX.PropertyEditing {
-    public enum HandlerCountMode {
+namespace FramePFX.PropertyEditing
+{
+    public enum HandlerCountMode
+    {
         /// <summary>
         /// Any number of handlers are acceptable (more than 0)
         /// </summary>

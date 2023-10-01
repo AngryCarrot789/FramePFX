@@ -43,25 +43,30 @@ using FramePFX.Logger;
 using FontFamily = System.Windows.Media.FontFamily;
 using UndoAction = FramePFX.History.Actions.UndoAction;
 
-namespace FramePFX.WPF {
-    public partial class App : Application {
+namespace FramePFX.WPF
+{
+    public partial class App : Application
+    {
         private AttributeProcessor processor;
 
         public static List<FontFamily> FontFamilies { get; }
 
         public static ThemeType CurrentTheme { get; set; }
 
-        public static ResourceDictionary ThemeDictionary {
+        public static ResourceDictionary ThemeDictionary
+        {
             get => Current.Resources.MergedDictionaries[0];
             set => Current.Resources.MergedDictionaries[0] = value;
         }
 
-        public static ResourceDictionary ControlColours {
+        public static ResourceDictionary ControlColours
+        {
             get => Current.Resources.MergedDictionaries[1];
             set => Current.Resources.MergedDictionaries[1] = value;
         }
 
-        public static ResourceDictionary I18NText {
+        public static ResourceDictionary I18NText
+        {
             get => Current.Resources.MergedDictionaries[3];
             set => Current.Resources.MergedDictionaries[3] = value;
         }
@@ -70,17 +75,20 @@ namespace FramePFX.WPF {
         private readonly InputDrivenTaskExecutor monitor;
         private DateTime lastInput;
 
-        static App() {
+        static App()
+        {
             FontFamilies = new List<FontFamily>();
         }
 
-        public App() {
+        public App()
+        {
             this.processor = new AttributeProcessor();
             Services.Application = new ApplicationDelegate(this);
             Services.ServiceManager.Register(Services.Application);
             AppLogger.WriteLine("Application entry point");
 
-            foreach (FontFamily fontFamily in Fonts.SystemFontFamilies) {
+            foreach (FontFamily fontFamily in Fonts.SystemFontFamilies)
+            {
                 FontFamilies.Add(fontFamily);
             }
 
@@ -106,13 +114,15 @@ namespace FramePFX.WPF {
             // });
         }
 
-        public static void RefreshControlsDictionary() {
+        public static void RefreshControlsDictionary()
+        {
             ResourceDictionary resource = Current.Resources.MergedDictionaries[2];
             Current.Resources.MergedDictionaries.RemoveAt(2);
             Current.Resources.MergedDictionaries.Insert(2, resource);
         }
 
-        public void RegisterActions() {
+        public void RegisterActions()
+        {
             // ActionManager.SearchAndRegisterActions(ActionManager.Instance);
             // TODO: Maybe use an XML file to store this, similar to how intellij registers actions?
             ActionManager.Instance.Register("actions.general.RenameItem", new RenameAction());
@@ -133,37 +143,47 @@ namespace FramePFX.WPF {
             ActionManager.Instance.Register("actions.editor.timeline.SliceClips", new SliceClipsAction());
         }
 
-        private async Task SetActivity(string activity) {
+        private async Task SetActivity(string activity)
+        {
             AppLogger.WriteLine(activity);
             this.splash.CurrentActivity = activity;
-            await this.Dispatcher.InvokeAsync(() => {
+            await this.Dispatcher.InvokeAsync(() =>
+            {
             }, DispatcherPriority.ApplicationIdle);
         }
 
-        public async Task InitApp() {
+        public async Task InitApp()
+        {
             await this.SetActivity("Loading services...");
-            this.processor.RegisterProcessor<ServiceImplementationAttribute>((typeInfo, attribute) => {
+            this.processor.RegisterProcessor<ServiceImplementationAttribute>((typeInfo, attribute) =>
+            {
                 object instance;
-                try {
+                try
+                {
                     instance = Activator.CreateInstance(typeInfo);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     throw new Exception($"Failed to create implementation of {attribute.Type} as {typeInfo}", e);
                 }
 
                 Services.ServiceManager.Register(attribute.Type, instance);
             });
 
-            this.processor.RegisterProcessor<ActionRegistrationAttribute>((typeInfo, attribute) => {
+            this.processor.RegisterProcessor<ActionRegistrationAttribute>((typeInfo, attribute) =>
+            {
                 AnAction action;
-                try {
-                    action = (AnAction)Activator.CreateInstance(typeInfo, true);
+                try
+                {
+                    action = (AnAction) Activator.CreateInstance(typeInfo, true);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     throw new Exception($"Failed to create an instance of the registered action '{typeInfo.FullName}'", e);
                 }
 
-                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null) {
+                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null)
+                {
                     ActionManager.Instance.Unregister(attribute.ActionId);
                 }
 
@@ -171,7 +191,8 @@ namespace FramePFX.WPF {
             });
 
             string[] envArgs = Environment.GetCommandLineArgs();
-            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
+            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0)
+            {
                 Directory.SetCurrentDirectory(dir);
             }
 
@@ -184,7 +205,8 @@ namespace FramePFX.WPF {
 
             await this.SetActivity("Loading shortcuts and the action manager...");
             ShortcutManager.Instance = new WPFShortcutManager();
-            ShortcutManager.Instance.ShortcutModified += (sender, value) => {
+            ShortcutManager.Instance.ShortcutModified += (sender, value) =>
+            {
                 GlobalUpdateShortcutGestureConverter.BroadcastChange();
             };
 
@@ -197,9 +219,11 @@ namespace FramePFX.WPF {
             this.processor.Process(typeof(ActionRegistrationAttribute));
             this.RegisterActions();
             AppLogger.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);
-            foreach (KeyValuePair<string, AnAction> pair in ActionManager.Instance.Actions) {
+            foreach (KeyValuePair<string, AnAction> pair in ActionManager.Instance.Actions)
+            {
                 AppLogger.WriteLine($"{pair.Key}: {pair.Value.GetType()}");
             }
+
             AppLogger.PopHeader();
 
             // TODO: user modifiable keymap, and also save it to user documents
@@ -208,31 +232,40 @@ namespace FramePFX.WPF {
 
             await this.SetActivity("Loading keymap...");
             string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
-            if (File.Exists(keymapFilePath)) {
-                try {
-                    using (FileStream stream = File.OpenRead(keymapFilePath)) {
+            if (File.Exists(keymapFilePath))
+            {
+                try
+                {
+                    using (FileStream stream = File.OpenRead(keymapFilePath))
+                    {
                         WPFShortcutManager.WPFInstance.DeserialiseRoot(stream);
                     }
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     await Services.DialogService.ShowMessageExAsync("Invalid keymap", "Failed to read keymap file: " + keymapFilePath, e.GetToString());
                 }
             }
-            else {
+            else
+            {
                 await Services.DialogService.ShowMessageAsync("No keymap available", "Keymap file does not exist: " + keymapFilePath + $".\nCurrent directory: {Directory.GetCurrentDirectory()}\nCommand line args:{string.Join("\n", Environment.GetCommandLineArgs())}");
             }
 
             await this.SetActivity("Loading FFmpeg...");
-            try {
+
+            try
+            {
                 ffmpeg.avdevice_register_all();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 await Services.DialogService.ShowMessageAsync("FFmpeg not found", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the project's build folder, e.g. FramePFX/FramePFX.WPF/bin/Debug");
                 throw new Exception("FFmpeg Unavailable. Copy FFmpeg DLLs into the same folder as the app's .exe", e);
             }
         }
 
-        private async void Application_Startup(object sender, StartupEventArgs e) {
+        private async void Application_Startup(object sender, StartupEventArgs e)
+        {
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
 
@@ -243,24 +276,30 @@ namespace FramePFX.WPF {
             ToolTipService.ShowDurationProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
             ToolTipService.InitialShowDelayProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(400));
 
-            try {
+            try
+            {
                 AppLogger.PushHeader("FramePFX initialisation");
                 await this.InitApp();
             }
-            catch (Exception ex) {
-                if (Services.DialogService != null) {
+            catch (Exception ex)
+            {
+                if (Services.DialogService != null)
+                {
                     await Services.DialogService.ShowMessageExAsync("App init failed", "Failed to start FramePFX", ex.GetToString());
                 }
-                else {
+                else
+                {
                     MessageBox.Show("Failed to start FramePFX:\n\n" + ex, "Fatal App init failure");
                 }
 
-                this.Dispatcher.Invoke(() => {
+                this.Dispatcher.Invoke(() =>
+                {
                     this.Shutdown(0);
                 }, DispatcherPriority.Background);
                 return;
             }
-            finally{
+            finally
+            {
                 AppLogger.PopHeader();
             }
 
@@ -275,7 +314,8 @@ namespace FramePFX.WPF {
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Show();
-            await this.Dispatcher.Invoke(async () => {
+            await this.Dispatcher.Invoke(async () =>
+            {
                 await this.OnVideoEditorLoaded(window.Editor);
                 // new EditorWindow2() {
                 //     DataContext = window.Editor
@@ -283,7 +323,8 @@ namespace FramePFX.WPF {
             }, DispatcherPriority.Loaded);
         }
 
-        public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
+        public async Task OnVideoEditorLoaded(VideoEditorViewModel editor)
+        {
             await editor.FileExplorer.LoadDefaultLocation();
 
             await editor.LoadProject(new ProjectViewModel(CreateDemoProject()));
@@ -292,27 +333,32 @@ namespace FramePFX.WPF {
             demoClip.IsSelected = true;
             PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(CollectionUtils.SingleItem(demoClip));
             VideoClipDataSingleEditorViewModel infoEditor = PFXPropertyEditorRegistry.Instance.ClipInfo.PropertyObjects.OfType<VideoClipDataSingleEditorViewModel>().FirstOrDefault();
-            if (infoEditor != null) { // shouldn't be null... but juuuust in case something bad did happen, check anyway
+            if (infoEditor != null)
+            {
+                // shouldn't be null... but juuuust in case something bad did happen, check anyway
                 infoEditor.IsOpacitySelected = true;
                 demoClip.Timeline.PlayHeadFrame = 323;
             }
 
             await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
-            ((EditorMainWindow)this.MainWindow)?.VPViewBox.FitContentToCenter();
+            ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
             await editor.ActiveProject.Timeline.DoAutomationTickAndRenderToPlayback();
         }
 
-        public static void PlaySineWave() {
+        public static void PlaySineWave()
+        {
             SoundIO api = new SoundIO();
             api.ConnectBackend(SoundIOBackend.Wasapi);
             api.FlushEvents();
 
             SoundIODevice device = api.GetOutputDevice(api.DefaultOutputDeviceIndex);
-            if (device == null) {
+            if (device == null)
+            {
                 return;
             }
 
-            if (device.ProbeError != 0) {
+            if (device.ProbeError != 0)
+            {
                 return;
             }
 
@@ -320,23 +366,28 @@ namespace FramePFX.WPF {
             outstream.WriteCallback = (min, max) => write_callback(outstream, min, max);
             outstream.UnderflowCallback = () => underflow_callback(outstream);
             outstream.SampleRate = 4096;
-            if (device.SupportsFormat(SoundIODevice.Float32NE)) {
+            if (device.SupportsFormat(SoundIODevice.Float32NE))
+            {
                 outstream.Format = SoundIODevice.Float32NE;
                 write_sample = write_sample_float32ne;
             }
-            else if (device.SupportsFormat(SoundIODevice.Float64NE)) {
+            else if (device.SupportsFormat(SoundIODevice.Float64NE))
+            {
                 outstream.Format = SoundIODevice.Float64NE;
                 write_sample = write_sample_float64ne;
             }
-            else if (device.SupportsFormat(SoundIODevice.S32NE)) {
+            else if (device.SupportsFormat(SoundIODevice.S32NE))
+            {
                 outstream.Format = SoundIODevice.S32NE;
                 write_sample = write_sample_s32ne;
             }
-            else if (device.SupportsFormat(SoundIODevice.S16NE)) {
+            else if (device.SupportsFormat(SoundIODevice.S16NE))
+            {
                 outstream.Format = SoundIODevice.S16NE;
                 write_sample = write_sample_s16ne;
             }
-            else {
+            else
+            {
                 return;
             }
 
@@ -344,7 +395,8 @@ namespace FramePFX.WPF {
 
             outstream.Start();
 
-            for (; ; ) {
+            for (;;)
+            {
                 api.FlushEvents();
             }
 
@@ -357,12 +409,14 @@ namespace FramePFX.WPF {
         private static double seconds_offset = 0.0;
         private static volatile bool want_pause = false;
 
-        private static void write_callback(SoundIOOutStream outstream, int frame_count_min, int frame_count_max) {
+        private static void write_callback(SoundIOOutStream outstream, int frame_count_min, int frame_count_max)
+        {
             double dSampleRate = outstream.SampleRate;
             double dSecondsPerFrame = 1.0 / dSampleRate;
 
             int framesLeft = frame_count_max;
-            for (; ; ) {
+            for (;;)
+            {
                 int frameCount = framesLeft;
                 SoundIOChannelAreas results = outstream.BeginWrite(ref frameCount);
 
@@ -373,9 +427,11 @@ namespace FramePFX.WPF {
 
                 double pitch = 440.0;
                 double radians_per_second = pitch * 2.0 * Math.PI;
-                for (int frame = 0; frame < frameCount; frame += 1) {
+                for (int frame = 0; frame < frameCount; frame += 1)
+                {
                     double sample = Math.Sin((seconds_offset + frame * dSecondsPerFrame) * radians_per_second);
-                    for (int channel = 0; channel < layout.ChannelCount; channel += 1) {
+                    for (int channel = 0; channel < layout.ChannelCount; channel += 1)
+                    {
                         SoundIOChannelArea area = results.GetArea(channel);
                         write_sample(area.Pointer, sample);
                         area.Pointer += area.Step;
@@ -396,39 +452,46 @@ namespace FramePFX.WPF {
 
         private static int underflow_callback_count = 0;
 
-        private static void underflow_callback(SoundIOOutStream outstream) {
+        private static void underflow_callback(SoundIOOutStream outstream)
+        {
             Console.Error.WriteLine("underflow {0}", underflow_callback_count++);
         }
 
-        private static unsafe void write_sample_s16ne(IntPtr ptr, double sample) {
-            short* buf = (short*)ptr;
-            double range = (double)short.MaxValue - (double)short.MinValue;
+        private static unsafe void write_sample_s16ne(IntPtr ptr, double sample)
+        {
+            short* buf = (short*) ptr;
+            double range = (double) short.MaxValue - (double) short.MinValue;
             double val = sample * range / 2.0;
-            *buf = (short)val;
+            *buf = (short) val;
         }
 
-        private static unsafe void write_sample_s32ne(IntPtr ptr, double sample) {
-            int* buf = (int*)ptr;
-            double range = (double)int.MaxValue - (double)int.MinValue;
+        private static unsafe void write_sample_s32ne(IntPtr ptr, double sample)
+        {
+            int* buf = (int*) ptr;
+            double range = (double) int.MaxValue - (double) int.MinValue;
             double val = sample * range / 2.0;
-            *buf = (int)val;
+            *buf = (int) val;
         }
 
-        private static unsafe void write_sample_float32ne(IntPtr ptr, double sample) {
-            float* buf = (float*)ptr;
-            *buf = (float)sample;
+        private static unsafe void write_sample_float32ne(IntPtr ptr, double sample)
+        {
+            float* buf = (float*) ptr;
+            *buf = (float) sample;
         }
 
-        private static unsafe void write_sample_float64ne(IntPtr ptr, double sample) {
-            double* buf = (double*)ptr;
+        private static unsafe void write_sample_float64ne(IntPtr ptr, double sample)
+        {
+            double* buf = (double*) ptr;
             *buf = sample;
         }
 
-        protected override void OnExit(ExitEventArgs e) {
+        protected override void OnExit(ExitEventArgs e)
+        {
             base.OnExit(e);
         }
 
-        public static Project CreateDemoProject() {
+        public static Project CreateDemoProject()
+        {
             BinaryReader reader;
 
             // Demo project -- projects can be created as entirely models
@@ -447,7 +510,8 @@ namespace FramePFX.WPF {
 
             MotionEffect motion;
             {
-                VideoTrack track = new VideoTrack() {
+                VideoTrack track = new VideoTrack()
+                {
                     DisplayName = "Track 1 with stuff"
                 };
 
@@ -457,7 +521,8 @@ namespace FramePFX.WPF {
                 track.AutomationData[VideoTrack.OpacityKey].AddKeyFrame(new KeyFrameDouble(100, 1d));
                 track.AutomationData.ActiveKeyFullId = VideoTrack.OpacityKey.FullId;
 
-                ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip {
+                ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip
+                {
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
@@ -471,7 +536,8 @@ namespace FramePFX.WPF {
                 clip1.ResourceHelper.SetTargetResourceId(id_r);
                 track.AddClip(clip1);
 
-                ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip {
+                ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip
+                {
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
@@ -486,12 +552,14 @@ namespace FramePFX.WPF {
                 track.AddClip(clip2);
             }
             {
-                VideoTrack track = new VideoTrack() {
+                VideoTrack track = new VideoTrack()
+                {
                     DisplayName = "Track 2"
                 };
 
                 project.Timeline.AddTrack(track);
-                ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip {
+                ShapeSquareVideoClip clip1 = new ShapeSquareVideoClip
+                {
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
                 };
@@ -504,7 +572,8 @@ namespace FramePFX.WPF {
 
                 clip1.ResourceHelper.SetTargetResourceId(id_b);
                 track.AddClip(clip1);
-                ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip {
+                ShapeSquareVideoClip clip2 = new ShapeSquareVideoClip
+                {
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip blueish"
                 };
@@ -522,7 +591,8 @@ namespace FramePFX.WPF {
                 track.AddClip(clip2);
             }
 
-            project.Timeline.AddTrack(new VideoTrack() {
+            project.Timeline.AddTrack(new VideoTrack()
+            {
                 DisplayName = "Empty track"
             });
 
@@ -530,7 +600,8 @@ namespace FramePFX.WPF {
             return project;
         }
 
-        private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
+        private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
             AppLogger.WriteLine("Unhandled application exception");
             AppLogger.WriteLine(e.Exception.GetToString());
         }

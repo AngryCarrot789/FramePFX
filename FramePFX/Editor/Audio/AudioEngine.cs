@@ -5,8 +5,10 @@ using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Audio {
-    public class AudioEngine {
+namespace FramePFX.Editor.Audio
+{
+    public class AudioEngine
+    {
         // public const int TicksPerBar = 192;
         // public const int StepsPerBar = 16;
         // public const int BeatsPerBar = TicksPerBar / StepsPerBar; // 12
@@ -30,14 +32,16 @@ namespace FramePFX.Editor.Audio {
         public int NumberOfBuffers { get; set; }
         public int DeviceNumber { get; set; } = -1;
 
-        public AudioEngine() {
+        public AudioEngine()
+        {
             this.sampleRate = 44100;
             this.DesiredLatency = 100;
             this.NumberOfBuffers = 2;
             this.waveOutLock = new object();
         }
 
-        public void UpdateFPS(double fps) {
+        public void UpdateFPS(double fps)
+        {
             this.rawSamplesPerTick = (this.sampleRate / fps);
             this.samplesPerTick = Maths.Ceil((long) Math.Ceiling(this.rawSamplesPerTick), 256);
         }
@@ -52,8 +56,10 @@ namespace FramePFX.Editor.Audio {
         /// </summary>
         /// <param name="timeline"></param>
         /// <param name="frame"></param>
-        public unsafe void ProcessNext(Timeline timeline, long frame) {
-            if ((frame - 1) != this.lastFrame) {
+        public unsafe void ProcessNext(Timeline timeline, long frame)
+        {
+            if ((frame - 1) != this.lastFrame)
+            {
                 // frame seeked
                 this.currentSample = (long) Math.Ceiling(this.lastFrame * this.rawSamplesPerTick);
             }
@@ -61,7 +67,8 @@ namespace FramePFX.Editor.Audio {
             // long currSample = (long) Math.Ceiling(frame * this.rawSamplesPerTick);
             // int samples = checked((int) Math.Abs(currSample - this.currentSample));
             int samples = checked((int) (this.sampleRate * (1000 / this.DesiredLatency)));
-            if (samples == 0) {
+            if (samples == 0)
+            {
                 return;
             }
 
@@ -81,18 +88,22 @@ namespace FramePFX.Editor.Audio {
             ptr_out[0] = ptr_out_l;
             ptr_out[1] = ptr_out_r;
 
-            try {
-                AudioBusBuffers buffer_l = new AudioBusBuffers {
+            try
+            {
+                AudioBusBuffers buffer_l = new AudioBusBuffers
+                {
                     numChannels = 2,
                     channelBuffers64 = &ptr_out_l
                 }; // in
 
-                AudioBusBuffers buffer_r = new AudioBusBuffers {
+                AudioBusBuffers buffer_r = new AudioBusBuffers
+                {
                     numChannels = 2,
                     channelBuffers64 = &ptr_out_r
                 }; // in
 
-                AudioProcessData data = new AudioProcessData() {
+                AudioProcessData data = new AudioProcessData()
+                {
                     sampleSize = EnumSampleSize.Bit64,
                     numSamples = samples,
                     numInputs = 1,
@@ -101,8 +112,10 @@ namespace FramePFX.Editor.Audio {
                     outputs = &buffer_r
                 };
 
-                foreach (Track track in timeline.Tracks) {
-                    if (!(track is AudioTrack audioTrack) || audioTrack.IsMuted || audioTrack.Volume < 0.0001f) {
+                foreach (Track track in timeline.Tracks)
+                {
+                    if (!(track is AudioTrack audioTrack) || audioTrack.IsMuted || audioTrack.Volume < 0.0001f)
+                    {
                         continue;
                     }
 
@@ -128,7 +141,8 @@ namespace FramePFX.Editor.Audio {
 
                 this.lastFrame = frame;
             }
-            finally {
+            finally
+            {
                 Marshal.FreeHGlobal((IntPtr) ptr_in_l);
                 Marshal.FreeHGlobal((IntPtr) ptr_in_r);
                 Marshal.FreeHGlobal((IntPtr) ptr_out_l);
@@ -136,18 +150,21 @@ namespace FramePFX.Editor.Audio {
             }
         }
 
-        public static unsafe void SmoothSamples(byte* data, int count) {
+        public static unsafe void SmoothSamples(byte* data, int count)
+        {
             const int smoothing = 500;
             double value = 0.0d;
             int max = Math.Min(smoothing, count);
             double incr = 1d / max;
-            for (int i = 0; i < max; i++) {
+            for (int i = 0; i < max; i++)
+            {
                 data[i] = (byte) (data[i] * value);
                 value += incr;
             }
 
             value = 0d;
-            for (int i = count - 1, begin = count - max; i >= begin; i--) {
+            for (int i = count - 1, begin = count - max; i >= begin; i--)
+            {
                 data[i] = (byte) (data[i] * value);
                 value += incr;
             }

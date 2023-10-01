@@ -3,15 +3,19 @@ using System.Globalization;
 using System.Windows.Data;
 using FramePFX.Shortcuts.Managing;
 
-namespace FramePFX.WPF.Shortcuts.Converters {
-    public class ShortcutPathToInputGestureTextConverter : IValueConverter {
+namespace FramePFX.WPF.Shortcuts.Converters
+{
+    public class ShortcutPathToInputGestureTextConverter : IValueConverter
+    {
         public string NoSuchShortcutFormat { get; set; } = "<{0}>";
 
         public string ShortcutFormat { get; set; } = null;
 
-        public static string ShortcutToInputGestureText(string path, string shortcutFormat = null, string noSuchShortcutFormat = null) {
+        public static string ShortcutToInputGestureText(string path, string shortcutFormat = null, string noSuchShortcutFormat = null)
+        {
             GroupedShortcut shortcut = ShortcutManager.Instance.FindShortcutByPath(path);
-            if (shortcut == null) {
+            if (shortcut == null)
+            {
                 return noSuchShortcutFormat == null ? path : string.Format(noSuchShortcutFormat, path);
             }
 
@@ -19,16 +23,20 @@ namespace FramePFX.WPF.Shortcuts.Converters {
             return shortcutFormat == null ? representation : string.Format(shortcutFormat, representation);
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            if (parameter is string path && !string.IsNullOrWhiteSpace(path)) {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (parameter is string path && !string.IsNullOrWhiteSpace(path))
+            {
                 return ShortcutToInputGestureText(path, this.ShortcutFormat, this.NoSuchShortcutFormat);
             }
-            else {
+            else
+            {
                 throw new Exception("Invalid shortcut path (converter parameter): " + parameter);
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
             throw new NotImplementedException();
         }
     }

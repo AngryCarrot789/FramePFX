@@ -42,10 +42,10 @@ namespace FramePFX.Rendering.ObjectTK
         {
             this.Size = size;
             this.Layers = layers;
-            GL.BindTexture(this.TextureTarget, Handle);
+            GL.BindTexture(this.TextureTarget, this.Handle);
             // note: the depth parameter is the number of layer-faces hence the multiplication by six,
             // see https://www.opengl.org/wiki/Texture_Storage#Immutable_storage
-            GL.TexStorage3D((TextureTarget3d)this.TextureTarget, Levels, internalFormat, this.Size, this.Size, 6 * this.Layers);
+            GL.TexStorage3D((TextureTarget3d) this.TextureTarget, this.Levels, internalFormat, this.Size, this.Size, 6 * this.Layers);
         }
     }
 }

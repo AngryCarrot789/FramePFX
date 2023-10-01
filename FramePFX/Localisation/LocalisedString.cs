@@ -1,5 +1,7 @@
-namespace FramePFX.Localisation {
-    public readonly struct LocalisedString {
+namespace FramePFX.Localisation
+{
+    public readonly struct LocalisedString
+    {
         /// <summary>
         /// This localised string's key
         /// </summary>
@@ -10,7 +12,8 @@ namespace FramePFX.Localisation {
         /// </summary>
         public readonly object[] Parameters;
 
-        public string GetValue() {
+        public string GetValue()
+        {
             return this.Key;
         }
     }

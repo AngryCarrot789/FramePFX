@@ -1,7 +1,9 @@
 using System;
 
-namespace FramePFX.Utils {
-    public interface MutableBitmap {
+namespace FramePFX.Utils
+{
+    public interface MutableBitmap
+    {
         int Width { get; }
         int Height { get; }
         int Stride { get; }

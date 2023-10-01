@@ -7,27 +7,27 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!-- Control Styles -->
-                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml"/>
-                <ResourceDictionary Source="Themes/ControlColours.xaml"/>
-                <ResourceDictionary Source="Themes/Controls.xaml"/>
+                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml" />
+                <ResourceDictionary Source="Themes/ControlColours.xaml" />
+                <ResourceDictionary Source="Themes/Controls.xaml" />
 
                 <!-- Localisation -->
-                <ResourceDictionary Source="Resources/I18N/Text/en.xaml"/>
+                <ResourceDictionary Source="Resources/I18N/Text/en.xaml" />
 
                 <!-- Tree -->
-                <ResourceDictionary Source="/Controls/TreeViews/Themes/EditTextBox.xaml"/>
-                <ResourceDictionary Source="/Controls/TreeViews/Themes/MultiSelectTreeView.Aero2.xaml"/>
-                <ResourceDictionary Source="/Controls/TreeViews/Themes/MultiSelectTreeViewItem.Aero2.xaml"/>
+                <ResourceDictionary Source="/Controls/TreeViews/Themes/EditTextBox.xaml" />
+                <ResourceDictionary Source="/Controls/TreeViews/Themes/MultiSelectTreeView.Aero2.xaml" />
+                <ResourceDictionary Source="/Controls/TreeViews/Themes/MultiSelectTreeViewItem.Aero2.xaml" />
 
                 <!-- Other things -->
-                <ResourceDictionary Source="Controls/xclemence/RulerWPF/RulerStyle.xaml"/>
-                <ResourceDictionary Source="Controls/ControlStyles.xaml"/>
-                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
-                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml"/>
-                <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml"/>
-                <ResourceDictionary Source="Editor/Resources/ResManagerStyles.xaml"/>
-                <ResourceDictionary Source="PropertyEditing/PropertyEditorStyles.xaml"/>
-                <ResourceDictionary Source="Notifications/NotificationStyles.xaml"/>
+                <ResourceDictionary Source="Controls/xclemence/RulerWPF/RulerStyle.xaml" />
+                <ResourceDictionary Source="Controls/ControlStyles.xaml" />
+                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml" />
+                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml" />
+                <ResourceDictionary Source="Editor/Timeline/TimelineStyles.xaml" />
+                <ResourceDictionary Source="Editor/Resources/ResManagerStyles.xaml" />
+                <ResourceDictionary Source="PropertyEditing/PropertyEditorStyles.xaml" />
+                <ResourceDictionary Source="Notifications/NotificationStyles.xaml" />
                 <ResourceDictionary Source="Explorer/FileExplorerStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

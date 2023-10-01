@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using FramePFX.ServiceManaging;
 using FramePFX.Utils;
 
-namespace FramePFX.Logger {
-    public static class AppLogger {
+namespace FramePFX.Logger
+{
+    public static class AppLogger
+    {
         private static readonly object PRINTLOCK = new object();
         private static readonly ThreadLocal<Stack<HeaderedLogEntry>> Headers;
         private static readonly List<(HeaderedLogEntry, LogEntry)> cachedEntries;
@@ -17,14 +19,16 @@ namespace FramePFX.Logger {
 
         public static event EventHandler OnLogEntryBlockPosted;
 
-        static AppLogger() {
+        static AppLogger()
+        {
             Headers = new ThreadLocal<Stack<HeaderedLogEntry>>(() => new Stack<HeaderedLogEntry>());
             ViewModel = new LoggerViewModel();
             driver = new InputDrivenTaskExecutor(() => Services.Application.InvokeAsync(WriteEntriesToViewModel), TimeSpan.FromMilliseconds(50));
             cachedEntries = new List<(HeaderedLogEntry, LogEntry)>();
         }
 
-        private static int GetNextIndex(Stack<HeaderedLogEntry> stack) {
+        private static int GetNextIndex(Stack<HeaderedLogEntry> stack)
+        {
             return stack.Count > 0 ? stack.Peek().Entries.Count : ViewModel.Entries.Count;
         }
 
@@ -36,14 +40,17 @@ namespace FramePFX.Logger {
         /// </para>
         /// </summary>
         /// <param name="header"></param>
-        public static void PushHeader(string header, bool autoExpand = true) {
+        public static void PushHeader(string header, bool autoExpand = true)
+        {
             Stack<HeaderedLogEntry> stack = Headers.Value;
-            if (stack.Count < 10) {
+            if (stack.Count < 10)
+            {
                 if (string.IsNullOrEmpty(header))
                     header = "<empty header>";
                 header = CanonicaliseLine(header);
                 HeaderedLogEntry top = stack.Count > 0 ? stack.Peek() : null;
-                lock (PRINTLOCK) {
+                lock (PRINTLOCK)
+                {
                     HeaderedLogEntry entry = new HeaderedLogEntry(DateTime.Now, GetNextIndex(stack), Environment.StackTrace, header);
                     if (!autoExpand)
                         entry.IsExpanded = false;
@@ -52,7 +59,8 @@ namespace FramePFX.Logger {
                     driver.OnInput();
                 }
             }
-            else {
+            else
+            {
                 Debug.WriteLine("Header stack too deep");
                 Debugger.Break();
             }
@@ -61,34 +69,42 @@ namespace FramePFX.Logger {
         /// <summary>
         /// Pops the last header
         /// </summary>
-        public static void PopHeader() {
+        public static void PopHeader()
+        {
             Stack<HeaderedLogEntry> stack = Headers.Value;
-            if (stack.Count > 0) {
+            if (stack.Count > 0)
+            {
                 stack.Pop();
             }
-            else {
+            else
+            {
                 Debug.WriteLine("Excessive calls to " + nameof(PopHeader));
                 Debugger.Break();
             }
         }
 
-        private static string CanonicaliseLine(string line) {
+        private static string CanonicaliseLine(string line)
+        {
             int tmpLen;
-            if (string.IsNullOrEmpty(line)) {
+            if (string.IsNullOrEmpty(line))
+            {
                 line = "<empty log entry>";
             }
-            else if (line[(tmpLen = line.Length) - 1] == '\n') {
+            else if (line[(tmpLen = line.Length) - 1] == '\n')
+            {
                 line = line.Substring(0, tmpLen - (tmpLen > 1 && line[tmpLen - 2] == '\r' ? 2 : 1));
             }
 
             return line.Trim();
         }
 
-        public static void WriteLine(string line) {
+        public static void WriteLine(string line)
+        {
             line = CanonicaliseLine(line);
             Stack<HeaderedLogEntry> stack = Headers.Value;
             HeaderedLogEntry top = stack.Count > 0 ? stack.Peek() : null;
-            lock (PRINTLOCK) {
+            lock (PRINTLOCK)
+            {
                 LogEntry entry = new LogEntry(DateTime.Now, top?.Entries.Count ?? ViewModel.Entries.Count, Environment.StackTrace, line);
                 cachedEntries.Add((top, entry));
             }
@@ -96,20 +112,24 @@ namespace FramePFX.Logger {
             driver.OnInput();
         }
 
-        public static Task FlushEntries() {
+        public static Task FlushEntries()
+        {
             return WriteEntriesToViewModel();
         }
 
-        private static async Task WriteEntriesToViewModel() {
+        private static async Task WriteEntriesToViewModel()
+        {
             List<(HeaderedLogEntry, LogEntry)> list;
-            lock (PRINTLOCK) {
+            lock (PRINTLOCK)
+            {
                 list = new List<(HeaderedLogEntry, LogEntry)>(cachedEntries);
                 cachedEntries.Clear();
             }
 
             const int blockSize = 10;
             int count = list.Count;
-            for (int i = 0; i < count; i += blockSize) {
+            for (int i = 0; i < count; i += blockSize)
+            {
                 int j = Math.Min(i + blockSize, count);
                 await Services.Application.InvokeAsync(() => ProcessEntryBlock(list, i, j), ExecutionPriority.Render);
             }
@@ -117,13 +137,17 @@ namespace FramePFX.Logger {
             OnLogEntryBlockPosted?.Invoke(null, EventArgs.Empty);
         }
 
-        private static void ProcessEntryBlock(List<(HeaderedLogEntry, LogEntry)> entries, int i, int j) {
-            for (int k = i; k < j; k++) {
+        private static void ProcessEntryBlock(List<(HeaderedLogEntry, LogEntry)> entries, int i, int j)
+        {
+            for (int k = i; k < j; k++)
+            {
                 (HeaderedLogEntry parent, LogEntry entry) = entries[k];
-                if (parent != null) {
+                if (parent != null)
+                {
                     parent.Entries.Add(entry);
                 }
-                else {
+                else
+                {
                     ViewModel.AddRoot(entry);
                 }
             }

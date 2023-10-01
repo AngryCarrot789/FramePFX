@@ -4,8 +4,10 @@ using System.Windows.Media;
 using FramePFX.WPF.Explorer.Icons;
 using FramePFX.WPF.Utils;
 
-namespace FramePFX.WPF.Controls {
-    public class IconTextPairControl : Control, IImageable {
+namespace FramePFX.WPF.Controls
+{
+    public class IconTextPairControl : Control, IImageable
+    {
         public static readonly DependencyProperty SourceProperty =
             DependencyProperty.Register(
                 "Source",
@@ -18,7 +20,9 @@ namespace FramePFX.WPF.Controls {
                 "Text",
                 typeof(string),
                 typeof(IconTextPairControl),
-                new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.None, (d, e) => { }, (a, b) => b == null ? "" : b.ToString()));
+                new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.None, (d, e) =>
+                {
+                }, (a, b) => b == null ? "" : b.ToString()));
 
         public static readonly DependencyProperty TargetFilePathProperty =
             DependencyProperty.Register(
@@ -39,61 +43,74 @@ namespace FramePFX.WPF.Controls {
                 "TextOpacity",
                 typeof(double),
                 typeof(IconTextPairControl),
-                new PropertyMetadata(1.0d, null, (o, value) => {
+                new PropertyMetadata(1.0d, null, (o, value) =>
+                {
                     double v = (double) value;
                     if (v < 0d)
                         return 0d;
                     return v > 1d ? 1d : value;
                 }));
 
-        public double TextOpacity {
+        public double TextOpacity
+        {
             get => (double) this.GetValue(TextOpacityProperty);
             set => this.SetValue(TextOpacityProperty, value);
         }
 
-        public ShellIconSize ShellIconSize {
+        public ShellIconSize ShellIconSize
+        {
             get => (ShellIconSize) this.GetValue(ShellIconSizeProperty);
             set => this.SetValue(ShellIconSizeProperty, value);
         }
 
-        private static void OnTargetFilePathPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnTargetFilePathPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             ((IconTextPairControl) d).OnTargetFileChanged();
         }
 
-        public string TargetFilePath {
+        public string TargetFilePath
+        {
             get => (string) this.GetValue(TargetFilePathProperty);
             set => this.SetValue(TargetFilePathProperty, value);
         }
 
-        public ImageSource Source {
+        public ImageSource Source
+        {
             get => (ImageSource) this.GetValue(SourceProperty);
             set => this.SetValue(SourceProperty, value);
         }
 
-        public string Text {
+        public string Text
+        {
             get => (string) this.GetValue(TextProperty);
             set => this.SetValue(TextProperty, value);
         }
 
         private bool triggerUpdateOnLoad;
 
-        public IconTextPairControl() {
+        public IconTextPairControl()
+        {
             this.Loaded += this.OnLoaded;
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e) {
-            if (this.triggerUpdateOnLoad) {
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (this.triggerUpdateOnLoad)
+            {
                 this.triggerUpdateOnLoad = false;
                 this.OnTargetFileChanged();
             }
         }
 
-        public void OnTargetFileChanged() {
-            if (this.IsLoaded) {
+        public void OnTargetFileChanged()
+        {
+            if (this.IsLoaded)
+            {
                 FileIconService.Instance.EnqueueForIconResolution(this.TargetFilePath, this, false, false, this.ShellIconSize);
                 this.triggerUpdateOnLoad = false;
             }
-            else {
+            else
+            {
                 this.triggerUpdateOnLoad = true;
             }
         }

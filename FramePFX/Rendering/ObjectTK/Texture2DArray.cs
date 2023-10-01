@@ -49,8 +49,8 @@ namespace FramePFX.Rendering.ObjectTK
             this.Width = width;
             this.Height = height;
             this.Layers = layers;
-            GL.BindTexture(this.TextureTarget, Handle);
-            GL.TexStorage3D((TextureTarget3d)this.TextureTarget, Levels, internalFormat, this.Width, this.Height, this.Layers);
+            GL.BindTexture(this.TextureTarget, this.Handle);
+            GL.TexStorage3D((TextureTarget3d) this.TextureTarget, this.Levels, internalFormat, this.Width, this.Height, this.Layers);
         }
     }
 }

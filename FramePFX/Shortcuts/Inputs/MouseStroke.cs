@@ -1,8 +1,10 @@
 using System;
 using System.Text;
 
-namespace FramePFX.Shortcuts.Inputs {
-    public readonly struct MouseStroke : IInputStroke {
+namespace FramePFX.Shortcuts.Inputs
+{
+    public readonly struct MouseStroke : IInputStroke
+    {
         /// <summary>
         /// A non-null function for converting a mouse button into a string representation
         /// </summary>
@@ -54,7 +56,8 @@ namespace FramePFX.Shortcuts.Inputs {
 
         public bool IsMouse => true;
 
-        public MouseStroke(int mouseButton, int modifiers, bool isRelease, int clickCount = -1, int wheelDelta = 0) {
+        public MouseStroke(int mouseButton, int modifiers, bool isRelease, int clickCount = -1, int wheelDelta = 0)
+        {
             this.MouseButton = mouseButton;
             this.Modifiers = modifiers;
             this.IsRelease = isRelease;
@@ -71,11 +74,13 @@ namespace FramePFX.Shortcuts.Inputs {
 
         public override bool Equals(object obj) => obj is MouseStroke other && this.Equals(other);
 
-        public bool Equals(MouseStroke other) {
+        public bool Equals(MouseStroke other)
+        {
             return this.EqualsExceptRelease(other) && this.IsRelease == other.IsRelease;
         }
 
-        public bool EqualsWithoutClickOrRelease(MouseStroke other) {
+        public bool EqualsWithoutClickOrRelease(MouseStroke other)
+        {
             return this.MouseButton == other.MouseButton && this.Modifiers == other.Modifiers && this.WheelDelta == other.WheelDelta;
         }
 
@@ -85,15 +90,18 @@ namespace FramePFX.Shortcuts.Inputs {
         /// </summary>
         /// <param name="stroke">Other stroke to compare</param>
         /// <returns>True or false... see above</returns>
-        public bool EqualsExceptRelease(MouseStroke stroke) {
+        public bool EqualsExceptRelease(MouseStroke stroke)
+        {
             return this.MouseButton == stroke.MouseButton &&
                    this.Modifiers == stroke.Modifiers &&
                    (this.ClickCount == -1 || stroke.ClickCount == -1 || this.ClickCount == stroke.ClickCount) &&
                    this.WheelDelta == stroke.WheelDelta;
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 int hashCode = this.MouseButton;
                 hashCode = (hashCode * 397) ^ this.Modifiers;
                 hashCode = (hashCode * 397) ^ this.ClickCount;
@@ -102,23 +110,28 @@ namespace FramePFX.Shortcuts.Inputs {
             }
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return this.ToString(true, true, false);
         }
 
-        public string ToString(bool appendClickCount, bool appendDelta, bool useModSpacers) {
+        public string ToString(bool appendClickCount, bool appendDelta, bool useModSpacers)
+        {
             StringBuilder sb = new StringBuilder();
             string mod = KeyStroke.ModifierToStringProvider(this.Modifiers, useModSpacers);
-            if (mod.Length > 0) {
+            if (mod.Length > 0)
+            {
                 sb.Append(mod).Append(useModSpacers ? " + " : "+");
             }
 
             sb.Append(MouseButtonToStringProvider(this.MouseButton));
-            if (appendClickCount && this.ClickCount >= 0) {
+            if (appendClickCount && this.ClickCount >= 0)
+            {
                 sb.Append(" (x").Append(this.ClickCount).Append(')');
             }
 
-            if (appendDelta && this.WheelDelta != 0) {
+            if (appendDelta && this.WheelDelta != 0)
+            {
                 sb.Append(" (Delta ").Append(this.WheelDelta).Append(')');
             }
 

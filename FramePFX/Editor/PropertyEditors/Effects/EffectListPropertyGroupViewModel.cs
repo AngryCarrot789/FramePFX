@@ -8,14 +8,17 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editor.PropertyEditors.Effects {
-    public class EffectListPropertyGroupViewModel : DynamicPropertyGroupViewModel {
+namespace FramePFX.Editor.PropertyEditors.Effects
+{
+    public class EffectListPropertyGroupViewModel : DynamicPropertyGroupViewModel
+    {
         public RelayCommand AddMotionEffectCommand { get; }
 
         private readonly Func<bool> CanExecuteSingleSelection;
         private ClipViewModel handler;
 
-        public EffectListPropertyGroupViewModel() : base(typeof(BaseEffectViewModel)) {
+        public EffectListPropertyGroupViewModel() : base(typeof(BaseEffectViewModel))
+        {
             this.IsExpanded = true;
             this.DisplayName = "Effects";
             this.IsSelected = true;
@@ -23,19 +26,23 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             this.IsVisibleWhenNotApplicable = true;
 
             this.CanExecuteSingleSelection = () => this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup || this.handler != null;
-            this.AddMotionEffectCommand = new RelayCommand(() => {
+            this.AddMotionEffectCommand = new RelayCommand(() =>
+            {
                 if (!this.CanExecuteSingleSelection())
                     return;
                 this.handler.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(new MotionEffect()));
             }, this.CanExecuteSingleSelection);
         }
 
-        public override void SetupHierarchyState(IReadOnlyList<object> input) {
+        public override void SetupHierarchyState(IReadOnlyList<object> input)
+        {
             base.SetupHierarchyState(input);
-            if (this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup) {
+            if (this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup)
+            {
                 this.handler = ((BaseEffectViewModel) input[0]).OwnerClip;
             }
-            else if (this.Parent.Handlers?.Count == 1) {
+            else if (this.Parent.Handlers?.Count == 1)
+            {
                 this.handler = (ClipViewModel) this.Parent.Handlers[0];
                 this.IsCurrentlyApplicable = true;
             }
@@ -43,15 +50,18 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             this.AddMotionEffectCommand.RaiseCanExecuteChanged();
         }
 
-        public override void ClearHierarchyState() {
+        public override void ClearHierarchyState()
+        {
             base.ClearHierarchyState();
             this.handler = null;
             this.AddMotionEffectCommand.RaiseCanExecuteChanged();
         }
 
-        public override void GetContext(List<IContextEntry> list) {
+        public override void GetContext(List<IContextEntry> list)
+        {
             base.GetContext(list);
-            if (list.Count > 0) {
+            if (list.Count > 0)
+            {
                 list.Add(SeparatorEntry.Instance);
             }
 

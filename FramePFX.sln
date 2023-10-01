@@ -5,12 +5,14 @@ VisualStudioVersion = 17.7.34018.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.WPF", "FramePFX.WPF\FramePFX.WPF.csproj", "{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{70A8C2EB-8E04-4708-8752-0BE03930CEEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FramePFX", "FramePFX\FramePFX.csproj", "{70A8C2EB-8E04-4708-8752-0BE03930CEEC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{070E3833-D196-47D1-9509-E1F89C25EB33}"
-ProjectSection(SolutionItems) = preProject
-	docs\Automation.md = docs\Automation.md
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		docs\Automation.md = docs\Automation.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{4BAA92B5-442A-431D-BFBD-96CC86759FFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

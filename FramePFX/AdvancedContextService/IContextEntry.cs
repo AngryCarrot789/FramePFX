@@ -1,4 +1,5 @@
-namespace FramePFX.AdvancedContextService {
+namespace FramePFX.AdvancedContextService
+{
     /// <summary>
     /// The base interface for all context entries. Currently, this is only used for menu items and separators
     /// <para>
@@ -8,6 +9,7 @@ namespace FramePFX.AdvancedContextService {
     /// update the state of the entry). And then, a generator can be used to generate the items
     /// </para>
     /// </summary>
-    public interface IContextEntry {
+    public interface IContextEntry
+    {
     }
 }

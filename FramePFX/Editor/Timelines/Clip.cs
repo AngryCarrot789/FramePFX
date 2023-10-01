@@ -12,11 +12,13 @@ using FramePFX.RBC;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines {
+namespace FramePFX.Editor.Timelines
+{
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable {
+    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable
+    {
         private readonly List<BaseEffect> internalEffectList;
 
         /// <summary>
@@ -93,16 +95,19 @@ namespace FramePFX.Editor.Timelines {
         public event WriteToRBEEventHandler SerialiseExtension;
         public event ReadFromRBEEventHandler DeserialiseExtension;
 
-        protected Clip() {
+        protected Clip()
+        {
             this.AutomationData = new AutomationData(this);
             this.internalEffectList = new List<BaseEffect>();
         }
 
-        public KeyFrame GetDefaultKeyFrame(AutomationKey key) {
+        public KeyFrame GetDefaultKeyFrame(AutomationKey key)
+        {
             return this.AutomationData[key].DefaultKeyFrame;
         }
 
-        public void SetFrameSpan(FrameSpan span) {
+        public void SetFrameSpan(FrameSpan span)
+        {
             FrameSpan oldSpan = this.FrameSpan;
             this.FrameSpan = span;
             this.Track?.OnClipFrameSpanChanged(this, oldSpan);
@@ -113,7 +118,8 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         /// <param name="oldFrame">The previous play head position</param>
         /// <param name="newFrame">The new/current play head position</param>
-        public virtual void OnFrameSeeked(long oldFrame, long newFrame) {
+        public virtual void OnFrameSeeked(long oldFrame, long newFrame)
+        {
             this.FrameSeeked?.Invoke(this, oldFrame, newFrame);
         }
 
@@ -122,7 +128,8 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         /// <param name="oldTrack">The track this clip was originally in (not in by the time this method is called)</param>
         /// <param name="newTrack">The track that this clip now exists in</param>
-        protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
+        protected virtual void OnTrackChanged(Track oldTrack, Track newTrack)
+        {
             this.TrackChanged?.Invoke(oldTrack, newTrack);
         }
 
@@ -136,24 +143,29 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         /// <param name="oldTimeline">Previous timeline</param>
         /// <param name="newTimeline">The new timeline, associated with our track</param>
-        protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+        protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
+        {
             this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
         }
 
-        protected virtual void OnTrackTimelineProjectChanged(Project oldProject, Project newProject) {
+        protected virtual void OnTrackTimelineProjectChanged(Project oldProject, Project newProject)
+        {
             this.TrackTimelineProjectChanged?.Invoke(oldProject, newProject);
         }
 
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
 
-        public bool GetRelativeFrame(long playhead, out long frame) {
+        public bool GetRelativeFrame(long playhead, out long frame)
+        {
             frame = this.ConvertTimelineToRelativeFrame(playhead, out bool valid);
             return valid;
         }
 
         public void AddEffect(BaseEffect effect) => BaseEffect.AddEffectToClip(this, effect);
         public void InsertEffect(BaseEffect effect, int index) => BaseEffect.InsertEffectIntoClip(this, effect, index);
-        public bool RemoveEffect(BaseEffect effect) {
+
+        public bool RemoveEffect(BaseEffect effect)
+        {
             if (effect.OwnerClip != null && !ReferenceEquals(effect.OwnerClip, this))
                 throw new Exception("Effect does not belong to this clip");
             return BaseEffect.RemoveEffectFromOwner(effect);
@@ -167,14 +179,16 @@ namespace FramePFX.Editor.Timelines {
         /// Writes this clip's data
         /// </summary>
         /// <param name="data"></param>
-        public virtual void WriteToRBE(RBEDictionary data) {
+        public virtual void WriteToRBE(RBEDictionary data)
+        {
             if (!string.IsNullOrEmpty(this.DisplayName))
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList("Effects");
-            foreach (BaseEffect effect in this.Effects) {
+            foreach (BaseEffect effect in this.Effects)
+            {
                 if (!(effect.FactoryId is string id))
                     throw new Exception("Unknown clip type: " + effect.GetType());
                 RBEDictionary dictionary = list.AddDictionary();
@@ -189,13 +203,15 @@ namespace FramePFX.Editor.Timelines {
         /// Reads this clip's data
         /// </summary>
         /// <param name="data"></param>
-        public virtual void ReadFromRBE(RBEDictionary data) {
+        public virtual void ReadFromRBE(RBEDictionary data)
+        {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             this.ClearEffects(); // this shouldn't be necessary... but just in case
-            foreach (RBEBase entry in data.GetList("Effects").List) {
+            foreach (RBEBase entry in data.GetList("Effects").List)
+            {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Effect resource dictionary contained a non dictionary child: {entry.Type}");
                 string factoryId = dictionary.GetString(nameof(BaseEffect.FactoryId));
@@ -212,7 +228,8 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         /// <param name="frame">Target frame</param>
         /// <returns>Intersection</returns>
-        public bool IntersectsFrameAt(long frame) {
+        public bool IntersectsFrameAt(long frame)
+        {
             long begin = this.FrameBegin;
             long duration = this.FrameDuration;
             return frame >= begin && frame < (begin + duration);
@@ -226,17 +243,21 @@ namespace FramePFX.Editor.Timelines {
         /// splitting or duplicating clips, or even duplicating a track
         /// </summary>
         /// <returns></returns>
-        public Clip Clone(ClipCloneFlags flags = ClipCloneFlags.DefaultFlags) {
+        public Clip Clone(ClipCloneFlags flags = ClipCloneFlags.DefaultFlags)
+        {
             Clip clone = this.NewInstanceForClone();
             clone.DisplayName = this.DisplayName;
             clone.FrameSpan = this.FrameSpan;
             clone.MediaFrameOffset = this.MediaFrameOffset;
-            if ((flags & ClipCloneFlags.AutomationData) != 0) {
+            if ((flags & ClipCloneFlags.AutomationData) != 0)
+            {
                 this.AutomationData.LoadDataIntoClone(clone.AutomationData);
             }
 
-            if ((flags & ClipCloneFlags.Effects) != 0) {
-                foreach (BaseEffect effect in this.internalEffectList) {
+            if ((flags & ClipCloneFlags.Effects) != 0)
+            {
+                foreach (BaseEffect effect in this.internalEffectList)
+                {
                     BaseEffect.AddEffectToClip(clone, effect.Clone());
                 }
             }
@@ -247,7 +268,8 @@ namespace FramePFX.Editor.Timelines {
 
         protected abstract Clip NewInstanceForClone();
 
-        protected virtual void LoadDataIntoClone(Clip clone, ClipCloneFlags flags) {
+        protected virtual void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
+        {
         }
 
         #endregion
@@ -265,7 +287,8 @@ namespace FramePFX.Editor.Timelines {
         /// Dispose only throws an exception in truly exceptional cases that should result in the app crashing
         /// </para>
         /// </summary>
-        public void Dispose() {
+        public void Dispose()
+        {
             this.OnBeginDispose();
             this.DisposeCore();
             this.OnEndDispose();
@@ -274,7 +297,8 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// Called just before <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
         /// </summary>
-        protected virtual void OnBeginDispose() {
+        protected virtual void OnBeginDispose()
+        {
             this.IsDisposing = true;
         }
 
@@ -285,9 +309,11 @@ namespace FramePFX.Editor.Timelines {
         /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ErrorList"/>
         /// </para>
         /// </summary>
-        protected virtual void DisposeCore() {
+        protected virtual void DisposeCore()
+        {
             this.ClearEffects();
-            if (this is IBaseResourceClip resourceClip) {
+            if (this is IBaseResourceClip resourceClip)
+            {
                 resourceClip.ResourceHelper.Dispose();
             }
         }
@@ -295,7 +321,8 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// Called just after <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
         /// </summary>
-        protected virtual void OnEndDispose() {
+        protected virtual void OnEndDispose()
+        {
             this.IsDisposing = false;
         }
 
@@ -303,21 +330,24 @@ namespace FramePFX.Editor.Timelines {
 
         #region Serialisation
 
-        public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
+        public static Clip ReadSerialisedWithId(RBEDictionary dictionary)
+        {
             string id = dictionary.GetString(nameof(FactoryId));
             Clip clip = ClipFactory.Instance.CreateModel(id);
             clip.ReadFromRBE(dictionary.GetDictionary("Data"));
             return clip;
         }
 
-        public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip) {
+        public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip)
+        {
             if (!(clip.FactoryId is string id))
                 throw new Exception("Unknown clip type: " + clip.GetType());
             dictionary.SetString(nameof(FactoryId), id);
             clip.WriteToRBE(dictionary.CreateDictionary("Data"));
         }
 
-        public static RBEDictionary WriteSerialisedWithId(Clip clip) {
+        public static RBEDictionary WriteSerialisedWithId(Clip clip)
+        {
             RBEDictionary dictionary = new RBEDictionary();
             WriteSerialisedWithId(dictionary, clip);
             return dictionary;
@@ -327,14 +357,16 @@ namespace FramePFX.Editor.Timelines {
 
         public long ConvertRelativeToTimelineFrame(long relative) => this.FrameBegin + relative;
 
-        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange) {
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange)
+        {
             FrameSpan span = this.FrameSpan;
             long frame = timeline - span.Begin;
             inRange = frame >= 0 && frame < span.Duration;
             return frame;
         }
 
-        public bool IsTimelineFrameInRange(long timeline) {
+        public bool IsTimelineFrameInRange(long timeline)
+        {
             FrameSpan span = this.FrameSpan;
             long frame = timeline - span.Begin;
             return frame >= 0 && frame < span.Duration;
@@ -350,27 +382,33 @@ namespace FramePFX.Editor.Timelines {
 
         #region Static Helpers
 
-        public static void SetTrack(Clip clip, Track track) {
+        public static void SetTrack(Clip clip, Track track)
+        {
             Track oldTrack = clip.Track;
-            if (!ReferenceEquals(oldTrack, track)) {
+            if (!ReferenceEquals(oldTrack, track))
+            {
                 clip.Track = track;
                 clip.OnTrackChanged(oldTrack, track);
             }
         }
 
-        public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
+        public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline)
+        {
             clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
         }
 
-        public static void OnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
+        public static void OnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject)
+        {
             clip.OnTrackTimelineProjectChanged(oldProject, newProject);
         }
 
-        public static void InternalInsertEffect(Clip clip, int index, BaseEffect effect) {
+        public static void InternalInsertEffect(Clip clip, int index, BaseEffect effect)
+        {
             clip.internalEffectList.Insert(index, effect);
         }
 
-        public static void InternalRemoveEffect(Clip clip, int index) {
+        public static void InternalRemoveEffect(Clip clip, int index)
+        {
             clip.internalEffectList.RemoveAt(index);
         }
 

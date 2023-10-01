@@ -33,8 +33,8 @@ namespace FramePFX.Rendering.ObjectTK
         public Texture1D(SizedInternalFormat internalFormat, int width, int levels = 0) : base(internalFormat, GetLevels(levels, width))
         {
             this.Width = width;
-            GL.BindTexture(this.TextureTarget, Handle);
-            GL.TexStorage1D((TextureTarget1d)this.TextureTarget, Levels, internalFormat, this.Width);
+            GL.BindTexture(this.TextureTarget, this.Handle);
+            GL.TexStorage1D((TextureTarget1d) this.TextureTarget, this.Levels, internalFormat, this.Width);
         }
     }
 }

@@ -7,11 +7,13 @@ using FramePFX.Editor;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Automation.Keyframe {
+namespace FramePFX.Automation.Keyframe
+{
     /// <summary>
     /// A keyframe stores a time and value
     /// </summary>
-    public abstract class KeyFrame {
+    public abstract class KeyFrame
+    {
         public AutomationSequence sequence;
 
         // The key frame time, relative to the project FPS. Converted when the project FPS changes
@@ -25,8 +27,8 @@ namespace FramePFX.Automation.Keyframe {
         /// </summary>
         public abstract AutomationDataType DataType { get; }
 
-        protected KeyFrame() {
-
+        protected KeyFrame()
+        {
         }
 
         // Was going to use this to map timeline frames to keyframe times (which would have a const fps of 1000)
@@ -100,7 +102,8 @@ namespace FramePFX.Automation.Keyframe {
         /// </summary>
         /// <param name="other">The other value to compare</param>
         /// <returns>True when this instance and the other instance are effectively equal (matching timestamp and value)</returns>
-        public virtual bool IsEqualTo(KeyFrame other) {
+        public virtual bool IsEqualTo(KeyFrame other)
+        {
             return this.frame == other.frame;
         }
 
@@ -108,7 +111,8 @@ namespace FramePFX.Automation.Keyframe {
         /// Writes this key frame data to the given <see cref="RBEDictionary"/>
         /// </summary>
         /// <param name="data"></param>
-        public virtual void WriteToRBE(RBEDictionary data) {
+        public virtual void WriteToRBE(RBEDictionary data)
+        {
             data.SetULong("Time", (ulong) this.frame);
         }
 
@@ -116,7 +120,8 @@ namespace FramePFX.Automation.Keyframe {
         /// Reads the key frame data from the given <see cref="RBEDictionary"/>
         /// </summary>
         /// <param name="data"></param>
-        public virtual void ReadFromRBE(RBEDictionary data) {
+        public virtual void ReadFromRBE(RBEDictionary data)
+        {
             this.frame = (long) data.GetULong("Time");
         }
 
@@ -128,8 +133,10 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="type">Type of key frame to create</param>
         /// <returns>A new key frame instance</returns>
         /// <exception cref="ArgumentOutOfRangeException">Unknown automation data type</exception>
-        public static KeyFrame CreateInstance(AutomationDataType type) {
-            switch (type) {
+        public static KeyFrame CreateInstance(AutomationDataType type)
+        {
+            switch (type)
+            {
                 case AutomationDataType.Float: return new KeyFrameFloat();
                 case AutomationDataType.Double: return new KeyFrameDouble();
                 case AutomationDataType.Long: return new KeyFrameLong();
@@ -147,7 +154,8 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="sequence">The sequence, in order to access to actual value at the given frame</param>
         /// <returns>A new key frame instance</returns>
         /// <exception cref="ArgumentOutOfRangeException">Unknown automation data type</exception>
-        public static KeyFrame CreateInstance(AutomationSequence sequence, long time) {
+        public static KeyFrame CreateInstance(AutomationSequence sequence, long time)
+        {
             KeyFrame keyFrame = CreateInstance(sequence.DataType); // same as sequence.Key.CreateKeyFrame()
             keyFrame.frame = time;
             keyFrame.AssignCurrentValue(time, sequence);
@@ -157,7 +165,8 @@ namespace FramePFX.Automation.Keyframe {
         /// <summary>
         /// Creates an instance of a key frame which is suitable for the given key, and assigns its default value
         /// </summary>
-        public static KeyFrame CreateDefault(AutomationKey key, long time = 0L) {
+        public static KeyFrame CreateDefault(AutomationKey key, long time = 0L)
+        {
             KeyFrame keyFrame = CreateInstance(key.DataType);
             keyFrame.frame = time;
             keyFrame.AssignDefaultValue(key.Descriptor);
@@ -178,21 +187,25 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="curve">A curve value which affects the output value. 0d by default, meaning a direct lerp</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static double GetInterpolationLerp(long time, long timeA, long timeB, double curve) {
+        public static double GetInterpolationLerp(long time, long timeA, long timeB, double curve)
+        {
             long range = timeB - timeA;
 #if DEBUG
-            if (range < 0) {
+            if (range < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(timeB), "Next time must be less than the current instance's value");
             }
 #endif
 
-            if (range == 0) {
+            if (range == 0)
+            {
                 // exact same timestamp
                 return 1d;
             }
 
             double blend = (time - timeA) / (double) range;
-            if (curve != 0d) {
+            if (curve != 0d)
+            {
                 blend = Math.Pow(blend, 1d / Math.Abs(curve));
                 // if (curve < 0d) {
                 //     blend = 1d - blend;
@@ -211,7 +224,8 @@ namespace FramePFX.Automation.Keyframe {
         /// </summary>
         /// <param name="targetTime">Target timestamp. Must be greater than or equal to the current instance's timestamp, otherwise undefined behaviour may occur</param>
         /// <returns>A blend multiplier</returns>
-        public double GetInterpolationMultiplier(long frame, long targetTime) {
+        public double GetInterpolationMultiplier(long frame, long targetTime)
+        {
             return GetInterpolationLerp(frame, this.frame, targetTime, this.curveBend);
         }
 
@@ -221,7 +235,8 @@ namespace FramePFX.Automation.Keyframe {
         /// <param name="frame">The timestamp, which is between the current instance's timestamp, and <see cref="nextFrame"/>'s timestamp</param>
         /// <param name="nextFrame">Target frame. Its timestamp must be greater than or equal to the current instance's timestamp, otherwise undefined behaviour may occur</param>
         /// <returns>A blend multiplier</returns>
-        public double GetInterpolationMultiplier(long frame, KeyFrame nextFrame) {
+        public double GetInterpolationMultiplier(long frame, KeyFrame nextFrame)
+        {
             return this.GetInterpolationMultiplier(frame, nextFrame.frame);
         }
 
@@ -230,9 +245,11 @@ namespace FramePFX.Automation.Keyframe {
         #region Other helpers
 
         [Conditional("DEBUG")]
-        protected void ValidateTime(long t, KeyFrame frame) {
+        protected void ValidateTime(long t, KeyFrame frame)
+        {
             // realistically, this should never be thrown if the function is used correctly... duh
-            if (t < this.frame || t > frame.frame) {
+            if (t < this.frame || t > frame.frame)
+            {
                 throw new Exception($"Time out of range: {t} < {this.frame} || {t} > {frame.frame}");
             }
         }
@@ -240,14 +257,16 @@ namespace FramePFX.Automation.Keyframe {
         #endregion
     }
 
-    public class KeyFrameFloat : KeyFrame {
+    public class KeyFrameFloat : KeyFrame
+    {
         public float Value;
 
         public override AutomationDataType DataType => AutomationDataType.Float;
 
         public KeyFrameFloat() { }
 
-        public KeyFrameFloat(long frame, float value) {
+        public KeyFrameFloat(long frame, float value)
+        {
             this.frame = frame;
             this.Value = value;
         }
@@ -256,35 +275,41 @@ namespace FramePFX.Automation.Keyframe {
 
         public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetFloatValue(frame, ignoreOverrideState);
 
-        public float Interpolate(long time, KeyFrameFloat frame) {
+        public float Interpolate(long time, KeyFrameFloat frame)
+        {
             this.ValidateTime(time, frame);
             double blend = this.GetInterpolationMultiplier(time, frame.frame);
             return (float) (blend * (frame.Value - this.Value)) + this.Value;
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             data.SetFloat(nameof(this.Value), this.Value);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.Value = data.GetFloat(nameof(this.Value));
         }
 
-        public override bool IsEqualTo(KeyFrame other) {
+        public override bool IsEqualTo(KeyFrame other)
+        {
             return base.IsEqualTo(other) && other is KeyFrameFloat keyFrame && Maths.Equals(keyFrame.Value, this.Value);
         }
     }
 
-    public class KeyFrameDouble : KeyFrame {
+    public class KeyFrameDouble : KeyFrame
+    {
         public double Value;
 
         public override AutomationDataType DataType => AutomationDataType.Double;
 
         public KeyFrameDouble() { }
 
-        public KeyFrameDouble(long frame, double value) {
+        public KeyFrameDouble(long frame, double value)
+        {
             this.frame = frame;
             this.Value = value;
         }
@@ -293,28 +318,33 @@ namespace FramePFX.Automation.Keyframe {
 
         public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetDoubleValue(frame, ignoreOverrideState);
 
-        public double Interpolate(long time, KeyFrameDouble nextFrame) {
+        public double Interpolate(long time, KeyFrameDouble nextFrame)
+        {
             this.ValidateTime(time, nextFrame);
             double blend = this.GetInterpolationMultiplier(time, nextFrame.frame);
             return blend * (nextFrame.Value - this.Value) + this.Value;
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             data.SetDouble(nameof(this.Value), this.Value);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.Value = data.GetDouble(nameof(this.Value));
         }
 
-        public override bool IsEqualTo(KeyFrame other) {
+        public override bool IsEqualTo(KeyFrame other)
+        {
             return base.IsEqualTo(other) && other is KeyFrameDouble keyFrame && Maths.Equals(keyFrame.Value, this.Value);
         }
     }
 
-    public class KeyFrameLong : KeyFrame {
+    public class KeyFrameLong : KeyFrame
+    {
         public long Value;
 
         /// <summary>
@@ -326,7 +356,8 @@ namespace FramePFX.Automation.Keyframe {
 
         public KeyFrameLong() { }
 
-        public KeyFrameLong(long frame, long value) {
+        public KeyFrameLong(long frame, long value)
+        {
             this.frame = frame;
             this.Value = value;
         }
@@ -335,35 +366,41 @@ namespace FramePFX.Automation.Keyframe {
 
         public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetLongValue(frame, ignoreOverrideState);
 
-        public long Interpolate(long time, KeyFrameLong frame) {
+        public long Interpolate(long time, KeyFrameLong frame)
+        {
             this.ValidateTime(time, frame);
             double blend = this.GetInterpolationMultiplier(time, frame);
             return Maths.Lerp(this.Value, frame.Value, blend, this.RoundingMode);
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             data.SetLong(nameof(this.Value), this.Value);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.Value = data.GetLong(nameof(this.Value));
         }
 
-        public override bool IsEqualTo(KeyFrame other) {
+        public override bool IsEqualTo(KeyFrame other)
+        {
             return base.IsEqualTo(other) && other is KeyFrameLong keyFrame && keyFrame.Value == this.Value;
         }
     }
 
-    public class KeyFrameBoolean : KeyFrame {
+    public class KeyFrameBoolean : KeyFrame
+    {
         public bool Value;
 
         public override AutomationDataType DataType => AutomationDataType.Boolean;
 
         public KeyFrameBoolean() { }
 
-        public KeyFrameBoolean(long frame, bool value) {
+        public KeyFrameBoolean(long frame, bool value)
+        {
             this.frame = frame;
             this.Value = value;
         }
@@ -372,45 +409,54 @@ namespace FramePFX.Automation.Keyframe {
 
         public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetBooleanValue(frame, ignoreOverrideState);
 
-        public bool Interpolate(long time, KeyFrameBoolean frame) {
+        public bool Interpolate(long time, KeyFrameBoolean frame)
+        {
             this.ValidateTime(time, frame);
             bool thisVal = this.Value;
-            if (thisVal == frame.Value) {
+            if (thisVal == frame.Value)
+            {
                 return this.Value;
             }
 
             double blend = this.GetInterpolationMultiplier(time, frame);
-            if (blend >= 0.5d) {
+            if (blend >= 0.5d)
+            {
                 return !thisVal;
             }
-            else {
+            else
+            {
                 return thisVal;
             }
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             data.SetBool(nameof(this.Value), this.Value);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.Value = data.GetBool(nameof(this.Value));
         }
 
-        public override bool IsEqualTo(KeyFrame other) {
+        public override bool IsEqualTo(KeyFrame other)
+        {
             return base.IsEqualTo(other) && other is KeyFrameBoolean keyFrame && keyFrame.Value == this.Value;
         }
     }
 
-    public class KeyFrameVector2 : KeyFrame {
+    public class KeyFrameVector2 : KeyFrame
+    {
         public Vector2 Value;
 
         public override AutomationDataType DataType => AutomationDataType.Vector2;
 
         public KeyFrameVector2() { }
 
-        public KeyFrameVector2(long frame, Vector2 value) {
+        public KeyFrameVector2(long frame, Vector2 value)
+        {
             this.frame = frame;
             this.Value = value;
         }
@@ -419,23 +465,27 @@ namespace FramePFX.Automation.Keyframe {
 
         public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetVector2Value(frame, ignoreOverrideState);
 
-        public Vector2 Interpolate(long time, KeyFrameVector2 frame) {
+        public Vector2 Interpolate(long time, KeyFrameVector2 frame)
+        {
             this.ValidateTime(time, frame);
             double blend = this.GetInterpolationMultiplier(time, frame);
             return this.Value.Lerp(frame.Value, (float) blend);
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
+        public override void WriteToRBE(RBEDictionary data)
+        {
             base.WriteToRBE(data);
             data.SetStruct(nameof(this.Value), this.Value);
         }
 
-        public override void ReadFromRBE(RBEDictionary data) {
+        public override void ReadFromRBE(RBEDictionary data)
+        {
             base.ReadFromRBE(data);
             this.Value = data.GetStruct<Vector2>(nameof(this.Value));
         }
 
-        public override bool IsEqualTo(KeyFrame other) {
+        public override bool IsEqualTo(KeyFrame other)
+        {
             return base.IsEqualTo(other) && other is KeyFrameVector2 keyFrame && keyFrame.Value == this.Value;
         }
     }

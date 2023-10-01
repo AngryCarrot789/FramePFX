@@ -1,8 +1,10 @@
 using System;
 using System.Windows.Threading;
 
-namespace FramePFX.WPF.Utils {
-    public class DispatcherCallback {
+namespace FramePFX.WPF.Utils
+{
+    public class DispatcherCallback
+    {
         private volatile bool isScheduled;
         private readonly Action action;
         private readonly Action actuallyInvoke;
@@ -11,14 +13,17 @@ namespace FramePFX.WPF.Utils {
 
         public DispatcherOperation Operation => this.operation;
 
-        public DispatcherCallback(Action action, Dispatcher dispatcher) {
+        public DispatcherCallback(Action action, Dispatcher dispatcher)
+        {
             this.action = action;
             this.dispatcher = dispatcher;
             this.actuallyInvoke = this.DoInvokeAction;
         }
 
-        public bool InvokeAsync() {
-            if (this.isScheduled) {
+        public bool InvokeAsync()
+        {
+            if (this.isScheduled)
+            {
                 return false;
             }
 
@@ -27,11 +32,14 @@ namespace FramePFX.WPF.Utils {
             return true;
         }
 
-        private void DoInvokeAction() {
-            try {
+        private void DoInvokeAction()
+        {
+            try
+            {
                 this.action();
             }
-            finally {
+            finally
+            {
                 this.isScheduled = false;
             }
         }

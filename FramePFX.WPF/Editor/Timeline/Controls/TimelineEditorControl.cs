@@ -14,8 +14,10 @@ using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 using FramePFX.WPF.Utils;
 
-namespace FramePFX.WPF.Editor.Timeline.Controls {
-    public class TimelineEditorControl : ItemsControl, IHasZoom {
+namespace FramePFX.WPF.Editor.Timeline.Controls
+{
+    public class TimelineEditorControl : ItemsControl, IHasZoom
+    {
         //       Width
         // --------------------
         //  Zoom   x   Duration
@@ -60,32 +62,38 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         /// The horizontal zoom multiplier of this timeline, which affects the size of all tracks
         /// and therefore clips. This is a value used for converting frames into pixels
         /// </summary>
-        public double UnitZoom {
+        public double UnitZoom
+        {
             get => (double) this.GetValue(UnitZoomProperty);
             set => this.SetValue(UnitZoomProperty, value);
         }
 
-        public long MaxDuration {
+        public long MaxDuration
+        {
             get => (long) this.GetValue(MaxDurationProperty);
             set => this.SetValue(MaxDurationProperty, value);
         }
 
-        public long PlayHeadFrame {
+        public long PlayHeadFrame
+        {
             get => (long) this.GetValue(PlayHeadFrameProperty);
             set => this.SetValue(PlayHeadFrameProperty, value);
         }
 
-        public SelectionRange? SelectionRectangle {
+        public SelectionRange? SelectionRectangle
+        {
             get => (SelectionRange?) this.GetValue(SelectionRectangleProperty);
             set => this.SetValue(SelectionRectangleProperty, value);
         }
 
-        public bool ScrollTimelineDuringPlayback {
+        public bool ScrollTimelineDuringPlayback
+        {
             get => (bool) this.GetValue(ScrollTimelineDuringPlaybackProperty);
             set => this.SetValue(ScrollTimelineDuringPlaybackProperty, value.Box());
         }
 
-        public bool AutoScrollOnClipDrag {
+        public bool AutoScrollOnClipDrag
+        {
             get => (bool) this.GetValue(AutoScrollOnClipDragProperty);
             set => this.SetValue(AutoScrollOnClipDragProperty, value.Box());
         }
@@ -108,22 +116,28 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public bool isLMBDownForSelection;
         public bool isSelectionActive;
 
-        public TimelineEditorControl() {
+        public TimelineEditorControl()
+        {
             this.HorizontalContentAlignment = HorizontalAlignment.Stretch;
             ScrollViewer.SetCanContentScroll(this, false);
         }
 
-        public IEnumerable<TimelineTrackControl> GetTrackContainers() {
+        public IEnumerable<TimelineTrackControl> GetTrackContainers()
+        {
             return this.GetTrackContainers(this.Items);
         }
 
-        public IEnumerable<TimelineTrackControl> GetTrackContainers(IEnumerable items) {
+        public IEnumerable<TimelineTrackControl> GetTrackContainers(IEnumerable items)
+        {
             int i = 0;
-            foreach (object item in items) {
-                if (item is TimelineTrackControl a) {
+            foreach (object item in items)
+            {
+                if (item is TimelineTrackControl a)
+                {
                     yield return a;
                 }
-                else if (this.ItemContainerGenerator.ContainerFromIndex(i) is TimelineTrackControl b) {
+                else if (this.ItemContainerGenerator.ContainerFromIndex(i) is TimelineTrackControl b)
+                {
                     yield return b;
                 }
 
@@ -133,11 +147,15 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public IEnumerable<TimelineClipControl> GetSelectedClipContainers() => this.GetTrackContainers().SelectMany(x => x.GetSelectedClipContainers());
 
-        public IEnumerable<TimelineClipControl> GetClipsInSpan(FrameSpan span) {
+        public IEnumerable<TimelineClipControl> GetClipsInSpan(FrameSpan span)
+        {
             List<TimelineClipControl> list = new List<TimelineClipControl>();
-            foreach (TimelineTrackControl track in this.GetTrackContainers()) {
-                foreach (TimelineClipControl clip in track.GetClipsThatIntersect(span)) {
-                    if (clip is TimelineClipControl t) {
+            foreach (TimelineTrackControl track in this.GetTrackContainers())
+            {
+                foreach (TimelineClipControl clip in track.GetClipsThatIntersect(span))
+                {
+                    if (clip is TimelineClipControl t)
+                    {
                         list.Add(t);
                     }
                 }
@@ -146,23 +164,27 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             return list;
         }
 
-        private void OnMaxDurationChanged(long oldValue, long newValue) {
-            if (this.PART_ItemsPresenter != null) {
+        private void OnMaxDurationChanged(long oldValue, long newValue)
+        {
+            if (this.PART_ItemsPresenter != null)
+            {
                 this.PART_ItemsPresenter.Width = TimelineUtils.FrameToPixel(newValue, this.UnitZoom);
             }
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.PART_ScrollViewer = this.GetTemplateElement<ScrollViewer>(nameof(this.PART_ScrollViewer));
             this.PART_ItemsPresenter = this.GetTemplateElement<ItemsPresenter>(nameof(this.PART_ItemsPresenter));
             this.PART_PlayHead = this.GetTemplateElement<TimelinePlayHeadControl>(nameof(this.PART_PlayHead));
             this.PART_TimestampBoard = this.GetTemplateElement<Border>(nameof(this.PART_TimestampBoard));
-            if (this.PART_TimestampBoard != null) {
-                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement)s).X, e, true);
+            if (this.PART_TimestampBoard != null)
+            {
+                this.PART_TimestampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X, e, true);
             }
 
-            this.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement)s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
+            this.MouseLeftButtonDown += (s, e) => this.MovePlayheadForMouseButtonEvent(e.GetPosition((IInputElement) s).X + this.PART_ScrollViewer?.HorizontalOffset ?? 0d, e, false);
             this.PART_SelectionRange = this.GetTemplateElement<Border>(nameof(this.PART_SelectionRange));
 
             this.PART_TrackListBorder = this.GetTemplateElement<Border>(nameof(this.PART_TrackListBorder));
@@ -171,51 +193,64 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.PART_TrackListBorder.MouseLeftButtonUp += this.PART_TrackListBorder_MouseLeftButtonUp;
         }
 
-        private void OnPlayHeadChanged(long oldValue, long newValue) {
-            if (this.PART_ScrollViewer == null || !this.ScrollTimelineDuringPlayback || !(this.DataContext is TimelineViewModel timeline)) {
+        private void OnPlayHeadChanged(long oldValue, long newValue)
+        {
+            if (this.PART_ScrollViewer == null || !this.ScrollTimelineDuringPlayback || !(this.DataContext is TimelineViewModel timeline))
+            {
                 return;
             }
 
-            if (timeline.Project?.Editor?.Playback?.IsPlaying ?? false) {
+            if (timeline.Project?.Editor?.Playback?.IsPlaying ?? false)
+            {
                 double pixel = TimelineUtils.FrameToPixel(newValue, this.UnitZoom);
                 double vpw = this.PART_ScrollViewer.ViewportWidth;
                 double edge = (vpw / 12);
                 double max = this.PART_ScrollViewer.HorizontalOffset + vpw - edge;
-                if (pixel > max) {
+                if (pixel > max)
+                {
                     this.PART_ScrollViewer.ScrollToHorizontalOffset(pixel - edge);
                 }
             }
-            else {
+            else
+            {
                 ClearSelection();
             }
         }
 
-        private void PART_TrackListBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            if (!e.Handled) {
+        private void PART_TrackListBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!e.Handled)
+            {
                 this.OnSelectionAreaLeftMouseDown(e.GetPosition(this));
             }
         }
 
-        private void PART_TrackListBorder_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-            if (!e.Handled) {
+        private void PART_TrackListBorder_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!e.Handled)
+            {
                 this.OnSelectionAreaLeftMouseUp(e.GetPosition(this));
             }
         }
 
-        private void OnSelectionAreaLeftMouseDown(Point point) {
+        private void OnSelectionAreaLeftMouseDown(Point point)
+        {
             this.selectionBeginPoint = point;
             this.isLMBDownForSelection = true;
             this.isSelectionActive = false;
             this.ClearSelection();
         }
 
-        private void OnSelectionAreaLeftMouseUp(Point point) {
-            if (!this.isLMBDownForSelection) {
+        private void OnSelectionAreaLeftMouseUp(Point point)
+        {
+            if (!this.isLMBDownForSelection)
+            {
                 return;
             }
 
             Vector diff = (this.selectionBeginPoint - point);
-            if (Math.Abs(diff.X) < 4d || Math.Abs(diff.Y) < 4d) {
+            if (Math.Abs(diff.X) < 4d || Math.Abs(diff.Y) < 4d)
+            {
                 this.ClearSelection();
             }
 
@@ -223,14 +258,17 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.isSelectionActive = false;
         }
 
-        protected override void OnMouseMove(MouseEventArgs e) {
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
             base.OnMouseMove(e);
             if (!this.isLMBDownForSelection)
                 return;
         }
 
-        private void PART_TrackListBorder_MouseMove(object sender, MouseEventArgs e) {
-            if (e.LeftButton != MouseButtonState.Pressed || e.Handled) {
+        private void PART_TrackListBorder_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed || e.Handled)
+            {
                 if (this.isLMBDownForSelection)
                     this.OnSelectionAreaLeftMouseUp(e.GetPosition(this));
                 return;
@@ -241,7 +279,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             mPos.X = Maths.Clamp(mPos.X, 0, this.ActualWidth);
             mPos.Y = Maths.Clamp(mPos.Y, 0, this.ActualHeight);
 
-            if (!this.isSelectionActive) {
+            if (!this.isSelectionActive)
+            {
                 this.isSelectionActive = true;
             }
 
@@ -249,7 +288,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             long begin = TimelineUtils.PixelToFrame(Math.Min(origin.X, mPos.X), zoom);
             long end = TimelineUtils.PixelToFrame(Math.Max(origin.X, mPos.X), zoom);
             long duration = end - begin;
-            if (duration < 1) {
+            if (duration < 1)
+            {
                 return;
             }
 
@@ -262,32 +302,40 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             // }
         }
 
-        public void ClearSelection() {
-            if (this.PART_SelectionRange != null) {
+        public void ClearSelection()
+        {
+            if (this.PART_SelectionRange != null)
+            {
                 this.PART_SelectionRange.Visibility = Visibility.Collapsed;
             }
 
             this.ClearValue(SelectionRectangleProperty);
         }
 
-        private void MovePlayheadForMouseButtonEvent(double x, MouseButtonEventArgs e, bool enableThumbDragging = true) {
-            if (x >= 0d) {
+        private void MovePlayheadForMouseButtonEvent(double x, MouseButtonEventArgs e, bool enableThumbDragging = true)
+        {
+            if (x >= 0d)
+            {
                 long frameX = TimelineUtils.PixelToFrame(x, this.UnitZoom);
-                if (frameX >= 0 && frameX < this.MaxDuration) {
+                if (frameX >= 0 && frameX < this.MaxDuration)
+                {
                     this.PART_PlayHead.FrameIndex = frameX;
                 }
 
-                if (enableThumbDragging) {
+                if (enableThumbDragging)
+                {
                     this.PART_PlayHead.EnableDragging(new Point(x, 0));
                 }
             }
         }
 
-        public void SetZoomAndZoomToCenter(double zoom) {
+        public void SetZoomAndZoomToCenter(double zoom)
+        {
             double oldzoom = this.UnitZoom;
             this.UnitZoom = zoom;
             zoom = this.UnitZoom;
-            if (this.PART_ScrollViewer is ScrollViewer scroller) {
+            if (this.PART_ScrollViewer is ScrollViewer scroller)
+            {
                 double center_x = scroller.ViewportWidth / 2d;
                 double target_offset = (scroller.HorizontalOffset + center_x) / oldzoom;
                 double scaled_target_offset = target_offset * zoom;
@@ -296,23 +344,28 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
         }
 
-        public enum ScrollType {
+        public enum ScrollType
+        {
             /// <summary>
             /// Scroll to the point such that it ends up in the center of the view port
             /// </summary>
             Center,
+
             /// <summary>
             /// Scroll to the point such that it ends up on the very left side of the view port
             /// </summary>
             Left,
+
             /// <summary>
             /// Scroll to the point such that it ends up on the very right side of the view port
             /// </summary>
             Right
         }
 
-        public bool ScrollToFrame(long frame, ScrollType type = ScrollType.Center) {
-            if (this.PART_ScrollViewer == null) {
+        public bool ScrollToFrame(long frame, ScrollType type = ScrollType.Center)
+        {
+            if (this.PART_ScrollViewer == null)
+            {
                 return false;
             }
 
@@ -322,10 +375,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             // this.PART_ScrollViewer.ScrollToHorizontalOffset(new_offset);
 
             double pixel = TimelineUtils.FrameToPixel(frame, this.UnitZoom);
-            if (type == ScrollType.Center) {
+            if (type == ScrollType.Center)
+            {
                 pixel -= (this.PART_ScrollViewer.ViewportWidth / 2d);
             }
-            else if (type == ScrollType.Right) {
+            else if (type == ScrollType.Right)
+            {
                 pixel -= this.PART_ScrollViewer.ViewportWidth;
             }
 
@@ -342,66 +397,82 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         /// <param name="maxX"></param>
         /// <param name="tolerancePercent"></param>
         /// <param name="offset">Scroll amount per call of this method</param>
-        public void AutoScroll(double minX, double maxX, double tolerancePercent = 15, double offset = 25) {
-            if (this.PART_ScrollViewer != null) {
+        public void AutoScroll(double minX, double maxX, double tolerancePercent = 15, double offset = 25)
+        {
+            if (this.PART_ScrollViewer != null)
+            {
                 double scrollX = this.PART_ScrollViewer.HorizontalOffset;
                 double vpW = this.PART_ScrollViewer.ViewportWidth;
                 double tolerance = vpW / tolerancePercent;
                 double min = Math.Max(scrollX + tolerance, 0);
                 double max = Math.Max(scrollX + vpW - tolerance, 0);
-                if (minX < min) {
+                if (minX < min)
+                {
                     this.PART_ScrollViewer.ScrollToHorizontalOffset(scrollX - offset);
                 }
-                else if (maxX > max) {
+                else if (maxX > max)
+                {
                     this.PART_ScrollViewer.ScrollToHorizontalOffset(scrollX + offset);
                 }
             }
         }
 
-        public void AutoScrollFrame(long min, long max, double tolerancePercent = 15, double offset = 25) {
+        public void AutoScrollFrame(long min, long max, double tolerancePercent = 15, double offset = 25)
+        {
             double zoom = this.UnitZoom;
             this.AutoScroll(TimelineUtils.FrameToPixel(min, zoom), TimelineUtils.FrameToPixel(max, zoom), tolerancePercent, offset);
         }
 
-        public void OnFrameRateRatioChanged(double ratio) {
+        public void OnFrameRateRatioChanged(double ratio)
+        {
             // ratio = 2.0: zoom in by 2x
             double amount = 1 / ratio;
             this.UnitZoom *= amount;
             this.PlayHeadFrame = (long) Math.Round(this.PlayHeadFrame * ratio);
         }
 
-        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
+        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+        {
             base.OnPreviewMouseWheel(e);
-            if (e.Delta == 0) {
+            if (e.Delta == 0)
+            {
                 return;
             }
 
             ModifierKeys mods = Keyboard.Modifiers;
-            if ((mods & ModifierKeys.Alt) != 0) {
-                if (e.OriginalSource is DependencyObject src) {
-                    while (src != null && !ReferenceEquals(src, this) && !(src is TimelineTrackControl)) {
+            if ((mods & ModifierKeys.Alt) != 0)
+            {
+                if (e.OriginalSource is DependencyObject src)
+                {
+                    while (src != null && !ReferenceEquals(src, this) && !(src is TimelineTrackControl))
+                    {
                         src = VisualTreeUtils.GetParent(src);
                     }
 
-                    if (src is TimelineTrackControl track) {
+                    if (src is TimelineTrackControl track)
+                    {
                         track.Height = Maths.Clamp(track.Height + (e.Delta / 120d) * 20d, track.MinHeight, track.MaxHeight);
                     }
                 }
 
                 e.Handled = true;
             }
-            else if ((mods & ModifierKeys.Control) != 0) {
-                if (!(this.PART_ScrollViewer is ScrollViewer scroller)) {
+            else if ((mods & ModifierKeys.Control) != 0)
+            {
+                if (!(this.PART_ScrollViewer is ScrollViewer scroller))
+                {
                     return;
                 }
 
                 e.Handled = true;
                 bool shift = (mods & ModifierKeys.Shift) != 0;
                 double multiplier = (shift ? 0.2 : 0.4);
-                if (e.Delta > 0) {
+                if (e.Delta > 0)
+                {
                     multiplier = 1d + multiplier;
                 }
-                else {
+                else
+                {
                     multiplier = 1d - multiplier;
                 }
 
@@ -419,13 +490,16 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 double new_offset = scaled_target_offset - mouse_x;
                 scroller.ScrollToHorizontalOffset(new_offset);
             }
-            else if (this.PART_ScrollViewer != null && (mods & ModifierKeys.Shift) != 0) {
-                if (e.Delta < 0) {
+            else if (this.PART_ScrollViewer != null && (mods & ModifierKeys.Shift) != 0)
+            {
+                if (e.Delta < 0)
+                {
                     this.PART_ScrollViewer.LineRight();
                     this.PART_ScrollViewer.LineRight();
                     this.PART_ScrollViewer.LineRight();
                 }
-                else {
+                else
+                {
                     this.PART_ScrollViewer.LineLeft();
                     this.PART_ScrollViewer.LineLeft();
                     this.PART_ScrollViewer.LineLeft();
@@ -439,43 +513,55 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         protected override bool IsItemItsOwnContainerOverride(object item) => item is TimelineTrackControl;
 
-        private void OnUnitZoomChanged(double oldZoom, double newZoom) {
-            if (this.PART_ItemsPresenter != null) {
+        private void OnUnitZoomChanged(double oldZoom, double newZoom)
+        {
+            if (this.PART_ItemsPresenter != null)
+            {
                 this.PART_ItemsPresenter.Width = TimelineUtils.FrameToPixel(this.MaxDuration, this.UnitZoom);
             }
 
-            foreach (TimelineTrackControl track in this.GetTrackContainers()) {
+            foreach (TimelineTrackControl track in this.GetTrackContainers())
+            {
                 track.OnUnitZoomChanged();
             }
 
             this.PART_PlayHead?.UpdatePosition();
         }
 
-        private T GetTemplateElement<T>(string name) where T : DependencyObject {
-            if (this.GetTemplateChild(name) is T value) {
+        private T GetTemplateElement<T>(string name) where T : DependencyObject
+        {
+            if (this.GetTemplateChild(name) is T value)
+            {
                 return value;
             }
-            else if (!DesignerProperties.GetIsInDesignMode(this)) {
+            else if (!DesignerProperties.GetIsInDesignMode(this))
+            {
                 throw new Exception($"Missing templated child '{name}' of type {typeof(T).Name} in control '{this.GetType().Name}'");
             }
-            else {
+            else
+            {
                 return null;
             }
         }
 
-        public void SetPrimarySelection(TimelineClipControl clip, bool ignoreIfAlreadySelected) {
-            if (ignoreIfAlreadySelected && clip.IsSelected) {
+        public void SetPrimarySelection(TimelineClipControl clip, bool ignoreIfAlreadySelected)
+        {
+            if (ignoreIfAlreadySelected && clip.IsSelected)
+            {
                 object dc;
                 TimelineTrackControl track = clip.Track;
-                if (track == null || (dc = clip.DataContext) == null) {
+                if (track == null || (dc = clip.DataContext) == null)
+                {
                     return;
                 }
-                else if (track.SelectedItems.Contains(dc) && (PFXPropertyEditorRegistry.Instance.ClipInfo.Handlers?.Contains(dc) ?? false)) {
+                else if (track.SelectedItems.Contains(dc) && (PFXPropertyEditorRegistry.Instance.ClipInfo.Handlers?.Contains(dc) ?? false))
+                {
                     return;
                 }
             }
 
-            foreach (TimelineTrackControl trackControl in this.GetTrackContainers()) {
+            foreach (TimelineTrackControl trackControl in this.GetTrackContainers())
+            {
                 trackControl.UnselectAll();
             }
 
@@ -483,8 +569,10 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.OnSelectionOperationCompleted();
         }
 
-        public void OnSelectionOperationCompleted() {
-            if (this.DataContext is TimelineViewModel timeline) {
+        public void OnSelectionOperationCompleted()
+        {
+            if (this.DataContext is TimelineViewModel timeline)
+            {
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline);
             }
         }

@@ -34,7 +34,7 @@ namespace FramePFX.Rendering.ObjectTK
             GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out width);
             GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out height);
             GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureInternalFormat, out internalFormat);
-            return new Texture2D(textureHandle, (SizedInternalFormat)internalFormat, width, height, levels);
+            return new Texture2D(textureHandle, (SizedInternalFormat) internalFormat, width, height, levels);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace FramePFX.Rendering.ObjectTK
         /// <returns>The maximum number of mipmap levels allowed. The last level would consist of 1 texel.</returns>
         public static int CalculateMaxMipmapLevels(params int[] dimensions)
         {
-            return 1 + (int)Math.Floor(Math.Log(dimensions.Max()));
+            return 1 + (int) Math.Floor(Math.Log(dimensions.Max()));
         }
     }
 }

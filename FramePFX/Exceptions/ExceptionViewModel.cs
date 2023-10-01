@@ -5,19 +5,24 @@ using System.Linq;
 using FramePFX.Exceptions.Trace;
 using FramePFX.Utils;
 
-namespace FramePFX.Exceptions {
-    public class ExceptionViewModel : BaseViewModel {
+namespace FramePFX.Exceptions
+{
+    public class ExceptionViewModel : BaseViewModel
+    {
         private readonly EfficientObservableCollection<ExceptionViewModel> innerExceptions;
         private readonly EfficientObservableCollection<ExceptionViewModel> suppressedExceptions;
 
         private bool hasFirstExpand;
         private bool isExpanded;
 
-        public bool IsExpanded {
+        public bool IsExpanded
+        {
             get => this.isExpanded;
-            set {
+            set
+            {
                 this.RaisePropertyChanged(ref this.isExpanded, value);
-                if (!this.hasFirstExpand) {
+                if (!this.hasFirstExpand)
+                {
                     this.hasFirstExpand = true;
                     this.Load();
                 }
@@ -48,7 +53,8 @@ namespace FramePFX.Exceptions {
         /// <summary>
         /// This exception's message
         /// </summary>
-        public string Message {
+        public string Message
+        {
             get => ExceptionUtils.GetExceptionHeader(this.TheException, true);
         }
 
@@ -60,7 +66,8 @@ namespace FramePFX.Exceptions {
 
         public Exception TheException { get; }
 
-        public ExceptionViewModel(ExceptionViewModel parent, Exception theException, bool isSuppressed) {
+        public ExceptionViewModel(ExceptionViewModel parent, Exception theException, bool isSuppressed)
+        {
             this.TheException = theException ?? throw new ArgumentNullException(nameof(theException), "Exception cannot be null");
             this.Parent = parent;
             this.IsSuppressed = isSuppressed;
@@ -74,16 +81,20 @@ namespace FramePFX.Exceptions {
             this.StackTrace = new StackTraceViewModel(this);
         }
 
-        public void Load() {
+        public void Load()
+        {
             this.innerExceptions.Clear();
             this.suppressedExceptions.Clear();
-            if (this.TheException.InnerException != null) {
+            if (this.TheException.InnerException != null)
+            {
                 this.innerExceptions.Add(new ExceptionViewModel(this, this.TheException.InnerException, false));
             }
 
             List<Exception> suppressed = this.TheException.GetSuppressed(false);
-            if (suppressed != null) {
-                foreach (Exception exception in suppressed) {
+            if (suppressed != null)
+            {
+                foreach (Exception exception in suppressed)
+                {
                     this.suppressedExceptions.Add(new ExceptionViewModel(this, exception, true));
                 }
             }

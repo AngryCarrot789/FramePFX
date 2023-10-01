@@ -9,8 +9,10 @@ using FramePFX.Interactivity;
 using FramePFX.Logger;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ResourceManaging.ViewModels {
-    public class ResourceFolderViewModel : BaseResourceViewModel, IDisplayName, INavigatableResource, IResourceDropHandler {
+namespace FramePFX.Editor.ResourceManaging.ViewModels
+{
+    public class ResourceFolderViewModel : BaseResourceViewModel, IDisplayName, INavigatableResource, IResourceDropHandler
+    {
         internal readonly ObservableCollection<BaseResourceViewModel> items;
 
         public ReadOnlyObservableCollection<BaseResourceViewModel> Items { get; }
@@ -19,18 +21,24 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public readonly Predicate<string> PredicateIsNameFree;
 
-        public ResourceFolderViewModel(ResourceFolder model) : base(model) {
+        public ResourceFolderViewModel(ResourceFolder model) : base(model)
+        {
             this.items = new ObservableCollection<BaseResourceViewModel>();
             this.Items = new ReadOnlyObservableCollection<BaseResourceViewModel>(this.items);
-            this.PredicateIsNameFree = n => {
-                foreach (BaseResourceViewModel item in this.items) {
-                    if (item.DisplayName == n) {
+            this.PredicateIsNameFree = n =>
+            {
+                foreach (BaseResourceViewModel item in this.items)
+                {
+                    if (item.DisplayName == n)
+                    {
                         return false;
                     }
                 }
+
                 return true;
             };
-            foreach (BaseResource item in model.Items) {
+            foreach (BaseResource item in model.Items)
+            {
                 // no need to set manager to ours because it will be null as we are in the ctor
                 BaseResourceViewModel viewModel = item.CreateViewModel();
                 PreSetParent(viewModel, this);
@@ -39,21 +47,26 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        protected internal override void OnParentChainChanged(bool myParent) {
+        protected internal override void OnParentChainChanged(bool myParent)
+        {
             base.OnParentChainChanged(myParent);
-            foreach (BaseResourceViewModel obj in this.items) {
+            foreach (BaseResourceViewModel obj in this.items)
+            {
                 obj.OnParentChainChanged(false);
             }
         }
 
-        public override void SetManager(ResourceManagerViewModel newManager) {
+        public override void SetManager(ResourceManagerViewModel newManager)
+        {
             base.SetManager(newManager);
-            foreach (BaseResourceViewModel item in this.items) {
+            foreach (BaseResourceViewModel item in this.items)
+            {
                 item.SetManager(newManager);
             }
         }
 
-        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target, int dstIndex) {
+        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target, int dstIndex)
+        {
             if (target == this)
                 throw new Exception("Cannot move item to the same instance");
 
@@ -71,22 +84,26 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             PostSetParent(item, target, true);
         }
 
-        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target) {
+        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target)
+        {
             this.MoveItemTo(srcIndex, target, target.items.Count);
         }
 
-        public void MoveItemTo(BaseResourceViewModel item, ResourceFolderViewModel target) {
+        public void MoveItemTo(BaseResourceViewModel item, ResourceFolderViewModel target)
+        {
             int index = this.items.IndexOf(item);
             if (index == -1)
                 throw new Exception("Resource was not stored in this group");
             this.MoveItemTo(index, target);
         }
 
-        public void AddItem(BaseResourceViewModel item, bool addToModel = true) {
+        public void AddItem(BaseResourceViewModel item, bool addToModel = true)
+        {
             this.InsertItem(this.items.Count, item, addToModel);
         }
 
-        public void InsertItem(int index, BaseResourceViewModel item, bool addToModel = true) {
+        public void InsertItem(int index, BaseResourceViewModel item, bool addToModel = true)
+        {
             if (addToModel)
                 this.Model.InsertItem(index, item.Model);
             PreSetParent(item, this);
@@ -95,9 +112,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             item.SetManager(this.Manager);
         }
 
-        public bool RemoveItem(BaseResourceViewModel item, bool removeFromModel = true, bool unregisterHierarcy = true) {
+        public bool RemoveItem(BaseResourceViewModel item, bool removeFromModel = true, bool unregisterHierarcy = true)
+        {
             int index = this.items.IndexOf(item);
-            if (index < 0) {
+            if (index < 0)
+            {
                 return false;
             }
 
@@ -105,14 +124,16 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return true;
         }
 
-        public void RemoveItemAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true) {
+        public void RemoveItemAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true)
+        {
             BaseResourceViewModel item = this.items[index];
             if (!ReferenceEquals(this, item.Parent))
                 throw new Exception("Item does not belong to this group, but it contained in the list");
             if (!ReferenceEquals(item.Model, this.Model.Items[index]))
                 throw new Exception("View model and model list de-synced");
 
-            if (unregisterHierarcy) {
+            if (unregisterHierarcy)
+            {
                 UnregisterHierarchy(item);
             }
 
@@ -130,26 +151,34 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// <param name="removeFromModel"></param>
         /// <param name="unregisterHierarcy"></param>
         /// <returns>The number of items actually removed. This is expected to equal the number of items in the enumerable parameter</returns>
-        public int RemoveRange(IEnumerable<BaseResourceViewModel> enumerable, bool removeFromModel = true, bool dispose = true, bool unregisterHierarcy = true) {
+        public int RemoveRange(IEnumerable<BaseResourceViewModel> enumerable, bool removeFromModel = true, bool dispose = true, bool unregisterHierarcy = true)
+        {
             int count = 0;
-            using (ErrorList list = new ErrorList()) {
-                foreach (BaseResourceViewModel obj in enumerable) {
+            using (ErrorList list = new ErrorList())
+            {
+                foreach (BaseResourceViewModel obj in enumerable)
+                {
                     int index = this.items.IndexOf(obj);
-                    if (index < 0) {
+                    if (index < 0)
+                    {
                         continue;
                     }
 
-                    try {
-                        if (dispose) {
+                    try
+                    {
+                        if (dispose)
+                        {
                             this.RemoveItemAndDisposeAt(index, removeFromModel, unregisterHierarcy);
                         }
-                        else {
+                        else
+                        {
                             this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
                         }
 
                         count++;
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         list.Add(e);
                     }
                 }
@@ -158,20 +187,26 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return count;
         }
 
-        public void RemoveItemAndDisposeAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true) {
+        public void RemoveItemAndDisposeAt(int index, bool removeFromModel = true, bool unregisterHierarcy = true)
+        {
             BaseResourceViewModel item = this.items[index];
-            using (ErrorList list = new ErrorList()) {
-                try {
+            using (ErrorList list = new ErrorList())
+            {
+                try
+                {
                     this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     list.Add(new Exception($"Failed to remove '{item}'", e));
                 }
 
-                try {
+                try
+                {
                     item.Dispose();
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     list.Add(new Exception($"Failed to dispose of '{item}'", e));
                 }
             }
@@ -181,22 +216,29 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// Disposes all of this resource's child resources and clears the underlying collection
         /// </summary>
         /// <param name="b"></param>
-        public void DisposeChildrenAndClear(bool unregisterHierarcy = true) {
-            using (ErrorList list = new ErrorList("Exception while disposing child items")) {
-                for (int i = this.items.Count - 1; i >= 0; i--) {
-                    try {
-                        this.RemoveItemAndDisposeAt(i, unregisterHierarcy:unregisterHierarcy);
+        public void DisposeChildrenAndClear(bool unregisterHierarcy = true)
+        {
+            using (ErrorList list = new ErrorList("Exception while disposing child items"))
+            {
+                for (int i = this.items.Count - 1; i >= 0; i--)
+                {
+                    try
+                    {
+                        this.RemoveItemAndDisposeAt(i, unregisterHierarcy: unregisterHierarcy);
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         list.Add(e);
                     }
                 }
             }
         }
 
-        public static int CountRecursive(IEnumerable<BaseResourceViewModel> items) {
+        public static int CountRecursive(IEnumerable<BaseResourceViewModel> items)
+        {
             int count = 0;
-            foreach (BaseResourceViewModel item in items) {
+            foreach (BaseResourceViewModel item in items)
+            {
                 count++;
                 if (item is ResourceFolderViewModel g)
                     count += CountRecursive(g.items);
@@ -209,14 +251,17 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         // the only real options are to crash the app or corrupt the resource structure
         // `IsRegistered()` uses Debugger.Break() so I have a change to figure out slightly what went wrong, then throws
 
-        public void UnregisterHierarchy() {
+        public void UnregisterHierarchy()
+        {
             foreach (BaseResourceViewModel t in this.items)
                 UnregisterHierarchy(t);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void UnregisterHierarchy(BaseResourceViewModel item) {
-            switch (item) {
+        public static void UnregisterHierarchy(BaseResourceViewModel item)
+        {
+            switch (item)
+            {
                 case ResourceFolderViewModel g:
                     g.UnregisterHierarchy();
                     break;
@@ -226,36 +271,45 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public void OnNavigate() {
+        public void OnNavigate()
+        {
             this.Manager?.NavigateToGroup(this);
         }
 
-        public bool CanDropResource(BaseResourceViewModel resource) {
-            if (resource is ResourceFolderViewModel group && this.IsParentInHierarchy(group)) {
+        public bool CanDropResource(BaseResourceViewModel resource)
+        {
+            if (resource is ResourceFolderViewModel group && this.IsParentInHierarchy(group))
+            {
                 return false;
             }
 
             return resource is ResourceFolderViewModel || resource is ResourceItemViewModel;
         }
 
-        public Task OnDropResource(BaseResourceViewModel resource, EnumDropType dropType) {
+        public Task OnDropResource(BaseResourceViewModel resource, EnumDropType dropType)
+        {
             resource.Parent?.RemoveItem(resource, true, false);
             this.AddItem(resource);
             return Task.CompletedTask;
         }
 
-        public Task OnDropResources(List<BaseResourceViewModel> resources, EnumDropType dropType) {
-            if (dropType != EnumDropType.Copy && dropType != EnumDropType.Move) {
+        public Task OnDropResources(List<BaseResourceViewModel> resources, EnumDropType dropType)
+        {
+            if (dropType != EnumDropType.Copy && dropType != EnumDropType.Move)
+            {
                 return Task.CompletedTask;
             }
 
             List<BaseResourceViewModel> loadList = new List<BaseResourceViewModel>();
-            foreach (BaseResourceViewModel resource in resources) {
-                if (resource is ResourceFolderViewModel group && group.IsParentInHierarchy(this)) {
+            foreach (BaseResourceViewModel resource in resources)
+            {
+                if (resource is ResourceFolderViewModel group && group.IsParentInHierarchy(this))
+                {
                     continue;
                 }
 
-                if (dropType == EnumDropType.Copy) {
+                if (dropType == EnumDropType.Copy)
+                {
                     BaseResource clone = BaseResource.CloneAndRegister(resource.Model);
                     if (!TextIncrement.GetIncrementableString(this.PredicateIsNameFree, clone.DisplayName, out string name))
                         name = clone.DisplayName;
@@ -265,14 +319,19 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     this.AddItem(newItem);
                     loadList.Add(newItem);
                 }
-                else if (resource.Parent != null) {
-                    if (resource.Parent != this) { // might drag drop a resource in the same group
+                else if (resource.Parent != null)
+                {
+                    if (resource.Parent != this)
+                    {
+                        // might drag drop a resource in the same group
                         resource.Parent.MoveItemTo(resource, this);
                         loadList.Add(resource);
                     }
                 }
-                else {
-                    if (resource.Model is ResourceItem item && item.Manager != null && !item.IsRegistered()) {
+                else
+                {
+                    if (resource.Model is ResourceItem item && item.Manager != null && !item.IsRegistered())
+                    {
                         item.Manager.RegisterEntry(item);
                         AppLogger.WriteLine("Unexpected unregistered item dropped\n" + new StackTrace(true));
                     }
@@ -285,8 +344,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return ResourceCheckerViewModel.LoadResources(new ResourceCheckerViewModel(), loadList);
         }
 
-        private static void EnsureRegistered(ResourceManager manager, ResourceItem item) {
-            if (!item.IsRegistered()) {
+        private static void EnsureRegistered(ResourceManager manager, ResourceItem item)
+        {
+            if (!item.IsRegistered())
+            {
                 manager.RegisterEntry(item);
             }
         }
@@ -300,9 +361,12 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// otherwise, the current instance is not checked; only the parent and above
         /// </param>
         /// <returns>True or false</returns>
-        public bool IsParentInHierarchy(ResourceFolderViewModel item, bool startAtThis = true) {
-            for (ResourceFolderViewModel parent = startAtThis ? this : this.Parent; item != null; item = item.Parent) {
-                if (ReferenceEquals(parent, item)) {
+        public bool IsParentInHierarchy(ResourceFolderViewModel item, bool startAtThis = true)
+        {
+            for (ResourceFolderViewModel parent = startAtThis ? this : this.Parent; item != null; item = item.Parent)
+            {
+                if (ReferenceEquals(parent, item))
+                {
                     return true;
                 }
             }
@@ -310,9 +374,12 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             return false;
         }
 
-        public async Task OfflineRecursiveAsync(bool user) {
-            foreach (BaseResourceViewModel resource in this.items) {
-                switch (resource) {
+        public async Task OfflineRecursiveAsync(bool user)
+        {
+            foreach (BaseResourceViewModel resource in this.items)
+            {
+                switch (resource)
+                {
                     case ResourceFolderViewModel group:
                         await group.OfflineRecursiveAsync(user);
                         break;

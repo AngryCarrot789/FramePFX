@@ -5,15 +5,15 @@
     xmlns:controls="clr-namespace:FramePFX.WPF.Controls.TreeViews.Controls">
 
     <Style TargetType="{x:Type controls:MultiSelectTreeView}">
-        <Setter Property="Background" Value="{DynamicResource TreeView.Static.Background}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource TreeView.Static.Border}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource TreeView.Static.Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TreeView.Static.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
@@ -47,7 +47,7 @@
                             <Setter Property="Panel.Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
                         </Trigger>
                         <Trigger Property="VirtualizingPanel.IsVirtualizing" Value="true">
-                            <Setter Property="CanContentScroll" TargetName="scrollViewer" Value="False"/>
+                            <Setter Property="CanContentScroll" TargetName="scrollViewer" Value="False" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -58,7 +58,7 @@
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
-                            <VirtualizingStackPanel IsItemsHost="True"/>
+                            <VirtualizingStackPanel IsItemsHost="True" />
                         </ItemsPanelTemplate>
                     </Setter.Value>
                 </Setter>

@@ -3,11 +3,13 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Notifications;
 using FramePFX.Views;
 
-namespace FramePFX.Editor {
+namespace FramePFX.Editor
+{
     /// <summary>
     /// An interface for a video editor view
     /// </summary>
-    public interface IVideoEditor : IViewBase {
+    public interface IVideoEditor : IViewBase
+    {
         /// <summary>
         /// Gets the editor's notification panel, used to push notifications
         /// </summary>
@@ -36,5 +38,16 @@ namespace FramePFX.Editor {
         /// <param name="timeline"></param>
         /// <param name="ratio"></param>
         void OnFrameRateRatioChanged(TimelineViewModel timeline, double ratio);
+
+        /// <summary>
+        /// Invoked on the main thread when an export begins
+        /// </summary>
+        /// <param name="prepare">True when on the main thread, false when on the export thread</param>
+        void OnExportBegin(bool prepare);
+
+        /// <summary>
+        /// Invoked on the export thread when an export ends
+        /// </summary>
+        void OnExportEnd();
     }
 }

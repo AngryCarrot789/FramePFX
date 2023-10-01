@@ -34,7 +34,8 @@ namespace FramePFX.Rendering.ObjectTK
         /// Applies the internal format specified in the constructor.
         /// </summary>
         /// <param name="buffer">The buffer to bind.</param>
-        public void BindBufferToTexture(int buffer) {
+        public void BindBufferToTexture(int buffer)
+        {
             this.BindBufferToTexture(buffer, this.InternalFormat);
         }
 
@@ -43,7 +44,8 @@ namespace FramePFX.Rendering.ObjectTK
         /// </summary>
         /// <param name="buffer">The buffer to bind.</param>
         /// <param name="internalFormat">The internal format used when accessing the buffer.</param>
-        public void BindBufferToTexture(int buffer, SizedInternalFormat internalFormat) {
+        public void BindBufferToTexture(int buffer, SizedInternalFormat internalFormat)
+        {
             GL.BindTexture(TextureTarget.TextureBuffer, this.Handle);
             GL.TexBuffer(TextureBufferTarget.TextureBuffer, internalFormat, buffer);
         }

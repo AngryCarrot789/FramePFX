@@ -1,8 +1,9 @@
 using System;
 
-namespace FramePFX.Plugins {
+namespace FramePFX.Plugins
+{
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class IgnoredPluginAttribute : Attribute {
-
+    public class IgnoredPluginAttribute : Attribute
+    {
     }
 }

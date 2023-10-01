@@ -1,7 +1,102 @@
+using System.Collections.Generic;
 using System.Numerics;
+using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
-namespace FramePFX.Rendering {
+namespace FramePFX.Rendering
+{
+    public sealed class RenderContext
+    {
+        private readonly Stack<int> frameBuffers;
+
+        /// <summary>
+        /// The size of the rendering canvas, e.g. 1920,1080
+        /// </summary>
+        public Vector2 FrameSize { get; }
+
+        /// <summary>
+        /// The ID of a frame buffer that is currently being rendered into. This is 0 by default (OpenGL default framebuffer)
+        /// </summary>
+        public int ActiveFrameBuffer { get; private set; }
+
+        /// <summary>
+        /// The current matrix (accessed from <see cref="MatrixStack"/>)
+        /// </summary>
+        public Matrix4x4 Matrix => this.MatrixStack.Matrix;
+
+        /// <summary>
+        /// The matrix stack for this rendering context
+        /// </summary>
+        public readonly MatrixStack MatrixStack;
+
+        /// <summary>
+        /// Gets the projection matrix for the current state of the rendering context (created in
+        /// the constructor). This should not be modified externally
+        /// </summary>
+        public readonly Matrix4x4 Projection;
+
+        public readonly Matrix4x4 CameraView;
+
+        public RenderContext(Vector2 frameSize)
+        {
+            this.FrameSize = frameSize;
+            this.ActiveFrameBuffer = 0;
+            this.MatrixStack = new MatrixStack();
+            this.frameBuffers = new Stack<int>();
+            this.Projection = Matrix4x4.CreateOrthographicOffCenter(0, frameSize.X, 0, frameSize.Y, 0.01f, 500f);
+            this.CameraView = Matrix4x4.Identity;
+            // this.CameraView = Matrix4x4.CreateLookAt(new Vector3(0, 0, 1), new Vector3(), Vector3.UnitY);
+        }
+
+        public void PushFrameBuffer(int buffer, FramebufferTarget? framebufferTarget)
+        {
+            this.frameBuffers.Push(this.ActiveFrameBuffer);
+            this.ActiveFrameBuffer = buffer;
+
+            if (framebufferTarget.HasValue)
+            {
+                GL.BindFramebuffer(framebufferTarget.Value, buffer);
+            }
+        }
+
+        public int PopFrameBuffer(FramebufferTarget? framebufferTarget)
+        {
+            int buffer = this.frameBuffers.Pop();
+            this.ActiveFrameBuffer = buffer;
+            if (framebufferTarget.HasValue)
+            {
+                GL.BindFramebuffer(framebufferTarget.Value, buffer);
+            }
+
+            return buffer;
+        }
+
+        public static bool TryPopFrameBuffer(RenderContext context)
+        {
+            if (context.frameBuffers.Count < 1)
+                return false;
+            context.PopFrameBuffer(null);
+            return true;
+        }
+
+        public void ClearPixels()
+        {
+            GL.ClearColor(0f, 0f, 0f, 1f);
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+        }
+
+        /// <summary>
+        /// Resets the context to the default state (identity matrix, default framebuffer, etc.)
+        /// </summary>
+        public void Reset()
+        {
+            this.MatrixStack.Clear();
+            this.frameBuffers.Clear();
+            this.ActiveFrameBuffer = 0;
+        }
+    }
+
+    /*
     public sealed class RenderContext {
         /// <summary>
         /// The target render surface
@@ -35,8 +130,9 @@ namespace FramePFX.Rendering {
         /// <summary>
         /// Clears the context's drawing canvas
         /// </summary>
-        public void ClearContext() {
+        public void ClearPixels() {
             this.Canvas.Clear(SKColors.Black);
         }
     }
+     */
 }

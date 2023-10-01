@@ -6,7 +6,7 @@
     <Style TargetType="{x:Type mst:MultiSelectTreeViewItem}">
         <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
         <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
-        <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True" />
         <Setter Property="HorizontalContentAlignment" Value="{Binding Path=HorizontalContentAlignment, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl, AncestorLevel=1}, FallbackValue=Left}" />
         <Setter Property="VerticalContentAlignment" Value="{Binding Path=VerticalContentAlignment, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl, AncestorLevel=1}, FallbackValue=Center}" />
         <Setter Property="Padding" Value="1" />
@@ -27,45 +27,45 @@
                     <!-- region ControlTemplate content -->
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition MinWidth="19" Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition MinWidth="19" Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
 
                         <Rectangle x:Name="HorLn" Stroke="{DynamicResource ABrush.Tone7.Border.Static}"
                                    SnapsToDevicePixels="True" Height="1" Margin="9,1,0,0"
-                                   Visibility="Collapsed"/>
+                                   Visibility="Collapsed" />
 
                         <Rectangle x:Name="VerLn" Stroke="{DynamicResource ABrush.Tone7.Border.Static}"
                                    Fill="{DynamicResource ABrush.Tone7.Border.Static}"
                                    SnapsToDevicePixels="true" Width="1" Margin="0" Grid.RowSpan="2"
-                                   Visibility="Visible" Grid.Row="0"/>
+                                   Visibility="Visible" Grid.Row="0" />
 
                         <ToggleButton x:Name="Expander"
                                       IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type mst:MultiSelectTreeViewItem}}, Path=IsExpanded, FallbackValue=False}"
                                       ClickMode="Press"
-                                      Style="{StaticResource ExpandCollapseToggleStyle}"/>
+                                      Style="{StaticResource ExpandCollapseToggleStyle}" />
                         <Border Grid.Column="1" Grid.ColumnSpan="2" x:Name="headerBorder"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Background="{TemplateBinding Background}"
-                                    Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
-                                    VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
+                                VerticalAlignment="Center" HorizontalAlignment="Stretch">
                             <ContentPresenter x:Name="PART_Header"
-                                                  FocusManager.IsFocusScope="True"
-                                                  Content="{TemplateBinding HeaderedContentControl.Header}"
-                                                  ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}"
-                                                  ContentStringFormat="{TemplateBinding HeaderedItemsControl.HeaderStringFormat}"
-                                                  ContentTemplateSelector="{TemplateBinding HeaderedItemsControl.HeaderTemplateSelector}"
-                                                  ContentSource="Header"
-                                                  HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
-                                                  VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
-                                                  SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
-                                                  Margin="0"/>
+                                              FocusManager.IsFocusScope="True"
+                                              Content="{TemplateBinding HeaderedContentControl.Header}"
+                                              ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}"
+                                              ContentStringFormat="{TemplateBinding HeaderedItemsControl.HeaderStringFormat}"
+                                              ContentTemplateSelector="{TemplateBinding HeaderedItemsControl.HeaderTemplateSelector}"
+                                              ContentSource="Header"
+                                              HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
+                                              SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
+                                              Margin="0" />
                         </Border>
 
                         <ContentPresenter Content="{TemplateBinding Remarks}" ContentTemplate="{TemplateBinding RemarksTemplate}" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
@@ -74,11 +74,11 @@
                             <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0">
                             </StackPanel>
                         -->
-                        <ItemsPresenter x:Name="ItemsHost" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" Margin="0,0,0,0"/>
+                        <ItemsPresenter x:Name="ItemsHost" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" Margin="0,0,0,0" />
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsExpanded" Value="False">
-                            <Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed"/>
+                            <Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed" />
                         </Trigger>
                         <Trigger Property="IsVisible" Value="False">
                             <Setter Property="Visibility" Value="Collapsed" />
@@ -100,9 +100,9 @@
                         </MultiTrigger>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
-                                <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type mst:MultiSelectTreeView}}, Path=IsKeyboardFocusWithin, FallbackValue=False}"/>
-                                <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type mst:MultiSelectTreeView}}, Path=ContextMenu.IsOpen, FallbackValue=False}"/>
-                                <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsSelected}"/>
+                                <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type mst:MultiSelectTreeView}}, Path=IsKeyboardFocusWithin, FallbackValue=False}" />
+                                <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type mst:MultiSelectTreeView}}, Path=ContextMenu.IsOpen, FallbackValue=False}" />
+                                <Condition Value="True" Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=IsSelected}" />
                             </MultiDataTrigger.Conditions>
                             <Setter Property="Background" Value="{DynamicResource TreeViewItem.Selected.Inactive.Background}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource TreeViewItem.Selected.Inactive.Border}" />
@@ -128,20 +128,20 @@
                             <MultiTrigger.Conditions>
                                 <Condition Property="HoverHighlighting" Value="True" />
                                 <Condition Property="IsMouseOver" Value="True" SourceName="headerBorder" />
-                                <Condition Property="IsLeftMousePressed" Value="True"/>
+                                <Condition Property="IsLeftMousePressed" Value="True" />
                             </MultiTrigger.Conditions>
                             <Setter Property="Control.Background" Value="{DynamicResource ABrush.AccentTone1.Background.Static}" />
                             <Setter Property="Border.BorderBrush" Value="{DynamicResource ABrush.AccentTone1.Border.Static}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="ItemsControl.HasItems" Value="False"/>
-                                <Condition Property="controls1:TreeExtension.IsInitiallyExpandable" Value="False"/>
+                                <Condition Property="ItemsControl.HasItems" Value="False" />
+                                <Condition Property="controls1:TreeExtension.IsInitiallyExpandable" Value="False" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
-                            <Setter Property="Visibility" TargetName="HorLn" Value="Visible"/>
-                            <Setter Property="Grid.RowSpan" TargetName="VerLn" Value="2"/>
-                            <Setter Property="Grid.Row" TargetName="VerLn" Value="0"/>
+                            <Setter Property="Visibility" TargetName="Expander" Value="Hidden" />
+                            <Setter Property="Visibility" TargetName="HorLn" Value="Visible" />
+                            <Setter Property="Grid.RowSpan" TargetName="VerLn" Value="2" />
+                            <Setter Property="Grid.Row" TargetName="VerLn" Value="0" />
                         </MultiTrigger>
                         <Trigger Property="UIElement.IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
@@ -153,16 +153,16 @@
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsExpanded" Value="False"/>
-                                <Condition Property="HasItems" Value="True"/>
+                                <Condition Property="IsExpanded" Value="False" />
+                                <Condition Property="HasItems" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Visibility" TargetName="VerLn" Value="Hidden"/>
+                            <Setter Property="Visibility" TargetName="VerLn" Value="Hidden" />
                         </MultiTrigger>
                         <Trigger Property="HasItems" Value="True">
-                            <Setter Property="Visibility" TargetName="Expander" Value="Visible"/>
-                            <Setter Property="Visibility" TargetName="HorLn" Value="Hidden"/>
-                            <Setter Property="Grid.RowSpan" TargetName="VerLn" Value="1"/>
-                            <Setter Property="Grid.Row" TargetName="VerLn" Value="1"/>
+                            <Setter Property="Visibility" TargetName="Expander" Value="Visible" />
+                            <Setter Property="Visibility" TargetName="HorLn" Value="Hidden" />
+                            <Setter Property="Grid.RowSpan" TargetName="VerLn" Value="1" />
+                            <Setter Property="Grid.Row" TargetName="VerLn" Value="1" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -200,7 +200,7 @@
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
+                            <VirtualizingStackPanel />
                         </ItemsPanelTemplate>
                     </Setter.Value>
                 </Setter>

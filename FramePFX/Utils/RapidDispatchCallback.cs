@@ -3,11 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.ServiceManaging;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// A class for helping invoke a callback, or skipping if it has not been completed
     /// </summary>
-    public class RapidDispatchCallback {
+    public class RapidDispatchCallback
+    {
         private volatile int state;
         private readonly Action action;
         private readonly Action executeAction;
@@ -20,12 +22,14 @@ namespace FramePFX.Utils {
         private volatile bool invokeLater;
         private readonly ExecutionPriority priority;
 
-        public RapidDispatchCallback(Action action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null) {
+        public RapidDispatchCallback(Action action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null)
+        {
             this.debugId = debugId;
             this.locker = new object();
             this.action = action;
             this.priority = priority;
-            this.executeAction = () => {
+            this.executeAction = () =>
+            {
                 this.action();
                 this.state = 0;
             };
@@ -34,11 +38,14 @@ namespace FramePFX.Utils {
             this.CachedInvokeNoRet = () => this.Invoke();
         }
 
-        public RapidDispatchCallback(Action action, string debugId) : this(action, ExecutionPriority.Send, debugId) {
+        public RapidDispatchCallback(Action action, string debugId) : this(action, ExecutionPriority.Send, debugId)
+        {
         }
 
-        public bool Invoke() {
-            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
+        public bool Invoke()
+        {
+            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0)
+            {
                 Services.Application.Invoke(this.executeAction, this.priority);
                 return true;
             }
@@ -46,8 +53,10 @@ namespace FramePFX.Utils {
             return false;
         }
 
-        public Task<bool> InvokeAsync() {
-            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
+        public Task<bool> InvokeAsync()
+        {
+            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0)
+            {
                 // i hope this works...
                 return Services.Application.InvokeAsync(this.executeAction, this.priority).ContinueWith(t => true);
             }
@@ -56,7 +65,8 @@ namespace FramePFX.Utils {
         }
     }
 
-    public class RapidDispatchCallback<T> {
+    public class RapidDispatchCallback<T>
+    {
         private volatile int state;
         private readonly Action<T> action;
         private readonly Action<T> executeAction;
@@ -69,12 +79,14 @@ namespace FramePFX.Utils {
         private volatile bool invokeLater;
         private readonly ExecutionPriority priority;
 
-        public RapidDispatchCallback(Action<T> action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null) {
+        public RapidDispatchCallback(Action<T> action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null)
+        {
             this.debugId = debugId;
             this.locker = new object();
             this.action = action;
             this.priority = priority;
-            this.executeAction = (t) => {
+            this.executeAction = (t) =>
+            {
                 this.action(t);
                 this.state = 0;
             };
@@ -83,11 +95,14 @@ namespace FramePFX.Utils {
             this.CachedInvokeNoRet = t => this.Invoke(t);
         }
 
-        public RapidDispatchCallback(Action<T> action, string debugId) : this(action, ExecutionPriority.Send, debugId) {
+        public RapidDispatchCallback(Action<T> action, string debugId) : this(action, ExecutionPriority.Send, debugId)
+        {
         }
 
-        public bool Invoke(T parameter) {
-            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
+        public bool Invoke(T parameter)
+        {
+            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0)
+            {
                 Services.Application.Invoke(this.executeAction, parameter, this.priority);
                 return true;
             }
@@ -95,8 +110,10 @@ namespace FramePFX.Utils {
             return false;
         }
 
-        public Task<bool> InvokeAsync(T parameter) {
-            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
+        public Task<bool> InvokeAsync(T parameter)
+        {
+            if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0)
+            {
                 // i hope this works...
                 return Services.Application.InvokeAsync(this.executeAction, parameter, this.priority).ContinueWith(t => true);
             }

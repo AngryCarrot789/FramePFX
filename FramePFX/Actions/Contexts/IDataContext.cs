@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Actions.Contexts {
+namespace FramePFX.Actions.Contexts
+{
     /// <summary>
     /// An immutable object that stores context information, along other custom data
     /// </summary>
-    public interface IDataContext {
+    public interface IDataContext
+    {
         /// <summary>
         /// Returns all of the available context. Will not return  null, but may be empty
         /// </summary>

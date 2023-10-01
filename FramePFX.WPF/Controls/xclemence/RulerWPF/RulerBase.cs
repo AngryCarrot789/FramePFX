@@ -14,8 +14,10 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers;
 
-namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
-    public abstract class RulerBase : FrameworkElement {
+namespace FramePFX.WPF.Controls.xclemence.RulerWPF
+{
+    public abstract class RulerBase : FrameworkElement
+    {
         public static readonly DependencyProperty MaxValueProperty = DependencyProperty.Register(nameof(MaxValue), typeof(double), typeof(RulerBase), new FrameworkPropertyMetadata(double.NaN, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty RulerPositionProperty = DependencyProperty.Register(nameof(RulerPosition), typeof(RulerPosition), typeof(RulerBase), new FrameworkPropertyMetadata(RulerPosition.Top, OnRulerPositionChanged));
         public static readonly DependencyProperty MajorStepValuesProperty = DependencyProperty.Register(nameof(MajorStepValues), typeof(IEnumerable<int>), typeof(RulerBase), new FrameworkPropertyMetadata(new int[] {1, 2, 5}, FrameworkPropertyMetadataOptions.AffectsRender));
@@ -43,37 +45,44 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
         private Pen majorLineStepColourPen;
         private Pen minorLineStepColourPen;
 
-        public double MaxValue {
+        public double MaxValue
+        {
             get => (double) this.GetValue(MaxValueProperty);
             set => this.SetValue(MaxValueProperty, value);
         }
 
-        public RulerPosition RulerPosition {
+        public RulerPosition RulerPosition
+        {
             get => (RulerPosition) this.GetValue(RulerPositionProperty);
             set => this.SetValue(RulerPositionProperty, value);
         }
 
-        public IEnumerable<int> MajorStepValues {
+        public IEnumerable<int> MajorStepValues
+        {
             get => (IEnumerable<int>) this.GetValue(MajorStepValuesProperty);
             set => this.SetValue(MajorStepValuesProperty, value);
         }
 
-        public int MinPixelSize {
+        public int MinPixelSize
+        {
             get => (int) this.GetValue(MinPixelSizeProperty);
             set => this.SetValue(MinPixelSizeProperty, value);
         }
 
-        public Func<double, double> ValueStepTransform {
+        public Func<double, double> ValueStepTransform
+        {
             get => (Func<double, double>) this.GetValue(ValueStepTransformProperty);
             set => this.SetValue(ValueStepTransformProperty, value);
         }
 
-        public UIElement MarkerControlReference {
+        public UIElement MarkerControlReference
+        {
             get => (UIElement) this.GetValue(MarkerControlReferenceProperty);
             set => this.SetValue(MarkerControlReferenceProperty, value);
         }
 
-        public Brush StepColor {
+        public Brush StepColor
+        {
             get => (Brush) this.GetValue(StepColorProperty);
             set => this.SetValue(StepColorProperty, value);
         }
@@ -81,69 +90,82 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
         public Pen MajorStepColourPen => this.majorLineStepColourPen ?? (this.StepColor is Brush brush ? this.majorLineStepColourPen = new Pen(brush, this.MajorLineThickness) : null);
         public Pen MinorStepColourPen => this.minorLineStepColourPen ?? (this.StepColor is Brush brush ? this.minorLineStepColourPen = new Pen(brush, this.MinorLineThickness) : null);
 
-        public double MinorStepRatio {
+        public double MinorStepRatio
+        {
             get => (double) this.GetValue(MinorStepRatioProperty);
             set => this.SetValue(MinorStepRatioProperty, value);
         }
 
-        public bool DisplayZeroLine {
+        public bool DisplayZeroLine
+        {
             get => (bool) this.GetValue(DisplayZeroLineProperty);
             set => this.SetValue(DisplayZeroLineProperty, value);
         }
 
-        public RulerStepProperties StepProperties {
+        public RulerStepProperties StepProperties
+        {
             get => (RulerStepProperties) this.GetValue(StepPropertiesProperty);
             set => this.SetValue(StepPropertiesProperty, value);
         }
 
-        public RulerStepProperties SlaveStepProperties {
+        public RulerStepProperties SlaveStepProperties
+        {
             get => (RulerStepProperties) this.GetValue(SlaveStepPropertiesProperty);
             set => this.SetValue(SlaveStepPropertiesProperty, value);
         }
 
-        public string TextFormat {
+        public string TextFormat
+        {
             get => (string) this.GetValue(TextFormatProperty);
             set => this.SetValue(TextFormatProperty, value);
         }
 
-        public CultureInfo TextCulture {
+        public CultureInfo TextCulture
+        {
             get => (CultureInfo) this.GetValue(TextCultureProperty);
             set => this.SetValue(TextCultureProperty, value);
         }
 
-        public RulerTextOverflow TextOverflow {
+        public RulerTextOverflow TextOverflow
+        {
             get => (RulerTextOverflow) this.GetValue(TextOverflowProperty);
             set => this.SetValue(TextOverflowProperty, value);
         }
 
-        public double? MajorLineSize {
+        public double? MajorLineSize
+        {
             get => (double?) this.GetValue(MajorLineSizeProperty);
             set => this.SetValue(MajorLineSizeProperty, value);
         }
 
-        public VerticalAlignment TopRulerLineAlignment {
+        public VerticalAlignment TopRulerLineAlignment
+        {
             get => (VerticalAlignment) this.GetValue(TopRulerLineAlignmentProperty);
             set => this.SetValue(TopRulerLineAlignmentProperty, value);
         }
 
-        public HorizontalAlignment LeftRulerLineAlignment {
+        public HorizontalAlignment LeftRulerLineAlignment
+        {
             get => (HorizontalAlignment) this.GetValue(LeftRulerLineAlignmentProperty);
             set => this.SetValue(LeftRulerLineAlignmentProperty, value);
         }
 
-        public double MinorLineThickness {
+        public double MinorLineThickness
+        {
             get => (double) this.GetValue(MinorLineThicknessProperty);
             set => this.SetValue(MinorLineThicknessProperty, value);
         }
 
-        public double MajorLineThickness {
+        public double MajorLineThickness
+        {
             get => (double) this.GetValue(MajorLineThicknessProperty);
             set => this.SetValue(MajorLineThicknessProperty, value);
         }
 
         [Bindable(true)]
         [Category("Appearance")]
-        public Brush Background {
+        public Brush Background
+        {
             get => (Brush) this.GetValue(BackgroundProperty);
             set => this.SetValue(BackgroundProperty, value);
         }
@@ -151,30 +173,35 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
         [Bindable(true)]
         [Category("Appearance")]
         [Localizability(LocalizationCategory.Font)]
-        public FontFamily FontFamily {
+        public FontFamily FontFamily
+        {
             get => (FontFamily) this.GetValue(FontFamilyProperty);
             set => this.SetValue(FontFamilyProperty, value);
         }
 
         [Bindable(true)]
         [Category("Appearance")]
-        public Brush Foreground {
+        public Brush Foreground
+        {
             get => (Brush) this.GetValue(ForegroundProperty);
             set => this.SetValue(ForegroundProperty, value);
         }
 
-        private static void OnRulerPositionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnRulerPositionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             if (!(d is RulerBase control) || !(e.NewValue is RulerPosition position))
                 return;
             control.UpdateRulerPosition(position);
         }
 
-        private static void OnMarkerControlReferenceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnMarkerControlReferenceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             RulerBase control = (RulerBase) d;
             control.UpdateMarkerControlReference(e.OldValue as UIElement, e.NewValue as UIElement);
         }
 
-        private static void InvalidatePens(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void InvalidatePens(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             RulerBase control = (RulerBase) d;
             control.majorLineStepColourPen = null;
         }

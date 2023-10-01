@@ -1,8 +1,10 @@
-namespace FramePFX.PropertyEditing {
+namespace FramePFX.PropertyEditing
+{
     /// <summary>
     /// A mode for the state of a <see cref="DynamicPropertyGroupViewModel"/>
     /// </summary>
-    public enum DynamicMode {
+    public enum DynamicMode
+    {
         /// <summary>
         /// This group is currently empty (the default state and also set after <see cref="DynamicPropertyGroupViewModel.ClearHierarchyState"/>)
         /// </summary>

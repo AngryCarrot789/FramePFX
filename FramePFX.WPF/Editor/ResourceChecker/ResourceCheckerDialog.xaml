@@ -18,8 +18,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <!-- make halo great again -->
-            <RowDefinition Height="343*"/>
-            <RowDefinition Height="44*"/>
+            <RowDefinition Height="343*" />
+            <RowDefinition Height="44*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*" />
@@ -64,10 +64,10 @@
                                 <Button Content="..." Command="{Binding SelectFileCommand, Mode=OneTime}" DockPanel.Dock="Right" Height="24" Width="24" />
                                 <TextBox Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" Padding="4,1" VerticalContentAlignment="Center" VerticalAlignment="Stretch" />
                             </DockPanel>
-                            <Button Margin="0,5,0,0" Content="Reload" Command="{Binding LoadFileCommand, Mode=OneTime}" ToolTip="Reload the file from the current file path"/>
-                            <Separator Margin="0,5"/>
-                            <TextBlock Text="Error:"/>
-                            <TextBox IsReadOnly="True" FontFamily="Consolas" Text="{Binding ExceptionMessage, Mode=OneWay}"/>
+                            <Button Margin="0,5,0,0" Content="Reload" Command="{Binding LoadFileCommand, Mode=OneTime}" ToolTip="Reload the file from the current file path" />
+                            <Separator Margin="0,5" />
+                            <TextBlock Text="Error:" />
+                            <TextBox IsReadOnly="True" FontFamily="Consolas" Text="{Binding ExceptionMessage, Mode=OneWay}" />
                         </StackPanel>
                     </DataTemplate>
                 </ContentPresenter.Resources>

@@ -39,7 +39,7 @@ namespace FramePFX.Rendering.ObjectTK
             this.TextureId = GL.GenTexture();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, this.FrameBufferId);
             GL.BindTexture(TextureTarget.Texture2D, this.TextureId);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb32f, width, height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, width, height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Nearest);
             GL.BindTexture(TextureTarget.Texture2D, 0);

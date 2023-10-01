@@ -2,113 +2,57 @@
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace FramePFX.Editor.Timelines
 {
     public class OGLMPEGTexture : IDisposable
     {
-        public int Width { get; }
+        public int Id { get; private set; }
 
+        public int Width { get; }
         public int Height { get; }
 
-        public int TextureId { get; }
-
-        private readonly Shader shader;
-        private readonly int vao;
-        private readonly int vbo;
-
-        public OGLMPEGTexture(int width, int height)
+        public OGLMPEGTexture(int width, int height, int levels = 1, SizedInternalFormat fmt = SizedInternalFormat.Rgba8)
         {
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out int id);
+            this.Id = id;
             this.Width = width;
             this.Height = height;
 
-            this.TextureId = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, this.TextureId);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb32f, width, height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, this.TextureId, 0);
+            GL.TextureStorage2D(id, levels, fmt, width, height);
+            GL.TextureParameter(id, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TextureParameter(id, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TextureParameter(id, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TextureParameter(id, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        }
 
-            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
-            {
-                throw new Exception("Framebuffer could not be completed");
-            }
+        public unsafe void SetPixels<T>(ReadOnlySpan<T> data, int offsetX, int offsetY, int width, int height, PixelFormat fmt, PixelType type, int rowLength = 0) where T : unmanaged
+        {
+            if (rowLength > 0) 
+                GL.PixelStore(PixelStoreParameter.UnpackRowLength, rowLength);
 
-            float[] verts = new[]
-            {
-                // positions      // textures
-                 1f,  1f, 0f,     1.0f, 1.0f,
-                -1f,  1f, 0f,     0.0f, 1.0f,
-                -1f, -1f, 0f,     0.0f, 0.0f,
-                 1f,  1f, 0f,     1.0f, 1.0f,
-                 1f, -1f, 0f,     1.0f, 0.0f,
-                -1f, -1f, 0f,     0.0f, 0.0f,
-            };
+            GL.TextureSubImage2D(this.Id, 0, offsetX, offsetY, width, height, fmt, type, ref MemoryMarshal.GetReference(data));
+            
+            if (rowLength > 0)
+                GL.PixelStore(PixelStoreParameter.UnpackRowLength, 0);
+        }
 
-            this.vao = GL.GenVertexArray();
-            GL.BindVertexArray(this.vao);
-
-            int stride = 5 * sizeof(float);
-            this.vbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, this.vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, verts.Length * sizeof(float), verts, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
-            GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
-            GL.EnableVertexAttribArray(1);
-
-            // Unbind the VAO after configuration.
-            GL.BindVertexArray(0);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-            this.shader = new Shader(@"
-#version 150
-
-//Globals
-in vec3 in_pos;
-in vec2 in_uv;
-
-//Outputs
-out vec2 ex_uv;
-
-void main(void) {
-    gl_Position = vec4(in_pos, 1.0);
-    ex_uv = in_uv;
-}
-", /* fragment */ @"
-#version 330 core
-in vec2 ex_uv;
-uniform sampler2D tex;
-
-void main()
-{
-    gl_FragColor = texture(tex, ex_uv);
-}
-");
+        public void BindUnit(int unitId)
+        {
+            GL.BindTextureUnit(unitId, this.Id);
         }
 
         public void Dispose()
         {
-            GL.DeleteTexture(this.TextureId);
-            GL.DeleteVertexArray(this.vao);
-            GL.DeleteBuffer(this.vbo);
-        }
-
-        public void Draw()
-        {
-            this.shader.Use();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, this.TextureId);
-
-            GL.BindVertexArray(this.vao);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-            GL.BindVertexArray(0);
-
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            if (this.Id != 0)
+            {
+                GL.DeleteTexture(this.Id);
+                this.Id = 0;
+            }
         }
     }
 }

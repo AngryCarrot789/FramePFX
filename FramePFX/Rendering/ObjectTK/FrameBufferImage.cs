@@ -54,26 +54,24 @@ namespace FramePFX.Rendering.ObjectTK
 
             float[] verts = new[]
             {
-                // positions      // textures
-                 1f,  1f, 0f,     1.0f, 1.0f,
-                -1f,  1f, 0f,     0.0f, 1.0f,
-                -1f, -1f, 0f,     0.0f, 0.0f,
-                 1f,  1f, 0f,     1.0f, 1.0f,
-                 1f, -1f, 0f,     1.0f, 0.0f,
-                -1f, -1f, 0f,     0.0f, 0.0f,
+                // verts    // uvs
+                 1f,  1f,   1f, 1f,
+                -1f,  1f,   0f, 1f,
+                -1f, -1f,   0f, 0f,
+                 1f,  1f,   1f, 1f,
+                 1f, -1f,   1f, 0f,
+                -1f, -1f,   0f, 0f,
             };
 
             this.vao = GL.GenVertexArray();
             GL.BindVertexArray(this.vao);
 
-            const int stride = 5 * sizeof(float);
+            const int stride = 4 * sizeof(float);
             this.vbo = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, verts.Length * sizeof(float), verts, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
+            GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, stride, 0);
             GL.EnableVertexAttribArray(0);
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, 3 * sizeof(float));
-            GL.EnableVertexAttribArray(1);
 
             // Unbind the VAO after configuration.
             GL.BindVertexArray(0);
@@ -84,15 +82,14 @@ namespace FramePFX.Rendering.ObjectTK
 #version 150
 
 //Globals
-in vec3 in_pos;
-in vec2 in_uv;
+in vec4 in_vec;
 
 //Outputs
 out vec2 ex_uv;
 
 void main(void) {
-    gl_Position = vec4(in_pos, 1.0);
-    ex_uv = in_uv;
+    gl_Position = vec4(in_vec.xy, 0.0, 1.0);
+    ex_uv = in_vec.zw;
 }
 ", /* fragment */ @"
 #version 330 core

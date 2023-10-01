@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using FFmpeg.AutoGen;
+using FramePFX.Editor.Timelines;
 using FramePFX.FFmpeg;
 using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Codecs;
@@ -24,8 +25,34 @@ namespace FramePFX.Editor.ResourceManaging.Resources
         private FrameQueue frameQueue;
         private bool hasHardwareDecoder;
 
+        public OGLMPEGTexture Texture { get; private set; }
+
         public ResourceAVMedia()
         {
+        }
+
+        public override void OnDetatchedFromManager()
+        {
+            base.OnDetatchedFromManager();
+            this.ClearRenderData();
+        }
+
+        public override void OnProjectUnloaded()
+        {
+            base.OnProjectUnloaded();
+            this.ClearRenderData();
+        }
+
+        public void SetupRenderData(int width, int height)
+        {
+            this.ClearRenderData();
+            this.Texture = new OGLMPEGTexture(width, height);
+        }
+
+        public void ClearRenderData()
+        {
+            this.Texture?.Dispose();
+            this.Texture = null;
         }
 
         protected override void OnDisableCore(bool user)

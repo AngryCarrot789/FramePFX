@@ -4,6 +4,7 @@ using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Events;
+using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
@@ -32,6 +33,8 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// Typically handled by the view model, which schedules the video editor window's view port to render at some point in the furture
         /// </summary>
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
+
+        public new VideoTrack Track => (VideoTrack)base.Track;
 
         protected VideoClip()
         {

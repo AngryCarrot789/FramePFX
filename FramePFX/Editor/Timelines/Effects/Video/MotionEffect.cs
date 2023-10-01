@@ -2,7 +2,6 @@ using System.Numerics;
 using FramePFX.Automation.Keys;
 using FramePFX.Rendering;
 using FramePFX.Utils;
-using OpenTK.Graphics.OpenGL;
 
 namespace FramePFX.Editor.Timelines.Effects.Video
 {
@@ -72,59 +71,59 @@ namespace FramePFX.Editor.Timelines.Effects.Video
         public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize)
         {
             base.PreProcessFrame(frame, rc, frameSize);
-            Vector2 pos = this.MediaPosition;
+            Vector2 position = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;
-            Vector2 rotOrigin = this.MediaRotationOrigin;
+            Vector2 rotationOrigin = this.MediaRotationOrigin;
+            Matrix4x4 matrix = Matrix4x4.Identity;
+            float rotation = (float)(this.MediaRotation * System.Math.PI / 180d);
 
             scaleOrigin.X -= 0.5f;
             scaleOrigin.Y -= 0.5f;
-            rotOrigin.X -= 0.5f;
-            rotOrigin.Y -= 0.5f;
+            rotationOrigin.X -= 0.5f;
+            rotationOrigin.Y -= 0.5f;
 
-            float rotation = (float) (this.MediaRotation * System.Math.PI / 180d);
-
-            Matrix4x4 matrix = Matrix4x4.Identity;
+            Matrix4x4 matTranslate, matScale, matRotation;
             if (frameSize.HasValue)
             {
                 // clip has size info that we can use to transform relative top-left corner
                 Vector2 size = frameSize.Value;
+                Vector2 center = new Vector2(size.X / 2.0f, size.Y / 2.0f);
                 if (this.UseAbsoluteRotationOrigin)
                 {
-                    matrix *= Matrix4x4.CreateRotationZ(rotation, new Vector3(rotOrigin.X, rotOrigin.Y, 0f));
+                    matRotation = Matrix4x4.CreateRotationZ(rotation, new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f));
                 }
                 else
                 {
-                    matrix *= Matrix4x4.CreateRotationZ(rotation, new Vector3(size.X * rotOrigin.X, size.Y * rotOrigin.Y, 0f));
+                    matRotation = Matrix4x4.CreateRotationZ(rotation, new Vector3(size.X * rotationOrigin.X, size.Y * rotationOrigin.Y, 0f));
                 }
 
                 if (this.UseAbsoluteScaleOrigin)
                 {
-                    matrix *= Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f));
+                    matScale = Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f));
                 }
                 else
                 {
-                    matrix *= Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(size.X * scaleOrigin.X, size.Y * scaleOrigin.Y, 0f));
+                    matScale = Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(size.X * scaleOrigin.X, size.Y * scaleOrigin.Y, 0f));
                 }
 
-                matrix *= Matrix4x4.CreateTranslation(pos.X + (size.X / 2), pos.Y + (size.Y / 2), 0f);
+                matTranslate = Matrix4x4.CreateTranslation(position.X + center.X, position.Y + center.Y, 0f);
             }
             else
             {
                 // worst case; clip has no size data so we assume it takes up 0 pixels
-                if (this.UseAbsoluteRotationOrigin)
-                {
-                    matrix *= Matrix4x4.CreateRotationZ(rotation, new Vector3(rotOrigin.X, rotOrigin.Y, 0f));
-                }
+                matRotation = this.UseAbsoluteRotationOrigin
+                    ? Matrix4x4.CreateRotationZ(rotation, new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f))
+                    : Matrix4x4.Identity;
 
-                if (this.UseAbsoluteScaleOrigin)
-                {
-                    matrix *= Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f));
-                }
+                matScale = this.UseAbsoluteScaleOrigin
+                    ? Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f))
+                    : Matrix4x4.Identity;
 
-                matrix *= Matrix4x4.CreateTranslation(pos.X, pos.Y, 0f);
+                matTranslate = Matrix4x4.CreateTranslation(position.X, position.Y, 0f);
             }
 
+            matrix = matRotation * matScale * matTranslate;
             rc.MatrixStack.PushMatrix(ref matrix);
         }
 

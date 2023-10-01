@@ -35,8 +35,6 @@ namespace FramePFX.Rendering
         /// </summary>
         public readonly Matrix4x4 Projection;
 
-        public readonly Matrix4x4 CameraView;
-
         public RenderContext(Vector2 frameSize)
         {
             this.FrameSize = frameSize;
@@ -44,7 +42,6 @@ namespace FramePFX.Rendering
             this.MatrixStack = new MatrixStack();
             this.frameBuffers = new Stack<int>();
             this.Projection = Matrix4x4.CreateOrthographicOffCenter(0, frameSize.X, 0, frameSize.Y, 0.01f, 500f);
-            this.CameraView = Matrix4x4.Identity;
             // this.CameraView = Matrix4x4.CreateLookAt(new Vector3(0, 0, 1), new Vector3(), Vector3.UnitY);
         }
 

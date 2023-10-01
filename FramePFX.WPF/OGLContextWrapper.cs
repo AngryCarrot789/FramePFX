@@ -1,5 +1,6 @@
 using System;
-using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using FramePFX.Logger;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -28,6 +29,15 @@ namespace FramePFX.WPF
                 VSync = VSyncMode.Off,
                 WindowBorder = WindowBorder.Hidden
             };
+
+            GL.DebugMessageCallback((source, type, id, severity, length, ptext, _) => {
+                string severityStr = severity.ToString().Substring("DebugSeverity".Length).ToUpper();
+                string sourceStr = source.ToString().Substring("DebugSource".Length);
+                string typeStr = type.ToString().Substring("DebugType".Length);
+                string text = Marshal.PtrToStringAnsi(ptext);
+                AppLogger.WriteLine($"OpenGL: {sourceStr}-{typeStr}: [{severityStr}]\n{text}");
+            }, IntPtr.Zero);
+            GL.Enable(EnableCap.DebugOutput);
         }
 
         public void MakeCurrent(bool current)

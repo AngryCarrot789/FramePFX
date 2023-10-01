@@ -8,6 +8,7 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.FFmpegWrapper;
 using FramePFX.Rendering;
 using FramePFX.Utils;
+using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips
@@ -59,12 +60,6 @@ namespace FramePFX.Editor.Timelines.VideoClips
                 return;
             }
 
-            if (true)
-            {
-                return;
-            }
-
-
             if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null)
             {
                 if (this.renderFrameRgb == null)
@@ -102,15 +97,45 @@ namespace FramePFX.Editor.Timelines.VideoClips
                 unsafe
                 {
                     this.ScaleFrame(ready);
+                    if (resource.Texture == null)
+                    {
+                        resource.SetupRenderData(this.renderFrameRgb.Width, this.renderFrameRgb.Height);
+                    }
 
                     // TODO: Maybe cache the SKPixmap, because renderFrameRgb lasts a long time, where the size remains unmodified probably
                     byte* ptr;
                     GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
-                    SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
-                    using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes))
-                    {
-                        // rc.Canvas.DrawImage(img, 0, 0);
-                    }
+                    resource.Texture.SetPixels<byte>(
+                        new ReadOnlySpan<byte>(ptr, rowBytes * this.renderFrameRgb.Height), 
+                        0, 0, 
+                        this.renderFrameRgb.Width, this.renderFrameRgb.Height,
+                        PixelFormat.Rgba,
+                        PixelType.UnsignedByte,
+                        rowBytes / 4);
+
+                    GL.UseProgram(0);
+                    GL.LoadIdentity();
+                    GL.Enable(EnableCap.Texture2D);
+                    GL.BindTexture(TextureTarget.Texture2D, resource.Texture.Id);
+                    Matrix4x4 matrix = rc.MatrixStack.Matrix;
+
+                    GL.Begin(PrimitiveType.Quads);
+                    GL.Color4(1f, 1f, 1f, 1f);
+
+                    GL.TexCoord2(0, 0);
+                    GL.Vertex3(-1, -1, 0);
+
+                    GL.TexCoord2(1, 0);
+                    GL.Vertex3(1, -1, 0);
+
+                    GL.TexCoord2(1, 1);
+                    GL.Vertex3(1, 1, 0);
+
+                    GL.TexCoord2(0, 1);
+                    GL.Vertex3(-1, 1, 0);
+
+                    GL.End();
+                    GL.Disable(EnableCap.Texture2D);
                 }
             }
         }

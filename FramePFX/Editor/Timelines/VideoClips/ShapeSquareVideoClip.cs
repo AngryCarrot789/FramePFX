@@ -7,6 +7,7 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.RBC;
 using FramePFX.Rendering;
+using FramePFX.Rendering.Utils;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -82,12 +83,13 @@ namespace FramePFX.Editor.Timelines.VideoClips
             if (this.ResourceHelper.TryGetResource(out ResourceColour r))
             {
                 Matrix4x4 matrix = Matrix4x4.CreateScale(this.Width / 2f, this.Height / 2f, 1f) * rc.Matrix;
-                Matrix4x4 mvp = matrix * rc.CameraView * rc.Projection;
+                Matrix4x4 mvp = matrix * rc.Projection;
 
-                this.Track.Timeline.BasicShader.Use();
-                this.Track.Timeline.BasicShader.SetUniformMatrix4("mvp", ref mvp);
-                this.Track.Timeline.BasicShader.SetUniformVec4("in_colour", new Vector4(r.ScR, r.ScG, r.ScB, (float)this.Opacity));
-                ((VideoTrack) this.Track).BasicRectangle.DrawTriangles();
+                Shader shader = this.Track.Timeline.BasicShader;
+                shader.Use();
+                shader.SetUniformMatrix4("mvp", ref mvp);
+                shader.SetUniformVec4("in_colour", new Vector4(r.ScR, r.ScG, r.ScB, (float)this.Opacity));
+                this.Track.BasicRectangle.DrawTriangles();
             }
 
             return Task.CompletedTask;

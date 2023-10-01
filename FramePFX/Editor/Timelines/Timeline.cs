@@ -475,9 +475,7 @@ void main(void) {
             List<AdjustmentVideoClip> list = this.AdjustmentStack;
             int count = list.Count;
             if (count == 0)
-            {
                 return;
-            }
 
             Vector2 size = render.FrameSize;
             try
@@ -500,9 +498,7 @@ void main(void) {
             List<AdjustmentVideoClip> list = this.AdjustmentStack;
             int count = list.Count;
             if (count == 0)
-            {
                 return;
-            }
 
             Vector2 size = render.FrameSize;
             try
@@ -632,10 +628,10 @@ void main(void) {
                 RenderContext.TryPopFrameBuffer(render);
             }
 
-            this.FrameBuffer.DrawIntoTargetBuffer(0);
             this.AdjustmentStack.Clear();
             this.RenderList.Clear();
             this.PostProcessAjustments(frame, render);
+            this.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer);
             // TODO: restore clipping
         }
     }

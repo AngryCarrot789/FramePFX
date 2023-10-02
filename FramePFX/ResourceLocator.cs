@@ -11,7 +11,11 @@ namespace FramePFX
         static ResourceLocator()
         {
             AppDir = Directory.GetCurrentDirectory();
+#if DEBUG
+            ResourceDirectory = Path.Combine(AppDir, "..\\..\\..\\Assets");
+#else
             ResourceDirectory = Path.Combine(AppDir, "Assets");
+#endif
         }
 
         public static void Setup()

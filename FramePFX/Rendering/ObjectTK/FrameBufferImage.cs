@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Numerics;
 using FramePFX.Rendering.Utils;
 using OpenTK.Graphics.OpenGL;
 
@@ -81,14 +82,17 @@ namespace FramePFX.Rendering.ObjectTK
             this.shader = new Shader(@"
 #version 150
 
-//Globals
+// uniforms
+uniform mat4 mvp;
+
+// Globals
 in vec4 in_vec;
 
-//Outputs
+// Outputs
 out vec2 ex_uv;
 
 void main(void) {
-    gl_Position = vec4(in_vec.xy, 0.0, 1.0);
+    gl_Position = mvp * vec4(in_vec.xy, 0.0, 1.0);
     ex_uv = in_vec.zw;
 }
 ", /* fragment */ @"
@@ -115,9 +119,10 @@ void main()
         /// Draws our texture's contents into the given target frame buffer
         /// </summary>
         /// <param name="buffer"></param>
-        public void DrawIntoTargetBuffer(int buffer)
+        public void DrawIntoTargetBuffer(int buffer, ref Matrix4x4 mvp)
         {
             this.shader.Use();
+            this.shader.SetUniformMatrix4("mvp", ref mvp);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, buffer);
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, this.TextureId);

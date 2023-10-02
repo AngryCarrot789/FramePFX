@@ -46,14 +46,15 @@ namespace FramePFX.Rendering
         }
 
         /// <summary>
-        /// Pops the last matrix in the stack and <see cref="Matrix"/> as it and also returns that matrix
+        /// Pops the last matrix in the stack and sets <see cref="Matrix"/> as that matrix, returning the previous value of <see cref="Matrix"/>
         /// </summary>
-        /// <returns>The previous (and now current) matrix</returns>
+        /// <returns>The the Matrix property before being replaced with the top of the stack</returns>
         public Matrix4x4 PopMatrix()
         {
+            Matrix4x4 old = this.Matrix;
             Matrix4x4 top = this.oldMatrices.Pop();
             this.Matrix = top;
-            return top;
+            return old;
         }
 
         /// <summary>

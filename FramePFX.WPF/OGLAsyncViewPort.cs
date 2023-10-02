@@ -91,11 +91,6 @@ namespace FramePFX.WPF
             WriteableBitmap bmp = this.bitmap;
             if (bmp == null || unscaledSize.Width != bmp.PixelWidth || unscaledSize.Height != bmp.PixelHeight)
             {
-                // this.bitmap = bmp = new WriteableBitmap(
-                //     scaledSize.Width, scaledSize.Height,
-                //     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
-                //     unscaledSize.Height == scaledSize.Height ? 96d : (96d * scaleY),
-                //     PixelFormats.Pbgra32, null);
                 this.bitmap = bmp = new WriteableBitmap(unscaledSize.Width, unscaledSize.Height, 96d, 96d, PixelFormats.Pbgra32, null);
                 bmp.Lock();
                 this.hBitmap = bmp.BackBuffer;

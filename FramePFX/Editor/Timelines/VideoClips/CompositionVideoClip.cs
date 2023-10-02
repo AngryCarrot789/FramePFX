@@ -22,10 +22,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
             this.ResourceHelper = new ResourceHelper<ResourceComposition>(this);
         }
 
-        public override Vector2? GetSize(RenderContext rc)
-        {
-            return rc.FrameSize;
-        }
+        public override Vector2? GetSize(RenderContext rc) => rc.FrameSize;
 
         public override bool OnBeginRender(long frame)
         {
@@ -48,7 +45,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
                 return Task.CompletedTask;
             }
 
-            return resource.Timeline.EndCompositeRenderAsync(rc, this.relativePeriodicFrame, this.tokenSource.Token);
+            return resource.Timeline.EndCompositeRenderAsync(rc, this.relativePeriodicFrame, CancellationToken.None);
         }
 
         public override void OnRenderCompleted(long frame, bool isCancelled)

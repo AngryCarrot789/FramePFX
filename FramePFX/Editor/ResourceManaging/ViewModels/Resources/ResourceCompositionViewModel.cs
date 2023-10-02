@@ -12,7 +12,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources
 
         public ResourceCompositionViewModel(ResourceComposition model) : base(model)
         {
-            this.Timeline = new TimelineViewModel(model.Timeline);
+            this.Timeline = new CompositionTimelineViewModel(model.Timeline);
         }
 
         public override void SetManager(ResourceManagerViewModel manager)

@@ -7,17 +7,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
-using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Rendering.ObjectTK;
 using FramePFX.Rendering.Utils;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines
 {
@@ -295,8 +294,6 @@ void main(void) {
 
             this.tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
-
-
         }
 
         public void MoveTrackIndex(int oldIndex, int newIndex) => this.tracks.MoveItem(oldIndex, newIndex);
@@ -517,6 +514,7 @@ void main(void) {
         public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token)
         {
             List<VideoClip> renderList = this.RenderList;
+            render.MatrixStack.PushReplaceMatrix(Matrix4x4.Identity);
             render.PushFrameBuffer(this.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
             this.FrameBuffer.Clear();
 
@@ -607,7 +605,7 @@ void main(void) {
                     }
 
                     render.PopFrameBuffer(null);
-                    track.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer);
+                    track.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref render.MatrixStack.Matrix);
                 }
             }
             catch (TaskCanceledException)
@@ -631,7 +629,15 @@ void main(void) {
             this.AdjustmentStack.Clear();
             this.RenderList.Clear();
             this.PostProcessAjustments(frame, render);
-            this.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer);
+
+            Matrix4x4 top = render.MatrixStack.PopMatrix();
+
+            this.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref top);
+            if (!top.IsIdentity)
+            {
+                AppLogger.WriteLine("Expected the matrix stack's top matrix to be an identity matrix");
+            }
+
             // TODO: restore clipping
         }
     }

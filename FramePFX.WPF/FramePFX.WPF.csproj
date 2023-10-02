@@ -812,6 +812,7 @@
   </Target>
   <Import Project="..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.6\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(SolutionDir)Assets" "$(TargetDir)Assets" /E /I /Y</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

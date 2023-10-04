@@ -214,7 +214,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks
                             DisplayName = "Media Clip"
                         };
 
-                        clip.ResourceHelper.SetTargetResourceId(media.UniqueId);
+                        clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
                         newClip = clip;
                     }
                     else
@@ -238,7 +238,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks
 
                     clip.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(200);
                     clip.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(200);
-                    clip.ResourceHelper.SetTargetResourceId(argb.UniqueId);
+                    clip.ColourKey.SetTargetResourceId(argb.UniqueId);
                     newClip = clip;
                     break;
                 }
@@ -250,7 +250,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks
                         DisplayName = "Image Clip"
                     };
 
-                    clip.ResourceHelper.SetTargetResourceId(img.UniqueId);
+                    clip.ImageKey.SetTargetResourceId(img.UniqueId);
                     newClip = clip;
                     break;
                 }
@@ -262,7 +262,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks
                         DisplayName = "Text Clip"
                     };
 
-                    clip.ResourceHelper.SetTargetResourceId(text.UniqueId);
+                    clip.TextStyleKey.SetTargetResourceId(text.UniqueId);
                     newClip = clip;
                     break;
                 }
@@ -274,7 +274,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks
                         DisplayName = "Composition clip"
                     };
 
-                    clip.ResourceHelper.SetTargetResourceId(comp.UniqueId);
+                    clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
                     newClip = clip;
                     break;
                 }

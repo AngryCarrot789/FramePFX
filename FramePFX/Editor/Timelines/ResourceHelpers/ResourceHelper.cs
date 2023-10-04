@@ -1,56 +1,50 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.ResourceHelpers
 {
     /// <summary>
-    /// A class that helps with managing a single resource object for use by a clip
+    /// A helper class that manages resource manager events automatically
+    /// <para>
+    /// This class only exists so that clips don't have to extend 'BaseResourceVideoClip', 'BaseResourceAudioClip',
+    /// etc., and instead they can inherit from <see cref="IResourceClip"/>. This allows the same functionality
+    /// to be reused for video clips, audio clips, etc.
+    /// </para>
     /// </summary>
-    public class ResourceHelper<T> : BaseResourceHelper where T : ResourceItem
+    public class ResourceHelper
     {
-        public delegate void ClipResourceModifiedEventHandler(T resource, string property);
-
-        public delegate void ClipResourceChangedEventHandler(T oldItem, T newItem);
-
-        private readonly ResourcePath<T>.ResourceChangedEventHandler resourceChangedHandler;
-        private readonly ResourceModifiedEventHandler dataModifiedHandler;
-        private readonly ResourceItemEventHandler onlineStateChangedHandler;
-
-        public ResourcePath<T> ResourcePath { get; private set; }
+        private readonly Dictionary<string, BaseResourcePathEntry> ResourceMap;
 
         /// <summary>
         /// An event fired when the underlying resource being used has changed
         /// </summary>
-        public event ClipResourceChangedEventHandler ResourceChanged;
+        public event EntryResourceChangedEventHandler ResourceChanged;
 
         /// <summary>
         /// An event fired when the underlying resource raises a <see cref="ResourceItem.DataModified"/> event
         /// </summary>
-        public event ClipResourceModifiedEventHandler ResourceDataModified;
+        public event EntryResourceModifiedEventHandler ResourceDataModified;
+
+        /// <summary>
+        /// An event fired when the online state of a resource changes (e.g. user set it to offline or online)
+        /// </summary>
+        public event EntryResourceOnlineStateChangedEventHandler OnlineStateChanged;
 
         /// <summary>
         /// The clip that owns this helper
         /// </summary>
-        public IResourceClip<T> Clip { get; }
+        public IResourceClip Clip { get; }
 
-        /// <summary>
-        /// Whether or not this helper has a valid path
-        /// </summary>
-        public bool HasPath => this.ResourcePath != null;
-
-        // this class is automatically disposed by the base clip class which uses
-        // the dirty OOP trick of 'if (this is BaseResourceHelper)' to dispose it
-        // the only thing that must be manually handled is LoadDataIntoClone
-
-        public ResourceHelper(IResourceClip<T> clip)
+        public ResourceHelper(IResourceClip clip)
         {
             this.Clip = clip ?? throw new ArgumentNullException(nameof(clip));
-            this.resourceChangedHandler = this.OnResourceChangedInternal;
-            this.dataModifiedHandler = this.OnResourceDataModifiedInternal;
-            this.onlineStateChangedHandler = this.OnOnlineStateChangedInternal;
+            this.ResourceMap = new Dictionary<string, BaseResourcePathEntry>();
             clip.TrackChanged += this.OnTrackChanged;
             clip.TrackTimelineChanged += this.OnTrackTimelineChanged;
             clip.TrackTimelineProjectChanged += this.OnTrackTimelineProjectChanged;
@@ -58,105 +52,122 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
             clip.DeserialiseExtension += (c, data) => this.ReadFromRBE(data);
         }
 
-        private void DisposePath()
+        private static string KeyForTypeName(Type type) => type.Name;
+
+        /// <summary>
+        /// Registers a key for usage by this <see cref="ResourceHelper"/>
+        /// </summary>
+        /// <param name="key">The key to use</param>
+        /// <returns>An interface which wraps the internal key entry object</returns>
+        /// <exception cref="InvalidOperationException">The key is already in use</exception>
+        public IResourcePathKey<T> RegisterKey<T>(string key) where T : ResourceItem
         {
-            ResourcePath<T> path = this.ResourcePath;
-            this.ResourcePath = null; // just in case the code below throws, don't reference a disposed instance
-            if (path != null)
-            {
-                try
-                {
-                    path.Dispose();
-                }
-                finally
-                {
-                    path.ResourceChanged -= this.resourceChangedHandler;
-                }
-            }
+            if (this.ResourceMap.ContainsKey(key))
+                throw new InvalidOperationException("Key already registered: " + key);
+            ResourcePathEntry<T> entry = new ResourcePathEntry<T>(this, key);
+            this.ResourceMap[key] = entry;
+            return entry;
         }
+
+        /// <summary>
+        /// Registers the type name of the given type (passed to <see cref="RegisterKey"/>)
+        /// </summary>
+        /// <typeparam name="T">The type of object to register</typeparam>
+        /// <returns>An interface which wraps the internal key entry object</returns>
+        /// <exception cref="InvalidOperationException">The key is already in use</exception>
+        public IResourcePathKey<T> RegisterKeyByTypeName<T>() where T : ResourceItem => this.RegisterKey<T>(KeyForTypeName(typeof(T)));
+
+        /// <summary>
+        /// Tries to get a resource, of the given type, by the given name. Returns true if an entry exists for the key
+        /// and the resource path is valid and its ID maps to the correct type of resource. Otherwise, returns false
+        /// </summary>
+        /// <param name="key">The key for the entry</param>
+        /// <param name="resource">The resource found</param>
+        /// <typeparam name="T">The type of resource to try to get</typeparam>
+        /// <returns>See summary</returns>
+        public bool TryGetResource<T>(string key, out T resource) where T : ResourceItem
+        {
+            if (this.ResourceMap.TryGetValue(key, out BaseResourcePathEntry entry) && entry.TryGetResource(out resource))
+                return true;
+            resource = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to get a resource, using the <see cref="MemberInfo.Name"/> property as a key when calling <see cref="TryGetResource{T}"/>
+        /// </summary>
+        /// <param name="resource">The resource found</param>
+        /// <typeparam name="T">The type of resource</typeparam>
+        /// <returns></returns>
+        public bool TryGetResourceByTypeName<T>(out T resource) where T : ResourceItem => this.TryGetResource(KeyForTypeName(typeof(T)), out resource);
+
+        public void SetTargetResourceId(string key, ulong id)
+        {
+            this.ResourceMap[key].SetTargetResourceId(id);
+        }
+
+        public void SetTargetResourceIdByTypeName<T>(ulong id) where T : ResourceItem => this.SetTargetResourceId(KeyForTypeName(typeof(T)), id);
 
         private void OnTrackChanged(Track oldTrack, Track newTrack)
         {
-            this.UpdateManager(newTrack?.Timeline?.Project?.ResourceManager);
+            this.SetManager(newTrack?.Timeline?.Project?.ResourceManager);
         }
 
         private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline)
         {
-            this.UpdateManager(timeline?.Project?.ResourceManager);
+            this.SetManager(timeline?.Project?.ResourceManager);
         }
 
         private void OnTrackTimelineProjectChanged(Project oldproject, Project newproject)
         {
-            this.UpdateManager(newproject?.ResourceManager);
+            this.SetManager(newproject?.ResourceManager);
         }
 
-        private void UpdateManager(ResourceManager manager)
+        private void SetManager(ResourceManager manager)
         {
-            if (this.ResourcePath != null && manager != this.ResourcePath.Manager)
-                this.ResourcePath.SetManager(manager);
+            using (ErrorList stack = new ErrorList())
+            {
+                foreach (BaseResourcePathEntry entry in this.ResourceMap.Values)
+                {
+                    ResourcePath path = entry.path;
+                    if (path == null || ReferenceEquals(path.Manager, manager))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        path.SetManager(manager);
+                    }
+                    catch (Exception e)
+                    {
+                        stack.Add(e);
+                    }
+                }
+            }
         }
 
-        /// <summary>
-        /// Sets this <see cref="ResourceHelper{T}"/>'s target resource ID. The previous <see cref="ResourcePath{T}"/> is
-        /// disposed and replace with a new instance using the same <see cref="ResourceManager"/>
-        /// </summary>
-        /// <param name="id">The target resource ID</param>
-        public void SetTargetResourceId(ulong id)
+        private void OnResourceChanged(BaseResourcePathEntry key, ResourceItem oldItem, ResourceItem newItem)
         {
-            if (id == 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(id), "ID must not be the null value (0)");
-            }
-
-            if (this.ResourcePath != null && this.ResourcePath.ResourceId == id)
-            {
-                return;
-            }
-
-            this.DisposePath();
-            this.ResourcePath = new ResourcePath<T>(this.Clip.Project?.ResourceManager, id);
-            this.ResourcePath.ResourceChanged += this.resourceChangedHandler;
-        }
-
-        private void OnResourceChangedInternal(T oldItem, T newItem)
-        {
-            if (oldItem != null)
-            {
-                oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
-                oldItem.DataModified -= this.dataModifiedHandler;
-            }
-
-            if (newItem != null)
-            {
-                newItem.OnlineStateChanged += this.onlineStateChangedHandler;
-                newItem.DataModified += this.dataModifiedHandler;
-            }
-
-            this.ResourceChanged?.Invoke(oldItem, newItem);
+            this.ResourceChanged?.Invoke(this, new ResourceChangedEventArgs(key, oldItem, newItem));
             this.TriggerClipRender();
         }
 
-        private void OnResourceDataModifiedInternal(ResourceItem sender, string property)
+        private void OnResourceDataModified(IBaseResourcePathKey key, ResourceItem sender, string property)
         {
-            if (this.ResourcePath == null)
-                throw new InvalidOperationException("Expected resource path to be non-null");
-            if (!this.ResourcePath.IsCachedItemEqualTo(sender))
-                throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-            this.ResourceDataModified?.Invoke((T) sender, property);
+            this.ResourceDataModified?.Invoke(this, new ResourceModifiedEventArgs(key, sender, property));
             this.TriggerClipRender();
         }
 
-        private void OnOnlineStateChangedInternal(ResourceManager manager, ResourceItem item)
+        private void OnOnlineStateChanged(ResourceItem item)
         {
-            if (!this.ResourcePath.IsCachedItemEqualTo(item))
-                throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-            this.OnOnlineStateChanged(manager, item);
+            this.OnlineStateChanged?.Invoke(this, item);
             this.TriggerClipRender();
         }
 
-        public void TriggerClipRender()
+        private void TriggerClipRender()
         {
-            if (this.Clip is VideoClip clip && (clip.Project?.Editor?.CanRender ?? false))
+            if (this.Clip is VideoClip clip)
             {
                 clip.InvalidateRender();
             }
@@ -164,44 +175,196 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
 
         public void WriteToRBE(RBEDictionary data)
         {
-            if (this.ResourcePath != null)
+            if (this.ResourceMap.Count > 0)
             {
-                ResourcePath<T>.WriteToRBE(this.ResourcePath, data.CreateDictionary(nameof(this.ResourcePath)));
+                RBEDictionary resourceMapDictionary = data.CreateDictionary(nameof(this.ResourceMap));
+                foreach (KeyValuePair<string, BaseResourcePathEntry> entry in this.ResourceMap)
+                {
+                    ExceptionUtils.Assert(entry.Key == entry.Value.entryKey, "Map pair key and entry key do not match");
+                    BaseResourcePathEntry.WriteToRBE(entry.Value, resourceMapDictionary);
+                }
             }
         }
 
         public void ReadFromRBE(RBEDictionary data)
         {
-            if (data.TryGetElement(nameof(this.ResourcePath), out RBEDictionary resource))
+            if (data.TryGetElement(nameof(this.ResourceMap), out RBEDictionary resourceMapDictionary))
             {
-                this.ResourcePath = ResourcePath<T>.ReadFromRBE(this.Clip.Project?.ResourceManager, resource);
+                foreach (KeyValuePair<string, RBEBase> pair in resourceMapDictionary.Map)
+                {
+                    if (this.ResourceMap.TryGetValue(pair.Key, out BaseResourcePathEntry entry) && pair.Value is RBEDictionary dictionary)
+                    {
+                        BaseResourcePathEntry.ReadFromRBE(entry, dictionary);
+                    }
+                }
             }
         }
 
-        public bool TryGetResource(out T resource)
+        public void Dispose()
         {
-            if (this.ResourcePath != null)
-            {
-                return this.ResourcePath.TryGetResource(out resource);
-            }
-
-            resource = null;
-            return false;
+            foreach (BaseResourcePathEntry entry in this.ResourceMap.Values)
+                entry.DisposePath();
         }
 
-        public override void Dispose()
+        public void LoadDataIntoClone(ResourceHelper clone)
         {
-            if (this.ResourcePath != null && !this.ResourcePath.IsDisposed)
+            foreach (KeyValuePair<string, BaseResourcePathEntry> pair in this.ResourceMap)
             {
-                this.DisposePath();
+                ResourcePath path = pair.Value.path;
+                if (path != null)
+                    clone.ResourceMap[pair.Key].SetTargetResourceId(path.ResourceId);
             }
         }
 
-        public void LoadDataIntoClone(ResourceHelper<T> helper)
+        private abstract class BaseResourcePathEntry : IBaseResourcePathKey
         {
-            if (this.ResourcePath != null)
+            private readonly ResourceHelper helper;
+            private readonly ResourceChangedEventHandler resourceChangedHandler;
+            private readonly ResourceModifiedEventHandler dataModifiedHandler;
+            private readonly ResourceItemEventHandler onlineStateChangedHandler;
+            public readonly string entryKey;
+            public ResourcePath path;
+
+            ResourcePath IBaseResourcePathKey.Path => this.path;
+            string IBaseResourcePathKey.Key => this.entryKey;
+
+            protected BaseResourcePathEntry(ResourceHelper clip, string entryKey)
             {
-                helper.SetTargetResourceId(this.ResourcePath.ResourceId);
+                this.helper = clip ?? throw new ArgumentNullException(nameof(clip));
+                this.entryKey = string.IsNullOrEmpty(entryKey) ? throw new ArgumentException("Entry id cannot be null or empty", nameof(entryKey)) : entryKey;
+                this.resourceChangedHandler = this.OnEntryResourceChangedInternal;
+                this.dataModifiedHandler = this.OnEntryResourceDataModifiedInternal;
+                this.onlineStateChangedHandler = this.OnEntryOnlineStateChangedInternal;
+            }
+
+            public void SetTargetResourceId(ulong id)
+            {
+                if (id == ResourceManager.EmptyId)
+                    throw new ArgumentException("ID must not be empty (0)");
+
+                ResourcePath oldPath = this.path;
+                if (oldPath != null)
+                {
+                    this.path = null; // just in case the code below throws, don't reference a disposed instance
+                    oldPath.Dispose();
+                    oldPath.ResourceChanged -= this.resourceChangedHandler;
+                }
+
+                this.path = new ResourcePath(this.helper.Clip.Project?.ResourceManager, id);
+                this.path.ResourceChanged += this.resourceChangedHandler;
+            }
+
+            public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem
+            {
+                if (this.path != null)
+                    return this.path.TryGetResource(out resource, requireIsOnline);
+                resource = null;
+                return false;
+            }
+
+            protected abstract bool IsItemApplicable(ResourceItem item);
+
+            protected abstract void OnEntryResourceChanged(ResourceItem oldItem, ResourceItem newItem);
+
+            private void OnEntryResourceChangedInternal(ResourceItem oldItem, ResourceItem newItem)
+            {
+                if (oldItem != null)
+                {
+                    oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
+                    oldItem.DataModified -= this.dataModifiedHandler;
+                }
+
+                if (newItem != null && this.IsItemApplicable(newItem))
+                {
+                    newItem.OnlineStateChanged += this.onlineStateChangedHandler;
+                    newItem.DataModified += this.dataModifiedHandler;
+                    this.OnEntryResourceChanged(oldItem, newItem);
+                    this.helper.OnResourceChanged(this, oldItem, newItem);
+                }
+                else
+                {
+                    this.OnEntryResourceChanged(oldItem, null);
+                    this.helper.OnResourceChanged(this, oldItem, null);
+                }
+            }
+
+            protected abstract void OnEntryResourceDataModified(ResourceItem sender, string property);
+
+            private void OnEntryResourceDataModifiedInternal(ResourceItem sender, string property)
+            {
+                if (this.path == null)
+                    throw new InvalidOperationException("Expected resource path to be non-null");
+                if (!this.path.IsCachedItemEqualTo(sender))
+                    throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
+                this.OnEntryResourceDataModified(sender, property);
+                this.helper.OnResourceDataModified(this, sender, property);
+            }
+
+            protected abstract void OnEntryOnlineStateChanged(ResourceItem item);
+
+            private void OnEntryOnlineStateChangedInternal(ResourceManager manager, ResourceItem item)
+            {
+                if (!this.path.IsCachedItemEqualTo(item))
+                    throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
+                this.OnEntryOnlineStateChanged(item);
+                this.helper.OnOnlineStateChanged(item);
+            }
+
+            public static void WriteToRBE(BaseResourcePathEntry entry, RBEDictionary resourceMapDictionary)
+            {
+                if (entry.path == null)
+                    return;
+                ResourcePath.WriteToRBE(entry.path, resourceMapDictionary.CreateDictionary(entry.entryKey));
+            }
+
+            public static void ReadFromRBE(BaseResourcePathEntry entry, RBEDictionary dictionary)
+            {
+                // handle this, just in case...
+                if (entry.path != null && entry.path.CanDispose)
+                {
+                    entry.DisposePath();
+                }
+
+                entry.path = ResourcePath.ReadFromRBE(dictionary);
+            }
+
+            public void DisposePath()
+            {
+                if (Helper.Exchange(ref this.path, null, out ResourcePath oldPath) && oldPath.CanDispose)
+                {
+                    oldPath.Dispose();
+                    oldPath.ResourceChanged -= this.resourceChangedHandler;
+                }
+            }
+        }
+
+        private class ResourcePathEntry<T> : BaseResourcePathEntry, IResourcePathKey<T> where T : ResourceItem
+        {
+            public event EntryResourceChangedEventHandler<T> ResourceChanged;
+            public event EntryResourceModifiedEventHandler<T> ResourceDataModified;
+            public event EntryResourceOnlineStateChangedEventHandler<T> OnlineStateChanged;
+
+            public ResourcePathEntry(ResourceHelper clip, string entryKey) : base(clip, entryKey)
+            {
+            }
+
+            public bool TryGetResource(out T resource, bool requireIsOnline = true) => base.TryGetResource(out resource, requireIsOnline);
+
+            protected override bool IsItemApplicable(ResourceItem item) => item is T;
+
+            protected override void OnEntryResourceChanged(ResourceItem oldItem, ResourceItem newItem)
+            {
+                this.ResourceChanged?.Invoke((T) oldItem, (T) newItem);
+            }
+
+            protected override void OnEntryResourceDataModified(ResourceItem sender, string property)
+            {
+                this.ResourceDataModified?.Invoke((T) sender, property);
+            }
+
+            protected override void OnEntryOnlineStateChanged(ResourceItem item)
+            {
+                this.OnlineStateChanged?.Invoke((T) item);
             }
         }
     }

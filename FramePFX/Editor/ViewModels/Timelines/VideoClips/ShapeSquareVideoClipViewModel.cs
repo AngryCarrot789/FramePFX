@@ -63,7 +63,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
         {
             DropRegistry.Register<ShapeSquareVideoClipViewModel, ResourceColourViewModel>((c, h, dt) => true, (c, h, dt) =>
             {
-                c.Model.ResourceHelper.SetTargetResourceId(h.UniqueId);
+                c.Model.ColourKey.SetTargetResourceId(h.UniqueId);
                 return Task.CompletedTask;
             });
         }

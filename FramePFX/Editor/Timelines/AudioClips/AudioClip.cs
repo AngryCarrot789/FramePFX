@@ -13,9 +13,9 @@ namespace FramePFX.Editor.Timelines.AudioClips
             return new AudioClip();
         }
 
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
+        protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags)
         {
-            base.LoadDataIntoClone(clone, flags);
+            base.LoadUserDataIntoClone(clone, flags);
             AudioClip clip = (AudioClip) clone;
             clip.Volume = this.Volume;
             clip.IsMuted = this.IsMuted;

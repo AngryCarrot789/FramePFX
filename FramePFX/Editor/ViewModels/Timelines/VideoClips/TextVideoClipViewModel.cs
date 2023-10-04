@@ -26,7 +26,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
             get => this.fontFamily;
             set
             {
-                if (this.Model.ResourceHelper.TryGetResource(out ResourceTextStyle resource))
+                if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource))
                 {
                     resource.OnDataModified(ref resource.FontFamily, value, nameof(resource.FontFamily));
                 }
@@ -40,7 +40,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
             get => this.fontSize;
             set
             {
-                if (this.Model.ResourceHelper.TryGetResource(out ResourceTextStyle resource))
+                if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource))
                 {
                     resource.OnDataModified(ref resource.FontSize, value, nameof(resource.FontSize));
                 }
@@ -54,7 +54,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
             get => this.skewX;
             set
             {
-                if (this.Model.ResourceHelper.TryGetResource(out ResourceTextStyle resource))
+                if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource))
                 {
                     resource.OnDataModified(ref resource.SkewX, value, nameof(resource.SkewX));
                 }
@@ -63,8 +63,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
 
         public TextVideoClipViewModel(TextVideoClip model) : base(model)
         {
-            model.ResourceHelper.ResourceDataModified += this.OnResourceModified;
-            model.ResourceHelper.ResourceChanged += this.OnResourceChanged;
+            model.TextStyleKey.ResourceDataModified += this.OnResourceModified;
+            model.TextStyleKey.ResourceChanged += this.OnResourceChanged;
         }
 
         private void OnResourceChanged(ResourceTextStyle oldItem, ResourceTextStyle newItem)

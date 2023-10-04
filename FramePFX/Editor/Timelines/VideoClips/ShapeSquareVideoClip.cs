@@ -4,16 +4,13 @@ using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
-using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Rendering.Utils;
-using FramePFX.Utils;
-using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class ShapeSquareVideoClip : VideoClip, IResourceClip<ResourceColour>
+    public class ShapeSquareVideoClip : VideoClip, IResourceClip
     {
         public static readonly AutomationKeyFloat WidthKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Width), 100f);
         public static readonly AutomationKeyFloat HeightKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Height), 100f);
@@ -28,15 +25,17 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public override bool UseCustomOpacityCalculation => true;
 
-        public ResourceHelper<ResourceColour> ResourceHelper { get; }
-        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
+        public ResourceHelper ResourceHelper { get; }
+
+        public IResourcePathKey<ResourceColour> ColourKey { get; }
 
         public ShapeSquareVideoClip()
         {
             this.AutomationData.AssignKey(WidthKey, (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Width = s.GetFloatValue(f));
             this.AutomationData.AssignKey(HeightKey, (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Height = s.GetFloatValue(f));
-            this.ResourceHelper = new ResourceHelper<ResourceColour>(this);
-            this.ResourceHelper.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
+            this.ResourceHelper = new ResourceHelper(this);
+            this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
+            this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
         private void ResourceHelperOnResourceDataModified(ResourceColour resource, string property)
@@ -70,7 +69,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public override bool OnBeginRender(long frame)
         {
-            if (!this.ResourceHelper.TryGetResource(out ResourceColour _))
+            if (!this.ColourKey.TryGetResource(out ResourceColour _))
             {
                 return false;
             }
@@ -80,7 +79,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public override Task OnEndRender(RenderContext rc, long frame)
         {
-            if (this.ResourceHelper.TryGetResource(out ResourceColour r))
+            if (this.ColourKey.TryGetResource(out ResourceColour r))
             {
                 Matrix4x4 matrix = Matrix4x4.CreateScale(this.Width / 2f, this.Height / 2f, 1f) * rc.MatrixStack.Matrix;
                 Matrix4x4 mvp = matrix * rc.Projection;
@@ -100,11 +99,10 @@ namespace FramePFX.Editor.Timelines.VideoClips
             return new ShapeSquareVideoClip();
         }
 
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
+        protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags)
         {
-            base.LoadDataIntoClone(clone, flags);
+            base.LoadUserDataIntoClone(clone, flags);
             ShapeSquareVideoClip clip = (ShapeSquareVideoClip) clone;
-            this.ResourceHelper.LoadDataIntoClone(clip.ResourceHelper);
             clip.Width = this.Width;
             clip.Height = this.Height;
         }

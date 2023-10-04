@@ -124,7 +124,7 @@ namespace FramePFX.Editor.Actions.Clips
 
                 // create composition clip
                 CompositionVideoClip clip = new CompositionVideoClip();
-                clip.ResourceHelper.SetTargetResourceId(comp.UniqueId);
+                clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
                 clip.FrameSpan = span;
                 clip.DisplayName = $"New Composition ({totalClips} clips)";
                 clip.AddEffect(new MotionEffect());

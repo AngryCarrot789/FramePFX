@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using FFmpeg.AutoGen;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting.Exporters;
 using FramePFX.Editor.ViewModels;

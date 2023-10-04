@@ -7,19 +7,21 @@ using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class CompositionVideoClip : VideoClip, IResourceClip<ResourceComposition>
+    public class CompositionVideoClip : VideoClip, IResourceClip
     {
-        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
-        public ResourceHelper<ResourceComposition> ResourceHelper { get; }
-
         private CancellationTokenSource tokenSource;
 
         private long relativeRenderFrame;
         private long relativePeriodicFrame;
 
+        public ResourceHelper ResourceHelper { get; }
+
+        public IResourcePathKey<ResourceComposition> ResourceCompositionKey { get; }
+
         public CompositionVideoClip()
         {
-            this.ResourceHelper = new ResourceHelper<ResourceComposition>(this);
+            this.ResourceHelper = new ResourceHelper(this);
+            this.ResourceCompositionKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceComposition>();
         }
 
         public override Vector2? GetSize(RenderContext rc) => rc.FrameSize;
@@ -27,7 +29,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
         public override bool OnBeginRender(long frame)
         {
             Project project;
-            if (!this.ResourceHelper.TryGetResource(out ResourceComposition resource) || (project = resource.Timeline.Project) == null)
+            if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource) || (project = resource.Timeline.Project) == null)
             {
                 return false;
             }
@@ -44,7 +46,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public override Task OnEndRender(RenderContext rc, long frame)
         {
-            if (!this.ResourceHelper.TryGetResource(out ResourceComposition resource))
+            if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource))
             {
                 return Task.CompletedTask;
             }
@@ -64,13 +66,6 @@ namespace FramePFX.Editor.Timelines.VideoClips
         protected override Clip NewInstanceForClone()
         {
             return new CompositionVideoClip();
-        }
-
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
-        {
-            base.LoadDataIntoClone(clone, flags);
-            CompositionVideoClip clip = (CompositionVideoClip) clone;
-            this.ResourceHelper.LoadDataIntoClone(clip.ResourceHelper);
         }
     }
 }

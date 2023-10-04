@@ -39,7 +39,7 @@ namespace FramePFX.Automation
                             UpdateAutomationData(effect, relative);
                         }
 
-                        if (clip is CompositionVideoClip composition && composition.ResourceHelper.TryGetResource(out ResourceComposition resource))
+                        if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource))
                         {
                             long duration = resource.Timeline.LargestFrameInUse;
                             UpdateTimeline(resource.Timeline, duration > 0 ? relative % duration : 0);
@@ -125,21 +125,25 @@ namespace FramePFX.Automation
         {
             timeline.AutomationData.UpdateBackingStorage();
             foreach (Track track in timeline.Tracks)
-            {
-                track.AutomationData.UpdateBackingStorage();
-                foreach (Clip clip in track.Clips)
-                {
-                    clip.AutomationData.UpdateBackingStorage();
-                    foreach (BaseEffect effect in clip.Effects)
-                    {
-                        effect.AutomationData.UpdateBackingStorage();
-                    }
+                UpdateBackingStorage(track);
+        }
 
-                    if (clip is CompositionVideoClip composition && composition.ResourceHelper.TryGetResource(out ResourceComposition resource))
-                    {
-                        UpdateBackingStorage(resource.Timeline);
-                    }
-                }
+        public static void UpdateBackingStorage(Track track)
+        {
+            track.AutomationData.UpdateBackingStorage();
+            foreach (Clip clip in track.Clips)
+                UpdateBackingStorage(clip);
+        }
+
+        public static void UpdateBackingStorage(Clip clip)
+        {
+            clip.AutomationData.UpdateBackingStorage();
+            foreach (BaseEffect effect in clip.Effects)
+                effect.AutomationData.UpdateBackingStorage();
+
+            if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource))
+            {
+                UpdateBackingStorage(resource.Timeline);
             }
         }
 

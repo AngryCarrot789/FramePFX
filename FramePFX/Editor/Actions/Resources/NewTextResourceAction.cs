@@ -89,7 +89,7 @@ namespace FramePFX.Editor.Actions.Resources
                     }
 
                     TextVideoClip textClip = new TextVideoClip();
-                    textClip.ResourceHelper.SetTargetResourceId(textStyle.UniqueId);
+                    textClip.TextStyleKey.SetTargetResourceId(textStyle.UniqueId);
                     textClip.FrameSpan = span;
                     textClip.AddEffect(new MotionEffect());
                     textClip.DisplayName = name;

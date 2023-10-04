@@ -6,18 +6,20 @@ using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class ImageVideoClip : VideoClip, IResourceClip<ResourceImage>
+    public class ImageVideoClip : VideoClip, IResourceClip
     {
-        public ResourceHelper<ResourceImage> ResourceHelper { get; }
-        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
+        public ResourceHelper ResourceHelper { get; }
+
+        public IResourcePathKey<ResourceImage> ImageKey { get; set; }
 
         public ImageVideoClip()
         {
-            this.ResourceHelper = new ResourceHelper<ResourceImage>(this);
-            this.ResourceHelper.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
+            this.ResourceHelper = new ResourceHelper(this);
+            this.ImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();
+            this.ImageKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
-        private void ResourceHelperOnResourceDataModified(ResourceImage resource, string property)
+        private void ResourceHelperOnResourceDataModified(ResourceImage resourceImage, string property)
         {
             switch (property)
             {
@@ -30,24 +32,21 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public override Vector2? GetSize(RenderContext rc)
         {
-            if (!this.ResourceHelper.HasPath || !this.ResourceHelper.ResourcePath.TryGetResource(out ResourceImage r) || r.image == null)
-            {
+            if (!this.ImageKey.TryGetResource(out ResourceImage r) || r.image == null)
                 return null;
-            }
-
             return new Vector2(r.image.Width, r.image.Height);
         }
 
         public override bool OnBeginRender(long frame)
         {
-            if (!this.ResourceHelper.TryGetResource(out ResourceImage resource))
+            if (!this.ImageKey.TryGetResource(out ResourceImage resource))
                 return false;
             return resource.image != null;
         }
 
         public override Task OnEndRender(RenderContext rc, long frame)
         {
-            if (!this.ResourceHelper.TryGetResource(out ResourceImage resource))
+            if (!this.ImageKey.TryGetResource(out ResourceImage resource))
                 return Task.CompletedTask;
             if (resource.image == null)
                 return Task.CompletedTask;
@@ -58,12 +57,6 @@ namespace FramePFX.Editor.Timelines.VideoClips
         protected override Clip NewInstanceForClone()
         {
             return new ImageVideoClip();
-        }
-
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
-        {
-            base.LoadDataIntoClone(clone, flags);
-            this.ResourceHelper.LoadDataIntoClone(((ImageVideoClip) clone).ResourceHelper);
         }
     }
 }

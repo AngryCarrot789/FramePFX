@@ -260,6 +260,7 @@
     <Compile Include="Editor\Resources\ResourceTreeViewItem.cs" />
     <Compile Include="Editor\Timeline\Controls\AutomationComboBox.cs" />
     <Compile Include="Editor\Timeline\Controls\SelectionAdorner.cs" />
+    <Compile Include="Editor\Timeline\Controls\TimelineClipContents.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineContentPanel.cs" />
     <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />

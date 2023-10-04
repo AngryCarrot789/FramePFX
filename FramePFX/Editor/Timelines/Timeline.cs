@@ -10,17 +10,13 @@ using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Rendering.ObjectTK;
 using FramePFX.Rendering.Utils;
 using FramePFX.Utils;
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
 
 namespace FramePFX.Editor.Timelines
 {

@@ -1,6 +1,5 @@
 using System.Numerics;
 using FramePFX.Automation.Keys;
-using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 

@@ -9,11 +9,10 @@ using FramePFX.FFmpegWrapper;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class AVMediaVideoClip : VideoClip, IResourceClip<ResourceAVMedia>
+    public class AVMediaVideoClip : VideoClip, IResourceClip
     {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         public unsafe SwsContext* scaler;
@@ -24,22 +23,18 @@ namespace FramePFX.Editor.Timelines.VideoClips
         // TODO: decoder thread
         // public override bool UseAsyncRendering => true;
 
-        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
-        public ResourceHelper<ResourceAVMedia> ResourceHelper { get; }
+        public ResourceHelper ResourceHelper { get; }
+
+        public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
         public AVMediaVideoClip()
         {
-            this.ResourceHelper = new ResourceHelper<ResourceAVMedia>(this);
-            this.ResourceHelper.ResourceChanged += this.OnResourceChanged;
+            this.ResourceHelper = new ResourceHelper(this);
+            this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
+            this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
         }
 
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
-        {
-            base.LoadDataIntoClone(clone, flags);
-            this.ResourceHelper.LoadDataIntoClone(((AVMediaVideoClip) clone).ResourceHelper);
-        }
-
-        private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceHelper.TryGetResource(out resource);
+        private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceAVMediaKey.TryGetResource(out resource);
 
         public override Vector2? GetSize(RenderContext rc)
         {

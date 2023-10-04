@@ -1,14 +1,10 @@
 using System;
 using System.ComponentModel;
-using System.Data.Odbc;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using FramePFX.Utils;
 using FramePFX.Utils.Numerics;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using Rect = System.Windows.Rect;

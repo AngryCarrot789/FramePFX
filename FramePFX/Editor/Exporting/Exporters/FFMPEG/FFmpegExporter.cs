@@ -9,7 +9,6 @@ using FramePFX.Logger;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
 using LavResult = FramePFX.FFmpegWrapper.LavResult;
 
 namespace FramePFX.Editor.Exporting.Exporters.FFMPEG

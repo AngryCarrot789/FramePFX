@@ -1,9 +1,6 @@
-﻿using FramePFX.Rendering.Utils;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace FramePFX.Editor.Timelines
 {

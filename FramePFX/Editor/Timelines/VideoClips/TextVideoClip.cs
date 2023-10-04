@@ -2,15 +2,15 @@ using System;
 using System.Collections.Specialized;
 using System.Numerics;
 using System.Threading.Tasks;
+using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.Rendering;
-using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class TextVideoClip : VideoClip, IResourceClip<ResourceTextStyle>
+    public class TextVideoClip : VideoClip, IResourceClip
     {
         private BitVector32 clipProps;
 
@@ -21,29 +21,29 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// </summary>
         public string Text;
 
-        BaseResourceHelper IBaseResourceClip.ResourceHelper => this.ResourceHelper;
-        public ResourceHelper<ResourceTextStyle> ResourceHelper { get; }
-
         private Vector2 TextBlobBoundingBox;
+
+        public ResourceHelper ResourceHelper { get; }
+
+        public IResourcePathKey<ResourceTextStyle> TextStyleKey { get; }
 
         public TextVideoClip()
         {
-            this.ResourceHelper = new ResourceHelper<ResourceTextStyle>(this);
-            this.ResourceHelper.ResourceChanged += this.OnResourceChanged;
-            this.ResourceHelper.ResourceDataModified += this.OnResourceDataModified;
+            this.ResourceHelper = new ResourceHelper(this);
+            this.TextStyleKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceTextStyle>();
+            this.TextStyleKey.ResourceChanged += this.OnResourceTextStyleChanged;
+            this.TextStyleKey.ResourceDataModified += this.OnResourceTextStyleDataModified;
             this.clipProps = new BitVector32();
         }
 
-        protected void OnResourceChanged(ResourceTextStyle oldItem, ResourceTextStyle newItem)
+        protected void OnResourceTextStyleChanged(ResourceItem oldItem, ResourceItem newItem)
         {
             this.InvalidateTextCache();
             if (newItem != null)
-            {
                 this.GenerateTextCache();
-            }
         }
 
-        protected void OnResourceDataModified(ResourceTextStyle resource, string property)
+        protected void OnResourceTextStyleDataModified(ResourceItem resource, string property)
         {
             switch (property)
             {
@@ -86,9 +86,9 @@ namespace FramePFX.Editor.Timelines.VideoClips
             return new TextVideoClip();
         }
 
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
+        protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags)
         {
-            base.LoadDataIntoClone(clone, flags);
+            base.LoadUserDataIntoClone(clone, flags & ~ClipCloneFlags.ResourceHelper);
             TextVideoClip clip = (TextVideoClip) clone;
             clip.Text = this.Text;
 

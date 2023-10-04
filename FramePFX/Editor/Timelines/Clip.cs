@@ -262,14 +262,24 @@ namespace FramePFX.Editor.Timelines
                 }
             }
 
-            this.LoadDataIntoClone(clone, flags);
+            this.LoadUserDataIntoClone(clone, flags);
+            AutomationEngine.UpdateBackingStorage(clone);
             return clone;
         }
 
         protected abstract Clip NewInstanceForClone();
 
-        protected virtual void LoadDataIntoClone(Clip clone, ClipCloneFlags flags)
+        /// <summary>
+        /// Loads user-specific data into the cloned clip
+        /// </summary>
+        /// <param name="clone">The new clip instance</param>
+        /// <param name="flags">Cloning flags</param>
+        protected virtual void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags)
         {
+            if ((flags & ClipCloneFlags.ResourceHelper) != 0 && this is IResourceClip)
+            {
+                ((IResourceClip) this).ResourceHelper.LoadDataIntoClone(((IResourceClip) clone).ResourceHelper);
+            }
         }
 
         #endregion
@@ -312,7 +322,7 @@ namespace FramePFX.Editor.Timelines
         protected virtual void DisposeCore()
         {
             this.ClearEffects();
-            if (this is IBaseResourceClip resourceClip)
+            if (this is IResourceClip resourceClip)
             {
                 resourceClip.ResourceHelper.Dispose();
             }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,8 +27,6 @@ using FramePFX.WPF.Notifications;
 using FramePFX.WPF.Themes;
 using FramePFX.WPF.Views;
 using OpenTK.Graphics.OpenGL;
-using SkiaSharp;
-using Time = FramePFX.Utils.Time;
 
 namespace FramePFX.WPF.Editor.MainWindow
 {

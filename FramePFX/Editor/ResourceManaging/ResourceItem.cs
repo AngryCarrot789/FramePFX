@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.RBC;
@@ -38,11 +39,45 @@ namespace FramePFX.Editor.ResourceManaging
         /// </summary>
         public ulong UniqueId { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the number of clips that reference this resource
+        /// </summary>
+        public int ReferenceCount => this.references.Count;
+
+        private readonly List<ResourcePath> references;
+        public IReadOnlyList<ResourcePath> References => this.references;
+
         public event ResourceModifiedEventHandler DataModified;
-        public event ResourceItemEventHandler OnlineStateChanged;
+        public event ResourceAndManagerEventHandler OnlineStateChanged;
+        public event ResourceReferenceModifiedEventHandler ReferenceCountChanged;
 
         protected ResourceItem()
         {
+            this.references = new List<ResourcePath>();
+        }
+
+        public void AddReference(ResourcePath reference)
+        {
+            if (reference == null)
+                throw new ArgumentNullException(nameof(reference));
+            this.references.Add(reference);
+            this.ReferenceCountChanged?.Invoke(this, reference, true);
+        }
+
+        public void RemoveReference(ResourcePath reference)
+        {
+            if (reference == null)
+                throw new ArgumentNullException(nameof(reference));
+            if (!this.references.Remove(reference))
+                throw new Exception("Clip is not referenced");
+            this.ReferenceCountChanged?.Invoke(this, reference, false);
+        }
+
+        public void RemoveReferenceAt(int index)
+        {
+            ResourcePath reference = this.references[index];
+            this.references.RemoveAt(index);
+            this.ReferenceCountChanged?.Invoke(this, reference, false);
         }
 
         /// <summary>

@@ -296,6 +296,9 @@ namespace FramePFX.Editor.Timelines
         /// <para>
         /// Dispose only throws an exception in truly exceptional cases that should result in the app crashing
         /// </para>
+        /// <para>
+        /// This function clears all effects and releases any resource handles
+        /// </para>
         /// </summary>
         public void Dispose()
         {

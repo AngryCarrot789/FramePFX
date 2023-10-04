@@ -2,11 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
-using FramePFX.Editor.History;
-using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.History.ViewModels;
-using FramePFX.RBC;
 
 namespace FramePFX.Editor.Actions.Clips
 {
@@ -24,25 +20,12 @@ namespace FramePFX.Editor.Actions.Clips
                 return false;
             }
 
-            bool deleted = false;
-            List<List<RBEDictionary>> list = new List<List<RBEDictionary>>();
             foreach (TrackViewModel track in timeline.Tracks.ToList())
             {
-                List<RBEDictionary> clips = new List<RBEDictionary>();
                 if (track.SelectedClips.Count > 0)
                 {
-                    List<ClipViewModel> selection = track.SelectedClips.ToList();
-                    clips.AddRange(selection.Select(clip => Clip.WriteSerialisedWithId(clip.Model)));
-                    await track.DisposeAndRemoveItemsAction(selection);
-                    deleted = true;
+                    await track.DisposeAndRemoveItemsAction(track.SelectedClips);
                 }
-
-                list.Add(clips);
-            }
-
-            if (deleted)
-            {
-                HistoryManagerViewModel.Instance.AddAction(new HistoryClipDeletion(timeline, list));
             }
 
             return true;

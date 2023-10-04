@@ -11,7 +11,7 @@ namespace FramePFX.Commands
     /// </para>
     /// <para>
     /// <see cref="IsRunning"/> (and most likely <see cref="CanExecute"/> too) return false if the command is being run, however, this shouldn't
-    /// be relied on due to the reality of multithreading; the command could finish just as another piece of code detects it's already running
+    /// be relied on due to the reality of multithreading; the command could finish just after another piece of code detects it's already running
     /// </para>
     /// </summary>
     public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayCommand

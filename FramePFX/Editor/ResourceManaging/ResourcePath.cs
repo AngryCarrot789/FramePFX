@@ -1,22 +1,27 @@
 using System;
 using System.Diagnostics;
 using FramePFX.Editor.ResourceManaging.Events;
+using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Logger;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.ResourceManaging
 {
+    /// <summary>
+    /// A class which encapsulated a resource reference and handles the reference counter for the resource
+    /// </summary>
     public sealed class ResourcePath : IDisposable
     {
-        private readonly ResourceItemEventHandler resourceAddedHandler;
-        private readonly ResourceItemEventHandler resourceRemovedHandler;
+        private readonly ResourceAndManagerEventHandler resourceAddedHandler;
+        private readonly ResourceAndManagerEventHandler resourceRemovedHandler;
         private readonly ResourceReplacedEventHandler resourceReplacedHandler;
-        private readonly ResourceItemEventHandler onlineStateChangedHandler;
+        private readonly ResourceAndManagerEventHandler onlineStateChangedHandler;
 
         private ResourceItem cached;
         private bool isDisposing;
         private bool isDisposed;
         private bool isManagerChanging;
+        private bool isReferencedCounted;
 
         public bool IsDisposing => this.isDisposing;
         public bool IsDisposed => this.isDisposed;
@@ -45,13 +50,19 @@ namespace FramePFX.Editor.ResourceManaging
         /// <summary>
         /// An event fired when the online state of our cached resource changes
         /// </summary>
-        public event ResourceItemEventHandler OnlineStateChanged;
+        public event ResourceAndManagerEventHandler OnlineStateChanged;
 
-        public ResourcePath(ulong resourceId) : this(null, resourceId) { }
+        /// <summary>
+        /// Gets the path key that owns this resource path
+        /// </summary>
+        public IBaseResourcePathKey Owner { get; }
 
-        public ResourcePath(ResourceManager manager, ulong resourceId)
+        public ResourcePath(IBaseResourcePathKey owner, ulong resourceId) : this(owner, null, resourceId) { }
+
+        public ResourcePath(IBaseResourcePathKey owner, ResourceManager manager, ulong resourceId)
         {
             this.ResourceId = resourceId == ResourceManager.EmptyId ? throw new ArgumentException("Unique id cannot be 0 (null)") : resourceId;
+            this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.resourceAddedHandler = this.OnManagerResourceAdded;
             this.resourceRemovedHandler = this.OnManagerResourceRemoved;
             this.resourceReplacedHandler = this.OnManagerResourceReplaced;
@@ -62,6 +73,8 @@ namespace FramePFX.Editor.ResourceManaging
                 this.AttachManager(manager);
             }
         }
+
+        public bool IsItemApplicable(ResourceItem item) => this.Owner.IsItemTypeApplicable(item);
 
         public void SetManager(ResourceManager manager)
         {
@@ -134,9 +147,33 @@ namespace FramePFX.Editor.ResourceManaging
         private void OnResourceChanged(ResourceItem oldItem, ResourceItem newItem)
         {
             if (oldItem != null)
+            {
                 oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
+                this.SetReferenceCount(oldItem, false);
+            }
+
             if (newItem != null)
+            {
                 newItem.OnlineStateChanged += this.onlineStateChangedHandler;
+                this.SetReferenceCount(newItem, true);
+            }
+        }
+
+        public void SetReferenceCount(ResourceItem item, bool isReferenced)
+        {
+            if (isReferenced)
+            {
+                if (!this.isReferencedCounted)
+                {
+                    this.isReferencedCounted = true;
+                    item.AddReference(this);
+                }
+            }
+            else if (this.isReferencedCounted)
+            {
+                this.isReferencedCounted = false;
+                item.RemoveReference(this);
+            }
         }
 
         private ResourceItem GetInternalResource()
@@ -170,10 +207,7 @@ namespace FramePFX.Editor.ResourceManaging
 
             this.ResourceId = uniqueId;
             if (this.IsValid == true)
-            {
                 this.SetInternalResource(null, fireResourceChanged);
-            }
-
             this.IsValid = null;
         }
 
@@ -192,7 +226,7 @@ namespace FramePFX.Editor.ResourceManaging
             this.EnsureManagerNotChanging("Cannot attempt to get resource while manager is being set");
             switch (this.IsValid)
             {
-                case false:
+                case false when this.Manager != null:
                 {
                     if (this.cached != null)
                         throw new Exception("Expected null cached item when state is invalid");
@@ -369,12 +403,12 @@ namespace FramePFX.Editor.ResourceManaging
             data.SetULong(nameof(resource.ResourceId), resource.ResourceId);
         }
 
-        public static ResourcePath ReadFromRBE(RBEDictionary data)
+        public static ResourcePath ReadFromRBE(IBaseResourcePathKey owner, RBEDictionary data)
         {
             ulong id = data.GetULong(nameof(ResourceId));
             if (id == ResourceManager.EmptyId)
                 throw new ArgumentException("Resource ID from the data was 0 (null)");
-            return new ResourcePath(id);
+            return new ResourcePath(owner, id);
         }
 
         #endregion

@@ -221,10 +221,11 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
             private readonly ResourceHelper helper;
             private readonly ResourceChangedEventHandler resourceChangedHandler;
             private readonly ResourceModifiedEventHandler dataModifiedHandler;
-            private readonly ResourceItemEventHandler onlineStateChangedHandler;
+            private readonly ResourceAndManagerEventHandler onlineStateChangedHandler;
             public readonly string entryKey;
             public ResourcePath path;
 
+            ResourceHelper IBaseResourcePathKey.Helper => this.helper;
             ResourcePath IBaseResourcePathKey.Path => this.path;
             string IBaseResourcePathKey.Key => this.entryKey;
 
@@ -237,7 +238,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
                 this.onlineStateChangedHandler = this.OnEntryOnlineStateChangedInternal;
             }
 
-            public void SetTargetResourceId(ulong id)
+            public virtual void SetTargetResourceId(ulong id)
             {
                 if (id == ResourceManager.EmptyId)
                     throw new ArgumentException("ID must not be empty (0)");
@@ -250,7 +251,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
                     oldPath.ResourceChanged -= this.resourceChangedHandler;
                 }
 
-                this.path = new ResourcePath(this.helper.Clip.Project?.ResourceManager, id);
+                this.path = new ResourcePath(this, this.helper.Clip.Project?.ResourceManager, id);
                 this.path.ResourceChanged += this.resourceChangedHandler;
             }
 
@@ -262,7 +263,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
                 return false;
             }
 
-            protected abstract bool IsItemApplicable(ResourceItem item);
+            public abstract bool IsItemTypeApplicable(ResourceItem item);
 
             protected abstract void OnEntryResourceChanged(ResourceItem oldItem, ResourceItem newItem);
 
@@ -274,7 +275,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
                     oldItem.DataModified -= this.dataModifiedHandler;
                 }
 
-                if (newItem != null && this.IsItemApplicable(newItem))
+                if (newItem != null && this.IsItemTypeApplicable(newItem))
                 {
                     newItem.OnlineStateChanged += this.onlineStateChangedHandler;
                     newItem.DataModified += this.dataModifiedHandler;
@@ -325,7 +326,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
                     entry.DisposePath();
                 }
 
-                entry.path = ResourcePath.ReadFromRBE(dictionary);
+                entry.path = ResourcePath.ReadFromRBE(entry, dictionary);
             }
 
             public void DisposePath()
@@ -350,7 +351,13 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
 
             public bool TryGetResource(out T resource, bool requireIsOnline = true) => base.TryGetResource(out resource, requireIsOnline);
 
-            protected override bool IsItemApplicable(ResourceItem item) => item is T;
+            public override void SetTargetResourceId(ulong id)
+            {
+                base.SetTargetResourceId(id);
+                // base.TryGetResource(out T _, false);
+            }
+
+            public override bool IsItemTypeApplicable(ResourceItem item) => item is T;
 
             protected override void OnEntryResourceChanged(ResourceItem oldItem, ResourceItem newItem)
             {

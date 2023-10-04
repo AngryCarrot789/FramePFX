@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.ResourceChecker;
-using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Logger;
 using FramePFX.Utils;
 
@@ -10,8 +9,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels
 {
     public abstract class ResourceItemViewModel : BaseResourceViewModel
     {
-        private readonly ResourceItemEventHandler onlineStateChangedHandler;
-
         public new ResourceItem Model => (ResourceItem) base.Model;
 
         public ulong UniqueId => this.Model.UniqueId;
@@ -34,15 +31,17 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels
 
         public AsyncRelayCommand SetOnlineCommand { get; }
 
+        public int ReferenceCount => this.Model.ReferenceCount;
+
         protected ResourceItemViewModel(ResourceItem model) : base(model)
         {
-            this.onlineStateChangedHandler = (a, b) =>
+            model.OnlineStateChanged += (a, b) =>
             {
                 this.RaisePropertyChanged(nameof(this.IsOnline));
                 this.RaisePropertyChanged(nameof(this.IsOfflineByUser));
             };
 
-            model.OnlineStateChanged += this.onlineStateChangedHandler;
+            model.ReferenceCountChanged += (item, reference, added) => this.RaisePropertyChanged(nameof(this.ReferenceCount));
             this.SetOfflineCommand = new AsyncRelayCommand(() => this.SetOfflineAsync(true), () => this.IsOnline);
             this.SetOnlineCommand = new AsyncRelayCommand(async () =>
             {
@@ -216,12 +215,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels
 
             AppLogger.WriteLine($"Loaded new resource '{resource.GetType().Name}': {(result ? $"Success (ID '{id}')" : "Failed")}");
             return result;
-        }
-
-        protected override void OnModelDisposed()
-        {
-            this.Model.OnlineStateChanged -= this.onlineStateChangedHandler;
-            base.OnModelDisposed();
         }
     }
 }

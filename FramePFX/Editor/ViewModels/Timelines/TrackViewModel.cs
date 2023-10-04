@@ -205,32 +205,17 @@ namespace FramePFX.Editor.ViewModels.Timelines
             await this.DisposeAndRemoveItemsAction(list);
         }
 
-        public async Task DisposeAndRemoveItemsAction(IEnumerable<ClipViewModel> list)
+        public async Task DisposeAndRemoveItemsAction(IEnumerable<ClipViewModel> items)
         {
-            try
-            {
-                this.DisposeAndRemoveItemsUnsafe(list as List<ClipViewModel> ?? list.ToList());
-            }
-            catch (Exception e)
-            {
-                await Services.DialogService.ShowMessageExAsync("Error", "An error occurred while removing clips", e.GetToString());
-            }
-        }
-
-        public void DisposeAndRemoveItemsUnsafe(IList<ClipViewModel> list)
-        {
-            using (ErrorList stack = new ErrorList("Exception disposing clips"))
+            List<ClipViewModel> list = items as List<ClipViewModel> ?? items.ToList();
+            using (ErrorList stack = new ErrorList("One or more exceptions occurred while removing clips", false, true))
             {
                 foreach (ClipViewModel clip in list)
                 {
                     int index = this.clips.IndexOf(clip);
                     if (index < 0)
-                    {
                         continue;
-                    }
 
-                    Validate.Exception(index < this.Model.Clips.Count, "Model-ViewModel list desynchronized");
-                    Validate.Exception(ReferenceEquals(clip.Model, this.Model.Clips[index]), "Model-ViewModel list desynchronized");
                     this.RemoveClipAt(index);
                     try
                     {
@@ -240,6 +225,11 @@ namespace FramePFX.Editor.ViewModels.Timelines
                     {
                         stack.Add(new Exception($"Failed to dispose {clip.GetType()} properly", e));
                     }
+                }
+
+                if (stack.TryGetException(out Exception exception))
+                {
+                    await Services.DialogService.ShowMessageExAsync("Error", "An error occurred while removing clips", exception.GetToString());
                 }
             }
         }

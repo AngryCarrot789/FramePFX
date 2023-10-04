@@ -23,12 +23,12 @@ namespace FramePFX.Editor.ResourceManaging
         /// <summary>
         /// An event called when a resource is added to this manager
         /// </summary>
-        public event ResourceItemEventHandler ResourceAdded;
+        public event ResourceAndManagerEventHandler ResourceAdded;
 
         /// <summary>
         /// An event called when a resource is removed from this manager
         /// </summary>
-        public event ResourceItemEventHandler ResourceRemoved;
+        public event ResourceAndManagerEventHandler ResourceRemoved;
 
         /// <summary>
         /// An event called when a resource is replaced with another resource

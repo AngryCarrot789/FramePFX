@@ -70,7 +70,7 @@ namespace FramePFX.Commands
                 }
                 else
                 {
-                    Services.Application.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
+                    application.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
                 }
             }
         }

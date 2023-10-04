@@ -68,6 +68,5 @@ Currently there's only a WPF implementation, but I hope to switch to Avalonia at
 
 ## BUGS
 - Importing certain video files can crash (some sort of "found invalid data while decoding" error)
-- Nested (aka composition) timelines do not render. I can't figure out how to property do the matrix calculations, and using a matrix stack also doesn't help, so they're staying broken until I somehow figure out how to fix them
 ## Licence
 Project is licenced under MIT. I'm not a lawyer but, AFAIK, FFmpeg and FFmpeg.AutoGen being licenced primarily under GNU Lesser General Public License allows MIT to be used as long as the FFmpeg source code is not modified (which in this project, it isn't)

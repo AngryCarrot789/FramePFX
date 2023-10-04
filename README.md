@@ -68,6 +68,5 @@ Currently there's only a WPF implementation, but I hope to switch to Avalonia at
 
 ## BUGS
 - Importing certain video files can crash (some sort of "found invalid data while decoding" error)
-
 ## Licence
 Project is licenced under MIT. I'm not a lawyer but, AFAIK, FFmpeg and FFmpeg.AutoGen being licenced primarily under GNU Lesser General Public License allows MIT to be used as long as the FFmpeg source code is not modified (which in this project, it isn't)

@@ -32,9 +32,13 @@ namespace FramePFX.Editor.Timelines.VideoClips
                 return false;
             }
 
+            long duration = resource.Timeline.LargestFrameInUse;
+            if (duration < 1)
+                return false;
+
             this.tokenSource = new CancellationTokenSource(project.IsExporting ? -1 : 3000);
             this.relativeRenderFrame = this.GetRelativeFrame(frame);
-            this.relativePeriodicFrame = this.relativeRenderFrame % resource.Timeline.LargestFrameInUse;
+            this.relativePeriodicFrame = this.relativeRenderFrame % duration;
             return resource.Timeline.BeginCompositeRender(this.relativePeriodicFrame, CancellationToken.None);
         }
 

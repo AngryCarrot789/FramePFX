@@ -531,5 +531,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
                 this.RaisePropertyChanged(nameof(this.LargestFrameInUse));
             }
         }
+
+        public override string ToString() => $"{this.GetType().Name} ({this.Model})";
     }
 }

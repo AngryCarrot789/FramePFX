@@ -135,6 +135,7 @@ namespace FramePFX.Editor.Timelines
 
         public void SetupRenderData()
         {
+            this.ClearRenderData();
             this.BasicRectangle = new BasicMesh(new[]
             {
                  1f,  1f, 0f,
@@ -522,6 +523,7 @@ void main(void) {
 
             // TODO: clipping
             render.MatrixStack.PushMatrix();
+            render.MatrixStack.Matrix = Matrix4x4.Identity;
             this.PreProcessAjustments(frame, render);
             int i = 0, count = renderList.Count;
             try
@@ -634,26 +636,20 @@ void main(void) {
             this.PostProcessAjustments(frame, render);
 
             // TODO: restore clipping
+
             render.MatrixStack.PopMatrix();
 
-            // Matrix4x4 mvp = render.MatrixStack.Matrix * render.Projection;
-            // Matrix4x4 mvp = Matrix4x4.Identity;
-            // render.MatrixStack.Matrix is identity by default
             {
-                Resolution resolution = this.Project.Settings.Resolution;
-                Vector2 size = new Vector2(resolution.Width, resolution.Height);
-                Vector2 center = new Vector2(size.X / 2.0f, size.Y / 2.0f);
-                render.MatrixStack.Translate(new Vector3(center.X, center.Y, 0f));
-
-                Matrix4x4 matrix = Matrix4x4.CreateScale(center.X, center.Y, 1f) * render.MatrixStack.Matrix;
+                Resolution res = this.Project.Settings.Resolution;
+                Matrix4x4 matrix = Matrix4x4.CreateScale(res.Width / 2.0f, res.Height / 2.0f, 1f) * render.MatrixStack.Matrix;
                 Matrix4x4 mvp = matrix * render.Projection;
                 this.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref mvp);
             }
+        }
 
-            // Matrix4x4 projection = Matrix4x4.CreateOrthographicOffCenter(0, 1920, 0, 1080, 0.001f, 1f);
-            // Matrix4x4 cameraMatrix = Matrix4x4.CreateLookAt(new Vector3(0, 0, 1), new Vector3(), Vector3.UnitY) * projection;
-            // Matrix4x4 worldMatrix = Matrix4x4.CreateScale(960F, 540F, 1f) * Matrix4x4.CreateTranslation(0f, 0f, 0f);
-            // Matrix4x4 matrix = cameraMatrix * worldMatrix;
+        public override string ToString()
+        {
+            return $"{this.GetType().Name} ({this.Tracks.Count.ToString()} tracks, {this.tracks.Sum(x => x.Clips.Count).ToString()} total clips)";
         }
     }
 }

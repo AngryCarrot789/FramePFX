@@ -112,7 +112,7 @@ namespace FramePFX.Editor.ViewModels
             this.EffectsProviderList = new EffectProviderListViewModel();
         }
 
-        public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline)
+        public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline, bool? scheduleRender = true)
         {
             if (timeline == null)
             {
@@ -122,16 +122,22 @@ namespace FramePFX.Editor.ViewModels
             editor.SelectedTimeline = timeline;
             editor.RaisePropertyChanged(nameof(editor.SelectedTimeline));
 
+
             if (timeline != null)
             {
+                editor.Model.ActiveTimeline = timeline.Model;
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
                 PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
                 PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
                 timeline.RefreshAutomationAndPlayhead();
-                editor.DoDrawRenderFrame(timeline, true);
+                if (scheduleRender.HasValue)
+                {
+                    editor.DoDrawRenderFrame(timeline, scheduleRender.Value);
+                }
             }
             else
             {
+                editor.Model.ActiveTimeline = null;
                 PFXPropertyEditorRegistry.Instance.ClipInfo.ClearHierarchyState();
                 PFXPropertyEditorRegistry.Instance.TrackInfo.ClearHierarchyState();
             }
@@ -351,7 +357,7 @@ namespace FramePFX.Editor.ViewModels
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null)
             {
-                OnSelectedTimelineChangedInternal(this, null);
+                OnSelectedTimelineChangedInternal(this, null, null);
                 this.Model.ClearTimelines();
                 this.activeTimelines.Clear();
 

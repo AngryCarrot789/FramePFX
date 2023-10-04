@@ -34,10 +34,9 @@ namespace FramePFX.Rendering
         {
             this.FrameSize = frameSize;
             this.ActiveFrameBuffer = 0;
-            this.MatrixStack = new MatrixStack();
+            this.MatrixStack = new MatrixStack(Matrix4x4.CreateTranslation(this.FrameSize.X / 2f, this.FrameSize.Y / 2f, 0f));
             this.frameBuffers = new Stack<int>();
             this.Projection = Matrix4x4.CreateOrthographicOffCenter(0, frameSize.X, 0, frameSize.Y, 0.01f, 500f);
-            // this.CameraView = Matrix4x4.CreateLookAt(new Vector3(0, 0, 1), new Vector3(), Vector3.UnitY);
         }
 
         public void PushFrameBuffer(int buffer, FramebufferTarget? framebufferTarget)

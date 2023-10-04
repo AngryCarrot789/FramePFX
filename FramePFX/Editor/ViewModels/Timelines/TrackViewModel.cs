@@ -421,5 +421,10 @@ namespace FramePFX.Editor.ViewModels.Timelines
         {
             return !this.clips.Any(x => x.FrameSpan.Intersects(span));
         }
+
+        public override string ToString()
+        {
+            return $"{this.GetType().Name} -> {this.Model}";
+        }
     }
 }

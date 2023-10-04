@@ -15,8 +15,11 @@ namespace FramePFX.Editor.Timelines
     {
         private readonly SortedList<long, List<Clip>> Map;
 
+
+        public long SmallestActiveFrame { get; private set; }
         public long LargestActiveFrame { get; private set; }
 
+        public long PreviousSmallestActiveFrame { get; private set; }
         public long PreviousLargestActiveFrame { get; private set; }
 
         public ClipRangeCache()
@@ -47,9 +50,27 @@ namespace FramePFX.Editor.Timelines
 
         public void OnClipRemoved(Clip clip) => this.Remove(clip.FrameSpan, clip);
 
+        public void Add(Clip clip)
+        {
+            FrameSpan span = clip.FrameSpan;
+            GetRange(span, out long a, out long b);
+            this.AddClipInRange(clip, a, b);
+            this.PreviousSmallestActiveFrame = this.SmallestActiveFrame;
+            this.SmallestActiveFrame = Math.Min(this.SmallestActiveFrame, span.Begin);
+            this.PreviousLargestActiveFrame = this.LargestActiveFrame;
+            this.LargestActiveFrame = Math.Max(this.LargestActiveFrame, span.EndIndex);
+        }
+
+        public void Remove(FrameSpan location, Clip clip)
+        {
+            GetRange(location, out long a, out long b);
+            this.RemoveClipInRange(clip, a, b);
+            this.ProcessSmallestAndLargestFrame();
+        }
+
         #region Processor functions
 
-        public void AddClipInRange(Clip clip, long min, long max)
+        private void AddClipInRange(Clip clip, long min, long max)
         {
             for (long frame = min; frame <= max; frame++)
             {
@@ -61,7 +82,7 @@ namespace FramePFX.Editor.Timelines
             }
         }
 
-        public void RemoveClipInRange(Clip clip, long min, long max)
+        private void RemoveClipInRange(Clip clip, long min, long max)
         {
             for (long frame = min; frame <= max; frame++)
             {
@@ -75,22 +96,6 @@ namespace FramePFX.Editor.Timelines
                     }
                 }
             }
-        }
-
-        public void Add(Clip clip)
-        {
-            FrameSpan span = clip.FrameSpan;
-            GetRange(span, out long a, out long b);
-            this.AddClipInRange(clip, a, b);
-            this.PreviousLargestActiveFrame = this.LargestActiveFrame;
-            this.LargestActiveFrame = Math.Max(this.LargestActiveFrame, span.EndIndex);
-        }
-
-        public void Remove(FrameSpan location, Clip clip)
-        {
-            GetRange(location, out long a, out long b);
-            this.RemoveClipInRange(clip, a, b);
-            this.ProcessLargestFrame();
         }
 
         public void OnLocationChanged(Clip clip, FrameSpan oldSpan)
@@ -129,7 +134,7 @@ namespace FramePFX.Editor.Timelines
                 }
             }
 
-            this.ProcessLargestFrame();
+            this.ProcessSmallestAndLargestFrame();
 
             // if (oldSpan != newSpan) {
             //     long oldA = GetIndex(oldSpan.Begin);
@@ -162,15 +167,26 @@ namespace FramePFX.Editor.Timelines
 
         #endregion
 
-        private void ProcessLargestFrame()
+        private void ProcessSmallestAndLargestFrame()
         {
-            long max = 0;
+            long min = 0, max = 0;
             int index = this.Map.Count - 1;
             if (index >= 0)
             {
                 foreach (Clip clp in this.Map.Values[index])
                     max = Math.Max(clp.FrameEndIndex, max);
+
+                min = max;
+                foreach (Clip clp in this.Map.Values[0])
+                {
+                    min = Math.Min(clp.FrameBegin, min);
+                    if (min < 1)
+                        break;
+                }
             }
+
+            this.PreviousSmallestActiveFrame = this.SmallestActiveFrame;
+            this.SmallestActiveFrame = min;
 
             this.PreviousLargestActiveFrame = this.LargestActiveFrame;
             this.LargestActiveFrame = max;

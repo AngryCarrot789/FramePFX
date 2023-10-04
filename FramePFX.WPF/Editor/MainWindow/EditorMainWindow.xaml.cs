@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -123,11 +124,11 @@ namespace FramePFX.WPF.Editor.MainWindow
                         VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, timeline);
                         return;
                     }
-                }
 
-                if (editor.ActiveProject != null)
-                {
-                    VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, editor.ActiveProject.Timeline);
+                    if (editor.ActiveProject != null)
+                    {
+                        VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, editor.ActiveProject.Timeline);
+                    }
                 }
             }
         }

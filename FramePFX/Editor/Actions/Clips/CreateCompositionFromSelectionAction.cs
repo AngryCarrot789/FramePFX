@@ -25,15 +25,11 @@ namespace FramePFX.Editor.Actions.Clips
         {
             // TODO: probably clean this function up a bit LOL
             // Find timeline from possible selected items
-            TimelineViewModel timeline = null;
-            if (e.DataContext.TryGetContext(out ClipViewModel _clip))
-                timeline = _clip.Timeline;
-            if (timeline == null && e.DataContext.TryGetContext(out TrackViewModel _track))
-                timeline = _track.Timeline;
-            if (timeline == null && e.DataContext.TryGetContext(out timeline))
+
+            if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline))
+            {
                 return false;
-            if (timeline.Project == null)
-                return false;
+            }
 
             List<TrackViewModel> oldTracks = timeline.Tracks.ToList();
             List<TrackViewModel> newTracks = new List<TrackViewModel>();
@@ -121,7 +117,7 @@ namespace FramePFX.Editor.Actions.Clips
             {
                 FrameSpan span = new FrameSpan(trackBegin, finalTrackDuration);
                 VideoTrackViewModel track = (VideoTrackViewModel) oldTracks.FirstOrDefault(x => x is VideoTrackViewModel vid && !vid.Clips.Any(cl => cl.FrameSpan.Intersects(span)));
-                if (track == null)
+                if (track == null || track.Timeline != timeline)
                 {
                     track = await timeline.InsertNewVideoTrackAction(0, false);
                 }

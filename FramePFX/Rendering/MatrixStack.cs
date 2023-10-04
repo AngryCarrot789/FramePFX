@@ -5,6 +5,7 @@ namespace FramePFX.Rendering
 {
     public class MatrixStack
     {
+        private readonly Matrix4x4 identity;
         private readonly Stack<Matrix4x4> stack;
 
         /// <summary>
@@ -12,10 +13,20 @@ namespace FramePFX.Rendering
         /// </summary>
         public Matrix4x4 Matrix;
 
-        public MatrixStack()
+        /// <summary>
+        /// Gets the number of matrices in the stack
+        /// </summary>
+        public int Count => this.stack.Count;
+
+        public IReadOnlyCollection<Matrix4x4> Stack => this.stack;
+
+        public MatrixStack() : this(Matrix4x4.Identity) { }
+
+        public MatrixStack(Matrix4x4 identity)
         {
             this.stack = new Stack<Matrix4x4>();
-            this.Matrix = Matrix4x4.Identity;
+            this.identity = identity;
+            this.Matrix = identity;
         }
 
         /// <summary>
@@ -34,7 +45,7 @@ namespace FramePFX.Rendering
         public void Clear()
         {
             this.stack.Clear();
-            this.Matrix = Matrix4x4.Identity;
+            this.Matrix = this.identity;
         }
 
         public void Translate(Vector3 pos) => this.Matrix *= Matrix4x4.CreateTranslation(pos);

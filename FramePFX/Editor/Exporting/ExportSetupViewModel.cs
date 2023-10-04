@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using FFmpeg.AutoGen;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting.Exporters;
 using FramePFX.Editor.ViewModels;
@@ -90,7 +91,20 @@ namespace FramePFX.Editor.Exporting
             }
 
             this.SelectedExporter = collection[0];
-            this.FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Video.mp4");
+            string folder;
+            if (project.Model.IsTempDataFolder || !Directory.Exists(project.TheProjectDataFolder))
+            {
+                folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            }
+            else
+            {
+                folder = project.TheProjectDataFolder;
+            }
+
+            string defaultPath = Path.Combine(folder, "Video.mp4");
+            if (TextIncrement.GetIncrementableString(x => !File.Exists(x), defaultPath, out string fp))
+                fp = defaultPath;
+            this.FilePath = fp;
         }
 
         private async Task CancelSetupAction()

@@ -406,5 +406,10 @@ namespace FramePFX.Editor.Timelines
                 }
             }
         }
+
+        public override string ToString()
+        {
+            return $"{this.GetType().Name} ({this.clips.Count.ToString()} clips between {this.cache.SmallestActiveFrame.ToString()} and {this.cache.LargestActiveFrame.ToString()})";
+        }
     }
 }

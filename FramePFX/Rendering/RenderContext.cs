@@ -19,6 +19,8 @@ namespace FramePFX.Rendering
         /// </summary>
         public int ActiveFrameBuffer { get; private set; }
 
+        public int ActiveFrameBufferTexture;
+
         /// <summary>
         /// The matrix stack for this rendering context
         /// </summary>

@@ -519,6 +519,8 @@ void main(void) {
         {
             List<VideoClip> renderList = this.RenderList;
             render.PushFrameBuffer(this.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
+            int fbtxid = this.FrameBuffer.TextureId;
+            render.ActiveFrameBufferTexture = fbtxid;
             this.FrameBuffer.Clear();
 
             // TODO: clipping
@@ -542,6 +544,7 @@ void main(void) {
 
                     // TODO: track and clip opacity
                     render.PushFrameBuffer(track.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
+                    render.ActiveFrameBufferTexture = track.FrameBuffer.TextureId;
                     track.FrameBuffer.Clear();
 
                     Vector2? frameSize = clip.GetSize(render);
@@ -610,6 +613,7 @@ void main(void) {
                     }
 
                     render.PopFrameBuffer(null);
+                    render.ActiveFrameBufferTexture = fbtxid;
                     track.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref render.MatrixStack.Matrix);
                 }
             }
@@ -629,6 +633,7 @@ void main(void) {
             finally
             {
                 RenderContext.TryPopFrameBuffer(render);
+                render.ActiveFrameBufferTexture = 0;
             }
 
             this.AdjustmentStack.Clear();

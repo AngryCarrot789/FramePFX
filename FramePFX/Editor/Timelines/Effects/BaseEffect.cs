@@ -56,16 +56,23 @@ namespace FramePFX.Editor.Timelines.Effects
                 return;
             }
 
-            for (int i = 0; i < count; i++)
+            if (isPreProcess)
             {
-                BaseEffect effect = effects[i];
-                if (effect is VideoEffect)
+                for (int i = 0; i < count; i++)
                 {
-                    if (isPreProcess)
+                    BaseEffect effect = effects[i];
+                    if (effect is VideoEffect)
                     {
                         ((VideoEffect) effect).PreProcessFrame(frame, render, frameSize);
                     }
-                    else
+                }
+            }
+            else
+            {
+                for (int i = count - 1; i >= 0; i--)
+                {
+                    BaseEffect effect = effects[i];
+                    if (effect is VideoEffect)
                     {
                         ((VideoEffect) effect).PostProcessFrame(frame, render, frameSize);
                     }

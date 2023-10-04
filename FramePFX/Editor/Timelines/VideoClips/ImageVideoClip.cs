@@ -6,7 +6,7 @@ using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class ImageVideoClip : VideoClip, IResourceClip
+    public class ImageVideoClip : VideoClip, IResourceHolder
     {
         public ResourceHelper ResourceHelper { get; }
 

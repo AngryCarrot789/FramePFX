@@ -7,7 +7,7 @@ using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class CompositionVideoClip : VideoClip, IResourceClip
+    public class CompositionVideoClip : VideoClip, IResourceHolder
     {
         private CancellationTokenSource tokenSource;
 

@@ -7,13 +7,8 @@ namespace FramePFX.Editor.Timelines
     /// <summary>
     /// An interface for clip objects, including the base <see cref="Clip"/> class
     /// </summary>
-    public interface IClip
+    public interface IClip : IProjectBound
     {
-        /// <summary>
-        /// Gets the project associated with this clip. May be null if the clip is disconnected
-        /// </summary>
-        Project Project { get; }
-
         /// <summary>
         /// Gets the track that this clip is currently placed in
         /// </summary>

@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.ZSystem;
 
 namespace FramePFX.Editor
 {
-    public class VideoEditor
+    public class VideoEditor : ZObject
     {
+        public static ZUpdateChannel EditorRenderUpdateChannel { get; } = ZUpdateChannel.GetOrCreateChannel("VideoEditorUpdateChannel");
+
         private readonly List<Timeline> activeTimelines;
         public volatile bool IsProjectSaving;
         public volatile bool IsProjectChanging;
@@ -36,6 +39,11 @@ namespace FramePFX.Editor
         {
             this.Playback = new EditorPlayback(this);
             this.activeTimelines = new List<Timeline>();
+        }
+
+        static VideoEditor()
+        {
+            ZUpdateChannel.Default = EditorRenderUpdateChannel;
         }
 
         public void SetProject(Project project)

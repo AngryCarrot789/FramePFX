@@ -13,7 +13,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
     /// A helper class that manages resource manager events automatically
     /// <para>
     /// This class only exists so that clips don't have to extend 'BaseResourceVideoClip', 'BaseResourceAudioClip',
-    /// etc., and instead they can inherit from <see cref="IResourceClip"/>. This allows the same functionality
+    /// etc., and instead they can inherit from <see cref="IResourceHolder"/>. This allows the same functionality
     /// to be reused for video clips, audio clips, etc.
     /// </para>
     /// </summary>
@@ -39,17 +39,12 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
         /// <summary>
         /// The clip that owns this helper
         /// </summary>
-        public IResourceClip Clip { get; }
+        public IResourceHolder Clip { get; }
 
-        public ResourceHelper(IResourceClip clip)
+        public ResourceHelper(IResourceHolder clip)
         {
             this.Clip = clip ?? throw new ArgumentNullException(nameof(clip));
             this.ResourceMap = new Dictionary<string, BaseResourcePathEntry>();
-            clip.TrackChanged += this.OnTrackChanged;
-            clip.TrackTimelineChanged += this.OnTrackTimelineChanged;
-            clip.TrackTimelineProjectChanged += this.OnTrackTimelineProjectChanged;
-            clip.SerialiseExtension += (c, data) => this.WriteToRBE(data);
-            clip.DeserialiseExtension += (c, data) => this.ReadFromRBE(data);
         }
 
         private static string KeyForTypeName(Type type) => type.Name;
@@ -108,17 +103,17 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
 
         public void SetTargetResourceIdByTypeName<T>(ulong id) where T : ResourceItem => this.SetTargetResourceId(KeyForTypeName(typeof(T)), id);
 
-        private void OnTrackChanged(Track oldTrack, Track newTrack)
+        public void OnTrackChanged(Track oldTrack, Track newTrack)
         {
             this.SetManager(newTrack?.Timeline?.Project?.ResourceManager);
         }
 
-        private void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline)
+        public void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline)
         {
             this.SetManager(timeline?.Project?.ResourceManager);
         }
 
-        private void OnTrackTimelineProjectChanged(Project oldproject, Project newproject)
+        public void OnTrackTimelineProjectChanged(Project oldproject, Project newproject)
         {
             this.SetManager(newproject?.ResourceManager);
         }
@@ -173,7 +168,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
             }
         }
 
-        public void WriteToRBE(RBEDictionary data)
+        public void WriteToRootRBE(RBEDictionary data)
         {
             if (this.ResourceMap.Count > 0)
             {
@@ -186,7 +181,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
             }
         }
 
-        public void ReadFromRBE(RBEDictionary data)
+        public void ReadFromRootRBE(RBEDictionary data)
         {
             if (data.TryGetElement(nameof(this.ResourceMap), out RBEDictionary resourceMapDictionary))
             {

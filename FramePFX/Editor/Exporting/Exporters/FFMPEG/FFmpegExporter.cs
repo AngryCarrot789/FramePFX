@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +7,7 @@ using FramePFX.Automation;
 using FramePFX.Logger;
 using FramePFX.Rendering;
 using FramePFX.Utils;
-using OpenTK.Graphics.OpenGL;
+using SkiaSharp;
 using LavResult = FramePFX.FFmpegWrapper.LavResult;
 
 namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
@@ -201,12 +200,15 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                 goto fail_or_end;
             }
 
-            byte[] backBuffer = new byte[resolution.Width * resolution.Height * 4];
-            int backBufferStride = resolution.Width * 4;
-
-            fixed (byte* backBufferPtr = backBuffer)
+            SKImageInfo frameInfo = new SKImageInfo(resolution.Width, resolution.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
+            using (SKSurface surface = SKSurface.Create(frameInfo))
             {
-                RenderContext rc = new RenderContext(new Vector2(resolution.Width, resolution.Height));
+                if (surface == null)
+                {
+                    throw new Exception("Failed to create SKSurface");
+                }
+
+                RenderContext rc = new RenderContext(surface, surface.Canvas, frameInfo);
                 long exportFrame = duration.Begin; // frame index, relative to export duration
                 long ptsFrame = 0; // frame index, relative to start of file
                 long frameEnd = duration.EndIndex;
@@ -240,82 +242,83 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                         AppLogger.WriteLine("Exception while rendering project timeline: " + e.GetToString());
                     }
 
-                    GL.Flush();
-                    GL.Finish();
-                    GL.ReadBuffer(ReadBufferMode.Back);
-                    GL.ReadPixels(0, 0, resolution.Width, resolution.Height, PixelFormat.Bgra, PixelType.UnsignedByte, (IntPtr) backBufferPtr);
-                    rc.Reset();
+                    surface.Flush();
                     // is it even possible to hardware accelerate this?
                     // currently, this is reading pixels from GPU to main memory, then
                     // sws_scale takes those raw pixels and converts to YUV
 
+                    using (SKPixmap pixmap = surface.PeekPixels())
                     {
-                        int width = RNDTO2(c->width);
-                        int height = RNDTO2(c->height);
-                        // int ystride = RNDTO32(width);
-                        // int uvstride = RNDTO32(width / 2);
-                        // int ysize = ystride * height;
-                        // int vusize = uvstride * (height / 2);
-                        // int size = ysize + (2 * vusize);
-                        SwsContext* s = ffmpeg.sws_getContext(
-                            resolution.Width, resolution.Height, AVPixelFormat.AV_PIX_FMT_BGRA,
-                            width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
-                            ffmpeg.SWS_BILINEAR, null, null, null);
-
-                        ffmpeg.sws_scale(s, new[] {backBufferPtr}, new[] {backBufferStride}, 0, c->height, frame_data_arrays, frame_line_sizes);
-                        ffmpeg.sws_freeContext(s);
-                    }
-
-                    frame->pts = ptsFrame;
-
-                    // Encode frame
-                    if ((ret = ffmpeg.avcodec_send_frame(c, frame)) == 0)
-                    {
-                        pkt = ffmpeg.av_packet_alloc();
-                        // ffmpeg.av_init_packet(&pkt);
-                        ret = ffmpeg.avcodec_receive_packet(c, pkt);
-                        if (ret != ffmpeg.AVERROR(ffmpeg.EAGAIN) && ret != ffmpeg.AVERROR_EOF)
+                        byte* data = (byte*) pixmap.GetPixels();
+                        int stride = pixmap.RowBytes;
                         {
-                            if (ret < 0)
-                            {
-                                exception = new Exception("Error encoding");
-                                goto fail_or_end;
-                            }
+                            int width = RNDTO2(c->width);
+                            int height = RNDTO2(c->height);
+                            // int ystride = RNDTO32(width);
+                            // int uvstride = RNDTO32(width / 2);
+                            // int ysize = ystride * height;
+                            // int vusize = uvstride * (height / 2);
+                            // int size = ysize + (2 * vusize);
+                            SwsContext* s = ffmpeg.sws_getContext(
+                                resolution.Width, resolution.Height, AVPixelFormat.AV_PIX_FMT_BGRA,
+                                width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
+                                ffmpeg.SWS_BILINEAR, null, null, null);
+
+                            ffmpeg.sws_scale(s, new[] {data}, new[] {stride}, 0, c->height, frame_data_arrays, frame_line_sizes);
+                            ffmpeg.sws_freeContext(s);
                         }
 
-                        // when ret == 0, a packet was decoded successfully (not necessarily the one we just send, in fact,
-                        // not likely at all... encoding takes a bit longer than a few microseconds lol)
-                        if (ret == 0)
+                        frame->pts = ptsFrame;
+
+                        // Encode frame
+                        if ((ret = ffmpeg.avcodec_send_frame(c, frame)) == 0)
                         {
-                            // required, otherwise the .mp4 file is like 20 milliseconds long
-                            ffmpeg.av_packet_rescale_ts(pkt, c->time_base, st->time_base);
-                            pkt->stream_index = st->index;
-
-                            long ts = pkt->dts;
-                            if (ts != ffmpeg.AV_NOPTS_VALUE)
+                            pkt = ffmpeg.av_packet_alloc();
+                            // ffmpeg.av_init_packet(&pkt);
+                            ret = ffmpeg.avcodec_receive_packet(c, pkt);
+                            if (ret != ffmpeg.AVERROR(ffmpeg.EAGAIN) && ret != ffmpeg.AVERROR_EOF)
                             {
-                                progress.OnFrameEncoded(ts);
+                                if (ret < 0)
+                                {
+                                    exception = new Exception("Error encoding");
+                                    goto fail_or_end;
+                                }
                             }
 
-                            // write encoded frame
-                            ret = ffmpeg.av_interleaved_write_frame(oc, pkt);
-                            // ffmpeg.av_packet_unref(&pkt);
-                            if (ret < 0)
+                            // when ret == 0, a packet was decoded successfully (not necessarily the one we just send, in fact,
+                            // not likely at all... encoding takes a bit longer than a few microseconds lol)
+                            if (ret == 0)
                             {
-                                exception = new Exception("Error writing frame to stream: " + ret);
-                                goto fail_or_end;
+                                // required, otherwise the .mp4 file is like 20 milliseconds long
+                                ffmpeg.av_packet_rescale_ts(pkt, c->time_base, st->time_base);
+                                pkt->stream_index = st->index;
+
+                                long ts = pkt->dts;
+                                if (ts != ffmpeg.AV_NOPTS_VALUE)
+                                {
+                                    progress.OnFrameEncoded(ts);
+                                }
+
+                                // write encoded frame
+                                ret = ffmpeg.av_interleaved_write_frame(oc, pkt);
+                                // ffmpeg.av_packet_unref(&pkt);
+                                if (ret < 0)
+                                {
+                                    exception = new Exception("Error writing frame to stream: " + ret);
+                                    goto fail_or_end;
+                                }
                             }
+
+                            ffmpeg.av_packet_free(&pkt);
+                        }
+                        else if (ret < 0)
+                        {
+                            exception = new Exception("Error sending/encoding frame");
+                            goto fail_or_end;
                         }
 
-                        ffmpeg.av_packet_free(&pkt);
+                        progress.OnFrameRendered(exportFrame);
                     }
-                    else if (ret < 0)
-                    {
-                        exception = new Exception("Error sending/encoding frame");
-                        goto fail_or_end;
-                    }
-
-                    progress.OnFrameRendered(exportFrame);
                 }
 
                 // begin flush run
@@ -325,20 +328,15 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                     pkt = ffmpeg.av_packet_alloc();
                     // ffmpeg.av_init_packet(&pkt);
                     ret = ffmpeg.avcodec_receive_packet(c, pkt);
-                    if (ret == ffmpeg.AVERROR(ffmpeg.EAGAIN) || ret == ffmpeg.AVERROR_EOF)
-                    {
-                        // all frames fully encoded
+                    if (ret == ffmpeg.AVERROR(ffmpeg.EAGAIN) || ret == ffmpeg.AVERROR_EOF) // all frames fully encoded
                         break;
-                    }
 
                     ffmpeg.av_packet_rescale_ts(pkt, c->time_base, st->time_base);
                     pkt->stream_index = st->index;
 
                     long ts = pkt->dts;
                     if (ts != ffmpeg.AV_NOPTS_VALUE)
-                    {
                         progress.OnFrameEncoded(ts);
-                    }
 
                     // write encoded frame
                     ret = ffmpeg.av_interleaved_write_frame(oc, pkt);

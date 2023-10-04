@@ -13,7 +13,6 @@ namespace FramePFX.Editor.Registries
         private EffectFactory()
         {
             this.Register<MotionEffect, MotionEffectViewModel>("motion");
-            this.Register<TwirlEffect, TwirlEffectViewModel>("twirl");
         }
 
         public new void Register<TModel, TViewModel>(string id) where TModel : BaseEffect where TViewModel : BaseEffectViewModel

@@ -87,7 +87,7 @@ namespace FramePFX.Editor.ResourceManaging
                 if (manager != null)
                 {
                     Debugger.Break();
-                    AppLogger.WriteLine($"[{this.GetType().Name}] Attempted to set the same manager instance:\n{new StackTrace(true)}");
+                    AppLogger.WriteLine($"[{this.GetType().Name}] Attempted to set the same manager instance:\n{Environment.StackTrace}");
                 }
 
                 return;
@@ -95,16 +95,13 @@ namespace FramePFX.Editor.ResourceManaging
 
             this.isManagerChanging = true;
             this.ClearInternalResource();
+            this.IsValid = null;
             if (oldManager != null)
-            {
                 this.DetachManager(oldManager);
-            }
 
             this.Manager = manager;
             if (manager != null)
-            {
                 this.AttachManager(manager);
-            }
 
             this.isManagerChanging = false;
         }
@@ -226,7 +223,7 @@ namespace FramePFX.Editor.ResourceManaging
             this.EnsureManagerNotChanging("Cannot attempt to get resource while manager is being set");
             switch (this.IsValid)
             {
-                case false when this.Manager != null:
+                case false:
                 {
                     if (this.cached != null)
                         throw new Exception("Expected null cached item when state is invalid");

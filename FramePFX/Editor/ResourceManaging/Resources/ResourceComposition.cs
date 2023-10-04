@@ -30,29 +30,12 @@ namespace FramePFX.Editor.ResourceManaging.Resources
         {
             base.OnAttachedToManager();
             this.Timeline.SetProject(this.Manager.Project);
-            if (this.Manager.Project?.IsLoaded ?? false)
-            {
-                this.Timeline.SetupRenderData();
-            }
         }
 
         public override void OnDetatchedFromManager()
         {
             base.OnDetatchedFromManager();
-            this.Timeline.ClearRenderData();
             this.Timeline.SetProject(null);
-        }
-
-        public override void OnProjectLoaded()
-        {
-            base.OnProjectLoaded();
-            this.Timeline.SetupRenderData();
-        }
-
-        public override void OnProjectUnloaded()
-        {
-            base.OnProjectUnloaded();
-            this.Timeline.ClearRenderData();
         }
 
         public override void ReadFromRBE(RBEDictionary data)

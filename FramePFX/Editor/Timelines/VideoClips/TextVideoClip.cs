@@ -10,7 +10,7 @@ using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class TextVideoClip : VideoClip, IResourceClip
+    public class TextVideoClip : VideoClip, IResourceHolder
     {
         private BitVector32 clipProps;
 

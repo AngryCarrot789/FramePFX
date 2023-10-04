@@ -5,7 +5,7 @@ using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class MpegMediaVideoClip : VideoClip, IResourceClip
+    public class MpegMediaVideoClip : VideoClip, IResourceHolder
     {
         public int StreamIndex { get; set; }
 

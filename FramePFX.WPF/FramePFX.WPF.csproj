@@ -285,7 +285,6 @@
     <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\KeyboardUtils.cs" />
     <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
-    <Compile Include="Editor\Timeline\ViewModels\Clips\Resizable\PFXMPEGMediaClip.cs" />
     <Compile Include="Explorer\BasicFileExplorerControl.xaml.cs">
       <DependentUpon>BasicFileExplorerControl.xaml</DependentUpon>
     </Compile>
@@ -316,8 +315,6 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
-    <Compile Include="OGLAsyncViewPort.cs" />
-    <Compile Include="OGLContextWrapper.cs" />
     <Compile Include="PropertyEditing\IPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\ISelectablePropertyControl.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemStyleSelector.cs" />

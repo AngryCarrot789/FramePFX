@@ -116,7 +116,7 @@ namespace FramePFX.RBC
         public static long FromEnum64<TEnum>(TEnum value) where TEnum : unmanaged, Enum => Unsafe.As<TEnum, long>(ref value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T ReadStruct<T>(byte[] array, int offset, int unused_size) where T : unmanaged
+        public static T ReadStruct<T>(byte[] array, int offset) where T : unmanaged
         {
             // return MemoryMarshal.Read<T>(new ReadOnlySpan<byte>(array, offset, size));
             // T value = default;
@@ -126,7 +126,7 @@ namespace FramePFX.RBC
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteStruct<T>(T value, byte[] array, int offset, int unusued_size) where T : unmanaged
+        public static void WriteStruct<T>(T value, byte[] array, int offset) where T : unmanaged
         {
             // MemoryMarshal.Write(new Span<byte>(array, offset, size), ref value);
             // byte* src = (byte*) &value;

@@ -120,14 +120,10 @@ namespace FramePFX.WPF
         public void EndRender()
         {
             SKImageInfo info = this.skImageInfo;
-            // this.targetSurface.Flush();
-            // // this.gameWindow.SwapBuffers();
-            // GL.ReadBuffer(ReadBufferMode.Back);
-            // GL.ReadPixels(0, 0, this.bitmap.PixelWidth, this.bitmap.PixelHeight, PixelFormat.Bgra, PixelType.UnsignedByte, this.bitmap.BackBuffer);
+            this.targetSurface.Flush();
             this.bitmap.Lock();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
-            // this.Dispatcher.Invoke(this.InvalidateVisual);
             // this.targetSurface.Dispose();
             // this.targetSurface = null;
             this.targetSurface.Canvas.Restore();

@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using OpenTK;
 using Vector3 = System.Numerics.Vector3;
 
 namespace FramePFX.Rendering.Utils
@@ -87,20 +86,20 @@ namespace FramePFX.Rendering.Utils
 
         public static Matrix4x4 CreateRotationYPR(Vector3 rotation) => CreateHeading(rotation.Y) * CreatePitch(rotation.X) * CreateBearing(rotation.Z);
 
-        public static Matrix4d LookAt(Vector3d src, Vector3d dst)
+        public static Matrix4x4 LookAt(Vector3 src, Vector3 dst)
         {
-            Vector3d zaxis = Vector3d.Normalize(src - dst);
-            Vector3d xaxis = Vector3d.Normalize(new Vector3d(zaxis.Z, 0f, -zaxis.X));
-            Vector3d yaxis = Vector3d.Cross(zaxis, xaxis);
-            double dX = -Vector3d.Dot(xaxis, src);
-            double dY = -Vector3d.Dot(yaxis, src);
-            double dZ = -Vector3d.Dot(zaxis, src);
+            Vector3 zaxis = Vector3.Normalize(src - dst);
+            Vector3 xaxis = Vector3.Normalize(new Vector3(zaxis.Z, 0f, -zaxis.X));
+            Vector3 yaxis = Vector3.Cross(zaxis, xaxis);
+            float dX = -Vector3.Dot(xaxis, src);
+            float dY = -Vector3.Dot(yaxis, src);
+            float dZ = -Vector3.Dot(zaxis, src);
 
-            Matrix4d result = new Matrix4d(
-                new Vector4d(xaxis.X, yaxis.X, zaxis.X, 0f),
-                new Vector4d(xaxis.Y, yaxis.Y, zaxis.Y, 0f),
-                new Vector4d(xaxis.Z, yaxis.Z, zaxis.Z, 0f),
-                new Vector4d(dX, dY, dZ, 1f)
+            Matrix4x4 result = new Matrix4x4(
+                xaxis.X, yaxis.X, zaxis.X, 0f,
+                xaxis.Y, yaxis.Y, zaxis.Y, 0f,
+                xaxis.Z, yaxis.Z, zaxis.Z, 0f,
+                dX, dY, dZ, 1f
             );
 
             return result;

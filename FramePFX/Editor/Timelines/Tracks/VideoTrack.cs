@@ -1,14 +1,15 @@
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Rendering.ObjectTK;
-using FramePFX.Rendering.Utils;
-using FramePFX.Utils;
+using FramePFX.Editor.ZSystem;
 
 namespace FramePFX.Editor.Timelines.Tracks
 {
     public class VideoTrack : Track
     {
+        public static readonly ZProperty<double> OpacityProperty = ZProperty.RegisterU<double>(typeof(VideoTrack), nameof(Opacity));
+        public static readonly ZProperty<bool> IsVisibleProperty = ZProperty.RegisterU<bool>(typeof(VideoTrack), nameof(IsVisible));
+
         public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrack), nameof(Opacity), new KeyDescriptorDouble(1d, 0d, 1d));
         public static readonly AutomationKeyBoolean IsVisibleKey = AutomationKey.RegisterBool(nameof(VideoTrack), nameof(IsVisible), new KeyDescriptorBoolean(true));
         public const double MinimumVisibleOpacity = 0.0001d;
@@ -21,12 +22,20 @@ namespace FramePFX.Editor.Timelines.Tracks
         /// <summary>
         /// The opacity of the track, from 0d to 1d. When the value dips below <see cref="MinimumVisibleOpacity"/>, it is effectively invisible and won't be rendered
         /// </summary>
-        public double Opacity;
+        public double Opacity
+        {
+            get => this.GetValueU(OpacityProperty);
+            set => this.SetValueU(OpacityProperty, value);
+        }
 
         /// <summary>
         /// A visibility state, user switchable
         /// </summary>
-        public bool IsVisible;
+        public bool IsVisible
+        {
+            get => this.GetValueU(IsVisibleProperty);
+            set => this.SetValueU(IsVisibleProperty, value);
+        }
 
         /// <summary>
         /// Returns when <see cref="IsVisible"/> is true and <see cref="Opacity"/> is greater than <see cref="MinimumVisibleOpacity"/>
@@ -35,30 +44,12 @@ namespace FramePFX.Editor.Timelines.Tracks
 
         // TODO: to implement fading, could use 2 frame buffers for 2 clips, then merge into a single one?
 
-        public FrameBufferImage FrameBuffer { get; private set; }
-
-        public BasicMesh BasicRectangle => this.Timeline.BasicRectangle;
-
         public VideoTrack()
         {
             this.Opacity = 1d;
             this.IsVisible = true;
             this.AutomationData.AssignKey(OpacityKey, UpdateOpacity);
             this.AutomationData.AssignKey(IsVisibleKey, UpdateIsVisible);
-        }
-
-        public override void SetupRenderData()
-        {
-            base.SetupRenderData();
-            Resolution size = this.Timeline.Project.Settings.Resolution;
-            this.FrameBuffer = new FrameBufferImage(size.Width, size.Height);
-        }
-
-        public override void ClearRenderData()
-        {
-            base.ClearRenderData();
-            this.FrameBuffer?.Dispose();
-            this.FrameBuffer = null;
         }
 
         protected override Track NewInstanceForClone()

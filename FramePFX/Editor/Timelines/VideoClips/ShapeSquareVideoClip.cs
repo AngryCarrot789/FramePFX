@@ -6,11 +6,12 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.Rendering;
-using FramePFX.Rendering.Utils;
+using FramePFX.Utils;
+using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
-    public class ShapeSquareVideoClip : VideoClip, IResourceClip
+    public class ShapeSquareVideoClip : VideoClip, IResourceHolder
     {
         public static readonly AutomationKeyFloat WidthKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Width), 100f);
         public static readonly AutomationKeyFloat HeightKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Height), 100f);
@@ -79,16 +80,11 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public override Task OnEndRender(RenderContext rc, long frame)
         {
-            if (this.ColourKey.TryGetResource(out ResourceColour r))
-            {
-                Matrix4x4 matrix = Matrix4x4.CreateScale(this.Width / 2f, this.Height / 2f, 1f) * rc.MatrixStack.Matrix;
-                Matrix4x4 mvp = matrix * rc.Projection;
-
-                Shader shader = this.Track.Timeline.BasicShader;
-                shader.Use();
-                shader.SetUniformMatrix4("mvp", ref mvp);
-                shader.SetUniformVec4("in_colour", new Vector4(r.ScR, r.ScG, r.ScB, (float)this.Opacity));
-                this.Track.BasicRectangle.DrawTriangles();
+            if (this.ColourKey.TryGetResource(out ResourceColour r)) {
+                SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
+                using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
+                    rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
+                }
             }
 
             return Task.CompletedTask;

@@ -74,49 +74,33 @@ namespace FramePFX.Editor.Timelines.Effects.Video
             Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;
+            double rotation = this.MediaRotation;
             Vector2 rotationOrigin = this.MediaRotationOrigin;
-            float rotation = (float)(this.MediaRotation * System.Math.PI / 180d);
+            // maybe rotate, scale then translate?
 
-            scaleOrigin.X -= 0.5f;
-            scaleOrigin.Y -= 0.5f;
-            rotationOrigin.X -= 0.5f;
-            rotationOrigin.Y -= 0.5f;
-
-            rc.MatrixStack.PushMatrix();
+            rc.Canvas.Translate(pos.X, pos.Y);
             if (frameSize.HasValue)
             {
                 // clip has size info that we can use to transform relative top-left corner
                 Vector2 size = frameSize.Value;
-                Vector2 center = new Vector2(size.X / 2.0f, size.Y / 2.0f);
-                rc.MatrixStack.RotateZ(rotation,
-                    this.UseAbsoluteRotationOrigin
-                        ? new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f)
-                        : new Vector3(size.X * rotationOrigin.X, size.Y * rotationOrigin.Y, 0f));
-                rc.MatrixStack.Scale(new Vector3(scale.X, scale.Y, 1f),
-                    this.UseAbsoluteScaleOrigin
-                        ? new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f)
-                        : new Vector3(size.X * scaleOrigin.X, size.Y * scaleOrigin.Y, 0f));
-                rc.MatrixStack.Translate(new Vector3(pos.X + center.X, pos.Y + center.Y, 0f));
+                if (this.UseAbsoluteScaleOrigin)
+                    rc.Canvas.Scale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y);
+                else
+                    rc.Canvas.Scale(scale.X, scale.Y, size.X * scaleOrigin.X, size.Y * scaleOrigin.Y);
+
+                if (this.UseAbsoluteRotationOrigin)
+                    rc.Canvas.RotateDegrees((float) rotation, rotationOrigin.X, rotationOrigin.Y);
+                else
+                    rc.Canvas.RotateDegrees((float) rotation, size.X * rotationOrigin.X, size.Y * rotationOrigin.Y);
             }
             else
             {
                 // worst case; clip has no size data so we assume it takes up 0 pixels
-                rc.MatrixStack.RotateZ(rotation,
-                    this.UseAbsoluteRotationOrigin
-                        ? new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f)
-                        : Vector3.Zero);
-                rc.MatrixStack.Scale(new Vector3(scale.X, scale.Y, 1f),
-                    this.UseAbsoluteScaleOrigin
-                        ? new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f)
-                        : Vector3.Zero);
-                rc.MatrixStack.Translate(new Vector3(pos.X, pos.Y, 0f));
+                if (this.UseAbsoluteScaleOrigin)
+                    rc.Canvas.Scale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y);
+                if (this.UseAbsoluteRotationOrigin)
+                    rc.Canvas.RotateDegrees((float) rotation, rotationOrigin.X, rotationOrigin.Y);
             }
-        }
-
-        public override void PostProcessFrame(long frame, RenderContext rc, Vector2? frameSize)
-        {
-            base.PostProcessFrame(frame, rc, frameSize);
-            rc.MatrixStack.PopMatrix();
         }
     }
 }

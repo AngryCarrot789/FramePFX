@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,12 +9,11 @@ using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.Rendering;
-using FramePFX.Rendering.ObjectTK;
-using FramePFX.Rendering.Utils;
 using FramePFX.Utils;
-using OpenTK.Graphics.OpenGL;
+using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
 
 namespace FramePFX.Editor.Timelines
@@ -23,7 +21,7 @@ namespace FramePFX.Editor.Timelines
     /// <summary>
     /// A timeline or sequence, which contains a collection of tracks (which contain a collection of clips)
     /// </summary>
-    public class Timeline : IAutomatable
+    public class Timeline : ZObject, IProjectBound, IAutomatable
     {
         private readonly List<Track> tracks;
         private readonly List<VideoClip> RenderList = new List<VideoClip>();
@@ -64,10 +62,6 @@ namespace FramePFX.Editor.Timelines
         public bool IsAutomationChangeInProgress { get; set; }
 
         public string DisplayName { get; set; }
-
-        public FrameBufferImage FrameBuffer { get; private set; }
-        public BasicMesh BasicRectangle { get; set; }
-        public Shader BasicShader { get; set; }
 
         public Timeline()
         {
@@ -127,63 +121,6 @@ namespace FramePFX.Editor.Timelines
 
         protected virtual void OnProjectChanged(Project oldProject)
         {
-        }
-
-        public void SetupRenderData()
-        {
-            this.ClearRenderData();
-            this.BasicRectangle = new BasicMesh(new[]
-            {
-                 1f,  1f, 0f,
-                -1f,  1f, 0f,
-                -1f, -1f, 0f,
-                 1f,  1f, 0f,
-                -1f, -1f, 0f,
-                 1f, -1f, 0f
-            });
-
-            this.BasicShader = new Shader(@"
-#version 150
-
-// Globals
-uniform mat4 mvp;
-
-// Inputs
-in vec3 in_pos;
-
-void main(void) {
-	gl_Position = mvp * vec4(in_pos, 1.0);
-}
-", /* fragment */ @"
-#version 150
-
-// Inputs
-uniform vec4 in_colour;
-
-void main(void) {
-    gl_FragColor = in_colour;
-}
-");
-
-            Resolution size = this.Project.Settings.Resolution;
-            this.FrameBuffer = new FrameBufferImage(size.Width, size.Height);
-
-            foreach (Track track in this.tracks)
-            {
-                track.SetupRenderData();
-            }
-        }
-
-        public void ClearRenderData()
-        {
-            this.BasicRectangle?.Dispose();
-            this.BasicRectangle = null;
-            this.FrameBuffer?.Dispose();
-            this.FrameBuffer = null;
-            foreach (Track track in this.tracks)
-            {
-                track.ClearRenderData();
-            }
         }
 
         public FrameSpan GetUsedFrameSpan()
@@ -267,10 +204,6 @@ void main(void) {
             this.ValidateTrack(track, true);
             this.tracks.Insert(index, track);
             Track.SetTimeline(track, this);
-            if (this.Project?.IsLoaded ?? false)
-            {
-                track.SetupRenderData();
-            }
         }
 
         public bool RemoveTrack(Track track)
@@ -287,11 +220,6 @@ void main(void) {
             Track track = this.tracks[index];
             this.ValidateTrack(track, false);
             ExceptionUtils.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
-            if (this.Project?.IsLoaded ?? false)
-            {
-                track.SetupRenderData();
-            }
-
             this.tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
         }
@@ -361,6 +289,7 @@ void main(void) {
         {
             if (!this.BeginCompositeRender(frame, token))
                 throw new TaskCanceledException("Begin render took too long to complete");
+            VideoEditor.EditorRenderUpdateChannel.ProcessUpdates();
             await this.EndCompositeRenderAsync(render, frame, token);
         }
 
@@ -514,14 +443,9 @@ void main(void) {
         public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token)
         {
             List<VideoClip> renderList = this.RenderList;
-            render.PushFrameBuffer(this.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
-            int fbtxid = this.FrameBuffer.TextureId;
-            render.ActiveFrameBufferTexture = fbtxid;
-            this.FrameBuffer.Clear();
-
-            // TODO: clipping
-            render.MatrixStack.PushMatrix();
-            render.MatrixStack.Matrix = Matrix4x4.Identity;
+            SKPaint trackPaint = null, clipPaint = null;
+            int timelineCanvasSaveIndex = render.Canvas.Save();
+            render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
             this.PreProcessAjustments(frame, render);
             int i = 0, count = renderList.Count;
             try
@@ -536,13 +460,8 @@ void main(void) {
                     }
 
                     VideoClip clip = renderList[i];
-                    VideoTrack track = clip.Track;
-
-                    // TODO: track and clip opacity
-                    render.PushFrameBuffer(track.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
-                    render.ActiveFrameBufferTexture = track.FrameBuffer.TextureId;
-                    track.FrameBuffer.Clear();
-
+                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
+                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     Vector2? frameSize = clip.GetSize(render);
 
                     try
@@ -552,7 +471,6 @@ void main(void) {
                     catch (Exception e)
                     {
                         this.CompleteRenderList(frame, true, e, i);
-                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException("Failed to pre-process effects", e);
                     }
 
@@ -573,7 +491,6 @@ void main(void) {
                     catch (Exception e)
                     {
                         this.CompleteRenderList(frame, true, e, i);
-                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException($"Failed to render '{clip}'", e);
                     }
 
@@ -593,7 +510,6 @@ void main(void) {
                         }
 
                         this.CompleteRenderList(frame, true, e, i + 1);
-                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException("Failed to post-process effects", e);
                     }
 
@@ -604,13 +520,11 @@ void main(void) {
                     catch (Exception e)
                     {
                         this.CompleteRenderList(frame, true, e, i + 1);
-                        RenderContext.TryPopFrameBuffer(render);
                         throw new RenderException($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
                     }
 
-                    render.PopFrameBuffer(null);
-                    render.ActiveFrameBufferTexture = fbtxid;
-                    track.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref render.MatrixStack.Matrix);
+                    EndOpacityLayer(render, clipSaveCount, ref clipPaint);
+                    EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                 }
             }
             catch (TaskCanceledException)
@@ -626,25 +540,42 @@ void main(void) {
                 this.CompleteRenderList(frame, true, e, i + 1);
                 throw new Exception("Unexpected exception occurred during render", e);
             }
-            finally
-            {
-                RenderContext.TryPopFrameBuffer(render);
-                render.ActiveFrameBufferTexture = 0;
-            }
 
             this.AdjustmentStack.Clear();
             this.RenderList.Clear();
             this.PostProcessAjustments(frame, render);
+            render.Canvas.RestoreToCount(timelineCanvasSaveIndex);
+        }
 
-            // TODO: restore clipping
+        // SaveLayer requires a temporary drawing bitmap, which can slightly
+        // decrease performance, so only SaveLayer when absolutely necessary
+        private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency)
+        {
+            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
+        }
 
-            render.MatrixStack.PopMatrix();
-
+        private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint)
+        {
+            if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d))
             {
-                Resolution res = this.Project.Settings.Resolution;
-                Matrix4x4 matrix = Matrix4x4.CreateScale(res.Width / 2.0f, res.Height / 2.0f, 1f) * render.MatrixStack.Matrix;
-                Matrix4x4 mvp = matrix * render.Projection;
-                this.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref mvp);
+                return render.Canvas.Save();
+            }
+            else
+            {
+                return SaveLayerForOpacity(render.Canvas, clip.Opacity, ref paint);
+            }
+        }
+
+        private static int BeginTrackOpacityLayer(RenderContext render, VideoTrack track, ref SKPaint paint)
+        {
+            return !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref paint) : render.Canvas.Save();
+        }
+
+        private static void EndOpacityLayer(RenderContext render, int count, ref SKPaint paint) {
+            render.Canvas.RestoreToCount(count);
+            if (paint != null) {
+                paint.Dispose();
+                paint = null;
             }
         }
 

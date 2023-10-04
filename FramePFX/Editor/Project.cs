@@ -3,13 +3,14 @@ using System.IO;
 using FramePFX.Automation;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.ZSystem;
 using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor
 {
-    public class Project
+    public class Project : ZObject
     {
         public volatile bool IsSaving;
 
@@ -110,7 +111,6 @@ namespace FramePFX.Editor
             AppLogger.WriteLine("Load project internal");
             this.IsLoaded = true;
             this.ResourceManager.OnProjectLoaded();
-            this.Timeline.SetupRenderData();
         }
 
         /// <summary>
@@ -123,7 +123,6 @@ namespace FramePFX.Editor
             AppLogger.WriteLine("Unload project internal");
             this.IsLoaded = false;
             this.ResourceManager.OnProjectUnloaded();
-            this.Timeline.ClearRenderData();
         }
 
         /// <summary>

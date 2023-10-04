@@ -157,10 +157,10 @@
                                                         </Grid>
                                                     </Border>
                                                     <controls:FreeMoveViewPortV2 DataContext="{Binding Editor.ActiveProject}" x:Name="VPViewBox" Margin="0,0,0,35" ClipToBounds="True" Background="{DynamicResource PanelBackground1}">
-                                                        <!--
                                                         <wpf:SKAsyncViewPort Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" />
-                                                        -->
+                                                        <!--
                                                         <wpf:OGLAsyncViewPort Width="{Binding Settings.Width, FallbackValue=0}" Height="{Binding Settings.Height, FallbackValue=0}" x:Name="ViewPortElement" />
+                                                        -->
                                                     </controls:FreeMoveViewPortV2>
                                                 </Grid>
                                             </LayoutAnchorable>

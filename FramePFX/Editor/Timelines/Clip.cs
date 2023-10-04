@@ -8,6 +8,7 @@ using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.ResourceHelpers;
+using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
@@ -17,7 +18,7 @@ namespace FramePFX.Editor.Timelines
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable
+    public abstract class Clip : ZObject, IClip, IStrictFrameRange, IAutomatable, IDisposable
     {
         private readonly List<BaseEffect> internalEffectList;
 
@@ -130,6 +131,9 @@ namespace FramePFX.Editor.Timelines
         /// <param name="newTrack">The track that this clip now exists in</param>
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack)
         {
+            if (this is IResourceHolder)
+                ((IResourceHolder) this).ResourceHelper.OnTrackChanged(oldTrack, newTrack);
+
             this.TrackChanged?.Invoke(oldTrack, newTrack);
         }
 
@@ -145,6 +149,9 @@ namespace FramePFX.Editor.Timelines
         /// <param name="newTimeline">The new timeline, associated with our track</param>
         protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
         {
+            if (this is IResourceHolder)
+                ((IResourceHolder) this).ResourceHelper.OnTrackTimelineChanged(oldTimeline, newTimeline);
+
             this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
         }
 
@@ -196,6 +203,9 @@ namespace FramePFX.Editor.Timelines
                 effect.WriteToRBE(dictionary.CreateDictionary("Data"));
             }
 
+            if (this is IResourceHolder)
+                ((IResourceHolder) this).ResourceHelper.WriteToRootRBE(data);
+
             this.SerialiseExtension?.Invoke(this, data);
         }
 
@@ -219,6 +229,9 @@ namespace FramePFX.Editor.Timelines
                 effect.ReadFromRBE(dictionary.GetDictionary("Data"));
                 BaseEffect.AddEffectToClip(this, effect);
             }
+
+            if (this is IResourceHolder)
+                ((IResourceHolder) this).ResourceHelper.ReadFromRootRBE(data);
 
             this.DeserialiseExtension?.Invoke(this, data);
         }
@@ -276,9 +289,9 @@ namespace FramePFX.Editor.Timelines
         /// <param name="flags">Cloning flags</param>
         protected virtual void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags)
         {
-            if ((flags & ClipCloneFlags.ResourceHelper) != 0 && this is IResourceClip)
+            if ((flags & ClipCloneFlags.ResourceHelper) != 0 && this is IResourceHolder)
             {
-                ((IResourceClip) this).ResourceHelper.LoadDataIntoClone(((IResourceClip) clone).ResourceHelper);
+                ((IResourceHolder) this).ResourceHelper.LoadDataIntoClone(((IResourceHolder) clone).ResourceHelper);
             }
         }
 
@@ -325,7 +338,7 @@ namespace FramePFX.Editor.Timelines
         protected virtual void DisposeCore()
         {
             this.ClearEffects();
-            if (this is IResourceClip resourceClip)
+            if (this is IResourceHolder resourceClip)
             {
                 resourceClip.ResourceHelper.Dispose();
             }
@@ -405,22 +418,22 @@ namespace FramePFX.Editor.Timelines
             }
         }
 
-        public static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline)
+        internal static void InternalOnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline)
         {
             clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
         }
 
-        public static void OnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject)
+        internal static void InternalOnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject)
         {
             clip.OnTrackTimelineProjectChanged(oldProject, newProject);
         }
 
-        public static void InternalInsertEffect(Clip clip, int index, BaseEffect effect)
+        internal static void InternalInsertEffect(Clip clip, int index, BaseEffect effect)
         {
             clip.internalEffectList.Insert(index, effect);
         }
 
-        public static void InternalRemoveEffect(Clip clip, int index)
+        internal static void InternalRemoveEffect(Clip clip, int index)
         {
             clip.internalEffectList.RemoveAt(index);
         }

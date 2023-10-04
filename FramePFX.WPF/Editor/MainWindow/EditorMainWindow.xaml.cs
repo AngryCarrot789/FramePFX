@@ -26,7 +26,7 @@ using FramePFX.WPF.Editor.Timeline.Controls;
 using FramePFX.WPF.Notifications;
 using FramePFX.WPF.Themes;
 using FramePFX.WPF.Views;
-using OpenTK.Graphics.OpenGL;
+using SkiaSharp;
 
 namespace FramePFX.WPF.Editor.MainWindow
 {
@@ -257,21 +257,19 @@ namespace FramePFX.WPF.Editor.MainWindow
             }
         }
 
+        // old OpenGL specific code
+
         public void OnExportBegin(bool prepare)
         {
-            if (prepare)
-            {
-                this.ViewPortElement.ClearContext();
-            }
-            else
-            {
-                this.ViewPortElement.MakeContextCurrent();
-            }
+            // if (prepare)
+            //     this.ViewPortElement.ClearContext();
+            // else
+            //     this.ViewPortElement.MakeContextCurrent();
         }
 
         public void OnExportEnd()
         {
-            this.ViewPortElement.ClearContext();
+            // this.ViewPortElement.ClearContext();
         }
 
         // protected override void OnActivated(EventArgs e) {
@@ -349,15 +347,12 @@ namespace FramePFX.WPF.Editor.MainWindow
             {
                 CancellationTokenSource source = new CancellationTokenSource(-1);
                 long frame = timeline.PlayHeadFrame;
-                if (this.ViewPortElement.BeginRender())
+                if (this.ViewPortElement.BeginRender(out SKSurface surface))
                 {
                     try
                     {
-                        RenderContext context = new RenderContext(this.ViewPortElement.FrameSize);
-                        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                        RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                         context.ClearPixels();
-
-                        // timeline.Model.BasicRectangle.DrawTriangles();
                         try
                         {
                             await timeline.Model.RenderAsync(context, frame, source.Token);

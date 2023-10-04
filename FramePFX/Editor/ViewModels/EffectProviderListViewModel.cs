@@ -14,7 +14,6 @@ namespace FramePFX.Editor.ViewModels
             List<EffectProviderViewModel> list = new List<EffectProviderViewModel>
             {
                 new EffectProviderViewModel("Motion", EffectFactory.Instance.GetTypeIdForViewModel(typeof(MotionEffectViewModel))),
-                new EffectProviderViewModel("Twirl", EffectFactory.Instance.GetTypeIdForViewModel(typeof(TwirlEffectViewModel)))
             };
 
             this.Effects = list;

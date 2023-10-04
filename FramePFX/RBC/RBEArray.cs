@@ -455,7 +455,7 @@ namespace FramePFX.RBC
                 T[] values = new T[len];
                 for (int i = 0, offset = 0; i < len; i++, offset += size)
                 {
-                    values[i] = BinaryUtils.ReadStruct<T>(array, offset, size);
+                    values[i] = BinaryUtils.ReadStruct<T>(array, offset);
                 }
 
                 return values;
@@ -478,7 +478,7 @@ namespace FramePFX.RBC
                 values = new T[len];
                 for (int i = 0, offset = 0; i < len; i++, offset += size)
                 {
-                    values[i] = BinaryUtils.ReadStruct<T>(array, offset, size);
+                    values[i] = BinaryUtils.ReadStruct<T>(array, offset);
                 }
 
                 return true;
@@ -494,7 +494,7 @@ namespace FramePFX.RBC
                 byte[] array = this.data = new byte[size * length];
                 for (int i = 0, offset = 0; i < length; i++, offset += size)
                 {
-                    BinaryUtils.WriteStruct(values[i], array, offset, size);
+                    BinaryUtils.WriteStruct(values[i], array, offset);
                 }
             }
         }

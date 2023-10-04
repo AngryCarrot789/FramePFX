@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -12,7 +13,7 @@ namespace FramePFX.Editor.Timelines
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
     /// </summary>
-    public abstract class Track : IAutomatable
+    public abstract class Track : ZObject, IProjectBound, IAutomatable
     {
         private readonly List<Clip> clips;
 
@@ -20,6 +21,8 @@ namespace FramePFX.Editor.Timelines
         /// The timeline that created this track
         /// </summary>
         public Timeline Timeline { get; private set; }
+
+        public Project Project => this.Timeline?.Project;
 
         /// <summary>
         /// This track's clips (unordered)
@@ -84,7 +87,7 @@ namespace FramePFX.Editor.Timelines
                 track.OnTimelineChanging(oldTimeline);
                 foreach (Clip clip in track.Clips)
                 {
-                    Clip.OnTrackTimelineChanged(clip, oldTimeline, timeline);
+                    Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, timeline);
                 }
 
                 track.OnTimelineChanged(oldTimeline);
@@ -96,7 +99,7 @@ namespace FramePFX.Editor.Timelines
             track.OnProjectChanging(oldProject, newProject);
             foreach (Clip clip in track.clips)
             {
-                Clip.OnTrackTimelineProjectChanged(clip, oldProject, newProject);
+                Clip.InternalOnTrackTimelineProjectChanged(clip, oldProject, newProject);
             }
 
             track.OnProjectChanged(oldProject, newProject);
@@ -124,30 +127,6 @@ namespace FramePFX.Editor.Timelines
         }
 
         protected virtual void OnProjectChanged(Project oldProject, Project newProject)
-        {
-        }
-
-        // When rendering, ClearRenderData is called on the OGL thread and SetupRenderData is called on the export thread
-
-        /// <summary>
-        /// Sets up any OpenGL rendering data (e.g. textures) that this track needs to render.
-        /// This is always called at least once before rendering ever beings
-        /// <para>
-        /// This is called when a track is added to a timeline, or when the video editor has been loaded
-        /// and is ready to be used by the user, or when the user modifies the project settings (such as resolution).
-        /// This is not called when a track is moved between timelines
-        /// </para>
-        /// </summary>
-        public virtual void SetupRenderData()
-        {
-            this.ClearRenderData();
-        }
-
-        /// <summary>
-        /// Clears any rendering data that this track previously allocated with <see cref="SetupRenderData"/>.
-        /// This may be called multiple times in a row or when <see cref="SetupRenderData"/> was never called
-        /// </summary>
-        public virtual void ClearRenderData()
         {
         }
 

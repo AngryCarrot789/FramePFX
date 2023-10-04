@@ -5,7 +5,7 @@ namespace FramePFX.Rendering
 {
     public class MatrixStack
     {
-        private readonly Stack<Matrix4x4> oldMatrices;
+        private readonly Stack<Matrix4x4> stack;
 
         /// <summary>
         /// The current translation matrix. This can be modified at will
@@ -14,57 +14,38 @@ namespace FramePFX.Rendering
 
         public MatrixStack()
         {
-            this.oldMatrices = new Stack<Matrix4x4>();
-            this.Clear();
+            this.stack = new Stack<Matrix4x4>();
+            this.Matrix = Matrix4x4.Identity;
         }
 
         /// <summary>
-        /// Pushes the previous matrix into a stack and then multiplies that matrix by the given matrix
+        /// Pushes the current matrix (<see cref="Matrix"/>) onto the stack
         /// </summary>
-        /// <param name="matrix">Input matrix</param>
-        public void PushMatrix(Matrix4x4 matrix) => this.PushMatrix(ref matrix);
+        public void PushMatrix() => this.stack.Push(this.Matrix);
 
         /// <summary>
-        /// Pushes the previous matrix into a stack and then multiplies that matrix by the given matrix
+        /// Pops the last matrix in the stack and sets <see cref="Matrix"/> as that matrix
         /// </summary>
-        /// <param name="matrix">Input matrix</param>
-        public void PushMatrix(ref Matrix4x4 matrix)
-        {
-            this.oldMatrices.Push(this.Matrix);
-            this.Matrix *= matrix;
-        }
-
-        /// <summary>
-        /// Pushes the previous matrix into a stack and then sets <see cref="Matrix"/> to the given matrix.
-        /// Similar to <see cref="PushMatrix(System.Numerics.Matrix4x4)"/> but without multiplying any matrices
-        /// </summary>
-        /// <param name="matrix"></param>
-        public void PushReplaceMatrix(Matrix4x4 matrix)
-        {
-            this.oldMatrices.Push(this.Matrix);
-            this.Matrix = matrix;
-        }
-
-        /// <summary>
-        /// Pops the last matrix in the stack and sets <see cref="Matrix"/> as that matrix, returning the previous value of <see cref="Matrix"/>
-        /// </summary>
-        /// <returns>The the Matrix property before being replaced with the top of the stack</returns>
-        public Matrix4x4 PopMatrix()
-        {
-            Matrix4x4 old = this.Matrix;
-            Matrix4x4 top = this.oldMatrices.Pop();
-            this.Matrix = top;
-            return old;
-        }
+        public void PopMatrix() => this.Matrix = this.stack.Pop();
 
         /// <summary>
         /// Clears all matrices and sets <see cref="Matrix"/> to <see cref="Matrix4x4.Identity"/>
         /// </summary>
         public void Clear()
         {
-            this.oldMatrices.Clear();
+            this.stack.Clear();
             this.Matrix = Matrix4x4.Identity;
         }
+
+        public void Translate(Vector3 pos) => this.Matrix *= Matrix4x4.CreateTranslation(pos);
+        public void Scale(Vector3 scale) => this.Matrix *= Matrix4x4.CreateScale(scale);
+        public void Scale(Vector3 scale, Vector3 origin) => this.Matrix *= Matrix4x4.CreateScale(scale, origin);
+        public void RotateX(float radians) => this.Matrix *= Matrix4x4.CreateRotationX(radians);
+        public void RotateX(float radians, Vector3 origin) => this.Matrix *= Matrix4x4.CreateRotationX(radians, origin);
+        public void RotateY(float radians) => this.Matrix *= Matrix4x4.CreateRotationY(radians);
+        public void RotateY(float radians, Vector3 origin) => this.Matrix *= Matrix4x4.CreateRotationY(radians, origin);
+        public void RotateZ(float radians) => this.Matrix *= Matrix4x4.CreateRotationZ(radians);
+        public void RotateZ(float radians, Vector3 origin) => this.Matrix *= Matrix4x4.CreateRotationZ(radians, origin);
 
         // not using these; was just using to debug if matrices were actually working
 

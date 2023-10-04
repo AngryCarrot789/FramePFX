@@ -71,11 +71,10 @@ namespace FramePFX.Editor.Timelines.Effects.Video
         public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize)
         {
             base.PreProcessFrame(frame, rc, frameSize);
-            Vector2 position = this.MediaPosition;
+            Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;
             Vector2 rotationOrigin = this.MediaRotationOrigin;
-            Matrix4x4 matrix = Matrix4x4.Identity;
             float rotation = (float)(this.MediaRotation * System.Math.PI / 180d);
 
             scaleOrigin.X -= 0.5f;
@@ -83,48 +82,35 @@ namespace FramePFX.Editor.Timelines.Effects.Video
             rotationOrigin.X -= 0.5f;
             rotationOrigin.Y -= 0.5f;
 
-            Matrix4x4 matTranslate, matScale, matRotation;
+            rc.MatrixStack.PushMatrix();
             if (frameSize.HasValue)
             {
                 // clip has size info that we can use to transform relative top-left corner
                 Vector2 size = frameSize.Value;
                 Vector2 center = new Vector2(size.X / 2.0f, size.Y / 2.0f);
-                if (this.UseAbsoluteRotationOrigin)
-                {
-                    matRotation = Matrix4x4.CreateRotationZ(rotation, new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f));
-                }
-                else
-                {
-                    matRotation = Matrix4x4.CreateRotationZ(rotation, new Vector3(size.X * rotationOrigin.X, size.Y * rotationOrigin.Y, 0f));
-                }
-
-                if (this.UseAbsoluteScaleOrigin)
-                {
-                    matScale = Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f));
-                }
-                else
-                {
-                    matScale = Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(size.X * scaleOrigin.X, size.Y * scaleOrigin.Y, 0f));
-                }
-
-                matTranslate = Matrix4x4.CreateTranslation(position.X + center.X, position.Y + center.Y, 0f);
+                rc.MatrixStack.RotateZ(rotation,
+                    this.UseAbsoluteRotationOrigin
+                        ? new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f)
+                        : new Vector3(size.X * rotationOrigin.X, size.Y * rotationOrigin.Y, 0f));
+                rc.MatrixStack.Scale(new Vector3(scale.X, scale.Y, 1f),
+                    this.UseAbsoluteScaleOrigin
+                        ? new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f)
+                        : new Vector3(size.X * scaleOrigin.X, size.Y * scaleOrigin.Y, 0f));
+                rc.MatrixStack.Translate(new Vector3(pos.X + center.X, pos.Y + center.Y, 0f));
             }
             else
             {
                 // worst case; clip has no size data so we assume it takes up 0 pixels
-                matRotation = this.UseAbsoluteRotationOrigin
-                    ? Matrix4x4.CreateRotationZ(rotation, new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f))
-                    : Matrix4x4.Identity;
-
-                matScale = this.UseAbsoluteScaleOrigin
-                    ? Matrix4x4.CreateScale(scale.X, scale.Y, 1f, new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f))
-                    : Matrix4x4.Identity;
-
-                matTranslate = Matrix4x4.CreateTranslation(position.X, position.Y, 0f);
+                rc.MatrixStack.RotateZ(rotation,
+                    this.UseAbsoluteRotationOrigin
+                        ? new Vector3(rotationOrigin.X, rotationOrigin.Y, 0f)
+                        : Vector3.Zero);
+                rc.MatrixStack.Scale(new Vector3(scale.X, scale.Y, 1f),
+                    this.UseAbsoluteScaleOrigin
+                        ? new Vector3(scaleOrigin.X, scaleOrigin.Y, 0f)
+                        : Vector3.Zero);
+                rc.MatrixStack.Translate(new Vector3(pos.X, pos.Y, 0f));
             }
-
-            matrix = matRotation * matScale * matTranslate;
-            rc.MatrixStack.PushMatrix(ref matrix);
         }
 
         public override void PostProcessFrame(long frame, RenderContext rc, Vector2? frameSize)

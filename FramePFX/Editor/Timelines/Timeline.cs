@@ -16,7 +16,11 @@ using FramePFX.Rendering;
 using FramePFX.Rendering.ObjectTK;
 using FramePFX.Rendering.Utils;
 using FramePFX.Utils;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using SkiaSharp;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
 
 namespace FramePFX.Editor.Timelines
 {
@@ -155,7 +159,6 @@ void main(void) {
 }
 ", /* fragment */ @"
 #version 150
-precision highp float;
 
 // Inputs
 uniform vec4 in_colour;
@@ -514,11 +517,11 @@ void main(void) {
         public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token)
         {
             List<VideoClip> renderList = this.RenderList;
-            render.MatrixStack.PushReplaceMatrix(Matrix4x4.Identity);
             render.PushFrameBuffer(this.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
             this.FrameBuffer.Clear();
 
             // TODO: clipping
+            render.MatrixStack.PushMatrix();
             this.PreProcessAjustments(frame, render);
             int i = 0, count = renderList.Count;
             try
@@ -533,7 +536,7 @@ void main(void) {
                     }
 
                     VideoClip clip = renderList[i];
-                    VideoTrack track = (VideoTrack) clip.Track;
+                    VideoTrack track = clip.Track;
 
                     // TODO: track and clip opacity
                     render.PushFrameBuffer(track.FrameBuffer.FrameBufferId, FramebufferTarget.Framebuffer);
@@ -630,15 +633,27 @@ void main(void) {
             this.RenderList.Clear();
             this.PostProcessAjustments(frame, render);
 
-            Matrix4x4 top = render.MatrixStack.PopMatrix();
+            // TODO: restore clipping
+            render.MatrixStack.PopMatrix();
 
-            this.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref top);
-            if (!top.IsIdentity)
+            // Matrix4x4 mvp = render.MatrixStack.Matrix * render.Projection;
+            // Matrix4x4 mvp = Matrix4x4.Identity;
+            // render.MatrixStack.Matrix is identity by default
             {
-                AppLogger.WriteLine("Expected the matrix stack's top matrix to be an identity matrix");
+                Resolution resolution = this.Project.Settings.Resolution;
+                Vector2 size = new Vector2(resolution.Width, resolution.Height);
+                Vector2 center = new Vector2(size.X / 2.0f, size.Y / 2.0f);
+                render.MatrixStack.Translate(new Vector3(center.X, center.Y, 0f));
+
+                Matrix4x4 matrix = Matrix4x4.CreateScale(center.X, center.Y, 1f) * render.MatrixStack.Matrix;
+                Matrix4x4 mvp = matrix * render.Projection;
+                this.FrameBuffer.DrawIntoTargetBuffer(render.ActiveFrameBuffer, ref mvp);
             }
 
-            // TODO: restore clipping
+            // Matrix4x4 projection = Matrix4x4.CreateOrthographicOffCenter(0, 1920, 0, 1080, 0.001f, 1f);
+            // Matrix4x4 cameraMatrix = Matrix4x4.CreateLookAt(new Vector3(0, 0, 1), new Vector3(), Vector3.UnitY) * projection;
+            // Matrix4x4 worldMatrix = Matrix4x4.CreateScale(960F, 540F, 1f) * Matrix4x4.CreateTranslation(0f, 0f, 0f);
+            // Matrix4x4 matrix = cameraMatrix * worldMatrix;
         }
     }
 }

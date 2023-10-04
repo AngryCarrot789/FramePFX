@@ -5,7 +5,7 @@ using Vector3 = System.Numerics.Vector3;
 
 namespace FramePFX.Rendering.Utils
 {
-    public class MatrixUtils
+    public static class MatrixUtils
     {
         /// <summary>
         /// Creates a matrix that can be used to transform world coordinates into local coordinates, using the given position, rotation and scale

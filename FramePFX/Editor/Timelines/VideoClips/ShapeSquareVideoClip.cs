@@ -82,7 +82,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
         {
             if (this.ResourceHelper.TryGetResource(out ResourceColour r))
             {
-                Matrix4x4 matrix = Matrix4x4.CreateScale(this.Width / 2f, this.Height / 2f, 1f) * rc.Matrix;
+                Matrix4x4 matrix = Matrix4x4.CreateScale(this.Width / 2f, this.Height / 2f, 1f) * rc.MatrixStack.Matrix;
                 Matrix4x4 mvp = matrix * rc.Projection;
 
                 Shader shader = this.Track.Timeline.BasicShader;

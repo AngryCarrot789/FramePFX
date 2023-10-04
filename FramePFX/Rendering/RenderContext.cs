@@ -20,11 +20,6 @@ namespace FramePFX.Rendering
         public int ActiveFrameBuffer { get; private set; }
 
         /// <summary>
-        /// The current matrix (accessed from <see cref="MatrixStack"/>)
-        /// </summary>
-        public Matrix4x4 Matrix => this.MatrixStack.Matrix;
-
-        /// <summary>
         /// The matrix stack for this rendering context
         /// </summary>
         public readonly MatrixStack MatrixStack;

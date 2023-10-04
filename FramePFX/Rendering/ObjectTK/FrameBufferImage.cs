@@ -67,11 +67,10 @@ namespace FramePFX.Rendering.ObjectTK
             this.vao = GL.GenVertexArray();
             GL.BindVertexArray(this.vao);
 
-            const int stride = 4 * sizeof(float);
             this.vbo = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, this.vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, verts.Length * sizeof(float), verts, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, stride, 0);
+            GL.VertexAttribPointer(0, 4, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
 
             // Unbind the VAO after configuration.

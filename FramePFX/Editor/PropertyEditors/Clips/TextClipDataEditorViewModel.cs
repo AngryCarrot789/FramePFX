@@ -8,10 +8,8 @@ using FramePFX.History.Tasks;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Editors;
 
-namespace FramePFX.Editor.PropertyEditors.Clips
-{
-    public class TextClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel
-    {
+namespace FramePFX.Editor.PropertyEditors.Clips {
+    public class TextClipDataEditorViewModel : HistoryAwarePropertyEditorViewModel {
         private readonly HistoryBuffer<HistoryFontFamilty> historyFontFamily;
         private readonly HistoryBuffer<HistoryText> historyText;
 
@@ -20,11 +18,9 @@ namespace FramePFX.Editor.PropertyEditors.Clips
 
         private string fontFamily;
 
-        public string FontFamily
-        {
+        public string FontFamily {
             get => this.fontFamily;
-            set
-            {
+            set {
                 if (!this.historyFontFamily.TryGetAction(out HistoryFontFamilty action))
                     this.historyFontFamily.PushAction(this.HistoryManager, action = new HistoryFontFamilty(this), "Change font family");
                 this.fontFamily = value;
@@ -35,11 +31,9 @@ namespace FramePFX.Editor.PropertyEditors.Clips
 
         private string text;
 
-        public string Text
-        {
+        public string Text {
             get => this.text;
-            set
-            {
+            set {
                 if (!this.historyText.TryGetAction(out HistoryText action))
                     this.historyText.PushAction(this.HistoryManager, action = new HistoryText(this), "Change text");
                 this.text = value;
@@ -50,21 +44,17 @@ namespace FramePFX.Editor.PropertyEditors.Clips
 
         public static string DifferentValueText => Services.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
 
-        public TextClipDataEditorViewModel() : base(typeof(TextVideoClipViewModel))
-        {
+        public TextClipDataEditorViewModel() : base(typeof(TextVideoClipViewModel)) {
             this.historyFontFamily = new HistoryBuffer<HistoryFontFamilty>();
             this.historyText = new HistoryBuffer<HistoryText>();
         }
 
-        static TextClipDataEditorViewModel()
-        {
+        static TextClipDataEditorViewModel() {
         }
 
-        protected override void OnHandlersLoaded()
-        {
+        protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
-            if (this.Handlers.Count == 1)
-            {
+            if (this.Handlers.Count == 1) {
                 this.SingleSelection.OpacityAutomationSequence.RefreshValue += this.RefreshOpacityHandler;
             }
 
@@ -72,43 +62,34 @@ namespace FramePFX.Editor.PropertyEditors.Clips
             this.RequeryTextFromHandlers();
         }
 
-        public void RequeryFontFamiltyFromHandlers()
-        {
+        public void RequeryFontFamiltyFromHandlers() {
             this.fontFamily = GetEqualValue(this.Handlers, x => ((TextVideoClipViewModel) x).FontFamily, out string d) ? d : DifferentValueText;
             this.RaisePropertyChanged(nameof(this.FontFamily));
         }
 
-        public void RequeryTextFromHandlers()
-        {
+        public void RequeryTextFromHandlers() {
             this.text = GetEqualValue(this.Handlers, x => ((TextVideoClipViewModel) x).Text, out string d) ? d : DifferentValueText;
             this.RaisePropertyChanged(nameof(this.Text));
         }
 
-        protected override void OnClearHandlers()
-        {
+        protected override void OnClearHandlers() {
             base.OnClearHandlers();
-            if (this.Handlers.Count == 1)
-            {
+            if (this.Handlers.Count == 1) {
                 this.SingleSelection.OpacityAutomationSequence.RefreshValue -= this.RefreshOpacityHandler;
             }
         }
 
-        private void RefreshOpacityHandler(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e)
-        {
+        private void RefreshOpacityHandler(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
             this.RaisePropertyChanged(ref this.fontFamily, this.SingleSelection.FontFamily, nameof(this.FontFamily));
         }
 
-        protected class HistoryFontFamilty : HistoryBasicSingleProperty<TextVideoClipViewModel, string>
-        {
-            public HistoryFontFamilty(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.FontFamily, (x, v) => x.FontFamily = v, editor.RequeryFontFamiltyFromHandlers)
-            {
+        protected class HistoryFontFamilty : HistoryBasicSingleProperty<TextVideoClipViewModel, string> {
+            public HistoryFontFamilty(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.FontFamily, (x, v) => x.FontFamily = v, editor.RequeryFontFamiltyFromHandlers) {
             }
         }
 
-        protected class HistoryText : HistoryBasicSingleProperty<TextVideoClipViewModel, string>
-        {
-            public HistoryText(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.Text, (x, v) => x.Text = v, editor.RequeryTextFromHandlers)
-            {
+        protected class HistoryText : HistoryBasicSingleProperty<TextVideoClipViewModel, string> {
+            public HistoryText(TextClipDataEditorViewModel editor) : base(editor.Clips, x => x.Text, (x, v) => x.Text = v, editor.RequeryTextFromHandlers) {
             }
         }
     }
@@ -116,13 +97,11 @@ namespace FramePFX.Editor.PropertyEditors.Clips
     // Use different types because it's more convenient to create DataTemplates;
     // no need for a template selector to check the mode
 
-    public class TextClipDataSingleEditorViewModel : TextClipDataEditorViewModel
-    {
+    public class TextClipDataSingleEditorViewModel : TextClipDataEditorViewModel {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
     }
 
-    public class TextClipDataMultiEditorViewModel : TextClipDataEditorViewModel
-    {
+    public class TextClipDataMultiEditorViewModel : TextClipDataEditorViewModel {
         public sealed override HandlerCountMode HandlerCountMode => HandlerCountMode.Multi;
     }
 }

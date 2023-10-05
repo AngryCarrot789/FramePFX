@@ -3,13 +3,11 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace FramePFX.WPF.Controls.TreeViews.Controls
-{
+namespace FramePFX.WPF.Controls.TreeViews.Controls {
     /// <summary>
     /// Text box which focuses itself on load and selects all text in it.
     /// </summary>
-    public class EditTextBox : TextBox
-    {
+    public class EditTextBox : TextBox {
         #region Private fields
 
         private string startText;
@@ -18,13 +16,11 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls
 
         #region Constructor
 
-        static EditTextBox()
-        {
+        static EditTextBox() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(EditTextBox), new FrameworkPropertyMetadata(typeof(EditTextBox)));
         }
 
-        public EditTextBox()
-        {
+        public EditTextBox() {
             this.Loaded += this.OnTreeViewEditTextBoxLoaded;
         }
 
@@ -32,21 +28,17 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls
 
         #region Methods
 
-        protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
-        {
+        protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e) {
             base.OnGotKeyboardFocus(e);
             this.startText = this.Text;
             this.SelectAll();
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
+        protected override void OnKeyDown(KeyEventArgs e) {
             base.OnKeyDown(e);
-            if (!e.Handled)
-            {
+            if (!e.Handled) {
                 Key key = e.Key;
-                switch (key)
-                {
+                switch (key) {
                     case Key.Escape:
                         this.Text = this.startText;
                         break;
@@ -54,8 +46,7 @@ namespace FramePFX.WPF.Controls.TreeViews.Controls
             }
         }
 
-        private void OnTreeViewEditTextBoxLoaded(object sender, RoutedEventArgs e)
-        {
+        private void OnTreeViewEditTextBoxLoaded(object sender, RoutedEventArgs e) {
             BindingExpression be = this.GetBindingExpression(TextProperty);
             if (be != null)
                 be.UpdateTarget();

@@ -8,20 +8,16 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 
-namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers
-{
-    public class TopRulerManager : HorizontalRulerManager
-    {
+namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers {
+    public class TopRulerManager : HorizontalRulerManager {
         public TopRulerManager(RulerBase control) : base(control) { }
 
-        public override void DrawMajorLine(DrawingContext dc, double offset)
-        {
+        public override void DrawMajorLine(DrawingContext dc, double offset) {
             double height = this.Control.ActualHeight;
             double size = Math.Min(this.GetMajorSize(), height);
             Point p1;
             Point p2;
-            switch (this.Control.TopRulerLineAlignment)
-            {
+            switch (this.Control.TopRulerLineAlignment) {
                 case VerticalAlignment.Top:
                     p1 = new Point(offset, 0);
                     p2 = new Point(offset, size);
@@ -45,16 +41,14 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers
             dc.DrawLine(this.Control.MajorStepColourPen, p1, p2);
         }
 
-        public override void DrawMinorLine(DrawingContext dc, double offset)
-        {
+        public override void DrawMinorLine(DrawingContext dc, double offset) {
             double height = this.Control.ActualHeight;
             double major_size = this.GetMajorSize();
             double size = major_size * (1 - this.Control.MinorStepRatio);
 
             Point p1;
             Point p2;
-            switch (this.Control.TopRulerLineAlignment)
-            {
+            switch (this.Control.TopRulerLineAlignment) {
                 case VerticalAlignment.Top:
                     p1 = new Point(offset, 0);
                     p2 = new Point(offset, size);
@@ -78,20 +72,17 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers
             dc.DrawLine(this.Control.MinorStepColourPen, p1, p2);
         }
 
-        public override void DrawText(DrawingContext dc, double value, double offset)
-        {
+        public override void DrawText(DrawingContext dc, double value, double offset) {
             double height = this.Control.ActualHeight;
             double major_size = this.GetMajorSize();
 
             FormattedText format = base.GetFormattedText(value);
 
             double gap = (height - major_size);
-            if (gap >= (format.Height / 2d))
-            {
+            if (gap >= (format.Height / 2d)) {
                 dc.DrawText(format, new Point((offset + this.Control.MajorLineThickness) - (format.Width / 2d), gap - format.Height));
             }
-            else
-            {
+            else {
                 // draw above major if possible
                 dc.DrawText(format, new Point(offset + this.Control.MajorLineThickness + 2d, (height / 2d) - (format.Height / 2d)));
             }

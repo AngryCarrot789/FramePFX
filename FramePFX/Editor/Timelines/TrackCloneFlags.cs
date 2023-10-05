@@ -1,10 +1,8 @@
 using System;
 
-namespace FramePFX.Editor.Timelines
-{
+namespace FramePFX.Editor.Timelines {
     [Flags]
-    public enum TrackCloneFlags
-    {
+    public enum TrackCloneFlags {
         None = 0,
         Clips = 1,
         Effects = 2,

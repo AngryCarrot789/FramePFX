@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Editor.ZSystem
-{
+namespace FramePFX.Editor.ZSystem {
     /// <summary>
     /// An object that channels property update values, without interfering with other channels
     /// </summary>
-    public class ZUpdateChannel
-    {
+    public class ZUpdateChannel {
         public const string DefaultChannelName = "ApplicationDefault";
         private static readonly Dictionary<string, ZUpdateChannel> Channels;
         internal readonly List<TransferValueCommand> _updateList;
@@ -22,8 +20,7 @@ namespace FramePFX.Editor.ZSystem
         /// <summary>
         /// Gets the default update channel for the application
         /// </summary>
-        public static ZUpdateChannel Default
-        {
+        public static ZUpdateChannel Default {
             get => defaultChannel;
             set => defaultChannel = value ?? throw new ArgumentNullException(nameof(value));
         }
@@ -35,20 +32,17 @@ namespace FramePFX.Editor.ZSystem
         /// <param name="initialCapacity">The initial capacity of the internal update command list</param>
         /// <exception cref="ArgumentException">Name is null, empty or consists of only whitespaces</exception>
         /// <exception cref="InvalidOperationException">Name is already in use</exception>
-        private ZUpdateChannel(string name, int initialCapacity = 128)
-        {
+        private ZUpdateChannel(string name, int initialCapacity = 128) {
             this.Name = name;
             this._updateList = new List<TransferValueCommand>(initialCapacity);
         }
 
-        static ZUpdateChannel()
-        {
+        static ZUpdateChannel() {
             Channels = new Dictionary<string, ZUpdateChannel>();
             defaultChannel = new ZUpdateChannel(DefaultChannelName);
         }
 
-        public static ZUpdateChannel GetOrCreateChannel(string name)
-        {
+        public static ZUpdateChannel GetOrCreateChannel(string name) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be null, empty or consist of only whitespaces", nameof(name));
             if (!Channels.TryGetValue(name, out var channel))
@@ -56,8 +50,7 @@ namespace FramePFX.Editor.ZSystem
             return channel;
         }
 
-        public static ZUpdateChannel GetChannel(string name)
-        {
+        public static ZUpdateChannel GetChannel(string name) {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be null, empty or consist of only whitespaces", nameof(name));
             Channels.TryGetValue(name, out ZUpdateChannel channel);
@@ -70,8 +63,7 @@ namespace FramePFX.Editor.ZSystem
         /// (due to the <see cref="ZObject"/> using internal flags to track if an update is already scheduled)
         /// </summary>
         /// <param name="command">The command to enqueue</param>
-        public void Add(TransferValueCommand command)
-        {
+        public void Add(TransferValueCommand command) {
             this._updateList.Add(command);
         }
 

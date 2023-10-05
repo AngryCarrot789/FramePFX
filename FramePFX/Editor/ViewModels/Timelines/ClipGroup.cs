@@ -1,20 +1,17 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace FramePFX.Editor.ViewModels.Timelines
-{
+namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
     /// A helper for grouping together clips
     /// </summary>
-    public class ClipGroup : BaseViewModel
-    {
+    public class ClipGroup : BaseViewModel {
         /// <summary>
         /// The primary clip that initially created this group
         /// </summary>
         private ClipViewModel host;
 
-        public ClipViewModel Host
-        {
+        public ClipViewModel Host {
             get => this.host;
             set => this.RaisePropertyChanged(ref this.host, value);
         }
@@ -24,8 +21,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
         /// </summary>
         public ObservableCollection<ClipViewModel> Clips { get; }
 
-        public ClipGroup(IEnumerable<ClipViewModel> set)
-        {
+        public ClipGroup(IEnumerable<ClipViewModel> set) {
             this.Clips = new ObservableCollection<ClipViewModel>(set);
         }
     }

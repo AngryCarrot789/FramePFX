@@ -5,10 +5,8 @@ using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.VideoClips;
 using SkiaSharp;
 
-namespace FramePFX.Rendering
-{
-    public sealed class RenderContext
-    {
+namespace FramePFX.Rendering {
+    public sealed class RenderContext {
         /// <summary>
         /// The target render surface
         /// </summary>
@@ -43,8 +41,7 @@ namespace FramePFX.Rendering
         /// </summary>
         public int Depth;
 
-        public RenderContext(SKSurface surface, SKCanvas canvas, SKImageInfo frameInfo)
-        {
+        public RenderContext(SKSurface surface, SKCanvas canvas, SKImageInfo frameInfo) {
             this.Surface = surface;
             this.Canvas = canvas;
             this.FrameInfo = frameInfo;
@@ -54,29 +51,25 @@ namespace FramePFX.Rendering
         /// <summary>
         /// Clears the context's drawing canvas
         /// </summary>
-        public void ClearPixels()
-        {
+        public void ClearPixels() {
             this.Canvas.Clear(SKColors.Black);
         }
     }
 
-    public class TimelineRenderState
-    {
+    public class TimelineRenderState {
         public readonly List<VideoClip> RenderList;
         public readonly List<AdjustmentVideoClip> AdjustmentStack;
         public readonly Timeline Timeline;
 
         public bool IsRendering { get; set; }
 
-        public TimelineRenderState(Timeline timeline)
-        {
+        public TimelineRenderState(Timeline timeline) {
             this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
             this.RenderList = new List<VideoClip>();
             this.AdjustmentStack = new List<AdjustmentVideoClip>();
         }
 
-        public void Reset()
-        {
+        public void Reset() {
             this.RenderList.Clear();
             this.AdjustmentStack.Clear();
         }

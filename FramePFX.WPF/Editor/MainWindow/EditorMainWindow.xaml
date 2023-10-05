@@ -129,7 +129,7 @@
                                             <LayoutAnchorable Title="Viewport" ContentId="VideoEditorViewPort" CanHide="False" CanClose="False"
                                                               CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
                                                 <Grid DataContext="{Binding Playback}" sc:UIInputManager.FocusPath="Application/Editor/ViewPort">
-                                                    <mainwindow:ViewPortUserControl x:Name="ViewPortControl"/>
+                                                    <mainwindow:ViewPortUserControl x:Name="ViewPortControl" />
                                                 </Grid>
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>

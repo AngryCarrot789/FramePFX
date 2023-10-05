@@ -5,13 +5,11 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Logger;
 using FramePFX.RBC;
 
-namespace FramePFX.Editor.ResourceManaging
-{
+namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// A class which encapsulated a resource reference and handles the reference counter for the resource
     /// </summary>
-    public sealed class ResourcePath : IDisposable
-    {
+    public sealed class ResourcePath : IDisposable {
         private readonly ResourceAndManagerEventHandler resourceAddedHandler;
         private readonly ResourceAndManagerEventHandler resourceRemovedHandler;
         private readonly ResourceReplacedEventHandler resourceReplacedHandler;
@@ -59,16 +57,14 @@ namespace FramePFX.Editor.ResourceManaging
 
         public ResourcePath(IBaseResourcePathKey owner, ulong resourceId) : this(owner, null, resourceId) { }
 
-        public ResourcePath(IBaseResourcePathKey owner, ResourceManager manager, ulong resourceId)
-        {
+        public ResourcePath(IBaseResourcePathKey owner, ResourceManager manager, ulong resourceId) {
             this.ResourceId = resourceId == ResourceManager.EmptyId ? throw new ArgumentException("Unique id cannot be 0 (null)") : resourceId;
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.resourceAddedHandler = this.OnManagerResourceAdded;
             this.resourceRemovedHandler = this.OnManagerResourceRemoved;
             this.resourceReplacedHandler = this.OnManagerResourceReplaced;
             this.onlineStateChangedHandler = this.OnOnlineStateChanged;
-            if (manager != null)
-            {
+            if (manager != null) {
                 this.Manager = manager;
                 this.AttachManager(manager);
             }
@@ -76,16 +72,13 @@ namespace FramePFX.Editor.ResourceManaging
 
         public bool IsItemApplicable(ResourceItem item) => this.Owner.IsItemTypeApplicable(item);
 
-        public void SetManager(ResourceManager manager)
-        {
+        public void SetManager(ResourceManager manager) {
             this.EnsureNotDisposed();
             this.EnsureNotDisposing();
             this.EnsureManagerNotChanging("Cannot set manager while it is already being set");
             ResourceManager oldManager = this.Manager;
-            if (ReferenceEquals(oldManager, manager))
-            {
-                if (manager != null)
-                {
+            if (ReferenceEquals(oldManager, manager)) {
+                if (manager != null) {
                     Debugger.Break();
                     AppLogger.WriteLine($"[{this.GetType().Name}] Attempted to set the same manager instance:\n{Environment.StackTrace}");
                 }
@@ -108,22 +101,18 @@ namespace FramePFX.Editor.ResourceManaging
             this.isManagerChanging = false;
         }
 
-        private void SetInternalResource(ResourceItem item, bool fireEvent = true)
-        {
+        private void SetInternalResource(ResourceItem item, bool fireEvent = true) {
             ResourceItem oldItem = this.cached;
-            if (this.IsValid == true)
-            {
+            if (this.IsValid == true) {
                 if (oldItem == null)
                     throw new Exception("Expected non-null cached item when state is valid");
                 this.IsValid = null;
             }
-            else if (oldItem != null)
-            {
+            else if (oldItem != null) {
                 throw new Exception("Expected null cached item when state is invalid or unknown");
             }
 
-            if (ReferenceEquals(oldItem, item))
-            {
+            if (ReferenceEquals(oldItem, item)) {
                 AppLogger.WriteLine($"Attempted to set resource to the same instance: {oldItem} -> {item}");
                 AppLogger.WriteLine(Environment.StackTrace);
                 return;
@@ -132,54 +121,43 @@ namespace FramePFX.Editor.ResourceManaging
             this.SetInternalResourceUnsafe(oldItem, item, fireEvent);
         }
 
-        private void SetInternalResourceUnsafe(ResourceItem oldItem, ResourceItem newItem, bool fireEvent = true)
-        {
+        private void SetInternalResourceUnsafe(ResourceItem oldItem, ResourceItem newItem, bool fireEvent = true) {
             this.cached = newItem;
             this.IsValid = newItem != null ? (bool?) true : null;
             this.OnResourceChanged(oldItem, newItem);
-            if (fireEvent)
-            {
+            if (fireEvent) {
                 this.ResourceChanged?.Invoke(oldItem, newItem);
             }
         }
 
-        private void OnResourceChanged(ResourceItem oldItem, ResourceItem newItem)
-        {
-            if (oldItem != null)
-            {
+        private void OnResourceChanged(ResourceItem oldItem, ResourceItem newItem) {
+            if (oldItem != null) {
                 oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
                 this.SetReferenceCount(oldItem, false);
             }
 
-            if (newItem != null)
-            {
+            if (newItem != null) {
                 newItem.OnlineStateChanged += this.onlineStateChangedHandler;
                 this.SetReferenceCount(newItem, true);
             }
         }
 
-        public void SetReferenceCount(ResourceItem item, bool isReferenced)
-        {
-            if (isReferenced)
-            {
-                if (!this.isReferencedCounted)
-                {
+        public void SetReferenceCount(ResourceItem item, bool isReferenced) {
+            if (isReferenced) {
+                if (!this.isReferencedCounted) {
                     this.isReferencedCounted = true;
                     item.AddReference(this);
                 }
             }
-            else if (this.isReferencedCounted)
-            {
+            else if (this.isReferencedCounted) {
                 this.isReferencedCounted = false;
                 item.RemoveReference(this);
             }
         }
 
-        private ResourceItem GetInternalResource()
-        {
+        private ResourceItem GetInternalResource() {
             ResourceItem item = this.cached;
-            if (this.IsValid == true)
-            {
+            if (this.IsValid == true) {
                 if (item == null)
                     throw new Exception("Expected non-null cached item when state is valid");
                 return item;
@@ -190,16 +168,13 @@ namespace FramePFX.Editor.ResourceManaging
             return null;
         }
 
-        public void SetResourceId(ulong uniqueId, bool fireResourceChanged = true)
-        {
+        public void SetResourceId(ulong uniqueId, bool fireResourceChanged = true) {
             this.EnsureNotDisposed();
-            if (uniqueId == ResourceManager.EmptyId)
-            {
+            if (uniqueId == ResourceManager.EmptyId) {
                 throw new ArgumentException("Unique id cannot be 0 (null)");
             }
 
-            if (this.ResourceId == uniqueId)
-            {
+            if (this.ResourceId == uniqueId) {
                 AppLogger.WriteLine($"[{this.GetType().Name}] Attempted to set the same resource ID");
                 return;
             }
@@ -219,21 +194,17 @@ namespace FramePFX.Editor.ResourceManaging
         /// <typeparam name="T">The type of resource that is required</typeparam>
         /// <returns>True if a valid resource was found and <see cref="requireIsOnline"/> matches its online state</returns>
         /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
-        public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem
-        {
+        public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
             this.EnsureNotDisposed();
             this.EnsureManagerNotChanging("Cannot attempt to get resource while manager is being set");
-            switch (this.IsValid)
-            {
-                case false:
-                {
+            switch (this.IsValid) {
+                case false: {
                     if (this.cached != null)
                         throw new Exception("Expected null cached item when state is invalid");
                     resource = null;
                     return false;
                 }
-                case true:
-                {
+                case true: {
                     if (this.cached == null)
                         throw new Exception("Expected non-null cached item when state is valid");
                     if (this.cached is T t)
@@ -241,11 +212,9 @@ namespace FramePFX.Editor.ResourceManaging
                     this.SetInternalResourceUnsafe(this.cached, resource = null);
                     return false;
                 }
-                default:
-                {
+                default: {
                     ResourceManager manager = this.Manager;
-                    if (manager != null && manager.TryGetEntryItem(this.ResourceId, out ResourceItem res) && res is T t)
-                    {
+                    if (manager != null && manager.TryGetEntryItem(this.ResourceId, out ResourceItem res) && res is T t) {
                         this.SetInternalResource(resource = t);
                         return t.IsOnline || !requireIsOnline;
                     }
@@ -257,18 +226,14 @@ namespace FramePFX.Editor.ResourceManaging
             }
         }
 
-        private void ClearInternalResource(bool fireResourceChanged = true)
-        {
-            if (this.GetInternalResource() != null)
-            {
+        private void ClearInternalResource(bool fireResourceChanged = true) {
+            if (this.GetInternalResource() != null) {
                 this.SetInternalResource(null, fireResourceChanged);
             }
         }
 
-        private void OnManagerResourceAdded(ResourceManager manager, ResourceItem item)
-        {
-            if (this.isDisposed)
-            {
+        private void OnManagerResourceAdded(ResourceManager manager, ResourceItem item) {
+            if (this.isDisposed) {
                 AppLogger.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE ADDED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
                 Debugger.Break();
                 return;
@@ -283,22 +248,18 @@ namespace FramePFX.Editor.ResourceManaging
             this.SetInternalResource(item);
         }
 
-        private void OnManagerResourceRemoved(ResourceManager manager, ResourceItem item)
-        {
-            if (this.isDisposed)
-            {
+        private void OnManagerResourceRemoved(ResourceManager manager, ResourceItem item) {
+            if (this.isDisposed) {
                 AppLogger.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE REMOVED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
                 Debugger.Break();
                 return;
             }
 
-            if (item.UniqueId != this.ResourceId)
-            {
+            if (item.UniqueId != this.ResourceId) {
                 return;
             }
 
-            if (this.IsValid == true)
-            {
+            if (this.IsValid == true) {
                 if (this.cached == null)
                     throw new Exception("Expected our cached item to not be null");
                 if (!ReferenceEquals(this.cached, item))
@@ -308,22 +269,18 @@ namespace FramePFX.Editor.ResourceManaging
             this.SetInternalResource(null);
         }
 
-        private void OnManagerResourceReplaced(ResourceManager manager, ulong id, ResourceItem oldItem, ResourceItem newItem)
-        {
-            if (this.isDisposed)
-            {
+        private void OnManagerResourceReplaced(ResourceManager manager, ulong id, ResourceItem oldItem, ResourceItem newItem) {
+            if (this.isDisposed) {
                 AppLogger.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE REPLACED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
                 Debugger.Break();
                 return;
             }
 
-            if (id != this.ResourceId)
-            {
+            if (id != this.ResourceId) {
                 return;
             }
 
-            if (this.IsValid == true)
-            {
+            if (this.IsValid == true) {
                 if (this.cached == null)
                     throw new Exception("Expected our cached item to not be null");
                 if (!ReferenceEquals(this.cached, oldItem))
@@ -333,25 +290,21 @@ namespace FramePFX.Editor.ResourceManaging
             this.SetInternalResource(newItem);
         }
 
-        private void OnOnlineStateChanged(ResourceManager manager, ResourceItem item)
-        {
+        private void OnOnlineStateChanged(ResourceManager manager, ResourceItem item) {
             this.OnlineStateChanged?.Invoke(manager, item);
         }
 
-        public bool IsCachedItemEqualTo(ResourceItem item)
-        {
+        public bool IsCachedItemEqualTo(ResourceItem item) {
             return ReferenceEquals(this.cached, item);
         }
 
-        private void AttachManager(ResourceManager manager)
-        {
+        private void AttachManager(ResourceManager manager) {
             manager.ResourceAdded += this.resourceAddedHandler;
             manager.ResourceRemoved += this.resourceRemovedHandler;
             manager.ResourceReplaced += this.resourceReplacedHandler;
         }
 
-        private void DetachManager(ResourceManager manager)
-        {
+        private void DetachManager(ResourceManager manager) {
             manager.ResourceAdded -= this.resourceAddedHandler;
             manager.ResourceRemoved -= this.resourceRemovedHandler;
             manager.ResourceReplaced -= this.resourceReplacedHandler;
@@ -362,13 +315,11 @@ namespace FramePFX.Editor.ResourceManaging
         /// event to be fired), removes the <see cref="ResourceManager"/> handlers and finally sets the manager
         /// to null
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             this.isDisposing = true;
             this.ClearInternalResource();
             ResourceManager manager = this.Manager;
-            if (manager != null)
-            {
+            if (manager != null) {
                 this.Manager = null;
                 this.DetachManager(manager);
             }
@@ -377,33 +328,28 @@ namespace FramePFX.Editor.ResourceManaging
             this.isDisposing = false;
         }
 
-        private void EnsureNotDisposed(string message = null)
-        {
+        private void EnsureNotDisposed(string message = null) {
             if (this.isDisposed)
                 throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is disposed");
         }
 
-        private void EnsureNotDisposing(string message = null)
-        {
+        private void EnsureNotDisposing(string message = null) {
             if (this.isDisposing)
                 throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is being disposed");
         }
 
-        private void EnsureManagerNotChanging(string message)
-        {
+        private void EnsureManagerNotChanging(string message) {
             if (this.isManagerChanging)
                 throw new InvalidOperationException(message);
         }
 
         #region Serialisation
 
-        public static void WriteToRBE(ResourcePath resource, RBEDictionary data)
-        {
+        public static void WriteToRBE(ResourcePath resource, RBEDictionary data) {
             data.SetULong(nameof(resource.ResourceId), resource.ResourceId);
         }
 
-        public static ResourcePath ReadFromRBE(IBaseResourcePathKey owner, RBEDictionary data)
-        {
+        public static ResourcePath ReadFromRBE(IBaseResourcePathKey owner, RBEDictionary data) {
             ulong id = data.GetULong(nameof(ResourceId));
             if (id == ResourceManager.EmptyId)
                 throw new ArgumentException("Resource ID from the data was 0 (null)");

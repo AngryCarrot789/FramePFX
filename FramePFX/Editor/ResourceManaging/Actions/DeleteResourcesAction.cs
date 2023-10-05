@@ -6,20 +6,16 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 
-namespace FramePFX.Editor.ResourceManaging.Actions
-{
-    public class DeleteResourcesAction : AnAction
-    {
+namespace FramePFX.Editor.ResourceManaging.Actions {
+    public class DeleteResourcesAction : AnAction {
         public static readonly MessageDialog ConfirmationDialog;
 
-        static DeleteResourcesAction()
-        {
+        static DeleteResourcesAction() {
             ConfirmationDialog = Dialogs.OkCancelDialog.Clone();
             ConfirmationDialog.IsAlwaysUseThisOptionChecked = true;
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
-        {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out BaseResourceViewModel resItem))
                 return false;
 
@@ -29,12 +25,10 @@ namespace FramePFX.Editor.ResourceManaging.Actions
             if (item.Manager.SelectedItems.Count < 1 || item.Parent == null)
                 return true;
 
-            try
-            {
+            try {
                 item.Parent.RemoveRange(item.Manager.SelectedItems.ToList());
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 await Services.DialogService.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
             }
 

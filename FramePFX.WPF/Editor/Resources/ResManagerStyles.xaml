@@ -37,12 +37,12 @@
                                                    Padding="3" VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip="{TemplateBinding HeaderText}"
-                                                   HorizontalAlignment="Left"/>
+                                                   HorizontalAlignment="Left" />
                                         <TextBlock Text="{Binding ReferenceCount, Mode=OneWay}"
                                                    Padding="4,3" VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip="The number of actual live references to this resources"
-                                                   HorizontalAlignment="Right"/>
+                                                   HorizontalAlignment="Right" />
                                     </Grid>
                                 </Border>
                                 <Border Margin="0,0,0,24" Background="{TemplateBinding ContentBackground}" SnapsToDevicePixels="True">

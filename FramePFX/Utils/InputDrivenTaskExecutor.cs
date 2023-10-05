@@ -1,14 +1,12 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Utils
-{
+namespace FramePFX.Utils {
     /// <summary>
     /// A class used for executing a tasks when an input signal is received, and ensuring the task is not
     /// executed too quickly (time since last execution will exceed <see cref="MinimumInterval"/>)
     /// </summary>
-    public class InputDrivenTaskExecutor
-    {
+    public class InputDrivenTaskExecutor {
         private volatile bool condition;
         private volatile bool isTaskRunning;
         private volatile bool isExecutingTask;
@@ -30,8 +28,7 @@ namespace FramePFX.Utils
 
         public InputDrivenTaskExecutor(Func<Task> userTask) : this(userTask, TimeSpan.FromMilliseconds(250)) { }
 
-        public InputDrivenTaskExecutor(Func<Task> execute, TimeSpan minimumInterval)
-        {
+        public InputDrivenTaskExecutor(Func<Task> execute, TimeSpan minimumInterval) {
             this.Execute = execute;
             this.MinimumInterval = minimumInterval;
         }
@@ -39,62 +36,49 @@ namespace FramePFX.Utils
         /// <summary>
         /// Triggers this executor, possibly starting a new <see cref="Task"/>, or notifying the existing internal task that there's new input
         /// </summary>
-        public void OnInput()
-        {
-            lock (this.locker)
-            {
-                if (this.isExecutingTask)
-                {
+        public void OnInput() {
+            lock (this.locker) {
+                if (this.isExecutingTask) {
                     this.conditionCritical = true;
                 }
-                else
-                {
+                else {
                     this.condition = true;
                 }
 
-                if (!this.isTaskRunning)
-                {
+                if (!this.isTaskRunning) {
                     this.isTaskRunning = true;
                     Task.Run(this.TaskMain);
                 }
             }
         }
 
-        private async Task TaskMain()
-        {
-            do
-            {
+        private async Task TaskMain() {
+            do {
                 // Ensure maximum interval
                 TimeSpan timeSinceLastExecute = DateTime.Now - this.lastExecutionTime;
                 TimeSpan minInterval = this.MinimumInterval;
                 if (timeSinceLastExecute < minInterval)
                     await Task.Delay(minInterval - timeSinceLastExecute);
 
-                lock (this.locker)
-                {
-                    if (this.condition)
-                    {
+                lock (this.locker) {
+                    if (this.condition) {
                         this.condition = false;
                     }
-                    else
-                    {
+                    else {
                         this.isTaskRunning = false;
                         return;
                     }
                 }
 
                 this.isExecutingTask = true;
-                try
-                {
+                try {
                     Func<Task> func = this.Execute;
                     Task task = func?.Invoke();
-                    if (task != null && !task.IsCompleted)
-                    {
+                    if (task != null && !task.IsCompleted) {
                         await task;
                     }
                 }
-                finally
-                {
+                finally {
                     // This sets condition to false, indicating that there is no more work required.
                     // However there is a window between when the task finishes and condition being set to false
                     // where another thread can set condition to true:
@@ -104,15 +88,12 @@ namespace FramePFX.Utils
                     // That might mean that whatever work the task does will lose out on the absolute latest
                     // update (that occurred a few microseconds~ after the task completed)
                     // So hopefully, the usage of isExecutingTask and isCriticalCondition will help against that
-                    lock (this.locker)
-                    {
-                        if (this.conditionCritical)
-                        {
+                    lock (this.locker) {
+                        if (this.conditionCritical) {
                             this.condition = true;
                             this.conditionCritical = false;
                         }
-                        else
-                        {
+                        else {
                             this.condition = false;
                         }
                     }

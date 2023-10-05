@@ -4,40 +4,32 @@ using System.Threading.Tasks;
 using FramePFX.History;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.History
-{
+namespace FramePFX.Editor.History {
     /// <summary>
     /// A helper class for storing a "Holder" object (that implements <see cref="IHistoryHolder"/>), and updating the <see cref="IHistoryHolder.IsHistoryChanging"/> property of the holder before and after undoing/redoing
     /// </summary>
     /// <typeparam name="T">Type of holder object</typeparam>
-    public abstract class BaseHistoryMultiHolderAction<T> : HistoryAction where T : class, IHistoryHolder
-    {
+    public abstract class BaseHistoryMultiHolderAction<T> : HistoryAction where T : class, IHistoryHolder {
         private readonly List<T> holders;
         private bool isRedoNext;
 
         public IReadOnlyList<T> Holders => this.holders;
 
-        protected BaseHistoryMultiHolderAction(IEnumerable<T> holders)
-        {
+        protected BaseHistoryMultiHolderAction(IEnumerable<T> holders) {
             this.holders = new List<T>(holders);
         }
 
-        protected sealed override async Task UndoAsyncCore()
-        {
-            if (this.isRedoNext)
-            {
+        protected sealed override async Task UndoAsyncCore() {
+            if (this.isRedoNext) {
                 throw new Exception("Cannot undo action twice; it must be re-done");
             }
 
             this.isRedoNext = true;
-            using (ErrorList stack = new ErrorList())
-            {
+            using (ErrorList stack = new ErrorList()) {
                 int index = 0;
-                foreach (T holder in this.holders)
-                {
+                foreach (T holder in this.holders) {
                     holder.IsHistoryChanging = true;
-                    try
-                    {
+                    try {
                         await this.UndoAsync(holder, index++);
                     }
 #if !DEBUG
@@ -45,8 +37,7 @@ namespace FramePFX.Editor.History
                         stack.Add(e);
                     }
 #endif
-                    finally
-                    {
+                    finally {
                         holder.IsHistoryChanging = false;
                     }
                 }
@@ -55,22 +46,17 @@ namespace FramePFX.Editor.History
             }
         }
 
-        protected sealed override async Task RedoAsyncCore()
-        {
-            if (!this.isRedoNext)
-            {
+        protected sealed override async Task RedoAsyncCore() {
+            if (!this.isRedoNext) {
                 throw new Exception("Action has not been un-done yet; cannot redo before undo");
             }
 
             this.isRedoNext = false;
-            using (ErrorList stack = new ErrorList())
-            {
+            using (ErrorList stack = new ErrorList()) {
                 int index = 0;
-                foreach (T holder in this.holders)
-                {
+                foreach (T holder in this.holders) {
                     holder.IsHistoryChanging = true;
-                    try
-                    {
+                    try {
                         await this.RedoAsync(holder, index++);
                     }
 #if !DEBUG
@@ -78,8 +64,7 @@ namespace FramePFX.Editor.History
                         stack.Add(e);
                     }
 #endif
-                    finally
-                    {
+                    finally {
                         holder.IsHistoryChanging = false;
                     }
                 }
@@ -92,13 +77,11 @@ namespace FramePFX.Editor.History
 
         protected abstract Task RedoAsync(T holder, int i);
 
-        protected virtual Task OnUndoCompleteAsync(ErrorList errors)
-        {
+        protected virtual Task OnUndoCompleteAsync(ErrorList errors) {
             return Task.CompletedTask;
         }
 
-        protected virtual Task OnRedoCompleteAsync(ErrorList errors)
-        {
+        protected virtual Task OnRedoCompleteAsync(ErrorList errors) {
             return Task.CompletedTask;
         }
     }

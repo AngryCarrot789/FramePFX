@@ -11,16 +11,13 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers
-{
-    public abstract class RulerPositionManager
-    {
+namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers {
+    public abstract class RulerPositionManager {
         public static readonly Typeface FallbackTypeFace = new Typeface("Consolas");
 
         public RulerBase Control { get; }
 
-        protected RulerPositionManager(RulerBase control)
-        {
+        protected RulerPositionManager(RulerBase control) {
             this.Control = control;
         }
 
@@ -32,8 +29,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers
 
         public abstract void DrawText(DrawingContext dc, double value, double offset);
 
-        protected FormattedText GetFormattedText(double value)
-        {
+        protected FormattedText GetFormattedText(double value) {
             CultureInfo culture = this.Control.TextCulture ?? CultureInfo.CurrentUICulture;
             string text = value.ToString(this.Control.TextFormat, culture);
             FontFamily font = this.Control.FontFamily ?? (this.Control.FontFamily = new FontFamily("Consolas"));

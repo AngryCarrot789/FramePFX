@@ -1,7 +1,5 @@
-namespace FramePFX.Rendering.Utils
-{
-    public enum RotationType
-    {
+namespace FramePFX.Rendering.Utils {
+    public enum RotationType {
         /// <summary>
         /// Rotation uses heading/yaw, elevation/pitch and bank/roll (aka YPR)
         /// </summary>

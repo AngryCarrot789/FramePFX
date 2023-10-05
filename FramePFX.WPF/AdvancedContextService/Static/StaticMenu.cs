@@ -1,16 +1,13 @@
 using System.ComponentModel;
 using System.Windows.Markup;
 
-namespace FramePFX.WPF.AdvancedContextService.Static
-{
+namespace FramePFX.WPF.AdvancedContextService.Static {
     [DefaultProperty("Items")]
     [ContentProperty("Items")]
-    public class StaticMenu
-    {
+    public class StaticMenu {
         private StaticMenuItemCollection items;
 
-        public StaticMenuItemCollection Items
-        {
+        public StaticMenuItemCollection Items {
             get => this.items ?? (this.items = new StaticMenuItemCollection());
         }
     }

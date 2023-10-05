@@ -1,14 +1,10 @@
-namespace FramePFX.PropertyEditing
-{
-    public class PropertyObjectSeparator : BaseViewModel, IPropertyEditorObject
-    {
+namespace FramePFX.PropertyEditing {
+    public class PropertyObjectSeparator : BaseViewModel, IPropertyEditorObject {
         private bool isVisible;
 
-        public bool IsVisible
-        {
+        public bool IsVisible {
             get => this.isVisible;
-            set
-            {
+            set {
                 if (this.isVisible != value)
                     this.RaisePropertyChanged(ref this.isVisible, value);
             }
@@ -18,8 +14,7 @@ namespace FramePFX.PropertyEditing
 
         public bool IsEditorSeparator { get; }
 
-        public PropertyObjectSeparator(BasePropertyGroupViewModel parent, bool isEditorSeparator = false)
-        {
+        public PropertyObjectSeparator(BasePropertyGroupViewModel parent, bool isEditorSeparator = false) {
             this.Parent = parent;
             this.IsEditorSeparator = isEditorSeparator;
             this.IsVisible = true;

@@ -7,10 +7,8 @@ using FramePFX.Notifications;
 using FramePFX.Views.Dialogs.Progression;
 using FramePFX.Views.Dialogs.UserInputs;
 
-namespace FramePFX.History.ViewModels
-{
-    public class HistoryManagerViewModel : BaseViewModel, IHistoryManager
-    {
+namespace FramePFX.History.ViewModels {
+    public class HistoryManagerViewModel : BaseViewModel, IHistoryManager {
         public static HistoryManagerViewModel Instance { get; } = new HistoryManagerViewModel(new HistoryManager());
 
         // Despite the fact there is a separation between history manager and the view model,
@@ -36,10 +34,8 @@ namespace FramePFX.History.ViewModels
         public bool IsRedoing => this.manager.IsRedoing;
         public bool IsOperationActive => this.manager.IsOperationActive;
 
-        private HistoryNotification Notification
-        {
-            get
-            {
+        private HistoryNotification Notification {
+            get {
                 if (this.notificationPanel == null)
                     return null;
                 if (this.notification != null && !this.notification.IsHidden)
@@ -54,16 +50,14 @@ namespace FramePFX.History.ViewModels
         /// <summary>
         /// An optional notification panel that can be used to push history notifications
         /// </summary>
-        public NotificationPanelViewModel NotificationPanel
-        {
+        public NotificationPanelViewModel NotificationPanel {
             get => this.notificationPanel;
             set => this.RaisePropertyChanged(ref this.notificationPanel, value);
         }
 
         private readonly Stack<List<HistoryAction>> mergeList;
 
-        public HistoryManagerViewModel(HistoryManager model)
-        {
+        public HistoryManagerViewModel(HistoryManager model) {
             this.manager = model ?? throw new ArgumentNullException(nameof(model));
             this.UndoCommand = new AsyncRelayCommand(this.UndoAction, () => !this.manager.IsOperationActive && this.manager.HasUndoActions);
             this.RedoCommand = new AsyncRelayCommand(this.RedoAction, () => !this.manager.IsOperationActive && this.manager.HasRedoActions);
@@ -73,28 +67,23 @@ namespace FramePFX.History.ViewModels
             this.mergeList = new Stack<List<HistoryAction>>();
         }
 
-        private class MergeContext : IDisposable
-        {
+        private class MergeContext : IDisposable {
             private readonly HistoryManagerViewModel manager;
             private bool isDisposed;
 
-            public MergeContext(HistoryManagerViewModel manager)
-            {
+            public MergeContext(HistoryManagerViewModel manager) {
                 this.manager = manager;
                 manager.mergeList.Push(new List<HistoryAction>());
             }
 
-            public void Dispose()
-            {
-                if (this.isDisposed)
-                {
+            public void Dispose() {
+                if (this.isDisposed) {
                     return;
                 }
 
                 this.isDisposed = true;
                 List<HistoryAction> myList = this.manager.mergeList.Pop();
-                if (myList.Count > 0)
-                {
+                if (myList.Count > 0) {
                     this.manager.AddAction(myList.Count == 1 ? myList[0] : new MultiHistoryAction(myList.ToList()), "Multi action");
                 }
             }
@@ -109,56 +98,44 @@ namespace FramePFX.History.ViewModels
         /// </returns>
         public IDisposable PushMergeContext() => new MergeContext(this);
 
-        public async Task SetMaxUndoAction()
-        {
-            if (await this.IsActionActiveHelper("Cannot set maximum undo count"))
-            {
+        public async Task SetMaxUndoAction() {
+            if (await this.IsActionActiveHelper("Cannot set maximum undo count")) {
                 return;
             }
 
-            if (await this.GetInput("Set max undo", "Input a new maximum undo count:", this.manager.MaxUndo) is int value)
-            {
+            if (await this.GetInput("Set max undo", "Input a new maximum undo count:", this.manager.MaxUndo) is int value) {
                 this.manager.SetMaxUndoAsync(value);
                 this.RaisePropertyChanged(nameof(this.MaxUndo));
             }
         }
 
-        public async Task SetMaxRedoAction()
-        {
-            if (await this.IsActionActiveHelper("Cannot set maximum redo count"))
-            {
+        public async Task SetMaxRedoAction() {
+            if (await this.IsActionActiveHelper("Cannot set maximum redo count")) {
                 return;
             }
 
-            if (await this.GetInput("Set max redo", "Input a new maximum redo count:", this.manager.MaxRedo) is int value)
-            {
+            if (await this.GetInput("Set max redo", "Input a new maximum redo count:", this.manager.MaxRedo) is int value) {
                 this.manager.SetMaxRedo(value);
                 this.RaisePropertyChanged(nameof(this.MaxRedo));
             }
         }
 
-        public void AddAction(HistoryAction action, string information = null)
-        {
-            if (this.mergeList.Count < 1)
-            {
+        public void AddAction(HistoryAction action, string information = null) {
+            if (this.mergeList.Count < 1) {
                 // no more lists in stack; add history to manager
                 this.manager.AddAction(action ?? throw new ArgumentNullException(nameof(action)));
             }
-            else
-            {
+            else {
                 this.mergeList.Peek().Add(action);
             }
         }
 
-        public async Task UndoAction()
-        {
-            if (await this.IsActionActiveHelper("Cannot perform undo"))
-            {
+        public async Task UndoAction() {
+            if (await this.IsActionActiveHelper("Cannot perform undo")) {
                 return;
             }
 
-            if (this.HasUndoActions)
-            {
+            if (this.HasUndoActions) {
                 await this.manager.OnUndoAsync();
                 this.RaisePropertyChanged(nameof(this.HasUndoActions));
                 this.RaisePropertyChanged(nameof(this.HasRedoActions));
@@ -166,15 +143,12 @@ namespace FramePFX.History.ViewModels
             }
         }
 
-        public async Task RedoAction()
-        {
-            if (await this.IsActionActiveHelper("Cannot perform redo"))
-            {
+        public async Task RedoAction() {
+            if (await this.IsActionActiveHelper("Cannot perform redo")) {
                 return;
             }
 
-            if (this.HasRedoActions)
-            {
+            if (this.HasRedoActions) {
                 await this.manager.OnRedoAsync();
                 this.RaisePropertyChanged(nameof(this.HasUndoActions));
                 this.RaisePropertyChanged(nameof(this.HasRedoActions));
@@ -182,10 +156,8 @@ namespace FramePFX.History.ViewModels
             }
         }
 
-        public async Task ClearAction()
-        {
-            if (await this.IsActionActiveHelper("Cannot clear actions"))
-            {
+        public async Task ClearAction() {
+            if (await this.IsActionActiveHelper("Cannot clear actions")) {
                 return;
             }
 
@@ -193,43 +165,34 @@ namespace FramePFX.History.ViewModels
             this.Notification.OnUndo();
         }
 
-        private async Task<bool> IsActionActiveHelper(string message)
-        {
-            if (this.manager.IsUndoing)
-            {
+        private async Task<bool> IsActionActiveHelper(string message) {
+            if (this.manager.IsUndoing) {
                 await Services.DialogService.ShowMessageAsync("Undo already active", message + ". An undo operation is already in progress");
             }
-            else if (this.manager.IsRedoing)
-            {
+            else if (this.manager.IsRedoing) {
                 await Services.DialogService.ShowMessageAsync("Redo already active", message + ". A redo operation is already in progress");
             }
-            else
-            {
+            else {
                 return false;
             }
 
             return true;
         }
 
-        private async Task<int?> GetInput(string caption, string message, int def = 1)
-        {
-            InputValidator validator = InputValidator.FromFunc((x) =>
-            {
+        private async Task<int?> GetInput(string caption, string message, int def = 1) {
+            InputValidator validator = InputValidator.FromFunc((x) => {
                 if (int.TryParse(x, out int val))
                     return val > 0 ? null : "Value must be above 0";
                 return "Value is not an integer";
             });
 
             string value = await Services.UserInput.ShowSingleInputDialogAsync(caption, message, def.ToString(), validator);
-            if (value == null)
-            {
+            if (value == null) {
                 return null;
             }
 
-            if (int.TryParse(value, out int integer))
-            {
-                if (integer < 1)
-                {
+            if (int.TryParse(value, out int integer)) {
+                if (integer < 1) {
                     await Services.DialogService.ShowMessageAsync("Invalid value", "Value must be more than 0");
                     return null;
                 }
@@ -241,22 +204,17 @@ namespace FramePFX.History.ViewModels
             return null;
         }
 
-        public async Task ResetAsync()
-        {
-            if (this.manager.IsUndoing || this.manager.IsRedoing)
-            {
-                IndeterminateProgressViewModel progress = new IndeterminateProgressViewModel(true)
-                {
+        public async Task ResetAsync() {
+            if (this.manager.IsUndoing || this.manager.IsRedoing) {
+                IndeterminateProgressViewModel progress = new IndeterminateProgressViewModel(true) {
                     Message = "Waiting for a history action to complete...",
                     Titlebar = "Clearing history"
                 };
 
                 await Services.ProgressionDialogs.ShowIndeterminateAsync(progress);
-                do
-                {
+                do {
                     await Task.Delay(250);
-                    if (progress.IsCancelled)
-                    {
+                    if (progress.IsCancelled) {
                         this.manager.UnsafeReset();
                         goto end;
                     }

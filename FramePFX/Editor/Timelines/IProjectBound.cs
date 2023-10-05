@@ -1,10 +1,8 @@
-namespace FramePFX.Editor.Timelines
-{
+namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// An interface for an object that has a project associated with it
     /// </summary>
-    public interface IProjectBound
-    {
+    public interface IProjectBound {
         /// <summary>
         /// Gets the project associated with this object
         /// </summary>

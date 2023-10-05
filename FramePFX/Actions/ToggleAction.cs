@@ -1,9 +1,7 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.Actions
-{
-    public abstract class ToggleAction : AnAction
-    {
+namespace FramePFX.Actions {
+    public abstract class ToggleAction : AnAction {
         public const string IsToggledKey = "toggled";
 
         /// <summary>
@@ -11,20 +9,16 @@ namespace FramePFX.Actions
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>A nullable boolean that states the toggle state, or null if no toggle state is present</returns>
-        public virtual bool? GetIsToggled(AnActionEventArgs e)
-        {
+        public virtual bool? GetIsToggled(AnActionEventArgs e) {
             return e.DataContext.TryGet(IsToggledKey, out bool value) ? (bool?) value : null;
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e)
-        {
+        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             bool? result = this.GetIsToggled(e);
-            if (result.HasValue)
-            {
+            if (result.HasValue) {
                 return await this.OnToggled(e, result.Value);
             }
-            else
-            {
+            else {
                 return await this.ExecuteNoToggle(e);
             }
         }
@@ -45,19 +39,16 @@ namespace FramePFX.Actions
         /// <returns>Whether the action was executed successfully</returns>
         protected abstract Task<bool> ExecuteNoToggle(AnActionEventArgs e);
 
-        public override bool CanExecute(AnActionEventArgs e)
-        {
+        public override bool CanExecute(AnActionEventArgs e) {
             bool? result = this.GetIsToggled(e);
             return result.HasValue ? this.CanExecute(e, result.Value) : this.CanExecuteNoToggle(e);
         }
 
-        protected virtual bool CanExecute(AnActionEventArgs e, bool isToggled)
-        {
+        protected virtual bool CanExecute(AnActionEventArgs e, bool isToggled) {
             return true;
         }
 
-        protected virtual bool CanExecuteNoToggle(AnActionEventArgs e)
-        {
+        protected virtual bool CanExecuteNoToggle(AnActionEventArgs e) {
             return this.CanExecute(e, false);
         }
     }

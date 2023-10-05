@@ -1,37 +1,29 @@
 using System;
 using System.Threading;
 
-namespace FramePFX.Utils
-{
-    public abstract class Disposable : IRealDisposable
-    {
+namespace FramePFX.Utils {
+    public abstract class Disposable : IRealDisposable {
         private volatile int isDisposed;
 
-        public bool IsDisposed
-        {
+        public bool IsDisposed {
             get => this.isDisposed != 0;
         }
 
-        protected Disposable(bool canDisposeInDestructor = true)
-        {
-            if (!canDisposeInDestructor)
-            {
+        protected Disposable(bool canDisposeInDestructor = true) {
+            if (!canDisposeInDestructor) {
                 GC.SuppressFinalize(this);
             }
         }
 
-        ~Disposable()
-        {
+        ~Disposable() {
             this.Dispose(false);
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             this.Dispose(true);
         }
 
-        public void Dispose(bool isDisposing)
-        {
+        public void Dispose(bool isDisposing) {
             if (Interlocked.CompareExchange(ref this.isDisposed, 1, 0) != 0)
                 return;
             GC.SuppressFinalize(this);

@@ -8,22 +8,17 @@ using FramePFX.Automation.Keys;
 using FramePFX.History;
 using FramePFX.History.ViewModels;
 
-namespace FramePFX.Automation.ViewModels.Keyframe
-{
-    public class AutomationSequenceViewModel : BaseViewModel, IHistoryHolder
-    {
+namespace FramePFX.Automation.ViewModels.Keyframe {
+    public class AutomationSequenceViewModel : BaseViewModel, IHistoryHolder {
         private readonly ObservableCollection<KeyFrameViewModel> keyFrames;
         internal bool isActiveSequence;
 
         public ReadOnlyObservableCollection<KeyFrameViewModel> KeyFrames { get; }
 
-        public bool IsOverrideEnabled
-        {
+        public bool IsOverrideEnabled {
             get => this.Model.IsOverrideEnabled;
-            set
-            {
-                if (this.IsOverrideEnabled == value)
-                {
+            set {
+                if (this.IsOverrideEnabled == value) {
                     return;
                 }
 
@@ -49,26 +44,20 @@ namespace FramePFX.Automation.ViewModels.Keyframe
         /// <summary>
         /// Gets or sets if this sequence is currently active. Setting this property will modify our owner's active sequence
         /// </summary>
-        public bool IsActiveSequence
-        {
+        public bool IsActiveSequence {
             get => this.isActiveSequence;
-            set
-            {
-                if (this.isActiveSequence == value)
-                {
+            set {
+                if (this.isActiveSequence == value) {
                     return;
                 }
 
-                if (value)
-                {
+                if (value) {
                     this.AutomationData.ActiveSequence = this;
                 }
-                else if (ReferenceEquals(this.AutomationData.ActiveSequence, this))
-                {
+                else if (ReferenceEquals(this.AutomationData.ActiveSequence, this)) {
                     this.AutomationData.ActiveSequence = null;
                 }
-                else
-                {
+                else {
                     // this case shouldn't really be reachable...
                     this.RaisePropertyChanged(ref this.isActiveSequence, false);
                 }
@@ -89,8 +78,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe
 
         private readonly PropertyChangedEventHandler keyFramePropertyChangedHandler;
 
-        public AutomationSequenceViewModel(AutomationDataViewModel automationData, AutomationSequence model)
-        {
+        public AutomationSequenceViewModel(AutomationDataViewModel automationData, AutomationSequence model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = automationData ?? throw new ArgumentNullException(nameof(automationData));
             this.keyFramePropertyChangedHandler = this.OnKeyFrameOnPropertyChanged;
@@ -99,25 +87,21 @@ namespace FramePFX.Automation.ViewModels.Keyframe
             this.DefaultKeyFrame.PropertyChanged += this.keyFramePropertyChangedHandler;
             this.keyFrames = new ObservableCollection<KeyFrameViewModel>();
             this.KeyFrames = new ReadOnlyObservableCollection<KeyFrameViewModel>(this.keyFrames);
-            foreach (KeyFrame frame in model.KeyFrames)
-            {
+            foreach (KeyFrame frame in model.KeyFrames) {
                 this.AddInternalUnsafe(this.keyFrames.Count, KeyFrameViewModel.NewInstance(frame));
             }
         }
 
-        internal static void SetIsActiveInternal(AutomationSequenceViewModel sequence, bool isActive)
-        {
+        internal static void SetIsActiveInternal(AutomationSequenceViewModel sequence, bool isActive) {
             sequence.RaisePropertyChanged(ref sequence.isActiveSequence, isActive, nameof(sequence.IsActiveSequence));
         }
 
-        public void UpdateKeyFrameCollectionProperties()
-        {
+        public void UpdateKeyFrameCollectionProperties() {
             this.RaisePropertyChanged(nameof(this.HasKeyFrames));
             this.RaisePropertyChanged(nameof(this.IsAutomationReady));
         }
 
-        public void DoRefreshValue(long tlframe, bool isDuringPlayback, bool isPlaybackTick)
-        {
+        public void DoRefreshValue(long tlframe, bool isDuringPlayback, bool isPlaybackTick) {
             this.DoRefreshValue(new RefreshAutomationValueEventArgs(tlframe, isDuringPlayback, isPlaybackTick));
         }
 
@@ -126,23 +110,20 @@ namespace FramePFX.Automation.ViewModels.Keyframe
         /// <summary>
         /// Assigns the default key frame (for our key) to its default value
         /// </summary>
-        public void AssignDefaultValue()
-        {
+        public void AssignDefaultValue() {
             KeyFrameViewModel keyFrame = this.AutomationData[this.Key].DefaultKeyFrame;
             keyFrame.Model.AssignDefaultValue(this.Key.Descriptor);
             this.RaiseKeyFrameChanged(keyFrame);
         }
 
-        private void AddInternalUnsafe(int index, KeyFrameViewModel keyFrame)
-        {
+        private void AddInternalUnsafe(int index, KeyFrameViewModel keyFrame) {
             keyFrame.OwnerSequence = this;
             keyFrame.PropertyChanged += this.keyFramePropertyChangedHandler;
             this.keyFrames.Insert(index, keyFrame);
             this.UpdateKeyFrameCollectionProperties();
         }
 
-        private void RemoveInternalUnsafe(int index)
-        {
+        private void RemoveInternalUnsafe(int index) {
             KeyFrameViewModel keyFrame = this.keyFrames[index];
             keyFrame.OwnerSequence = null;
             keyFrame.PropertyChanged -= this.keyFramePropertyChangedHandler;
@@ -150,14 +131,12 @@ namespace FramePFX.Automation.ViewModels.Keyframe
             this.UpdateKeyFrameCollectionProperties();
         }
 
-        public KeyFrameViewModel GetLastFrameExactlyAt(long frame)
-        {
+        public KeyFrameViewModel GetLastFrameExactlyAt(long frame) {
             int index = this.Model.GetLastFrameExactlyAt(frame);
             return index == -1 ? null : this.keyFrames[index];
         }
 
-        public bool RemoveKeyFrame(KeyFrameViewModel keyFrame, bool applyHistory = true)
-        {
+        public bool RemoveKeyFrame(KeyFrameViewModel keyFrame, bool applyHistory = true) {
             int index = this.keyFrames.IndexOf(keyFrame);
             if (index == -1)
                 return false;
@@ -165,31 +144,26 @@ namespace FramePFX.Automation.ViewModels.Keyframe
             return true;
         }
 
-        public void RemoveKeyFrameAt(int index, bool applyHistory = true)
-        {
+        public void RemoveKeyFrameAt(int index, bool applyHistory = true) {
             KeyFrameViewModel removed = this.keyFrames[index];
-            if (!ReferenceEquals(removed.Model, this.Model.GetKeyFrameAtIndex(index)))
-            {
+            if (!ReferenceEquals(removed.Model, this.Model.GetKeyFrameAtIndex(index))) {
                 throw new Exception("Model-ViewModel de-sync");
             }
 
             this.Model.RemoveKeyFrame(index);
             this.RemoveInternalUnsafe(index);
 
-            if (applyHistory && !this.IsHistoryChanging)
-            {
+            if (applyHistory && !this.IsHistoryChanging) {
                 HistoryManagerViewModel.Instance.AddAction(new HistoryKeyFrameRemove(this, new KeyFrameViewModel[] {removed}), "Add key frame");
             }
         }
 
-        public void AddKeyFrame(long frame, KeyFrameViewModel keyFrame, bool applyHistory = true)
-        {
+        public void AddKeyFrame(long frame, KeyFrameViewModel keyFrame, bool applyHistory = true) {
             keyFrame.Frame = frame;
             this.AddKeyFrame(keyFrame, applyHistory);
         }
 
-        public void AddKeyFrame(KeyFrameViewModel newKeyFrame, bool applyHistory = true)
-        {
+        public void AddKeyFrame(KeyFrameViewModel newKeyFrame, bool applyHistory = true) {
             long frame = newKeyFrame.Frame;
             if (frame < 0)
                 throw new ArgumentException("Keyframe time stamp must be non-negative: " + frame, nameof(newKeyFrame));
@@ -197,8 +171,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {newKeyFrame.Model.DataType}", nameof(newKeyFrame));
 
             this.AddInternalUnsafe(this.Model.AddKeyFrame(newKeyFrame.Model), newKeyFrame);
-            if (applyHistory && !HistoryManagerViewModel.Instance.IsOperationActive)
-            {
+            if (applyHistory && !HistoryManagerViewModel.Instance.IsOperationActive) {
                 HistoryKeyFrameAdd action = new HistoryKeyFrameAdd(this);
                 action.unsafeKeyFrameList.Add(newKeyFrame);
                 HistoryManagerViewModel.Instance.AddAction(action, "Add key frame");
@@ -210,21 +183,17 @@ namespace FramePFX.Automation.ViewModels.Keyframe
         /// there are key frames present, and returning the override key frame for convenience
         /// </summary>
         /// <returns></returns>
-        public KeyFrameViewModel GetOverride()
-        {
-            if (!this.IsOverrideEnabled && this.keyFrames.Count > 0)
-            {
+        public KeyFrameViewModel GetOverride() {
+            if (!this.IsOverrideEnabled && this.keyFrames.Count > 0) {
                 this.IsOverrideEnabled = true;
             }
 
             return this.DefaultKeyFrame;
         }
 
-        public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long frame)
-        {
+        public KeyFrameViewModel GetActiveKeyFrameOrCreateNew(long frame) {
             KeyFrameViewModel keyFrame = this.GetLastFrameExactlyAt(frame);
-            if (keyFrame != null)
-            {
+            if (keyFrame != null) {
                 return keyFrame;
             }
 
@@ -232,11 +201,9 @@ namespace FramePFX.Automation.ViewModels.Keyframe
             return keyFrame;
         }
 
-        private void OnKeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
+        private void OnKeyFrameOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
             KeyFrameViewModel keyFrame = (KeyFrameViewModel) sender;
-            if (e.PropertyName == KeyFrameViewModel.GetValuePropertyName(keyFrame) || e.PropertyName == nameof(KeyFrameViewModel.Frame))
-            {
+            if (e.PropertyName == KeyFrameViewModel.GetValuePropertyName(keyFrame) || e.PropertyName == nameof(KeyFrameViewModel.Frame)) {
                 this.RaiseKeyFrameChanged(keyFrame);
             }
         }
@@ -245,8 +212,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe
         /// Invokes the <see cref="AutomationDataViewModel.OnKeyFrameChanged"/> method
         /// </summary>
         /// <param name="keyFrame">The key frame whose value has been modified</param>
-        public void RaiseKeyFrameChanged(KeyFrameViewModel keyFrame)
-        {
+        public void RaiseKeyFrameChanged(KeyFrameViewModel keyFrame) {
             this.AutomationData.OnKeyFrameChanged(this, keyFrame);
         }
 

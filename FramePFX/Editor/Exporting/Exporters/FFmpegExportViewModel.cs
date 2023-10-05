@@ -1,17 +1,13 @@
 using FramePFX.Editor.Exporting.Exporters.FFMPEG;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Exporting.Exporters
-{
-    public class FFmpegExportViewModel : ExporterViewModel
-    {
+namespace FramePFX.Editor.Exporting.Exporters {
+    public class FFmpegExportViewModel : ExporterViewModel {
         public new FFmpegExporter Exporter => (FFmpegExporter) base.Exporter;
 
-        public Resolution Resolution
-        {
+        public Resolution Resolution {
             get => this.Exporter.Resolution;
-            set
-            {
+            set {
                 this.Exporter.Resolution = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.Width));
@@ -19,23 +15,19 @@ namespace FramePFX.Editor.Exporting.Exporters
             }
         }
 
-        public int Width
-        {
+        public int Width {
             get => this.Resolution.Width;
             set => this.Resolution = this.Resolution.WithWidth(value);
         }
 
-        public int Height
-        {
+        public int Height {
             get => this.Resolution.Height;
             set => this.Resolution = this.Resolution.WithHeight(value);
         }
 
-        public Rational FrameRate
-        {
+        public Rational FrameRate {
             get => this.Exporter.FrameRate;
-            set
-            {
+            set {
                 this.Exporter.FrameRate = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.FPS));
@@ -44,32 +36,26 @@ namespace FramePFX.Editor.Exporting.Exporters
 
         public double FPS => this.FrameRate.ToDouble;
 
-        public long BitRate
-        {
+        public long BitRate {
             get => this.Exporter.BitRate;
-            set
-            {
+            set {
                 this.Exporter.BitRate = value;
                 this.RaisePropertyChanged();
             }
         }
 
-        public int GopValue
-        {
+        public int GopValue {
             get => this.Exporter.GopValue;
-            set
-            {
+            set {
                 this.Exporter.GopValue = Maths.Clamp(value, 0, 100);
                 this.RaisePropertyChanged();
             }
         }
 
-        public FFmpegExportViewModel() : base("FFmpeg", new FFmpegExporter())
-        {
+        public FFmpegExportViewModel() : base("FFmpeg", new FFmpegExporter()) {
         }
 
-        public override void LoadProjectDefaults(Project project)
-        {
+        public override void LoadProjectDefaults(Project project) {
             this.Resolution = project.Settings.Resolution;
             this.FrameRate = project.Settings.TimeBase;
         }

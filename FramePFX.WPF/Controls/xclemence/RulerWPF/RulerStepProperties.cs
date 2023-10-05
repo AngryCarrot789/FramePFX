@@ -4,15 +4,12 @@
 // Ruler Wpf Version 3.1
 // 
 
-namespace FramePFX.WPF.Controls.xclemence.RulerWPF
-{
-    public class RulerStepProperties
-    {
+namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
+    public class RulerStepProperties {
         public double PixelSize { get; set; }
         public double Value { get; set; }
 
-        public void Deconstruct(out double pixelSize, out double value)
-        {
+        public void Deconstruct(out double pixelSize, out double value) {
             pixelSize = this.PixelSize;
             value = this.Value;
         }

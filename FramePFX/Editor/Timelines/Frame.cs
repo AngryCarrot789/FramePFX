@@ -1,9 +1,7 @@
-namespace FramePFX.Editor.Timelines
-{
+namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// Contains video and audio data for a specific video frame
     /// </summary>
-    public class Frame
-    {
+    public class Frame {
     }
 }

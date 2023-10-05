@@ -1,23 +1,19 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.WPF.Views.UserInputs
-{
+namespace FramePFX.WPF.Views.UserInputs {
     /// <summary>
     /// Interaction logic for SingleUserInputWindow.xaml
     /// </summary>
-    public partial class SingleUserInputWindow : BaseDialog
-    {
+    public partial class SingleUserInputWindow : BaseDialog {
         public SimpleInputValidationRule InputValidationRule => (SimpleInputValidationRule) this.Resources["ValidatorInput"];
 
-        public SingleUserInputWindow()
-        {
+        public SingleUserInputWindow() {
             this.InitializeComponent();
             this.Loaded += this.WindowOnLoaded;
         }
 
-        private void WindowOnLoaded(object sender, RoutedEventArgs e)
-        {
+        private void WindowOnLoaded(object sender, RoutedEventArgs e) {
             this.InputBox.Focus();
             this.InputBox.SelectAll();
             this.InputBox.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();

@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace FramePFX.Utils
-{
-    public class SingletonEnumerator<T> : IEnumerator<T>
-    {
+namespace FramePFX.Utils {
+    public class SingletonEnumerator<T> : IEnumerator<T> {
         private bool hasMovedNext;
 
         // should this throw if hasMovedNext is false?
@@ -12,31 +10,25 @@ namespace FramePFX.Utils
 
         object IEnumerator.Current => this.Current;
 
-        public SingletonEnumerator(T value)
-        {
+        public SingletonEnumerator(T value) {
             this.Current = value;
         }
 
-        public bool MoveNext()
-        {
-            if (this.hasMovedNext)
-            {
+        public bool MoveNext() {
+            if (this.hasMovedNext) {
                 return false;
             }
-            else
-            {
+            else {
                 this.hasMovedNext = true;
                 return true;
             }
         }
 
-        public void Reset()
-        {
+        public void Reset() {
             this.hasMovedNext = false;
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
         }
     }
 }

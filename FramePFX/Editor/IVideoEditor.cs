@@ -3,13 +3,11 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Notifications;
 using FramePFX.Views;
 
-namespace FramePFX.Editor
-{
+namespace FramePFX.Editor {
     /// <summary>
     /// An interface for a video editor view
     /// </summary>
-    public interface IVideoEditor : IViewBase
-    {
+    public interface IVideoEditor : IViewBase {
         /// <summary>
         /// Gets the editor's notification panel, used to push notifications
         /// </summary>

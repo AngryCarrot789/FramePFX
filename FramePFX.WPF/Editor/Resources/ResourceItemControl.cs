@@ -1,6 +1,4 @@
-namespace FramePFX.WPF.Editor.Resources
-{
-    public class ResourceItemControl : BaseResourceItemControl
-    {
+namespace FramePFX.WPF.Editor.Resources {
+    public class ResourceItemControl : BaseResourceItemControl {
     }
 }

@@ -4,13 +4,11 @@ using System.Windows;
 using System.Windows.Input;
 using FramePFX.Utils;
 
-namespace FramePFX.WPF.Shortcuts.Bindings
-{
+namespace FramePFX.WPF.Shortcuts.Bindings {
     /// <summary>
     /// An input binding that is triggered by a shortcut
     /// </summary>
-    public class ShortcutCommandBinding : Freezable
-    {
+    public class ShortcutCommandBinding : Freezable {
         public static readonly DependencyProperty CommandProperty = InputBinding.CommandProperty.AddOwner(typeof(ShortcutCommandBinding));
         public static readonly DependencyProperty CommandParameterProperty = InputBinding.CommandParameterProperty.AddOwner(typeof(ShortcutCommandBinding));
         public static readonly DependencyProperty ShortcutPathProperty = DependencyProperty.Register(nameof(ShortcutPath), typeof(string), typeof(ShortcutCommandBinding));
@@ -21,8 +19,7 @@ namespace FramePFX.WPF.Shortcuts.Bindings
         /// </summary>
         [Localizability(LocalizationCategory.NeverLocalize)]
         [TypeConverter(typeof(CommandConverter))]
-        public ICommand Command
-        {
+        public ICommand Command {
             get => (ICommand) this.GetValue(CommandProperty);
             set => this.SetValue(CommandProperty, value);
         }
@@ -30,8 +27,7 @@ namespace FramePFX.WPF.Shortcuts.Bindings
         /// <summary>
         /// The parameter to pass to the command
         /// </summary>
-        public object CommandParameter
-        {
+        public object CommandParameter {
             get => this.GetValue(CommandParameterProperty);
             set => this.SetValue(CommandParameterProperty, value);
         }
@@ -39,8 +35,7 @@ namespace FramePFX.WPF.Shortcuts.Bindings
         /// <summary>
         /// The full path of the shortcut that must be activated in order for this binding's command to be executed
         /// </summary>
-        public string ShortcutPath
-        {
+        public string ShortcutPath {
             get => (string) this.GetValue(ShortcutPathProperty);
             set => this.SetValue(ShortcutPathProperty, value);
         }
@@ -50,18 +45,15 @@ namespace FramePFX.WPF.Shortcuts.Bindings
         /// whether or not the current instance can be executed if one of those commands have already been executed. False by default,
         /// as the first command should be the last, and no more commands should be executed
         /// </summary>
-        public bool AllowChainExecution
-        {
+        public bool AllowChainExecution {
             get => (bool) this.GetValue(AllowChainExecutionProperty);
             set => this.SetValue(AllowChainExecutionProperty, value.Box());
         }
 
-        public ShortcutCommandBinding()
-        {
+        public ShortcutCommandBinding() {
         }
 
-        public ShortcutCommandBinding(string shortcutPath, ICommand command)
-        {
+        public ShortcutCommandBinding(string shortcutPath, ICommand command) {
             if (string.IsNullOrWhiteSpace(shortcutPath))
                 throw new ArgumentException("Shortcut ID must not be null, empty or consist of only whitespaces", nameof(shortcutPath));
             this.ShortcutPath = shortcutPath;
@@ -70,12 +62,10 @@ namespace FramePFX.WPF.Shortcuts.Bindings
 
         protected override Freezable CreateInstanceCore() => new ShortcutCommandBinding();
 
-        public void OnElementLoaded(DependencyObject element)
-        {
+        public void OnElementLoaded(DependencyObject element) {
         }
 
-        public void OnElementUnloaded(DependencyObject element)
-        {
+        public void OnElementUnloaded(DependencyObject element) {
         }
     }
 }

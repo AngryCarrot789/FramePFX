@@ -1,7 +1,5 @@
-namespace FramePFX.Editor.ResourceManaging.ViewModels
-{
-    public interface INavigatableResource
-    {
+namespace FramePFX.Editor.ResourceManaging.ViewModels {
+    public interface INavigatableResource {
         void OnNavigate();
     }
 }

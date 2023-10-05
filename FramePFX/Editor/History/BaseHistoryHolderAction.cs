@@ -1,43 +1,34 @@
 using System.Threading.Tasks;
 using FramePFX.History;
 
-namespace FramePFX.Editor.History
-{
+namespace FramePFX.Editor.History {
     /// <summary>
     /// A helper class for storing a "Holder" object (that implements <see cref="IHistoryHolder"/>), and updating the <see cref="IHistoryHolder.IsHistoryChanging"/> property of the holder before and after undoing/redoing
     /// </summary>
     /// <typeparam name="T">Type of holder object</typeparam>
-    public abstract class BaseHistoryHolderAction<T> : HistoryAction where T : class, IHistoryHolder
-    {
+    public abstract class BaseHistoryHolderAction<T> : HistoryAction where T : class, IHistoryHolder {
         public T Holder { get; }
 
-        protected BaseHistoryHolderAction(T holder)
-        {
+        protected BaseHistoryHolderAction(T holder) {
             this.Holder = holder;
         }
 
-        protected override async Task UndoAsyncCore()
-        {
+        protected override async Task UndoAsyncCore() {
             this.Holder.IsHistoryChanging = true;
-            try
-            {
+            try {
                 await this.UndoAsyncForHolder();
             }
-            finally
-            {
+            finally {
                 this.Holder.IsHistoryChanging = false;
             }
         }
 
-        protected override async Task RedoAsyncCore()
-        {
+        protected override async Task RedoAsyncCore() {
             this.Holder.IsHistoryChanging = true;
-            try
-            {
+            try {
                 await this.RedoAsyncForHolder();
             }
-            finally
-            {
+            finally {
                 this.Holder.IsHistoryChanging = false;
             }
         }

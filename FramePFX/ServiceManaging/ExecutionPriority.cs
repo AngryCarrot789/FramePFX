@@ -1,10 +1,8 @@
-namespace FramePFX.ServiceManaging
-{
+namespace FramePFX.ServiceManaging {
     /// <summary>
     /// A priority enum for dispatching method invocations onto the main thread
     /// </summary>
-    public enum ExecutionPriority
-    {
+    public enum ExecutionPriority {
         /// <summary>
         /// Application idle priority, which is executed once all work from higher priorities is done
         /// </summary>

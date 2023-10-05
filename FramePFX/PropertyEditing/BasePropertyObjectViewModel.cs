@@ -1,12 +1,10 @@
 using System;
 
-namespace FramePFX.PropertyEditing
-{
+namespace FramePFX.PropertyEditing {
     /// <summary>
     /// The base class for property groups and editors
     /// </summary>
-    public class BasePropertyObjectViewModel : BaseViewModel, IPropertyEditorItem
-    {
+    public class BasePropertyObjectViewModel : BaseViewModel, IPropertyEditorItem {
         private PropertyEditorRegistry propertyEditor;
         private bool isCurrentlyApplicable;
         private bool isVisibleWhenNotApplicable;
@@ -15,11 +13,9 @@ namespace FramePFX.PropertyEditing
         /// Whether or not this item should be visible to the end user or not.
         /// Not taking this into account and showing it anyway may result in crashing
         /// </summary>
-        public bool IsCurrentlyApplicable
-        {
+        public bool IsCurrentlyApplicable {
             get => this.isCurrentlyApplicable;
-            set
-            {
+            set {
                 if (this.isCurrentlyApplicable == value)
                     return;
                 this.RaisePropertyChanged(ref this.isCurrentlyApplicable, value);
@@ -27,11 +23,9 @@ namespace FramePFX.PropertyEditing
             }
         }
 
-        public bool IsVisibleWhenNotApplicable
-        {
+        public bool IsVisibleWhenNotApplicable {
             get => this.isVisibleWhenNotApplicable;
-            protected set
-            {
+            protected set {
                 this.RaisePropertyChanged(ref this.isVisibleWhenNotApplicable, value);
                 this.RaisePropertyChanged(nameof(this.IsVisible));
             }
@@ -39,8 +33,7 @@ namespace FramePFX.PropertyEditing
 
         public bool IsVisible => this.IsCurrentlyApplicable || this.IsVisibleWhenNotApplicable;
 
-        public PropertyEditorRegistry PropertyEditor
-        {
+        public PropertyEditorRegistry PropertyEditor {
             get => this.propertyEditor;
             private set => this.RaisePropertyChanged(ref this.propertyEditor, value);
         }
@@ -63,20 +56,15 @@ namespace FramePFX.PropertyEditing
 
         public BasePropertyGroupViewModel Parent { get; internal set; }
 
-        public BasePropertyObjectViewModel(Type applicableType)
-        {
+        public BasePropertyObjectViewModel(Type applicableType) {
             this.ApplicableType = applicableType;
         }
 
-        public void SetPropertyEditor(PropertyEditorRegistry registry)
-        {
+        public void SetPropertyEditor(PropertyEditorRegistry registry) {
             this.PropertyEditor = registry;
-            if (this is BasePropertyGroupViewModel)
-            {
-                foreach (IPropertyEditorObject obj in ((BasePropertyGroupViewModel) this).PropertyObjects)
-                {
-                    if (obj is BasePropertyObjectViewModel)
-                    {
+            if (this is BasePropertyGroupViewModel) {
+                foreach (IPropertyEditorObject obj in ((BasePropertyGroupViewModel) this).PropertyObjects) {
+                    if (obj is BasePropertyObjectViewModel) {
                         ((BasePropertyObjectViewModel) obj).PropertyEditor = registry;
                     }
                 }
@@ -98,29 +86,24 @@ namespace FramePFX.PropertyEditing
         /// </summary>
         /// <param name="count">The number of handlers that are available</param>
         /// <returns>This property is applicable for the given number of handlers</returns>
-        public bool IsHandlerCountAcceptable(int count)
-        {
+        public bool IsHandlerCountAcceptable(int count) {
             return IsHandlerCountAcceptable(this.HandlerCountMode, count);
         }
 
-        public virtual void RecalculateHierarchyDepth()
-        {
+        public virtual void RecalculateHierarchyDepth() {
             BasePropertyGroupViewModel parent = this.Parent;
             this.HierarchyDepth = parent == null ? -1 : (parent.HierarchyDepth + 1);
         }
 
-        protected int GetHierarchyDepth()
-        {
+        protected int GetHierarchyDepth() {
             int count = -1;
             for (BasePropertyGroupViewModel parent = this.Parent; parent != null; parent = parent.Parent)
                 count++;
             return count;
         }
 
-        public static bool IsHandlerCountAcceptable(HandlerCountMode mode, int count)
-        {
-            switch (mode)
-            {
+        public static bool IsHandlerCountAcceptable(HandlerCountMode mode, int count) {
+            switch (mode) {
                 case HandlerCountMode.Any: return count > 0;
                 case HandlerCountMode.Single: return count == 1;
                 case HandlerCountMode.Multi: return count > 1;

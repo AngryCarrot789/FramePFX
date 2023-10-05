@@ -3,13 +3,11 @@ using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Editor.ViewModels.Timelines;
 
-namespace FramePFX.Editor.ViewModels
-{
+namespace FramePFX.Editor.ViewModels {
     /// <summary>
     /// A view model responsible for handling the state of the playback (play, pause, etc)
     /// </summary>
-    public class EditorPlaybackViewModel : BaseViewModel, IModifyProject, IDisposable
-    {
+    public class EditorPlaybackViewModel : BaseViewModel, IModifyProject, IDisposable {
         /// <summary>
         /// The playback model that this view model delegates to and from
         /// </summary>
@@ -22,33 +20,27 @@ namespace FramePFX.Editor.ViewModels
 
         public ProjectViewModel Project => this.Editor.ActiveProject;
 
-        public bool UsePrecisionTimingMode
-        {
+        public bool UsePrecisionTimingMode {
             get => this.Model.UsePrecisionTimingMode;
-            set
-            {
+            set {
                 this.Model.UsePrecisionTimingMode = value;
                 this.RaisePropertyChanged();
                 this.ProjectModified?.Invoke(this, nameof(this.UsePrecisionTimingMode));
             }
         }
 
-        public bool ZoomToCursor
-        {
+        public bool ZoomToCursor {
             get => this.Model.ZoomToCursor;
-            set
-            {
+            set {
                 this.Model.ZoomToCursor = value;
                 this.RaisePropertyChanged();
                 this.ProjectModified?.Invoke(this, nameof(this.ZoomToCursor));
             }
         }
 
-        public bool IsPlaying
-        {
+        public bool IsPlaying {
             get => this.Model.IsPlaying;
-            private set
-            {
+            private set {
                 if (this.IsPlaying == value)
                     return;
                 this.Model.IsPlaying = value;
@@ -68,8 +60,7 @@ namespace FramePFX.Editor.ViewModels
 
         public event ProjectModifiedEvent ProjectModified;
 
-        public EditorPlaybackViewModel(VideoEditorViewModel editor)
-        {
+        public EditorPlaybackViewModel(VideoEditorViewModel editor) {
             this.Editor = editor ?? throw new ArgumentNullException(nameof(editor));
             this.Model = editor.Model.Playback;
 
@@ -81,39 +72,32 @@ namespace FramePFX.Editor.ViewModels
             this.SwitchPrecisionTimingModeCommand = new AsyncRelayCommand(this.SwitchPrecisionMode);
         }
 
-        private void UpdatePlaybackCommands()
-        {
+        private void UpdatePlaybackCommands() {
             this.PlayCommand.RaiseCanExecuteChanged();
             this.PauseCommand.RaiseCanExecuteChanged();
             this.StopCommand.RaiseCanExecuteChanged();
             this.TogglePlayCommand.RaiseCanExecuteChanged();
         }
 
-        public void StartRenderTimer()
-        {
+        public void StartRenderTimer() {
             this.Model.PlaybackTimer.Start(this.UsePrecisionTimingMode);
             this.IsPlaying = true;
         }
 
-        public void StopPlaybackForChangingTimeline()
-        {
-            this.StopRenderTimer().ContinueWith(x =>
-            {
+        public void StopPlaybackForChangingTimeline() {
+            this.StopRenderTimer().ContinueWith(x => {
                 this.UpdatePlaybackCommands();
             });
         }
 
-        public async Task StopRenderTimer()
-        {
+        public async Task StopRenderTimer() {
             await this.Model.PlaybackTimer.StopAsync();
             this.IsPlaying = false;
         }
 
-        public Task PlayAction()
-        {
+        public Task PlayAction() {
             TimelineViewModel timeline = this.Editor.SelectedTimeline;
-            if (timeline != null && this.Project != null && !this.IsPlaying)
-            {
+            if (timeline != null && this.Project != null && !this.IsPlaying) {
                 timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
                 this.PlayInternal();
             }
@@ -121,30 +105,24 @@ namespace FramePFX.Editor.ViewModels
             return Task.CompletedTask;
         }
 
-        private void PlayInternal()
-        {
+        private void PlayInternal() {
             this.StartRenderTimer();
             this.UpdatePlaybackCommands();
         }
 
-        public Task PlayFromStart()
-        {
+        public Task PlayFromStart() {
             return this.PlayFromFrame(0);
         }
 
-        public Task PlayFromFrame(long frame)
-        {
+        public Task PlayFromFrame(long frame) {
             TimelineViewModel timeline = this.Editor.SelectedTimeline;
-            if (timeline != null && this.Project != null)
-            {
-                if (!this.IsPlaying)
-                {
+            if (timeline != null && this.Project != null) {
+                if (!this.IsPlaying) {
                     timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
                     timeline.PlayHeadFrame = frame;
                     this.PlayInternal();
                 }
-                else
-                {
+                else {
                     timeline.PlayHeadFrame = frame;
                 }
             }
@@ -152,71 +130,56 @@ namespace FramePFX.Editor.ViewModels
             return Task.CompletedTask;
         }
 
-        public async Task PauseAction()
-        {
-            if (this.Project != null && this.IsPlaying)
-            {
+        public async Task PauseAction() {
+            if (this.Project != null && this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
                 TimelineViewModel timeline = this.Editor.SelectedTimeline;
-                if (timeline != null)
-                {
+                if (timeline != null) {
                     timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
                 }
             }
         }
 
-        public async Task StopAction()
-        {
-            if (this.Project != null && this.IsPlaying)
-            {
+        public async Task StopAction() {
+            if (this.Project != null && this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
                 TimelineViewModel timeline = this.Editor.SelectedTimeline;
-                if (timeline != null)
-                {
+                if (timeline != null) {
                     timeline.PlayHeadFrame = timeline.InternalLastPlayHeadBeforePlaying;
                 }
             }
         }
 
-        public async Task StopForRenderException()
-        {
-            if (this.Project != null && this.IsPlaying)
-            {
+        public async Task StopForRenderException() {
+            if (this.Project != null && this.IsPlaying) {
                 await this.StopRenderTimer();
                 this.UpdatePlaybackCommands();
             }
         }
 
-        public Task TogglePlayAction()
-        {
-            if (this.Project == null)
-            {
+        public Task TogglePlayAction() {
+            if (this.Project == null) {
                 return Task.CompletedTask;
             }
 
-            if (this.IsPlaying)
-            {
+            if (this.IsPlaying) {
                 return ApplicationViewModel.Instance.Settings.StopOnTogglePlay ? this.StopAction() : this.PauseAction();
             }
-            else
-            {
+            else {
                 return this.PlayAction();
             }
         }
 
-        public async Task OnProjectChanging(ProjectViewModel project)
-        {
+        public async Task OnProjectChanging(ProjectViewModel project) {
             await this.StopRenderTimer();
             this.UpdatePlaybackCommands();
         }
 
-        public async Task OnProjectChanged(ProjectViewModel project)
-        {
+        public async Task OnProjectChanged(ProjectViewModel project) {
             await this.Model.PlaybackTimer.StopAsync();
-            if (project != null)
-            {
+            if (project != null) {
                 this.SetTimerFrameRate(project.Settings.FrameRate);
             }
 
@@ -224,42 +187,34 @@ namespace FramePFX.Editor.ViewModels
             this.RaisePropertyChanged(nameof(this.Project));
         }
 
-        public void SetTimerFrameRate(Rational frameRate)
-        {
+        public void SetTimerFrameRate(Rational frameRate) {
             if (frameRate.den <= 0 || frameRate.num <= 0)
                 throw new Exception("Frame rate must be greater than zero");
             this.Model.PlaybackTimer.Interval = (long) Math.Round(1000d / frameRate.ToDouble);
         }
 
-        private async Task SwitchPrecisionMode()
-        {
+        private async Task SwitchPrecisionMode() {
             this.UsePrecisionTimingMode = !this.UsePrecisionTimingMode;
-            if (this.IsPlaying)
-            {
+            if (this.IsPlaying) {
                 await this.Model.PlaybackTimer.RestartAsync(this.UsePrecisionTimingMode);
             }
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             this.Model.PlaybackTimer.Dispose();
         }
 
-        public async Task OnProjectSaving()
-        {
+        public async Task OnProjectSaving() {
             this.wasPlayingBeforeSave = this.IsPlaying;
-            if (this.IsPlaying)
-            {
+            if (this.IsPlaying) {
                 await this.StopRenderTimer();
             }
 
             this.UpdatePlaybackCommands();
         }
 
-        public Task OnProjectSaved(bool canResumePlaying = true)
-        {
-            if (canResumePlaying && this.wasPlayingBeforeSave)
-            {
+        public Task OnProjectSaved(bool canResumePlaying = true) {
+            if (canResumePlaying && this.wasPlayingBeforeSave) {
                 this.StartRenderTimer();
             }
 

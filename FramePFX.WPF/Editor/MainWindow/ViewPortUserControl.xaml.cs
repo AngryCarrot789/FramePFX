@@ -13,20 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FramePFX.WPF.Editor.MainWindow
-{
+namespace FramePFX.WPF.Editor.MainWindow {
     /// <summary>
     /// Interaction logic for ViewPortUserControl.xaml
     /// </summary>
-    public partial class ViewPortUserControl : UserControl
-    {
-        public ViewPortUserControl()
-        {
+    public partial class ViewPortUserControl : UserControl {
+        public ViewPortUserControl() {
             InitializeComponent();
         }
 
-        private void OnFitContentToWindowClick(object sender, RoutedEventArgs e)
-        {
+        private void OnFitContentToWindowClick(object sender, RoutedEventArgs e) {
             this.VPViewBox.FitContentToCenter();
         }
     }

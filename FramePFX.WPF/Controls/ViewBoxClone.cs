@@ -7,10 +7,8 @@ using System.Windows.Media;
 using FramePFX.Utils;
 using Rect = System.Windows.Rect;
 
-namespace FramePFX.WPF.Controls
-{
-    public class ViewBoxClone : Decorator
-    {
+namespace FramePFX.WPF.Controls {
+    public class ViewBoxClone : Decorator {
         public static readonly DependencyProperty StretchDirectionProperty =
             DependencyProperty.Register(
                 nameof(StretchDirection),
@@ -20,12 +18,9 @@ namespace FramePFX.WPF.Controls
 
         private ContainerVisual _internalVisual;
 
-        private ContainerVisual InternalVisual
-        {
-            get
-            {
-                if (this._internalVisual == null)
-                {
+        private ContainerVisual InternalVisual {
+            get {
+                if (this._internalVisual == null) {
                     this._internalVisual = new ContainerVisual();
                     this.AddVisualChild(this._internalVisual);
                 }
@@ -34,15 +29,12 @@ namespace FramePFX.WPF.Controls
             }
         }
 
-        private UIElement InternalChild
-        {
-            get
-            {
+        private UIElement InternalChild {
+            get {
                 VisualCollection children = this.InternalVisual.Children;
                 return children.Count != 0 ? children[0] as UIElement : null;
             }
-            set
-            {
+            set {
                 VisualCollection children = this.InternalVisual.Children;
                 if (children.Count != 0)
                     children.Clear();
@@ -50,17 +42,14 @@ namespace FramePFX.WPF.Controls
             }
         }
 
-        private Transform InternalTransform
-        {
+        private Transform InternalTransform {
             get => this.InternalVisual.Transform;
             set => this.InternalVisual.Transform = value;
         }
 
-        public override UIElement Child
-        {
+        public override UIElement Child {
             get => this.InternalChild;
-            set
-            {
+            set {
                 UIElement internalChild = this.InternalChild;
                 if (internalChild == value)
                     return;
@@ -76,29 +65,24 @@ namespace FramePFX.WPF.Controls
 
         protected override IEnumerator LogicalChildren => (this.InternalChild == null ? new List<object>() : new List<object>() {this.InternalChild}).GetEnumerator();
 
-        public StretchDirection StretchDirection
-        {
+        public StretchDirection StretchDirection {
             get => (StretchDirection) this.GetValue(StretchDirectionProperty);
             set => this.SetValue(StretchDirectionProperty, value);
         }
 
-        public ViewBoxClone()
-        {
+        public ViewBoxClone() {
         }
 
-        protected override Visual GetVisualChild(int index)
-        {
+        protected override Visual GetVisualChild(int index) {
             if (index != 0)
                 throw new ArgumentOutOfRangeException(nameof(index), index, "index out of range: " + index);
             return this.InternalVisual;
         }
 
-        protected override Size MeasureOverride(Size constraint)
-        {
+        protected override Size MeasureOverride(Size constraint) {
             UIElement internalChild = this.InternalChild;
             Size size = new Size();
-            if (internalChild != null)
-            {
+            if (internalChild != null) {
                 Size availableSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
                 internalChild.Measure(availableSize);
                 Size desiredSize = internalChild.DesiredSize;
@@ -110,11 +94,9 @@ namespace FramePFX.WPF.Controls
             return size;
         }
 
-        protected override Size ArrangeOverride(Size arrangeSize)
-        {
+        protected override Size ArrangeOverride(Size arrangeSize) {
             UIElement internalChild = this.InternalChild;
-            if (internalChild != null)
-            {
+            if (internalChild != null) {
                 Size desiredSize = internalChild.DesiredSize;
                 Size scaleFactor = ComputeScaleFactor(arrangeSize, desiredSize, this.StretchDirection);
                 this.InternalTransform = new ScaleTransform(scaleFactor.Width, scaleFactor.Height);
@@ -126,33 +108,27 @@ namespace FramePFX.WPF.Controls
             return arrangeSize;
         }
 
-        public static Size ComputeScaleFactor(Size availableSize, Size contentSize, StretchDirection stretchDirection)
-        {
+        public static Size ComputeScaleFactor(Size availableSize, Size contentSize, StretchDirection stretchDirection) {
             bool isWidthPositiveInfinite = double.IsPositiveInfinity(availableSize.Width);
             bool isHeightPositiveInfinite = double.IsPositiveInfinity(availableSize.Height);
-            if (isWidthPositiveInfinite && isHeightPositiveInfinite)
-            {
+            if (isWidthPositiveInfinite && isHeightPositiveInfinite) {
                 return new Size(1, 1);
             }
 
             double width = Maths.Equals(contentSize.Width, 0) ? 0.0 : availableSize.Width / contentSize.Width;
             double height = Maths.Equals(contentSize.Height, 0) ? 0.0 : availableSize.Height / contentSize.Height;
-            if (isWidthPositiveInfinite)
-            {
+            if (isWidthPositiveInfinite) {
                 width = height;
             }
-            else if (isHeightPositiveInfinite)
-            {
+            else if (isHeightPositiveInfinite) {
                 height = width;
             }
-            else
-            {
+            else {
                 double value = (width < height ? width : height);
                 width = height = value;
             }
 
-            switch (stretchDirection)
-            {
+            switch (stretchDirection) {
                 case StretchDirection.UpOnly:
                     if (width < 1.0)
                         width = 1.0;
@@ -171,11 +147,9 @@ namespace FramePFX.WPF.Controls
             return new Size(width, height);
         }
 
-        private static bool ValidateStretchValue(object value)
-        {
+        private static bool ValidateStretchValue(object value) {
             Stretch stretch = (Stretch) value;
-            switch (stretch)
-            {
+            switch (stretch) {
                 case Stretch.None:
                 case Stretch.Fill:
                 case Stretch.Uniform:
@@ -184,11 +158,9 @@ namespace FramePFX.WPF.Controls
             }
         }
 
-        private static bool ValidateStretchDirectionValue(object value)
-        {
+        private static bool ValidateStretchDirectionValue(object value) {
             StretchDirection stretchDirection = (StretchDirection) value;
-            switch (stretchDirection)
-            {
+            switch (stretchDirection) {
                 case StretchDirection.DownOnly:
                 case StretchDirection.Both:
                     return true;

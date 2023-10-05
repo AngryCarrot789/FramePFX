@@ -7,8 +7,7 @@ using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
-{
+namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
     // TODO: Maybe instead of using inheritance, instead, use composition?
     // Maybe using some sort of trait system, where a clip can have, for example, a
     // transformation trait (pos, scale, origin), video media trait, etc. Or maybe other
@@ -24,12 +23,10 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
     /// <summary>
     /// Base view model class for video clips that are placed on a video track
     /// </summary>
-    public abstract class VideoClipViewModel : ClipViewModel
-    {
+    public abstract class VideoClipViewModel : ClipViewModel {
         public new VideoClip Model => (VideoClip) base.Model;
 
-        public double Opacity
-        {
+        public double Opacity {
             get => this.Model.Opacity;
             set => AutomationUtils.GetKeyFrameForPropertyChanged(this, VideoClip.OpacityKey).SetDoubleValue(value);
         }
@@ -47,8 +44,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
 
         #region Cached refresh event handlers
 
-        private static readonly RefreshAutomationValueEventHandler RefreshOpacityHandler = (s, e) =>
-        {
+        private static readonly RefreshAutomationValueEventHandler RefreshOpacityHandler = (s, e) => {
             VideoClipViewModel clip = (VideoClipViewModel) s.AutomationData.Owner;
             clip.RaisePropertyChanged(nameof(clip.Opacity));
             clip.InvalidateRenderForAutomationRefresh(in e);
@@ -58,10 +54,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
 
         public readonly Func<bool> IsPlayHeadFrameInRange;
 
-        protected VideoClipViewModel(VideoClip model) : base(model)
-        {
-            this.IsPlayHeadFrameInRange = () =>
-            {
+        protected VideoClipViewModel(VideoClip model) : base(model) {
+            this.IsPlayHeadFrameInRange = () => {
                 long? frame = this.Timeline?.PlayHeadFrame;
                 return frame.HasValue && this.Model.IsTimelineFrameInRange(frame.Value);
             };
@@ -70,8 +64,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
             this.InsertOpacityKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetDoubleValue(this.Opacity), this.IsPlayHeadFrameInRange);
             this.ToggleOpacityActiveCommand = new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].ToggleOverrideAction());
 
-            this.renderCallback = (x, s) =>
-            {
+            this.renderCallback = (x, s) => {
                 this.OnInvalidateRender(s); // assert ReferenceEquals(this.Model, x)
             };
 
@@ -82,64 +75,52 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips
         // TODO: implement "OnPlayHeadEnter", "OnPlayHeadMoved", and "OnPlayHeadLeave" to refresh
         // the key frame insertion commands
 
-        public override void OnUserSeekedFrame(long oldFrame, long newFrame)
-        {
+        public override void OnUserSeekedFrame(long oldFrame, long newFrame) {
             base.OnUserSeekedFrame(oldFrame, newFrame);
             this.UpdateKeyFrameCommands();
         }
 
-        public override void OnClipMovedToPlayeHeadFrame(long frame)
-        {
+        public override void OnClipMovedToPlayeHeadFrame(long frame) {
             base.OnClipMovedToPlayeHeadFrame(frame);
             this.UpdateKeyFrameCommands();
         }
 
-        public override void OnPlayHeadLeaveClip(bool isCausedByPlayHeadMovement)
-        {
+        public override void OnPlayHeadLeaveClip(bool isCausedByPlayHeadMovement) {
             base.OnPlayHeadLeaveClip(isCausedByPlayHeadMovement);
             this.UpdateKeyFrameCommands();
         }
 
-        private void UpdateKeyFrameCommands()
-        {
+        private void UpdateKeyFrameCommands() {
             this.InsertOpacityKeyFrameCommand.RaiseCanExecuteChanged();
         }
 
-        public override void OnFrameSpanChanged(FrameSpan oldSpan)
-        {
+        public override void OnFrameSpanChanged(FrameSpan oldSpan) {
             base.OnFrameSpanChanged(oldSpan);
             this.Model.InvalidateRender();
         }
 
-        protected override void OnMediaFrameOffsetChanged(long oldFrame, long newFrame)
-        {
+        protected override void OnMediaFrameOffsetChanged(long oldFrame, long newFrame) {
             base.OnMediaFrameOffsetChanged(oldFrame, newFrame);
             this.Model.InvalidateRender();
         }
 
-        public virtual void OnInvalidateRender(bool schedule = true)
-        {
+        public virtual void OnInvalidateRender(bool schedule = true) {
             this.Track?.Timeline.DoAutomationTickAndRenderToPlayback(schedule);
         }
 
-        public override void Dispose()
-        {
+        public override void Dispose() {
             this.Model.RenderInvalidated -= this.renderCallback;
             base.Dispose();
         }
 
-        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e)
-        {
-            if (!e.IsDuringPlayback && !e.IsPlaybackTick)
-            {
+        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
+            if (!e.IsDuringPlayback && !e.IsPlaybackTick) {
                 this.Model.InvalidateRender(true);
             }
         }
 
-        protected void ValidateNotInAutomationChange()
-        {
-            if (this.IsAutomationRefreshInProgress)
-            {
+        protected void ValidateNotInAutomationChange() {
+            if (this.IsAutomationRefreshInProgress) {
                 Debugger.Break();
                 throw new Exception("Cannot modify view-model parameter property while automation refresh is in progress. " +
                                     $"Only the model value should be modified, and {nameof(this.RaisePropertyChanged)} should be called in the view-model");

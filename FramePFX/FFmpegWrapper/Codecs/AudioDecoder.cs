@@ -1,9 +1,7 @@
 ﻿using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Codecs
-{
-    public unsafe class AudioDecoder : MediaDecoder
-    {
+namespace FramePFX.FFmpegWrapper.Codecs {
+    public unsafe class AudioDecoder : MediaDecoder {
         public AVSampleFormat SampleFormat => this.ctx->sample_fmt;
         public int SampleRate => this.ctx->sample_rate;
         public int NumChannels => this.ctx->ch_layout.nb_channels;
@@ -11,16 +9,13 @@ namespace FramePFX.FFmpegWrapper.Codecs
 
         public AudioFormat Format => new AudioFormat(this.ctx);
 
-        public AudioDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false))
-        {
+        public AudioDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false)) {
         }
 
-        public AudioDecoder(AVCodec* codec) : this(AllocContext(codec))
-        {
+        public AudioDecoder(AVCodec* codec) : this(AllocContext(codec)) {
         }
 
-        public AudioDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Audio, takeOwnership)
-        {
+        public AudioDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Audio, takeOwnership) {
         }
     }
 }

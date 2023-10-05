@@ -2,10 +2,8 @@ using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
 
-namespace FramePFX.Editor
-{
-    public interface IResourceDropHandler
-    {
+namespace FramePFX.Editor {
+    public interface IResourceDropHandler {
         /// <summary>
         /// Gets whether the given resource can be dropped on this handler.
         /// This is called every time the mouse moves

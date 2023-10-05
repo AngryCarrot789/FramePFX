@@ -16,24 +16,20 @@ using FramePFX.PropertyEditing;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ViewModels
-{
+namespace FramePFX.Editor.ViewModels {
     /// <summary>
     /// A view model that represents a video editor
     /// </summary>
-    public class VideoEditorViewModel : BaseViewModel, IDisposable
-    {
+    public class VideoEditorViewModel : BaseViewModel, IDisposable {
         private readonly ObservableCollection<TimelineViewModel> activeTimelines;
         private ProjectViewModel activeProject;
         private bool isClosingProject;
         private bool isEditorEnabled;
         private bool areAutomationShortcutsEnabled;
 
-        public bool IsEditorEnabled
-        {
+        public bool IsEditorEnabled {
             get => this.isEditorEnabled;
-            set
-            {
+            set {
                 if (this.isEditorEnabled == value)
                     return;
                 this.RaisePropertyChanged(ref this.isEditorEnabled, value);
@@ -56,24 +52,20 @@ namespace FramePFX.Editor.ViewModels
         /// </summary>
         public TimelineViewModel SelectedTimeline { get; private set; }
 
-        public bool IsProjectSaving
-        {
+        public bool IsProjectSaving {
             get => this.Model.IsProjectSaving;
-            private set
-            {
+            private set {
                 this.Model.IsProjectSaving = value;
                 this.RaisePropertyChanged();
             }
         }
 
-        public bool IsClosingProject
-        {
+        public bool IsClosingProject {
             get => this.isClosingProject;
             set => this.RaisePropertyChanged(ref this.isClosingProject, value);
         }
 
-        public bool AreAutomationShortcutsEnabled
-        {
+        public bool AreAutomationShortcutsEnabled {
             get => this.areAutomationShortcutsEnabled;
             set => this.RaisePropertyChanged(ref this.areAutomationShortcutsEnabled, value);
         }
@@ -96,8 +88,7 @@ namespace FramePFX.Editor.ViewModels
 
         private SavingProjectNotification notification;
 
-        public VideoEditorViewModel(IVideoEditor view)
-        {
+        public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditor();
             this.activeTimelines = new ObservableCollection<TimelineViewModel>();
@@ -112,10 +103,8 @@ namespace FramePFX.Editor.ViewModels
             this.EffectsProviderList = new EffectProviderListViewModel();
         }
 
-        public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline, bool? scheduleRender = true)
-        {
-            if (timeline == null)
-            {
+        public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline, bool? scheduleRender = true) {
+            if (timeline == null) {
                 timeline = editor.ActiveProject?.Timeline;
             }
 
@@ -123,115 +112,93 @@ namespace FramePFX.Editor.ViewModels
             editor.RaisePropertyChanged(nameof(editor.SelectedTimeline));
 
 
-            if (timeline != null)
-            {
+            if (timeline != null) {
                 editor.Model.ActiveTimeline = timeline.Model;
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
                 PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
                 PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
                 timeline.RefreshAutomationAndPlayhead();
-                if (scheduleRender.HasValue)
-                {
+                if (scheduleRender.HasValue) {
                     editor.DoDrawRenderFrame(timeline, scheduleRender.Value);
                 }
             }
-            else
-            {
+            else {
                 editor.Model.ActiveTimeline = null;
                 PFXPropertyEditorRegistry.Instance.ClipInfo.ClearHierarchyState();
                 PFXPropertyEditorRegistry.Instance.TrackInfo.ClearHierarchyState();
             }
         }
 
-        public void OnTimelineClosed(TimelineViewModel timeline)
-        {
+        public void OnTimelineClosed(TimelineViewModel timeline) {
             this.activeTimelines.Remove(timeline);
-            if (this.SelectedTimeline == timeline)
-            {
+            if (this.SelectedTimeline == timeline) {
                 OnSelectedTimelineChangedInternal(this, null);
             }
         }
 
-        public void OnTimelineOpened(TimelineViewModel timeline)
-        {
-            if (!this.activeTimelines.Contains(timeline))
-            {
+        public void OnTimelineOpened(TimelineViewModel timeline) {
+            if (!this.activeTimelines.Contains(timeline)) {
                 this.activeTimelines.Add(timeline);
             }
         }
 
-        public void OnTimelinesCleared()
-        {
+        public void OnTimelinesCleared() {
             this.activeTimelines.Clear();
             OnSelectedTimelineChangedInternal(this, null);
         }
 
-        public void OpenAndSelectTimeline(TimelineViewModel timeline)
-        {
-            if (this.SelectedTimeline != null)
-            {
+        public void OpenAndSelectTimeline(TimelineViewModel timeline) {
+            if (this.SelectedTimeline != null) {
                 this.Playback.StopPlaybackForChangingTimeline();
             }
 
-            if (timeline != null || (timeline = this.ActiveProject?.Timeline) != null)
-            {
+            if (timeline != null || (timeline = this.ActiveProject?.Timeline) != null) {
                 this.View.OpenAndSelectTimeline(timeline);
             }
 
-            if (this.SelectedTimeline != timeline)
-            {
+            if (this.SelectedTimeline != timeline) {
                 OnSelectedTimelineChangedInternal(this, timeline);
             }
         }
 
-        public async Task ExportAction()
-        {
-            if (this.ActiveProject == null)
-            {
+        public async Task ExportAction() {
+            if (this.ActiveProject == null) {
                 return;
             }
 
-            if (this.Playback.IsPlaying)
-            {
+            if (this.Playback.IsPlaying) {
                 await this.Playback.PauseAction();
             }
 
             TimelineViewModel timeline = this.ActiveProject.Timeline;
             FrameSpan span = timeline.Model.GetUsedFrameSpan();
-            ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject)
-            {
+            ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject) {
                 RenderSpan = span.WithBegin(0)
             };
 
             this.IsEditorEnabled = false;
-            try
-            {
+            try {
                 await Services.GetService<IExportViewService>().ShowExportDialogAsync(setup);
             }
-            finally
-            {
+            finally {
                 this.IsEditorEnabled = true;
             }
 
             await timeline.DoAutomationTickAndRenderToPlayback(false);
         }
 
-        private void OnProjectModified(object sender, string property)
-        {
+        private void OnProjectModified(object sender, string property) {
             this.activeProject?.OnProjectModified();
         }
 
-        private async Task NewProjectAction()
-        {
-            if (this.ActiveProject != null && !await this.PromptSaveProjectAction())
-            {
+        private async Task NewProjectAction() {
+            if (this.ActiveProject != null && !await this.PromptSaveProjectAction()) {
                 return;
             }
 
             ProjectViewModel project = new ProjectViewModel(new Project());
             project.Settings.Resolution = new Resolution(1280, 720);
-            if (this.ActiveProject != null)
-            {
+            if (this.ActiveProject != null) {
                 await this.CloseProjectAction();
             }
 
@@ -239,38 +206,29 @@ namespace FramePFX.Editor.ViewModels
             this.ActiveProject.SetHasUnsavedChanges(false);
         }
 
-        public async Task OpenProjectAction()
-        {
+        public async Task OpenProjectAction() {
             string[] result = await Services.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
             if (result == null)
-            {
                 return;
-            }
 
             if (this.ActiveProject != null && !await this.PromptSaveProjectAction())
-            {
                 return;
-            }
 
             string path = result[0];
             string parentFolder;
             string projectFileName;
-            try
-            {
+            try {
                 parentFolder = Path.GetDirectoryName(path);
             }
-            catch (ArgumentException)
-            {
+            catch (ArgumentException) {
                 await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
                 return;
             }
 
-            try
-            {
+            try {
                 projectFileName = Path.GetFileName(path);
             }
-            catch (ArgumentException)
-            {
+            catch (ArgumentException) {
                 await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
                 return;
             }
@@ -278,20 +236,17 @@ namespace FramePFX.Editor.ViewModels
             AppLogger.WriteLine("Reading packed RBE project from file");
             RBEDictionary dictionary;
 
-            try
-            {
+            try {
                 dictionary = RBEUtils.ReadFromFilePacked(path) as RBEDictionary;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 AppLogger.WriteLine("Failed to read packed RBE data");
                 AppLogger.WriteLine(e.GetToString());
                 await Services.DialogService.ShowMessageAsync("Read error", "Failed to read project from file. See logs for more info");
                 return;
             }
 
-            if (dictionary == null)
-            {
+            if (dictionary == null) {
                 await Services.DialogService.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
                 return;
             }
@@ -299,25 +254,20 @@ namespace FramePFX.Editor.ViewModels
             Project projectModel = new Project();
             ProjectViewModel pvm;
 
-            try
-            {
+            try {
                 projectModel.ReadFromRBE(dictionary, parentFolder, projectFileName);
                 pvm = new ProjectViewModel(projectModel);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 await Services.DialogService.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
                 return;
             }
 
-            if (this.ActiveProject != null)
-            {
-                try
-                {
+            if (this.ActiveProject != null) {
+                try {
                     await this.CloseProjectAction();
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     await Services.DialogService.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
                 }
             }
@@ -325,13 +275,11 @@ namespace FramePFX.Editor.ViewModels
             await this.LoadProject(pvm);
             pvm.HasSavedOnce = true;
 
-            ResourceCheckerViewModel checker = new ResourceCheckerViewModel()
-            {
+            ResourceCheckerViewModel checker = new ResourceCheckerViewModel() {
                 Caption = "Project contains resources that could not be loaded (e.g. missing files)"
             };
 
-            if (!await ResourceCheckerViewModel.LoadProjectResources(checker, pvm, true))
-            {
+            if (!await ResourceCheckerViewModel.LoadProjectResources(checker, pvm, true)) {
                 AppLogger.WriteLine("Project load cancelled due to invalid resources. Unloading newly loaded project...");
                 await this.LoadProject(null);
                 return;
@@ -345,45 +293,37 @@ namespace FramePFX.Editor.ViewModels
         /// Unloads and disposes the previous project (if one is loaded), then loads the new given project (or does nothing else if it's null)
         /// </summary>
         /// <param name="project"></param>
-        public async Task LoadProject(ProjectViewModel project)
-        {
-            if (ReferenceEquals(this.activeProject, project))
-            {
+        public async Task LoadProject(ProjectViewModel project) {
+            if (ReferenceEquals(this.activeProject, project)) {
                 return;
             }
 
             this.Model.IsProjectChanging = true;
             PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
             await this.Playback.OnProjectChanging(project);
-            if (this.activeProject != null)
-            {
+            if (this.activeProject != null) {
                 OnSelectedTimelineChangedInternal(this, null, null);
                 this.Model.ClearTimelines();
                 this.activeTimelines.Clear();
 
                 this.activeProject.OnDisconnectFromEditor();
                 this.Model.SetProject(null);
-                try
-                {
-                    if (this.activeProject.Model.IsLoaded)
-                    {
+                try {
+                    if (this.activeProject.Model.IsLoaded) {
                         this.activeProject.Model.OnUnloaded();
                     }
 
                     this.activeProject.Dispose();
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     AppLogger.WriteLine("Exception while disposing project: " + e.GetToString());
                     this.View.NotificationPanel.PushNotification(new MessageNotification("Error", "An error occurred while unloading project. See logs for more info"));
                 }
             }
 
             this.activeProject = project;
-            if (project != null)
-            {
-                if (!project.Model.IsLoaded)
-                {
+            if (project != null) {
+                if (!project.Model.IsLoaded) {
                     project.Model.OnLoaded();
                 }
 
@@ -401,28 +341,21 @@ namespace FramePFX.Editor.ViewModels
             await HistoryManagerViewModel.Instance.ResetAsync();
         }
 
-        public void Dispose()
-        {
-            using (ErrorList stack = new ErrorList("Exception occurred while disposing video editor"))
-            {
-                if (this.ActiveProject != null)
-                {
-                    try
-                    {
+        public void Dispose() {
+            using (ErrorList stack = new ErrorList("Exception occurred while disposing video editor")) {
+                if (this.ActiveProject != null) {
+                    try {
                         this.ActiveProject.Dispose();
                     }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         stack.Add(new Exception("Exception disposing active project", e));
                     }
                 }
 
-                try
-                {
+                try {
                     this.Playback.Dispose();
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     stack.Add(new Exception("Exception disposing playback", e));
                 }
             }
@@ -432,15 +365,12 @@ namespace FramePFX.Editor.ViewModels
         /// Saves and closes the project
         /// </summary>
         /// <returns>True when the project was closed,</returns>
-        public async Task<bool> PromptSaveAndCloseProjectAction()
-        {
-            if (this.ActiveProject == null)
-            {
+        public async Task<bool> PromptSaveAndCloseProjectAction() {
+            if (this.ActiveProject == null) {
                 throw new Exception("No active project");
             }
 
-            if (!await this.PromptSaveProjectAction())
-            {
+            if (!await this.PromptSaveProjectAction()) {
                 return false;
             }
 
@@ -448,38 +378,31 @@ namespace FramePFX.Editor.ViewModels
             return true;
         }
 
-        public async Task<bool> PromptSaveProjectAction()
-        {
-            if (this.ActiveProject == null)
-            {
+        public async Task<bool> PromptSaveProjectAction() {
+            if (this.ActiveProject == null) {
                 throw new Exception("No active project");
             }
 
             bool? result = await Services.DialogService.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
-            if (result == true)
-            {
+            if (result == true) {
                 await this.ActiveProject.SaveActionAsync();
             }
-            else if (result == null)
-            {
+            else if (result == null) {
                 return false;
             }
 
             return true;
         }
 
-        public async Task CloseProjectAction()
-        {
-            if (this.ActiveProject != null)
-            {
+        public async Task CloseProjectAction() {
+            if (this.ActiveProject != null) {
                 this.IsClosingProject = true;
                 await this.LoadProject(null);
                 this.IsClosingProject = false;
             }
         }
 
-        public async Task OnProjectSaving()
-        {
+        public async Task OnProjectSaving() {
             this.IsProjectSaving = true;
             await this.Playback.OnProjectSaving();
             this.notification = new SavingProjectNotification();
@@ -487,16 +410,13 @@ namespace FramePFX.Editor.ViewModels
             this.notification.BeginSave();
         }
 
-        public async Task OnProjectSaved(Exception e)
-        {
+        public async Task OnProjectSaved(Exception e) {
             this.IsProjectSaving = false;
             await this.Playback.OnProjectSaved(e == null);
-            if (e == null)
-            {
+            if (e == null) {
                 this.notification.OnSaveComplete();
             }
-            else
-            {
+            else {
                 this.notification.OnSaveFailed(e.Message + ". See logs for more info");
                 AppLogger.WriteLine(e.GetToString());
             }
@@ -506,8 +426,7 @@ namespace FramePFX.Editor.ViewModels
             this.notification = null;
         }
 
-        public Task DoDrawRenderFrame(TimelineViewModel timeline, bool schedule = false)
-        {
+        public Task DoDrawRenderFrame(TimelineViewModel timeline, bool schedule = false) {
             return this.View.RenderTimelineAsync(timeline, schedule);
         }
     }

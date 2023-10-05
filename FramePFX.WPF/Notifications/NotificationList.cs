@@ -1,21 +1,16 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.WPF.Notifications
-{
-    public class NotificationList : ItemsControl
-    {
-        public NotificationList()
-        {
+namespace FramePFX.WPF.Notifications {
+    public class NotificationList : ItemsControl {
+        public NotificationList() {
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item)
-        {
+        protected override bool IsItemItsOwnContainerOverride(object item) {
             return item is NotificationControl;
         }
 
-        protected override DependencyObject GetContainerForItemOverride()
-        {
+        protected override DependencyObject GetContainerForItemOverride() {
             return new NotificationControl();
         }
     }

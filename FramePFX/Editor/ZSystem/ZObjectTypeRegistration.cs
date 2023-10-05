@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Editor.ZSystem
-{
+namespace FramePFX.Editor.ZSystem {
     /// <summary>
     /// Stores information about a specific type that contains registered properties
     /// </summary>
-    public class ZObjectTypeRegistration
-    {
+    public class ZObjectTypeRegistration {
         private static readonly Dictionary<Type, ZObjectTypeRegistration> RegisteredTypes = new Dictionary<Type, ZObjectTypeRegistration>();
 
         internal readonly List<ZProperty> properties;
@@ -41,31 +39,25 @@ namespace FramePFX.Editor.ZSystem
 
         public int NextHierarchicalIndex { get; internal set; }
 
-        internal ZObjectTypeRegistration(Type ownerType)
-        {
+        internal ZObjectTypeRegistration(Type ownerType) {
             this.OwnerType = ownerType;
             this.properties = new List<ZProperty>();
         }
 
-        public static ZObjectTypeRegistration GetRegistration(Type ownerType, bool autoPack = true)
-        {
+        public static ZObjectTypeRegistration GetRegistration(Type ownerType, bool autoPack = true) {
             ZObjectTypeRegistration registration;
 
             // lazy solution, probably affects overall performance but hopefully it's fine
-            lock (RegisteredTypes)
-            {
-                if (!RegisteredTypes.TryGetValue(ownerType, out registration))
-                {
+            lock (RegisteredTypes) {
+                if (!RegisteredTypes.TryGetValue(ownerType, out registration)) {
                     RegisteredTypes[ownerType] = registration = new ZObjectTypeRegistration(ownerType);
                     ZObjectTypeRegistration parent = GetParentRegistration(registration);
-                    if (parent != null)
-                    {
+                    if (parent != null) {
                         registration.NextHierarchicalIndex = parent.NextHierarchicalIndex;
                     }
                 }
 
-                if (autoPack && !registration.isPacked)
-                {
+                if (autoPack && !registration.isPacked) {
                     PackStructure(registration);
                 }
             }
@@ -73,22 +65,18 @@ namespace FramePFX.Editor.ZSystem
             return registration;
         }
 
-        internal static void AddInternal(ZObjectTypeRegistration r, ZProperty property, ZUpdateChannel updateChannelName)
-        {
+        internal static void AddInternal(ZObjectTypeRegistration r, ZProperty property, ZUpdateChannel updateChannelName) {
             if (property.LocalIndex != r.properties.Count)
                 throw new Exception("Invalid property registration order");
             property.Channel = updateChannelName ?? ZUpdateChannel.Default;
             r.properties.Add(property);
         }
 
-        private static void PackStructure(ZObjectTypeRegistration r)
-        {
+        private static void PackStructure(ZObjectTypeRegistration r) {
             Console.WriteLine("Baking registration for type " + r.OwnerType);
             ZObjectTypeRegistration parent = GetParentRegistration(r);
-            if (parent != null)
-            {
-                if (!parent.isPacked)
-                {
+            if (parent != null) {
+                if (!parent.isPacked) {
                     PackStructure(parent);
                 }
 
@@ -96,16 +84,13 @@ namespace FramePFX.Editor.ZSystem
                 r.HierarchicalStructSize = parent.HierarchicalStructSize;
             }
 
-            foreach (ZProperty property in r.properties)
-            {
-                if (property.IsStruct)
-                {
+            foreach (ZProperty property in r.properties) {
+                if (property.IsStruct) {
                     property.structOffset = r.HierarchicalStructSize;
                     r.HierarchicalStructSize += property.structSize;
                     r.LocalPackedStructSize += property.structSize;
                 }
-                else
-                {
+                else {
                     property.objectIndex = r.HierarchicalObjectCount;
                     r.HierarchicalObjectCount++;
                     r.LocalPackedObjectSize++;
@@ -115,12 +100,10 @@ namespace FramePFX.Editor.ZSystem
             r.isPacked = true;
         }
 
-        private static ZObjectTypeRegistration GetParentRegistration(ZObjectTypeRegistration r)
-        {
+        private static ZObjectTypeRegistration GetParentRegistration(ZObjectTypeRegistration r) {
             // compare type to R3BObject instead of `typeof(R3BObject).IsAssignableFrom(type)` as an optimisation
             // this function is used in a locked context, so RegisteredTypes access is fine
-            for (Type type = r.OwnerType.BaseType; type != null && type != typeof(ZObject); type = type.BaseType)
-            {
+            for (Type type = r.OwnerType.BaseType; type != null && type != typeof(ZObject); type = type.BaseType) {
                 if (RegisteredTypes.TryGetValue(type, out ZObjectTypeRegistration registration))
                     return registration;
             }

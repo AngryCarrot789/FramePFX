@@ -7,14 +7,11 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using FramePFX.WPF.Utils;
 
-namespace FramePFX.WPF.Explorer.Icons
-{
-    public static class ShellUtils
-    {
+namespace FramePFX.WPF.Explorer.Icons {
+    public static class ShellUtils {
         #region Structs
 
-        private struct SHFILEINFO
-        {
+        private struct SHFILEINFO {
             public IntPtr hIcon; // Handle to the icon representing the file
             public int iIcon; // Index of the icon within the image list
             public uint dwAttributes; // Various attributes of the file
@@ -84,28 +81,23 @@ namespace FramePFX.WPF.Explorer.Icons
 
         #endregion
 
-        public static BitmapSource IconToBitmapSource(Icon ico)
-        {
+        public static BitmapSource IconToBitmapSource(Icon ico) {
             IntPtr hBitmap = ico.ToBitmap().GetHbitmap();
-            if (hBitmap == IntPtr.Zero)
-            {
+            if (hBitmap == IntPtr.Zero) {
                 return null;
             }
 
             BitmapSource image = Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            if (!DeleteObject(hBitmap))
-            {
+            if (!DeleteObject(hBitmap)) {
                 throw new Win32Exception();
             }
 
             return image;
         }
 
-        public static Icon GetFileIcon(string path, ShellIconSize iconType, bool isDirectoryOrDrive)
-        {
+        public static Icon GetFileIcon(string path, ShellIconSize iconType, bool isDirectoryOrDrive) {
             uint flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES;
-            switch (iconType)
-            {
+            switch (iconType) {
                 case ShellIconSize.Small:
                     flags |= SHGFI_SMALLICON;
                     break;
@@ -116,8 +108,7 @@ namespace FramePFX.WPF.Explorer.Icons
 
 
             uint attributes = FILE_ATTRIBUTE_NORMAL;
-            if (isDirectoryOrDrive)
-            {
+            if (isDirectoryOrDrive) {
                 attributes |= FILE_ATTRIBUTE_DIRECTORY;
             }
 
@@ -132,18 +123,14 @@ namespace FramePFX.WPF.Explorer.Icons
             return success == IntPtr.Zero ? null : Icon.FromHandle(shfi.hIcon);
         }
 
-        public static BitmapSource GetFileIconAsBitmapSource(string path, ShellIconSize iconType = ShellIconSize.Normal, bool isDirectory = false)
-        {
-            using (Icon icon = GetFileIcon(path, iconType, isDirectory))
-            {
+        public static BitmapSource GetFileIconAsBitmapSource(string path, ShellIconSize iconType = ShellIconSize.Normal, bool isDirectory = false) {
+            using (Icon icon = GetFileIcon(path, iconType, isDirectory)) {
                 return icon != null ? IconToBitmapSource(icon) : null;
             }
         }
 
-        public static string GetFileTypeDescription(string fileNameOrExtension)
-        {
-            if (SHGetFileInfo(fileNameOrExtension, FILE_ATTRIBUTE_NORMAL, out SHFILEINFO shfi, (uint) Marshal.SizeOf(typeof(SHFILEINFO)), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME) != IntPtr.Zero)
-            {
+        public static string GetFileTypeDescription(string fileNameOrExtension) {
+            if (SHGetFileInfo(fileNameOrExtension, FILE_ATTRIBUTE_NORMAL, out SHFILEINFO shfi, (uint) Marshal.SizeOf(typeof(SHFILEINFO)), SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME) != IntPtr.Zero) {
                 return shfi.szTypeName;
             }
 

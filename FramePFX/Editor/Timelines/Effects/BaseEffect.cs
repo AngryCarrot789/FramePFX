@@ -12,13 +12,11 @@ using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines.Effects
-{
+namespace FramePFX.Editor.Timelines.Effects {
     /// <summary>
     /// The base class for all types of effects (audio, video, etc.). This class supports automation
     /// </summary>
-    public abstract class BaseEffect : ZObject, IAutomatable, IStrictFrameRange
-    {
+    public abstract class BaseEffect : ZObject, IAutomatable, IStrictFrameRange {
         /// <summary>
         /// Whether or not this effect can be removed from a clip. This is also used to determine if an
         /// effect can be copy and pasted into another clip. When this is false, it cannot be copied nor removed
@@ -41,53 +39,42 @@ namespace FramePFX.Editor.Timelines.Effects
 
         public Project Project => this.OwnerClip.Track.Timeline.Project;
 
-        protected BaseEffect()
-        {
+        protected BaseEffect() {
             this.IsRemoveable = true;
             this.AutomationData = new AutomationData(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessEffectList(IReadOnlyList<BaseEffect> effects, long frame, RenderContext render, Vector2? frameSize, bool isPreProcess)
-        {
+        public static void ProcessEffectList(IReadOnlyList<BaseEffect> effects, long frame, RenderContext render, Vector2? frameSize, bool isPreProcess) {
             // pre-process clip effects, such as translation, scale, etc.
             int count = effects.Count;
-            if (count == 0)
-            {
+            if (count == 0) {
                 return;
             }
 
-            if (isPreProcess)
-            {
-                for (int i = 0; i < count; i++)
-                {
+            if (isPreProcess) {
+                for (int i = 0; i < count; i++) {
                     BaseEffect effect = effects[i];
-                    if (effect is VideoEffect)
-                    {
+                    if (effect is VideoEffect) {
                         ((VideoEffect) effect).PreProcessFrame(frame, render, frameSize);
                     }
                 }
             }
-            else
-            {
-                for (int i = count - 1; i >= 0; i--)
-                {
+            else {
+                for (int i = count - 1; i >= 0; i--) {
                     BaseEffect effect = effects[i];
-                    if (effect is VideoEffect)
-                    {
+                    if (effect is VideoEffect) {
                         ((VideoEffect) effect).PostProcessFrame(frame, render, frameSize);
                     }
                 }
             }
         }
 
-        public static void AddEffectToClip(Clip clip, BaseEffect effect)
-        {
+        public static void AddEffectToClip(Clip clip, BaseEffect effect) {
             InsertEffectIntoClip(clip, effect, clip.Effects.Count);
         }
 
-        public static void InsertEffectIntoClip(Clip clip, BaseEffect effect, int index)
-        {
+        public static void InsertEffectIntoClip(Clip clip, BaseEffect effect, int index) {
             if (clip == null)
                 throw new NullReferenceException(nameof(clip));
             if (effect == null)
@@ -107,15 +94,13 @@ namespace FramePFX.Editor.Timelines.Effects
             effect.OnAddedToClip();
         }
 
-        public static bool RemoveEffectFromOwner(BaseEffect effect)
-        {
+        public static bool RemoveEffectFromOwner(BaseEffect effect) {
             Clip owner = effect.OwnerClip;
             if (owner == null)
                 return false;
 
             int index = owner.Effects.IndexOf(effect);
-            if (index < 0)
-            {
+            if (index < 0) {
                 AppLogger.WriteLine("Fatal error: Effect's owner was non-null but was not stored in its effects list");
                 Debugger.Break();
                 effect.OwnerClip = null;
@@ -126,8 +111,7 @@ namespace FramePFX.Editor.Timelines.Effects
             return true;
         }
 
-        public static void RemoveEffectAt(Clip clip, int index)
-        {
+        public static void RemoveEffectAt(Clip clip, int index) {
             BaseEffect effect = clip.Effects[index];
             if (!ReferenceEquals(effect.OwnerClip, clip))
                 throw new Exception("The effect was stored in the clip's effect list but the owner did not match the clip");
@@ -137,10 +121,8 @@ namespace FramePFX.Editor.Timelines.Effects
             effect.OwnerClip = null;
         }
 
-        public static void ClearEffects(Clip clip)
-        {
-            for (int i = clip.Effects.Count - 1; i >= 0; i--)
-            {
+        public static void ClearEffects(Clip clip) {
+            for (int i = clip.Effects.Count - 1; i >= 0; i--) {
                 RemoveEffectAt(clip, i);
             }
         }
@@ -148,30 +130,26 @@ namespace FramePFX.Editor.Timelines.Effects
         /// <summary>
         /// Invoked when this effect is about to be added to <see cref="OwnerClip"/> (which is set prior to this call)
         /// </summary>
-        protected virtual void OnAddingToClip()
-        {
+        protected virtual void OnAddingToClip() {
         }
 
         /// <summary>
         /// Invoked when this effect is added to the <see cref="OwnerClip"/>'s effect list
         /// </summary>
-        protected virtual void OnAddedToClip()
-        {
+        protected virtual void OnAddedToClip() {
         }
 
         /// <summary>
         /// Invoked when this effect is about to be removed from the <see cref="OwnerClip"/>
         /// </summary>
-        protected virtual void OnRemovingFromClip()
-        {
+        protected virtual void OnRemovingFromClip() {
         }
 
         /// <summary>
         /// Invoked when this effect has been removed from our previous owner's effect list.
         /// <see cref="OwnerClip"/> will be set to null after this call, meaning it is non-null when this is invoked
         /// </summary>
-        protected virtual void OnRemovedFromClip()
-        {
+        protected virtual void OnRemovedFromClip() {
         }
 
         // TrackChanged and TrackTimelineChanged can be added or removed in
@@ -180,36 +158,30 @@ namespace FramePFX.Editor.Timelines.Effects
         // public virtual void OnClipTrackChanged(Track oldTrack, Track track) { }
         // public virtual void OnClipTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) { }
 
-        public virtual void WriteToRBE(RBEDictionary data)
-        {
+        public virtual void WriteToRBE(RBEDictionary data) {
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
         }
 
-        public virtual void ReadFromRBE(RBEDictionary data)
-        {
+        public virtual void ReadFromRBE(RBEDictionary data) {
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
         }
 
-        public long ConvertRelativeToTimelineFrame(long relative)
-        {
+        public long ConvertRelativeToTimelineFrame(long relative) {
             return this.OwnerClip?.ConvertRelativeToTimelineFrame(relative) ?? relative;
         }
 
-        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange)
-        {
+        public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange) {
             if (this.OwnerClip != null)
                 return this.OwnerClip.ConvertTimelineToRelativeFrame(timeline, out inRange);
             inRange = false;
             return timeline;
         }
 
-        public bool IsTimelineFrameInRange(long timeline)
-        {
+        public bool IsTimelineFrameInRange(long timeline) {
             return this.OwnerClip?.IsTimelineFrameInRange(timeline) ?? false;
         }
 
-        public BaseEffect Clone()
-        {
+        public BaseEffect Clone() {
             RBEDictionary dictionary = new RBEDictionary();
             this.WriteToRBE(dictionary);
             BaseEffect effect = EffectFactory.Instance.CreateModel(this.FactoryId);

@@ -1,7 +1,5 @@
-namespace FramePFX.Rendering.Utils
-{
-    public enum CoordinateOrder
-    {
+namespace FramePFX.Rendering.Utils {
+    public enum CoordinateOrder {
         XYZ,
         XZY,
         YXZ,

@@ -8,39 +8,32 @@ using System.Windows.Markup;
 using Microsoft.CSharp;
 using FramePFX.Utils;
 
-namespace FramePFX.WPF.Utils
-{
+namespace FramePFX.WPF.Utils {
     /// <summary>
     /// A converter that uses a C# code generator to evaluate the converter output
     /// </summary>
-    public class DynamicCodeConverter : MarkupExtension, IValueConverter
-    {
+    public class DynamicCodeConverter : MarkupExtension, IValueConverter {
         private static readonly HashSet<string> UsedClassNames = new HashSet<string>();
 
         private string lastScript;
         private MethodInfo lastCompiledMethod;
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (!(parameter is string script))
-            {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            if (!(parameter is string script)) {
                 throw new Exception("Parameter must be a C# script");
             }
 
-            if (this.lastScript == script && this.lastCompiledMethod != null)
-            {
+            if (this.lastScript == script && this.lastCompiledMethod != null) {
                 return this.lastCompiledMethod.Invoke(null, new[] {value});
             }
-            else
-            {
+            else {
                 this.lastCompiledMethod = null;
                 this.lastScript = null;
             }
 
             string klass = RandomUtils.RandomLettersWhere("Script_", 16, x => !UsedClassNames.Contains(x));
             UsedClassNames.Add(klass);
-            string[] code =
-            {
+            string[] code = {
                 "using System;" +
                 "namespace FramePFX.DynamicScript" +
                 "{" +
@@ -54,8 +47,7 @@ namespace FramePFX.WPF.Utils
                 "}"
             };
 
-            CompilerParameters CompilerParams = new CompilerParameters
-            {
+            CompilerParameters CompilerParams = new CompilerParameters {
                 GenerateInMemory = true,
                 TreatWarningsAsErrors = false,
                 GenerateExecutable = false,
@@ -67,8 +59,7 @@ namespace FramePFX.WPF.Utils
             CSharpCodeProvider provider = new CSharpCodeProvider();
             CompilerResults compile = provider.CompileAssemblyFromSource(CompilerParams, code);
 
-            if (compile.Errors.HasErrors)
-            {
+            if (compile.Errors.HasErrors) {
                 string text = "Compile error: ";
                 foreach (CompilerError ce in compile.Errors)
                     text += "\n" + ce;
@@ -93,8 +84,7 @@ namespace FramePFX.WPF.Utils
             return methInfo.Invoke(null, new[] {value});
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
             throw new NotImplementedException();
         }
 

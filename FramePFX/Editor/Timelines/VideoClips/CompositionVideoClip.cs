@@ -5,10 +5,8 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Rendering;
 
-namespace FramePFX.Editor.Timelines.VideoClips
-{
-    public class CompositionVideoClip : VideoClip, IResourceHolder
-    {
+namespace FramePFX.Editor.Timelines.VideoClips {
+    public class CompositionVideoClip : VideoClip, IResourceHolder {
         private CancellationTokenSource tokenSource;
 
         private long relativeRenderFrame;
@@ -18,19 +16,16 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public IResourcePathKey<ResourceComposition> ResourceCompositionKey { get; }
 
-        public CompositionVideoClip()
-        {
+        public CompositionVideoClip() {
             this.ResourceHelper = new ResourceHelper(this);
             this.ResourceCompositionKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceComposition>();
         }
 
         public override Vector2? GetSize(RenderContext rc) => rc.FrameSize;
 
-        public override bool OnBeginRender(long frame)
-        {
+        public override bool OnBeginRender(long frame) {
             Project project;
-            if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource) || (project = resource.Timeline.Project) == null)
-            {
+            if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource) || (project = resource.Timeline.Project) == null) {
                 return false;
             }
 
@@ -44,18 +39,15 @@ namespace FramePFX.Editor.Timelines.VideoClips
             return resource.Timeline.BeginCompositeRender(this.relativePeriodicFrame, CancellationToken.None);
         }
 
-        public override Task OnEndRender(RenderContext rc, long frame)
-        {
-            if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource))
-            {
+        public override Task OnEndRender(RenderContext rc, long frame) {
+            if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
                 return Task.CompletedTask;
             }
 
             return resource.Timeline.EndCompositeRenderAsync(rc, this.relativePeriodicFrame, CancellationToken.None);
         }
 
-        public override void OnRenderCompleted(long frame, bool isCancelled)
-        {
+        public override void OnRenderCompleted(long frame, bool isCancelled) {
             base.OnRenderCompleted(frame, isCancelled);
             this.tokenSource?.Dispose();
             this.tokenSource = null;
@@ -63,8 +55,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
             this.relativePeriodicFrame = 0;
         }
 
-        protected override Clip NewInstanceForClone()
-        {
+        protected override Clip NewInstanceForClone() {
             return new CompositionVideoClip();
         }
     }

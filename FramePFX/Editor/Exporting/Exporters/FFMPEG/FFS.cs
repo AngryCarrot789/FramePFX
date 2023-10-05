@@ -1,9 +1,7 @@
 using FFmpeg.AutoGen;
 
-namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
-{
-    public unsafe struct FFS
-    {
+namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
+    public unsafe struct FFS {
         public AVCodecContext* cc;
         public AVFormatContext* fc;
         public AVOutputFormat* of;
@@ -18,8 +16,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
         public AVFrame* dst;
         public AVFrame* tmp;
 
-        public static void AllocateFFS(FFS* ffs, string filePath)
-        {
+        public static void AllocateFFS(FFS* ffs, string filePath) {
             int err;
             AVDictionary* opt = null;
             AVCodec* enc = null;
@@ -48,8 +45,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             FreeFFS(ffs);
         }
 
-        private static void FreeFFS(FFS* ffs)
-        {
+        private static void FreeFFS(FFS* ffs) {
             if (ffs->swrc != null)
                 ffmpeg.swr_free(&ffs->swrc);
             if (ffs->swsc != null)

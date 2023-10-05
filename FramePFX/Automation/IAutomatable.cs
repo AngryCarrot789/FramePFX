@@ -1,10 +1,8 @@
-namespace FramePFX.Automation
-{
+namespace FramePFX.Automation {
     /// <summary>
     /// An interface implemented by an object which can be automated
     /// </summary>
-    public interface IAutomatable
-    {
+    public interface IAutomatable {
         /// <summary>
         /// The automation data for this object, which stores a collection of automation
         /// sequences for storing the key frames for each type of automate-able parameters

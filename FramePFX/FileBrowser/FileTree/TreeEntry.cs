@@ -4,8 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 
-namespace FramePFX.FileBrowser.FileTree
-{
+namespace FramePFX.FileBrowser.FileTree {
     /// <summary>
     /// The base class for an entry in a tree system. Supports both inheritance and composition data (via the Set/Get/TryGet data functions).
     /// <para>
@@ -17,8 +16,7 @@ namespace FramePFX.FileBrowser.FileTree
     /// functions in order to determine what type of file an instance of <see cref="TreeEntry"/> is
     /// </para>
     /// </summary>
-    public class TreeEntry : BaseViewModel
-    {
+    public class TreeEntry : BaseViewModel {
         private readonly Dictionary<string, object> dataKeys;
         private readonly ObservableCollection<TreeEntry> items;
         private bool isExpanded;
@@ -53,28 +51,22 @@ namespace FramePFX.FileBrowser.FileTree
         /// <summary>
         /// Whether or not this item is currently expanded and therefore the contents are loaded
         /// </summary>
-        public bool IsExpanded
-        {
+        public bool IsExpanded {
             get => this.isExpanded;
-            set
-            {
-                if (this.isExpanded == value)
-                {
+            set {
+                if (this.isExpanded == value) {
                     return;
                 }
 
-                if (this.isExpanding)
-                {
+                if (this.isExpanding) {
                     this.RaisePropertyChanged(ref this.isExpanded, false);
                     return;
                 }
 
-                if (value)
-                {
+                if (value) {
                     this.OnExpandInternal();
                 }
-                else
-                {
+                else {
                     this.RaisePropertyChanged(ref this.isExpanded, false);
                 }
             }
@@ -83,8 +75,7 @@ namespace FramePFX.FileBrowser.FileTree
         /// <summary>
         /// Whether or not this file is currently being "expanded" (as in, browsed to in a tree)
         /// </summary>
-        public bool IsExpanding
-        {
+        public bool IsExpanding {
             get => this.isExpanding;
             private set => this.RaisePropertyChanged(ref this.isExpanding, value);
         }
@@ -123,8 +114,7 @@ namespace FramePFX.FileBrowser.FileTree
         /// </summary>
         public bool IsTopLevelFile => this.Parent?.IsRootContainer ?? false;
 
-        public TreeEntry(bool isDirectory)
-        {
+        public TreeEntry(bool isDirectory) {
             this.IsDirectory = isDirectory;
             this.dataKeys = new Dictionary<string, object>();
             this.items = new ObservableCollection<TreeEntry>();
@@ -132,51 +122,40 @@ namespace FramePFX.FileBrowser.FileTree
             this.items.CollectionChanged += this.OnChildrenCollectionChanged;
         }
 
-        public virtual void SetFileTree(FileTreeViewModel tree)
-        {
+        public virtual void SetFileTree(FileTreeViewModel tree) {
             this.FileTree = tree;
             this.RaisePropertyChanged(nameof(this.FileTree));
-            if (this.IsDirectory && this.items.Count > 0)
-            {
-                foreach (TreeEntry item in this.items)
-                {
+            if (this.IsDirectory && this.items.Count > 0) {
+                foreach (TreeEntry item in this.items) {
                     item.SetFileTree(tree);
                 }
             }
         }
 
-        public virtual void SetFileExplorer(FileExplorerViewModel explorer)
-        {
+        public virtual void SetFileExplorer(FileExplorerViewModel explorer) {
             this.FileExplorer = explorer;
             this.RaisePropertyChanged(nameof(this.FileTree));
-            if (this.IsDirectory && this.items.Count > 0)
-            {
-                foreach (TreeEntry item in this.items)
-                {
+            if (this.IsDirectory && this.items.Count > 0) {
+                foreach (TreeEntry item in this.items) {
                     item.SetFileExplorer(explorer);
                 }
             }
         }
 
-        private async void OnExpandInternal()
-        {
+        private async void OnExpandInternal() {
             this.IsExpanding = true;
-            try
-            {
+            try {
                 this.isExpanded = await this.OnExpandAsync();
             }
-            finally
-            {
+            finally {
                 this.isExpanding = false;
             }
 
             this.RaisePropertyChanged(nameof(this.IsExpanding));
-            if (this.HasExpandedOnce)
-            {
+            if (this.HasExpandedOnce) {
                 this.RaisePropertyChanged(nameof(this.IsExpanded));
             }
-            else
-            {
+            else {
                 this.HasExpandedOnce = true;
                 this.RaisePropertyChanged(nameof(this.IsExpanded));
                 this.RaisePropertyChanged(nameof(this.HasExpandedOnce));
@@ -187,12 +166,9 @@ namespace FramePFX.FileBrowser.FileTree
         /// Called when this tree entry is expanded. By default, this accesses the file system and loads the child content
         /// </summary>
         /// <returns>A task to await for the expand to complete (mainly loading content, if possible)</returns>
-        protected virtual async Task<bool> OnExpandAsync()
-        {
-            if (this.IsDirectory && this.FileSystem != null)
-            {
-                if (!this.IsContentLoaded)
-                {
+        protected virtual async Task<bool> OnExpandAsync() {
+            if (this.IsDirectory && this.FileSystem != null) {
+                if (!this.IsContentLoaded) {
                     this.IsContentLoaded = true;
                     await this.FileSystem.LoadContent(this);
                 }
@@ -206,12 +182,9 @@ namespace FramePFX.FileBrowser.FileTree
         /// <summary>
         /// Refreshes this item, causing any data to be reloaded
         /// </summary>
-        public virtual async Task RefreshAsync()
-        {
-            if (this.IsDirectory && this.FileSystem != null)
-            {
-                if (this.IsContentLoaded)
-                {
+        public virtual async Task RefreshAsync() {
+            if (this.IsDirectory && this.FileSystem != null) {
+                if (this.IsContentLoaded) {
                     await this.FileSystem.RefreshContent(this);
                 }
             }
@@ -225,8 +198,7 @@ namespace FramePFX.FileBrowser.FileTree
         /// </summary>
         /// <param name="sender">The collection object</param>
         /// <param name="e">The event args</param>
-        protected virtual void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
+        protected virtual void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             this.RaisePropertyChanged(nameof(this.ItemCount));
             this.RaisePropertyChanged(nameof(this.IsEmpty));
         }
@@ -236,20 +208,17 @@ namespace FramePFX.FileBrowser.FileTree
         /// </summary>
         /// <param name="index"></param>
         /// <param name="entry"></param>
-        protected virtual void OnItemAdded(int index, TreeEntry entry)
-        {
+        protected virtual void OnItemAdded(int index, TreeEntry entry) {
         }
 
-        protected virtual void OnItemRemoved(int index, TreeEntry entry)
-        {
+        protected virtual void OnItemRemoved(int index, TreeEntry entry) {
         }
 
         /// <summary>
         /// Called when this item has been added to a new parent item. <see cref="Parent"/> will not be null.
         /// This is called after we are added to the parent's internal collection
         /// </summary>
-        protected virtual void OnAddedToParent()
-        {
+        protected virtual void OnAddedToParent() {
             this.OnParentChanged(this.Parent);
             this.SetFileTree(this.Parent.FileTree);
             this.SetFileExplorer(this.Parent.FileExplorer);
@@ -259,11 +228,9 @@ namespace FramePFX.FileBrowser.FileTree
         /// Called before an item is about to be removed from its parent. <see cref="Parent"/> will remain the same as
         /// it was before this call. Is this called before we are removed from our parent's internal collection
         /// </summary>
-        protected virtual void OnRemovingFromParent()
-        {
+        protected virtual void OnRemovingFromParent() {
             this.IsExpanded = false;
-            if (this.IsDirectory)
-            {
+            if (this.IsDirectory) {
                 this.ClearItemsRecursiveInternal();
             }
         }
@@ -273,8 +240,7 @@ namespace FramePFX.FileBrowser.FileTree
         /// are removed from our parent's internal collection
         /// </summary>
         /// <param name="parent">The previous parent</param>
-        protected virtual void OnRemovedFromParent(TreeEntry parent)
-        {
+        protected virtual void OnRemovedFromParent(TreeEntry parent) {
             this.OnParentChanged(parent);
             this.SetFileTree(null);
             this.SetFileExplorer(null);
@@ -284,36 +250,30 @@ namespace FramePFX.FileBrowser.FileTree
         /// Called by <see cref="OnAddedToParent"/> and <see cref="OnRemovedFromParent"/>. This
         /// is just used to fire property changed events
         /// </summary>
-        protected virtual void OnParentChanged(TreeEntry parent)
-        {
+        protected virtual void OnParentChanged(TreeEntry parent) {
             this.RaisePropertyChanged(nameof(this.Parent));
             this.RaisePropertyChanged(nameof(this.IsRootContainer));
             this.RaisePropertyChanged(nameof(this.IsTopLevelFile));
         }
 
-        public virtual void AddItemCore(TreeEntry item)
-        {
+        public virtual void AddItemCore(TreeEntry item) {
             this.InsertItemCore(this.items.Count, item);
         }
 
-        public void AddItemsCore(IEnumerable<TreeEntry> enumerable)
-        {
+        public void AddItemsCore(IEnumerable<TreeEntry> enumerable) {
             this.ValidateIsDirectory();
             int i = this.items.Count;
-            foreach (TreeEntry file in enumerable)
-            {
+            foreach (TreeEntry file in enumerable) {
                 this.InsertItemInternal(i++, file);
             }
         }
 
-        public void InsertItemCore(int index, TreeEntry item)
-        {
+        public void InsertItemCore(int index, TreeEntry item) {
             this.ValidateIsDirectory();
             this.InsertItemInternal(index, item);
         }
 
-        private void InsertItemInternal(int index, TreeEntry item)
-        {
+        private void InsertItemInternal(int index, TreeEntry item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item));
             if (item.Parent != null)
@@ -327,8 +287,7 @@ namespace FramePFX.FileBrowser.FileTree
             this.OnItemAdded(index, item);
         }
 
-        public bool RemoveItemCore(TreeEntry item)
-        {
+        public bool RemoveItemCore(TreeEntry item) {
             this.ValidateIsDirectory();
             if (item == null)
                 throw new ArgumentNullException(nameof(item));
@@ -339,14 +298,12 @@ namespace FramePFX.FileBrowser.FileTree
             return true;
         }
 
-        public void RemoveItemAtCore(int index)
-        {
+        public void RemoveItemAtCore(int index) {
             this.ValidateIsDirectory();
             this.RemoveItemAtInternal(index);
         }
 
-        private void RemoveItemAtInternal(int index)
-        {
+        private void RemoveItemAtInternal(int index) {
             TreeEntry item = this.items[index];
             if (item.Parent != this)
                 throw new Exception("Expected item's parent to equal the current instance");
@@ -358,28 +315,23 @@ namespace FramePFX.FileBrowser.FileTree
             this.OnItemRemoved(index, item);
         }
 
-        public void ClearItemsRecursiveCore()
-        {
+        public void ClearItemsRecursiveCore() {
             this.ValidateIsDirectory();
             this.ClearItemsRecursiveInternal();
         }
 
         #region Composite Data
 
-        public T GetDataValue<T>(string key)
-        {
+        public T GetDataValue<T>(string key) {
             return this.TryGetDataValue(key, out T value) ? value : throw new Exception("No such data with the key: " + key);
         }
 
-        public T GetDataValue<T>(string key, T def)
-        {
+        public T GetDataValue<T>(string key, T def) {
             return this.TryGetDataValue(key, out T value) ? value : def;
         }
 
-        public bool TryGetDataValue<T>(string key, out T value)
-        {
-            if (this.dataKeys.TryGetValue(key, out object o))
-            {
+        public bool TryGetDataValue<T>(string key, out T value) {
+            if (this.dataKeys.TryGetValue(key, out object o)) {
                 value = (T) o;
                 return true;
             }
@@ -388,20 +340,16 @@ namespace FramePFX.FileBrowser.FileTree
             return false;
         }
 
-        public bool ContainsKey(string key)
-        {
+        public bool ContainsKey(string key) {
             return this.dataKeys.ContainsKey(key);
         }
 
-        public void SetData(string key, object value)
-        {
+        public void SetData(string key, object value) {
             this.OnDataChanging(key, value);
-            if (value == null)
-            {
+            if (value == null) {
                 this.dataKeys.Remove(key);
             }
-            else
-            {
+            else {
                 this.dataKeys[key] = value;
             }
 
@@ -414,8 +362,7 @@ namespace FramePFX.FileBrowser.FileTree
         /// <param name="key">The data key</param>
         /// <param name="value">The new data value</param>
         /// <returns>True to allow the data to change, false to stop the data changing</returns>
-        protected virtual void OnDataChanging(string key, object value)
-        {
+        protected virtual void OnDataChanging(string key, object value) {
         }
 
         /// <summary>
@@ -424,19 +371,15 @@ namespace FramePFX.FileBrowser.FileTree
         /// </summary>
         /// <param name="key">The data key</param>
         /// <param name="value">The new data value</param>
-        protected virtual void OnDataChanged(string key, object value)
-        {
+        protected virtual void OnDataChanged(string key, object value) {
         }
 
         #endregion
 
-        private void ClearItemsRecursiveInternal()
-        {
-            for (int i = this.items.Count - 1; i >= 0; i--)
-            {
+        private void ClearItemsRecursiveInternal() {
+            for (int i = this.items.Count - 1; i >= 0; i--) {
                 TreeEntry item = this.items[i];
-                if (item.IsDirectory)
-                {
+                if (item.IsDirectory) {
                     item.ClearItemsRecursiveInternal();
                 }
 
@@ -444,18 +387,14 @@ namespace FramePFX.FileBrowser.FileTree
             }
         }
 
-        private void ValidateIsDirectory()
-        {
-            if (!this.IsDirectory)
-            {
+        private void ValidateIsDirectory() {
+            if (!this.IsDirectory) {
                 throw new InvalidOperationException("This item is not a directory");
             }
         }
 
-        private bool IsPartOfParentHierarchy(TreeEntry item)
-        {
-            for (TreeEntry par = this; par != null; par = par.Parent)
-            {
+        private bool IsPartOfParentHierarchy(TreeEntry item) {
+            for (TreeEntry par = this; par != null; par = par.Parent) {
                 if (par == item)
                     return true;
             }

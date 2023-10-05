@@ -1,7 +1,5 @@
-namespace FramePFX.Shortcuts.Managing
-{
-    public enum RepeatMode
-    {
+namespace FramePFX.Shortcuts.Managing {
+    public enum RepeatMode {
         /// <summary>
         /// Repeated input strokes are ignored
         /// </summary>

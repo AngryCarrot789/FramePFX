@@ -4,8 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing
-{
+namespace FramePFX.PropertyEditing {
     /// <summary>
     /// An implementation of a property group that dynamically creates instances of child groups (which may or may not
     /// be dynamic too, most likely not though) when the hierarchy is being setup. This is useful when trying to edit
@@ -19,8 +18,7 @@ namespace FramePFX.PropertyEditing
     /// will need to create a new instance of the child hierarchies each time <see cref="SetupHierarchyState"/> is invoked
     /// </para>
     /// </summary>
-    public class DynamicPropertyGroupViewModel : BasePropertyGroupViewModel
-    {
+    public class DynamicPropertyGroupViewModel : BasePropertyGroupViewModel {
         private readonly ObservableCollection<BasePropertyObjectViewModel> activeObjects;
         private readonly Dictionary<Type, TypeRegistration> registrations;
         private IReadOnlyList<IReadOnlyList<object>> extendedHandlerList;
@@ -50,24 +48,21 @@ namespace FramePFX.PropertyEditing
         /// </summary>
         public bool RequireAllHandlerListsHaveCommonHandlerCountForExtendedMode { get; set; }
 
-        public IReadOnlyList<IReadOnlyList<object>> ExtendedHandlerList
-        {
+        public IReadOnlyList<IReadOnlyList<object>> ExtendedHandlerList {
             get => this.extendedHandlerList;
             protected set => this.RaisePropertyChanged(ref this.extendedHandlerList, value);
         }
 
         public DynamicMode CurrentMode { get; private set; }
 
-        public DynamicPropertyGroupViewModel(Type applicableType) : base(applicableType)
-        {
+        public DynamicPropertyGroupViewModel(Type applicableType) : base(applicableType) {
             this.registrations = new Dictionary<Type, TypeRegistration>();
             this.activeObjects = new ObservableCollection<BasePropertyObjectViewModel>();
             this.RequireAllHandlerListsHaveCommonHandlerCountForExtendedMode = true;
             this.UseSingleHandlerPerGroup = true;
         }
 
-        private void AddAndSetup(BasePropertyGroupViewModel group, IReadOnlyList<object> handlers)
-        {
+        private void AddAndSetup(BasePropertyGroupViewModel group, IReadOnlyList<object> handlers) {
             // WPF will attempt to begin binding as soon as the group is added to the activeObjects list,
             // but most bindings rely on the state of the group having handlers, so this is a little hack that
             group.Parent = this;
@@ -89,27 +84,22 @@ namespace FramePFX.PropertyEditing
         /// </param>
         /// <param name="handlerCountMode"></param>
         /// <exception cref="Exception"></exception>
-        public void RegisterType(Type type, string displayName, Func<bool?, BasePropertyGroupViewModel> constructor, HandlerCountMode handlerCountMode = HandlerCountMode.Any)
-        {
-            if (this.registrations.ContainsKey(type))
-            {
+        public void RegisterType(Type type, string displayName, Func<bool?, BasePropertyGroupViewModel> constructor, HandlerCountMode handlerCountMode = HandlerCountMode.Any) {
+            if (this.registrations.ContainsKey(type)) {
                 throw new Exception("Type already registered: " + type);
             }
 
             this.registrations[type] = new TypeRegistration(this, type, displayName, handlerCountMode, constructor);
         }
 
-        public override void SetupHierarchyState(IReadOnlyList<object> input)
-        {
+        public override void SetupHierarchyState(IReadOnlyList<object> input) {
             this.ClearHierarchyState();
             int count = input.Count;
-            if (!this.IsHandlerCountAcceptable(count))
-            {
+            if (!this.IsHandlerCountAcceptable(count)) {
                 return;
             }
 
-            if (!AreAnyApplicable(this, input))
-            {
+            if (!AreAnyApplicable(this, input)) {
                 return;
             }
 
@@ -117,12 +107,10 @@ namespace FramePFX.PropertyEditing
             //   [ motion, motion, contrast ]
 
             this.Handlers = input;
-            if (this.UseSingleHandlerPerGroup)
-            {
+            if (this.UseSingleHandlerPerGroup) {
                 this.CurrentMode = DynamicMode.SingleHandlerPerSubGroup;
                 Dictionary<TypeRegistration, int> inUseTypes = new Dictionary<TypeRegistration, int>();
-                for (int i = 0; i < count; i++)
-                {
+                for (int i = 0; i < count; i++) {
                     object handler = input[i];
                     Type type = handler.GetType();
                     if (!this.registrations.TryGetValue(type, out TypeRegistration registration))
@@ -136,24 +124,20 @@ namespace FramePFX.PropertyEditing
                     inUseTypes[registration] = inUse + 1;
                 }
             }
-            else
-            {
+            else {
                 this.CurrentMode = DynamicMode.MultipleHandlersPerSubGroup;
                 Dictionary<TypeRegistration, List<object>> counter = new Dictionary<TypeRegistration, List<object>>();
                 // use a list here to try and maintain some of the original order, even if some
                 // groups get collapsed into 1 (via multiple handlers)
                 List<TypeRegistration> typeUsage = new List<TypeRegistration>();
-                for (int i = 0; i < count; i++)
-                {
+                for (int i = 0; i < count; i++) {
                     object handler = input[i];
                     Type type = handler.GetType();
-                    if (!this.registrations.TryGetValue(type, out TypeRegistration registration))
-                    {
+                    if (!this.registrations.TryGetValue(type, out TypeRegistration registration)) {
                         continue;
                     }
 
-                    if (!counter.TryGetValue(registration, out List<object> list))
-                    {
+                    if (!counter.TryGetValue(registration, out List<object> list)) {
                         counter[registration] = list = new List<object>(1);
                         typeUsage.Add(registration);
                     }
@@ -161,34 +145,27 @@ namespace FramePFX.PropertyEditing
                     list.Add(handler);
                 }
 
-                if (typeUsage.Count < 1)
-                {
+                if (typeUsage.Count < 1) {
                     return;
                 }
 
                 // TODO: maybe recycle some of these objects in a Dictionary<Type, WeakReference<BasePropertyGroupViewModel>>?
 
-                foreach (TypeRegistration registration in typeUsage)
-                {
+                foreach (TypeRegistration registration in typeUsage) {
                     List<object> list = counter[registration];
                     HandlerCountMode mode = registration.handlerCountMode;
-                    if (!IsHandlerCountAcceptable(mode, list.Count))
-                    {
+                    if (!IsHandlerCountAcceptable(mode, list.Count)) {
                         continue;
                     }
 
-                    switch (mode)
-                    {
+                    switch (mode) {
                         case HandlerCountMode.Any:
-                        case HandlerCountMode.Multi:
-                        {
+                        case HandlerCountMode.Multi: {
                             this.AddAndSetup(registration.NewGroupInstance(list.Count == 1), list);
                             break;
                         }
-                        case HandlerCountMode.Single:
-                        {
-                            foreach (object handler in list)
-                            {
+                        case HandlerCountMode.Single: {
+                            foreach (object handler in list) {
                                 this.AddAndSetup(registration.NewGroupInstance(true), CollectionUtils.Singleton(handler));
                             }
 
@@ -199,29 +176,24 @@ namespace FramePFX.PropertyEditing
                 }
             }
 
-            if (this.activeObjects.Count > 0)
-            {
+            if (this.activeObjects.Count > 0) {
                 this.IsCurrentlyApplicable = true;
             }
         }
 
-        public void SetupHierarchyStateExtended(IReadOnlyList<IReadOnlyList<object>> inputLists)
-        {
+        public void SetupHierarchyStateExtended(IReadOnlyList<IReadOnlyList<object>> inputLists) {
             this.ClearHierarchyState();
-            if (inputLists.Count < 1)
-            {
+            if (inputLists.Count < 1) {
                 return;
             }
 
-            if (inputLists.Count == 1)
-            {
+            if (inputLists.Count == 1) {
                 this.SetupHierarchyState(inputLists[0]);
                 return;
             }
 
             int total = inputLists.CountAll(x => x.Count);
-            if (!this.IsHandlerCountAcceptable(total))
-            {
+            if (!this.IsHandlerCountAcceptable(total)) {
                 return;
             }
 
@@ -246,31 +218,25 @@ namespace FramePFX.PropertyEditing
             List<TypeRegistration> typeUsage = new List<TypeRegistration>();
             Dictionary<TypeRegistration, List<object>> counter = new Dictionary<TypeRegistration, List<object>>();
             Dictionary<TypeRegistration, object> inner_counter = new Dictionary<TypeRegistration, object>();
-            foreach (IReadOnlyList<object> input in inputLists)
-            {
+            foreach (IReadOnlyList<object> input in inputLists) {
                 int count = input.Count;
-                for (int i = 0; i < count; i++)
-                {
+                for (int i = 0; i < count; i++) {
                     object handler = input[i];
                     Type type = handler.GetType();
-                    if (!this.registrations.TryGetValue(type, out TypeRegistration registration))
-                    {
+                    if (!this.registrations.TryGetValue(type, out TypeRegistration registration)) {
                         continue;
                     }
 
                     // Here, we only want to allow 1 of the same type of registration per inner list
                     // If there are multiple, then set the handler to null, which allows it to get ignored
                     // but also takes up a slot in the dictionary meaning it never gets set to a non-null value
-                    if (!inner_counter.ContainsKey(registration))
-                    {
+                    if (!inner_counter.ContainsKey(registration)) {
                         inner_counter[registration] = handler;
                     }
-                    else
-                    {
+                    else {
                         // we encountered multiple handlers for the same type in another list...
                         // that's no good, so we remove it from the possible handlers to be used
-                        if (counter.ContainsKey(registration))
-                        {
+                        if (counter.ContainsKey(registration)) {
                             counter[registration] = null;
                             typeUsage.Remove(registration);
                         }
@@ -281,12 +247,9 @@ namespace FramePFX.PropertyEditing
                     }
                 }
 
-                foreach (KeyValuePair<TypeRegistration, object> entry in inner_counter.ToList())
-                {
-                    if (entry.Value != null)
-                    {
-                        if (!counter.TryGetValue(entry.Key, out List<object> list))
-                        {
+                foreach (KeyValuePair<TypeRegistration, object> entry in inner_counter.ToList()) {
+                    if (entry.Value != null) {
+                        if (!counter.TryGetValue(entry.Key, out List<object> list)) {
                             counter[entry.Key] = list = new List<object>();
                             typeUsage.Add(entry.Key);
                         }
@@ -299,46 +262,36 @@ namespace FramePFX.PropertyEditing
                 }
             }
 
-            if (this.RequireAllHandlerListsHaveCommonHandlerCountForExtendedMode)
-            {
-                foreach (KeyValuePair<TypeRegistration, List<object>> entry in counter.ToList())
-                {
-                    if (entry.Value.Count != inputLists.Count)
-                    {
+            if (this.RequireAllHandlerListsHaveCommonHandlerCountForExtendedMode) {
+                foreach (KeyValuePair<TypeRegistration, List<object>> entry in counter.ToList()) {
+                    if (entry.Value.Count != inputLists.Count) {
                         counter.Remove(entry.Key);
                         typeUsage.Remove(entry.Key);
                     }
                 }
             }
 
-            if (typeUsage.Count < 1)
-            {
+            if (typeUsage.Count < 1) {
                 return;
             }
 
             // TODO: maybe recycle some of these objects in a Dictionary<Type, WeakReference<BasePropertyGroupViewModel>>?
 
-            foreach (TypeRegistration registration in typeUsage)
-            {
+            foreach (TypeRegistration registration in typeUsage) {
                 List<object> list = counter[registration];
                 HandlerCountMode mode = registration.handlerCountMode;
-                if (!IsHandlerCountAcceptable(mode, list.Count))
-                {
+                if (!IsHandlerCountAcceptable(mode, list.Count)) {
                     continue;
                 }
 
-                switch (mode)
-                {
+                switch (mode) {
                     case HandlerCountMode.Any:
-                    case HandlerCountMode.Multi:
-                    {
+                    case HandlerCountMode.Multi: {
                         this.AddAndSetup(registration.NewGroupInstance(list.Count == 1), list);
                         break;
                     }
-                    case HandlerCountMode.Single:
-                    {
-                        foreach (object handler in list)
-                        {
+                    case HandlerCountMode.Single: {
+                        foreach (object handler in list) {
                             this.AddAndSetup(registration.NewGroupInstance(true), CollectionUtils.Singleton(handler));
                         }
 
@@ -348,35 +301,28 @@ namespace FramePFX.PropertyEditing
                 }
             }
 
-            if (this.activeObjects.Count > 0)
-            {
+            if (this.activeObjects.Count > 0) {
                 this.IsCurrentlyApplicable = true;
             }
         }
 
-        public override void ClearHierarchyState()
-        {
-            if (this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup && this.Handlers.Count > 0)
-            {
-                foreach (object handler in this.Handlers)
-                {
-                    if (this.registrations.TryGetValue(handler.GetType(), out TypeRegistration registration))
-                    {
+        public override void ClearHierarchyState() {
+            if (this.CurrentMode == DynamicMode.SingleHandlerPerSubGroup && this.Handlers.Count > 0) {
+                foreach (object handler in this.Handlers) {
+                    if (this.registrations.TryGetValue(handler.GetType(), out TypeRegistration registration)) {
                         registration.OnSingleHandlerInstanceCleared(handler);
                     }
                 }
             }
 
             this.CurrentMode = DynamicMode.Inactive;
-            if (!this.IsCurrentlyApplicable)
-            {
+            if (!this.IsCurrentlyApplicable) {
                 return;
             }
 
             List<BasePropertyObjectViewModel> items = this.activeObjects.ToList();
             this.activeObjects.Clear();
-            foreach (BasePropertyObjectViewModel obj in items)
-            {
+            foreach (BasePropertyObjectViewModel obj in items) {
                 ((BasePropertyGroupViewModel) obj).ClearHierarchyState();
                 obj.Parent = null;
             }
@@ -384,8 +330,7 @@ namespace FramePFX.PropertyEditing
             this.IsCurrentlyApplicable = false;
         }
 
-        private class TypeRegistration
-        {
+        private class TypeRegistration {
             private readonly Type type;
             public readonly string id;
             public readonly HandlerCountMode handlerCountMode;
@@ -398,8 +343,7 @@ namespace FramePFX.PropertyEditing
             // so that, during a project save, stuff like the expansion state can be saved
             private readonly string ViewModelDataKey;
 
-            public TypeRegistration(DynamicPropertyGroupViewModel owner, Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor)
-            {
+            public TypeRegistration(DynamicPropertyGroupViewModel owner, Type type, string id, HandlerCountMode handlerCountMode, Func<bool?, BasePropertyGroupViewModel> constructor) {
                 this.owner = owner;
                 this.type = type;
                 this.id = id;
@@ -418,43 +362,34 @@ namespace FramePFX.PropertyEditing
             /// would be like passing null to the constructor
             /// </param>
             /// <returns></returns>
-            public BasePropertyGroupViewModel NewGroupInstance(bool? isUsingSingleHandler)
-            {
+            public BasePropertyGroupViewModel NewGroupInstance(bool? isUsingSingleHandler) {
                 return this.ProcessObject(this.constructor(isUsingSingleHandler));
             }
 
-            public BasePropertyGroupViewModel GetSingleHandlerInstance(object handler)
-            {
-                if (handler is BaseViewModel viewModel)
-                {
-                    if (!TryGetInternalData(viewModel, this.ViewModelDataKey, out BasePropertyGroupViewModel g))
-                    {
+            public BasePropertyGroupViewModel GetSingleHandlerInstance(object handler) {
+                if (handler is BaseViewModel viewModel) {
+                    if (!TryGetInternalData(viewModel, this.ViewModelDataKey, out BasePropertyGroupViewModel g)) {
                         SetInternalData(viewModel, this.ViewModelDataKey, g = this.NewGroupInstance(true));
                     }
 
                     return g;
                 }
-                else
-                {
+                else {
                     return this.NewGroupInstance(true);
                 }
             }
 
-            public void OnSingleHandlerInstanceCleared(object handler)
-            {
-                if (!(handler is BaseViewModel viewModel))
-                {
+            public void OnSingleHandlerInstanceCleared(object handler) {
+                if (!(handler is BaseViewModel viewModel)) {
                     return;
                 }
 
-                if (TryGetInternalData(viewModel, this.ViewModelDataKey, out BasePropertyGroupViewModel g))
-                {
+                if (TryGetInternalData(viewModel, this.ViewModelDataKey, out BasePropertyGroupViewModel g)) {
                     g.ClearHierarchyState();
                 }
             }
 
-            private BasePropertyGroupViewModel ProcessObject(BasePropertyGroupViewModel obj)
-            {
+            private BasePropertyGroupViewModel ProcessObject(BasePropertyGroupViewModel obj) {
                 if (obj == null)
                     throw new Exception("Constructed object was null");
                 if (obj.ApplicableType == null)

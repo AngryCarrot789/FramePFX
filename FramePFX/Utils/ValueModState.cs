@@ -1,9 +1,7 @@
 using System;
 
-namespace FramePFX.Utils
-{
-    public enum ValueModState
-    {
+namespace FramePFX.Utils {
+    public enum ValueModState {
         /// <summary>
         /// Value is now being modified
         /// </summary>
@@ -20,43 +18,32 @@ namespace FramePFX.Utils
         Cancelled = 3
     }
 
-    public static class ValueModStateExtensions
-    {
-        public static bool IsBegin(this ValueModState state)
-        {
+    public static class ValueModStateExtensions {
+        public static bool IsBegin(this ValueModState state) {
             return state == ValueModState.Begin;
         }
 
-        public static bool IsFinish(this ValueModState state)
-        {
+        public static bool IsFinish(this ValueModState state) {
             return state != ValueModState.Begin;
         }
 
-        public static void Apply(this ValueModState state, ref bool isBeginState, Action isBegin, Action isFinish, Action isCancelled = null)
-        {
-            switch (state)
-            {
-                case ValueModState.Begin:
-                {
-                    if (!isBeginState)
-                    {
+        public static void Apply(this ValueModState state, ref bool isBeginState, Action isBegin, Action isFinish, Action isCancelled = null) {
+            switch (state) {
+                case ValueModState.Begin: {
+                    if (!isBeginState) {
                         isBeginState = true;
                         isBegin?.Invoke();
                     }
 
                     break;
                 }
-                default:
-                {
-                    if (isBeginState)
-                    {
+                default: {
+                    if (isBeginState) {
                         isBeginState = false;
-                        if (state == ValueModState.Cancelled)
-                        {
+                        if (state == ValueModState.Cancelled) {
                             (isCancelled ?? isFinish)?.Invoke();
                         }
-                        else
-                        {
+                        else {
                             isFinish?.Invoke();
                         }
                     }

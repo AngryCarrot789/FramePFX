@@ -7,14 +7,12 @@ using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines
-{
+namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
     /// </summary>
-    public abstract class Track : ZObject, IProjectBound, IAutomatable
-    {
+    public abstract class Track : ZObject, IProjectBound, IAutomatable {
         private readonly List<Clip> clips;
 
         /// <summary>
@@ -56,8 +54,7 @@ namespace FramePFX.Editor.Timelines
         private readonly ClipRangeCache cache;
         private bool isPerformingOptimisedCacheRemoval;
 
-        protected Track()
-        {
+        protected Track() {
             this.clips = new List<Clip>();
             this.cache = new ClipRangeCache();
             this.Height = 60;
@@ -70,23 +67,19 @@ namespace FramePFX.Editor.Timelines
         /// </summary>
         /// <param name="clip">The clip whose frame span changed</param>
         /// <param name="oldSpan">The old frame span</param>
-        public void OnClipFrameSpanChanged(Clip clip, FrameSpan oldSpan)
-        {
+        public void OnClipFrameSpanChanged(Clip clip, FrameSpan oldSpan) {
             if (!ReferenceEquals(clip.Track, this))
                 throw new Exception("Clip's track does not match the current instance");
             this.cache.OnLocationChanged(clip, oldSpan);
             // this.Timeline?.UpdateLargestFrame();
         }
 
-        public static void SetTimeline(Track track, Timeline timeline)
-        {
+        public static void SetTimeline(Track track, Timeline timeline) {
             Timeline oldTimeline = track.Timeline;
-            if (!ReferenceEquals(oldTimeline, timeline))
-            {
+            if (!ReferenceEquals(oldTimeline, timeline)) {
                 track.Timeline = timeline;
                 track.OnTimelineChanging(oldTimeline);
-                foreach (Clip clip in track.Clips)
-                {
+                foreach (Clip clip in track.Clips) {
                     Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, timeline);
                 }
 
@@ -94,11 +87,9 @@ namespace FramePFX.Editor.Timelines
             }
         }
 
-        public static void OnTimelineProjectChanged(Track track, Project oldProject, Project newProject)
-        {
+        public static void OnTimelineProjectChanged(Track track, Project oldProject, Project newProject) {
             track.OnProjectChanging(oldProject, newProject);
-            foreach (Clip clip in track.clips)
-            {
+            foreach (Clip clip in track.clips) {
                 Clip.InternalOnTrackTimelineProjectChanged(clip, oldProject, newProject);
             }
 
@@ -110,24 +101,20 @@ namespace FramePFX.Editor.Timelines
         /// the previous timeline, and <see cref="newTimeline"/> is the new one
         /// </summary>
         /// <param name="oldTimeline">The previous timeline. May be null, meaning this track was added to a timeline</param>
-        protected virtual void OnTimelineChanging(Timeline oldTimeline)
-        {
+        protected virtual void OnTimelineChanging(Timeline oldTimeline) {
         }
 
         /// <summary>
         /// Called when this track is moved from one timeline to another
         /// </summary>
         /// <param name="oldTimeline">The previous timeline. May be null, meaning this track was added to a timeline</param>
-        protected virtual void OnTimelineChanged(Timeline oldTimeline)
-        {
+        protected virtual void OnTimelineChanged(Timeline oldTimeline) {
         }
 
-        protected virtual void OnProjectChanging(Project oldProject, Project newProject)
-        {
+        protected virtual void OnProjectChanging(Project oldProject, Project newProject) {
         }
 
-        protected virtual void OnProjectChanged(Project oldProject, Project newProject)
-        {
+        protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
         }
 
         /// <summary>
@@ -136,55 +123,45 @@ namespace FramePFX.Editor.Timelines
         /// <param name="clip">The clip</param>
         /// <param name="index">The index of the clip</param>
         /// <returns>True if the clip is stored in this track, or false if it is not</returns>
-        public bool GetClipIndex(Clip clip, out int index)
-        {
+        public bool GetClipIndex(Clip clip, out int index) {
             index = -1;
             if (clip.IndexInTrack == -1)
                 return false;
             // wrong track
-            if (clip.IndexInTrack < this.clips.Count && ReferenceEquals(clip, this.clips[clip.IndexInTrack]))
-            {
+            if (clip.IndexInTrack < this.clips.Count && ReferenceEquals(clip, this.clips[clip.IndexInTrack])) {
                 index = clip.IndexInTrack;
                 return true;
             }
-            else if (clip.Track == this)
-            {
+            else if (clip.Track == this) {
                 // this section down here shouldn't really be reachable... but who knows
                 index = this.clips.IndexOf(clip);
-                if (index == -1)
-                {
+                if (index == -1) {
                     AppLogger.WriteLine("[FATAL] Clip's cached index and owner track was still valid, but the track did not contain the clip");
                     return false;
                 }
-                else
-                {
+                else {
                     AppLogger.WriteLine("[FATAL] Clip's cached index within the track was invalid, but the owner track was still valid");
                     clip.IndexInTrack = index;
                     return true;
                 }
             }
-            else
-            {
+            else {
                 return false;
             }
         }
 
-        public void GetClipsAtFrame(long frame, List<Clip> list)
-        {
+        public void GetClipsAtFrame(long frame, List<Clip> list) {
             List<Clip> src = this.clips;
             int count = src.Count, i = 0;
-            while (i < count)
-            {
+            while (i < count) {
                 Clip clip = src[i++];
-                if (clip.IntersectsFrameAt(frame))
-                {
+                if (clip.IntersectsFrameAt(frame)) {
                     list.Add(clip);
                 }
             }
         }
 
-        public Clip GetClipAtFrame(long frame)
-        {
+        public Clip GetClipAtFrame(long frame) {
             return this.cache.GetPrimaryClipAt(frame);
 
             // cannot use binary search until Clips is ordered
@@ -206,13 +183,10 @@ namespace FramePFX.Editor.Timelines
             //return null;
         }
 
-        public void GetClipIndicesAt(long frame, ICollection<int> indices)
-        {
+        public void GetClipIndicesAt(long frame, ICollection<int> indices) {
             List<Clip> list = this.clips;
-            for (int i = 0, count = list.Count; i < count; i++)
-            {
-                if (list[i].IntersectsFrameAt(frame))
-                {
+            for (int i = 0, count = list.Count; i < count; i++) {
+                if (list[i].IntersectsFrameAt(frame)) {
                     indices.Add(i);
                 }
             }
@@ -220,8 +194,7 @@ namespace FramePFX.Editor.Timelines
 
         public void AddClip(Clip clip) => this.InsertClip(this.clips.Count, clip);
 
-        public void InsertClip(int index, Clip clip)
-        {
+        public void InsertClip(int index, Clip clip) {
             if (clip.Track != null && clip.Track.GetClipIndex(clip, out _))
                 throw new Exception("Clip already exists and is valid in another track: " + clip.Track);
             Clip.SetTrack(clip, this);
@@ -230,16 +203,14 @@ namespace FramePFX.Editor.Timelines
             this.cache.OnClipAdded(clip);
         }
 
-        public bool RemoveClip(Clip clip)
-        {
+        public bool RemoveClip(Clip clip) {
             if (!this.GetClipIndex(clip, out int index))
                 return false;
             this.RemoveClipAt(index);
             return true;
         }
 
-        public void RemoveClipAt(int index)
-        {
+        public void RemoveClipAt(int index) {
             Clip clip = this.clips[index];
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception("Expected clip's track to equal this instance");
@@ -250,8 +221,7 @@ namespace FramePFX.Editor.Timelines
             Clip.SetTrack(clip, null);
         }
 
-        public void RemoveClips(IEnumerable<int> indices)
-        {
+        public void RemoveClips(IEnumerable<int> indices) {
             int offset = 0;
             this.isPerformingOptimisedCacheRemoval = true;
             foreach (int index in indices)
@@ -259,15 +229,13 @@ namespace FramePFX.Editor.Timelines
             this.isPerformingOptimisedCacheRemoval = false;
         }
 
-        public void MakeTopMost(Clip clip, int oldIndex, int newIndex)
-        {
+        public void MakeTopMost(Clip clip, int oldIndex, int newIndex) {
             this.clips.MoveItem(oldIndex, newIndex);
             clip.IndexInTrack = newIndex;
             this.cache.MakeTopMost(clip);
         }
 
-        public bool MoveClipToTrack(Clip clip, Track newTrack)
-        {
+        public bool MoveClipToTrack(Clip clip, Track newTrack) {
             if (!this.GetClipIndex(clip, out int index))
                 return false;
             this.MoveClipToTrack(index, newTrack);
@@ -279,8 +247,7 @@ namespace FramePFX.Editor.Timelines
         /// </summary>
         /// <param name="index"></param>
         /// <param name="newTrack"></param>
-        public void MoveClipToTrack(int index, Track newTrack)
-        {
+        public void MoveClipToTrack(int index, Track newTrack) {
             Clip clip = this.clips[index];
             this.clips.RemoveAt(index);
             clip.IndexInTrack = -1;
@@ -290,8 +257,7 @@ namespace FramePFX.Editor.Timelines
 
         #region Cloning
 
-        public Track Clone(TrackCloneFlags flags = TrackCloneFlags.DefaultFlags)
-        {
+        public Track Clone(TrackCloneFlags flags = TrackCloneFlags.DefaultFlags) {
             Track clone = this.NewInstanceForClone();
             clone.DisplayName = this.DisplayName;
             clone.Height = this.Height;
@@ -300,8 +266,7 @@ namespace FramePFX.Editor.Timelines
             if ((flags & TrackCloneFlags.AutomationData) != 0)
                 this.AutomationData.LoadDataIntoClone(clone.AutomationData);
 
-            if ((flags & TrackCloneFlags.Clips) != 0)
-            {
+            if ((flags & TrackCloneFlags.Clips) != 0) {
                 foreach (Clip clip in this.Clips)
                     clone.AddClip(clip.Clone());
             }
@@ -312,37 +277,31 @@ namespace FramePFX.Editor.Timelines
 
         protected abstract Track NewInstanceForClone();
 
-        protected virtual void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags)
-        {
+        protected virtual void LoadDataIntoClonePre(Track clone, TrackCloneFlags flags) {
         }
 
-        protected virtual void LoadDataIntoClonePost(Track clone, TrackCloneFlags flags)
-        {
+        protected virtual void LoadDataIntoClonePost(Track clone, TrackCloneFlags flags) {
         }
 
         #endregion
 
-        public virtual void WriteToRBE(RBEDictionary data)
-        {
+        public virtual void WriteToRBE(RBEDictionary data) {
             data.SetString(nameof(this.DisplayName), this.DisplayName);
             data.SetDouble(nameof(this.Height), this.Height);
             data.SetString(nameof(this.TrackColour), this.TrackColour);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Clips));
-            foreach (Clip clip in this.clips)
-            {
+            foreach (Clip clip in this.clips) {
                 Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
             }
         }
 
-        public virtual void ReadFromRBE(RBEDictionary data)
-        {
+        public virtual void ReadFromRBE(RBEDictionary data) {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             this.Height = data.GetDouble(nameof(this.Height), 60);
             this.TrackColour = data.TryGetString(nameof(this.TrackColour), out string colour) ? colour : TrackColours.GetRandomColour();
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List)
-            {
+            foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
                 if (!(entry is RBEDictionary dictionary))
                     throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
                 Clip clip = Clip.ReadSerialisedWithId(dictionary);
@@ -355,26 +314,20 @@ namespace FramePFX.Editor.Timelines
         /// <summary>
         /// Clears all clips in this track
         /// </summary>
-        public void Clear()
-        {
-            using (ErrorList list = new ErrorList())
-            {
-                for (int i = this.clips.Count - 1; i >= 0; i--)
-                {
-                    try
-                    {
+        public void Clear() {
+            using (ErrorList list = new ErrorList()) {
+                for (int i = this.clips.Count - 1; i >= 0; i--) {
+                    try {
                         this.RemoveClipAt(i);
                     }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         list.Add(e);
                     }
                 }
             }
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return $"{this.GetType().Name} ({this.clips.Count.ToString()} clips between {this.cache.SmallestActiveFrame.ToString()} and {this.cache.LargestActiveFrame.ToString()})";
         }
 

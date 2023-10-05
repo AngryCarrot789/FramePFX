@@ -10,10 +10,8 @@ using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editor.Timelines.VideoClips
-{
-    public class ShapeSquareVideoClip : VideoClip, IResourceHolder
-    {
+namespace FramePFX.Editor.Timelines.VideoClips {
+    public class ShapeSquareVideoClip : VideoClip, IResourceHolder {
         public static readonly ZProperty<float> WidthProperty = ZProperty.RegisterU<float>(typeof(ShapeSquareVideoClip), nameof(Width));
         public static readonly ZProperty<float> HeightProperty = ZProperty.RegisterU<float>(typeof(ShapeSquareVideoClip), nameof(Height));
 
@@ -25,14 +23,12 @@ namespace FramePFX.Editor.Timelines.VideoClips
         private static readonly UpdateAutomationValueEventHandler UpdateWidth = (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Width = s.GetFloatValue(f);
         private static readonly UpdateAutomationValueEventHandler UpdateHeight = (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Height = s.GetFloatValue(f);
 
-        public float Width
-        {
+        public float Width {
             get => this.GetValueU(WidthProperty);
             set => this.SetValueU(WidthProperty, value);
         }
 
-        public float Height
-        {
+        public float Height {
             get => this.GetValueU(HeightProperty);
             set => this.SetValueU(HeightProperty, value);
         }
@@ -43,8 +39,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public IResourcePathKey<ResourceColour> ColourKey { get; }
 
-        public ShapeSquareVideoClip()
-        {
+        public ShapeSquareVideoClip() {
             this.AutomationData.AssignKey(WidthKey, UpdateWidth);
             this.AutomationData.AssignKey(HeightKey, UpdateHeight);
             this.ResourceHelper = new ResourceHelper(this);
@@ -52,52 +47,42 @@ namespace FramePFX.Editor.Timelines.VideoClips
             this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
-        private void ResourceHelperOnResourceDataModified(ResourceColour resource, string property)
-        {
-            switch (property)
-            {
+        private void ResourceHelperOnResourceDataModified(ResourceColour resource, string property) {
+            switch (property) {
                 case nameof(ResourceColour.Colour):
                     this.InvalidateRender();
                     break;
             }
         }
 
-        public override void WriteToRBE(RBEDictionary data)
-        {
+        public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             data.SetFloat(nameof(this.Width), this.Width);
             data.SetFloat(nameof(this.Height), this.Height);
         }
 
-        public override void ReadFromRBE(RBEDictionary data)
-        {
+        public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             this.Width = data.GetFloat(nameof(this.Width));
             this.Height = data.GetFloat(nameof(this.Height));
         }
 
-        public override Vector2? GetSize(RenderContext rc)
-        {
+        public override Vector2? GetSize(RenderContext rc) {
             return new Vector2(this.Width, this.Height);
         }
 
-        public override bool OnBeginRender(long frame)
-        {
-            if (!this.ColourKey.TryGetResource(out ResourceColour _))
-            {
+        public override bool OnBeginRender(long frame) {
+            if (!this.ColourKey.TryGetResource(out ResourceColour _)) {
                 return false;
             }
 
             return true;
         }
 
-        public override Task OnEndRender(RenderContext rc, long frame)
-        {
-            if (this.ColourKey.TryGetResource(out ResourceColour r))
-            {
+        public override Task OnEndRender(RenderContext rc, long frame) {
+            if (this.ColourKey.TryGetResource(out ResourceColour r)) {
                 SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
-                using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true})
-                {
+                using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
                     rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
                 }
             }
@@ -105,13 +90,11 @@ namespace FramePFX.Editor.Timelines.VideoClips
             return Task.CompletedTask;
         }
 
-        protected override Clip NewInstanceForClone()
-        {
+        protected override Clip NewInstanceForClone() {
             return new ShapeSquareVideoClip();
         }
 
-        protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags)
-        {
+        protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags) {
             base.LoadUserDataIntoClone(clone, flags);
             ShapeSquareVideoClip clip = (ShapeSquareVideoClip) clone;
             clip.Width = this.Width;

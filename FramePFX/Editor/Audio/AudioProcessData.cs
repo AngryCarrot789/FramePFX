@@ -1,7 +1,5 @@
-namespace FramePFX.Editor.Audio
-{
-    public struct AudioProcessData
-    {
+namespace FramePFX.Editor.Audio {
+    public struct AudioProcessData {
         public EnumSampleSize sampleSize;
         public int numSamples;
         public int numInputs;

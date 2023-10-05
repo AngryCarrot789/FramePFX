@@ -4,10 +4,8 @@
 // Ruler Wpf Version 3.1
 // 
 
-namespace FramePFX.WPF.Controls.xclemence.RulerWPF
-{
-    public enum RulerTextOverflow
-    {
+namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
+    public enum RulerTextOverflow {
         Visible,
         Hidden
     }

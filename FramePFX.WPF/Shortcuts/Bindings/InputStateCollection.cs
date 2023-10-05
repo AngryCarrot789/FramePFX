@@ -2,10 +2,8 @@ using System.Collections.Generic;
 using System.Windows;
 using FramePFX.WPF.Utils;
 
-namespace FramePFX.WPF.Shortcuts.Bindings
-{
-    public class InputStateCollection : FreezableCollection<InputStateBinding>
-    {
+namespace FramePFX.WPF.Shortcuts.Bindings {
+    public class InputStateCollection : FreezableCollection<InputStateBinding> {
         public static readonly DependencyProperty CollectionProperty =
             DependencyProperty.RegisterAttached(
                 "Collection",
@@ -13,8 +11,7 @@ namespace FramePFX.WPF.Shortcuts.Bindings
                 typeof(InputStateCollection),
                 new FrameworkPropertyMetadata(null));
 
-        public InputStateCollection()
-        {
+        public InputStateCollection() {
             // ((INotifyCollectionChanged) this).CollectionChanged += this.OnCollectionChanged;
         }
 
@@ -36,14 +33,11 @@ namespace FramePFX.WPF.Shortcuts.Bindings
         /// <returns></returns>
         public static InputStateCollection GetCollection(DependencyObject element) => (InputStateCollection) element.GetValue(CollectionProperty);
 
-        public static List<InputStateBinding> GetInputStateBindingHierarchy(DependencyObject source)
-        {
+        public static List<InputStateBinding> GetInputStateBindingHierarchy(DependencyObject source) {
             List<InputStateBinding> list = new List<InputStateBinding>();
-            do
-            {
+            do {
                 object localValue = source.ReadLocalValue(CollectionProperty);
-                if (localValue is InputStateCollection collection && collection.Count > 0)
-                {
+                if (localValue is InputStateCollection collection && collection.Count > 0) {
                     list.AddRange(collection);
                 }
             } while ((source = VisualTreeUtils.GetParent(source)) != null);
@@ -51,15 +45,11 @@ namespace FramePFX.WPF.Shortcuts.Bindings
             return list;
         }
 
-        public static void GetInputStateBindingHierarchy(DependencyObject source, Dictionary<string, List<InputStateBinding>> map)
-        {
-            do
-            {
+        public static void GetInputStateBindingHierarchy(DependencyObject source, Dictionary<string, List<InputStateBinding>> map) {
+            do {
                 object localValue = source.ReadLocalValue(CollectionProperty);
-                if (localValue is InputStateCollection collection && collection.Count > 0)
-                {
-                    foreach (InputStateBinding binding in collection)
-                    {
+                if (localValue is InputStateCollection collection && collection.Count > 0) {
+                    foreach (InputStateBinding binding in collection) {
                         string path = binding.InputStatePath;
                         if (string.IsNullOrWhiteSpace(path))
                             continue;

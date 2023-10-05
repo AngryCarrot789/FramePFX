@@ -1,13 +1,11 @@
 using FramePFX.RBC;
 using SkiaSharp;
 
-namespace FramePFX.Editor.ResourceManaging.Resources
-{
+namespace FramePFX.Editor.ResourceManaging.Resources {
     /// <summary>
     /// A resource for storing styling information for a text clip
     /// </summary>
-    public class ResourceTextStyle : ResourceItem
-    {
+    public class ResourceTextStyle : ResourceItem {
         public double FontSize;
         public double SkewX;
         public string FontFamily;
@@ -16,8 +14,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources
         public double BorderThickness;
         public bool IsAntiAliased;
 
-        public ResourceTextStyle()
-        {
+        public ResourceTextStyle() {
             this.FontSize = 40;
             this.FontFamily = "Consolas";
             this.Foreground = SKColors.White;
@@ -26,10 +23,8 @@ namespace FramePFX.Editor.ResourceManaging.Resources
             this.IsAntiAliased = true;
         }
 
-        public override void OnDataModified(string propertyName = null)
-        {
-            switch (propertyName)
-            {
+        public override void OnDataModified(string propertyName = null) {
+            switch (propertyName) {
                 case nameof(this.FontFamily):
                 case nameof(this.FontSize):
                 case nameof(this.SkewX):
@@ -44,16 +39,13 @@ namespace FramePFX.Editor.ResourceManaging.Resources
             base.OnDataModified(propertyName);
         }
 
-        public void InvalidateCachedData()
-        {
+        public void InvalidateCachedData() {
         }
 
-        public void GenerateCachedData()
-        {
+        public void GenerateCachedData() {
         }
 
-        public override void WriteToRBE(RBEDictionary data)
-        {
+        public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             data.SetDouble(nameof(this.FontSize), this.FontSize);
             data.SetDouble(nameof(this.SkewX), this.SkewX);
@@ -64,8 +56,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources
             data.SetBool(nameof(this.IsAntiAliased), this.IsAntiAliased);
         }
 
-        public override void ReadFromRBE(RBEDictionary data)
-        {
+        public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             this.FontSize = data.GetDouble(nameof(this.FontSize));
             this.SkewX = data.GetDouble(nameof(this.SkewX));

@@ -4,19 +4,17 @@ using FramePFX.Editor.ZSystem;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines.Effects.Video
-{
+namespace FramePFX.Editor.Timelines.Effects.Video {
     /// <summary>
     /// An effect that deals with picture transformations (as in position, scale and scale origin)
     /// </summary>
-    public class MotionEffect : VideoEffect
-    {
-        public static readonly ZProperty<Vector2> MediaPositionProperty =          ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaPosition));
-        public static readonly ZProperty<Vector2> MediaScaleProperty =             ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaScale));
-        public static readonly ZProperty<Vector2> MediaScaleOriginProperty =       ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaScaleOrigin));
-        public static readonly ZProperty<bool> UseAbsoluteScaleOriginProperty =    ZProperty.RegisterU<bool>(typeof(MotionEffect), nameof(UseAbsoluteScaleOrigin));
-        public static readonly ZProperty<double> MediaRotationProperty =           ZProperty.RegisterU<double>(typeof(MotionEffect), nameof(MediaRotation));
-        public static readonly ZProperty<Vector2> MediaRotationOriginProperty =    ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaRotationOrigin));
+    public class MotionEffect : VideoEffect {
+        public static readonly ZProperty<Vector2> MediaPositionProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaPosition));
+        public static readonly ZProperty<Vector2> MediaScaleProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaScale));
+        public static readonly ZProperty<Vector2> MediaScaleOriginProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaScaleOrigin));
+        public static readonly ZProperty<bool> UseAbsoluteScaleOriginProperty = ZProperty.RegisterU<bool>(typeof(MotionEffect), nameof(UseAbsoluteScaleOrigin));
+        public static readonly ZProperty<double> MediaRotationProperty = ZProperty.RegisterU<double>(typeof(MotionEffect), nameof(MediaRotation));
+        public static readonly ZProperty<Vector2> MediaRotationOriginProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaRotationOrigin));
         public static readonly ZProperty<bool> UseAbsoluteRotationOriginProperty = ZProperty.RegisterU<bool>(typeof(MotionEffect), nameof(UseAbsoluteRotationOrigin));
 
         public static readonly AutomationKeyVector2 MediaPositionKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
@@ -64,8 +62,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video
         /// </summary>
         public bool UseAbsoluteRotationOrigin { get => this.GetValueU(UseAbsoluteRotationOriginProperty); set => this.SetValueU(UseAbsoluteRotationOriginProperty, value); }
 
-        public MotionEffect()
-        {
+        public MotionEffect() {
             this.AutomationData.AssignKey(MediaPositionKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f));
             this.AutomationData.AssignKey(MediaScaleKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScale = s.GetVector2Value(f));
             this.AutomationData.AssignKey(MediaScaleOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScaleOrigin = s.GetVector2Value(f));
@@ -77,8 +74,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video
 
         // apply transformation
 
-        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize)
-        {
+        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
             base.PreProcessFrame(frame, rc, frameSize);
             Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
@@ -88,8 +84,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video
             // maybe rotate, scale then translate?
 
             rc.Canvas.Translate(pos.X, pos.Y);
-            if (frameSize.HasValue)
-            {
+            if (frameSize.HasValue) {
                 // clip has size info that we can use to transform relative top-left corner
                 Vector2 size = frameSize.Value;
                 if (this.UseAbsoluteScaleOrigin)
@@ -102,8 +97,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video
                 else
                     rc.Canvas.RotateDegrees((float) rotation, size.X * rotationOrigin.X, size.Y * rotationOrigin.Y);
             }
-            else
-            {
+            else {
                 // worst case; clip has no size data so we assume it takes up 0 pixels
                 if (this.UseAbsoluteScaleOrigin)
                     rc.Canvas.Scale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y);

@@ -11,19 +11,15 @@ using FramePFX.Utils;
 using FramePFX.Views.Dialogs;
 using FramePFX.Views.Windows;
 
-namespace FramePFX.Editor.Exporting
-{
-    public class ExportSetupViewModel : BaseDialogViewModel
-    {
+namespace FramePFX.Editor.Exporting {
+    public class ExportSetupViewModel : BaseDialogViewModel {
         public ReadOnlyObservableCollection<ExporterViewModel> Exporters { get; }
 
         private ExporterViewModel selectedExporter;
 
-        public ExporterViewModel SelectedExporter
-        {
+        public ExporterViewModel SelectedExporter {
             get => this.selectedExporter;
-            set
-            {
+            set {
                 this.RaisePropertyChanged(ref this.selectedExporter, value);
                 this.RunExportCommand.RaiseCanExecuteChanged();
             }
@@ -31,19 +27,16 @@ namespace FramePFX.Editor.Exporting
 
         private string filePath;
 
-        public string FilePath
-        {
+        public string FilePath {
             get => this.filePath;
             set => this.RaisePropertyChanged(ref this.filePath, value);
         }
 
         private FrameSpan renderSpan;
 
-        public FrameSpan RenderSpan
-        {
+        public FrameSpan RenderSpan {
             get => this.renderSpan;
-            set
-            {
+            set {
                 this.RaisePropertyChanged(ref this.renderSpan, value);
                 this.RaisePropertyChanged(nameof(this.FrameBegin));
                 this.RaisePropertyChanged(nameof(this.FrameEndIndex));
@@ -51,14 +44,12 @@ namespace FramePFX.Editor.Exporting
             }
         }
 
-        public long FrameBegin
-        {
+        public long FrameBegin {
             get => this.RenderSpan.Begin;
             set => this.RenderSpan = this.RenderSpan.WithBeginIndex(Math.Min(value, this.FrameEndIndex));
         }
 
-        public long FrameEndIndex
-        {
+        public long FrameEndIndex {
             get => this.RenderSpan.EndIndex;
             set => this.RenderSpan = this.RenderSpan.WithEndIndex(Maths.Clamp(value, this.FrameBegin, this.MaxEndIndex));
         }
@@ -73,30 +64,25 @@ namespace FramePFX.Editor.Exporting
 
         public ProjectViewModel Project { get; }
 
-        public ExportSetupViewModel(ProjectViewModel project)
-        {
+        public ExportSetupViewModel(ProjectViewModel project) {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.RunExportCommand = new AsyncRelayCommand(this.ExportActionAsync, () => this.SelectedExporter != null);
             this.CancelSetupCommand = new AsyncRelayCommand(this.CancelSetupAction);
-            ObservableCollection<ExporterViewModel> collection = new ObservableCollection<ExporterViewModel>()
-            {
+            ObservableCollection<ExporterViewModel> collection = new ObservableCollection<ExporterViewModel>() {
                 new FFmpegExportViewModel()
             };
 
             this.Exporters = new ReadOnlyObservableCollection<ExporterViewModel>(collection);
-            foreach (ExporterViewModel e in this.Exporters)
-            {
+            foreach (ExporterViewModel e in this.Exporters) {
                 e.LoadProjectDefaults(project.Model);
             }
 
             this.SelectedExporter = collection[0];
             string folder;
-            if (project.Model.IsTempDataFolder || !Directory.Exists(project.TheProjectDataFolder))
-            {
+            if (project.Model.IsTempDataFolder || !Directory.Exists(project.TheProjectDataFolder)) {
                 folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
-            else
-            {
+            else {
                 folder = project.TheProjectDataFolder;
             }
 
@@ -106,29 +92,24 @@ namespace FramePFX.Editor.Exporting
             this.FilePath = fp;
         }
 
-        private async Task CancelSetupAction()
-        {
+        private async Task CancelSetupAction() {
             await this.Dialog.CloseDialogAsync(false);
         }
 
-        public async Task ExportActionAsync()
-        {
+        public async Task ExportActionAsync() {
             ExporterViewModel exporter = this.SelectedExporter;
-            if (exporter == null)
-            {
+            if (exporter == null) {
                 return;
             }
 
-            if (string.IsNullOrEmpty(this.FilePath))
-            {
+            if (string.IsNullOrEmpty(this.FilePath)) {
                 await Services.DialogService.ShowMessageAsync("File Path", "No file path provided");
                 return;
             }
 
             VideoEditorViewModel editor = this.Project.Editor;
             EditorPlaybackViewModel playback = editor.Playback;
-            if (playback.IsPlaying)
-            {
+            if (playback.IsPlaying) {
                 await playback.PauseAction();
             }
 
@@ -137,57 +118,45 @@ namespace FramePFX.Editor.Exporting
             CancellationTokenSource source = new CancellationTokenSource();
             this.Project.IsExporting = true;
             bool isCancelled = false;
-            try
-            {
+            try {
                 AppLogger.PushHeader("Begin Export");
                 ExportProperties properties = new ExportProperties(this.RenderSpan, this.FilePath);
                 ExportProgressViewModel export = new ExportProgressViewModel(properties, source);
                 IWindow window = Services.GetService<IExportViewService>().ShowExportWindow(export);
 
-                try
-                {
+                try {
                     // Export will most likely be using unsafe code, meaning async won't work
                     await Task.Factory.StartNew(
-                        () =>
-                        {
-                            try
-                            {
+                        () => {
+                            try {
                                 editor.View.OnExportBegin(false);
                                 exporter.Exporter.Export(this.Project.Model, export, new ExportProperties(this.RenderSpan, this.FilePath), source.Token);
                             }
-                            finally
-                            {
-                                try
-                                {
+                            finally {
+                                try {
                                     editor.View.OnExportEnd();
                                 }
-                                catch
-                                {
+                                catch {
                                     // ignored
                                 }
                             }
                         },
                         TaskCreationOptions.LongRunning);
                 }
-                catch (TaskCanceledException)
-                {
+                catch (TaskCanceledException) {
                     isCancelled = true;
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     string err = e.GetToString();
                     AppLogger.WriteLine("Error exporting: " + err);
                     await Services.DialogService.ShowMessageExAsync("Export failure", "An error occurred while exporting: ", err);
                 }
 
-                if (isCancelled && File.Exists(this.FilePath))
-                {
-                    try
-                    {
+                if (isCancelled && File.Exists(this.FilePath)) {
+                    try {
                         File.Delete(this.FilePath);
                     }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         AppLogger.WriteLine("Failed to delete cancelled export's file: " + e.GetToString());
                     }
                 }
@@ -195,8 +164,7 @@ namespace FramePFX.Editor.Exporting
                 await window.CloseWindowAsync();
                 await this.Dialog.CloseDialogAsync(true);
             }
-            finally
-            {
+            finally {
                 AppLogger.PopHeader();
                 this.Project.IsExporting = false;
                 source.Dispose();

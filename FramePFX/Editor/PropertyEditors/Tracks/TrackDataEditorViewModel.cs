@@ -8,34 +8,26 @@ using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editor.PropertyEditors.Tracks
-{
-    public class TrackDataEditorViewModel : BasePropertyEditorViewModel
-    {
+namespace FramePFX.Editor.PropertyEditors.Tracks {
+    public class TrackDataEditorViewModel : BasePropertyEditorViewModel {
         protected readonly HistoryBuffer<HistoryTrackDisplayName> displayNameHistory;
 
         private string displayName;
 
-        public string DisplayName
-        {
+        public string DisplayName {
             get => this.displayName;
-            set
-            {
+            set {
                 this.RaisePropertyChanged(ref this.displayName, value);
-                if (!this.displayNameHistory.TryGetAction(out HistoryTrackDisplayName action))
-                {
+                if (!this.displayNameHistory.TryGetAction(out HistoryTrackDisplayName action)) {
                     this.displayNameHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryTrackDisplayName(this.Tracks));
                 }
 
-                foreach (Transaction<string> t in action.DisplayName)
-                {
+                foreach (Transaction<string> t in action.DisplayName) {
                     t.Current = value;
                 }
 
-                foreach (TrackViewModel handler in this.Tracks)
-                {
-                    using (handler.PushUsage())
-                    {
+                foreach (TrackViewModel handler in this.Tracks) {
+                    using (handler.PushUsage()) {
                         handler.DisplayName = value;
                     }
                 }
@@ -45,41 +37,34 @@ namespace FramePFX.Editor.PropertyEditors.Tracks
         public IEnumerable<TrackViewModel> Tracks => this.Handlers.Cast<TrackViewModel>();
 
 
-        public TrackDataEditorViewModel() : base(typeof(TrackViewModel))
-        {
+        public TrackDataEditorViewModel() : base(typeof(TrackViewModel)) {
             this.displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
         }
 
-        protected override void OnClearHandlers()
-        {
+        protected override void OnClearHandlers() {
             base.OnClearHandlers();
             this.displayNameHistory.Clear();
         }
 
-        protected override void OnHandlersLoaded()
-        {
+        protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
             this.displayName = GetEqualValue(this.Handlers, (x) => ((TrackViewModel) x).DisplayName, out string name) ? name : Services.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
             this.RaisePropertyChanged(nameof(this.DisplayName));
         }
 
-        protected class HistoryTrackDisplayName : BaseHistoryMultiHolderAction<TrackViewModel>
-        {
+        protected class HistoryTrackDisplayName : BaseHistoryMultiHolderAction<TrackViewModel> {
             public readonly Transaction<string>[] DisplayName;
 
-            public HistoryTrackDisplayName(IEnumerable<TrackViewModel> holders) : base(holders)
-            {
+            public HistoryTrackDisplayName(IEnumerable<TrackViewModel> holders) : base(holders) {
                 this.DisplayName = Transactions.NewArray(this.Holders, x => x.DisplayName);
             }
 
-            protected override Task UndoAsync(TrackViewModel holder, int i)
-            {
+            protected override Task UndoAsync(TrackViewModel holder, int i) {
                 holder.DisplayName = this.DisplayName[i].Original;
                 return Task.CompletedTask;
             }
 
-            protected override Task RedoAsync(TrackViewModel holder, int i)
-            {
+            protected override Task RedoAsync(TrackViewModel holder, int i) {
                 holder.DisplayName = this.DisplayName[i].Current;
                 return Task.CompletedTask;
             }

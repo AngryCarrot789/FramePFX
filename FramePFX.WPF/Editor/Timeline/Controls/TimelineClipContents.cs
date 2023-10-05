@@ -8,19 +8,16 @@ using FramePFX.Editor.ViewModels.Timelines.AudioClips;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
-namespace FramePFX.WPF.Editor.Timeline.Controls
-{
+namespace FramePFX.WPF.Editor.Timeline.Controls {
     /// <summary>
     /// A basic control that draws the bottom of a clip based on the <see cref="FrameworkElement.DataContext"/>
     /// </summary>
-    public class TimelineClipContents : Border
-    {
+    public class TimelineClipContents : Border {
         private static readonly DependencyPropertyChangedEventHandler DataContextChangedHandler;
 
         public static readonly DependencyProperty IsClipRenderingEnabledProperty = DependencyProperty.Register("IsClipRenderingEnabled", typeof(bool), typeof(TimelineClipContents), new FrameworkPropertyMetadata(BoolBox.True, FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public bool IsClipRenderingEnabled
-        {
+        public bool IsClipRenderingEnabled {
             get => (bool) this.GetValue(IsClipRenderingEnabledProperty);
             set => this.SetValue(IsClipRenderingEnabledProperty, value.Box());
         }
@@ -29,6 +26,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
         private const int ROLE_VIDEO_IMAGE = 1;
         private const int ROLE_VIDEO_MEDIA = 2;
         private const int ROLE_VIDEO_COMPOSITION = 3;
+
         private const int ROLE_AUDIO_WAVEFORM = 4;
         // private const string CachedDataKey = nameof(TimelineClipContents) + "_CACHED_DATA_KEY";
 
@@ -37,26 +35,21 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
 
         private static readonly FormattedText DisabledText;
 
-        public TimelineClipContents()
-        {
+        public TimelineClipContents() {
             this.DataContextChanged += DataContextChangedHandler;
         }
 
-        static TimelineClipContents()
-        {
+        static TimelineClipContents() {
             DisabledText = new FormattedText("Disabled", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Consolas"), 15, Brushes.DimGray, 96);
-            DataContextChangedHandler = (s, e) =>
-            {
+            DataContextChangedHandler = (s, e) => {
                 if (!ReferenceEquals(e.OldValue, e.NewValue))
                     ((TimelineClipContents) s).OnDataContextChanged(e.OldValue as ClipViewModel, e.NewValue as ClipViewModel);
             };
         }
 
-        private void OnDataContextChanged(ClipViewModel oldClip, ClipViewModel newClip)
-        {
+        private void OnDataContextChanged(ClipViewModel oldClip, ClipViewModel newClip) {
             this.cached?.Dispose();
-            switch (newClip)
-            {
+            switch (newClip) {
                 case ImageVideoClipViewModel clip:
                     this.role = ROLE_VIDEO_IMAGE;
                     this.cached = new CachedImageData(clip);
@@ -80,8 +73,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
             }
         }
 
-        protected override void OnRender(DrawingContext dc)
-        {
+        protected override void OnRender(DrawingContext dc) {
             base.OnRender(dc);
             if (!(this.DataContext is ClipViewModel clip))
                 return;
@@ -90,13 +82,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
             if (isDisabled)
                 dc.PushOpacity(0.75);
 
-            if (this.role > 0)
-            {
+            if (this.role > 0) {
                 if (this.cached == null)
                     throw new Exception("Invalid state: cached data was null");
 
-                switch (this.role)
-                {
+                switch (this.role) {
                     case ROLE_VIDEO_IMAGE:
                         RenderImage((ImageVideoClipViewModel) clip, (CachedImageData) this.cached, dc);
                         break;
@@ -112,8 +102,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
                 }
             }
 
-            if (isDisabled)
-            {
+            if (isDisabled) {
                 dc.Pop();
                 System.Windows.Rect rect = new System.Windows.Rect(new Point(), this.RenderSize);
                 dc.DrawRectangle(Brushes.LightGray, null, rect);
@@ -123,79 +112,59 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
             }
         }
 
-        private static void RenderImage(ImageVideoClipViewModel clip, CachedImageData data, DrawingContext dc)
-        {
-
+        private static void RenderImage(ImageVideoClipViewModel clip, CachedImageData data, DrawingContext dc) {
         }
 
-        private static void RenderVideo(AVMediaVideoClipViewModel clip, CachedVideoData data, DrawingContext dc)
-        {
-
+        private static void RenderVideo(AVMediaVideoClipViewModel clip, CachedVideoData data, DrawingContext dc) {
         }
 
-        private static void RenderComposition(CompositionVideoClipViewModel clip, CachedCompositionData data, DrawingContext dc)
-        {
-
+        private static void RenderComposition(CompositionVideoClipViewModel clip, CachedCompositionData data, DrawingContext dc) {
         }
 
-        private static void RenderAudio(AudioClipViewModel clip, CachedAudioData data, DrawingContext dc)
-        {
-
+        private static void RenderAudio(AudioClipViewModel clip, CachedAudioData data, DrawingContext dc) {
         }
 
-        private class CachedImageData : IDisposable
-        {
+        private class CachedImageData : IDisposable {
             private readonly ImageVideoClipViewModel clip;
 
-            public CachedImageData(ImageVideoClipViewModel newClip)
-            {
+            public CachedImageData(ImageVideoClipViewModel newClip) {
                 this.clip = newClip;
             }
 
-            public void Dispose()
-            {
+            public void Dispose() {
             }
         }
 
-        private class CachedVideoData : IDisposable
-        {
+        private class CachedVideoData : IDisposable {
             private readonly AVMediaVideoClipViewModel clip;
 
-            public CachedVideoData(AVMediaVideoClipViewModel newClip)
-            {
+            public CachedVideoData(AVMediaVideoClipViewModel newClip) {
                 this.clip = newClip;
             }
 
-            public void Dispose()
-            {
+            public void Dispose() {
             }
         }
 
-        private class CachedCompositionData : IDisposable
-        {
+        private class CachedCompositionData : IDisposable {
             private readonly CompositionVideoClipViewModel clip;
 
-            public CachedCompositionData(CompositionVideoClipViewModel newClip)
-            {
+            public CachedCompositionData(CompositionVideoClipViewModel newClip) {
                 this.clip = newClip;
             }
 
-            public void Dispose()
-            {
+            public void Dispose() {
             }
         }
 
-        private class CachedAudioData : IDisposable
-        {
+        private class CachedAudioData : IDisposable {
             private readonly AudioClipViewModel clip;
 
-            public CachedAudioData(AudioClipViewModel newClip)
-            {
+            public CachedAudioData(AudioClipViewModel newClip) {
                 this.clip = newClip;
             }
 
-            public void Dispose()
-            {
+            public void Dispose() {
             }
         }
     }

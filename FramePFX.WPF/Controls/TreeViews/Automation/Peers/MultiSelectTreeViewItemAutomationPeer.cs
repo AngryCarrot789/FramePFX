@@ -10,8 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using FramePFX.WPF.Controls.TreeViews.Controls;
 
-namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
-{
+namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers {
     /// <summary>
     /// Macht <see cref="T:FramePFX.WPF.Controls.TreeViews.Controls.MultiSelectTreeViewItem"/>-Typen für
     /// UI-Automatisierung verfügbar.
@@ -22,22 +21,17 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
         ISelectionItemProvider,
         IScrollItemProvider,
         IValueProvider,
-        IInvokeProvider
-    {
+        IInvokeProvider {
         #region Public properties
 
-        public ExpandCollapseState ExpandCollapseState
-        {
-            get
-            {
+        public ExpandCollapseState ExpandCollapseState {
+            get {
                 MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
-                if (!treeViewItem.HasItems)
-                {
+                if (!treeViewItem.HasItems) {
                     return ExpandCollapseState.LeafNode;
                 }
 
-                if (!treeViewItem.IsExpanded)
-                {
+                if (!treeViewItem.IsExpanded) {
                     return ExpandCollapseState.Collapsed;
                 }
 
@@ -58,28 +52,24 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
         /// <see cref="T:FramePFX.WPF.Controls.TreeViews.Automation.Peers.MultiSelectTreeViewItemAutomationPeer"/>
         /// zugeordnet ist.
         /// </param>
-        public MultiSelectTreeViewItemAutomationPeer(MultiSelectTreeViewItem owner) : base(owner)
-        {
+        public MultiSelectTreeViewItemAutomationPeer(MultiSelectTreeViewItem owner) : base(owner) {
         }
 
         #endregion Constructor
 
         #region IInvokeProvider members
 
-        public void Invoke()
-        {
+        public void Invoke() {
             MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
             treeViewItem.InvokeMouseDown();
         }
 
         #endregion IInvokeProvider members
 
-        protected override Rect GetBoundingRectangleCore()
-        {
+        protected override Rect GetBoundingRectangleCore() {
             MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
             ContentPresenter contentPresenter = GetContentPresenter(treeViewItem);
-            if (contentPresenter != null)
-            {
+            if (contentPresenter != null) {
                 Vector offset = VisualTreeHelper.GetOffset(contentPresenter);
                 Point p = new Point(offset.X, offset.Y);
                 p = contentPresenter.PointToScreen(p);
@@ -89,12 +79,10 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
             return base.GetBoundingRectangleCore();
         }
 
-        protected override Point GetClickablePointCore()
-        {
+        protected override Point GetClickablePointCore() {
             MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
             ContentPresenter contentPresenter = GetContentPresenter(treeViewItem);
-            if (contentPresenter != null)
-            {
+            if (contentPresenter != null) {
                 Vector offset = VisualTreeHelper.GetOffset(contentPresenter);
                 Point p = new Point(offset.X, offset.Y);
                 p = contentPresenter.PointToScreen(p);
@@ -104,8 +92,7 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
             return base.GetClickablePointCore();
         }
 
-        private static ContentPresenter GetContentPresenter(MultiSelectTreeViewItem treeViewItem)
-        {
+        private static ContentPresenter GetContentPresenter(MultiSelectTreeViewItem treeViewItem) {
             ContentPresenter contentPresenter = treeViewItem.Template.FindName("PART_Header", treeViewItem) as ContentPresenter;
             return contentPresenter;
         }
@@ -115,8 +102,7 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
         /// header as children, too. That was requested by the users.
         /// </summary>
         /// <returns>Returns a list of children.</returns>
-        protected override List<AutomationPeer> GetChildrenCore()
-        {
+        protected override List<AutomationPeer> GetChildrenCore() {
             //System.Diagnostics.Trace.WriteLine("MultiSelectTreeViewItemAutomationPeer.GetChildrenCore()");
             MultiSelectTreeViewItem owner = (MultiSelectTreeViewItem) this.Owner;
 
@@ -127,11 +113,9 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
 
             ContentPresenter contentPresenter = GetContentPresenter(owner);
 
-            if (contentPresenter != null)
-            {
+            if (contentPresenter != null) {
                 int childrenCount = VisualTreeHelper.GetChildrenCount(contentPresenter);
-                for (int i = 0; i < childrenCount; i++)
-                {
+                for (int i = 0; i < childrenCount; i++) {
                     UIElement child = VisualTreeHelper.GetChild(contentPresenter, i) as UIElement;
                     AddAutomationPeer(children, child);
                     //System.Diagnostics.Trace.WriteLine("- Adding child UIElement, " + (child == null ? "IS" : "is NOT") + " null, now " + children.Count + " items");
@@ -139,15 +123,13 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
             }
 
             ItemCollection items = owner.Items;
-            for (int i = 0; i < items.Count; i++)
-            {
+            for (int i = 0; i < items.Count; i++) {
                 MultiSelectTreeViewItem treeViewItem = owner.ItemContainerGenerator.ContainerFromIndex(i) as MultiSelectTreeViewItem;
                 AddAutomationPeer(children, treeViewItem);
                 //System.Diagnostics.Trace.WriteLine("- Adding MultiSelectTreeViewItem, " + (treeViewItem == null ? "IS" : "is NOT") + " null, now " + children.Count + " items");
             }
 
-            if (children.Count > 0)
-            {
+            if (children.Count > 0) {
                 //System.Diagnostics.Trace.WriteLine("MultiSelectTreeViewItemAutomationPeer.GetChildrenCore(): returning " + children.Count + " children");
                 //for (int i = 0; i < children.Count; i++)
                 //{
@@ -160,18 +142,14 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
             return null;
         }
 
-        private static void AddAutomationPeer(List<AutomationPeer> children, UIElement child)
-        {
-            if (child != null)
-            {
+        private static void AddAutomationPeer(List<AutomationPeer> children, UIElement child) {
+            if (child != null) {
                 AutomationPeer peer = FromElement(child);
-                if (peer == null)
-                {
+                if (peer == null) {
                     peer = CreatePeerForElement(child);
                 }
 
-                if (peer != null)
-                {
+                if (peer != null) {
                     // In the array that GetChildrenCore returns, which is used by AutomationPeer.EnsureChildren,
                     // no null entries are allowed or a NullReferenceException will be thrown from the guts of WPF.
                     // This has reproducibly been observed null on certain systems so the null check was added.
@@ -184,24 +162,18 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
 
         #region Explicit interface properties
 
-        bool ISelectionItemProvider.IsSelected
-        {
-            get
-            {
+        bool ISelectionItemProvider.IsSelected {
+            get {
                 return ((MultiSelectTreeViewItem) this.Owner).IsSelected;
             }
         }
 
-        IRawElementProviderSimple ISelectionItemProvider.SelectionContainer
-        {
-            get
-            {
+        IRawElementProviderSimple ISelectionItemProvider.SelectionContainer {
+            get {
                 ItemsControl parentItemsControl = ((MultiSelectTreeViewItem) this.Owner).ParentTreeView;
-                if (parentItemsControl != null)
-                {
+                if (parentItemsControl != null) {
                     AutomationPeer automationPeer = FromElement(parentItemsControl);
-                    if (automationPeer != null)
-                    {
+                    if (automationPeer != null) {
                         return this.ProviderFromPeer(automationPeer);
                     }
                 }
@@ -214,57 +186,46 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
 
         #region Public methods
 
-        public void Collapse()
-        {
-            if (!this.IsEnabled())
-            {
+        public void Collapse() {
+            if (!this.IsEnabled()) {
                 throw new ElementNotEnabledException();
             }
 
             MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
-            if (!treeViewItem.HasItems)
-            {
+            if (!treeViewItem.HasItems) {
                 throw new InvalidOperationException("Cannot collapse because item has no children.");
             }
 
             treeViewItem.IsExpanded = false;
         }
 
-        public void Expand()
-        {
-            if (!this.IsEnabled())
-            {
+        public void Expand() {
+            if (!this.IsEnabled()) {
                 throw new ElementNotEnabledException();
             }
 
             MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
-            if (!treeViewItem.HasItems)
-            {
+            if (!treeViewItem.HasItems) {
                 throw new InvalidOperationException("Cannot expand because item has no children.");
             }
 
             treeViewItem.IsExpanded = true;
         }
 
-        public override object GetPattern(PatternInterface patternInterface)
-        {
-            if (patternInterface == PatternInterface.ExpandCollapse)
-            {
+        public override object GetPattern(PatternInterface patternInterface) {
+            if (patternInterface == PatternInterface.ExpandCollapse) {
                 return this;
             }
 
-            if (patternInterface == PatternInterface.SelectionItem)
-            {
+            if (patternInterface == PatternInterface.SelectionItem) {
                 return this;
             }
 
-            if (patternInterface == PatternInterface.ScrollItem)
-            {
+            if (patternInterface == PatternInterface.ScrollItem) {
                 return this;
             }
 
-            if (patternInterface == PatternInterface.Value)
-            {
+            if (patternInterface == PatternInterface.Value) {
                 return this;
             }
 
@@ -275,23 +236,19 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
 
         #region Explicit interface methods
 
-        void IScrollItemProvider.ScrollIntoView()
-        {
+        void IScrollItemProvider.ScrollIntoView() {
             ((MultiSelectTreeViewItem) this.Owner).BringIntoView();
         }
 
-        void ISelectionItemProvider.AddToSelection()
-        {
+        void ISelectionItemProvider.AddToSelection() {
             throw new NotImplementedException();
         }
 
-        void ISelectionItemProvider.RemoveFromSelection()
-        {
+        void ISelectionItemProvider.RemoveFromSelection() {
             throw new NotImplementedException();
         }
 
-        void ISelectionItemProvider.Select()
-        {
+        void ISelectionItemProvider.Select() {
             ((MultiSelectTreeViewItem) this.Owner).ParentTreeView.Selection.SelectCore((MultiSelectTreeViewItem) this.Owner);
         }
 
@@ -299,18 +256,15 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
 
         #region Methods
 
-        protected override ItemAutomationPeer CreateItemAutomationPeer(object item)
-        {
+        protected override ItemAutomationPeer CreateItemAutomationPeer(object item) {
             return new MultiSelectTreeViewItemDataAutomationPeer(item, this);
         }
 
-        protected override AutomationControlType GetAutomationControlTypeCore()
-        {
+        protected override AutomationControlType GetAutomationControlTypeCore() {
             return AutomationControlType.TreeItem;
         }
 
-        protected override string GetClassNameCore()
-        {
+        protected override string GetClassNameCore() {
             return "MultiSelectTreeViewItem";
         }
 
@@ -318,56 +272,45 @@ namespace FramePFX.WPF.Controls.TreeViews.Automation.Peers
 
         #region IValueProvider members
 
-        public bool IsReadOnly
-        {
+        public bool IsReadOnly {
             get { return false; }
         }
 
         string requestedValue;
 
-        public void SetValue(string value)
-        {
-            try
-            {
+        public void SetValue(string value) {
+            try {
                 if (String.IsNullOrWhiteSpace(value))
                     return;
 
                 string[] ids = value.Split(new[] {';'});
 
                 object obj;
-                if (ids.Length > 0 && ids[0] == "Context")
-                {
+                if (ids.Length > 0 && ids[0] == "Context") {
                     MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
                     obj = treeViewItem.DataContext;
                 }
-                else
-                {
+                else {
                     obj = this.Owner;
                 }
 
-                if (ids.Length < 2)
-                {
+                if (ids.Length < 2) {
                     this.requestedValue = obj.ToString();
                 }
-                else
-                {
+                else {
                     Type type = obj.GetType();
                     PropertyInfo pi = type.GetProperty(ids[1]);
                     this.requestedValue = pi.GetValue(obj, null).ToString();
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 this.requestedValue = ex.ToString();
             }
         }
 
-        public string Value
-        {
-            get
-            {
-                if (this.requestedValue == null)
-                {
+        public string Value {
+            get {
+                if (this.requestedValue == null) {
                     MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
                     return treeViewItem.DataContext.ToString();
                 }

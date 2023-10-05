@@ -2,10 +2,8 @@ using System;
 using System.Numerics;
 using Vector3 = System.Numerics.Vector3;
 
-namespace FramePFX.Rendering.Utils
-{
-    public static class MatrixUtils
-    {
+namespace FramePFX.Rendering.Utils {
+    public static class MatrixUtils {
         /// <summary>
         /// Creates a matrix that can be used to transform world coordinates into local coordinates, using the given position, rotation and scale
         /// </summary>
@@ -13,8 +11,7 @@ namespace FramePFX.Rendering.Utils
         /// <param name="rotate"></param>
         /// <param name="scale"></param>
         /// <returns></returns>
-        public static Matrix4x4 WorldToLocal(Vector3 position, Vector3 rotate, Vector3 scale)
-        {
+        public static Matrix4x4 WorldToLocal(Vector3 position, Vector3 rotate, Vector3 scale) {
             Vector3 s = new Vector3(1.0f / scale.X, 1.0f / scale.Y, 1.0f / scale.Z);
             return Matrix4x4.CreateScale(s) * CreateNegativeRotationZXY(rotate) * Matrix4x4.CreateTranslation(-position);
         }
@@ -29,8 +26,7 @@ namespace FramePFX.Rendering.Utils
         /// <param name="rotate">Rotation, relative to the new position</param>
         /// <param name="scale">Scale, relative to the new position</param>
         /// <returns>A transformation matrix, aka model matrix</returns>
-        public static Matrix4x4 LocalToWorld(Vector3 position, Vector3 rotate, Vector3 scale)
-        {
+        public static Matrix4x4 LocalToWorld(Vector3 position, Vector3 rotate, Vector3 scale) {
             return Matrix4x4.CreateTranslation(position) * CreateRotationYXZ(rotate) * Matrix4x4.CreateScale(scale);
         }
 
@@ -48,8 +44,7 @@ namespace FramePFX.Rendering.Utils
         /// <returns>Output rotation matrix</returns>
         public static Matrix4x4 CreateNegativeRotationZXY(Vector3 rotation) => Matrix4x4.CreateRotationZ(-rotation.Z) * Matrix4x4.CreateRotationX(-rotation.X) * Matrix4x4.CreateRotationY(-rotation.Y);
 
-        public static Matrix4x4 CreateHeading(float heading)
-        {
+        public static Matrix4x4 CreateHeading(float heading) {
             float cos = (float) Math.Cos(heading);
             float sin = (float) Math.Sin(heading);
             Matrix4x4 mat = Matrix4x4.Identity;
@@ -60,8 +55,7 @@ namespace FramePFX.Rendering.Utils
             return mat;
         }
 
-        public static Matrix4x4 CreatePitch(float pitch)
-        {
+        public static Matrix4x4 CreatePitch(float pitch) {
             float cos = (float) Math.Cos(pitch);
             float sin = (float) Math.Sin(pitch);
             Matrix4x4 mat = Matrix4x4.Identity;
@@ -72,8 +66,7 @@ namespace FramePFX.Rendering.Utils
             return mat;
         }
 
-        public static Matrix4x4 CreateBearing(float pitch)
-        {
+        public static Matrix4x4 CreateBearing(float pitch) {
             float cos = (float) Math.Cos(pitch);
             float sin = (float) Math.Sin(pitch);
             Matrix4x4 mat = Matrix4x4.Identity;
@@ -86,8 +79,7 @@ namespace FramePFX.Rendering.Utils
 
         public static Matrix4x4 CreateRotationYPR(Vector3 rotation) => CreateHeading(rotation.Y) * CreatePitch(rotation.X) * CreateBearing(rotation.Z);
 
-        public static Matrix4x4 LookAt(Vector3 src, Vector3 dst)
-        {
+        public static Matrix4x4 LookAt(Vector3 src, Vector3 dst) {
             Vector3 zaxis = Vector3.Normalize(src - dst);
             Vector3 xaxis = Vector3.Normalize(new Vector3(zaxis.Z, 0f, -zaxis.X));
             Vector3 yaxis = Vector3.Cross(zaxis, xaxis);

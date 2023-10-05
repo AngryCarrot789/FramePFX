@@ -1,33 +1,28 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Utils
-{
+namespace FramePFX.Utils {
     /// <summary>
     /// Contains function that apparently aren't in C# but are in java, used for NBT equality testing
     /// </summary>
-    public static class Arrays
-    {
+    public static class Arrays {
         // Using IEqualityComparer + generic functions is easier than having
         // a Hash function for all types of non-struct type arrays
 
-        public static int Hash<T>(T[] array)
-        {
+        public static int Hash<T>(T[] array) {
             if (array == null)
                 return 0;
 
             IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
             int result = 1;
-            foreach (T t in array)
-            {
+            foreach (T t in array) {
                 result = 31 * result + comparer.GetHashCode(t);
             }
 
             return result;
         }
 
-        public static bool Equals<T>(T[] a, T[] b)
-        {
+        public static bool Equals<T>(T[] a, T[] b) {
             int length;
             if (a == b)
                 return true;
@@ -35,10 +30,8 @@ namespace FramePFX.Utils
                 return false;
 
             IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
-            for (int i = 0; i < length; i++)
-            {
-                if (!comparer.Equals(a[i], b[i]))
-                {
+            for (int i = 0; i < length; i++) {
+                if (!comparer.Equals(a[i], b[i])) {
                     return false;
                 }
             }
@@ -46,18 +39,15 @@ namespace FramePFX.Utils
             return true;
         }
 
-        public static bool Equals<T>(T[] a, T[] b, Func<T, T, bool> equalityFunction)
-        {
+        public static bool Equals<T>(T[] a, T[] b, Func<T, T, bool> equalityFunction) {
             int length;
             if (a == b)
                 return true;
             if (a == null || b == null || a.Length != (length = b.Length))
                 return false;
 
-            for (int i = 0; i < length; i++)
-            {
-                if (!equalityFunction(a[i], b[i]))
-                {
+            for (int i = 0; i < length; i++) {
+                if (!equalityFunction(a[i], b[i])) {
                     return false;
                 }
             }
@@ -65,20 +55,17 @@ namespace FramePFX.Utils
             return true;
         }
 
-        public static unsafe T[] CloneArrayUnsafe<T>(this T[] array) where T : unmanaged
-        {
+        public static unsafe T[] CloneArrayUnsafe<T>(this T[] array) where T : unmanaged {
             if (array == null)
                 return null;
             int length = array.Length;
             T[] values = new T[length];
             int bytes = sizeof(T) * length;
-            if (bytes > 100 || length > 50)
-            {
+            if (bytes > 100 || length > 50) {
                 // BlockCopy will most likely help out
                 Buffer.BlockCopy(array, 0, values, 0, bytes);
             }
-            else if (length > 0)
-            {
+            else if (length > 0) {
                 for (int i = 0; i < length; i++)
                     values[i] = array[i];
             }
@@ -86,8 +73,7 @@ namespace FramePFX.Utils
             return values;
         }
 
-        public static T[] CloneArray<T>(this T[] array)
-        {
+        public static T[] CloneArray<T>(this T[] array) {
             if (array == null)
                 return null;
             int length = array.Length;

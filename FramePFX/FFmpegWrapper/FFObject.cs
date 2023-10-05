@@ -1,15 +1,12 @@
 using System;
 
-namespace FramePFX.FFmpegWrapper
-{
-    public abstract class FFObject : IDisposable
-    {
+namespace FramePFX.FFmpegWrapper {
+    public abstract class FFObject : IDisposable {
         private volatile bool isDisposed;
 
         public bool IsDisposed => this.isDisposed;
 
-        public void Dispose()
-        {
+        public void Dispose() {
             this.Free();
             this.isDisposed = true;
             GC.SuppressFinalize(this);

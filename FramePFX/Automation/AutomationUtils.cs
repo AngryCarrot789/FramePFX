@@ -1,6 +1,4 @@
-namespace FramePFX.Automation
-{
-    public static class AutomationUtils
-    {
+namespace FramePFX.Automation {
+    public static class AutomationUtils {
     }
 }

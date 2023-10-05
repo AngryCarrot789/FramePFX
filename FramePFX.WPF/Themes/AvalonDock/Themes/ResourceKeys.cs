@@ -1,13 +1,11 @@
 ﻿using System.Windows;
 
-namespace FramePFX.WPF.Themes.AvalonDock.Themes
-{
+namespace FramePFX.WPF.Themes.AvalonDock.Themes {
     /// <summary>
     /// Resource key management class to keep track of all resources
     /// that can be re-styled in applications that make use of the implemented controls.
     /// </summary>
-    internal static class ResourceKeys
-    {
+    internal static class ResourceKeys {
         #region Brush Keys
 
         // General

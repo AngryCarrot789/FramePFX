@@ -10,10 +10,8 @@ using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editor.Timelines.VideoClips
-{
-    public class AVMediaVideoClip : VideoClip, IResourceHolder
-    {
+namespace FramePFX.Editor.Timelines.VideoClips {
+    public class AVMediaVideoClip : VideoClip, IResourceHolder {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         public unsafe SwsContext* scaler;
         private PictureFormat scalerInputFormat;
@@ -31,8 +29,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         private Task<VideoFrame> GetFrameTask;
 
-        public AVMediaVideoClip()
-        {
+        public AVMediaVideoClip() {
             this.ResourceHelper = new ResourceHelper(this);
             this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
             this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
@@ -40,24 +37,19 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceAVMediaKey.TryGetResource(out resource);
 
-        public override Vector2? GetSize(RenderContext rc)
-        {
+        public override Vector2? GetSize(RenderContext rc) {
             return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
         }
 
-        public override bool OnBeginRender(long frame)
-        {
+        public override bool OnBeginRender(long frame) {
             if (!this.TryGetResource(out ResourceAVMedia resource))
                 return false;
             if (resource.stream == null || resource.Demuxer == null)
                 return false;
 
-            if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null)
-            {
-                if (this.renderFrameRgb == null)
-                {
-                    unsafe
-                    {
+            if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null) {
+                if (this.renderFrameRgb == null) {
+                    unsafe {
                         AVCodecParameters* pars = resource.stream.Handle->codecpar;
                         this.renderFrameRgb = new VideoFrame(pars->width, pars->height, PixelFormats.RGBA);
                     }
@@ -73,26 +65,21 @@ namespace FramePFX.Editor.Timelines.VideoClips
             return true;
         }
 
-        public override async Task OnEndRender(RenderContext rc, long frame)
-        {
+        public override async Task OnEndRender(RenderContext rc, long frame) {
             VideoFrame ready;
-            if (this.GetFrameTask != null)
-            {
+            if (this.GetFrameTask != null) {
                 this.readyFrame = ready = await this.GetFrameTask;
             }
-            else
-            {
+            else {
                 ready = this.readyFrame;
             }
 
-            if (ready != null && !ready.IsDisposed)
-            {
+            if (ready != null && !ready.IsDisposed) {
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                 // a project preview resolution so that decoding is lightning fast for low resolution?
 
                 // this.ApplyTransformation(rc);
-                if (ready.IsHardwareFrame)
-                {
+                if (ready.IsHardwareFrame) {
                     // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                     // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
                     // hacking into the API specific device context (like D3D11VA).
@@ -100,8 +87,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
                     ready = this.downloadedHwFrame;
                 }
 
-                unsafe
-                {
+                unsafe {
                     this.ScaleFrame(ready);
                     // TODO: Maybe cache the SKPixmap, because renderFrameRgb lasts a long time, where the size remains unmodified probably
                     byte* ptr;
@@ -116,10 +102,8 @@ namespace FramePFX.Editor.Timelines.VideoClips
             }
         }
 
-        private unsafe void ScaleFrame(VideoFrame ready)
-        {
-            if (this.scaler == null)
-            {
+        private unsafe void ScaleFrame(VideoFrame ready) {
+            if (this.scaler == null) {
                 PictureFormat srcfmt = ready.Format;
                 PictureFormat dstfmt = this.renderFrameRgb.Format;
                 this.scalerInputFormat = srcfmt;
@@ -131,28 +115,23 @@ namespace FramePFX.Editor.Timelines.VideoClips
             ffmpeg.sws_scale(this.scaler, src->data, src->linesize, 0, this.scalerInputFormat.Height, dst->data, dst->linesize);
         }
 
-        public static unsafe (int, int) GetPlaneSize(VideoFrame frame, int plane)
-        {
+        public static unsafe (int, int) GetPlaneSize(VideoFrame frame, int plane) {
             (int x, int y) size = (frame.Width, frame.Height);
 
             //https://github.com/FFmpeg/FFmpeg/blob/c558fcf41e2027a1096d00b286954da2cc4ae73f/libavutil/imgutils.c#L111
-            if (plane == 0)
-            {
+            if (plane == 0) {
                 return size;
             }
 
             AVPixFmtDescriptor* desc = ffmpeg.av_pix_fmt_desc_get(frame.PixelFormat);
-            if (desc == null || (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_HWACCEL) != 0)
-            {
+            if (desc == null || (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_HWACCEL) != 0) {
                 throw new InvalidOperationException();
             }
 
-            for (uint i = 0; i < 4; i++)
-            {
+            for (uint i = 0; i < 4; i++) {
                 if (desc->comp[i].plane != plane)
                     continue;
-                if ((i == 1 || i == 2) && (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_RGB) == 0)
-                {
+                if ((i == 1 || i == 2) && (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_RGB) == 0) {
                     size.x = Maths.CeilShr(size.x, desc->log2_chroma_w);
                     size.y = Maths.CeilShr(size.y, desc->log2_chroma_h);
                 }
@@ -163,15 +142,13 @@ namespace FramePFX.Editor.Timelines.VideoClips
             throw new Exception("Could not get plane size");
         }
 
-        public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride)
-        {
+        public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride) {
             int height = frame.GetPlaneSize(plane).Height;
             AVFrame* ptr = frame.Handle;
             *data = ptr->data[(uint) plane];
             int rowSize = ptr->linesize[(uint) plane];
 
-            if (rowSize < 0)
-            {
+            if (rowSize < 0) {
                 *data += rowSize * (height - 1);
                 rowSize = unchecked(rowSize * -1);
             }
@@ -179,8 +156,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
             stride = rowSize / sizeof(byte);
         }
 
-        private static unsafe bool IsFormatEqual(AVFrame* src, AVFrame* dst, PictureFormat srcFmt, PictureFormat dstFmt)
-        {
+        private static unsafe bool IsFormatEqual(AVFrame* src, AVFrame* dst, PictureFormat srcFmt, PictureFormat dstFmt) {
             return src->format == (int) srcFmt.PixelFormat &&
                    src->width == srcFmt.Width &&
                    src->height == srcFmt.Height &&
@@ -189,21 +165,17 @@ namespace FramePFX.Editor.Timelines.VideoClips
                    dst->height == dstFmt.Height;
         }
 
-        protected override Clip NewInstanceForClone()
-        {
+        protected override Clip NewInstanceForClone() {
             return new AVMediaVideoClip();
         }
 
-        protected void OnResourceChanged(ResourceAVMedia oldItem, ResourceAVMedia newItem)
-        {
+        protected void OnResourceChanged(ResourceAVMedia oldItem, ResourceAVMedia newItem) {
             this.renderFrameRgb?.Dispose();
             this.renderFrameRgb = null;
             this.downloadedHwFrame?.Dispose();
             this.downloadedHwFrame = null;
-            unsafe
-            {
-                if (this.scaler != null)
-                {
+            unsafe {
+                if (this.scaler != null) {
                     ffmpeg.sws_freeContext(this.scaler);
                     this.scaler = null;
                 }
@@ -211,8 +183,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
         }
 
         // Help from https://github.com/Golim4r/OpenGL-Video-Player
-        public unsafe class DecoderThread
-        {
+        public unsafe class DecoderThread {
             private readonly Thread thread;
             public volatile bool isPaused;
             public volatile bool isRunning;
@@ -224,20 +195,16 @@ namespace FramePFX.Editor.Timelines.VideoClips
             public AVFrame* pFrameRGB;
             public SwsContext* sws_ctx;
 
-            public DecoderThread()
-            {
+            public DecoderThread() {
                 this.thread = new Thread(this.ThreadMain);
                 this.isRunning = true;
                 this.isPaused = true;
                 this.thread.Start();
             }
 
-            private void ThreadMain()
-            {
-                while (this.isRunning)
-                {
-                    while (this.isPaused)
-                    {
+            private void ThreadMain() {
+                while (this.isRunning) {
+                    while (this.isPaused) {
                         Thread.Sleep(10);
                     }
 
@@ -245,21 +212,17 @@ namespace FramePFX.Editor.Timelines.VideoClips
                 }
             }
 
-            public void ReadFrame()
-            {
+            public void ReadFrame() {
                 AVPacket packet;
-                if (ffmpeg.av_read_frame(this.pFormatCtx, &packet) < 0)
-                {
+                if (ffmpeg.av_read_frame(this.pFormatCtx, &packet) < 0) {
                     this.isPaused = true;
                     return;
                 }
 
                 // Is this a packet from the video stream?
-                if (packet.stream_index == this.videoStream)
-                {
+                if (packet.stream_index == this.videoStream) {
                     LavResult result = (LavResult) ffmpeg.avcodec_receive_frame(this.pCodecCtx, this.pFrame);
-                    if (result != LavResult.Success && result != LavResult.EndOfFile)
-                    {
+                    if (result != LavResult.Success && result != LavResult.EndOfFile) {
                         this.isPaused = true;
                         return;
                     }

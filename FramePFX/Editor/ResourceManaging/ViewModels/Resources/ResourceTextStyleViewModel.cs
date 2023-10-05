@@ -1,46 +1,37 @@
 using FramePFX.Editor.ResourceManaging.Resources;
 
-namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources
-{
-    public class ResourceTextStyleViewModel : ResourceItemViewModel
-    {
+namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
+    public class ResourceTextStyleViewModel : ResourceItemViewModel {
         public new ResourceTextStyle Model => (ResourceTextStyle) base.Model;
 
-        public double FontSize
-        {
+        public double FontSize {
             get => this.Model.FontSize;
-            set
-            {
+            set {
                 this.Model.FontSize = value;
                 this.RaisePropertyChanged();
                 this.Model.OnDataModified(nameof(this.Model.FontSize));
             }
         }
 
-        public double SkewX
-        {
+        public double SkewX {
             get => this.Model.SkewX;
-            set
-            {
+            set {
                 this.Model.SkewX = value;
                 this.RaisePropertyChanged();
                 this.Model.OnDataModified(nameof(this.Model.SkewX));
             }
         }
 
-        public string FontFamily
-        {
+        public string FontFamily {
             get => this.Model.FontFamily;
-            set
-            {
+            set {
                 this.Model.FontFamily = value;
                 this.RaisePropertyChanged();
                 this.Model.OnDataModified(nameof(this.Model.FontFamily));
             }
         }
 
-        public ResourceTextStyleViewModel(ResourceTextStyle model) : base(model)
-        {
+        public ResourceTextStyleViewModel(ResourceTextStyle model) : base(model) {
         }
     }
 }

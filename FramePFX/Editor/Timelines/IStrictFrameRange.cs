@@ -1,11 +1,9 @@
-namespace FramePFX.Editor.Timelines
-{
+namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// An interface for objects (typically clips and effects) that have a strict frame span range which
     /// requires translating play head frames into relative frames
     /// </summary>
-    public interface IStrictFrameRange
-    {
+    public interface IStrictFrameRange {
         /// <summary>
         /// Converts a relative frame to an absolute frame, relative to the timeline
         /// </summary>

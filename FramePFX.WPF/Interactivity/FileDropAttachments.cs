@@ -2,10 +2,8 @@ using System;
 using System.Windows;
 using FramePFX.Interactivity;
 
-namespace FramePFX.WPF.Interactivity
-{
-    public static class FileDropAttachments
-    {
+namespace FramePFX.WPF.Interactivity {
+    public static class FileDropAttachments {
         public static readonly DependencyProperty FileDropNotifierProperty =
             DependencyProperty.RegisterAttached(
                 "FileDropNotifier",
@@ -23,65 +21,52 @@ namespace FramePFX.WPF.Interactivity
         public static readonly DependencyPropertyKey IsProcessingDragDropEntryProperty = DependencyProperty.RegisterAttachedReadOnly("IsProcessingDragDropEntry", typeof(bool), typeof(FileDropAttachments), new PropertyMetadata(false));
         public static readonly DependencyPropertyKey IsProcessingDragDropProcessProperty = DependencyProperty.RegisterAttachedReadOnly("IsProcessingDragDropProcess", typeof(bool), typeof(FileDropAttachments), new PropertyMetadata(false));
 
-        public static void SetFileDropNotifier(FrameworkElement element, IFileDropNotifier value)
-        {
+        public static void SetFileDropNotifier(FrameworkElement element, IFileDropNotifier value) {
             element.SetValue(FileDropNotifierProperty, value);
         }
 
-        public static IFileDropNotifier GetFileDropNotifier(FrameworkElement element)
-        {
+        public static IFileDropNotifier GetFileDropNotifier(FrameworkElement element) {
             return (IFileDropNotifier) element.GetValue(FileDropNotifierProperty);
         }
 
-        public static void SetPreviewFileDropNotifier(FrameworkElement element, IFileDropNotifier value)
-        {
+        public static void SetPreviewFileDropNotifier(FrameworkElement element, IFileDropNotifier value) {
             element.SetValue(PreviewFileDropNotifierProperty, value);
         }
 
-        public static IFileDropNotifier GetPreviewFileDropNotifier(FrameworkElement element)
-        {
+        public static IFileDropNotifier GetPreviewFileDropNotifier(FrameworkElement element) {
             return (IFileDropNotifier) element.GetValue(PreviewFileDropNotifierProperty);
         }
 
-        private static void SetIsProcessingDragDropEntry(FrameworkElement element, bool value)
-        {
+        private static void SetIsProcessingDragDropEntry(FrameworkElement element, bool value) {
             element.SetValue(IsProcessingDragDropEntryProperty, value);
         }
 
-        public static bool GetIsProcessingDragDropEntry(FrameworkElement element)
-        {
+        public static bool GetIsProcessingDragDropEntry(FrameworkElement element) {
             return (bool) element.GetValue(IsProcessingDragDropEntryProperty.DependencyProperty);
         }
 
-        private static void SetIsProcessingDragDropProcess(FrameworkElement element, bool value)
-        {
+        private static void SetIsProcessingDragDropProcess(FrameworkElement element, bool value) {
             element.SetValue(IsProcessingDragDropProcessProperty, value);
         }
 
-        public static bool GetIsProcessingDragDropProcess(FrameworkElement element)
-        {
+        public static bool GetIsProcessingDragDropProcess(FrameworkElement element) {
             return (bool) element.GetValue(IsProcessingDragDropProcessProperty.DependencyProperty);
         }
 
-        private static void OnFileDropNotifierPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e, bool preview)
-        {
-            if (d is FrameworkElement element)
-            {
+        private static void OnFileDropNotifierPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e, bool preview) {
+            if (d is FrameworkElement element) {
                 // element.PreviewDragEnter -= OnElementDragEnter;
                 // element.DragEnter -= OnElementDragEnter;
                 element.PreviewDrop -= OnElementDrop;
                 element.Drop -= OnElementDrop;
 
-                if (e.NewValue != null)
-                {
+                if (e.NewValue != null) {
                     element.AllowDrop = true;
-                    if (preview)
-                    {
+                    if (preview) {
                         element.PreviewDragOver += OnElementDragEnter;
                         element.PreviewDrop += OnElementDrop;
                     }
-                    else
-                    {
+                    else {
                         element.DragOver += OnElementDragEnter;
                         element.Drop += OnElementDrop;
                     }
@@ -89,61 +74,49 @@ namespace FramePFX.WPF.Interactivity
             }
         }
 
-        private static async void OnElementDragEnter(object sender, DragEventArgs e)
-        {
+        private static async void OnElementDragEnter(object sender, DragEventArgs e) {
             FrameworkElement element = (FrameworkElement) sender ?? throw new Exception("Expected FrameworkElement");
-            if (GetIsProcessingDragDropEntry(element) || GetIsProcessingDragDropProcess(element))
-            {
+            if (GetIsProcessingDragDropEntry(element) || GetIsProcessingDragDropProcess(element)) {
                 return;
             }
 
             IFileDropNotifier handler = GetFileDropNotifier(element) ?? GetPreviewFileDropNotifier(element);
-            if (handler == null)
-            {
+            if (handler == null) {
                 return;
             }
 
-            if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
-            {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
                 EnumDropType type = (EnumDropType) e.Effects;
                 SetIsProcessingDragDropEntry(element, true);
-                try
-                {
+                try {
                     e.Effects = (DragDropEffects) handler.GetFileDropType(files);
                     e.Handled = true;
                 }
-                finally
-                {
+                finally {
                     SetIsProcessingDragDropEntry(element, false);
                 }
             }
         }
 
-        private static async void OnElementDrop(object sender, DragEventArgs e)
-        {
+        private static async void OnElementDrop(object sender, DragEventArgs e) {
             FrameworkElement element = ((FrameworkElement) sender) ?? throw new Exception("Expected FrameworkElement");
-            if (GetIsProcessingDragDropProcess(element))
-            {
+            if (GetIsProcessingDragDropProcess(element)) {
                 return;
             }
 
             IFileDropNotifier handler = GetFileDropNotifier(element) ?? GetPreviewFileDropNotifier(element);
-            if (handler == null)
-            {
+            if (handler == null) {
                 return;
             }
 
-            if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
-            {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
                 EnumDropType type = (EnumDropType) e.Effects;
                 SetIsProcessingDragDropProcess(element, true);
-                try
-                {
+                try {
                     await handler.OnFilesDropped(files, type);
                     e.Handled = true;
                 }
-                finally
-                {
+                finally {
                     SetIsProcessingDragDropProcess(element, false);
                 }
             }

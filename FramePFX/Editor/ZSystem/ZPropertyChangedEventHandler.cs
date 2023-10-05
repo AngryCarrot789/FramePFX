@@ -1,4 +1,3 @@
-namespace FramePFX.Editor.ZSystem
-{
+namespace FramePFX.Editor.ZSystem {
     public delegate void ZPropertyChangedEventHandler(ZObject sender, ZProperty property);
 }

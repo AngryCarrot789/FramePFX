@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 
-namespace FramePFX.Views.ViewModels
-{
+namespace FramePFX.Views.ViewModels {
     /// <summary>
     /// An interface added to a view model to indicate that it wants to listen for when errors in the view have changed
     /// </summary>
-    public interface IErrorInfoHandler
-    {
+    public interface IErrorInfoHandler {
         /// <summary>
         /// Called when errors have been added/removed/changed. This is
         /// useful to, for example, disable the confirm command on a dialog

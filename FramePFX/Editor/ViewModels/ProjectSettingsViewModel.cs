@@ -3,28 +3,22 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ViewModels
-{
-    public class ProjectSettingsViewModel : BaseViewModel, IModifyProject
-    {
+namespace FramePFX.Editor.ViewModels {
+    public class ProjectSettingsViewModel : BaseViewModel, IModifyProject {
         public ProjectSettings Model { get; }
 
-        public Rational FrameRate
-        {
+        public Rational FrameRate {
             get => this.Model.TimeBase;
-            set
-            {
+            set {
                 this.Model.TimeBase = value;
                 this.RaisePropertyChanged();
                 this.ProjectModified?.Invoke(this, nameof(this.FrameRate));
             }
         }
 
-        public Resolution Resolution
-        {
+        public Resolution Resolution {
             get => this.Model.Resolution;
-            set
-            {
+            set {
                 this.Model.Resolution = value;
                 this.RaisePropertyChanged();
                 this.RaisePropertyChanged(nameof(this.Width));
@@ -33,11 +27,9 @@ namespace FramePFX.Editor.ViewModels
             }
         }
 
-        public EnumRenderQuality RenderQuality
-        {
+        public EnumRenderQuality RenderQuality {
             get => this.Model.Quality;
-            set
-            {
+            set {
                 this.Model.Quality = value;
                 this.RaisePropertyChanged();
                 this.ProjectModified?.Invoke(this, nameof(this.RenderQuality));
@@ -46,21 +38,17 @@ namespace FramePFX.Editor.ViewModels
 
         public ObservableCollection<string> ChannelFormats { get; }
 
-        public string ChannelFormat
-        {
+        public string ChannelFormat {
             get => this.Model.ChannelFormat;
-            set
-            {
+            set {
                 this.Model.ChannelFormat = value;
                 this.RaisePropertyChanged();
             }
         }
 
-        public int SampleRate
-        {
+        public int SampleRate {
             get => this.Model.SampleRate;
-            set
-            {
+            set {
                 this.Model.SampleRate = value;
                 this.RaisePropertyChanged();
             }
@@ -73,11 +61,9 @@ namespace FramePFX.Editor.ViewModels
 
         public static IList<EnumRenderQuality> RenderQualities { get; } = new List<EnumRenderQuality>() {EnumRenderQuality.Unspecified, EnumRenderQuality.Low, EnumRenderQuality.Medium, EnumRenderQuality.High};
 
-        public ProjectSettingsViewModel(ProjectSettings model)
-        {
+        public ProjectSettingsViewModel(ProjectSettings model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            this.ChannelFormats = new ObservableCollection<string>()
-            {
+            this.ChannelFormats = new ObservableCollection<string>() {
                 "Stereo"
             };
         }

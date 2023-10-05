@@ -1,12 +1,9 @@
-﻿namespace FramePFX.WPF.Views.Exceptions
-{
+﻿namespace FramePFX.WPF.Views.Exceptions {
     /// <summary>
     /// Interaction logic for ExceptionViewerWindow.xaml
     /// </summary>
-    public partial class ExceptionViewerWindow : BaseWindow
-    {
-        public ExceptionViewerWindow()
-        {
+    public partial class ExceptionViewerWindow : BaseWindow {
+        public ExceptionViewerWindow() {
             this.InitializeComponent();
         }
     }

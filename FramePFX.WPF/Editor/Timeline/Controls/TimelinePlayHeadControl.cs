@@ -11,10 +11,8 @@ using FramePFX.Utils;
 using FramePFX.WPF.Editor.Timeline.Utils;
 using Keyboard = System.Windows.Input.Keyboard;
 
-namespace FramePFX.WPF.Editor.Timeline.Controls
-{
-    public class TimelinePlayHeadControl : Control, IPlayHead
-    {
+namespace FramePFX.WPF.Editor.Timeline.Controls {
+    public class TimelinePlayHeadControl : Control, IPlayHead {
         public static readonly DependencyProperty FrameIndexProperty =
             DependencyProperty.Register(
                 "FrameIndex",
@@ -24,19 +22,15 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
                     0L,
                     FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     (d, e) => ((TimelinePlayHeadControl) d).OnFrameBeginChanged((long) e.OldValue, (long) e.NewValue),
-                    (d, v) =>
-                    {
+                    (d, v) => {
                         long value = (long) v;
-                        if (value < 0)
-                        {
+                        if (value < 0) {
                             return TimelineUtils.ZeroLongBox;
                         }
-                        else if (((TimelinePlayHeadControl) d).Timeline is TimelineEditorControl timeline && value >= timeline.MaxDuration)
-                        {
+                        else if (((TimelinePlayHeadControl) d).Timeline is TimelineEditorControl timeline && value >= timeline.MaxDuration) {
                             return timeline.MaxDuration - 1;
                         }
-                        else
-                        {
+                        else {
                             return v;
                         }
                     }));
@@ -51,20 +45,17 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
         /// <summary>
         /// The zero-based frame index where this play head begins
         /// </summary>
-        public long FrameIndex
-        {
+        public long FrameIndex {
             get => (long) this.GetValue(FrameIndexProperty);
             set => this.SetValue(FrameIndexProperty, value);
         }
 
-        public long PlayHeadFrame
-        {
+        public long PlayHeadFrame {
             get => this.FrameIndex;
             set => this.FrameIndex = value;
         }
 
-        public TimelineEditorControl Timeline
-        {
+        public TimelineEditorControl Timeline {
             get => (TimelineEditorControl) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }
@@ -72,11 +63,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
         /// <summary>
         /// The rendered X position of this element
         /// </summary>
-        public double RealPixelX
-        {
+        public double RealPixelX {
             get => this.Margin.Left; // Canvas.GetLeft(this)
-            set
-            {
+            set {
                 // Canvas.SetLeft(this, value);
                 Thickness margin = this.Margin;
                 margin.Left = value;
@@ -90,67 +79,54 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
         private Thumb PART_ThumbBody;
         private bool isDraggingThumb;
 
-        public TimelinePlayHeadControl()
-        {
+        public TimelinePlayHeadControl() {
         }
 
-        public override void OnApplyTemplate()
-        {
+        public override void OnApplyTemplate() {
             this.PART_ThumbHead = this.GetTemplateChild("PART_ThumbHead") as Thumb;
             this.PART_ThumbBody = this.GetTemplateChild("PART_ThumbBody") as Thumb;
-            if (this.PART_ThumbHead != null)
-            {
+            if (this.PART_ThumbHead != null) {
                 this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
             }
 
-            if (this.PART_ThumbBody != null)
-            {
+            if (this.PART_ThumbBody != null) {
                 this.PART_ThumbBody.DragDelta += this.PART_ThumbOnDragDelta;
             }
         }
 
-        private void PART_ThumbOnDragDelta(object sender, DragDeltaEventArgs e)
-        {
+        private void PART_ThumbOnDragDelta(object sender, DragDeltaEventArgs e) {
             TimelineEditorControl timeline;
-            if (this.isDraggingThumb || (timeline = this.Timeline) == null)
-            {
+            if (this.isDraggingThumb || (timeline = this.Timeline) == null) {
                 return;
             }
 
             long change = TimelineUtils.PixelToFrame(e.HorizontalChange, timeline.UnitZoom);
-            if (change == 0)
-            {
+            if (change == 0) {
                 return;
             }
 
             long oldFrame = this.FrameIndex;
             long newFrame = Maths.Clamp(oldFrame + change, 0, timeline.MaxDuration - 1);
-            if (newFrame == oldFrame)
-            {
+            if (newFrame == oldFrame) {
                 return;
             }
 
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
-            {
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                 const long range = 80;
                 List<TimelineClipControl> clips = timeline.GetClipsInSpan(new FrameSpan(newFrame - (range / 2), range)).ToList();
-                if (clips.Count > 0)
-                {
+                if (clips.Count > 0) {
                     long closestFrame = long.MaxValue;
                     long targetFrame = newFrame;
-                    foreach (TimelineClipControl clip in clips)
-                    {
+                    foreach (TimelineClipControl clip in clips) {
                         FrameSpan span = clip.Span;
                         long distBegin = Math.Abs(span.Begin - newFrame);
                         long distEnd = Math.Abs(span.EndIndex - newFrame);
-                        if (distBegin <= range && distBegin < closestFrame)
-                        {
+                        if (distBegin <= range && distBegin < closestFrame) {
                             closestFrame = distBegin;
                             targetFrame = span.Begin;
                         }
 
-                        if (distEnd <= range && distEnd < closestFrame)
-                        {
+                        if (distEnd <= range && distEnd < closestFrame) {
                             closestFrame = distEnd;
                             targetFrame = span.EndIndex;
                         }
@@ -158,32 +134,26 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
 
                     this.SetFrameIndex(targetFrame);
                 }
-                else
-                {
+                else {
                     this.SetFrameIndex(newFrame);
                 }
             }
-            else
-            {
+            else {
                 this.SetFrameIndex(newFrame);
             }
         }
 
-        private void SetFrameIndex(long frame)
-        {
-            try
-            {
+        private void SetFrameIndex(long frame) {
+            try {
                 this.isDraggingThumb = true;
                 this.FrameIndex = frame;
             }
-            finally
-            {
+            finally {
                 this.isDraggingThumb = false;
             }
         }
 
-        private void OnFrameBeginChanged(long oldStart, long newStart)
-        {
+        private void OnFrameBeginChanged(long oldStart, long newStart) {
             if (this.isUpdatingFrameBegin)
                 return;
             this.isUpdatingFrameBegin = true;
@@ -192,20 +162,17 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
             this.isUpdatingFrameBegin = false;
         }
 
-        public void UpdatePosition()
-        {
+        public void UpdatePosition() {
             this.RealPixelX = this.FrameIndex * (this.Timeline?.UnitZoom ?? 1d);
         }
 
         private static readonly FieldInfo IsDraggingPropertyKeyField = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
 
-        public void EnableDragging(Point point)
-        {
+        public void EnableDragging(Point point) {
             this.isDraggingThumb = true;
 
             Thumb thumb = this.PART_ThumbBody ?? this.PART_ThumbHead;
-            if (thumb == null)
-            {
+            if (thumb == null) {
                 return;
             }
 
@@ -214,15 +181,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
             // lazy... could create custom control extending Thumb to modify this but this works so :D
             thumb.SetValue((DependencyPropertyKey) IsDraggingPropertyKeyField.GetValue(null), true);
             bool flag = true;
-            try
-            {
+            try {
                 thumb.RaiseEvent(new DragStartedEventArgs(point.X, point.Y));
                 flag = false;
             }
-            finally
-            {
-                if (flag)
-                {
+            finally {
+                if (flag) {
                     thumb.CancelDrag();
                 }
 

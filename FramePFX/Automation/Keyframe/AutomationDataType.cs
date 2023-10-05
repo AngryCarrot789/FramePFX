@@ -1,7 +1,5 @@
-namespace FramePFX.Automation.Keyframe
-{
-    public enum AutomationDataType : ushort
-    {
+namespace FramePFX.Automation.Keyframe {
+    public enum AutomationDataType : ushort {
         // To add a new data type:
         //   Obviously add new enum value below (do not modify the order of old ones)
         //   Define new KeyFrame implementation

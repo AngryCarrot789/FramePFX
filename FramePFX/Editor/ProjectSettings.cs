@@ -1,10 +1,8 @@
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor
-{
-    public class ProjectSettings
-    {
+namespace FramePFX.Editor {
+    public class ProjectSettings {
         #region Video
 
         public Resolution Resolution;
@@ -38,8 +36,7 @@ namespace FramePFX.Editor
 
         #endregion
 
-        public ProjectSettings()
-        {
+        public ProjectSettings() {
             this.TimeBase = Timecode.Fps30;
             this.ChannelFormat = "Stereo";
             this.SampleRate = 44100;
@@ -48,8 +45,7 @@ namespace FramePFX.Editor
             this.Quality = EnumRenderQuality.Medium;
         }
 
-        public void ReadFromRBE(RBEDictionary data)
-        {
+        public void ReadFromRBE(RBEDictionary data) {
             this.Resolution = data.GetStruct<Resolution>(nameof(this.Resolution));
             this.TimeBase = (Rational) data.GetULong(nameof(this.TimeBase));
             this.ChannelFormat = data.GetString(nameof(this.ChannelFormat));
@@ -58,8 +54,7 @@ namespace FramePFX.Editor
             this.Quality = (EnumRenderQuality) data.GetByte(nameof(this.Quality), (byte) EnumRenderQuality.Medium);
         }
 
-        public void WriteToRBE(RBEDictionary data)
-        {
+        public void WriteToRBE(RBEDictionary data) {
             data.SetStruct(nameof(this.Resolution), this.Resolution);
             data.SetULong(nameof(this.TimeBase), (ulong) this.TimeBase);
             data.SetString(nameof(this.ChannelFormat), this.ChannelFormat);

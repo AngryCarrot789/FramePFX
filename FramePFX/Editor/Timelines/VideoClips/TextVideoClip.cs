@@ -8,10 +8,8 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 
-namespace FramePFX.Editor.Timelines.VideoClips
-{
-    public class TextVideoClip : VideoClip, IResourceHolder
-    {
+namespace FramePFX.Editor.Timelines.VideoClips {
+    public class TextVideoClip : VideoClip, IResourceHolder {
         private BitVector32 clipProps;
 
         // Use Local <property>
@@ -27,8 +25,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public IResourcePathKey<ResourceTextStyle> TextStyleKey { get; }
 
-        public TextVideoClip()
-        {
+        public TextVideoClip() {
             this.ResourceHelper = new ResourceHelper(this);
             this.TextStyleKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceTextStyle>();
             this.TextStyleKey.ResourceChanged += this.OnResourceTextStyleChanged;
@@ -36,17 +33,14 @@ namespace FramePFX.Editor.Timelines.VideoClips
             this.clipProps = new BitVector32();
         }
 
-        protected void OnResourceTextStyleChanged(ResourceItem oldItem, ResourceItem newItem)
-        {
+        protected void OnResourceTextStyleChanged(ResourceItem oldItem, ResourceItem newItem) {
             this.InvalidateTextCache();
             if (newItem != null)
                 this.GenerateTextCache();
         }
 
-        protected void OnResourceTextStyleDataModified(ResourceItem resource, string property)
-        {
-            switch (property)
-            {
+        protected void OnResourceTextStyleDataModified(ResourceItem resource, string property) {
+            switch (property) {
                 case nameof(ResourceTextStyle.FontFamily):
                 case nameof(ResourceTextStyle.FontSize):
                 case nameof(ResourceTextStyle.SkewX):
@@ -60,34 +54,28 @@ namespace FramePFX.Editor.Timelines.VideoClips
             }
         }
 
-        private static int PropertyIndex(string property)
-        {
-            switch (property)
-            {
+        private static int PropertyIndex(string property) {
+            switch (property) {
                 // case nameof(ResourceTextStyle.Text): return 0;
                 default: throw new Exception($"Unknown property: {property}");
             }
         }
 
-        public void SetUseClipProperty(string property, bool state)
-        {
+        public void SetUseClipProperty(string property, bool state) {
             int index = PropertyIndex(property);
             this.clipProps[index] = state;
         }
 
-        public bool IsUsingClipProperty(string property)
-        {
+        public bool IsUsingClipProperty(string property) {
             int index = PropertyIndex(property);
             return this.clipProps[index];
         }
 
-        protected override Clip NewInstanceForClone()
-        {
+        protected override Clip NewInstanceForClone() {
             return new TextVideoClip();
         }
 
-        protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags)
-        {
+        protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags) {
             base.LoadUserDataIntoClone(clone, flags & ~ClipCloneFlags.ResourceHelper);
             TextVideoClip clip = (TextVideoClip) clone;
             clip.Text = this.Text;
@@ -99,50 +87,42 @@ namespace FramePFX.Editor.Timelines.VideoClips
             clip.clipProps = props;
         }
 
-        public override void WriteToRBE(RBEDictionary data)
-        {
+        public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             if (!string.IsNullOrEmpty(this.Text))
                 data.SetString(nameof(this.Text), this.Text);
             data.SetInt("ClipPropData0", this.clipProps.Data);
         }
 
-        public override void ReadFromRBE(RBEDictionary data)
-        {
+        public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             this.Text = data.GetString(nameof(this.Text), null);
             this.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
         }
 
-        public override Vector2? GetSize(RenderContext rc)
-        {
+        public override Vector2? GetSize(RenderContext rc) {
             return this.TextBlobBoundingBox;
         }
 
 
-        public override bool OnBeginRender(long frame)
-        {
+        public override bool OnBeginRender(long frame) {
             return false;
         }
 
-        public override Task OnEndRender(RenderContext rc, long frame)
-        {
+        public override Task OnEndRender(RenderContext rc, long frame) {
             return Task.CompletedTask;
         }
 
-        public void RegenerateText()
-        {
+        public void RegenerateText() {
             this.InvalidateTextCache();
             this.GenerateTextCache();
         }
 
-        public void InvalidateTextCache()
-        {
+        public void InvalidateTextCache() {
             this.TextBlobBoundingBox = new Vector2();
         }
 
-        public void GenerateTextCache()
-        {
+        public void GenerateTextCache() {
         }
     }
 }

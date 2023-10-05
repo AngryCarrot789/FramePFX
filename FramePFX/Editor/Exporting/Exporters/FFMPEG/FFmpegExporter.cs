@@ -10,12 +10,10 @@ using FramePFX.Utils;
 using SkiaSharp;
 using LavResult = FramePFX.FFmpegWrapper.LavResult;
 
-namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
-{
+namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
     // https://github.com/aligrudi/fbff/blob/master/ffs.c
 
-    public class FFmpegExporter : ExportService
-    {
+    public class FFmpegExporter : ExportService {
         public Resolution Resolution { get; set; }
 
         public Rational FrameRate { get; set; }
@@ -26,8 +24,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
 
         public AVCodecID Codecs { get; set; }
 
-        public FFmpegExporter()
-        {
+        public FFmpegExporter() {
             this.BitRate = 25000000;
             this.GopValue = 10;
             this.Codecs = AVCodecID.AV_CODEC_ID_H264;
@@ -39,8 +36,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
         public static int RNDTO2(int X) => (int) ((X) & 0xFFFFFFFE);
         public static int RNDTO32(int X) => (int) ((X % 32) != 0 ? ((X + 32) & 0xFFFFFFE0) : X);
 
-        public override unsafe void Export(Project project, IExportProgress progress, ExportProperties properties, CancellationToken cancellation)
-        {
+        public override unsafe void Export(Project project, IExportProgress progress, ExportProperties properties, CancellationToken cancellation) {
             Task renderTask = null;
             bool isRenderCancelled = false;
             FrameSpan duration = properties.Span;
@@ -57,19 +53,16 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             int ret;
 
             // initialize the AVFormatContext
-            if ((ret = ffmpeg.avformat_alloc_output_context2(&oc, null, null, properties.FilePath)) < 0)
-            {
+            if ((ret = ffmpeg.avformat_alloc_output_context2(&oc, null, null, properties.FilePath)) < 0) {
                 exception = new Exception("Could not allocate output format context: " + ret);
                 goto fail_or_end;
             }
 
             // set the output format for the AVFormatContext
-            if (oc->oformat == null)
-            {
+            if (oc->oformat == null) {
                 // Find the output format based on the file extension (e.g., ".mp4")
                 oc->oformat = ffmpeg.av_guess_format(null, properties.FilePath, null);
-                if (oc->oformat == null)
-                {
+                if (oc->oformat == null) {
                     exception = new Exception("Could not find output format");
                     goto fail_or_end;
                 }
@@ -77,24 +70,21 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
 
             /* find the mpeg1 video encoder */
             codec = ffmpeg.avcodec_find_encoder(codec_id);
-            if (codec == null)
-            {
+            if (codec == null) {
                 exception = new Exception("Codec not found");
                 goto fail_or_end;
             }
 
             // Add a video stream to the output format
             AVStream* st = ffmpeg.avformat_new_stream(oc, null);
-            if (st == null)
-            {
+            if (st == null) {
                 exception = new Exception("Could not create video stream");
                 goto fail_or_end;
             }
 
             st->id = (int) (oc->nb_streams - 1);
             c = ffmpeg.avcodec_alloc_context3(codec);
-            if (c == null)
-            {
+            if (c == null) {
                 exception = new Exception("Could not allocate video codec context");
                 goto fail_or_end;
             }
@@ -109,8 +99,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             // c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
             c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
             c->codec_id = codec_id;
-            if (codec_id == AVCodecID.AV_CODEC_ID_H264)
-            {
+            if (codec_id == AVCodecID.AV_CODEC_ID_H264) {
                 ffmpeg.av_opt_set(c->priv_data, "preset", "slow", 0);
             }
 
@@ -120,8 +109,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             if (c->codec_id == AVCodecID.AV_CODEC_ID_MPEG2VIDEO)
                 c->max_b_frames = 2; /* just for testing, we also add B-frames */
 
-            if (c->codec_id == AVCodecID.AV_CODEC_ID_MPEG1VIDEO)
-            {
+            if (c->codec_id == AVCodecID.AV_CODEC_ID_MPEG1VIDEO) {
                 /* Needed to avoid using macroblocks in which some coeffs overflow.
                  * This does not happen with normal video, it just happens here as
                  * the motion of the chroma plane does not match the luma plane. */
@@ -131,15 +119,13 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             AVDictionary* opt = null;
             ret = ffmpeg.avcodec_open2(c, codec, &opt);
             ffmpeg.av_dict_free(&opt);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 exception = new Exception("Could not open codec");
                 goto fail_or_end;
             }
 
             frame = ffmpeg.av_frame_alloc();
-            if (frame == null)
-            {
+            if (frame == null) {
                 exception = new Exception("Could not allocate video frame");
                 goto fail_or_end;
             }
@@ -151,8 +137,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             byte_ptrArray4 frame_data_arrays = new byte_ptrArray4();
             int_array4 frame_line_sizes = new int_array4();
             ret = ffmpeg.av_image_alloc(ref frame_data_arrays, ref frame_line_sizes, c->width, c->height, c->pix_fmt, 32);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 exception = new Exception("Could not allocate raw picture buffer");
                 goto fail_or_end;
             }
@@ -167,8 +152,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             frame->linesize[3] = frame_line_sizes[3];
 
             ret = ffmpeg.avcodec_parameters_from_context(st->codecpar, c);
-            if (ret < 0)
-            {
+            if (ret < 0) {
                 exception = new Exception("Could not copy the stream parameters");
                 goto fail_or_end;
             }
@@ -176,10 +160,8 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             ffmpeg.av_dump_format(oc, 0, properties.FilePath, 1);
 
             // Open the output file
-            if ((oc->oformat->flags & ffmpeg.AVFMT_NOFILE) == 0)
-            {
-                if ((ret = ffmpeg.avio_open(&oc->pb, properties.FilePath, ffmpeg.AVIO_FLAG_WRITE)) < 0)
-                {
+            if ((oc->oformat->flags & ffmpeg.AVFMT_NOFILE) == 0) {
+                if ((ret = ffmpeg.avio_open(&oc->pb, properties.FilePath, ffmpeg.AVIO_FLAG_WRITE)) < 0) {
                     exception = new Exception("Could not open output file");
                     goto fail_or_end;
                 }
@@ -189,22 +171,18 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             oc->video_codec_id = codec_id;
 
             // Write the stream header
-            if ((ret = ffmpeg.avformat_write_header(oc, &opt)) < 0)
-            {
+            if ((ret = ffmpeg.avformat_write_header(oc, &opt)) < 0) {
                 exception = new Exception("Error writing stream header: " + ret);
                 goto fail_or_end;
             }
 
-            if (cancellation.IsCancellationRequested)
-            {
+            if (cancellation.IsCancellationRequested) {
                 goto fail_or_end;
             }
 
             SKImageInfo frameInfo = new SKImageInfo(resolution.Width, resolution.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
-            using (SKSurface surface = SKSurface.Create(frameInfo))
-            {
-                if (surface == null)
-                {
+            using (SKSurface surface = SKSurface.Create(frameInfo)) {
+                if (surface == null) {
                     throw new Exception("Failed to create SKSurface");
                 }
 
@@ -213,31 +191,25 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                 long ptsFrame = 0; // frame index, relative to start of file
                 long frameEnd = duration.EndIndex;
 
-                for (; exportFrame < frameEnd; exportFrame++, ptsFrame++)
-                {
-                    if (cancellation.IsCancellationRequested)
-                    {
+                for (; exportFrame < frameEnd; exportFrame++, ptsFrame++) {
+                    if (cancellation.IsCancellationRequested) {
                         isRenderCancelled = true;
                         goto fail_or_end;
                     }
 
                     rc.ClearPixels();
                     AutomationEngine.UpdateTimeline(project.Timeline, exportFrame);
-                    try
-                    {
+                    try {
                         renderTask = project.Timeline.RenderAsync(rc, exportFrame, cancellation);
-                        while (!renderTask.IsCompleted)
-                        {
+                        while (!renderTask.IsCompleted) {
                             Thread.Sleep(1);
                         }
                     }
-                    catch (TaskCanceledException)
-                    {
+                    catch (TaskCanceledException) {
                         isRenderCancelled = true;
                         goto fail_or_end;
                     }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         properties.EncounteredError = true;
                         AppLogger.WriteLine("Exception while rendering project timeline: " + e.GetToString());
                     }
@@ -247,8 +219,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                     // currently, this is reading pixels from GPU to main memory, then
                     // sws_scale takes those raw pixels and converts to YUV
 
-                    using (SKPixmap pixmap = surface.PeekPixels())
-                    {
+                    using (SKPixmap pixmap = surface.PeekPixels()) {
                         byte* data = (byte*) pixmap.GetPixels();
                         int stride = pixmap.RowBytes;
                         {
@@ -271,15 +242,12 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                         frame->pts = ptsFrame;
 
                         // Encode frame
-                        if ((ret = ffmpeg.avcodec_send_frame(c, frame)) == 0)
-                        {
+                        if ((ret = ffmpeg.avcodec_send_frame(c, frame)) == 0) {
                             pkt = ffmpeg.av_packet_alloc();
                             // ffmpeg.av_init_packet(&pkt);
                             ret = ffmpeg.avcodec_receive_packet(c, pkt);
-                            if (ret != ffmpeg.AVERROR(ffmpeg.EAGAIN) && ret != ffmpeg.AVERROR_EOF)
-                            {
-                                if (ret < 0)
-                                {
+                            if (ret != ffmpeg.AVERROR(ffmpeg.EAGAIN) && ret != ffmpeg.AVERROR_EOF) {
+                                if (ret < 0) {
                                     exception = new Exception("Error encoding");
                                     goto fail_or_end;
                                 }
@@ -287,23 +255,20 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
 
                             // when ret == 0, a packet was decoded successfully (not necessarily the one we just send, in fact,
                             // not likely at all... encoding takes a bit longer than a few microseconds lol)
-                            if (ret == 0)
-                            {
+                            if (ret == 0) {
                                 // required, otherwise the .mp4 file is like 20 milliseconds long
                                 ffmpeg.av_packet_rescale_ts(pkt, c->time_base, st->time_base);
                                 pkt->stream_index = st->index;
 
                                 long ts = pkt->dts;
-                                if (ts != ffmpeg.AV_NOPTS_VALUE)
-                                {
+                                if (ts != ffmpeg.AV_NOPTS_VALUE) {
                                     progress.OnFrameEncoded(ts);
                                 }
 
                                 // write encoded frame
                                 ret = ffmpeg.av_interleaved_write_frame(oc, pkt);
                                 // ffmpeg.av_packet_unref(&pkt);
-                                if (ret < 0)
-                                {
+                                if (ret < 0) {
                                     exception = new Exception("Error writing frame to stream: " + ret);
                                     goto fail_or_end;
                                 }
@@ -311,8 +276,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
 
                             ffmpeg.av_packet_free(&pkt);
                         }
-                        else if (ret < 0)
-                        {
+                        else if (ret < 0) {
                             exception = new Exception("Error sending/encoding frame");
                             goto fail_or_end;
                         }
@@ -323,8 +287,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
 
                 // begin flush run
                 ffmpeg.avcodec_send_frame(c, null);
-                while (true)
-                {
+                while (true) {
                     pkt = ffmpeg.av_packet_alloc();
                     // ffmpeg.av_init_packet(&pkt);
                     ret = ffmpeg.avcodec_receive_packet(c, pkt);
@@ -342,8 +305,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                     ret = ffmpeg.av_interleaved_write_frame(oc, pkt);
                     // ffmpeg.av_packet_unref(&pkt);
                     ffmpeg.av_packet_free(&pkt);
-                    if (ret < 0)
-                    {
+                    if (ret < 0) {
                         exception = new Exception("Error writing frame to stream: " + ret);
                         goto fail_or_end;
                     }
@@ -353,44 +315,35 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
             ffmpeg.av_write_trailer(oc);
             fail_or_end:
 
-            if (pkt != null)
-            {
+            if (pkt != null) {
                 ffmpeg.av_packet_free(&pkt);
             }
 
-            if (oc != null)
-            {
-                if ((oc->oformat->flags & ffmpeg.AVFMT_NOFILE) == 0)
-                {
+            if (oc != null) {
+                if ((oc->oformat->flags & ffmpeg.AVFMT_NOFILE) == 0) {
                     ffmpeg.avio_close(oc->pb);
                 }
 
                 ffmpeg.avformat_free_context(oc);
             }
 
-            if (c != null)
-            {
+            if (c != null) {
                 ffmpeg.avcodec_close(c);
                 ffmpeg.av_free(c);
             }
 
-            if (frame != null)
-            {
+            if (frame != null) {
                 ffmpeg.av_frame_free(&frame);
                 // ffmpeg.av_frame_unref(frame);
             }
 
-            if (exception != null)
-            {
+            if (exception != null) {
                 byte[] buffer = new byte[4096];
-                fixed (byte* strbuf = buffer)
-                {
+                fixed (byte* strbuf = buffer) {
                     ffmpeg.av_make_error_string(strbuf, 4096, ret);
                     int i = 0;
-                    for (; i < 4096; i++)
-                    {
-                        if (strbuf[i] == 0)
-                        {
+                    for (; i < 4096; i++) {
+                        if (strbuf[i] == 0) {
                             break;
                         }
                     }
@@ -399,14 +352,11 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG
                 }
             }
 
-            if (isRenderCancelled)
-            {
-                if (renderTask != null)
-                {
+            if (isRenderCancelled) {
+                if (renderTask != null) {
                     throw new TaskCanceledException(renderTask);
                 }
-                else
-                {
+                else {
                     throw new TaskCanceledException("Export cancelled before rendering could begin");
                 }
             }

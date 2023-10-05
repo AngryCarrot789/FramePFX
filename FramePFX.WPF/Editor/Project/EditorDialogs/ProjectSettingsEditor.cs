@@ -1,17 +1,13 @@
 using System.Threading.Tasks;
 using FramePFX.Editor;
 
-namespace FramePFX.WPF.Editor.Project.EditorDialogs
-{
+namespace FramePFX.WPF.Editor.Project.EditorDialogs {
     [ServiceImplementation(typeof(IProjectSettingsEditor))]
-    public class ProjectSettingsEditor : IProjectSettingsEditor
-    {
-        public Task<ProjectSettings> EditSettingsAsync(ProjectSettings settings)
-        {
+    public class ProjectSettingsEditor : IProjectSettingsEditor {
+        public Task<ProjectSettings> EditSettingsAsync(ProjectSettings settings) {
             ProjectSettingsEditorWindow window = new ProjectSettingsEditorWindow();
             ((ProjectSettingsEditorViewModel) window.DataContext).SetSettings(settings);
-            if (window.ShowDialog() == true)
-            {
+            if (window.ShowDialog() == true) {
                 return Task.FromResult(((ProjectSettingsEditorViewModel) window.DataContext).ToSettings());
             }
 

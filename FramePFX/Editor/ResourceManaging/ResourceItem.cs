@@ -5,10 +5,8 @@ using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.ResourceManaging
-{
-    public abstract class ResourceItem : BaseResource, IDisposable
-    {
+namespace FramePFX.Editor.ResourceManaging {
+    public abstract class ResourceItem : BaseResource, IDisposable {
         public const ulong EmptyId = ResourceManager.EmptyId;
         private bool isOnline;
 
@@ -16,14 +14,11 @@ namespace FramePFX.Editor.ResourceManaging
         /// Gets or sets if this resource is online (usable) or offline (not usable by clips).
         /// <see cref="OnIsOnlineStateChanged"/> must be called after modifying this value
         /// </summary>
-        public bool IsOnline
-        {
+        public bool IsOnline {
             get => this.isOnline;
-            set
-            {
+            set {
                 this.isOnline = value;
-                if (value)
-                {
+                if (value) {
                     this.IsOfflineByUser = false;
                 }
             }
@@ -51,21 +46,18 @@ namespace FramePFX.Editor.ResourceManaging
         public event ResourceAndManagerEventHandler OnlineStateChanged;
         public event ResourceReferenceModifiedEventHandler ReferenceCountChanged;
 
-        protected ResourceItem()
-        {
+        protected ResourceItem() {
             this.references = new List<ResourcePath>();
         }
 
-        public void AddReference(ResourcePath reference)
-        {
+        public void AddReference(ResourcePath reference) {
             if (reference == null)
                 throw new ArgumentNullException(nameof(reference));
             this.references.Add(reference);
             this.ReferenceCountChanged?.Invoke(this, reference, true);
         }
 
-        public void RemoveReference(ResourcePath reference)
-        {
+        public void RemoveReference(ResourcePath reference) {
             if (reference == null)
                 throw new ArgumentNullException(nameof(reference));
             if (!this.references.Remove(reference))
@@ -73,8 +65,7 @@ namespace FramePFX.Editor.ResourceManaging
             this.ReferenceCountChanged?.Invoke(this, reference, false);
         }
 
-        public void RemoveReferenceAt(int index)
-        {
+        public void RemoveReferenceAt(int index) {
             ResourcePath reference = this.references[index];
             this.references.RemoveAt(index);
             this.ReferenceCountChanged?.Invoke(this, reference, false);
@@ -87,10 +78,8 @@ namespace FramePFX.Editor.ResourceManaging
         /// The registered resource is reference-equal to the current instance. This should always be true. If it's false, then something terrible has happened
         /// </param>
         /// <returns>True if this instance has a manager, a valid ID and is registered</returns>
-        public bool IsRegistered(out bool isReferenceValid)
-        {
-            if (this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource))
-            {
+        public bool IsRegistered(out bool isReferenceValid) {
+            if (this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource)) {
                 isReferenceValid = ReferenceEquals(this, resource);
                 return true;
             }
@@ -98,8 +87,7 @@ namespace FramePFX.Editor.ResourceManaging
             return isReferenceValid = false;
         }
 
-        public bool IsRegistered()
-        {
+        public bool IsRegistered() {
             if (!this.IsRegistered(out bool isReferenceValid))
                 return false;
             if (!isReferenceValid)
@@ -116,8 +104,7 @@ namespace FramePFX.Editor.ResourceManaging
         /// the item. <see cref="IsOfflineByUser"/> is set to this parameter
         /// </param>
         /// <returns></returns>
-        public void Disable(ErrorList list, bool user)
-        {
+        public void Disable(ErrorList list, bool user) {
             if (!this.IsOnline)
                 return;
 
@@ -131,12 +118,10 @@ namespace FramePFX.Editor.ResourceManaging
         /// Called by <see cref="Disable"/> when this resource item should be disabled
         /// </summary>
         /// <param name="user">True if this was disabled forcefully by the user via the UI</param>
-        protected virtual void OnDisableCore(bool user)
-        {
+        protected virtual void OnDisableCore(bool user) {
         }
 
-        public override void WriteToRBE(RBEDictionary data)
-        {
+        public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             if (this.UniqueId != 0)
                 data.SetULong(nameof(this.UniqueId), this.UniqueId);
@@ -144,12 +129,10 @@ namespace FramePFX.Editor.ResourceManaging
                 data.SetBool(nameof(this.IsOnline), false);
         }
 
-        public override void ReadFromRBE(RBEDictionary data)
-        {
+        public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             this.UniqueId = data.GetULong(nameof(this.UniqueId), EmptyId);
-            if (data.TryGetBool(nameof(this.IsOnline), out bool b) && !b)
-            {
+            if (data.TryGetBool(nameof(this.IsOnline), out bool b) && !b) {
                 this.isOnline = false;
                 this.IsOfflineByUser = true;
             }
@@ -161,23 +144,20 @@ namespace FramePFX.Editor.ResourceManaging
         /// </summary>
         /// <param name="propertyName"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual void OnDataModified([CallerMemberName] string propertyName = null)
-        {
+        public virtual void OnDataModified([CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));
             this.DataModified?.Invoke(this, propertyName);
         }
 
-        public void OnDataModified<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null)
-        {
+        public void OnDataModified<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));
             property = newValue;
             this.OnDataModified(propertyName);
         }
 
-        public virtual void OnIsOnlineStateChanged()
-        {
+        public virtual void OnIsOnlineStateChanged() {
             this.OnlineStateChanged?.Invoke(this.Manager, this);
         }
 
@@ -186,10 +166,8 @@ namespace FramePFX.Editor.ResourceManaging
         /// </summary>
         internal static void SetUniqueId(ResourceItem item, ulong id) => item.UniqueId = id;
 
-        public static void SetOnlineState(ResourceItem item, bool isOnline)
-        {
-            if (isOnline == item.isOnline)
-            {
+        public static void SetOnlineState(ResourceItem item, bool isOnline) {
+            if (isOnline == item.isOnline) {
                 return;
             }
 

@@ -1,7 +1,5 @@
-namespace FramePFX.Views.Dialogs.Message
-{
-    public enum MsgDialogType
-    {
+namespace FramePFX.Views.Dialogs.Message {
+    public enum MsgDialogType {
         OK,
         OKCancel,
         YesNo,

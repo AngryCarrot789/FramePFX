@@ -3,44 +3,35 @@ using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Views.ViewModels;
 
-namespace FramePFX.Views.Dialogs
-{
-    public class BaseConfirmableDialogViewModel : BaseDialogViewModel, IErrorInfoHandler
-    {
+namespace FramePFX.Views.Dialogs {
+    public class BaseConfirmableDialogViewModel : BaseDialogViewModel, IErrorInfoHandler {
         protected bool HasErrors { get; private set; }
 
         public AsyncRelayCommand ConfirmCommand { get; }
         public AsyncRelayCommand CancelCommand { get; }
 
-        public BaseConfirmableDialogViewModel()
-        {
+        public BaseConfirmableDialogViewModel() {
             this.ConfirmCommand = new AsyncRelayCommand(this.ConfirmAction, this.CanConfirm);
             this.CancelCommand = new AsyncRelayCommand(this.CancelAction);
         }
 
-        public BaseConfirmableDialogViewModel(IDialog dialog) : this()
-        {
+        public BaseConfirmableDialogViewModel(IDialog dialog) : this() {
             this.Dialog = dialog;
         }
 
-        public virtual async Task ConfirmAction()
-        {
-            if (await this.CanConfirmAsync())
-            {
+        public virtual async Task ConfirmAction() {
+            if (await this.CanConfirmAsync()) {
                 await this.Dialog.CloseDialogAsync(true);
             }
         }
 
-        public virtual async Task CancelAction()
-        {
-            if (await this.CanCancelAsync())
-            {
+        public virtual async Task CancelAction() {
+            if (await this.CanCancelAsync()) {
                 await this.Dialog.CloseDialogAsync(false);
             }
         }
 
-        public virtual void OnErrorsUpdated(Dictionary<string, object> errors)
-        {
+        public virtual void OnErrorsUpdated(Dictionary<string, object> errors) {
             this.HasErrors = errors.Count > 0;
             this.ConfirmCommand.RaiseCanExecuteChanged();
         }
@@ -52,13 +43,11 @@ namespace FramePFX.Views.Dialogs
         /// This method can also be used to set some final state in the dialog
         /// </para>
         /// </summary>
-        public virtual Task<bool> CanConfirmAsync()
-        {
+        public virtual Task<bool> CanConfirmAsync() {
             return Task.FromResult(this.CanConfirm());
         }
 
-        protected virtual bool CanConfirm()
-        {
+        protected virtual bool CanConfirm() {
             return !this.HasErrors;
         }
 
@@ -67,8 +56,7 @@ namespace FramePFX.Views.Dialogs
         /// dialog actually can close. This should never really return anything except true,
         /// otherwise the user will be unable to close the dialog (except for clicking the X button)
         /// </summary>
-        public virtual Task<bool> CanCancelAsync()
-        {
+        public virtual Task<bool> CanCancelAsync() {
             return Task.FromResult(true);
         }
     }

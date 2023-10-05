@@ -1,12 +1,10 @@
 using FramePFX.Editor.ResourceManaging;
 
-namespace FramePFX.Editor.Timelines.ResourceHelpers
-{
+namespace FramePFX.Editor.Timelines.ResourceHelpers {
     /// <summary>
     /// The base interface for <see cref="IResourcePathKey{T}"/>, so that it can be used in a non-generic context
     /// </summary>
-    public interface IBaseResourcePathKey
-    {
+    public interface IBaseResourcePathKey {
         /// <summary>
         /// Gets the resource helper that owns this resource path key. This is non-null
         /// </summary>

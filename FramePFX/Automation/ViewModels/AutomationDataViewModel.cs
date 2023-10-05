@@ -8,14 +8,12 @@ using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
 
-namespace FramePFX.Automation.ViewModels
-{
+namespace FramePFX.Automation.ViewModels {
     /// <summary>
     /// A view model wrapper for <see cref="AutomationData"/>. This class contains a collection
     /// of <see cref="AutomationSequenceViewModel"/> instances. The collection is designed to be immutable
     /// </summary>
-    public class AutomationDataViewModel : BaseViewModel
-    {
+    public class AutomationDataViewModel : BaseViewModel {
         private readonly Dictionary<AutomationKey, AutomationSequenceViewModel> dataMap;
         private readonly ObservableCollection<AutomationSequenceViewModel> sequences;
         private AutomationSequenceViewModel activeSequence;
@@ -28,29 +26,23 @@ namespace FramePFX.Automation.ViewModels
         /// <summary>
         /// The primary automation sequence currently being modified/viewed
         /// </summary>
-        public AutomationSequenceViewModel ActiveSequence
-        {
+        public AutomationSequenceViewModel ActiveSequence {
             get => this.activeSequence;
-            set
-            {
+            set {
                 AutomationSequenceViewModel oldSequence = this.activeSequence;
-                if (ReferenceEquals(oldSequence, value))
-                {
+                if (ReferenceEquals(oldSequence, value)) {
                     return;
                 }
 
-                if (oldSequence != null)
-                {
+                if (oldSequence != null) {
                     AutomationSequenceViewModel.SetIsActiveInternal(oldSequence, false);
                 }
 
-                if (value == null)
-                {
+                if (value == null) {
                     this.activeSequence = null;
                     this.Model.ActiveKeyFullId = null;
                 }
-                else
-                {
+                else {
                     this.activeSequence = value;
                     this.Model.ActiveKeyFullId = value.Key.FullId;
                     AutomationSequenceViewModel.SetIsActiveInternal(value, true);
@@ -77,10 +69,8 @@ namespace FramePFX.Automation.ViewModels
         /// </summary>
         public bool IsSequenceEditorVisible => this.ActiveSequence != null;
 
-        public AutomationSequenceViewModel this[AutomationKey key]
-        {
-            get
-            {
+        public AutomationSequenceViewModel this[AutomationKey key] {
+            get {
                 if (this.dataMap.TryGetValue(key ?? throw new ArgumentNullException(nameof(key), "Key cannot be null"), out AutomationSequenceViewModel sequence))
                     return sequence;
 
@@ -103,8 +93,7 @@ namespace FramePFX.Automation.ViewModels
         public event EventHandler OverrideStateChanged;
         public event ActiveSequenceChangedEventHandler ActiveSequenceChanged;
 
-        public AutomationDataViewModel(IAutomatableViewModel owner, AutomationData model)
-        {
+        public AutomationDataViewModel(IAutomatableViewModel owner, AutomationData model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.dataMap = new Dictionary<AutomationKey, AutomationSequenceViewModel>();
@@ -112,8 +101,7 @@ namespace FramePFX.Automation.ViewModels
             this.Sequences = new ReadOnlyObservableCollection<AutomationSequenceViewModel>(this.sequences);
             this.ToggleOverrideCommand = new RelayCommand(this.ToggleOverrideAction, this.CanToggleOverride);
             this.DeselectSequenceCommand = new RelayCommand(this.DeselectSequenceAction, () => this.IsSequenceEditorVisible);
-            foreach (AutomationSequence sequence in model.Sequences)
-            {
+            foreach (AutomationSequence sequence in model.Sequences) {
                 AutomationSequenceViewModel vm = new AutomationSequenceViewModel(this, sequence);
                 this.dataMap[sequence.Key] = vm;
                 this.sequences.Add(vm);
@@ -129,12 +117,10 @@ namespace FramePFX.Automation.ViewModels
         /// </para>
         /// </summary>
         /// <returns></returns>
-        public bool SetActiveSequenceFromModelDeserialisation()
-        {
+        public bool SetActiveSequenceFromModelDeserialisation() {
             string activeId = this.Model.ActiveKeyFullId;
             AutomationSequenceViewModel foundSequence;
-            if (activeId != null && (foundSequence = this.sequences.FirstOrDefault(x => x.Key.FullId == activeId)) != null)
-            {
+            if (activeId != null && (foundSequence = this.sequences.FirstOrDefault(x => x.Key.FullId == activeId)) != null) {
                 this.ActiveSequence = foundSequence;
                 return true;
             }
@@ -142,15 +128,12 @@ namespace FramePFX.Automation.ViewModels
             return false;
         }
 
-        public void AssignRefreshHandler(AutomationKey key, RefreshAutomationValueEventHandler handler)
-        {
+        public void AssignRefreshHandler(AutomationKey key, RefreshAutomationValueEventHandler handler) {
             this.dataMap[key].RefreshValue += handler;
         }
 
-        public void OnOverrideStateChanged(AutomationSequenceViewModel sequence)
-        {
-            if (!ReferenceEquals(this, sequence.AutomationData))
-            {
+        public void OnOverrideStateChanged(AutomationSequenceViewModel sequence) {
+            if (!ReferenceEquals(this, sequence.AutomationData)) {
                 throw new Exception("Invalid sequence; not owned by this instance");
             }
 
@@ -160,32 +143,25 @@ namespace FramePFX.Automation.ViewModels
             AutomationEngine.OnOverrideStateChanged(this, sequence);
         }
 
-        public void OnKeyFrameChanged(AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame)
-        {
-            if (!ReferenceEquals(this, sequence.AutomationData))
-            {
+        public void OnKeyFrameChanged(AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
+            if (!ReferenceEquals(this, sequence.AutomationData)) {
                 throw new Exception("Invalid sequence; not owned by this instance");
             }
 
             AutomationEngine.OnKeyFrameChanged(this, sequence, keyFrame);
         }
 
-        public bool CanToggleOverride()
-        {
+        public bool CanToggleOverride() {
             return this.ActiveSequence != null || this.sequences.Any(x => x.IsOverrideEnabled);
         }
 
-        public void ToggleOverrideAction()
-        {
-            if (this.ActiveSequence != null)
-            {
+        public void ToggleOverrideAction() {
+            if (this.ActiveSequence != null) {
                 this.ActiveSequence.IsOverrideEnabled = !this.ActiveSequence.IsOverrideEnabled;
             }
-            else
-            {
+            else {
                 bool anyEnabled = this.sequences.Any(x => x.IsOverrideEnabled);
-                foreach (AutomationSequenceViewModel sequence in this.sequences)
-                {
+                foreach (AutomationSequenceViewModel sequence in this.sequences) {
                     sequence.IsOverrideEnabled = !anyEnabled;
                 }
             }
@@ -193,8 +169,7 @@ namespace FramePFX.Automation.ViewModels
             this.ToggleOverrideCommand.RaiseCanExecuteChanged();
         }
 
-        public void DeselectSequenceAction()
-        {
+        public void DeselectSequenceAction() {
             this.ActiveSequence = null;
         }
     }

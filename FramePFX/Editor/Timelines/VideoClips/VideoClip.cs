@@ -10,10 +10,8 @@ using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines.VideoClips
-{
-    public abstract class VideoClip : Clip
-    {
+namespace FramePFX.Editor.Timelines.VideoClips {
+    public abstract class VideoClip : Clip {
         public static readonly ZProperty<double> OpacityProperty = ZProperty.RegisterU<double>(typeof(VideoClip), nameof(Opacity));
 
         public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
@@ -21,14 +19,12 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// <summary>
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
         /// </summary>
-        public double Opacity
-        {
+        public double Opacity {
             get => this.GetValueU(OpacityProperty);
             set => this.SetValueU(OpacityProperty, value);
         }
 
-        public byte OpacityByte
-        {
+        public byte OpacityByte {
             get => RenderUtils.DoubleToByte255(this.Opacity);
             set => this.Opacity = RenderUtils.Byte255ToDouble(value);
         }
@@ -45,10 +41,9 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// </summary>
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
-        public new VideoTrack Track => (VideoTrack)base.Track;
+        public new VideoTrack Track => (VideoTrack) base.Track;
 
-        protected VideoClip()
-        {
+        protected VideoClip() {
             // using `(VideoClip) s.AutomationData.Owner` instead of `this` saves closure allocation
             this.AutomationData.AssignKey(OpacityKey, (s, f) => ((VideoClip) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f));
         }
@@ -58,19 +53,16 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// re-render to be scheduled, making it happen at some point in the very near future
         /// </summary>
         /// <param name="schedule">Schedule for the future and not in the current call</param>
-        public virtual void InvalidateRender(bool schedule = true)
-        {
+        public virtual void InvalidateRender(bool schedule = true) {
             this.RenderInvalidated?.Invoke(this, schedule);
         }
 
-        public override void WriteToRBE(RBEDictionary data)
-        {
+        public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
             data.SetDouble(nameof(this.Opacity), this.Opacity);
         }
 
-        public override void ReadFromRBE(RBEDictionary data)
-        {
+        public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
             this.Opacity = data.GetDouble(nameof(this.Opacity));
         }
@@ -94,8 +86,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// </summary>
         /// <param name="frame">The frame being rendered</param>
         /// <returns>Whether or not this clip can be rendered. False means <see cref="OnEndRender"/> will not be called</returns>
-        public virtual bool OnBeginRender(long frame)
-        {
+        public virtual bool OnBeginRender(long frame) {
             return false;
         }
 
@@ -105,8 +96,7 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// <param name="rc">The rendering/drawing context</param>
         /// <param name="frame">The frame being rendered</param>
         /// <returns>A task to await for the render to complete</returns>
-        public virtual Task OnEndRender(RenderContext rc, long frame)
-        {
+        public virtual Task OnEndRender(RenderContext rc, long frame) {
             return Task.CompletedTask;
         }
 
@@ -121,12 +111,10 @@ namespace FramePFX.Editor.Timelines.VideoClips
         /// Possible cancellation reasons are the render cancellation token expiring (timeline render took to long)
         /// or an exception occurred while rendering another clip, causing the remaining clip renders to be cancelled
         /// </param>
-        public virtual void OnRenderCompleted(long frame, bool isCancelled)
-        {
+        public virtual void OnRenderCompleted(long frame, bool isCancelled) {
         }
 
-        public override bool IsEffectTypeAllowed(BaseEffect effect)
-        {
+        public override bool IsEffectTypeAllowed(BaseEffect effect) {
             return effect is VideoEffect;
         }
     }

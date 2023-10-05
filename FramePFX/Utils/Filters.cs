@@ -1,9 +1,7 @@
 using FramePFX.Views.Dialogs.FilePicking;
 
-namespace FramePFX.Utils
-{
-    public static class Filters
-    {
+namespace FramePFX.Utils {
+    public static class Filters {
         public const string FrameFPXExtension = "fpx";
         public const string DotFrameFPXExtension = "." + FrameFPXExtension;
 

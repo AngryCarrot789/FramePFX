@@ -1,9 +1,7 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.Commands
-{
-    public interface IAsyncRelayCommand : IRelayCommand
-    {
+namespace FramePFX.Commands {
+    public interface IAsyncRelayCommand : IRelayCommand {
         /// <summary>
         /// Gets whether or not this command is currently executing a task
         /// </summary>

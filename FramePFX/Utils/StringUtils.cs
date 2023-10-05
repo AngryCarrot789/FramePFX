@@ -2,52 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FramePFX.Utils
-{
-    public static class StringUtils
-    {
-        public static string JSubstring(this string @this, int startIndex, int endIndex)
-        {
+namespace FramePFX.Utils {
+    public static class StringUtils {
+        public static string JSubstring(this string @this, int startIndex, int endIndex) {
             return @this.Substring(startIndex, endIndex - startIndex);
         }
 
-        public static bool IsEmpty(this string @this)
-        {
+        public static bool IsEmpty(this string @this) {
             return string.IsNullOrEmpty(@this);
         }
 
-        public static string Join(string a, string b, char join)
-        {
+        public static string Join(string a, string b, char join) {
             return new StringBuilder(32).Append(a).Append(join).Append(b).ToString();
         }
 
-        public static string Join(string a, string b, string c, char join)
-        {
+        public static string Join(string a, string b, string c, char join) {
             return new StringBuilder(32).Append(a).Append(join).Append(b).Append(join).Append(c).ToString();
         }
 
-        public static string JoinString(this IEnumerable<string> elements, string delimiter, string finalDelimiter, string emptyEnumerator = "")
-        {
-            using (IEnumerator<string> enumerator = elements.GetEnumerator())
-            {
+        public static string JoinString(this IEnumerable<string> elements, string delimiter, string finalDelimiter, string emptyEnumerator = "") {
+            using (IEnumerator<string> enumerator = elements.GetEnumerator()) {
                 return JoinString(enumerator, delimiter, finalDelimiter, emptyEnumerator);
             }
         }
 
-        public static string JoinString(this IEnumerator<string> elements, string delimiter, string finalDelimiter, string emptyEnumerator = "")
-        {
-            if (!elements.MoveNext())
-            {
+        public static string JoinString(this IEnumerator<string> elements, string delimiter, string finalDelimiter, string emptyEnumerator = "") {
+            if (!elements.MoveNext()) {
                 return emptyEnumerator;
             }
 
             StringBuilder sb = new StringBuilder();
             sb.Append(elements.Current);
-            if (elements.MoveNext())
-            {
+            if (elements.MoveNext()) {
                 string last = elements.Current;
-                while (elements.MoveNext())
-                {
+                while (elements.MoveNext()) {
                     sb.Append(delimiter).Append(last);
                     last = elements.Current;
                 }
@@ -58,52 +46,42 @@ namespace FramePFX.Utils
             return sb.ToString();
         }
 
-        public static string Repeat(char ch, int count)
-        {
+        public static string Repeat(char ch, int count) {
             char[] chars = new char[count];
             for (int i = 0; i < count; i++)
                 chars[i] = ch;
             return new string(chars);
         }
 
-        public static string Repeat(string str, int count)
-        {
+        public static string Repeat(string str, int count) {
             StringBuilder sb = new StringBuilder(str.Length * count);
             for (int i = 0; i < count; i++)
                 sb.Append(str);
             return sb.ToString();
         }
 
-        public static string FitLength(this string str, int length, char fit = ' ')
-        {
+        public static string FitLength(this string str, int length, char fit = ' ') {
             int strlen = str.Length;
-            if (strlen > length)
-            {
+            if (strlen > length) {
                 return str.Substring(0, length);
             }
 
-            if (strlen < length)
-            {
+            if (strlen < length) {
                 return str + Repeat(fit, length - strlen);
             }
-            else
-            {
+            else {
                 return str;
             }
         }
 
-        public static bool EqualsIgnoreCase(this string @this, string value)
-        {
+        public static bool EqualsIgnoreCase(this string @this, string value) {
             return @this.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static string RemoveChar(this string @this, char ch)
-        {
+        public static string RemoveChar(this string @this, char ch) {
             StringBuilder sb = new StringBuilder(@this.Length);
-            foreach (char character in @this)
-            {
-                if (character != ch)
-                {
+            foreach (char character in @this) {
+                if (character != ch) {
                     sb.Append(character);
                 }
             }
@@ -119,11 +97,9 @@ namespace FramePFX.Utils
         /// <param name="a">Everything before the splitter</param>
         /// <param name="b">Everything after the splitter</param>
         /// <returns>True if the string contained the splitter, otherwise false</returns>
-        public static bool Split(this string @this, string splitter, out string a, out string b)
-        {
+        public static bool Split(this string @this, string splitter, out string a, out string b) {
             int index;
-            if (string.IsNullOrEmpty(@this) || (index = @this.IndexOf(splitter)) < 0)
-            {
+            if (string.IsNullOrEmpty(@this) || (index = @this.IndexOf(splitter)) < 0) {
                 a = b = null;
                 return false;
             }
@@ -135,8 +111,7 @@ namespace FramePFX.Utils
 
         // remake of Format for explicitly 1 parameter
         // okay{0}then
-        public static string InjectFormat(string format, string argument)
-        {
+        public static string InjectFormat(string format, string argument) {
             int i;
             if (format == null || (i = format.IndexOf('{', 0)) == -1)
                 throw new Exception("Missing '{0}' somewhere in the source string");
@@ -147,14 +122,11 @@ namespace FramePFX.Utils
             return new string(chars);
         }
 
-        public static unsafe string InjectOrUseChars(string src, int srcIndex, char* arg, int argc)
-        {
-            if (src == null)
-            {
+        public static unsafe string InjectOrUseChars(string src, int srcIndex, char* arg, int argc) {
+            if (src == null) {
                 return new string(arg, 0, argc);
             }
-            else
-            {
+            else {
                 char[] chars = new char[src.Length + argc];
                 src.CopyTo(0, chars, 0, srcIndex);
                 for (int i = 0; i < argc; i++)
@@ -168,8 +140,7 @@ namespace FramePFX.Utils
         // Took this from a minecraft plugin I made, because java's built in format function was annoying to
         // use so I made my own that outperformed it by about 2x... not to toot my own horn or anything ;)
 
-        public static String Format(String format, params Object[] args)
-        {
+        public static String Format(String format, params Object[] args) {
             // return splice(format, Appender.forArray(args)); // just as fast as below once JIT'd
             // Remaking this by accepting format.toCharArray() would not make it any faster,
             // and would actually make it slightly slower due to the extra array copy/allocation
@@ -178,35 +149,28 @@ namespace FramePFX.Utils
                 return format;
             // buffer of 2x format is typically the best result
             FastStringBuf sb = new FastStringBuf(format.Length * 2);
-            do
-            {
-                if (i == 0 || format[i - 1] != '\\')
-                {
+            do {
+                if (i == 0 || format[i - 1] != '\\') {
                     // check escape char
                     sb.append(format, j, i); // append text between j and before '{' char
-                    if ((k = format.IndexOf('}', i)) != -1)
-                    {
+                    if ((k = format.IndexOf('}', i)) != -1) {
                         // get closing char index
                         j = k + 1; // set last char to after closing char
-                        if ((num = ParseIntSigned(format, i + 1, k, 10)) >= 0 && num < args.Length)
-                        {
+                        if ((num = ParseIntSigned(format, i + 1, k, 10)) >= 0 && num < args.Length) {
                             sb.append(args[num]); // append content
                         }
-                        else
-                        {
+                        else {
                             // OLD: sb.append('{').append(format, i + 1, k).append('}');
                             sb.append(format, i, j); // append values between { and }
                         }
 
                         i = k; // set next search index to the '}' char
                     }
-                    else
-                    {
+                    else {
                         j = i; // set last char to the last '{' char
                     }
                 }
-                else
-                {
+                else {
                     // remove escape char
                     sb.append(format, j, i - 1); // append text between last index and before the escape char
                     j = i; // set last index to the '{' char, which was originally escaped
@@ -218,16 +182,13 @@ namespace FramePFX.Utils
         }
 
         // Try parse non-negative int, or return -1 on failure
-        public static int ParseIntSigned(string chars, int index, int endIndex, int radix)
-        {
-            if (index < 0 || endIndex <= index)
-            {
+        public static int ParseIntSigned(string chars, int index, int endIndex, int radix) {
+            if (index < 0 || endIndex <= index) {
                 return -1;
             }
 
             char first = chars[index];
-            if (first < '0')
-            {
+            if (first < '0') {
                 // Possible leading "+"
                 if (first != '+' || (endIndex - index) == 1)
                     return -1; // Cannot have lone "+"
@@ -237,8 +198,7 @@ namespace FramePFX.Utils
             int result = 0;
             const int limit = -int.MaxValue; // Integer.MIN_VALUE + 1
             int radixMinLimit = limit / radix;
-            while (index < endIndex)
-            {
+            while (index < endIndex) {
                 // Accumulating negatively avoids surprises near MAX_VALUE
                 int digit = Digit(chars[index++], radix);
                 if (digit < 0 || result < radixMinLimit)
@@ -252,8 +212,7 @@ namespace FramePFX.Utils
         }
 
         // https://stackoverflow.com/a/40041591/11034928
-        public static int Digit(char value, int radix)
-        {
+        public static int Digit(char value, int radix) {
             if (radix <= 0 || radix > 36)
                 return -1; // Or throw exception
             if (radix <= 10)
@@ -267,8 +226,7 @@ namespace FramePFX.Utils
             return -1;
         }
 
-        public static string SplitLast(string str, char ch)
-        {
+        public static string SplitLast(string str, char ch) {
             int index = str.LastIndexOf(ch);
             return index == -1 ? str : str.Substring(index + 1);
         }

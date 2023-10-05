@@ -1,7 +1,5 @@
-namespace FramePFX.ServiceManaging
-{
-    public interface IClipboardService
-    {
+namespace FramePFX.ServiceManaging {
+    public interface IClipboardService {
         /// <summary>
         /// Attempts to set the clipboard to the given string
         /// </summary>

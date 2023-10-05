@@ -10,13 +10,11 @@ using System.Windows.Input;
 using FramePFX.Commands;
 using FramePFX.Utils;
 
-namespace FramePFX.WPF.Controls.Dragger
-{
+namespace FramePFX.WPF.Controls.Dragger {
     [TemplatePart(Name = nameof(PART_HintTextBlock), Type = typeof(TextBlock))]
     [TemplatePart(Name = nameof(PART_TextBlock), Type = typeof(TextBlock))]
     [TemplatePart(Name = nameof(PART_TextBox), Type = typeof(TextBox))]
-    public class NumberDragger : RangeBase
-    {
+    public class NumberDragger : RangeBase {
         private static readonly object ValueModStateBeginBox = ValueModState.Begin;
         private static readonly object ValueModStateFinishBox = ValueModState.Finish;
         private static readonly object ValueModStateCancelledBox = ValueModState.Cancelled;
@@ -53,8 +51,7 @@ namespace FramePFX.WPF.Controls.Dragger
         /// <summary>
         /// Gets or sets the tiny-change value. This is added or subtracted when CTRL + SHIFT is pressed
         /// </summary>
-        public double TinyChange
-        {
+        public double TinyChange {
             get => (double) this.GetValue(TinyChangeProperty);
             set => this.SetValue(TinyChangeProperty, value);
         }
@@ -62,44 +59,37 @@ namespace FramePFX.WPF.Controls.Dragger
         /// <summary>
         /// Gets or sets the massive change value. This is added or subtracted when CTRL is pressed
         /// </summary>
-        public double MassiveChange
-        {
+        public double MassiveChange {
             get => (double) this.GetValue(MassiveChangeProperty);
             set => this.SetValue(MassiveChangeProperty, value);
         }
 
-        public bool IsDragging
-        {
+        public bool IsDragging {
             get => (bool) this.GetValue(IsDraggingProperty);
             protected set => this.SetValue(IsDraggingPropertyKey, value.Box());
         }
 
-        public bool? CompleteEditOnTextBoxLostFocus
-        {
+        public bool? CompleteEditOnTextBoxLostFocus {
             get => (bool?) this.GetValue(CompleteEditOnTextBoxLostFocusProperty);
             set => this.SetValue(CompleteEditOnTextBoxLostFocusProperty, value.BoxNullable());
         }
 
-        public Orientation Orientation
-        {
+        public Orientation Orientation {
             get => (Orientation) this.GetValue(OrientationProperty);
             set => this.SetValue(OrientationProperty, value);
         }
 
-        public HorizontalIncrement HorizontalIncrement
-        {
+        public HorizontalIncrement HorizontalIncrement {
             get => (HorizontalIncrement) this.GetValue(HorizontalIncrementProperty);
             set => this.SetValue(HorizontalIncrementProperty, value);
         }
 
-        public VerticalIncrement VerticalIncrement
-        {
+        public VerticalIncrement VerticalIncrement {
             get => (VerticalIncrement) this.GetValue(VerticalIncrementProperty);
             set => this.SetValue(VerticalIncrementProperty, value);
         }
 
-        public bool IsEditingTextBox
-        {
+        public bool IsEditingTextBox {
             get => (bool) this.GetValue(IsEditingTextBoxProperty);
             protected set => this.SetValue(IsEditingTextBoxPropertyKey, value.Box());
         }
@@ -114,8 +104,7 @@ namespace FramePFX.WPF.Controls.Dragger
         /// this should be 14 or 15. This is to combat floating point rounding issues, causing the the
         /// </para>
         /// </summary>
-        public int? RoundedPlaces
-        {
+        public int? RoundedPlaces {
             get => (int?) this.GetValue(RoundedPlacesProperty);
             set => this.SetValue(RoundedPlacesProperty, value);
         }
@@ -130,14 +119,12 @@ namespace FramePFX.WPF.Controls.Dragger
         /// this should be 14 or 15. This is to combat floating point rounding issues, causing the the
         /// </para>
         /// </summary>
-        public int? PreviewRoundedPlaces
-        {
+        public int? PreviewRoundedPlaces {
             get => (int?) this.GetValue(PreviewRoundedPlacesProperty);
             set => this.SetValue(PreviewRoundedPlacesProperty, value);
         }
 
-        public bool LockCursorWhileDragging
-        {
+        public bool LockCursorWhileDragging {
             get => (bool) this.GetValue(LockCursorWhileDraggingProperty);
             set => this.SetValue(LockCursorWhileDraggingProperty, value.Box());
         }
@@ -149,8 +136,7 @@ namespace FramePFX.WPF.Controls.Dragger
         /// This is only displayed when the value is non-null and not an empty string
         /// </para>
         /// </summary>
-        public string DisplayTextOverride
-        {
+        public string DisplayTextOverride {
             get => (string) this.GetValue(DisplayTextOverrideProperty);
             set => this.SetValue(DisplayTextOverrideProperty, value);
         }
@@ -159,14 +145,12 @@ namespace FramePFX.WPF.Controls.Dragger
         /// A piece of text to display overtop of the editor text box when manually editing
         /// the value, and there is no text in the text box
         /// </summary>
-        public string EditingHint
-        {
+        public string EditingHint {
             get => (string) this.GetValue(EditingHintProperty);
             set => this.SetValue(EditingHintProperty, value);
         }
 
-        public bool? ForcedReadOnlyState
-        {
+        public bool? ForcedReadOnlyState {
             get => (bool?) this.GetValue(ForcedReadOnlyStateProperty);
             set => this.SetValue(ForcedReadOnlyStateProperty, value.BoxNullable());
         }
@@ -174,20 +158,17 @@ namespace FramePFX.WPF.Controls.Dragger
         /// <summary>
         /// Whether or not to restore the value property when the drag is cancelled. Default is true
         /// </summary>
-        public bool RestoreValueOnCancel
-        {
+        public bool RestoreValueOnCancel {
             get => (bool) this.GetValue(RestoreValueOnCancelProperty);
             set => this.SetValue(RestoreValueOnCancelProperty, value.Box());
         }
 
-        public IChangeMapper ChangeMapper
-        {
+        public IChangeMapper ChangeMapper {
             get => (IChangeMapper) this.GetValue(ChangeMapperProperty);
             set => this.SetValue(ChangeMapperProperty, value);
         }
 
-        public IValuePreProcessor ValuePreProcessor
-        {
+        public IValuePreProcessor ValuePreProcessor {
             get => (IValuePreProcessor) this.GetValue(ValuePreProcessorProperty);
             set => this.SetValue(ValuePreProcessorProperty, value);
         }
@@ -198,28 +179,23 @@ namespace FramePFX.WPF.Controls.Dragger
         /// Supports async relay commands
         /// </para>
         /// </summary>
-        public ICommand EditStateChangedCommand
-        {
+        public ICommand EditStateChangedCommand {
             get => (ICommand) this.GetValue(EditStateChangedCommandProperty);
             set => this.SetValue(EditStateChangedCommandProperty, value);
         }
 
-        public bool IsDoubleClickToEdit
-        {
+        public bool IsDoubleClickToEdit {
             get => (bool) this.GetValue(IsDoubleClickToEditProperty);
             set => this.SetValue(IsDoubleClickToEditProperty, value.Box());
         }
 
-        public ICommand ResetValueCommand
-        {
+        public ICommand ResetValueCommand {
             get => (ICommand) this.GetValue(ResetValueCommandProperty);
             set => this.SetValue(ResetValueCommandProperty, value);
         }
 
-        public bool IsValueReadOnly
-        {
-            get
-            {
+        public bool IsValueReadOnly {
+            get {
                 if (this.GetValue(ForcedReadOnlyStateProperty) is bool forced)
                     return forced;
 
@@ -228,8 +204,7 @@ namespace FramePFX.WPF.Controls.Dragger
                 if (expression == null || (binding = expression.ParentBinding) == null)
                     return false;
 
-                switch (binding.Mode)
-                {
+                switch (binding.Mode) {
                     case BindingMode.OneWay:
                     case BindingMode.OneTime:
                         return true;
@@ -244,15 +219,13 @@ namespace FramePFX.WPF.Controls.Dragger
         public static readonly RoutedEvent EditCompletedEvent = EventManager.RegisterRoutedEvent(nameof(EditCompleted), RoutingStrategy.Bubble, typeof(EditCompletedEventHandler), typeof(NumberDragger));
 
         [Category("Behavior")]
-        public event EditStartEventHandler EditStarted
-        {
+        public event EditStartEventHandler EditStarted {
             add => this.AddHandler(EditStartedEvent, value);
             remove => this.RemoveHandler(EditStartedEvent, value);
         }
 
         [Category("Behavior")]
-        public event EditCompletedEventHandler EditCompleted
-        {
+        public event EditCompletedEventHandler EditCompleted {
             add => this.AddHandler(EditCompletedEvent, value);
             remove => this.RemoveHandler(EditCompletedEvent, value);
         }
@@ -269,10 +242,8 @@ namespace FramePFX.WPF.Controls.Dragger
         private bool ignoreLostFocus;
         private bool hasCancelled_ignoreMouseUp;
 
-        public NumberDragger()
-        {
-            this.Loaded += (s, e) =>
-            {
+        public NumberDragger() {
+            this.Loaded += (s, e) => {
                 this.CoerceValue(IsEditingTextBoxProperty);
                 this.UpdateText();
                 this.UpdateCursor();
@@ -280,53 +251,42 @@ namespace FramePFX.WPF.Controls.Dragger
             };
         }
 
-        static NumberDragger()
-        {
+        static NumberDragger() {
             ValueProperty.OverrideMetadata(typeof(NumberDragger), new FrameworkPropertyMetadata(null, (o, value) => ((NumberDragger) o).OnCoerceValue(value)));
             Application.Current.Deactivated += OnApplicationFocusLost;
         }
 
-        private static void OnApplicationFocusLost(object sender, EventArgs e)
-        {
-            if (Keyboard.FocusedElement is NumberDragger dragger)
-            {
-                if (dragger.IsDragging)
-                {
+        private static void OnApplicationFocusLost(object sender, EventArgs e) {
+            if (Keyboard.FocusedElement is NumberDragger dragger) {
+                if (dragger.IsDragging) {
                     dragger.CancelDrag();
                 }
-                else if (dragger.IsEditingTextBox)
-                {
+                else if (dragger.IsEditingTextBox) {
                     dragger.CancelInputEdit();
                 }
             }
         }
 
-        private object OnCoerceValue(object value)
-        {
+        private object OnCoerceValue(object value) {
             double src = (double) value;
             double dst = Maths.Clamp(this.GetRoundedValue(src, false, out _), this.Minimum, this.Maximum);
-            if (this.ValuePreProcessor is IValuePreProcessor processor)
-            {
+            if (this.ValuePreProcessor is IValuePreProcessor processor) {
                 dst = processor.Process(dst, this.Minimum, this.Maximum);
             }
 
             return Maths.Equals(dst, src, 0.00000000001d) ? dst : value;
         }
 
-        public override void OnApplyTemplate()
-        {
+        public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.PART_TextBlock = this.GetTemplateChild("PART_TextBlock") as TextBlock ?? throw new Exception("Missing template part: " + nameof(this.PART_TextBlock));
             this.PART_TextBox = this.GetTemplateChild("PART_TextBox") as TextBox ?? throw new Exception("Missing template part: " + nameof(this.PART_TextBox));
             this.PART_HintTextBlock = this.GetTemplateChild("PART_HintTextBlock") as TextBlock;
             this.PART_TextBox.Focusable = true;
             this.PART_TextBox.KeyDown += this.OnTextBoxKeyDown;
-            this.PART_TextBox.LostFocus += (s, e) =>
-            {
-                if (this.IsEditingTextBox && this.CompleteEditOnTextBoxLostFocus is bool complete)
-                {
-                    if (!complete || !this.TryCompleteEdit())
-                    {
+            this.PART_TextBox.LostFocus += (s, e) => {
+                if (this.IsEditingTextBox && this.CompleteEditOnTextBoxLostFocus is bool complete) {
+                    if (!complete || !this.TryCompleteEdit()) {
                         this.CancelInputEdit();
                     }
                 }
@@ -339,19 +299,15 @@ namespace FramePFX.WPF.Controls.Dragger
             this.CoerceValue(IsEditingTextBoxProperty);
         }
 
-        public double GetRoundedValue(double value, bool isPreview, out int? places)
-        {
+        public double GetRoundedValue(double value, bool isPreview, out int? places) {
             places = this.RoundedPlaces;
-            if (places.HasValue)
-            {
+            if (places.HasValue) {
                 value = Math.Round(value, places.Value);
             }
 
-            if (isPreview)
-            {
+            if (isPreview) {
                 int? preview = this.PreviewRoundedPlaces;
-                if (preview.HasValue)
-                {
+                if (preview.HasValue) {
                     value = Math.Round(value, preview.Value);
                     places = preview;
                 }
@@ -360,39 +316,31 @@ namespace FramePFX.WPF.Controls.Dragger
             return value;
         }
 
-        protected virtual void OnIsDraggingChanged(bool oldValue, bool newValue)
-        {
+        protected virtual void OnIsDraggingChanged(bool oldValue, bool newValue) {
         }
 
-        protected virtual void OnOrientationChanged(Orientation oldValue, Orientation newValue)
-        {
-            if (this.IsDragging)
-            {
+        protected virtual void OnOrientationChanged(Orientation oldValue, Orientation newValue) {
+            if (this.IsDragging) {
                 this.CancelDrag();
             }
 
             this.IsEditingTextBox = false;
         }
 
-        protected virtual void OnIsEditingTextBoxChanged(bool oldValue, bool newValue)
-        {
-            if (newValue && this.IsDragging)
-            {
+        protected virtual void OnIsEditingTextBoxChanged(bool oldValue, bool newValue) {
+            if (newValue && this.IsDragging) {
                 this.CancelDrag();
             }
 
             this.UpdatePreviewVisibilities();
             this.UpdateText();
-            if (oldValue != newValue)
-            {
+            if (oldValue != newValue) {
                 this.ignoreLostFocus = true;
-                try
-                {
+                try {
                     this.PART_TextBox.Focus();
                     this.PART_TextBox.SelectAll();
                 }
-                finally
-                {
+                finally {
                     this.ignoreLostFocus = false;
                 }
             }
@@ -401,10 +349,8 @@ namespace FramePFX.WPF.Controls.Dragger
             this.UpdateHintVisibility();
         }
 
-        private object OnCoerceIsEditingTextBox(object isEditing)
-        {
-            if (this.PART_TextBox == null || this.PART_TextBlock == null)
-            {
+        private object OnCoerceIsEditingTextBox(object isEditing) {
+            if (this.PART_TextBox == null || this.PART_TextBlock == null) {
                 return isEditing;
             }
 
@@ -412,30 +358,23 @@ namespace FramePFX.WPF.Controls.Dragger
             return isEditing;
         }
 
-        private void UpdateHintVisibility()
-        {
-            if (this.PART_HintTextBlock != null && this.PART_TextBox != null)
-            {
-                if (string.IsNullOrWhiteSpace(this.PART_TextBox.Text) && this.IsEditingTextBox && !string.IsNullOrEmpty(this.EditingHint))
-                {
+        private void UpdateHintVisibility() {
+            if (this.PART_HintTextBlock != null && this.PART_TextBox != null) {
+                if (string.IsNullOrWhiteSpace(this.PART_TextBox.Text) && this.IsEditingTextBox && !string.IsNullOrEmpty(this.EditingHint)) {
                     this.PART_HintTextBlock.Visibility = Visibility.Visible;
                 }
-                else
-                {
+                else {
                     this.PART_HintTextBlock.Visibility = Visibility.Collapsed;
                 }
             }
         }
 
-        private void UpdatePreviewVisibilities()
-        {
-            if (this.IsEditingTextBox)
-            {
+        private void UpdatePreviewVisibilities() {
+            if (this.IsEditingTextBox) {
                 this.PART_TextBox.Visibility = Visibility.Visible;
                 this.PART_TextBlock.Visibility = Visibility.Hidden;
             }
-            else
-            {
+            else {
                 this.PART_TextBox.Visibility = Visibility.Hidden;
                 this.PART_TextBlock.Visibility = Visibility.Visible;
             }
@@ -443,75 +382,56 @@ namespace FramePFX.WPF.Controls.Dragger
             this.PART_TextBox.IsReadOnly = this.IsValueReadOnly;
         }
 
-        public void UpdateCursor()
-        {
-            if (this.IsValueReadOnly)
-            {
-                if (this.IsEditingTextBox)
-                {
-                    if (this.PART_TextBlock != null)
-                    {
+        public void UpdateCursor() {
+            if (this.IsValueReadOnly) {
+                if (this.IsEditingTextBox) {
+                    if (this.PART_TextBlock != null) {
                         this.PART_TextBlock.ClearValue(CursorProperty);
                     }
-                    else
-                    {
+                    else {
                         Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
                     }
 
                     this.ClearValue(CursorProperty);
                 }
-                else
-                {
+                else {
                     this.Cursor = Cursors.No;
-                    if (this.PART_TextBlock != null)
-                    {
+                    if (this.PART_TextBlock != null) {
                         this.PART_TextBlock.Cursor = Cursors.No;
                     }
-                    else
-                    {
+                    else {
                         Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
                     }
                 }
             }
-            else
-            {
-                if (this.IsDragging)
-                {
+            else {
+                if (this.IsDragging) {
                     this.Cursor = this.LockCursorWhileDragging ? Cursors.None : this.GetCursorForOrientation();
-                    if (this.PART_TextBlock != null)
-                    {
+                    if (this.PART_TextBlock != null) {
                         this.PART_TextBlock.ClearValue(CursorProperty);
                     }
-                    else
-                    {
+                    else {
                         Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
                     }
                 }
-                else
-                {
-                    if (this.IsEditingTextBox)
-                    {
-                        if (this.PART_TextBlock != null)
-                        {
+                else {
+                    if (this.IsEditingTextBox) {
+                        if (this.PART_TextBlock != null) {
                             this.PART_TextBlock.ClearValue(CursorProperty);
                         }
-                        else
-                        {
+                        else {
                             Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
                         }
 
                         this.ClearValue(CursorProperty);
                     }
-                    else
-                    {
+                    else {
                         Cursor cursor = this.GetCursorForOrientation();
                         this.Cursor = cursor;
-                        if (this.PART_TextBlock != null)
-                        {
+                        if (this.PART_TextBlock != null) {
                             this.PART_TextBlock.Cursor = cursor;
                         }
-                        else
-                        {
+                        else {
                             Debug.WriteLine(nameof(this.PART_TextBlock) + " is null?");
                         }
                     }
@@ -519,29 +439,24 @@ namespace FramePFX.WPF.Controls.Dragger
             }
         }
 
-        protected virtual void OnRoundedPlacesChanged(int? oldValue, int? newValue)
-        {
+        protected virtual void OnRoundedPlacesChanged(int? oldValue, int? newValue) {
             if (newValue != null)
                 this.UpdateText();
         }
 
-        protected virtual void OnPreviewRoundedPlacesChanged(int? oldValue, int? newValue)
-        {
+        protected virtual void OnPreviewRoundedPlacesChanged(int? oldValue, int? newValue) {
             if (newValue != null)
                 this.UpdateText();
         }
 
-        protected override void OnValueChanged(double oldValue, double newValue)
-        {
+        protected override void OnValueChanged(double oldValue, double newValue) {
             base.OnValueChanged(oldValue, newValue);
             this.UpdateText();
             this.RequeryChangeMapper(newValue);
         }
 
-        private void RequeryChangeMapper(double value)
-        {
-            if (this.ChangeMapper is IChangeMapper mapper)
-            {
+        private void RequeryChangeMapper(double value) {
+            if (this.ChangeMapper is IChangeMapper mapper) {
                 mapper.OnValueChanged(value, out double t, out double s, out double l, out double m);
                 if (!this.TinyChange.Equals(t))
                     this.TinyChange = t;
@@ -554,15 +469,12 @@ namespace FramePFX.WPF.Controls.Dragger
             }
         }
 
-        protected void UpdateText()
-        {
-            if (this.PART_TextBox == null && this.PART_TextBlock == null)
-            {
+        protected void UpdateText() {
+            if (this.PART_TextBox == null && this.PART_TextBlock == null) {
                 return;
             }
 
-            if (this.IsEditingTextBox)
-            {
+            if (this.IsEditingTextBox) {
                 if (this.PART_TextBlock != null)
                     this.PART_TextBlock.Text = "";
 
@@ -572,8 +484,7 @@ namespace FramePFX.WPF.Controls.Dragger
                 double value = this.GetRoundedValue(this.Value, false, out int? places);
                 this.PART_TextBox.Text = (places.HasValue ? Math.Round(value, places.Value) : value).ToString();
             }
-            else
-            {
+            else {
                 // prevents problems where the text box could be very large due
                 // to an un-rounded value, affecting the entire control size
                 // 0.300000011920929 for example when it should be 0.3
@@ -583,8 +494,7 @@ namespace FramePFX.WPF.Controls.Dragger
                 if (this.PART_TextBlock == null)
                     return;
                 string text = this.DisplayTextOverride;
-                if (string.IsNullOrEmpty(text))
-                {
+                if (string.IsNullOrEmpty(text)) {
                     double value = this.GetRoundedValue(this.Value, true, out int? places);
                     text = places.HasValue ? value.ToString("F" + places.Value.ToString()) : value.ToString();
                 }
@@ -593,39 +503,31 @@ namespace FramePFX.WPF.Controls.Dragger
             }
         }
 
-        protected override void OnMouseLeave(MouseEventArgs e)
-        {
+        protected override void OnMouseLeave(MouseEventArgs e) {
             base.OnMouseLeave(e);
-            if (e.LeftButton != MouseButtonState.Pressed && this.IsDragging)
-            {
+            if (e.LeftButton != MouseButtonState.Pressed && this.IsDragging) {
                 this.CompleteDrag();
             }
         }
 
         private bool? canActivateInputEdit;
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        {
-            if (!this.IsDragging && !this.IsValueReadOnly)
-            {
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+            if (!this.IsDragging && !this.IsValueReadOnly) {
                 e.Handled = true;
                 this.Focus();
 
                 this.lastMouseMove = this.lastClickPoint = e.GetPosition(this);
-                if (this.IsDoubleClickToEdit && e.ClickCount < 2)
-                {
+                if (this.IsDoubleClickToEdit && e.ClickCount < 2) {
                     this.canActivateInputEdit = false;
                 }
-                else
-                {
+                else {
                     this.canActivateInputEdit = true;
                     this.ignoreMouseMove = true;
-                    try
-                    {
+                    try {
                         this.CaptureMouse();
                     }
-                    finally
-                    {
+                    finally {
                         this.ignoreMouseMove = false;
                     }
 
@@ -636,21 +538,16 @@ namespace FramePFX.WPF.Controls.Dragger
             base.OnMouseLeftButtonDown(e);
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
             e.Handled = true;
-            if (this.IsDragging)
-            {
+            if (this.IsDragging) {
                 this.CompleteDrag();
             }
-            else if (this.hasCancelled_ignoreMouseUp)
-            {
+            else if (this.hasCancelled_ignoreMouseUp) {
                 this.hasCancelled_ignoreMouseUp = false;
             }
-            else if ((!this.canActivateInputEdit.HasValue || this.canActivateInputEdit.Value) && this.IsMouseOver && !this.IsValueReadOnly)
-            {
-                if (this.IsMouseCaptured)
-                {
+            else if ((!this.canActivateInputEdit.HasValue || this.canActivateInputEdit.Value) && this.IsMouseOver && !this.IsValueReadOnly) {
+                if (this.IsMouseCaptured) {
                     this.ReleaseMouseCapture();
                 }
 
@@ -661,115 +558,92 @@ namespace FramePFX.WPF.Controls.Dragger
             base.OnMouseLeftButtonUp(e);
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
+        protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (this.ignoreMouseMove || this.isUpdatingExternalMouse)
-            {
+            if (this.ignoreMouseMove || this.isUpdatingExternalMouse) {
                 return;
             }
 
-            if (e.LeftButton != MouseButtonState.Pressed)
-            {
-                if (this.IsDragging)
-                {
+            if (e.LeftButton != MouseButtonState.Pressed) {
+                if (this.IsDragging) {
                     this.CompleteDrag();
                 }
 
                 return;
             }
-            else if (!this.IsEnabled || this.IsValueReadOnly)
-            {
+            else if (!this.IsEnabled || this.IsValueReadOnly) {
                 // saves a bit of performance by processing these here
                 return;
             }
 
-            if (Keyboard.IsKeyDown(Key.Escape) && this.IsDragging)
-            {
+            if (Keyboard.IsKeyDown(Key.Escape) && this.IsDragging) {
                 this.CancelDrag();
                 return;
             }
 
-            if (!(this.lastMouseMove is Point lastPos))
-            {
+            if (!(this.lastMouseMove is Point lastPos)) {
                 return;
             }
 
             bool wrap = false;
             Point mpos = e.GetPosition(this), wrapPoint = mpos;
-            if (this.lastClickPoint is Point lastClick && !this.IsDragging)
-            {
-                if (Math.Abs(mpos.X - lastClick.X) < 5d && Math.Abs(mpos.Y - lastClick.Y) < 5d)
-                {
+            if (this.lastClickPoint is Point lastClick && !this.IsDragging) {
+                if (Math.Abs(mpos.X - lastClick.X) < 5d && Math.Abs(mpos.Y - lastClick.Y) < 5d) {
                     return;
                 }
 
                 this.BeginMouseDrag();
             }
 
-            if (!this.IsDragging)
-            {
+            if (!this.IsDragging) {
                 return;
             }
 
-            if (this.IsEditingTextBox)
-            {
+            if (this.IsEditingTextBox) {
                 Debug.WriteLine("IsEditingTextBox and IsDragging were both true");
                 this.IsEditingTextBox = false;
             }
 
-            if (this.LockCursorWhileDragging)
-            {
+            if (this.LockCursorWhileDragging) {
                 double x = mpos.X, y = mpos.Y;
-                if (this.Orientation == Orientation.Horizontal)
-                {
-                    if (mpos.X < 0)
-                    {
+                if (this.Orientation == Orientation.Horizontal) {
+                    if (mpos.X < 0) {
                         x = this.ActualWidth;
                         wrap = true;
                     }
-                    else if (mpos.X > this.ActualWidth)
-                    {
+                    else if (mpos.X > this.ActualWidth) {
                         x = 0;
                         wrap = true;
                     }
                 }
-                else
-                {
-                    if (mpos.Y < 0)
-                    {
+                else {
+                    if (mpos.Y < 0) {
                         y = this.ActualHeight;
                         wrap = true;
                     }
-                    else if (mpos.X > this.ActualHeight)
-                    {
+                    else if (mpos.X > this.ActualHeight) {
                         y = 0;
                         wrap = true;
                     }
                 }
 
-                if (wrap)
-                {
+                if (wrap) {
                     wrapPoint = new Point(x, y);
                 }
             }
 
             double change;
             Orientation orientation = this.Orientation;
-            switch (orientation)
-            {
-                case Orientation.Horizontal:
-                {
+            switch (orientation) {
+                case Orientation.Horizontal: {
                     change = mpos.X - lastPos.X;
                     break;
                 }
-                case Orientation.Vertical:
-                {
+                case Orientation.Vertical: {
                     change = mpos.Y - lastPos.Y;
                     break;
                 }
-                default:
-                {
+                default: {
                     throw new Exception("Invalid orientation: " + orientation);
                 }
             }
@@ -777,76 +651,60 @@ namespace FramePFX.WPF.Controls.Dragger
             bool isShiftDown = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
             bool isCtrlDown = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
 
-            if (isShiftDown)
-            {
-                if (isCtrlDown)
-                {
+            if (isShiftDown) {
+                if (isCtrlDown) {
                     change *= this.TinyChange;
                 }
-                else
-                {
+                else {
                     change *= this.SmallChange;
                 }
             }
-            else if (isCtrlDown)
-            {
+            else if (isCtrlDown) {
                 change *= this.MassiveChange;
             }
-            else
-            {
+            else {
                 change *= this.LargeChange;
             }
 
             double newValue;
             if ((orientation == Orientation.Horizontal && this.HorizontalIncrement == HorizontalIncrement.LeftDecrRightIncr) ||
-                (orientation == Orientation.Vertical && this.VerticalIncrement == VerticalIncrement.UpDecrDownIncr))
-            {
+                (orientation == Orientation.Vertical && this.VerticalIncrement == VerticalIncrement.UpDecrDownIncr)) {
                 newValue = this.Value + change;
             }
-            else
-            {
+            else {
                 newValue = this.Value - change;
             }
 
             double roundedValue = Maths.Clamp(this.GetRoundedValue(newValue, false, out _), this.Minimum, this.Maximum);
-            if (Maths.Equals(this.GetRoundedValue(this.Value, false, out _), roundedValue))
-            {
+            if (Maths.Equals(this.GetRoundedValue(this.Value, false, out _), roundedValue)) {
                 return;
             }
 
             this.Value = roundedValue;
             this.lastMouseMove = mpos;
 
-            if (wrap)
-            {
+            if (wrap) {
                 this.isUpdatingExternalMouse = true;
-                try
-                {
+                try {
                     this.lastMouseMove = wrapPoint;
                     Point sp = this.PointToScreen(wrapPoint);
                     CursorUtils.SetCursorPos((int) sp.X, (int) sp.Y);
                 }
-                finally
-                {
+                finally {
                     this.isUpdatingExternalMouse = false;
                 }
             }
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
+        protected override void OnKeyDown(KeyEventArgs e) {
             base.OnKeyDown(e);
-            if (!e.Handled)
-            {
-                if (this.IsDragging)
-                {
-                    if (e.Key == Key.Escape)
-                    {
+            if (!e.Handled) {
+                if (this.IsDragging) {
+                    if (e.Key == Key.Escape) {
                         this.hasCancelled_ignoreMouseUp = true;
                         e.Handled = true;
                         this.CancelInputEdit();
-                        if (this.IsDragging)
-                        {
+                        if (this.IsDragging) {
                             this.CancelDrag();
                         }
 
@@ -856,10 +714,8 @@ namespace FramePFX.WPF.Controls.Dragger
                 // If the user previously edited another NumberDragger, then once they complete/cancel an edit, WPF
                 // auto-focused that number dragger. Then they can press tab to navigate nearby draggers, and they can
                 // edit them by just clicking a key. Massive convenience feature, saves having to use the mouse as much
-                else if (this.CanEnableAutoEdit(e.Key) && !this.IsValueReadOnly && (this.HasEffectiveKeyboardFocus || this.IsFocused))
-                {
-                    if (this.IsMouseCaptured)
-                    {
+                else if (this.CanEnableAutoEdit(e.Key) && !this.IsValueReadOnly && (this.HasEffectiveKeyboardFocus || this.IsFocused)) {
+                    if (this.IsMouseCaptured) {
                         Debug.WriteLine("Unexpected mouse capture for KeyDown event");
                         this.ReleaseMouseCapture();
                     }
@@ -869,19 +725,14 @@ namespace FramePFX.WPF.Controls.Dragger
             }
         }
 
-        private bool CanEnableAutoEdit(Key k)
-        {
+        private bool CanEnableAutoEdit(Key k) {
             return k >= Key.D0 && k <= Key.D9 || k == Key.Enter;
         }
 
-        private void OnTextBoxKeyDown(object sender, KeyEventArgs e)
-        {
-            if (!e.Handled && !this.IsDragging && this.IsEditingTextBox)
-            {
-                if ((e.Key == Key.Enter || e.Key == Key.Escape))
-                {
-                    if (e.Key != Key.Enter || !this.TryCompleteEdit())
-                    {
+        private void OnTextBoxKeyDown(object sender, KeyEventArgs e) {
+            if (!e.Handled && !this.IsDragging && this.IsEditingTextBox) {
+                if ((e.Key == Key.Enter || e.Key == Key.Escape)) {
+                    if (e.Key != Key.Enter || !this.TryCompleteEdit()) {
                         this.CancelInputEdit();
                     }
 
@@ -890,13 +741,10 @@ namespace FramePFX.WPF.Controls.Dragger
             }
         }
 
-        protected override void OnLostFocus(RoutedEventArgs e)
-        {
+        protected override void OnLostFocus(RoutedEventArgs e) {
             base.OnLostFocus(e);
-            if (!this.ignoreLostFocus)
-            {
-                if (this.IsDragging)
-                {
+            if (!this.ignoreLostFocus) {
+                if (this.IsDragging) {
                     this.CancelDrag();
                 }
 
@@ -904,42 +752,35 @@ namespace FramePFX.WPF.Controls.Dragger
             }
         }
 
-        public void OnBeginInputEdit()
-        {
+        public void OnBeginInputEdit() {
             this.IsEditingTextBox = true;
             this.UpdateCursor();
             this.ExecuteCommand(ValueModStateBeginBox);
         }
 
-        public bool TryCompleteEdit()
-        {
-            if (!this.IsValueReadOnly && double.TryParse(this.PART_TextBox.Text, out double value))
-            {
+        public bool TryCompleteEdit() {
+            if (!this.IsValueReadOnly && double.TryParse(this.PART_TextBox.Text, out double value)) {
                 this.CompleteInputEdit(value);
                 return true;
             }
-            else
-            {
+            else {
                 return false;
             }
         }
 
-        public void CompleteInputEdit(double value)
-        {
+        public void CompleteInputEdit(double value) {
             this.IsEditingTextBox = false;
             // TODO: figure out "trimmed" out part (due to rounding) and use that to figure out if the value is actually different
             this.Value = value;
             this.ExecuteCommand(ValueModStateFinishBox);
         }
 
-        public void CancelInputEdit()
-        {
+        public void CancelInputEdit() {
             this.IsEditingTextBox = false;
             this.ExecuteCommand(ValueModStateCancelledBox);
         }
 
-        public void BeginMouseDrag()
-        {
+        public void BeginMouseDrag() {
             this.IsEditingTextBox = false;
             this.previousValue = this.Value;
             this.Focus();
@@ -948,15 +789,12 @@ namespace FramePFX.WPF.Controls.Dragger
             this.UpdateCursor();
 
             bool fail = true;
-            try
-            {
+            try {
                 this.RaiseEvent(new EditStartEventArgs());
                 fail = false;
             }
-            finally
-            {
-                if (fail)
-                {
+            finally {
+                if (fail) {
                     this.CancelDrag();
                 }
             }
@@ -964,48 +802,38 @@ namespace FramePFX.WPF.Controls.Dragger
             this.ExecuteCommand(ValueModStateBeginBox);
         }
 
-        public void CompleteDrag()
-        {
-            if (this.IsDragging)
-            {
+        public void CompleteDrag() {
+            if (this.IsDragging) {
                 this.ProcessDragCompletion(false);
                 this.previousValue = null;
             }
         }
 
-        public void CancelDrag()
-        {
-            if (this.IsDragging)
-            {
+        public void CancelDrag() {
+            if (this.IsDragging) {
                 this.ProcessDragCompletion(true);
-                if (this.previousValue is double oldVal)
-                {
+                if (this.previousValue is double oldVal) {
                     this.previousValue = null;
-                    if (this.RestoreValueOnCancel)
-                    {
+                    if (this.RestoreValueOnCancel) {
                         this.Value = oldVal;
                     }
                 }
             }
         }
 
-        private void ProcessDragCompletion(bool cancelled)
-        {
+        private void ProcessDragCompletion(bool cancelled) {
             if (this.IsMouseCaptured)
                 this.ReleaseMouseCapture();
             this.ClearValue(IsDraggingPropertyKey);
 
             this.lastMouseMove = null;
-            if (this.lastClickPoint is Point point)
-            {
+            if (this.LockCursorWhileDragging && this.lastClickPoint is Point point) {
                 this.isUpdatingExternalMouse = true;
-                try
-                {
+                try {
                     Point p = this.PointToScreen(point);
                     CursorUtils.SetCursorPos((int) p.X, (int) p.Y);
                 }
-                finally
-                {
+                finally {
                     this.isUpdatingExternalMouse = false;
                 }
             }
@@ -1017,36 +845,28 @@ namespace FramePFX.WPF.Controls.Dragger
             this.ExecuteCommand(cancelled ? ValueModStateCancelledBox : ValueModStateFinishBox);
         }
 
-        private void ExecuteCommand(object param)
-        {
+        private void ExecuteCommand(object param) {
             ICommand cmd = this.EditStateChangedCommand;
-            if (cmd != null && cmd.CanExecute(param))
-            {
-                if (cmd is BaseAsyncRelayCommand asyncCommand)
-                {
+            if (cmd != null && cmd.CanExecute(param)) {
+                if (cmd is BaseAsyncRelayCommand asyncCommand) {
                     this.IsEnabled = false;
                     Task task = asyncCommand.ExecuteAsync(param);
-                    if (task.IsCompleted)
-                    {
+                    if (task.IsCompleted) {
                         this.IsEnabled = true;
                     }
-                    else
-                    {
+                    else {
                         task.ContinueWith(x => this.IsEnabled = true, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
-                else
-                {
+                else {
                     cmd.Execute(param);
                 }
             }
         }
 
-        private Cursor GetCursorForOrientation()
-        {
+        private Cursor GetCursorForOrientation() {
             Cursor cursor;
-            switch (this.Orientation)
-            {
+            switch (this.Orientation) {
                 case Orientation.Horizontal:
                     cursor = Cursors.SizeWE;
                     break;

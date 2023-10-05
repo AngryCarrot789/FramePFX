@@ -3,38 +3,29 @@ using System.Globalization;
 using System.Windows.Data;
 using FramePFX.Editor.ViewModels;
 
-namespace FramePFX.WPF.Editor
-{
-    public class EditorTitleConverter : IMultiValueConverter
-    {
+namespace FramePFX.WPF.Editor {
+    public class EditorTitleConverter : IMultiValueConverter {
         public string DefaultTitle { get; set; } = "FramePFX";
 
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (values[0] is ProjectViewModel project)
-            {
-                if (string.IsNullOrEmpty(project.FullProjectFilePath))
-                {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
+            if (values[0] is ProjectViewModel project) {
+                if (string.IsNullOrEmpty(project.FullProjectFilePath)) {
                     return Modifiable(this.DefaultTitle, project.HasUnsavedChanges);
                 }
-                else
-                {
+                else {
                     return Modifiable(this.DefaultTitle + $" [{project.FullProjectFilePath}]", project.HasUnsavedChanges);
                 }
             }
-            else
-            {
+            else {
                 return this.DefaultTitle;
             }
         }
 
-        private static string Modifiable(string text, bool isModified)
-        {
+        private static string Modifiable(string text, bool isModified) {
             return isModified ? (text + "*") : text;
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
             throw new NotImplementedException();
         }
     }

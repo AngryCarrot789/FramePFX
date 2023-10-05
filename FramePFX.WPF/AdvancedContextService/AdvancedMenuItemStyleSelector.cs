@@ -2,13 +2,11 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.AdvancedContextService;
 
-namespace FramePFX.WPF.AdvancedContextService
-{
+namespace FramePFX.WPF.AdvancedContextService {
     /// <summary>
     /// A selector for selecting styles based on <see cref="IContextEntry"/> instances, or just defaulting to the standard <see cref="AdvancedMenuItem"/> style
     /// </summary>
-    public class AdvancedMenuItemStyleSelector : StyleSelector
-    {
+    public class AdvancedMenuItemStyleSelector : StyleSelector {
         public Style CheckableActionMenuItemStyle { get; set; }
         public Style NonCheckableActionMenuItemStyle { get; set; }
         public Style CheckableCommandMenuItemStyle { get; set; }
@@ -19,16 +17,12 @@ namespace FramePFX.WPF.AdvancedContextService
 
         public Style SeparatorStyle { get; set; }
 
-        public AdvancedMenuItemStyleSelector()
-        {
+        public AdvancedMenuItemStyleSelector() {
         }
 
-        public override Style SelectStyle(object item, DependencyObject container)
-        {
-            if (container is AdvancedMenuItem)
-            {
-                switch (item)
-                {
+        public override Style SelectStyle(object item, DependencyObject container) {
+            if (container is AdvancedMenuItem) {
+                switch (item) {
                     case ActionCheckableContextEntry _: return this.CheckableActionMenuItemStyle ?? this.NonCheckableActionMenuItemStyle;
                     case ActionContextEntry _: return this.NonCheckableActionMenuItemStyle;
                     case CommandCheckableContextEntry _: return this.CheckableCommandMenuItemStyle ?? this.NonCheckableCommandMenuItemStyle;
@@ -38,12 +32,10 @@ namespace FramePFX.WPF.AdvancedContextService
                     default: return this.DefaultAdvancedMenuItemStyle;
                 }
             }
-            else if (container is Separator)
-            {
+            else if (container is Separator) {
                 return this.SeparatorStyle;
             }
-            else
-            {
+            else {
                 return base.SelectStyle(item, container);
             }
         }

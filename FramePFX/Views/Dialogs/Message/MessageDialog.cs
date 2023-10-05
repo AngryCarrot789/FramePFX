@@ -1,24 +1,20 @@
 using System.Threading.Tasks;
 using FramePFX.Views.Dialogs.Modal;
 
-namespace FramePFX.Views.Dialogs.Message
-{
+namespace FramePFX.Views.Dialogs.Message {
     /// <summary>
     /// A helper view model for managing message dialogs that can have multiple buttons
     /// </summary>
-    public class MessageDialog : BaseProcessDialogViewModel
-    {
+    public class MessageDialog : BaseProcessDialogViewModel {
         protected string header;
         protected string message;
 
-        public string Header
-        {
+        public string Header {
             get => this.header;
             set => this.RaisePropertyChanged(ref this.header, value);
         }
 
-        public string Message
-        {
+        public string Message {
             get => this.message;
             set => this.RaisePropertyChanged(ref this.message, value);
         }
@@ -34,12 +30,10 @@ namespace FramePFX.Views.Dialogs.Message
         /// <param name="defaultResult">
         /// This dialog's default result, which is the result used if the dialog closed without a button (e.g. clicking esc or some dodgy Win32 usage)
         /// </param>
-        public MessageDialog(string primaryResult = null, string defaultResult = null) : base(primaryResult, defaultResult)
-        {
+        public MessageDialog(string primaryResult = null, string defaultResult = null) : base(primaryResult, defaultResult) {
         }
 
-        public Task<string> ShowAsync(string titlebar, string header, string message)
-        {
+        public Task<string> ShowAsync(string titlebar, string header, string message) {
             if (this.AutomaticResult != null)
                 return Task.FromResult(this.AutomaticResult);
 
@@ -52,13 +46,11 @@ namespace FramePFX.Views.Dialogs.Message
             return this.ShowAsync();
         }
 
-        public Task<string> ShowAsync(string titlebar, string message)
-        {
+        public Task<string> ShowAsync(string titlebar, string message) {
             return this.ShowAsync(titlebar, null, message);
         }
 
-        public Task<string> ShowAsync(string message)
-        {
+        public Task<string> ShowAsync(string message) {
             return this.ShowAsync(null, message);
         }
 
@@ -66,10 +58,8 @@ namespace FramePFX.Views.Dialogs.Message
         /// Creates a clone of this dialog. The returned instance will not be read only, allowing it to be further modified
         /// </summary>
         /// <returns></returns>
-        public MessageDialog Clone()
-        {
-            MessageDialog dialog = new MessageDialog()
-            {
+        public MessageDialog Clone() {
+            MessageDialog dialog = new MessageDialog() {
                 titlebar = this.titlebar,
                 header = this.header,
                 message = this.message,
@@ -86,13 +76,11 @@ namespace FramePFX.Views.Dialogs.Message
         }
 
 
-        protected override Task<bool?> ShowDialogAsync()
-        {
+        protected override Task<bool?> ShowDialogAsync() {
             return Services.DialogService.ShowDialogAsync(this);
         }
 
-        public override BaseProcessDialogViewModel CloneCore()
-        {
+        public override BaseProcessDialogViewModel CloneCore() {
             return this.Clone();
         }
 
@@ -109,8 +97,7 @@ namespace FramePFX.Views.Dialogs.Message
         /// </para>
         /// </summary>
         /// <returns></returns>
-        public MessageDialogUsage Use()
-        {
+        public MessageDialogUsage Use() {
             return new MessageDialogUsage(this);
         }
     }

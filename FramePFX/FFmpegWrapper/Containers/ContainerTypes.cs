@@ -1,10 +1,8 @@
 ﻿using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Containers
-{
-    public static class ContainerTypes
-    {
+namespace FramePFX.FFmpegWrapper.Containers {
+    public static class ContainerTypes {
         public const string
             //General
             Mp4 = "mp4",
@@ -18,11 +16,9 @@ namespace FramePFX.FFmpegWrapper.Containers
             M4a = "m4a",
             Wav = "wav";
 
-        public static unsafe AVOutputFormat* GetOutputFormat(string extension)
-        {
+        public static unsafe AVOutputFormat* GetOutputFormat(string extension) {
             AVOutputFormat* fmt = ffmpeg.av_guess_format(null, "dummy." + extension, null);
-            if (fmt == null)
-            {
+            if (fmt == null) {
                 throw new NotSupportedException();
             }
 

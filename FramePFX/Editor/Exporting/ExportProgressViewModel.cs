@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Exporting
-{
-    public class ExportProgressViewModel : BaseViewModel, IExportProgress
-    {
+namespace FramePFX.Editor.Exporting {
+    public class ExportProgressViewModel : BaseViewModel, IExportProgress {
         private long currentRenderFrame;
         private long currentEncodeFrame;
 
@@ -40,56 +38,47 @@ namespace FramePFX.Editor.Exporting
         private readonly RapidDispatchCallback rapidUpdateRender;
         private readonly RapidDispatchCallback rapidUpdateEncode;
 
-        public ExportProgressViewModel(ExportProperties properties, CancellationTokenSource cancellation)
-        {
+        public ExportProgressViewModel(ExportProperties properties, CancellationTokenSource cancellation) {
             this.ExportProperties = properties;
             this.Cancellation = cancellation;
             this.currentRenderFrame = properties.Span.Begin;
             this.currentEncodeFrame = properties.Span.Begin;
             this.CancelCommand = new AsyncRelayCommand(this.CancelActionAsync, () => !this.isCancelled);
 
-            this.rapidUpdateRender = new RapidDispatchCallback(() =>
-            {
+            this.rapidUpdateRender = new RapidDispatchCallback(() => {
                 this.RaisePropertyChanged(nameof(this.CurrentRenderFrame));
                 this.RaisePropertyChanged(nameof(this.RenderProgressPercentage));
             }, "ExportUpdateRender");
 
-            this.rapidUpdateEncode = new RapidDispatchCallback(() =>
-            {
+            this.rapidUpdateEncode = new RapidDispatchCallback(() => {
                 this.RaisePropertyChanged(nameof(this.CurrentEncodeFrame));
                 this.RaisePropertyChanged(nameof(this.EncodeProgressPercentage));
             }, "ExportUpdateEncode");
         }
 
-        public async Task CancelActionAsync()
-        {
-            if (this.isCancelled)
-            {
+        public async Task CancelActionAsync() {
+            if (this.isCancelled) {
                 return;
             }
 
             this.isCancelled = true;
             this.CancelCommand.RaiseCanExecuteChanged();
-            try
-            {
+            try {
                 this.Cancellation.Cancel();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 await Services.DialogService.ShowMessageExAsync("Error cancelling render", "This is weird...", e.GetToString());
             }
         }
 
         // These are called from the exporter thread,
 
-        public void OnFrameRendered(long frame)
-        {
+        public void OnFrameRendered(long frame) {
             Interlocked.Increment(ref this.currentRenderFrame);
             this.rapidUpdateRender.Invoke();
         }
 
-        public void OnFrameEncoded(long frame)
-        {
+        public void OnFrameEncoded(long frame) {
             Interlocked.Increment(ref this.currentEncodeFrame);
             this.rapidUpdateEncode.Invoke();
         }

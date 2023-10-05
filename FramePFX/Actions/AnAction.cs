@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 
-namespace FramePFX.Actions
-{
+namespace FramePFX.Actions {
     /// <summary>
     /// Represents some sort of action that can be executed. This class is designed to be used as a singleton,
     /// meaning there should only ever be a single instance of any implementation of this class
@@ -9,10 +8,8 @@ namespace FramePFX.Actions
     /// These actions can be executed through the <see cref="ActionManager.Execute(string, Contexts.IDataContext, bool)"/> function
     /// </para>
     /// </summary>
-    public abstract class AnAction
-    {
-        protected AnAction()
-        {
+    public abstract class AnAction {
+        protected AnAction() {
         }
 
         /// <summary>
@@ -47,8 +44,7 @@ namespace FramePFX.Actions
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>This action's presentation</returns>
-        public virtual bool CanExecute(AnActionEventArgs e)
-        {
+        public virtual bool CanExecute(AnActionEventArgs e) {
             return true;
         }
     }

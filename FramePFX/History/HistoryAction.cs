@@ -2,13 +2,11 @@ using System;
 using System.Threading.Tasks;
 using FramePFX.History.Exceptions;
 
-namespace FramePFX.History
-{
+namespace FramePFX.History {
     /// <summary>
     /// An action that can be undone and then also redone (but only after being undone)
     /// </summary>
-    public abstract class HistoryAction
-    {
+    public abstract class HistoryAction {
         private bool isRedoNext;
 
         /// <summary>
@@ -16,10 +14,8 @@ namespace FramePFX.History
         /// </summary>
         /// <returns>A task to await for the undo to fully complete</returns>
         /// <exception cref="Exception">Undo was already called but redo was not; undo twice sequentially is prohibited</exception>
-        public Task UndoAsync()
-        {
-            if (this.isRedoNext)
-            {
+        public Task UndoAsync() {
+            if (this.isRedoNext) {
                 throw InvalidHistoryOrderException.MultiUndo();
             }
 
@@ -35,10 +31,8 @@ namespace FramePFX.History
         /// <exception cref="Exception">
         /// Undo was never called or redo was invoked last but undo was not; undo twice sequentially is prohibited
         /// </exception>
-        public Task RedoAsync()
-        {
-            if (!this.isRedoNext)
-            {
+        public Task RedoAsync() {
+            if (!this.isRedoNext) {
                 throw InvalidHistoryOrderException.RedoBeforeUndo();
             }
 
@@ -66,8 +60,7 @@ namespace FramePFX.History
         /// </para>
         /// </summary>
         /// <returns></returns>
-        public virtual void OnRemoved()
-        {
+        public virtual void OnRemoved() {
         }
     }
 }

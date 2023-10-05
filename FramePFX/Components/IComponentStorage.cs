@@ -1,9 +1,7 @@
 using System;
 
-namespace FramePFX.Components
-{
-    public interface IComponentStorage
-    {
+namespace FramePFX.Components {
+    public interface IComponentStorage {
         /// <summary>
         /// Tries to get a component of the given type
         /// </summary>

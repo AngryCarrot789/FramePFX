@@ -15,17 +15,14 @@ using FramePFX.WPF.Controls.xclemence.RulerWPF.PositionManagers;
 using FramePFX.WPF.Utils;
 using Rect = System.Windows.Rect;
 
-namespace FramePFX.WPF.Controls.xclemence.RulerWPF
-{
-    public class Ruler : RulerBase, IDisposable
-    {
+namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
+    public class Ruler : RulerBase, IDisposable {
         public const int SubStepNumber = 10;
         private bool disposedValue;
         private RulerPositionManager positionManager;
         private bool isLoadedInternal;
 
-        public Ruler()
-        {
+        public Ruler() {
             this.positionManager = new TopRulerManager(this);
             this.Loaded += this.OnRulerLoaded;
             this.ClipToBounds = true;
@@ -33,8 +30,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
 
         private ScrollViewer scroller;
 
-        private void OnRulerLoaded(object sender, RoutedEventArgs e)
-        {
+        private void OnRulerLoaded(object sender, RoutedEventArgs e) {
             this.Loaded -= this.OnRulerLoaded;
             this.SizeChanged += this.OnRulerSizeChanged;
             this.Unloaded += this.OnRulerUnloaded;
@@ -42,8 +38,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
 
             // allows high performance rendering, so that we aren't rendering stuff that's offscreen
             this.scroller = VisualTreeUtils.GetParent<ScrollViewer>(this);
-            if (this.scroller != null)
-            {
+            if (this.scroller != null) {
                 this.scroller.SizeChanged += this.OnScrollerOnSizeChanged;
                 this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
             }
@@ -51,24 +46,20 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
             this.Dispatcher.InvokeAsync(this.InvalidateVisual, DispatcherPriority.Background);
         }
 
-        private void OnScrollerOnSizeChanged(object o, SizeChangedEventArgs e)
-        {
+        private void OnScrollerOnSizeChanged(object o, SizeChangedEventArgs e) {
             this.InvalidateVisual();
         }
 
-        private void OnScrollerOnScrollChanged(object o, ScrollChangedEventArgs e)
-        {
+        private void OnScrollerOnScrollChanged(object o, ScrollChangedEventArgs e) {
             this.InvalidateVisual();
         }
 
         private void OnRulerUnloaded(object sender, RoutedEventArgs e) => this.UnloadControl();
 
-        private void OnExternalMouseMouve(object sender, MouseEventArgs e)
-        {
+        private void OnExternalMouseMouve(object sender, MouseEventArgs e) {
         }
 
-        protected override void UpdateRulerPosition(RulerPosition position)
-        {
+        protected override void UpdateRulerPosition(RulerPosition position) {
             if (position == RulerPosition.Left)
                 this.positionManager = new LeftRulerManager(this);
             else
@@ -84,46 +75,38 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
         private bool CanDrawSlaveMode() => this.SlaveStepProperties != null;
         private bool CanDrawMasterMode() => (this.MajorStepValues != null && !double.IsNaN(this.MaxValue) && this.MaxValue > 0);
 
-        protected override void OnRender(DrawingContext dc)
-        {
+        protected override void OnRender(DrawingContext dc) {
             base.OnRender(dc);
-            if (!this.CanDrawRuler())
-            {
+            if (!this.CanDrawRuler()) {
                 return;
             }
 
             // calculate visible pixel bounds
             Rect rect;
-            if (this.scroller != null)
-            {
+            if (this.scroller != null) {
                 double width = Math.Min(this.scroller.ViewportWidth, this.ActualWidth);
                 double height = Math.Min(this.scroller.ViewportHeight, this.ActualHeight);
                 rect = new Rect(this.scroller.HorizontalOffset, this.scroller.VerticalOffset, width, height);
             }
-            else
-            {
+            else {
                 rect = new Rect(new Point(), this.RenderSize);
             }
 
-            if (this.Background is Brush bg)
-            {
+            if (this.Background is Brush bg) {
                 dc.DrawRectangle(bg, null, rect);
             }
 
             double pixelStep;
             double valueStep;
-            if (this.SlaveStepProperties == null)
-            {
+            if (this.SlaveStepProperties == null) {
                 (pixelStep, valueStep) = this.GetMajorStep();
                 this.StepProperties = new RulerStepProperties {PixelSize = pixelStep, Value = valueStep};
             }
-            else
-            {
+            else {
                 (pixelStep, valueStep) = this.SlaveStepProperties;
             }
 
-            if (this.ValueStepTransform != null)
-            {
+            if (this.ValueStepTransform != null) {
                 valueStep = this.ValueStepTransform(valueStep);
             }
 
@@ -134,13 +117,11 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
 
             // pxA = bound begin, pxB = bound end
             double pxA, pxB;
-            if (this.RulerPosition == RulerPosition.Top)
-            {
+            if (this.RulerPosition == RulerPosition.Top) {
                 pxA = rect.Left;
                 pxB = rect.Right + pixelStep;
             }
-            else
-            {
+            else {
                 pxA = rect.Top;
                 pxB = rect.Bottom + pixelStep;
             }
@@ -149,23 +130,19 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
             // Flooring may result in us drawing things partially offscreen to the left, which is kinda required
             int i = (int) Math.Floor(pxA / pixelStep);
             int j = (int) Math.Ceiling(pxB / pixelStep);
-            do
-            {
+            do {
                 double pixel = i * pixelStep;
-                if (i > j)
-                {
+                if (i > j) {
                     break;
                 }
 
-                for (int y = 1; y < steps; ++y)
-                {
+                for (int y = 1; y < steps; ++y) {
                     double sub_pixel = pixel + y * subpixel_size;
                     this.positionManager.DrawMinorLine(dc, sub_pixel);
                 }
 
                 double text_value = i * valueStep;
-                if (Math.Abs(text_value - (int) text_value) < 0.00001d)
-                {
+                if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
                     this.positionManager.DrawMajorLine(dc, pixel);
                     this.positionManager.DrawText(dc, text_value, pixel);
                 }
@@ -174,18 +151,15 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
             } while (true);
         }
 
-        private (double pixelStep, double valueStep) GetStepProperties()
-        {
+        private (double pixelStep, double valueStep) GetStepProperties() {
             double pixelStep;
             double valueStep;
 
-            if (this.SlaveStepProperties == null)
-            {
+            if (this.SlaveStepProperties == null) {
                 (pixelStep, valueStep) = this.GetMajorStep();
                 this.StepProperties = new RulerStepProperties {PixelSize = pixelStep, Value = valueStep};
             }
-            else
-            {
+            else {
                 (pixelStep, valueStep) = this.SlaveStepProperties;
             }
 
@@ -195,8 +169,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
             return (pixelStep, valueStep);
         }
 
-        private (double pixelStep, double valueStep) GetMajorStep()
-        {
+        private (double pixelStep, double valueStep) GetMajorStep() {
             // find thes minimal position of first major step between 0 and 1
             double normalizeMinSize = this.MinPixelSize * SubStepNumber / this.positionManager.GetSize();
 
@@ -221,18 +194,15 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
             return (pixelStep, valueStep: realStepValue);
         }
 
-        protected override void UpdateMarkerControlReference(UIElement oldElement, UIElement newElement)
-        {
+        protected override void UpdateMarkerControlReference(UIElement oldElement, UIElement newElement) {
             if (oldElement != null)
                 oldElement.MouseMove -= this.OnExternalMouseMouve;
             if (newElement != null)
                 newElement.MouseMove += this.OnExternalMouseMouve;
         }
 
-        private void UnloadControl()
-        {
-            if (this.isLoadedInternal)
-            {
+        private void UnloadControl() {
+            if (this.isLoadedInternal) {
                 if (this.MarkerControlReference != null)
                     this.MarkerControlReference.MouseMove -= this.OnExternalMouseMouve;
                 this.isLoadedInternal = false;
@@ -241,10 +211,8 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
 
         #region IDisposable Support
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposedValue)
-            {
+        protected virtual void Dispose(bool disposing) {
+            if (!this.disposedValue) {
                 if (disposing)
                     this.UnloadControl();
 
@@ -253,8 +221,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF
         }
 
         // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
+        public void Dispose() {
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }

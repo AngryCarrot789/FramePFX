@@ -1,10 +1,8 @@
-namespace FramePFX.Shortcuts.ViewModels
-{
+namespace FramePFX.Shortcuts.ViewModels {
     /// <summary>
     /// A base view model for shortcuts and shortcut groups
     /// </summary>
-    public class BaseShortcutItemViewModel : BaseViewModel
-    {
+    public class BaseShortcutItemViewModel : BaseViewModel {
         /// <summary>
         /// This shortcut item's manager
         /// </summary>
@@ -15,8 +13,7 @@ namespace FramePFX.Shortcuts.ViewModels
         /// </summary>
         public ShortcutGroupViewModel Parent { get; }
 
-        public BaseShortcutItemViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent)
-        {
+        public BaseShortcutItemViewModel(ShortcutManagerViewModel manager, ShortcutGroupViewModel parent) {
             this.Manager = manager;
             this.Parent = parent;
         }

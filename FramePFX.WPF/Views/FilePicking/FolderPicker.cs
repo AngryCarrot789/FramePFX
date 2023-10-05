@@ -7,10 +7,8 @@ using System.Windows.Interop; // for WPF support
 
 // for WPF support
 
-namespace FramePFX.WPF.Views.FilePicking
-{
-    public class FolderPicker
-    {
+namespace FramePFX.WPF.Views.FilePicking {
+    public class FolderPicker {
         public virtual string ResultPath { get; protected set; }
         public virtual string ResultName { get; protected set; }
         public virtual string InputPath { get; set; }
@@ -19,25 +17,19 @@ namespace FramePFX.WPF.Views.FilePicking
         public virtual string OkButtonLabel { get; set; }
         public virtual string FileNameLabel { get; set; }
 
-        protected virtual int SetOptions(int options)
-        {
-            if (this.ForceFileSystem)
-            {
+        protected virtual int SetOptions(int options) {
+            if (this.ForceFileSystem) {
                 options |= (int) FOS.FOS_FORCEFILESYSTEM;
             }
 
             return options;
         }
 
-        public static Window GetCurrentActiveWindow()
-        {
+        public static Window GetCurrentActiveWindow() {
             IntPtr window = GetActiveWindow();
-            if (window != IntPtr.Zero)
-            {
-                foreach (Window win in Application.Current.Windows)
-                {
-                    if (new WindowInteropHelper(win).Handle == window)
-                    {
+            if (window != IntPtr.Zero) {
+                foreach (Window win in Application.Current.Windows) {
+                    if (new WindowInteropHelper(win).Handle == window) {
                         return win;
                     }
                 }
@@ -47,19 +39,15 @@ namespace FramePFX.WPF.Views.FilePicking
         }
 
         // for WPF support
-        public bool? ShowDialog(Window owner = null, bool throwOnError = false)
-        {
+        public bool? ShowDialog(Window owner = null, bool throwOnError = false) {
             IntPtr window = IntPtr.Zero;
-            if (owner == null)
-            {
-                if ((window = GetActiveWindow()) == IntPtr.Zero)
-                {
+            if (owner == null) {
+                if ((window = GetActiveWindow()) == IntPtr.Zero) {
                     owner = Application.Current.MainWindow;
                 }
             }
 
-            if (window == IntPtr.Zero && owner != null)
-            {
+            if (window == IntPtr.Zero && owner != null) {
                 window = new WindowInteropHelper(owner).Handle;
             }
 
@@ -67,13 +55,10 @@ namespace FramePFX.WPF.Views.FilePicking
         }
 
         // for all .NET
-        public virtual bool? ShowDialog(IntPtr owner, bool throwOnError = false)
-        {
+        public virtual bool? ShowDialog(IntPtr owner, bool throwOnError = false) {
             IFileOpenDialog dialog = (IFileOpenDialog) new FileOpenDialog();
-            if (!string.IsNullOrEmpty(this.InputPath))
-            {
-                if (CheckHr(SHCreateItemFromParsingName(this.InputPath, null, typeof(IShellItem).GUID, out IShellItem item), throwOnError) != 0)
-                {
+            if (!string.IsNullOrEmpty(this.InputPath)) {
+                if (CheckHr(SHCreateItemFromParsingName(this.InputPath, null, typeof(IShellItem).GUID, out IShellItem item), throwOnError) != 0) {
                     return null;
                 }
 
@@ -84,66 +69,53 @@ namespace FramePFX.WPF.Views.FilePicking
             options = (FOS) this.SetOptions((int) options);
             dialog.SetOptions(options);
 
-            if (this.Title != null)
-            {
+            if (this.Title != null) {
                 dialog.SetTitle(this.Title);
             }
 
-            if (this.OkButtonLabel != null)
-            {
+            if (this.OkButtonLabel != null) {
                 dialog.SetOkButtonLabel(this.OkButtonLabel);
             }
 
-            if (this.FileNameLabel != null)
-            {
+            if (this.FileNameLabel != null) {
                 dialog.SetFileName(this.FileNameLabel);
             }
 
-            if (owner == IntPtr.Zero)
-            {
+            if (owner == IntPtr.Zero) {
                 owner = Process.GetCurrentProcess().MainWindowHandle;
-                if (owner == IntPtr.Zero)
-                {
+                if (owner == IntPtr.Zero) {
                     owner = GetDesktopWindow();
                 }
             }
 
             int hr = dialog.Show(owner);
-            if (hr == ERROR_CANCELLED)
-            {
+            if (hr == ERROR_CANCELLED) {
                 return null;
             }
 
-            if (CheckHr(hr, throwOnError) != 0)
-            {
+            if (CheckHr(hr, throwOnError) != 0) {
                 return null;
             }
 
-            if (CheckHr(dialog.GetResult(out IShellItem result), throwOnError) != 0)
-            {
+            if (CheckHr(dialog.GetResult(out IShellItem result), throwOnError) != 0) {
                 return null;
             }
 
-            if (CheckHr(result.GetDisplayName(SIGDN.SIGDN_DESKTOPABSOLUTEPARSING, out string path), throwOnError) != 0)
-            {
+            if (CheckHr(result.GetDisplayName(SIGDN.SIGDN_DESKTOPABSOLUTEPARSING, out string path), throwOnError) != 0) {
                 return null;
             }
 
             this.ResultPath = path;
-            if (CheckHr(result.GetDisplayName(SIGDN.SIGDN_DESKTOPABSOLUTEEDITING, out path), false) == 0)
-            {
+            if (CheckHr(result.GetDisplayName(SIGDN.SIGDN_DESKTOPABSOLUTEEDITING, out path), false) == 0) {
                 this.ResultName = path;
             }
 
             return true;
         }
 
-        private static int CheckHr(int hr, bool throwOnError)
-        {
-            if (hr != 0)
-            {
-                if (throwOnError)
-                {
+        private static int CheckHr(int hr, bool throwOnError) {
+            if (hr != 0) {
+                if (throwOnError) {
                     Marshal.ThrowExceptionForHR(hr);
                 }
             }
@@ -163,13 +135,11 @@ namespace FramePFX.WPF.Views.FilePicking
         private const int ERROR_CANCELLED = unchecked((int) 0x800704C7);
 
         [ComImport, Guid("DC1C5A9C-E88A-4dde-A5A1-60F82A20AEF7")] // CLSID_FileOpenDialog
-        private class FileOpenDialog
-        {
+        private class FileOpenDialog {
         }
 
         [ComImport, Guid("42f85136-db7e-439c-85f1-e4075d135fc8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        private interface IFileOpenDialog
-        {
+        private interface IFileOpenDialog {
             [PreserveSig]
             int Show(IntPtr parent); // IModalWindow
 
@@ -250,8 +220,7 @@ namespace FramePFX.WPF.Views.FilePicking
         }
 
         [ComImport, Guid("43826D1E-E718-42EE-BC55-A1E261C37BFE"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        private interface IShellItem
-        {
+        private interface IShellItem {
             [PreserveSig]
             int BindToHandler(); // not fully defined
 
@@ -268,8 +237,7 @@ namespace FramePFX.WPF.Views.FilePicking
             int Compare(); // not fully defined
         }
 
-        private enum SIGDN : uint
-        {
+        private enum SIGDN : uint {
             SIGDN_DESKTOPABSOLUTEEDITING = 0x8004c000,
             SIGDN_DESKTOPABSOLUTEPARSING = 0x80028000,
             SIGDN_FILESYSPATH = 0x80058000,
@@ -282,8 +250,7 @@ namespace FramePFX.WPF.Views.FilePicking
         }
 
         [Flags]
-        private enum FOS
-        {
+        private enum FOS {
             FOS_OVERWRITEPROMPT = 0x2,
             FOS_STRICTFILETYPES = 0x4,
             FOS_NOCHANGEDIR = 0x8,

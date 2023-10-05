@@ -2,13 +2,11 @@ using FramePFX.Editor.Timelines.Events;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
 
-namespace FramePFX.Editor.Timelines
-{
+namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// An interface for clip objects, including the base <see cref="Clip"/> class
     /// </summary>
-    public interface IClip : IProjectBound
-    {
+    public interface IClip : IProjectBound {
         /// <summary>
         /// Gets the track that this clip is currently placed in
         /// </summary>

@@ -103,13 +103,15 @@ namespace FramePFX.WPF
                     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
                     unscaledSize.Height == scaledSize.Height ? 96d : (96d * scaleY),
                     PixelFormats.Pbgra32, null);
-                // this.gameWindow.Width = (int) this.bitmap.Width;
-                // this.gameWindow.Height = (int) this.bitmap.Height;
-                bitmap.Lock();
-                this.targetSurface?.Dispose();
-                this.targetSurface = SKSurface.Create(frameInfo, bitmap.BackBuffer, bitmap.BackBufferStride);
-                bitmap.Unlock();
+                // bitmap.Lock();
+                // this.targetSurface?.Dispose();
+                // this.targetSurface = SKSurface.Create(frameInfo, bitmap.BackBuffer, bitmap.BackBufferStride);
+                // bitmap.Unlock();
             }
+
+            bitmap.Lock();
+            this.targetSurface = SKSurface.Create(frameInfo, bitmap.BackBuffer, bitmap.BackBufferStride);
+            bitmap.Unlock();
 
             surface = this.targetSurface;
 
@@ -132,8 +134,10 @@ namespace FramePFX.WPF
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
             this.targetSurface.Canvas.Restore();
-            // this.targetSurface.Dispose();
-            // this.targetSurface = null;
+
+            this.targetSurface.Dispose();
+            this.targetSurface = null;
+
             this.isRendering = false;
             this.InvalidateVisual();
         }

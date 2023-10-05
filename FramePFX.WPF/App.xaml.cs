@@ -341,7 +341,7 @@ namespace FramePFX.WPF
             }
 
             await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
-            ((EditorMainWindow) this.MainWindow)?.VPViewBox.FitContentToCenter();
+            ((EditorMainWindow) this.MainWindow)?.ViewPortControl.VPViewBox.FitContentToCenter();
             await editor.ActiveProject.Timeline.DoAutomationTickAndRenderToPlayback();
         }
 

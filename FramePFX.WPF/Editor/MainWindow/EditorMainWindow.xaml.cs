@@ -350,11 +350,11 @@ namespace FramePFX.WPF.Editor.MainWindow
             {
                 CancellationTokenSource source = new CancellationTokenSource(-1);
                 long frame = timeline.PlayHeadFrame;
-                if (this.ViewPortElement.BeginRender(out SKSurface surface))
+                if (this.ViewPortControl.ViewPortElement.BeginRender(out SKSurface surface))
                 {
                     try
                     {
-                        RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                        RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortControl.ViewPortElement.FrameInfo);
                         context.ShouldProvideClipBounds = true;
                         context.ClearPixels();
                         try
@@ -384,11 +384,11 @@ namespace FramePFX.WPF.Editor.MainWindow
                             }
                         }
 
-                        this.ViewPortElement.OutlineList = list;
+                        this.ViewPortControl.ViewPortElement.OutlineList = list;
                     }
                     finally
                     {
-                        this.ViewPortElement.EndRender();
+                        this.ViewPortControl.ViewPortElement.EndRender();
                     }
                 }
             }
@@ -453,11 +453,6 @@ namespace FramePFX.WPF.Editor.MainWindow
             {
                 track.Height = Maths.Clamp(track.Height + e.VerticalChange, 24, 500);
             }
-        }
-
-        private void OnFitContentToWindowClick(object sender, RoutedEventArgs e)
-        {
-            this.VPViewBox.FitContentToCenter();
         }
 
         private int number;

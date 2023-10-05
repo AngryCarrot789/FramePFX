@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editor.ResourceChecker;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.ViewModels;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.Actions
@@ -38,6 +39,9 @@ namespace FramePFX.Editor.ResourceManaging.Actions
                 List<ResourceItemViewModel> items = resItem.Manager.SelectedItems.OfType<ResourceItemViewModel>().ToList();
                 if (items.Count > 0)
                 {
+                    if (!items.Contains(resItem))
+                        items.Add(resItem);
+
                     await SetOnlineState(items, null);
                     return true;
                 }
@@ -48,10 +52,11 @@ namespace FramePFX.Editor.ResourceManaging.Actions
 
         private static async Task SetOnlineState(IEnumerable<ResourceItemViewModel> items, bool? state)
         {
+            List<ResourceItemViewModel> altList = items.ToList();
             List<ResourceItemViewModel> list = new List<ResourceItemViewModel>();
             using (ErrorList stack = new ErrorList(false))
             {
-                foreach (ResourceItemViewModel item in items)
+                foreach (ResourceItemViewModel item in altList)
                 {
                     if (state == false || (state == null && item.IsOnline))
                     {
@@ -77,6 +82,12 @@ namespace FramePFX.Editor.ResourceManaging.Actions
                 };
 
                 await ResourceCheckerViewModel.LoadResources(checker, list, true);
+            }
+
+            VideoEditorViewModel editor = altList.FirstOrDefault(x => x.Manager != null)?.Manager?.Project?.Editor;
+            if (editor != null && editor.SelectedTimeline != null)
+            {
+                await editor.DoDrawRenderFrame(editor.SelectedTimeline);
             }
         }
     }

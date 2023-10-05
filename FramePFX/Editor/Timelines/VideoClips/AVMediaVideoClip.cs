@@ -27,6 +27,8 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
+        public override bool UseCustomOpacityCalculation => true;
+
         private Task<VideoFrame> GetFrameTask;
 
         public AVMediaVideoClip()
@@ -106,7 +108,9 @@ namespace FramePFX.Editor.Timelines.VideoClips
                     GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
                     SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
                     using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                        rc.Canvas.DrawImage(img, 0, 0);
+                        SKFilterQuality quality = this.Project.RenderQuality.ToFilterQuality();
+                        using (SKPaint paint = new SKPaint() {FilterQuality = quality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)})
+                            rc.Canvas.DrawImage(img, 0, 0, paint);
                     }
                 }
             }

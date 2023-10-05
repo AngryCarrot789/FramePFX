@@ -14,6 +14,11 @@ namespace FramePFX.Editor
         /// </summary>
         public Rational TimeBase;
 
+        /// <summary>
+        /// The project's render quality which affects how good the image looks but higher quality takes longer (duh)
+        /// </summary>
+        public EnumRenderQuality Quality;
+
         #endregion
 
         #region Audio
@@ -40,6 +45,7 @@ namespace FramePFX.Editor
             this.SampleRate = 44100;
             this.BitRate = 16;
             this.Channels = 2;
+            this.Quality = EnumRenderQuality.Medium;
         }
 
         public void ReadFromRBE(RBEDictionary data)
@@ -49,6 +55,7 @@ namespace FramePFX.Editor
             this.ChannelFormat = data.GetString(nameof(this.ChannelFormat));
             this.SampleRate = data.GetInt(nameof(this.SampleRate));
             this.BitRate = data.GetInt(nameof(this.BitRate));
+            this.Quality = (EnumRenderQuality) data.GetByte(nameof(this.Quality), (byte) EnumRenderQuality.Medium);
         }
 
         public void WriteToRBE(RBEDictionary data)
@@ -58,6 +65,7 @@ namespace FramePFX.Editor
             data.SetString(nameof(this.ChannelFormat), this.ChannelFormat);
             data.SetInt(nameof(this.SampleRate), this.SampleRate);
             data.SetInt(nameof(this.BitRate), this.BitRate);
+            data.SetByte(nameof(this.Quality), (byte) this.Quality);
         }
     }
 }

@@ -33,6 +33,15 @@ namespace FramePFX.Editor
         public bool IsLoaded { get; private set; }
 
         /// <summary>
+        /// Gets or sets this project's settings' rendering quality
+        /// </summary>
+        public EnumRenderQuality RenderQuality
+        {
+            get => this.Settings.Quality;
+            set => this.Settings.Quality = value;
+        }
+
+        /// <summary>
         /// This project's data folder, which is where file-based data is stored (that isn't stored using an absolute path).
         /// <para>
         /// This will return null if a data folder has not been generated, in which case,

@@ -53,10 +53,9 @@ namespace FramePFX.Editor.Timelines.VideoClips
                 return Task.CompletedTask;
             if (resource.image == null)
                 return Task.CompletedTask;
-            using (SKPaint paint = new SKPaint() {FilterQuality = SKFilterQuality.High, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)})
-            {
+            SKFilterQuality quality = this.Project.RenderQuality.ToFilterQuality();
+            using (SKPaint paint = new SKPaint() {FilterQuality = quality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)})
                 rc.Canvas.DrawImage(resource.image, 0, 0, paint);
-            }
 
             return Task.CompletedTask;
         }

@@ -30,12 +30,12 @@ namespace FramePFX.Editor.Contexts
 
                 if (selected.Count == 1)
                 {
-                    list.Add(new ActionContextEntry(resItem.Manager, "actions.general.RenameItem", "Rename"));
+                    list.Add(new ActionContextEntry(resItem, "actions.general.RenameItem", "Rename"));
                     list.Add(SeparatorEntry.Instance);
                 }
 
-                list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.GroupSelectionIntoFolder", "Group into folder"));
-                list.Add(new ActionContextEntry(resItem.Manager, "actions.resources.DeleteItems", "Delete"));
+                list.Add(new ActionContextEntry(resItem, "actions.resources.GroupSelectionIntoFolder", "Group into folder"));
+                list.Add(new ActionContextEntry(resItem, "actions.resources.DeleteItems", "Delete"));
                 list.Add(SeparatorEntry.Instance);
 
                 if (resItem is ResourceCompositionViewModel)
@@ -49,17 +49,17 @@ namespace FramePFX.Editor.Contexts
                     {
                         if (item.IsOnline)
                         {
-                            list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
+                            list.Add(new ActionContextEntry(item, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
                         }
                         else
                         {
-                            list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
+                            list.Add(new ActionContextEntry(item, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
                         }
                     }
                     else
                     {
-                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set All Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
-                        list.Add(new ActionContextEntry(item.Manager, "actions.resources.ToggleOnlineState", "Set All Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
+                        list.Add(new ActionContextEntry(item, "actions.resources.ToggleOnlineState", "Set All Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
+                        list.Add(new ActionContextEntry(item, "actions.resources.ToggleOnlineState", "Set All Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
                     }
                 }
             }

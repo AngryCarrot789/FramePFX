@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using FramePFX.Utils;
 
@@ -32,6 +33,17 @@ namespace FramePFX.Editor.ViewModels
             }
         }
 
+        public EnumRenderQuality RenderQuality
+        {
+            get => this.Model.Quality;
+            set
+            {
+                this.Model.Quality = value;
+                this.RaisePropertyChanged();
+                this.ProjectModified?.Invoke(this, nameof(this.RenderQuality));
+            }
+        }
+
         public ObservableCollection<string> ChannelFormats { get; }
 
         public string ChannelFormat
@@ -58,6 +70,8 @@ namespace FramePFX.Editor.ViewModels
         public int Height => this.Model.Resolution.Height;
 
         public event ProjectModifiedEvent ProjectModified;
+
+        public static IList<EnumRenderQuality> RenderQualities { get; } = new List<EnumRenderQuality>() {EnumRenderQuality.Unspecified, EnumRenderQuality.Low, EnumRenderQuality.Medium, EnumRenderQuality.High};
 
         public ProjectSettingsViewModel(ProjectSettings model)
         {

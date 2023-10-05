@@ -219,6 +219,9 @@
     <Compile Include="Editor\Automation\LineHitType.cs" />
     <Compile Include="Editor\Effects\EffectProviderTreeView.cs" />
     <Compile Include="Editor\Effects\EffectProviderTreeViewItem.cs" />
+    <Compile Include="Editor\MainWindow\ViewPortUserControl.xaml.cs">
+      <DependentUpon>ViewPortUserControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editor\Resources\ResourcesPanelControl.xaml.cs">
       <DependentUpon>ResourcesPanelControl.xaml</DependentUpon>
     </Compile>
@@ -593,6 +596,10 @@
     <Page Include="Editor\Automation\AutomationSequenceStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editor\MainWindow\ViewPortUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Resources\ResourcesPanelControl.xaml">
       <Generator>MSBuild:Compile</Generator>

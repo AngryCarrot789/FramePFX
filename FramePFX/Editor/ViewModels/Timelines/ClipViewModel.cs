@@ -149,6 +149,8 @@ namespace FramePFX.Editor.ViewModels.Timelines
             set => this.RaisePropertyChanged(ref this.isSelected, value);
         }
 
+        public bool IsClipActive => this.Model.IsRenderingEnabled;
+
         /// <summary>
         /// The timeline associated with this clip. Clips should not really be modified when not inside a track
         /// </summary>

@@ -88,6 +88,16 @@ namespace FramePFX.Editor.Timelines
 
         public bool IsAutomationChangeInProgress { get; set; }
 
+        /// <summary>
+        /// Gets or sets if this clip be rendered (drawn for video clips, or played for audio clips).
+        /// When true, the clip can be drawn to the view port or have audio play to the speakers (both including exporting).
+        /// False means the clip is not drawn and no audio is played
+        /// <para>
+        /// True by default
+        /// </para>
+        /// </summary>
+        public bool IsRenderingEnabled { get; set; }
+
         public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
 
         public event TrackChangedEventHandler TrackChanged;
@@ -101,6 +111,7 @@ namespace FramePFX.Editor.Timelines
         {
             this.AutomationData = new AutomationData(this);
             this.internalEffectList = new List<BaseEffect>();
+            this.IsRenderingEnabled = true;
         }
 
         public KeyFrame GetDefaultKeyFrame(AutomationKey key)
@@ -193,6 +204,7 @@ namespace FramePFX.Editor.Timelines
                 data.SetString(nameof(this.DisplayName), this.DisplayName);
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
+            data.SetBool(nameof(this.IsRenderingEnabled), this.IsRenderingEnabled);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList("Effects");
             foreach (BaseEffect effect in this.Effects)
@@ -219,6 +231,7 @@ namespace FramePFX.Editor.Timelines
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
+            this.IsRenderingEnabled = data.GetBool(nameof(this.IsRenderingEnabled), true);
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             this.ClearEffects(); // this shouldn't be necessary... but just in case
             foreach (RBEBase entry in data.GetList("Effects").List)

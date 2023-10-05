@@ -153,6 +153,7 @@
                                                              HorizontalAlignment="Stretch"
                                                              VerticalAlignment="Stretch"
                                                              Margin="0,20,0,0"/>
+                        <tc:TimelineClipContents IsClipRenderingEnabled="{Binding IsClipActive, Mode=OneWay}" Margin="0,20,0,0"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">

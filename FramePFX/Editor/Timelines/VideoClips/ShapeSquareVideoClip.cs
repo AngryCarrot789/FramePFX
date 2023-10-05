@@ -93,9 +93,11 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public override Task OnEndRender(RenderContext rc, long frame)
         {
-            if (this.ColourKey.TryGetResource(out ResourceColour r)) {
+            if (this.ColourKey.TryGetResource(out ResourceColour r))
+            {
                 SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
-                using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
+                using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true})
+                {
                     rc.Canvas.DrawRect(0, 0, this.Width, this.Height, paint);
                 }
             }

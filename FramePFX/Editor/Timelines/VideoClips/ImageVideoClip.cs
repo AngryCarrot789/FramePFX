@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Rendering;
+using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips
 {
@@ -11,6 +12,8 @@ namespace FramePFX.Editor.Timelines.VideoClips
         public ResourceHelper ResourceHelper { get; }
 
         public IResourcePathKey<ResourceImage> ImageKey { get; set; }
+
+        public override bool UseCustomOpacityCalculation => true;
 
         public ImageVideoClip()
         {
@@ -50,7 +53,11 @@ namespace FramePFX.Editor.Timelines.VideoClips
                 return Task.CompletedTask;
             if (resource.image == null)
                 return Task.CompletedTask;
-            // rc.Canvas.DrawImage(resource.image, 0, 0);
+            using (SKPaint paint = new SKPaint() {FilterQuality = SKFilterQuality.High, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)})
+            {
+                rc.Canvas.DrawImage(resource.image, 0, 0, paint);
+            }
+
             return Task.CompletedTask;
         }
 

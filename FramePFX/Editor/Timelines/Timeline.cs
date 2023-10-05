@@ -370,7 +370,7 @@ namespace FramePFX.Editor.Timelines
                 if (trackList[i] is VideoTrack track && track.IsActuallyVisible)
                 {
                     Clip clip = track.GetClipAtFrame(frame);
-                    if (clip == null)
+                    if (clip == null || !clip.IsRenderingEnabled)
                     {
                         continue;
                     }

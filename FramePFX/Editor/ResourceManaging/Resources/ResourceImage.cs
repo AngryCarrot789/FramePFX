@@ -88,9 +88,28 @@ namespace FramePFX.Editor.ResourceManaging.Resources
 
         public static async Task<SKBitmap> LoadBitmapAsync(string path)
         {
-            using (BufferedStream stream = new BufferedStream(File.OpenRead(path), 8192))
+            using (BufferedStream stream = new BufferedStream(File.OpenRead(path), 16384))
             {
-                return await Task.Run(() => SKBitmap.Decode(stream));
+                return await Task.Run(() =>
+                {
+                    using (SKCodec codec = SKCodec.Create(stream, out SKCodecResult result))
+                    {
+                        if (codec == null)
+                            return null;
+
+                        SKImageInfo bitmapInfo = codec.Info;
+                        if (bitmapInfo.AlphaType == SKAlphaType.Unpremul)
+                            bitmapInfo.AlphaType = SKAlphaType.Premul;
+
+                        SKBitmap skBitmap = new SKBitmap(bitmapInfo);
+                        SKCodecResult getPixelResult = codec.GetPixels(bitmapInfo, skBitmap.GetPixels(out System.IntPtr length));
+                        if (getPixelResult == SKCodecResult.Success || getPixelResult == SKCodecResult.IncompleteInput)
+                            return skBitmap;
+
+                        skBitmap.Dispose();
+                        return null;
+                    }
+                });
             }
         }
     }

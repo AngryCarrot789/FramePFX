@@ -1,10 +1,12 @@
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.AudioClips;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
+using FramePFX.Utils;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls
 {
@@ -14,6 +16,14 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
     public class TimelineClipContents : Border
     {
         private static readonly DependencyPropertyChangedEventHandler DataContextChangedHandler;
+
+        public static readonly DependencyProperty IsClipRenderingEnabledProperty = DependencyProperty.Register("IsClipRenderingEnabled", typeof(bool), typeof(TimelineClipContents), new FrameworkPropertyMetadata(BoolBox.True, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public bool IsClipRenderingEnabled
+        {
+            get => (bool) this.GetValue(IsClipRenderingEnabledProperty);
+            set => this.SetValue(IsClipRenderingEnabledProperty, value.Box());
+        }
 
         private const int ROLE_NONE = 0;
         private const int ROLE_VIDEO_IMAGE = 1;
@@ -25,6 +35,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
         private int role;
         private IDisposable cached;
 
+        private static readonly FormattedText DisabledText;
+
         public TimelineClipContents()
         {
             this.DataContextChanged += DataContextChangedHandler;
@@ -32,6 +44,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
 
         static TimelineClipContents()
         {
+            DisabledText = new FormattedText("Disabled", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Consolas"), 15, Brushes.DimGray, 96);
             DataContextChangedHandler = (s, e) =>
             {
                 if (!ReferenceEquals(e.OldValue, e.NewValue))
@@ -70,9 +83,15 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
         protected override void OnRender(DrawingContext dc)
         {
             base.OnRender(dc);
+            if (!(this.DataContext is ClipViewModel clip))
+                return;
+
+            bool isDisabled = !clip.Model.IsRenderingEnabled;
+            if (isDisabled)
+                dc.PushOpacity(0.75);
+
             if (this.role > 0)
             {
-                ClipViewModel clip = (ClipViewModel) this.DataContext ?? throw new Exception("Invalid state: data context was invalid");
                 if (this.cached == null)
                     throw new Exception("Invalid state: cached data was null");
 
@@ -91,6 +110,16 @@ namespace FramePFX.WPF.Editor.Timeline.Controls
                         RenderAudio((AudioClipViewModel) clip, (CachedAudioData) this.cached, dc);
                         break;
                 }
+            }
+
+            if (isDisabled)
+            {
+                dc.Pop();
+                System.Windows.Rect rect = new System.Windows.Rect(new Point(), this.RenderSize);
+                dc.DrawRectangle(Brushes.LightGray, null, rect);
+                dc.PushClip(new RectangleGeometry(rect));
+                dc.DrawText(DisabledText, new Point((this.ActualWidth / 2d) - (DisabledText.Width / 2d), (this.ActualHeight / 2d) - (DisabledText.Height / 2d)));
+                dc.Pop();
             }
         }
 

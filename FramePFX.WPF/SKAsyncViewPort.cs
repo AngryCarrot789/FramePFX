@@ -150,9 +150,12 @@ namespace FramePFX.WPF
 
             if (this.OutlineList == null)
                 return;
+
+            const double thickness = 2.5d;
+            const double half = thickness / 2d;
             foreach ((VideoClip clip, SKRect rect) in this.OutlineList)
             {
-                dc.DrawRectangle(null, OutlinePen, new Rect(rect.Left, rect.Top, rect.Width, rect.Height));
+                dc.DrawRectangle(null, OutlinePen, new Rect(rect.Left - half, rect.Top - half, rect.Width + thickness, rect.Height + thickness));
             }
         }
 

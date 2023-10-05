@@ -356,7 +356,6 @@ namespace FramePFX.WPF.Editor.MainWindow
                     {
                         RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
                         context.ShouldProvideClipBounds = true;
-
                         context.ClearPixels();
                         try
                         {

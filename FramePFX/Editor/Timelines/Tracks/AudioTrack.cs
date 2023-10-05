@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Audio;
@@ -20,7 +19,7 @@ namespace FramePFX.Editor.Timelines.Tracks
         private static readonly UpdateAutomationValueEventHandler UpdateIsMuted = (s, f) => ((AudioTrack) s.AutomationData.Owner).IsMuted = s.GetBooleanValue(f);
 
         public float Volume { get => this.GetValueU(VolumeProperty); set => this.SetValueU(VolumeProperty, value); }
-        
+
         public bool IsMuted { get => this.GetValueU(IsMutedProperty); set => this.SetValueU(IsMutedProperty, value); }
 
         public double phasePerSample;
@@ -44,7 +43,7 @@ namespace FramePFX.Editor.Timelines.Tracks
         /// <param name="count">The number of samples to process</param>
         public void ProcessAudio(AudioEngine engine, long vf, int offset, int count)
         {
-            if (!this.Clips.Any(x => x.IntersectsFrameAt(vf)))
+            if (this.GetClipAtFrame(vf) == null)
             {
                 return;
             }
@@ -68,7 +67,7 @@ namespace FramePFX.Editor.Timelines.Tracks
 
         public unsafe void ProcessAudio(AudioEngine engine, ref AudioProcessData data, long frame)
         {
-            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame)))
+            if (this.GetClipAtFrame(frame) == null)
             {
                 return;
             }
@@ -91,10 +90,6 @@ namespace FramePFX.Editor.Timelines.Tracks
 
         public unsafe void ProcessAudio(AudioEngine engine, float[] data, int offset, int count, long frame)
         {
-            if (!this.Clips.Any(x => x.IntersectsFrameAt(frame)))
-            {
-                return;
-            }
         }
 
         protected override Track NewInstanceForClone()

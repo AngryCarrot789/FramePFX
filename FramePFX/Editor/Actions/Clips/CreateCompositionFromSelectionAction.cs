@@ -116,7 +116,7 @@ namespace FramePFX.Editor.Actions.Clips
 
             {
                 FrameSpan span = new FrameSpan(trackBegin, finalTrackDuration);
-                VideoTrackViewModel track = (VideoTrackViewModel) oldTracks.FirstOrDefault(x => x is VideoTrackViewModel vid && !vid.Clips.Any(cl => cl.FrameSpan.Intersects(span)));
+                VideoTrackViewModel track = (VideoTrackViewModel) oldTracks.FirstOrDefault(x => x is VideoTrackViewModel vid && vid.IsRegionEmpty(span));
                 if (track == null || track.Timeline != timeline)
                 {
                     track = await timeline.InsertNewVideoTrackAction(0, false);

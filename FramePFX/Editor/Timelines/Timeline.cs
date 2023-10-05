@@ -10,12 +10,10 @@ using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ZSystem;
-using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
-using static SkiaSharp.SKImageFilter;
 using Vector2 = System.Numerics.Vector2;
 
 namespace FramePFX.Editor.Timelines
@@ -26,8 +24,7 @@ namespace FramePFX.Editor.Timelines
     public class Timeline : ZObject, IProjectBound, IAutomatable
     {
         private readonly List<Track> tracks;
-        private readonly List<VideoClip> RenderList = new List<VideoClip>();
-        private readonly List<AdjustmentVideoClip> AdjustmentStack = new List<AdjustmentVideoClip>();
+        private readonly TimelineRenderState renderState;
         private volatile bool isBeginningRender;
 
         // not a chance anyone's creating more than 9 quintillion clips or tracks
@@ -74,6 +71,7 @@ namespace FramePFX.Editor.Timelines
         {
             this.tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
+            this.renderState = new TimelineRenderState(this);
         }
 
         public void UpdateLargestFrame()
@@ -282,9 +280,6 @@ namespace FramePFX.Editor.Timelines
             }
         }
 
-        public int Ticks = 0;
-        public long Average;
-
         // I did some testing and found that invoking methods declared with async is generally
         // about 10x slower than regular method invocation, when in debug mode (which uses
         // class-based async state machines, AFAIK)
@@ -306,7 +301,7 @@ namespace FramePFX.Editor.Timelines
         {
             using (ErrorList list = new ErrorList("Failed to " + (isCancelled ? "cancel" : "finalize") + " one or more clip renders"))
             {
-                List<VideoClip> renderList = this.RenderList;
+                List<VideoClip> renderList = this.renderState.RenderList;
                 for (int count = renderList.Count; i < count; i++)
                 {
                     try
@@ -319,8 +314,7 @@ namespace FramePFX.Editor.Timelines
                     }
                 }
 
-                renderList.Clear();
-                this.AdjustmentStack.Clear();
+                this.renderState.Reset();
             }
         }
 
@@ -340,12 +334,17 @@ namespace FramePFX.Editor.Timelines
         {
             if (this.isBeginningRender)
                 throw new Exception("Already rendering. Possible asynchronous render");
-            if (this.RenderList.Count > 0)
-                throw new Exception("Render queue already loaded. Possible asynchronous render or " + nameof(this.EndCompositeRenderAsync) + " was not called");
+
+            // the same composition resource is associated with 2 clips, and
+            // those 2 clips are on 2 tracks and intersect the same playhead frame,
+            // meaning we are trying to render the same timeline at, most likely,
+            // 2 different frame times, which is difficult to managed so.... not allowed for now
+            if (this.renderState.IsRendering)
+                return false;
             try
             {
                 this.isBeginningRender = true;
-                return this.BeginCompositeRenderInternal(frame, token);
+                return this.renderState.IsRendering = this.BeginCompositeRenderInternal(frame, token);
             }
             finally
             {
@@ -355,8 +354,8 @@ namespace FramePFX.Editor.Timelines
 
         private bool BeginCompositeRenderInternal(long frame, CancellationToken token)
         {
-            List<AdjustmentVideoClip> adjustments = this.AdjustmentStack;
-            List<VideoClip> renderList = this.RenderList;
+            List<AdjustmentVideoClip> adjustments = this.renderState.AdjustmentStack;
+            List<VideoClip> renderList = this.renderState.RenderList;
             List<Track> trackList = this.tracks;
             // Render timeline from the bottom to the top
             for (int i = trackList.Count - 1; i >= 0; i--)
@@ -407,7 +406,7 @@ namespace FramePFX.Editor.Timelines
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PreProcessAjustments(long frame, RenderContext render)
         {
-            List<AdjustmentVideoClip> list = this.AdjustmentStack;
+            List<AdjustmentVideoClip> list = this.renderState.AdjustmentStack;
             int count = list.Count;
             if (count == 0)
                 return;
@@ -430,7 +429,7 @@ namespace FramePFX.Editor.Timelines
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PostProcessAjustments(long frame, RenderContext render)
         {
-            List<AdjustmentVideoClip> list = this.AdjustmentStack;
+            List<AdjustmentVideoClip> list = this.renderState.AdjustmentStack;
             int count = list.Count;
             if (count == 0)
                 return;
@@ -451,119 +450,127 @@ namespace FramePFX.Editor.Timelines
 
         public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token)
         {
-            bool provideBoxInfo = render.ShouldProvideClipBounds;
-            VideoEditor.EditorRenderUpdateChannel.ProcessUpdates();
-            List<VideoClip> renderList = this.RenderList;
-            SKPaint trackPaint = null, clipPaint = null;
-            int timelineCanvasSaveIndex = render.Canvas.Save();
-            render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
-            this.PreProcessAjustments(frame, render);
-            int i = 0, count = renderList.Count;
-            long a = Time.GetSystemTicks();
             try
             {
-                for (; i < count; i++)
+                render.Depth++;
+                VideoEditor.EditorRenderUpdateChannel.ProcessUpdates();
+                long a = Time.GetSystemTicks();
+                List<VideoClip> renderList = this.renderState.RenderList;
+                bool provideBoxInfo = render.ShouldProvideClipBounds;
+                SKPaint trackPaint = null, clipPaint = null;
+                int timelineCanvasSaveIndex = render.Canvas.Save();
+                render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
+                int i = 0, count = renderList.Count;
+                try
                 {
-                    if (token.IsCancellationRequested)
+                    this.PreProcessAjustments(frame, render);
+                    for (; i < count; i++)
                     {
-                        // Rendering took too long. Some clips may have already drawn. Cancel the rest
-                        this.CompleteRenderList(frame, true, i);
-                        throw new TaskCanceledException();
-                    }
-
-                    VideoClip clip = renderList[i];
-                    int trackSaveCount = BeginTrackOpacityLayer(render, clip.Track, ref trackPaint);
-                    int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                    Vector2? frameSize = clip.GetSize(render);
-
-                    try
-                    {
-                        BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, true);
-                    }
-                    catch (Exception e)
-                    {
-                        this.CompleteRenderList(frame, true, e, i);
-                        throw new RenderException("Failed to pre-process effects", e);
-                    }
-
-                    try
-                    {
-                        // actual render the clip
-                        Task task = clip.OnEndRender(render, frame);
-                        if (!task.IsCompleted)
+                        if (token.IsCancellationRequested)
                         {
-                            // possibly help with performance a tiny bit
-                            await task;
+                            // Rendering took too long. Some clips may have already drawn. Cancel the rest
+                            this.CompleteRenderList(frame, true, i);
+                            throw new TaskCanceledException();
                         }
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        // do nothing
-                    }
-                    catch (Exception e)
-                    {
-                        this.CompleteRenderList(frame, true, e, i);
-                        throw new RenderException($"Failed to render '{clip}'", e);
-                    }
 
-                    if (provideBoxInfo && frameSize.HasValue)
-                    {
-                        SKRect rect = render.Canvas.TotalMatrix.MapRect(new SKRect(0, 0, frameSize.Value.X, frameSize.Value.Y));
-                        render.ClipBoundingBoxes.Add((clip, rect));
-                    }
+                        VideoClip clip = renderList[i];
+                        int trackSaveCount = BeginTrackOpacityLayer(render, clip.Track, ref trackPaint);
+                        int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
+                        Vector2? frameSize = clip.GetSize(render);
 
-                    try
-                    {
-                        BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, false);
-                    }
-                    catch (Exception e)
-                    {
+                        try
+                        {
+                            BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, true);
+                        }
+                        catch (Exception e)
+                        {
+                            this.CompleteRenderList(frame, true, e, i);
+                            throw new RenderException("Failed to pre-process effects", e);
+                        }
+
+                        try
+                        {
+                            // actual render the clip
+                            Task task = clip.OnEndRender(render, frame);
+                            if (!task.IsCompleted)
+                            {
+                                // possibly help with performance a tiny bit
+                                await task;
+                            }
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            // do nothing
+                        }
+                        catch (Exception e)
+                        {
+                            this.CompleteRenderList(frame, true, e, i);
+                            throw new RenderException($"Failed to render '{clip}'", e);
+                        }
+
+                        if (render.Depth == 1 && provideBoxInfo && frameSize.HasValue)
+                        {
+                            SKRect rect = render.Canvas.TotalMatrix.MapRect(frameSize.Value.ToRectAsSize(0, 0));
+                            render.ClipBoundingBoxes.Add((clip, rect));
+                        }
+
+                        try
+                        {
+                            BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, false);
+                        }
+                        catch (Exception e)
+                        {
+                            try
+                            {
+                                clip.OnRenderCompleted(frame, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                e.AddSuppressed(new Exception("Failed to finalize clip just after post effect error", ex));
+                            }
+
+                            this.CompleteRenderList(frame, true, e, i + 1);
+                            throw new RenderException("Failed to post-process effects", e);
+                        }
+
                         try
                         {
                             clip.OnRenderCompleted(frame, false);
                         }
-                        catch (Exception ex)
+                        catch (Exception e)
                         {
-                            e.AddSuppressed(new Exception("Failed to finalize clip just after post effect error", ex));
+                            this.CompleteRenderList(frame, true, e, i + 1);
+                            throw new RenderException($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
                         }
 
-                        this.CompleteRenderList(frame, true, e, i + 1);
-                        throw new RenderException("Failed to post-process effects", e);
+                        EndOpacityLayer(render, clipSaveCount, ref clipPaint);
+                        EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                     }
-
-                    try
-                    {
-                        clip.OnRenderCompleted(frame, false);
-                    }
-                    catch (Exception e)
-                    {
-                        this.CompleteRenderList(frame, true, e, i + 1);
-                        throw new RenderException($"Failed to call {nameof(clip.OnRenderCompleted)} for '{clip}'", e);
-                    }
-
-                    EndOpacityLayer(render, clipSaveCount, ref clipPaint);
-                    EndOpacityLayer(render, trackSaveCount, ref trackPaint);
                 }
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (RenderException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                this.CompleteRenderList(frame, true, e, i + 1);
-                throw new Exception("Unexpected exception occurred during render", e);
-            }
+                catch (TaskCanceledException)
+                {
+                    throw;
+                }
+                catch (RenderException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    this.CompleteRenderList(frame, true, e, i + 1);
+                    throw new Exception("Unexpected exception occurred during render", e);
+                }
 
-            this.AdjustmentStack.Clear();
-            this.RenderList.Clear();
-            this.PostProcessAjustments(frame, render);
-            render.Canvas.RestoreToCount(timelineCanvasSaveIndex);
-            this.LastRenderDurationTicks = Time.GetSystemTicks() - a;
+                this.renderState.Reset();
+                this.PostProcessAjustments(frame, render);
+                render.Canvas.RestoreToCount(timelineCanvasSaveIndex);
+                this.LastRenderDurationTicks = Time.GetSystemTicks() - a;
+            }
+            finally
+            {
+                this.renderState.IsRendering = false;
+                render.Depth--;
+            }
         }
 
         // SaveLayer requires a temporary drawing bitmap, which can slightly

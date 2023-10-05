@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.VideoClips;
 using SkiaSharp;
 
@@ -36,6 +38,11 @@ namespace FramePFX.Rendering
         /// </summary>
         public bool ShouldProvideClipBounds;
 
+        /// <summary>
+        /// The timeline render depth. Rendering the main timeline only means that this value only ever reaches a value of 1
+        /// </summary>
+        public int Depth;
+
         public RenderContext(SKSurface surface, SKCanvas canvas, SKImageInfo frameInfo)
         {
             this.Surface = surface;
@@ -50,6 +57,28 @@ namespace FramePFX.Rendering
         public void ClearPixels()
         {
             this.Canvas.Clear(SKColors.Black);
+        }
+    }
+
+    public class TimelineRenderState
+    {
+        public readonly List<VideoClip> RenderList;
+        public readonly List<AdjustmentVideoClip> AdjustmentStack;
+        public readonly Timeline Timeline;
+
+        public bool IsRendering { get; set; }
+
+        public TimelineRenderState(Timeline timeline)
+        {
+            this.Timeline = timeline ?? throw new ArgumentNullException(nameof(timeline));
+            this.RenderList = new List<VideoClip>();
+            this.AdjustmentStack = new List<AdjustmentVideoClip>();
+        }
+
+        public void Reset()
+        {
+            this.RenderList.Clear();
+            this.AdjustmentStack.Clear();
         }
     }
 }

@@ -162,10 +162,8 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers
 
         private void TriggerClipRender()
         {
-            if (this.Clip is VideoClip clip)
-            {
+            if (this.Clip is VideoClip clip && clip.Project != null)
                 clip.InvalidateRender();
-            }
         }
 
         public void WriteToRootRBE(RBEDictionary data)

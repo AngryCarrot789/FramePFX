@@ -282,7 +282,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks
             }
 
             newClip.AddEffect(new MotionEffect());
-            this.CreateClip(newClip);
+            this.CreateAndAddViewModel(newClip);
             if (newClip is VideoClip videoClipModel)
             {
                 videoClipModel.InvalidateRender();

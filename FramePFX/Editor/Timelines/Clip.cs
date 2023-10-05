@@ -21,6 +21,7 @@ namespace FramePFX.Editor.Timelines
     public abstract class Clip : ZObject, IClip, IStrictFrameRange, IAutomatable, IDisposable
     {
         private readonly List<BaseEffect> internalEffectList;
+        public int IndexInTrack = -1;
 
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
@@ -133,7 +134,6 @@ namespace FramePFX.Editor.Timelines
         {
             if (this is IResourceHolder)
                 ((IResourceHolder) this).ResourceHelper.OnTrackChanged(oldTrack, newTrack);
-
             this.TrackChanged?.Invoke(oldTrack, newTrack);
         }
 
@@ -151,12 +151,13 @@ namespace FramePFX.Editor.Timelines
         {
             if (this is IResourceHolder)
                 ((IResourceHolder) this).ResourceHelper.OnTrackTimelineChanged(oldTimeline, newTimeline);
-
             this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
         }
 
         protected virtual void OnTrackTimelineProjectChanged(Project oldProject, Project newProject)
         {
+            if (this is IResourceHolder)
+                ((IResourceHolder) this).ResourceHelper.OnTrackTimelineProjectChanged(oldProject, newProject);
             this.TrackTimelineProjectChanged?.Invoke(oldProject, newProject);
         }
 

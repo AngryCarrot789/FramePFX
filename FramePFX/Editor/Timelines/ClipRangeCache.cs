@@ -205,5 +205,28 @@ namespace FramePFX.Editor.Timelines
         public static long GetIndex(long frame) => frame >> 7;
 
         #endregion
+
+        public bool IsRegionEmpty(FrameSpan span)
+        {
+            GetRange(span, out long a, out long b);
+            for (long i = a; i <= b; i++)
+            {
+                if (this.Map.TryGetValue(i, out List<Clip> list) && IntersectsAny(list, span))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool IntersectsAny(List<Clip> list, FrameSpan span)
+        {
+            for (int j = list.Count - 1; j >= 0; j--)
+            {
+                if (list[j].FrameSpan.Intersects(span))
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

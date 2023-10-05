@@ -42,6 +42,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources
         {
             base.ReadFromRBE(data);
             this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
+            // FramePFX.Automation.AutomationEngine.UpdateBackingStorage(this.Timeline);
         }
 
         public override void WriteToRBE(RBEDictionary data)

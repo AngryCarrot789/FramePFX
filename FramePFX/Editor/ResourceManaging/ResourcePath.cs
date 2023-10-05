@@ -94,10 +94,12 @@ namespace FramePFX.Editor.ResourceManaging
             }
 
             this.isManagerChanging = true;
-            this.ClearInternalResource();
-            this.IsValid = null;
+
             if (oldManager != null)
                 this.DetachManager(oldManager);
+
+            this.ClearInternalResource();
+            this.IsValid = null;
 
             this.Manager = manager;
             if (manager != null)

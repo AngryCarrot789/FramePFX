@@ -113,7 +113,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
 
             for (int i = 0; i < model.Clips.Count; i++)
             {
-                this.InsertClip(i, ClipFactory.Instance.CreateViewModelFromModel(model.Clips[i]), false);
+                this.InsertClipInternal(i, ClipFactory.Instance.CreateViewModelFromModel(model.Clips[i]), false);
             }
         }
 
@@ -121,19 +121,24 @@ namespace FramePFX.Editor.ViewModels.Timelines
 
         public virtual void OnProjectModified() => this.Project?.OnProjectModified();
 
-        public ClipViewModel CreateClip(Clip model, bool addToModel = true)
+        public ClipViewModel CreateAndAddViewModel(Clip model)
         {
             ClipViewModel vm = ClipFactory.Instance.CreateViewModelFromModel(model);
-            this.AddClip(vm, addToModel);
+            this.AddClip(vm);
             return vm;
         }
 
-        public void AddClip(ClipViewModel clip, bool addToModel = true)
+        public void AddClip(ClipViewModel clip)
         {
-            this.InsertClip(this.clips.Count, clip, addToModel);
+            this.InsertClipInternal(this.clips.Count, clip, true);
         }
 
-        public void InsertClip(int index, ClipViewModel clip, bool addToModel = true)
+        public void InsertClip(int index, ClipViewModel clip)
+        {
+            this.InsertClipInternal(index, clip, true);
+        }
+
+        private void InsertClipInternal(int index, ClipViewModel clip, bool addToModel)
         {
             if (index < 0 || index > this.clips.Count)
                 throw new IndexOutOfRangeException($"Index < 0 || Index > Count. Index = {index}, Count = {this.clips.Count}");
@@ -145,9 +150,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
                 throw new Exception("Invalid clip for this layer");
 
             if (addToModel)
-            {
                 this.Model.InsertClip(index, clip.Model);
-            }
 
             ClipViewModel.PreSetTrack(clip, this);
             this.clips.Insert(index, clip);
@@ -161,8 +164,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
 
         public bool RemoveClip(ClipViewModel clip)
         {
-            int index = this.clips.IndexOf(clip);
-            if (index < 0)
+            if (!this.Model.GetClipIndex(clip.Model, out int index))
                 return false;
             this.RemoveClipAt(index);
             return true;
@@ -212,8 +214,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
             {
                 foreach (ClipViewModel clip in list)
                 {
-                    int index = this.clips.IndexOf(clip);
-                    if (index < 0)
+                    if (!this.Model.GetClipIndex(clip.Model, out int index))
                         continue;
 
                     this.RemoveClipAt(index);
@@ -249,21 +250,20 @@ namespace FramePFX.Editor.ViewModels.Timelines
 
         public IEnumerable<ClipViewModel> GetClipsAtFrame(long frame)
         {
-            return this.Clips.Where(clip => clip.IntersectsFrameAt(frame));
+            return this.clips.Where(clip => clip.IntersectsFrameAt(frame));
         }
 
         public void MakeTopMost(ClipViewModel clip)
         {
-            int endIndex = this.Clips.Count - 1;
-            int index = this.Clips.IndexOf(clip);
-            if (index == -1 || index == endIndex)
-            {
+            if (!this.Model.GetClipIndex(clip.Model, out int index))
                 return;
+            int endIndex = this.clips.Count - 1;
+            if (index != endIndex)
+            {
+                this.Model.MakeTopMost(clip.Model, index, endIndex);
+                this.clips.Move(index, endIndex);
+                this.TryRaiseLargestFrameInUseChanged();
             }
-
-            this.Model.MakeTopMost(clip.Model, index, endIndex);
-            this.clips.Move(index, endIndex);
-            this.TryRaiseLargestFrameInUseChanged();
         }
 
         public abstract bool CanDropResource(ResourceItemViewModel resource);
@@ -288,7 +288,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
             cloned.FrameSpan = FrameSpan.FromIndex(frame, span.EndIndex);
             cloned.MediaFrameOffset = frame - span.Begin;
             clip.FrameSpan = span.WithEndIndex(frame);
-            this.CreateClip(cloned);
+            this.CreateAndAddViewModel(cloned);
             return Task.CompletedTask;
         }
 
@@ -374,11 +374,8 @@ namespace FramePFX.Editor.ViewModels.Timelines
             }
             else
             {
-                int index = this.clips.IndexOf(clip);
-                if (index < 0)
-                {
+                if (!this.Model.GetClipIndex(clip.Model, out int index))
                     throw new Exception("Clip was not present in the old track");
-                }
 
                 if (!ReferenceEquals(clip, this.clips[index]))
                     throw new Exception($"Clip does not reference equal other clip in track: {clip} != {this.clips[index]}");
@@ -407,10 +404,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
             }
         }
 
-        public bool IsRegionEmpty(FrameSpan span)
-        {
-            return !this.clips.Any(x => x.FrameSpan.Intersects(span));
-        }
+        public bool IsRegionEmpty(FrameSpan span) => this.Model.IsRegionEmpty(span);
 
         public override string ToString()
         {

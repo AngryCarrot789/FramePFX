@@ -114,6 +114,8 @@ namespace FramePFX.Automation
                     throw new Exception("Missing/unassigned automation key: " + fullId);
                 sequence.ReadFromRBE(dictionary);
             }
+
+            this.UpdateBackingStorage();
         }
 
         public void LoadDataIntoClone(AutomationData clone)

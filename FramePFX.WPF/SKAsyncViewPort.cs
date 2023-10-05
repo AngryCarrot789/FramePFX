@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Remoting.Contexts;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Utils;
 using SkiaSharp;
 using Rect = System.Windows.Rect;
@@ -57,6 +60,11 @@ namespace FramePFX.WPF
         // private GameWindow gameWindow;
         private readonly GRGlInterface grgInterface;
         public readonly GRContext grContext;
+
+        /// <summary>
+        /// A list of clips to draw with their outline
+        /// </summary>
+        public List<(VideoClip, SKRect)> OutlineList { get; set; }
 
         public SKAsyncViewPort()
         {
@@ -120,16 +128,17 @@ namespace FramePFX.WPF
         public void EndRender()
         {
             SKImageInfo info = this.skImageInfo;
-            this.targetSurface.Flush();
             this.bitmap.Lock();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
+            this.targetSurface.Canvas.Restore();
             // this.targetSurface.Dispose();
             // this.targetSurface = null;
-            this.targetSurface.Canvas.Restore();
             this.isRendering = false;
             this.InvalidateVisual();
         }
+
+        private readonly Pen OutlinePen = new Pen(Brushes.Orange, 2.5f);
 
         protected override void OnRender(DrawingContext dc)
         {
@@ -137,6 +146,13 @@ namespace FramePFX.WPF
             if (bmp != null)
             {
                 dc.DrawImage(bmp, new Rect(0d, 0d, this.ActualWidth, this.ActualHeight));
+            }
+
+            if (this.OutlineList == null)
+                return;
+            foreach ((VideoClip clip, SKRect rect) in this.OutlineList)
+            {
+                dc.DrawRectangle(null, OutlinePen, new Rect(rect.Left, rect.Top, rect.Width, rect.Height));
             }
         }
 

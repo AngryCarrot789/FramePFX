@@ -27,6 +27,8 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
+        private Task<VideoFrame> GetFrameTask;
+
         public AVMediaVideoClip()
         {
             this.ResourceHelper = new ResourceHelper(this);
@@ -45,15 +47,8 @@ namespace FramePFX.Editor.Timelines.VideoClips
         {
             if (!this.TryGetResource(out ResourceAVMedia resource))
                 return false;
-            return resource.stream != null && resource.Demuxer != null;
-        }
-
-        public override async Task OnEndRender(RenderContext rc, long frame)
-        {
-            if (!this.TryGetResource(out ResourceAVMedia resource) || resource.Demuxer == null || resource.stream == null)
-            {
-                return;
-            }
+            if (resource.stream == null || resource.Demuxer == null)
+                return false;
 
             if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null)
             {
@@ -66,14 +61,28 @@ namespace FramePFX.Editor.Timelines.VideoClips
                     }
                 }
 
-                double timeScale = this.Track.Timeline.Project.Settings.TimeBase.ToDouble;
+                double timeScale = this.Project.Settings.TimeBase.ToDouble;
                 TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
                 // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
-                this.readyFrame = await Task.Run(() => resource.GetFrameAt(timestamp));
                 this.currentFrame = frame;
+                this.GetFrameTask = Task.Run(() => resource.GetFrameAt(timestamp));
             }
 
-            VideoFrame ready = this.readyFrame;
+            return true;
+        }
+
+        public override async Task OnEndRender(RenderContext rc, long frame)
+        {
+            VideoFrame ready;
+            if (this.GetFrameTask != null)
+            {
+                this.readyFrame = ready = await this.GetFrameTask;
+            }
+            else
+            {
+                ready = this.readyFrame;
+            }
+
             if (ready != null && !ready.IsDisposed)
             {
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add

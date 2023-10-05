@@ -4,19 +4,25 @@ using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Audio;
 using FramePFX.Editor.Timelines.AudioClips;
+using FramePFX.Editor.ZSystem;
 
 namespace FramePFX.Editor.Timelines.Tracks
 {
     public class AudioTrack : Track
     {
+        public static readonly ZProperty<float> VolumeProperty = ZProperty.RegisterU<float>(typeof(AudioTrack), nameof(Volume));
+        public static readonly ZProperty<bool> IsMutedProperty = ZProperty.RegisterU<bool>(typeof(AudioTrack), nameof(IsMuted));
+
         public static readonly AutomationKeyFloat VolumeKey = AutomationKey.RegisterFloat(nameof(AudioTrack), nameof(Volume), new KeyDescriptorFloat(1f, 0f, 1f));
         public static readonly AutomationKeyBoolean IsMutedKey = AutomationKey.RegisterBool(nameof(AudioTrack), nameof(IsMuted), new KeyDescriptorBoolean(false));
 
         private static readonly UpdateAutomationValueEventHandler UpdateVolume = (s, f) => ((AudioTrack) s.AutomationData.Owner).Volume = s.GetFloatValue(f);
         private static readonly UpdateAutomationValueEventHandler UpdateIsMuted = (s, f) => ((AudioTrack) s.AutomationData.Owner).IsMuted = s.GetBooleanValue(f);
 
-        public float Volume;
-        public bool IsMuted;
+        public float Volume { get => this.GetValueU(VolumeProperty); set => this.SetValueU(VolumeProperty, value); }
+        
+        public bool IsMuted { get => this.GetValueU(IsMutedProperty); set => this.SetValueU(IsMutedProperty, value); }
+
         public double phasePerSample;
         public double currentPhase;
         public double amplitude = 0.5d;

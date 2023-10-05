@@ -4,6 +4,7 @@ using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
+using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
@@ -13,6 +14,9 @@ namespace FramePFX.Editor.Timelines.VideoClips
 {
     public class ShapeSquareVideoClip : VideoClip, IResourceHolder
     {
+        public static readonly ZProperty<float> WidthProperty = ZProperty.RegisterU<float>(typeof(ShapeSquareVideoClip), nameof(Width));
+        public static readonly ZProperty<float> HeightProperty = ZProperty.RegisterU<float>(typeof(ShapeSquareVideoClip), nameof(Height));
+
         public static readonly AutomationKeyFloat WidthKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Width), 100f);
         public static readonly AutomationKeyFloat HeightKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Height), 100f);
 
@@ -21,8 +25,17 @@ namespace FramePFX.Editor.Timelines.VideoClips
         private static readonly UpdateAutomationValueEventHandler UpdateWidth = (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Width = s.GetFloatValue(f);
         private static readonly UpdateAutomationValueEventHandler UpdateHeight = (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Height = s.GetFloatValue(f);
 
-        public float Width;
-        public float Height;
+        public float Width
+        {
+            get => this.GetValueU(WidthProperty);
+            set => this.SetValueU(WidthProperty, value);
+        }
+
+        public float Height
+        {
+            get => this.GetValueU(HeightProperty);
+            set => this.SetValueU(HeightProperty, value);
+        }
 
         public override bool UseCustomOpacityCalculation => true;
 
@@ -32,8 +45,8 @@ namespace FramePFX.Editor.Timelines.VideoClips
 
         public ShapeSquareVideoClip()
         {
-            this.AutomationData.AssignKey(WidthKey, (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Width = s.GetFloatValue(f));
-            this.AutomationData.AssignKey(HeightKey, (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Height = s.GetFloatValue(f));
+            this.AutomationData.AssignKey(WidthKey, UpdateWidth);
+            this.AutomationData.AssignKey(HeightKey, UpdateHeight);
             this.ResourceHelper = new ResourceHelper(this);
             this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
             this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using FramePFX.RBC;
 
@@ -20,8 +21,7 @@ namespace FramePFX.Editor.ZSystem
         private readonly int[] propertyFlags;
         private readonly int sdCount, odCount; // sd: struct data | od: object data
         private Dictionary<ZProperty, Delegate> handlerMap;
-
-        private const int IsUpdateScheduled = 0b0001;
+        private const int FLAG_IsUpdateScheduled = 0b0001;
 
         public ZObjectTypeRegistration TypeRegistration { get; }
 
@@ -38,31 +38,31 @@ namespace FramePFX.Editor.ZSystem
 
         public void AddHandler(ZProperty property, ZPropertyChangedEventHandler handler)
         {
-            lock (this.handlerMap)
-            {
-                Dictionary<ZProperty, Delegate> map = this.handlerMap ?? (this.handlerMap = new Dictionary<ZProperty, Delegate>());
-                map[property] = map.TryGetValue(property, out Delegate md) ? Delegate.Combine(handler, md) : handler;
-            }
+            Dictionary<ZProperty, Delegate> map = this.handlerMap ?? (this.handlerMap = new Dictionary<ZProperty, Delegate>());
+            if (!map.TryGetValue(property, out Delegate md))
+                map[property] = handler;
+            else if (!md.Equals(handler))
+                map[property] = Delegate.Combine(handler, md);
         }
 
         public void RemoveHandler(ZProperty property, ZPropertyChangedEventHandler handler)
         {
             if (this.handlerMap == null)
                 return;
-            lock (this.handlerMap)
-            {
-                if (this.handlerMap.TryGetValue(property, out Delegate dg))
-                    this.handlerMap[property] = Delegate.Remove(dg, handler);
-            }
+            if (!this.handlerMap.TryGetValue(property, out Delegate dg))
+                return;
+            dg = Delegate.Remove(dg, handler);
+            if (dg != null)
+                this.handlerMap[property] = dg;
+            else
+                this.handlerMap.Remove(property);
         }
 
         protected virtual void OnPropertyChanged(ZProperty property)
         {
-            lock (this.handlerMap)
-            {
-                if (this.handlerMap.TryGetValue(property, out Delegate handlerList))
-                    ((ZPropertyChangedEventHandler) handlerList)(this, property);
-            }
+            Dictionary<ZProperty, Delegate> map = this.handlerMap;
+            if (map != null && map.Count > 0 && map.TryGetValue(property, out Delegate handlerList))
+                ((ZPropertyChangedEventHandler) handlerList)(this, property);
         }
 
         /// <summary>
@@ -74,11 +74,13 @@ namespace FramePFX.Editor.ZSystem
         /// <typeparam name="T">The type of value</typeparam>
         private static void OnPropertyChanged(ZObject owner, ZProperty property)
         {
-            if (!owner.ReadFlag(property, IsUpdateScheduled))
+            if (!owner.ReadFlag(property, FLAG_IsUpdateScheduled))
             {
-                owner.SetFlag(property, IsUpdateScheduled);
+                owner.SetFlag(property, FLAG_IsUpdateScheduled);
                 property.Channel.Add(new TransferValueCommand(owner, property));
             }
+
+            owner.OnPropertyChanged(property);
         }
 
         public static void ProcessUpdates(ZUpdateChannel channel)
@@ -86,7 +88,7 @@ namespace FramePFX.Editor.ZSystem
             foreach (TransferValueCommand command in channel._updateList)
             {
                 command.Owner.TransferValue(command.Property);
-                command.Owner.ClearFlag(command.Property, IsUpdateScheduled);
+                command.Owner.ClearFlag(command.Property, FLAG_IsUpdateScheduled);
             }
 
             channel._updateList.Clear();
@@ -194,6 +196,10 @@ namespace FramePFX.Editor.ZSystem
             return (T) this.objectData[this.odCount + property.objectIndex];
         }
 
+        /// <summary>
+        /// Transfers a value from Buffer A to Buffer B
+        /// </summary>
+        /// <param name="property"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void TransferValue(ZProperty property)
         {

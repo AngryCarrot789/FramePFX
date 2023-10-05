@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using SkiaSharp;
 
 namespace FramePFX.Editor.ZSystem
 {
@@ -19,6 +20,7 @@ namespace FramePFX.Editor.ZSystem
         internal int structOffset;
         internal int structSize;
         internal int objectIndex;
+        private bool _isSealed;
         private ZUpdateChannel channel;
 
         /// <summary>
@@ -50,6 +52,18 @@ namespace FramePFX.Editor.ZSystem
         /// The name of the property, used for debugging
         /// </summary>
         public string Name { get; }
+
+        private ZPropertyMeta metadata;
+
+        public ZPropertyMeta Metadata
+        {
+            get => this.metadata;
+            set
+            {
+                this.ValidateNotSealed();
+                this.metadata = value;
+            }
+        }
 
         /// <summary>
         /// Gets the update channel associated with this property
@@ -115,48 +129,72 @@ namespace FramePFX.Editor.ZSystem
         }
 
         /// <summary>
-        /// Registers a property for an unmanaged struct type
+        /// Registers a property for an unmanaged struct type. Unmanaged properties are stored in a packed byte array for efficient storage
         /// </summary>
         /// <param name="owner">The owner type</param>
         /// <param name="name">The name of the property, for debugging</param>
+        /// <param name="meta">The property's meta data</param>
+        /// <param name="updateChannel">The update channel for publishing property change updates</param>
         /// <typeparam name="TValue">The struct type</typeparam>
-        /// <returns>A new property</returns>
-        public static ZProperty<TValue> RegisterU<TValue>(Type owner, string name, ZUpdateChannel updateChannel = null) where TValue : unmanaged
+        /// <returns>The registered property</returns>
+        public static ZProperty<TValue> RegisterU<TValue>(Type owner, string name, ZPropertyMeta<TValue> meta = null, ZUpdateChannel updateChannel = null) where TValue : unmanaged
         {
-            ValidateArgs(owner, name, new StackFrame(1, false));
+            return RegisterInternal(owner, name, meta, updateChannel, true, Unsafe.SizeOf<TValue>());
+        }
+
+        /// <summary>
+        /// Registers a property for a managed type (which can include managed and unmanaged structs, although <see cref="RegisterU{TValue}"/> is recommended for unmanaged structs)
+        /// </summary>
+        /// <param name="owner">The owner type</param>
+        /// <param name="name">The name of the property, for debugging</param>
+        /// <param name="meta">The property's meta data</param>
+        /// <param name="updateChannel">The update channel for publishing property change updates</param>
+        /// <typeparam name="TValue">The value type</typeparam>
+        /// <returns></returns>
+        public static ZProperty<TValue> Register<TValue>(Type owner, string name, ZPropertyMeta<TValue> meta = null, ZUpdateChannel updateChannel = null)
+        {
+            return RegisterInternal(owner, name, meta, updateChannel, false);
+        }
+
+        private static ZProperty<TValue> RegisterInternal<TValue>(Type owner, string name, ZPropertyMeta<TValue> meta, ZUpdateChannel channel, bool isStruct, int structSize = 0)
+        {
+            ValidateArgs(owner, name, new StackFrame(2, false));
             lock (RegistrationLock)
             {
+                if (isStruct)
+                {
+                    if (structSize < 1)
+                        throw new ArgumentOutOfRangeException(nameof(structSize), $"Struct size must be greater than 0 when registering an unmanaged property");
+                }
+                else if (structSize > 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(structSize), $"Struct size must be 0 when registering a managed property");
+                }
+
                 ZObjectTypeRegistration registration = GetRegistrationHelper(owner, name);
                 int hIndex = registration.NextHierarchicalIndex++;
                 int lIndex = registration.nextLocalIndex++;
                 int gIndex = Interlocked.Increment(ref NextGlobalIndex);
-                ZProperty<TValue> property = ZProperty<TValue>.NewInstance(registration, gIndex, hIndex, lIndex, owner, name, true);
-                property.structSize = Unsafe.SizeOf<TValue>();
-                ZObjectTypeRegistration.AddInternal(registration, property, updateChannel);
+                ZProperty<TValue> property = ZProperty<TValue>.NewInstance(registration, gIndex, hIndex, lIndex, owner, name, isStruct);
+                property.metadata = meta ?? new ZPropertyMeta<TValue>();
+                property.structSize = structSize;
+                ZObjectTypeRegistration.AddInternal(registration, property, channel);
                 return property;
             }
         }
 
-        /// <summary>
-        /// Registers a property for a managed type (including structs, either managed or unmanaged)
-        /// </summary>
-        /// <param name="owner">The owner type</param>
-        /// <param name="name">The name of the property, for debugging</param>
-        /// <typeparam name="TValue">The value type</typeparam>
-        /// <returns></returns>
-        public static ZProperty<TValue> Register<TValue>(Type owner, string name, ZUpdateChannel updateChannel = null)
+        public void Seal()
         {
-            ValidateArgs(owner, name, new StackFrame(1, false));
-            lock (RegistrationLock)
-            {
-                ZObjectTypeRegistration registration = GetRegistrationHelper(owner, name);
-                int hIndex = registration.NextHierarchicalIndex++;
-                int lIndex = registration.nextLocalIndex++;
-                int gIndex = Interlocked.Increment(ref NextGlobalIndex);
-                ZProperty<TValue> property = ZProperty<TValue>.NewInstance(registration, gIndex, hIndex, lIndex, owner, name, false);
-                ZObjectTypeRegistration.AddInternal(registration, property, updateChannel);
-                return property;
-            }
+            if (this._isSealed)
+                return;
+            this.Metadata.Seal();
+            this._isSealed = true;
+        }
+
+        public void ValidateNotSealed()
+        {
+            if (this._isSealed)
+                throw new InvalidOperationException("This property has been sealed and cannot be modified again");
         }
 
         public override string ToString()
@@ -171,6 +209,12 @@ namespace FramePFX.Editor.ZSystem
     /// <typeparam name="T">The type of value being stored</typeparam>
     public class ZProperty<T> : ZProperty
     {
+        public new ZPropertyMeta<T> Metadata
+        {
+            get => (ZPropertyMeta<T>) base.Metadata;
+            set => base.Metadata = value;
+        }
+
         private ZProperty(ZObjectTypeRegistration r, int gi, int hi, int li, Type ot, Type tt, string name, bool isStruct) : base(r, gi, hi, li, ot, tt, name, isStruct)
         {
         }

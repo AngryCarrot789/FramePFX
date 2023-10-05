@@ -936,9 +936,9 @@
                 <ControlTemplate TargetType="ToolTip">
                     <themes:SystemDropShadowChrome Name="Shdw" Color="Transparent" CornerRadius="0" SnapsToDevicePixels="True">
                         <Border Name="Border" SnapsToDevicePixels="True" BorderThickness="1" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
-                            <ContentPresenter Margin="5" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <ContentPresenter Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                                 <ContentPresenter.Resources>
-                                    <Style TargetType="{x:Type TextBlock}">
+                                    <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
                                         <Setter Property="TextWrapping" Value="Wrap" />
                                         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
                                         <Setter Property="TextAlignment" Value="Left" />

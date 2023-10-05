@@ -17,7 +17,12 @@ namespace FramePFX.Utils
 
         public static byte DoubleToByte255(double value)
         {
-            return (byte) Maths.Clamp((int) Math.Round(value / 255d), 0, 255);
+            return (byte) Maths.Clamp((int) Math.Round(value * 255d), 0, 255);
+        }
+
+        public static double Byte255ToDouble(byte value)
+        {
+            return Maths.Clamp(value / 255d, 0d, 1d);
         }
     }
 }

@@ -19,30 +19,13 @@ namespace FramePFX.Utils
             return outA + ((outB - outA) / (inB - inA) * (dIn - inA));
         }
 
-        public static float Clamp(float value, float min, float max)
-        {
-            return Math.Max(Math.Min(value, max), min);
-        }
-
-        public static double Clamp(double value, double min, double max)
-        {
-            return Math.Max(Math.Min(value, max), min);
-        }
-
-        public static byte Clamp(byte value, byte min, byte max)
-        {
-            return Math.Max(Math.Min(value, max), min);
-        }
-
-        public static int Clamp(int value, int min, int max)
-        {
-            return Math.Max(Math.Min(value, max), min);
-        }
-
-        public static long Clamp(long value, long min, long max)
-        {
-            return Math.Max(Math.Min(value, max), min);
-        }
+        public static float Clamp(float value, float min, float max) => Math.Max(Math.Min(value, max), min);
+        public static double Clamp(double value, double min, double max) => Math.Max(Math.Min(value, max), min);
+        public static byte Clamp(byte value, byte min, byte max) => Math.Max(Math.Min(value, max), min);
+        public static short Clamp(short value, short min, short max) => Math.Max(Math.Min(value, max), min);
+        public static int Clamp(int value, int min, int max) => Math.Max(Math.Min(value, max), min);
+        public static long Clamp(long value, long min, long max) => Math.Max(Math.Min(value, max), min);
+        public static decimal Clamp(decimal value, decimal min, decimal max) => Math.Max(Math.Min(value, max), min);
 
         public static bool Equals(double a, double b, double tolerance = 0.0001d)
         {

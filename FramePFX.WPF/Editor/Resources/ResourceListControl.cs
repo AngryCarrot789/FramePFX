@@ -95,9 +95,11 @@ namespace FramePFX.WPF.Editor.Resources
 
         protected override void OnDragOver(DragEventArgs e)
         {
-            ResourceManagerViewModel manager = this.ResourceManager;
-            if (manager == null)
+            ResourceManagerViewModel manager;
+            if (this.isProcessingAsyncDrop || (manager = this.ResourceManager) == null)
             {
+                e.Effects = DragDropEffects.None;
+                e.Handled = true;
                 return;
             }
 
@@ -114,9 +116,6 @@ namespace FramePFX.WPF.Editor.Resources
 
         protected override async void OnDrop(DragEventArgs e)
         {
-            if (this.isProcessingAsyncDrop)
-                return;
-
             ResourceManagerViewModel manager = this.ResourceManager;
             if (manager == null)
                 return;
@@ -128,13 +127,27 @@ namespace FramePFX.WPF.Editor.Resources
                 if (dropType != EnumDropType.None)
                 {
                     this.isProcessingAsyncDrop = true;
-                    await manager.OnFilesDropped(files, dropType);
+                    try
+                    {
+                        await manager.OnFilesDropped(files, dropType);
+                    }
+                    finally
+                    {
+                        this.isProcessingAsyncDrop = false;
+                    }
                 }
             }
             else if (ResourceFolderControl.CanHandleDrop(manager.CurrentFolder, e, out List<BaseResourceViewModel> list, out EnumDropType effects))
             {
                 this.isProcessingAsyncDrop = true;
-                this.HandleOnDropResources(manager.CurrentFolder, list, effects);
+                try
+                {
+                    this.HandleOnDropResources(manager.CurrentFolder, list, effects);
+                }
+                finally
+                {
+                    this.isProcessingAsyncDrop = false;
+                }
             }
             else if (!e.Handled)
             {

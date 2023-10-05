@@ -156,6 +156,8 @@ namespace FramePFX.Editor.ViewModels.Timelines
 
         public double UnitZoom { get; set; } = 1d;
 
+        public double LastRenderMillis { get; private set; }
+
         public AsyncRelayCommand RemoveSelectedTracksCommand { get; }
         public RelayCommand MoveSelectedUpCommand { get; }
         public RelayCommand MoveSelectedDownCommand { get; }
@@ -366,7 +368,7 @@ namespace FramePFX.Editor.ViewModels.Timelines
                 // do nothing
             }
 
-            AutomationEngine.RefreshTimeline(this, this.PlayHeadFrame);
+            this.RefreshAutomationAndPlayhead();
         }
 
         public Task RemoveSelectedTracksAction()
@@ -493,6 +495,9 @@ namespace FramePFX.Editor.ViewModels.Timelines
         {
             AutomationEngine.RefreshTimeline(this, this.PlayHeadFrame);
             this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+
+            this.LastRenderMillis = Math.Round(this.Model.LastRenderDurationTicks / Time.TICK_PER_MILLIS_D, 3);
+            this.RaisePropertyChanged(nameof(this.LastRenderMillis));
         }
 
         public virtual void ClearAndDispose()

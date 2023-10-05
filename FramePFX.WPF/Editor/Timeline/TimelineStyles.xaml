@@ -784,6 +784,18 @@
                             </Grid.ColumnDefinitions>
                             <Border Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0,1" BorderBrush="{DynamicResource PanelBorderBrush}">
                                 <DockPanel Margin="8,0,0,0">
+                                    <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Padding="2,0,5,0">
+                                        <TextBlock.ToolTip>
+                                            <TextBlock TextWrapping="Wrap">
+                                                <Run Text="The amount of time, in milliseconds, the previous frame took to render"/>
+                                                <LineBreak/>
+                                                <Run Text="Render times spike when you change the layer opacity feature, as it has to create an off-screen bitmap to draw into without affecting any other layers. Seeking the timeline on video clips can also increase render times, as Mpeg seeking is generally very slow"/>
+                                            </TextBlock>
+                                        </TextBlock.ToolTip>
+                                        <Run Text="Last Render:"/>
+                                        <LineBreak/>
+                                        <Run Text="{Binding LastRenderMillis, Mode=OneWay, StringFormat='{}{0} ms'}"/>
+                                    </TextBlock>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock FontSize="16" Text="{Binding PlayHeadFrame, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Medium" />
                                         <TextBlock FontSize="15" Text="/" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,-1,3,0" />

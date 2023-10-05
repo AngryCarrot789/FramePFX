@@ -278,16 +278,12 @@ namespace FramePFX.Editor.Timelines
             clone.TrackColour = this.TrackColour;
             this.LoadDataIntoClonePre(clone, flags);
             if ((flags & TrackCloneFlags.AutomationData) != 0)
-            {
                 this.AutomationData.LoadDataIntoClone(clone.AutomationData);
-            }
 
             if ((flags & TrackCloneFlags.Clips) != 0)
             {
                 foreach (Clip clip in this.Clips)
-                {
                     clone.AddClip(clip.Clone());
-                }
             }
 
             this.LoadDataIntoClonePost(clone, flags);

@@ -54,12 +54,10 @@ namespace FramePFX.Automation
             try
             {
                 automatable.IsAutomationChangeInProgress = true;
-                foreach (AutomationSequence sequence1 in automatable.AutomationData.Sequences)
+                foreach (AutomationSequence sequence in automatable.AutomationData.Sequences)
                 {
-                    if (sequence1.IsAutomationReady)
-                    {
-                        sequence1.DoUpdateValue(frame);
-                    }
+                    if (sequence.IsAutomationReady)
+                        sequence.DoUpdateValue(frame);
                 }
             }
             finally

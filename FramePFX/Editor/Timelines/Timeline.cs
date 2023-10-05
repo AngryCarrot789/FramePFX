@@ -10,10 +10,12 @@ using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ZSystem;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
+using static SkiaSharp.SKImageFilter;
 using Vector2 = System.Numerics.Vector2;
 
 namespace FramePFX.Editor.Timelines
@@ -62,6 +64,11 @@ namespace FramePFX.Editor.Timelines
         public bool IsAutomationChangeInProgress { get; set; }
 
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets the number of ticks the previous render took
+        /// </summary>
+        public long LastRenderDurationTicks { get; private set; }
 
         public Timeline()
         {
@@ -275,6 +282,9 @@ namespace FramePFX.Editor.Timelines
             }
         }
 
+        public int Ticks = 0;
+        public long Average;
+
         // I did some testing and found that invoking methods declared with async is generally
         // about 10x slower than regular method invocation, when in debug mode (which uses
         // class-based async state machines, AFAIK)
@@ -289,7 +299,6 @@ namespace FramePFX.Editor.Timelines
         {
             if (!this.BeginCompositeRender(frame, token))
                 throw new TaskCanceledException("Begin render took too long to complete");
-            VideoEditor.EditorRenderUpdateChannel.ProcessUpdates();
             await this.EndCompositeRenderAsync(render, frame, token);
         }
 
@@ -442,12 +451,15 @@ namespace FramePFX.Editor.Timelines
 
         public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token)
         {
+            bool provideBoxInfo = render.ShouldProvideClipBounds;
+            VideoEditor.EditorRenderUpdateChannel.ProcessUpdates();
             List<VideoClip> renderList = this.RenderList;
             SKPaint trackPaint = null, clipPaint = null;
             int timelineCanvasSaveIndex = render.Canvas.Save();
             render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
             this.PreProcessAjustments(frame, render);
             int i = 0, count = renderList.Count;
+            long a = Time.GetSystemTicks();
             try
             {
                 for (; i < count; i++)
@@ -460,7 +472,7 @@ namespace FramePFX.Editor.Timelines
                     }
 
                     VideoClip clip = renderList[i];
-                    int trackSaveCount = BeginTrackOpacityLayer(render, (VideoTrack) clip.Track, ref trackPaint);
+                    int trackSaveCount = BeginTrackOpacityLayer(render, clip.Track, ref trackPaint);
                     int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
                     Vector2? frameSize = clip.GetSize(render);
 
@@ -492,6 +504,12 @@ namespace FramePFX.Editor.Timelines
                     {
                         this.CompleteRenderList(frame, true, e, i);
                         throw new RenderException($"Failed to render '{clip}'", e);
+                    }
+
+                    if (provideBoxInfo && frameSize.HasValue)
+                    {
+                        SKRect rect = render.Canvas.TotalMatrix.MapRect(new SKRect(0, 0, frameSize.Value.X, frameSize.Value.Y));
+                        render.ClipBoundingBoxes.Add((clip, rect));
                     }
 
                     try
@@ -545,13 +563,17 @@ namespace FramePFX.Editor.Timelines
             this.RenderList.Clear();
             this.PostProcessAjustments(frame, render);
             render.Canvas.RestoreToCount(timelineCanvasSaveIndex);
+            this.LastRenderDurationTicks = Time.GetSystemTicks() - a;
         }
 
         // SaveLayer requires a temporary drawing bitmap, which can slightly
         // decrease performance, so only SaveLayer when absolutely necessary
         private static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency)
         {
-            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {Color = new SKColor(255, 255, 255, (byte) Maths.Clamp(opacity * 255F, 0, 255F))}));
+            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint
+            {
+                Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(opacity))
+            }));
         }
 
         private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint)
@@ -568,7 +590,11 @@ namespace FramePFX.Editor.Timelines
 
         private static int BeginTrackOpacityLayer(RenderContext render, VideoTrack track, ref SKPaint paint)
         {
-            return !Maths.Equals(track.Opacity, 1d) ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref paint) : render.Canvas.Save();
+            return !Maths.Equals(track.Opacity, 1d)
+                // TODO: optimise this, because it adds about 3ms of extra lag per layer with an opacity less than 1
+                // (due to bitmap allocation obviously). Not even
+                ? SaveLayerForOpacity(render.Canvas, track.Opacity, ref paint)
+                : render.Canvas.Save();
         }
 
         private static void EndOpacityLayer(RenderContext render, int count, ref SKPaint paint) {

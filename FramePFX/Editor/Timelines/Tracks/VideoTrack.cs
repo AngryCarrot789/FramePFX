@@ -1,3 +1,4 @@
+using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.VideoClips;
@@ -10,14 +11,14 @@ namespace FramePFX.Editor.Timelines.Tracks
         public static readonly ZProperty<double> OpacityProperty = ZProperty.RegisterU<double>(typeof(VideoTrack), nameof(Opacity));
         public static readonly ZProperty<bool> IsVisibleProperty = ZProperty.RegisterU<bool>(typeof(VideoTrack), nameof(IsVisible));
 
-        public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrack), nameof(Opacity), new KeyDescriptorDouble(1d, 0d, 1d));
+        public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoTrack), nameof(Opacity), 1d, 0d, 1d);
         public static readonly AutomationKeyBoolean IsVisibleKey = AutomationKey.RegisterBool(nameof(VideoTrack), nameof(IsVisible), new KeyDescriptorBoolean(true));
         public const double MinimumVisibleOpacity = 0.0001d;
 
         // This isn't necessarily required, because the compiler will generate a hidden class with static variables
         // like this automatically when no closure allocation is required...
-        private static readonly UpdateAutomationValueEventHandler UpdateOpacity = (s, f) => ((VideoTrack) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f);
-        private static readonly UpdateAutomationValueEventHandler UpdateIsVisible = (s, f) => ((VideoTrack) s.AutomationData.Owner).IsVisible = s.GetBooleanValue(f);
+        private static readonly UpdateAutomationValueEventHandler UpdateOpacity = AutomationEventUtils.ForZProperty(OpacityProperty);
+        private static readonly UpdateAutomationValueEventHandler UpdateIsVisible = AutomationEventUtils.ForZProperty(IsVisibleProperty);
 
         /// <summary>
         /// The opacity of the track, from 0d to 1d. When the value dips below <see cref="MinimumVisibleOpacity"/>, it is effectively invisible and won't be rendered

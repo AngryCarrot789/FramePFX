@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,8 +14,10 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using AvalonDock.Layout;
 using FramePFX.Editor;
+using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History.ViewModels;
 using FramePFX.Logger;
 using FramePFX.Notifications;
@@ -352,6 +355,8 @@ namespace FramePFX.WPF.Editor.MainWindow
                     try
                     {
                         RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortElement.FrameInfo);
+                        context.ShouldProvideClipBounds = true;
+
                         context.ClearPixels();
                         try
                         {
@@ -367,6 +372,20 @@ namespace FramePFX.WPF.Editor.MainWindow
                             await editor.Playback.StopForRenderException();
                             await Services.DialogService.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
                         }
+
+                        List<(VideoClip, SKRect)> list = new List<(VideoClip, SKRect)>();
+                        using (SKPaint paint = new SKPaint() { StrokeWidth = 5, Color = SKColors.Orange, Style = SKPaintStyle.Stroke, StrokeCap = SKStrokeCap.Round })
+                        {
+                            foreach ((VideoClip clip, SKRect rect) in context.ClipBoundingBoxes)
+                            {
+                                if (timeline.Tracks.Any(x => x.SelectedClips.Any(y => y.Model == clip)))
+                                {
+                                    list.Add((clip, rect));
+                                }
+                            }
+                        }
+
+                        this.ViewPortElement.OutlineList = list;
                     }
                     finally
                     {

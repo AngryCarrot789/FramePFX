@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,7 +16,6 @@ using FramePFX.Editor;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History.ViewModels;
 using FramePFX.Logger;
 using FramePFX.Notifications;
@@ -316,7 +314,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
 
                         List<(VideoClip, SKRect)> list = new List<(VideoClip, SKRect)>();
                         foreach ((VideoClip clip, SKRect rect) in context.ClipBoundingBoxes) {
-                            if (timeline.Tracks[clip.Track.IndexInTimeline].Clips[clip.IndexInTrack].IsSelected) {
+                            if (timeline.GetTrackByModel(clip.Track).GetClipByModel(clip).IsSelected) {
                                 list.Add((clip, rect));
                             }
                         }

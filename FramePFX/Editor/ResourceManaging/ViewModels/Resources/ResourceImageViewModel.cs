@@ -82,13 +82,15 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
                 return true;
             }
 
+            Exception loadError = null;
             if (File.Exists(this.FilePath)) {
                 try {
                     await this.Model.LoadImageAsync(this.FilePath, false);
                     return true;
                 }
-                catch {
-                    // ignored
+                catch (Exception e) {
+                    list.Add(e);
+                    loadError = e;
                 }
             }
 
@@ -99,7 +101,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
                 list.Add(e);
             }
 
-            checker?.Add(new InvalidImageViewModel(this));
+            checker?.Add(new InvalidImageViewModel(this, loadError));
             return false;
         }
     }

@@ -33,7 +33,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         private bool skipUpdatePropertyEditor;
         private bool isSelected;
 
-        public static DragDropRegistry DropRegistry { get; }
+        public static DragDropRegistry<ClipViewModel> DropRegistry { get; }
 
         public Clip Model { get; }
 
@@ -220,8 +220,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         static ClipViewModel() {
-            DropRegistry = new DragDropRegistry();
-            DropRegistry.Register<ClipViewModel, EffectProviderViewModel>((clip, x, dt) => EnumDropType.Copy, async (clip, x, dt) => {
+            DropRegistry = new DragDropRegistry<ClipViewModel>();
+            DropRegistry.Register<ClipViewModel, EffectProviderViewModel>((clip, x, dt, ctx) => EnumDropType.Copy, async (clip, x, dt, ctx) => {
                 BaseEffect effect;
                 try {
                     effect = EffectFactory.Instance.CreateModel(x.EffectFactoryId);

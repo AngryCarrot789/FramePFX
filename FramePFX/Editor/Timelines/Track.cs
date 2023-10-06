@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ZSystem;
-using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -14,7 +13,6 @@ namespace FramePFX.Editor.Timelines {
     /// </summary>
     public abstract class Track : ZObject, IProjectBound, IAutomatable {
         private readonly List<Clip> clips;
-        public int IndexInTimeline;
 
         /// <summary>
         /// The timeline that created this track
@@ -118,37 +116,19 @@ namespace FramePFX.Editor.Timelines {
         protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
         }
 
-        /// <summary>
-        /// Gets the index of the given clip within this track
-        /// </summary>
-        /// <param name="clip">The clip</param>
-        /// <param name="index">The index of the clip</param>
-        /// <returns>True if the clip is stored in this track, or false if it is not</returns>
-        public bool GetClipIndex(Clip clip, out int index) {
-            index = clip.IndexInTrack;
-            if (index == -1) {
-                return false;
-            }
-            else if (index < this.clips.Count && ReferenceEquals(clip, this.clips[index])) {
-                return true;
-            }
-            else if (!ReferenceEquals(clip.Track, this)) {
-                index = -1;
-                return false;
-            }
-            else {
-                // this section down here shouldn't really be reachable... but who knows
-                index = this.clips.IndexOf(clip);
-                if (index == -1) {
-                    AppLogger.WriteLine("[FATAL] Clip's cached index and owner track was still valid, but the track did not contain the clip");
-                    return false;
-                }
-                else {
-                    AppLogger.WriteLine("[FATAL] Clip's cached index within the track was invalid, but the owner track was still valid");
-                    clip.IndexInTrack = index;
-                    return true;
+        public bool TryGetIndexOfClip(Clip clip, out int index) {
+            return (index = this.IndexOfClip(clip)) != -1;
+        }
+
+        public int IndexOfClip(Clip clip) {
+            List<Clip> list = this.clips;
+            for (int i = 0, count = list.Count; i < count; i++) {
+                if (ReferenceEquals(this.clips[i], clip)) {
+                    return i;
                 }
             }
+
+            return -1;
         }
 
         public void GetClipsAtFrame(long frame, List<Clip> list) {
@@ -186,16 +166,15 @@ namespace FramePFX.Editor.Timelines {
         public void AddClip(Clip clip) => this.InsertClip(this.clips.Count, clip);
 
         public void InsertClip(int index, Clip clip) {
-            if (clip.Track != null && clip.Track.GetClipIndex(clip, out _))
+            if (clip.Track != null && clip.Track.TryGetIndexOfClip(clip, out _))
                 throw new Exception("Clip already exists and is valid in another track: " + clip.Track);
             Clip.SetTrack(clip, this);
             this.clips.Insert(index, clip);
-            clip.IndexInTrack = index;
             this.cache.OnClipAdded(clip);
         }
 
         public bool RemoveClip(Clip clip) {
-            if (!this.GetClipIndex(clip, out int index))
+            if (!this.TryGetIndexOfClip(clip, out int index))
                 return false;
             this.RemoveClipAt(index);
             return true;
@@ -206,7 +185,6 @@ namespace FramePFX.Editor.Timelines {
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception("Expected clip's track to equal this instance");
             this.clips.RemoveAt(index);
-            clip.IndexInTrack = -1;
             if (!this.isPerformingOptimisedCacheRemoval)
                 this.cache.OnClipRemoved(clip);
             Clip.SetTrack(clip, null);
@@ -222,12 +200,11 @@ namespace FramePFX.Editor.Timelines {
 
         public void MakeTopMost(Clip clip, int oldIndex, int newIndex) {
             this.clips.MoveItem(oldIndex, newIndex);
-            clip.IndexInTrack = newIndex;
             this.cache.MakeTopMost(clip);
         }
 
         public bool MoveClipToTrack(Clip clip, Track newTrack) {
-            if (!this.GetClipIndex(clip, out int index))
+            if (!this.TryGetIndexOfClip(clip, out int index))
                 return false;
             this.MoveClipToTrack(index, newTrack);
             return true;
@@ -241,7 +218,6 @@ namespace FramePFX.Editor.Timelines {
         public void MoveClipToTrack(int index, Track newTrack) {
             Clip clip = this.clips[index];
             this.clips.RemoveAt(index);
-            clip.IndexInTrack = -1;
             this.cache.OnClipRemoved(clip);
             newTrack.AddClip(clip);
         }

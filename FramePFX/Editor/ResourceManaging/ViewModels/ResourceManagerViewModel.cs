@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Commands;
@@ -9,11 +8,10 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels;
-using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
-    public class ResourceManagerViewModel : BaseViewModel, IFileDropNotifier, IResourceManagerNavigation {
+    public class ResourceManagerViewModel : BaseViewModel, IResourceManagerNavigation {
         private ResourceFolderViewModel currentFolder;
 
         /// <summary>
@@ -173,91 +171,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             if (resObj is ResourceCompositionViewModel composition) {
                 VideoEditorViewModel editor = this.Project.Editor;
                 editor?.OpenAndSelectTimeline(composition.Timeline);
-            }
-        }
-
-        public EnumDropType GetFileDropType(string[] paths) {
-            return paths.Length == 1 ? (EnumDropType.All) : EnumDropType.None;
-        }
-
-        public async Task OnFilesDropped(string[] paths, EnumDropType dropType) {
-            foreach (string path in paths) {
-                switch (Path.GetExtension(path).ToLower()) {
-                    case ".mp3":
-                    case ".wav":
-                    case ".ogg":
-                    case ".mp4":
-                    case ".mov":
-                    case ".mkv":
-                    case ".flv": {
-                        ResourceAVMedia media = new ResourceAVMedia() {
-                            FilePath = path, DisplayName = Path.GetFileName(path)
-                        };
-
-                        ResourceAVMediaViewModel vm = media.CreateViewModel<ResourceAVMediaViewModel>();
-                        if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, vm)) {
-                            await Services.DialogService.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
-                        }
-
-                        // ResourceMpegMediaViewModel media = new ResourceMpegMediaViewModel(new ResourceMpegMedia() {FilePath = path});
-                        // using (ExceptionStack stack = new ExceptionStack(false)) {
-                        //     await media.LoadResource(null, stack);
-                        //     if (stack.TryGetException(out Exception exception)) {
-                        //         await Services.DialogService.ShowMessageExAsync("Error opening media", "Failed to open media file", exception.GetToString());
-                        //         return;
-                        //     }
-                        // }
-                        // FFmpegReader reader = media.Model.reader;
-                        // if (reader != null && (reader.VideoStreamCount > 0 || reader.AudioStreamCount > 0)) {
-                        //     this.Manager.RegisterEntry(media.Model);
-                        //     this.CurrentGroup.AddItem(media, true);
-                        // }
-                        // else {
-                        //     ((BaseResourceObjectViewModel) media).Model.Dispose();
-                        //     await Services.DialogService.ShowMessageAsync("Empty media", "Media contains no video or audio streams");
-                        // }
-
-                        break;
-                    }
-                    case ".png":
-                    case ".bmp":
-                    case ".jpg":
-                    case ".jpeg": {
-                        ResourceImageViewModel image = new ResourceImageViewModel(new ResourceImage() {FilePath = path, DisplayName = Path.GetFileName(path)});
-                        if (!await ResourceItemViewModel.TryLoadResource(image, null)) {
-                            return;
-                        }
-
-                        this.Model.RegisterEntry(image.Model);
-                        this.CurrentFolder.AddItem(image, true);
-                        break;
-                    }
-                    case ".txt":
-                    case ".text":
-                    case ".log":
-                    case ".cs":
-                    case ".js":
-                    case ".html":
-                    case ".htm":
-                    case ".json":
-                    case ".md":
-                    case ".h":
-                    case ".c":
-                    case ".hpp":
-                    case ".cpp": {
-                        ResourceTextFileViewModel file = new ResourceTextFile() {
-                            Path = new ProjectPath(path, EnumPathFlags.Absolute),
-                            DisplayName = Path.GetFileName(path)
-                        }.CreateViewModel<ResourceTextFileViewModel>();
-
-                        if (await ResourceItemViewModel.TryLoadResource(file, null)) {
-                            this.Model.RegisterEntry(file.Model);
-                            this.CurrentFolder.AddItem(file, true);
-                        }
-
-                        break;
-                    }
-                }
             }
         }
 

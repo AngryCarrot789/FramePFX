@@ -602,44 +602,35 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         protected override void OnDragOver(DragEventArgs e) {
+            e.Handled = true;
             if (this.isProcessingAsyncDrop) {
                 e.Effects = DragDropEffects.None;
                 return;
             }
 
-            EnumDropType outputEffects;
-            EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-            if (effects != EnumDropType.None && this.DataContext is ClipViewModel target) {
+            EnumDropType outputEffects = EnumDropType.None;
+            EnumDropType inputEffects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (inputEffects != EnumDropType.None && this.DataContext is ClipViewModel target) {
                 if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceViewModel> resources) {
                     if (resources.Count == 1 && resources[0] is ResourceItemViewModel) {
-                        if ((outputEffects = ClipViewModel.DropRegistry.CanDrop(target, resources[0], effects)) != EnumDropType.None) {
-                            this.OnAcceptDrop();
-                            e.Effects = (DragDropEffects) outputEffects;
-                            e.Handled = true;
-                            return;
-                        }
+                        outputEffects = ClipViewModel.DropRegistry.CanDrop(target, resources[0], inputEffects);
                     }
                 }
                 else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProviderViewModel provider) {
-                    if ((outputEffects = ClipViewModel.DropRegistry.CanDrop(target, provider, effects)) != EnumDropType.None) {
-                        this.OnAcceptDrop();
-                        e.Effects = (DragDropEffects) outputEffects;
-                        e.Handled = true;
-                        return;
-                    }
+                    outputEffects = ClipViewModel.DropRegistry.CanDrop(target, provider, inputEffects);
                 }
                 else {
-                    DataObjectWrapper obj = new DataObjectWrapper(e.Data);
-                    if ((outputEffects = ClipViewModel.DropRegistry.CanDropNative(target, obj, effects)) != EnumDropType.None) {
-                        this.OnAcceptDrop();
-                        e.Effects = (DragDropEffects) outputEffects;
-                        e.Handled = true;
-                        return;
-                    }
+                    outputEffects = ClipViewModel.DropRegistry.CanDropNative(target, new DataObjectWrapper(e.Data), inputEffects);
                 }
 
-                this.ClearValue(IsDroppableTargetOverProperty);
-                e.Effects = DragDropEffects.None;
+                if (outputEffects != EnumDropType.None) {
+                    this.OnAcceptDrop();
+                    e.Effects = (DragDropEffects) outputEffects;
+                }
+                else {
+                    this.IsDroppableTargetOver = false;
+                    e.Effects = DragDropEffects.None;
+                }
             }
         }
 
@@ -655,7 +646,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }, DispatcherPriority.Loaded);
         }
 
-        private void OnDrop(object sender, DragEventArgs e) {
+        private async void OnDrop(object sender, DragEventArgs e) {
             e.Handled = true;
             if (this.isProcessingAsyncDrop || !(this.DataContext is ClipViewModel drop)) {
                 return;
@@ -666,32 +657,22 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
             }
 
-            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceViewModel> items && items.Count == 1 && items[0] is ResourceItemViewModel) {
-                e.Handled = true;
-                this.HandleDropObject(drop, items[0], effects);
+            try {
+                this.isProcessingAsyncDrop = true;
+                if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceViewModel> items && items.Count == 1 && items[0] is ResourceItemViewModel) {
+                    await ClipViewModel.DropRegistry.OnDropped(drop, items[0], effects);
+                }
+                else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProviderViewModel provider) {
+                    await ClipViewModel.DropRegistry.OnDropped(drop, provider, effects);
+                }
+                else {
+                    await ClipViewModel.DropRegistry.OnDroppedNative(drop, new DataObjectWrapper(e.Data), effects);
+                }
             }
-            else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProviderViewModel provider) {
-                e.Handled = true;
-                this.HandleDropObject(drop, provider, effects);
+            finally {
+                this.isProcessingAsyncDrop = false;
+                this.IsDroppableTargetOver = false;
             }
-            else {
-                e.Handled = true;
-                this.HandleDropNativeObject(drop, new DataObjectWrapper(e.Data), effects);
-            }
-        }
-
-        private async void HandleDropObject(ClipViewModel handler, object drop, EnumDropType dropType) {
-            this.isProcessingAsyncDrop = true;
-            await ClipViewModel.DropRegistry.OnDropped(handler, drop, dropType);
-            this.ClearValue(IsDroppableTargetOverProperty);
-            this.isProcessingAsyncDrop = false;
-        }
-
-        private async void HandleDropNativeObject(ClipViewModel handler, IDataObjekt drop, EnumDropType dropType) {
-            this.isProcessingAsyncDrop = true;
-            await ClipViewModel.DropRegistry.OnDroppedNative(handler, drop, dropType);
-            this.ClearValue(IsDroppableTargetOverProperty);
-            this.isProcessingAsyncDrop = false;
         }
 
         #endregion

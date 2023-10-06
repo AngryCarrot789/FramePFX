@@ -13,6 +13,11 @@ namespace FramePFX.Actions.Contexts {
         // not read only dictionary because EntryMap may be null
         public IEnumerable<(string, object)> Entries => this.EntryMap != null ? this.EntryMap.Select(x => (x.Key, x.Value)) : Enumerable.Empty<(string, object)>();
 
+        public object this[string key] {
+            get => this.Get<object>(key);
+            set => this.Set(key, value);
+        }
+
         public DataContext() {
             this.InternalContext = new List<object>();
         }

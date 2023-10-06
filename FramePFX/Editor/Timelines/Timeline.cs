@@ -10,7 +10,6 @@ using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ZSystem;
-using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
@@ -158,31 +157,19 @@ namespace FramePFX.Editor.Timelines {
             this.MaxDuration = Math.Max(this.MaxDuration, this.tracks.Count < 1 ? 0 : this.tracks.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
         }
 
-        public bool GetTrackIndex(Track track, out int index) {
-            index = track.IndexInTimeline;
-            if (index == -1) {
-                return false;
-            }
-            else if (index < this.tracks.Count && ReferenceEquals(track, this.tracks[index])) {
-                return true;
-            }
-            else if (!ReferenceEquals(track.Timeline, this)) {
-                index = -1;
-                return false;
-            }
-            else {
-                // this section down here shouldn't really be reachable... but who knows
-                index = this.tracks.IndexOf(track);
-                if (index == -1) {
-                    AppLogger.WriteLine("[FATAL] Track's cached index and owner timeline was still valid, but the timeline did not contain the clip");
-                    return false;
-                }
-                else {
-                    AppLogger.WriteLine("[FATAL] Track's cached index within the timeline was invalid, but the owner timeline was still valid");
-                    track.IndexInTimeline = index;
-                    return true;
+        public bool TryGetIndexOfTrack(Track track, out int index) {
+            return (index = this.IndexOfTrack(track)) != -1;
+        }
+
+        public int IndexOfTrack(Track track) {
+            List<Track> list = this.tracks;
+            for (int i = 0; i < list.Count; i++) {
+                if (ReferenceEquals(track, list[i])) {
+                    return i;
                 }
             }
+
+            return -1;
         }
 
         // true = adding, false = removing, null = moving track from timeline A to B
@@ -192,7 +179,7 @@ namespace FramePFX.Editor.Timelines {
                     throw new Exception($"Track already belongs to another timeline: '{track.Timeline.DisplayName}'");
                 }
 
-                if (this.GetTrackIndex(track, out int index)) {
+                if (this.IndexOfTrack(track) != -1) {
                     throw new Exception($"Track has no timeline associated but is stored in our track list?");
                 }
             }
@@ -206,12 +193,11 @@ namespace FramePFX.Editor.Timelines {
         public void InsertTrack(int index, Track track) {
             this.ValidateTrack(track, true);
             this.tracks.Insert(index, track);
-            track.IndexInTimeline = index;
             Track.SetTimeline(track, this);
         }
 
         public bool RemoveTrack(Track track) {
-            if (!this.GetTrackIndex(track, out int index))
+            if (!this.TryGetIndexOfTrack(track, out int index))
                 return false;
             this.RemoveTrackAt(index);
             return true;
@@ -222,18 +208,16 @@ namespace FramePFX.Editor.Timelines {
             this.ValidateTrack(track, false);
             ExceptionUtils.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
             this.tracks.RemoveAt(index);
-            track.IndexInTimeline = -1;
             Track.SetTimeline(track, null);
         }
 
         public void MoveTrackIndex(int oldIndex, int newIndex) {
             Track track = this.tracks[oldIndex];
             this.tracks.MoveItem(oldIndex, newIndex);
-            track.IndexInTimeline = newIndex;
         }
 
         public void MoveTrackToTimeline(Track track, Timeline timeline) {
-            if (!this.GetTrackIndex(track, out int index))
+            if (!this.TryGetIndexOfTrack(track, out int index))
                 throw new Exception("Track is not stored in the current instance");
             this.MoveTrackToTimeline(index, timeline);
         }
@@ -246,7 +230,6 @@ namespace FramePFX.Editor.Timelines {
             }
 
             this.tracks.RemoveAt(index);
-            track.IndexInTimeline = timeline.tracks.Count;
             timeline.tracks.Add(track);
             Track.SetTimeline(track, timeline);
         }

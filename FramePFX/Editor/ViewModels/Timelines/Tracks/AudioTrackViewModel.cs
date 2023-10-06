@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor.History;
-using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.History;
 using FramePFX.History.ViewModels;
@@ -94,14 +93,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         public AudioTrackViewModel(AudioTrack model) : base(model) {
             this.AutomationData.AssignRefreshHandler(AudioTrack.VolumeKey, RefreshVolumeHandler);
             this.AutomationData.AssignRefreshHandler(AudioTrack.IsMutedKey, RefreshIsMutedHandler);
-        }
-
-        public override bool CanDropResource(ResourceItemViewModel resource) {
-            return false;
-        }
-
-        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frame) {
-            await Services.DialogService.ShowMessageAsync("Audio unsupported", "Cannot drop audio yet");
         }
 
         private class HistoryAudioTrackIsMuted : BaseHistoryHolderAction<AudioTrackViewModel> {

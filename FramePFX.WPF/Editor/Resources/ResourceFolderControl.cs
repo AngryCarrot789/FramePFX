@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
+using FramePFX.WPF.Interactivity;
 
 namespace FramePFX.WPF.Editor.Resources {
     public class ResourceFolderControl : BaseResourceItemControl {
@@ -19,16 +20,28 @@ namespace FramePFX.WPF.Editor.Resources {
 
         protected override void OnDragOver(DragEventArgs e) {
             if (this.DataContext is ResourceFolderViewModel self) {
-                this.IsDroppableTargetOver = HandleDragOver(self, e);
+                this.IsDroppableTargetOver = ProcessCanDragOver(self, e);
             }
         }
 
-        protected override void OnDrop(DragEventArgs e) {
-            if (!this.isProcessingAsyncDrop && this.DataContext is ResourceFolderViewModel self) {
-                if (CanHandleDrop(self, e, out List<BaseResourceViewModel> list, out EnumDropType effects)) {
-                    this.HandleOnDropResources(self, list, effects);
-                    this.IsDroppableTargetOver = false;
+        protected override async void OnDrop(DragEventArgs e) {
+            e.Handled = true;
+            if (this.isProcessingAsyncDrop || !(this.DataContext is ResourceFolderViewModel self)) {
+                return;
+            }
+
+            try {
+                this.isProcessingAsyncDrop = true;
+                if (GetDropResourceListForEvent(e, out List<BaseResourceViewModel> list, out EnumDropType effects)) {
+                    await BaseResourceViewModel.DropRegistry.OnDropped(self, list, effects);
                 }
+                else if (!await BaseResourceViewModel.DropRegistry.OnDroppedNative(self, new DataObjectWrapper(e.Data), effects)) {
+                    await Services.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
+                }
+            }
+            finally {
+                this.IsDroppableTargetOver = false;
+                this.isProcessingAsyncDrop = false;
             }
         }
 
@@ -36,45 +49,37 @@ namespace FramePFX.WPF.Editor.Resources {
             this.Dispatcher.Invoke(() => this.IsDroppableTargetOver = false, DispatcherPriority.Loaded);
         }
 
-        public static bool HandleDragOver(ResourceFolderViewModel folder, DragEventArgs e) {
-            if (!e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
-                return false;
-            }
-
-            object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-            if (!(obj is List<BaseResourceViewModel> resources)) {
-                return false;
-            }
-
+        public static bool ProcessCanDragOver(ResourceFolderViewModel folder, DragEventArgs e) {
             e.Handled = true;
-            EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-            e.Effects = (DragDropEffects) BaseResourceViewModel.CanDropItems(resources, folder, effects);
+            if (GetDropResourceListForEvent(e, out List<BaseResourceViewModel> resources, out EnumDropType effects)) {
+                e.Effects = (DragDropEffects) BaseResourceViewModel.DropRegistry.CanDrop(folder, resources, effects);
+            }
+            else {
+                e.Effects = (DragDropEffects) BaseResourceViewModel.DropRegistry.CanDropNative(folder, new DataObjectWrapper(e.Data), effects);
+            }
+
             return e.Effects != DragDropEffects.None;
         }
 
-        public static bool CanHandleDrop(ResourceFolderViewModel folder, DragEventArgs e, out List<BaseResourceViewModel> resources, out EnumDropType effects) {
-            if (!e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
-                effects = EnumDropType.None;
-                resources = null;
-                return false;
+        /// <summary>
+        /// Tries to get the list of resources being drag-dropped from the given drag event. Provides the
+        /// effects currently applicable for the event regardless of this method's return value
+        /// </summary>
+        /// <param name="e">Drag event (enter, over, drop, etc.)</param>
+        /// <param name="resources">The resources in the drag event</param>
+        /// <param name="effects">The effects applicable based on the event's effects and user's keys pressed</param>
+        /// <returns>True if there were resources available, otherwise false, meaning no resources are being dragged</returns>
+        public static bool GetDropResourceListForEvent(DragEventArgs e, out List<BaseResourceViewModel> resources, out EnumDropType effects) {
+            effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
+                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
+                if ((resources = obj as List<BaseResourceViewModel>) != null) {
+                    return true;
+                }
             }
 
-            object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-            if ((resources = obj as List<BaseResourceViewModel>) != null) {
-                e.Handled = true;
-                effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                effects = BaseResourceViewModel.CanDropItems(resources, folder, effects);
-                return effects != EnumDropType.None;
-            }
-
-            effects = EnumDropType.None;
+            resources = null;
             return false;
-        }
-
-        private async void HandleOnDropResources(ResourceFolderViewModel folder, List<BaseResourceViewModel> selection, EnumDropType dropType) {
-            await folder.OnDropResources(selection, dropType);
-            this.ClearValue(IsDroppableTargetOverProperty);
-            this.isProcessingAsyncDrop = false;
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {

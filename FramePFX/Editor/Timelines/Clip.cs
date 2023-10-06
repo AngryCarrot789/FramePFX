@@ -19,7 +19,6 @@ namespace FramePFX.Editor.Timelines {
     /// </summary>
     public abstract class Clip : ZObject, IClip, IStrictFrameRange, IAutomatable, IDisposable {
         private readonly List<BaseEffect> internalEffectList;
-        public int IndexInTrack = -1;
 
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called

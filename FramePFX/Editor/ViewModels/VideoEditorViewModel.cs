@@ -173,7 +173,7 @@ namespace FramePFX.Editor.ViewModels {
             TimelineViewModel timeline = this.ActiveProject.Timeline;
             FrameSpan span = timeline.Model.GetUsedFrameSpan();
             ExportSetupViewModel setup = new ExportSetupViewModel(this.ActiveProject) {
-                RenderSpan = span.WithBegin(0)
+                RenderSpan = span
             };
 
             this.IsEditorEnabled = false;

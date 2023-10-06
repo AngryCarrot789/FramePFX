@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.Actions.Contexts;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
@@ -32,7 +33,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public ITrackResourceDropHandler ResourceItemDropHandler => this.DataContext as ITrackResourceDropHandler;
 
-        private bool isProcessingDrop;
+        private bool isProcessingAsyncDrop;
         public TimelineClipControl lastSelectedItem;
 
         public TimelineTrackControl() {
@@ -133,72 +134,68 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         private void OnDragDropEnter(object sender, DragEventArgs e) => this.OnDragOver(sender, e);
 
         private void OnDragOver(object sender, DragEventArgs e) {
-            if (this.isProcessingDrop || !(this.DataContext is TrackViewModel track)) {
-                goto end;
-            }
-
-            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
-                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (!(obj is List<BaseResourceViewModel> resources) || resources.Count != 1) {
-                    goto end;
-                }
-
-                if (resources[0] is ResourceItemViewModel item && track.CanDropResource(item)) {
-                    e.Effects = DragDropEffects.Copy;
-                    e.Handled = true;
-                    return;
-                }
-            }
-            else {
-                DataObjectWrapper obj = new DataObjectWrapper(e.Data);
-                EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                EnumDropType outputEffects = TrackViewModel.DropRegistry.CanDropNative(track, obj, effects);
-                if (outputEffects != EnumDropType.None) {
-                    e.Effects = (DragDropEffects) outputEffects;
-                    e.Handled = true;
-                    return;
-                }
-            }
-
-            end:
-            e.Effects = DragDropEffects.None;
             e.Handled = true;
-        }
-
-        private void OnDrop(object sender, DragEventArgs e) {
-            if (this.isProcessingDrop || !(this.DataContext is TrackViewModel track)) {
+            if (this.isProcessingAsyncDrop || !(this.DataContext is TrackViewModel track)) {
                 e.Effects = DragDropEffects.None;
-                e.Handled = true;
                 return;
             }
 
-            if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
-                object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
-                if (obj is List<BaseResourceViewModel> resources && resources.Count == 1) {
-                    if (resources[0] is ResourceItemViewModel item && track.CanDropResource(item)) {
-                        this.isProcessingDrop = true;
-                        this.OnDropResource(track, item, e.GetPosition(this));
-                    }
+            EnumDropType inputEffects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (inputEffects == EnumDropType.None) {
+                e.Effects = DragDropEffects.None;
+                return;
+            }
+
+            EnumDropType outputEffects = EnumDropType.None;
+            if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceViewModel> resources) {
+                if (resources.Count == 1 && resources[0] is ResourceItemViewModel) {
+                    outputEffects = TrackViewModel.DropRegistry.CanDrop(track, resources[0], inputEffects, this.GetDropDataContext(e));
                 }
             }
             else {
-                DataObjectWrapper obj = new DataObjectWrapper(e.Data);
-                EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                this.isProcessingDrop = true;
-                this.HandleDropNativeObject(track, obj, effects);
+                outputEffects = TrackViewModel.DropRegistry.CanDropNative(track, new DataObjectWrapper(e.Data), inputEffects, this.GetDropDataContext(e));
+            }
+
+            e.Effects = (DragDropEffects) outputEffects;
+        }
+
+        private async void OnDrop(object sender, DragEventArgs e) {
+            e.Handled = true;
+            if (this.isProcessingAsyncDrop || !(this.DataContext is TrackViewModel track)) {
+                return;
+            }
+
+            EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (e.Effects == DragDropEffects.None) {
+                return;
+            }
+
+            try {
+                this.isProcessingAsyncDrop = true;
+                if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceViewModel> items) {
+                    if (items.Count == 1 && items[0] is ResourceItemViewModel) {
+                        await TrackViewModel.DropRegistry.OnDropped(track, items[0], effects, this.GetDropDataContext(e));
+                    }
+                }
+                // TODO: Track effects >:)
+                // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProviderViewModel provider) {
+                //     await TrackViewModel.DropRegistry.OnDropped(track, provider, effects, this.GetDropDataContext(e.GetPosition(this)));
+                // }
+                else {
+                    await TrackViewModel.DropRegistry.OnDroppedNative(track, new DataObjectWrapper(e.Data), effects, this.GetDropDataContext(e));
+                }
+            }
+            finally {
+                this.isProcessingAsyncDrop = false;
             }
         }
 
-        private async void OnDropResource(ITrackResourceDropHandler handler, ResourceItemViewModel item, Point mouse) {
-            long frame = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
-            frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
-            await handler.OnResourceDropped(item, frame);
-            this.isProcessingDrop = false;
-        }
+        public IDataContext GetDropDataContext(DragEventArgs e) => this.GetDropDataContext(e.GetPosition(this));
 
-        private async void HandleDropNativeObject(TrackViewModel handler, IDataObjekt drop, EnumDropType dropType) {
-            await TrackViewModel.DropRegistry.OnDroppedNative(handler, drop, dropType);
-            this.isProcessingDrop = false;
+        public IDataContext GetDropDataContext(Point mPos) {
+            long frame = TimelineUtils.PixelToFrame(mPos.X, this.UnitZoom);
+            frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
+            return new DataContext {[TrackViewModel.DroppedFrameKey] = frame};
         }
 
         public void OnUnitZoomChanged() {

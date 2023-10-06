@@ -9,7 +9,6 @@ namespace FramePFX.Editor.ResourceChecker.Resources {
         public new ResourceImageViewModel Resource => (ResourceImageViewModel) base.Resource;
 
         private string filePath;
-
         public string FilePath {
             get => this.filePath;
             set => this.RaisePropertyChanged(ref this.filePath, value);
@@ -19,10 +18,13 @@ namespace FramePFX.Editor.ResourceChecker.Resources {
 
         public AsyncRelayCommand LoadImageCommand { get; }
 
-        public InvalidImageViewModel(ResourceImageViewModel resource) : base(resource) {
+        public string ErrorMessage { get; }
+
+        public InvalidImageViewModel(ResourceImageViewModel resource, Exception loadError) : base(resource) {
             this.filePath = resource.FilePath;
             this.SelectFileCommand = new AsyncRelayCommand(this.SelectFileAction);
             this.LoadImageCommand = new AsyncRelayCommand(this.LoadImageAction);
+            this.ErrorMessage = loadError != null ? loadError.GetToString() : "File does not exist";
         }
 
         public async Task SelectFileAction() {

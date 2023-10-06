@@ -1,5 +1,3 @@
-using System;
-
 namespace FramePFX.Interactivity {
     /// <summary>
     /// An interface for a native data object, that is, an object with a specific string-representable type

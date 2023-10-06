@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Commands;
@@ -12,6 +11,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
     public abstract class BaseResourceViewModel : BaseViewModel, IRenameTarget {
         private ResourceManagerViewModel manager;
         private ResourceFolderViewModel parent;
+
+        public static DragDropRegistry<BaseResourceViewModel> DropRegistry { get; }
 
         /// <summary>
         /// The manager that this resource is currently associated with
@@ -54,6 +55,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             model.ViewModel = this;
             this.RenameCommand = new AsyncRelayCommand(this.RenameAsync, () => true);
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, () => this.Parent != null);
+        }
+
+        static BaseResourceViewModel() {
+            DropRegistry = new DragDropRegistry<BaseResourceViewModel>();
         }
 
         public static void PreSetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent) {
@@ -155,26 +160,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
                 this.OnModelDisposed();
             }
-        }
-
-        public static EnumDropType CanDropItems(List<BaseResourceViewModel> items, ResourceFolderViewModel target, EnumDropType dropType) {
-            if (dropType == EnumDropType.None || dropType == EnumDropType.Link) {
-                return EnumDropType.None;
-            }
-
-            if (items.Count == 1) {
-                BaseResourceViewModel item = items[0];
-                if (item is ResourceFolderViewModel folder && folder.IsParentInHierarchy(target)) {
-                    return EnumDropType.None;
-                }
-                else if (dropType != EnumDropType.Copy) {
-                    if (target.Items.Contains(item)) {
-                        return EnumDropType.None;
-                    }
-                }
-            }
-
-            return dropType;
         }
     }
 }

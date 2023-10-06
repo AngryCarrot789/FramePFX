@@ -5,6 +5,7 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
+using FramePFX.WPF.Interactivity;
 
 namespace FramePFX.WPF.Editor.Resources {
     internal class ResourceTreeView : MultiSelectTreeView {
@@ -31,27 +32,33 @@ namespace FramePFX.WPF.Editor.Resources {
 
         protected override void OnDragOver(DragEventArgs e) {
             if (this.DataContext is ResourceManagerViewModel manager) {
-                this.IsDroppableTargetOver = ResourceFolderControl.HandleDragOver(manager.Root, e);
+                this.IsDroppableTargetOver = ResourceFolderControl.ProcessCanDragOver(manager.Root, e);
             }
         }
 
-        protected override void OnDrop(DragEventArgs e) {
-            if (!this.isProcessingAsyncDrop && this.DataContext is ResourceManagerViewModel manager) {
-                if (ResourceFolderControl.CanHandleDrop(manager.Root, e, out List<BaseResourceViewModel> list, out EnumDropType effects)) {
-                    this.HandleOnDropResources(manager.Root, list, effects);
-                    this.IsDroppableTargetOver = false;
+        protected override async void OnDrop(DragEventArgs e) {
+            e.Handled = true;
+            if (this.isProcessingAsyncDrop || !(this.DataContext is ResourceManagerViewModel manager)) {
+                return;
+            }
+
+            try {
+                this.isProcessingAsyncDrop = true;
+                if (ResourceFolderControl.GetDropResourceListForEvent(e, out List<BaseResourceViewModel> list, out EnumDropType effects)) {
+                    await BaseResourceViewModel.DropRegistry.OnDropped(manager.Root, list, effects);
                 }
+                else if (!await BaseResourceViewModel.DropRegistry.OnDroppedNative(manager.Root, new DataObjectWrapper(e.Data), effects)) {
+                    await Services.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
+                }
+            }
+            finally {
+                this.IsDroppableTargetOver = false;
+                this.isProcessingAsyncDrop = false;
             }
         }
 
         protected override void OnDragLeave(DragEventArgs e) {
             this.Dispatcher.Invoke(() => this.IsDroppableTargetOver = false, DispatcherPriority.Loaded);
-        }
-
-        private async void HandleOnDropResources(ResourceFolderViewModel folder, List<BaseResourceViewModel> selection, EnumDropType dropType) {
-            await folder.OnDropResources(selection, dropType);
-            this.ClearValue(IsDroppableTargetOverProperty);
-            this.isProcessingAsyncDrop = false;
         }
 
         protected override bool IsItemItsOwnContainerOverride(object item) {

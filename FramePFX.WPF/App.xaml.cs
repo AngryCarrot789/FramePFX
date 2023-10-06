@@ -74,7 +74,57 @@ namespace FramePFX.WPF {
             FontFamilies = new List<FontFamily>();
         }
 
+        public class ObjectA { }
+        public class ObjectB : ObjectA { }
+        public class ObjectC : ObjectB { }
+        public class ObjectD : ObjectC { }
+
+        public class ObjectEFromB : ObjectB { }
+
         public App() {
+            // InheritanceDictionary<string> dictionary = new InheritanceDictionary<string>();
+            // dictionary.SetValue(typeof(ObjectB), "B");
+            // dictionary.SetValue(typeof(ObjectEFromB), "E and B");
+            // dictionary.SetValue(typeof(ObjectD), "D");
+            // dictionary.SetValue(typeof(ObjectA), "A");
+            // string itemA = dictionary.GetValue(typeof(ObjectA));
+            // string itemB = dictionary.GetValue(typeof(ObjectB));
+            // string itemC = dictionary.GetValue(typeof(ObjectC));
+            // string itemD = dictionary.GetValue(typeof(ObjectD));
+            // string itemEFromB = dictionary.GetValue(typeof(ObjectEFromB));
+            // dictionary.Clear(typeof(ObjectA));
+            // itemA = dictionary.GetValue(typeof(ObjectA));
+            // itemB = dictionary.GetValue(typeof(ObjectB));
+            // itemC = dictionary.GetValue(typeof(ObjectC));
+            // itemD = dictionary.GetValue(typeof(ObjectD));
+            // itemEFromB = dictionary.GetValue(typeof(ObjectEFromB));
+            // List<string> list = dictionary.GetLocalValueEnumerator(typeof(ObjectD)).Select(x => x.LocalValue).ToList();
+            // dictionary.SetValue(typeof(ObjectC), "CCC!!!");
+            // list = dictionary.GetLocalValueEnumerator(typeof(ObjectD)).Select(x => x.LocalValue).ToList();
+            // dictionary.Clear();
+
+            /*
+                TypeMultiMap<string> map = new TypeMultiMap<string>();
+                map.Add(typeof(ObjectA), "A1");
+                map.Add(typeof(ObjectA), "A2");
+                map.Add(typeof(ObjectB), "B1");
+                map.Add(typeof(ObjectB), "B2");
+                map.Add(typeof(ObjectC), "C1");
+                map.Add(typeof(ObjectC), "C2");
+                map.Add(typeof(ObjectD), "D1");
+                map.Add(typeof(ObjectD), "D2");
+                map.Add(typeof(ObjectEFromB), "E and B 1");
+                map.Add(typeof(ObjectEFromB), "E and B 2");
+                IReadOnlyList<string> listEFromB = map.GetValues(typeof(ObjectEFromB));
+                IReadOnlyList<string> listD = map.GetValues(typeof(ObjectD));
+                map.Clear(typeof(ObjectB));
+                listD = map.GetValues(typeof(ObjectD));
+                map.Clear();
+             */
+
+            // List<string> ok = null;
+            // ok.Add("okdd");
+
             this.processor = new AttributeProcessor();
             Services.Application = new ApplicationDelegate(this);
             Services.ServiceManager.Register(Services.Application);

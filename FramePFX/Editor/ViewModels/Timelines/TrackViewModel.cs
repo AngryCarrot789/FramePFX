@@ -86,7 +86,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Track Model { get; }
 
-        public static DragDropRegistry DropRegistry { get; }
+        public static DragDropRegistry<TrackViewModel> DropRegistry { get; }
+        public const string DroppedFrameKey = "TrackDropFrameLocation";
 
         protected TrackViewModel(Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
@@ -108,10 +109,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         static TrackViewModel() {
-            DropRegistry = new DragDropRegistry();
-            DropRegistry.RegisterNative<TrackViewModel>(NativeDropTypes.FileDrop, (handler, objekt, type) => {
+            DropRegistry = new DragDropRegistry<TrackViewModel>();
+            DropRegistry.RegisterNative<TrackViewModel>(NativeDropTypes.FileDrop, (handler, objekt, type, c) => {
                 return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
-            }, async (model, objekt, type) => {
+            }, async (model, objekt, type, c) => {
                 string[] files = (string[]) objekt.GetData(NativeDropTypes.FileDrop);
                 await Services.DialogService.ShowDialogAsync("TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
             });
@@ -158,7 +159,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public bool RemoveClip(ClipViewModel clip) {
-            if (!this.Model.GetClipIndex(clip.Model, out int index))
+            if (!this.Model.TryGetIndexOfClip(clip.Model, out int index))
                 return false;
             this.RemoveClipAt(index);
             return true;
@@ -200,7 +201,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             List<ClipViewModel> list = items as List<ClipViewModel> ?? items.ToList();
             using (ErrorList stack = new ErrorList("One or more exceptions occurred while removing clips", false, true)) {
                 foreach (ClipViewModel clip in list) {
-                    if (!this.Model.GetClipIndex(clip.Model, out int index))
+                    if (!this.Model.TryGetIndexOfClip(clip.Model, out int index))
                         continue;
 
                     this.RemoveClipAt(index);
@@ -234,7 +235,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public void MakeTopMost(ClipViewModel clip) {
-            if (!this.Model.GetClipIndex(clip.Model, out int index))
+            if (!this.Model.TryGetIndexOfClip(clip.Model, out int index))
                 return;
             int endIndex = this.clips.Count - 1;
             if (index != endIndex) {
@@ -244,9 +245,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        public abstract bool CanDropResource(ResourceItemViewModel resource);
+        public virtual bool CanDropResource(ResourceItemViewModel resource) {
+            return false;
+        }
 
-        public abstract Task OnResourceDropped(ResourceItemViewModel resource, long frame);
+        public virtual Task OnResourceDropped(ResourceItemViewModel resource, long frame) {
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Slices the given clip at the given frame
@@ -334,7 +339,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.AddClip(clip);
             }
             else {
-                if (!this.Model.GetClipIndex(clip.Model, out int index))
+                if (!this.Model.TryGetIndexOfClip(clip.Model, out int index))
                     throw new Exception("Clip was not present in the old track");
 
                 if (!ReferenceEquals(clip, this.clips[index]))
@@ -366,6 +371,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public override string ToString() {
             return $"{this.GetType().Name} -> {this.Model}";
+        }
+
+        public ClipViewModel GetClipByModel(Clip clip) {
+            return this.Model.TryGetIndexOfClip(clip, out int index) ? this.clips[index] : null;
         }
     }
 }

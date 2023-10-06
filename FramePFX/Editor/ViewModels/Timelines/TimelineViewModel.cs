@@ -11,8 +11,6 @@ using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
-using FramePFX.FFmpegWrapper.Containers;
-using FramePFX.Interactivity;
 using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 using FramePFX.ServiceManaging;
@@ -334,7 +332,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            if (confirm && await DeleteTracksDialog.ShowAsync("Delete tracks?", $"Are you sure you want to delete {list.Count} track{Lang.S(list.Count)}?") != "yes") {
+            string s = Lang.S(list.Count);
+            int totalClips = list.Sum(x => x.Clips.Count);
+            string msg = $"Are you sure you want to delete {list.Count} track{s}{(totalClips > 0 ? $" with {totalClips} clips" : "")}?";
+            if (confirm && await DeleteTracksDialog.ShowAsync($"Delete track{s}?", msg) != "yes") {
                 return;
             }
 
@@ -463,5 +464,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public override string ToString() => $"{this.GetType().Name} ({this.Model})";
+
+        public TrackViewModel GetTrackByModel(Track track) {
+            int index = this.Model.IndexOfTrack(track);
+            return index == -1 ? null : this.tracks[index];
+        }
     }
 }

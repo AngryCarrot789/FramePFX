@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
@@ -17,6 +16,7 @@ using FramePFX.Editor.ViewModels.Timelines.Removals;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.History;
 using FramePFX.History.ViewModels;
+using FramePFX.Interactivity;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 
@@ -27,17 +27,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         private HistoryTrackOpacity opacityHistory;
 
         private static readonly MessageDialog SliceCloneTextResourceDialog;
-
-        static VideoTrackViewModel() {
-            SliceCloneTextResourceDialog = new MessageDialog("reference") {
-                ShowAlwaysUseNextResultOption = true,
-                Header = "Reference or copy text resource?",
-                Message = "Do you want to reference the same text resource (shared text, font, etc), or clone it (creating a new resource)?"
-            };
-            SliceCloneTextResourceDialog.AddButton("Reference", "reference", true);
-            SliceCloneTextResourceDialog.AddButton("Copy", "copy", true);
-            SliceCloneTextResourceDialog.AddButton("Cancel", "cancel", true);
-        }
 
         public new VideoTrack Model => (VideoTrack) base.Model;
 
@@ -135,43 +124,67 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             this.ToggleOpacityActiveCommand = new RelayCommand(() => this.AutomationData[VideoTrack.OpacityKey].ToggleOverrideAction());
         }
 
-        public override bool CanDropResource(ResourceItemViewModel resource) {
-            return resource is ResourceAVMediaViewModel ||
-                   resource is ResourceColourViewModel ||
-                   resource is ResourceImageViewModel ||
-                   resource is ResourceTextStyleViewModel ||
-                   resource is ResourceMpegMediaViewModel ||
-                   resource is ResourceCompositionViewModel;
-        }
+        static VideoTrackViewModel() {
+            SliceCloneTextResourceDialog = new MessageDialog("reference") {
+                ShowAlwaysUseNextResultOption = true,
+                Header = "Reference or copy text resource?",
+                Message = "Do you want to reference the same text resource (shared text, font, etc), or clone it (creating a new resource)?"
+            };
+            SliceCloneTextResourceDialog.AddButton("Reference", "reference", true);
+            SliceCloneTextResourceDialog.AddButton("Copy", "copy", true);
+            SliceCloneTextResourceDialog.AddButton("Cancel", "cancel", true);
 
-        public override async Task OnResourceDropped(ResourceItemViewModel resource, long frame) {
-            if (!resource.Model.IsOnline) {
-                await Services.DialogService.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
-                return;
-            }
+            DropRegistry.Register<VideoTrackViewModel, ResourceItemViewModel>((track, resource, dt, ctx) => {
+                return resource is ResourceAVMediaViewModel ||
+                       resource is ResourceColourViewModel ||
+                       resource is ResourceImageViewModel ||
+                       resource is ResourceTextStyleViewModel ||
+                       resource is ResourceMpegMediaViewModel ||
+                       resource is ResourceCompositionViewModel
+                    ? EnumDropType.Copy
+                    : EnumDropType.None;
+            }, async (track, resource, dt, ctx) => {
+                if (!ctx.TryGet(DroppedFrameKey, out long frame)) {
+                    await Services.DialogService.ShowMessageAsync("Error", "Could not get the frame that this resource was dropped at");
+                    return;
+                }
 
-            if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
-                await Services.DialogService.ShowMessageAsync("Invalid resource", "This resource is not registered yet. This is a bug");
-                return;
-            }
+                if (!resource.Model.IsOnline) {
+                    await Services.DialogService.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
+                    return;
+                }
 
-            double fps = this.Timeline.Project.Settings.FrameRate.ToDouble;
-            long defaultDuration = (long) (fps * 5);
+                if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
+                    await Services.DialogService.ShowMessageAsync("Invalid resource", "This resource is not registered yet. This is a bug");
+                    return;
+                }
 
-            Clip newClip;
-            switch (resource.Model) {
-                case ResourceAVMedia media when media.IsValidMediaFile: {
-                    TimeSpan span = media.GetDuration();
-                    long dur = (long) Math.Floor(span.TotalSeconds * fps);
-                    if (dur < 2) {
+                double fps = track.Timeline.Project.Settings.FrameRate.ToDouble;
+                long defaultDuration = (long) (fps * 5);
+
+                if (!track.GetSpanUntilClip(frame, out FrameSpan defaultSpan)) {
+                    defaultSpan = new FrameSpan(frame, defaultDuration);
+                }
+
+                Clip newClip;
+                switch (resource.Model) {
+                    case ResourceAVMedia media when media.IsValidMediaFile: {
+                        TimeSpan span = media.GetDuration();
+
+                        long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                        if (dur < 1) {
+                            await Services.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                            return;
+                        }
+
                         // image files are 1
-                        dur = defaultDuration;
-                    }
+                        if (dur == 1) {
+                            dur = defaultDuration;
+                        }
 
-                    if (dur > 0) {
                         long newProjectDuration = frame + dur + 600;
-                        if (newProjectDuration > this.Timeline.MaxDuration) {
-                            this.Timeline.MaxDuration = newProjectDuration;
+                        if (newProjectDuration > track.Timeline.MaxDuration) {
+                            track.Timeline.MaxDuration = newProjectDuration;
                         }
 
                         AVMediaVideoClip clip = new AVMediaVideoClip() {
@@ -181,67 +194,63 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
                         clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
                         newClip = clip;
+
+                        break;
                     }
-                    else {
-                        await Services.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                    case ResourceAVMedia media:
+                        await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
                         return;
+                    case ResourceColour argb: {
+                        ShapeSquareVideoClip clip = new ShapeSquareVideoClip() {
+                            FrameSpan = defaultSpan,
+                            DisplayName = "Shape Clip"
+                        };
+
+                        clip.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(200);
+                        clip.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(200);
+                        clip.ColourKey.SetTargetResourceId(argb.UniqueId);
+                        newClip = clip;
+                        break;
                     }
+                    case ResourceImage img: {
+                        ImageVideoClip clip = new ImageVideoClip() {
+                            FrameSpan = defaultSpan,
+                            DisplayName = "Image Clip"
+                        };
 
-                    break;
+                        clip.ImageKey.SetTargetResourceId(img.UniqueId);
+                        newClip = clip;
+                        break;
+                    }
+                    case ResourceTextStyle text: {
+                        TextVideoClip clip = new TextVideoClip() {
+                            FrameSpan = defaultSpan,
+                            DisplayName = "Text Clip"
+                        };
+
+                        clip.TextStyleKey.SetTargetResourceId(text.UniqueId);
+                        newClip = clip;
+                        break;
+                    }
+                    case ResourceComposition comp: {
+                        CompositionVideoClip clip = new CompositionVideoClip() {
+                            FrameSpan = defaultSpan,
+                            DisplayName = "Composition clip"
+                        };
+
+                        clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
+                        newClip = clip;
+                        break;
+                    }
+                    default: return;
                 }
-                case ResourceAVMedia media:
-                    await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
-                    return;
-                case ResourceColour argb: {
-                    ShapeSquareVideoClip clip = new ShapeSquareVideoClip() {
-                        FrameSpan = new FrameSpan(frame, defaultDuration),
-                        DisplayName = "Shape Clip"
-                    };
 
-                    clip.GetDefaultKeyFrame(ShapeSquareVideoClip.WidthKey).SetFloatValue(200);
-                    clip.GetDefaultKeyFrame(ShapeSquareVideoClip.HeightKey).SetFloatValue(200);
-                    clip.ColourKey.SetTargetResourceId(argb.UniqueId);
-                    newClip = clip;
-                    break;
+                newClip.AddEffect(new MotionEffect());
+                track.CreateAndAddViewModel(newClip);
+                if (newClip is VideoClip videoClipModel) {
+                    videoClipModel.InvalidateRender();
                 }
-                case ResourceImage img: {
-                    ImageVideoClip clip = new ImageVideoClip() {
-                        FrameSpan = new FrameSpan(frame, defaultDuration),
-                        DisplayName = "Image Clip"
-                    };
-
-                    clip.ImageKey.SetTargetResourceId(img.UniqueId);
-                    newClip = clip;
-                    break;
-                }
-                case ResourceTextStyle text: {
-                    TextVideoClip clip = new TextVideoClip() {
-                        FrameSpan = new FrameSpan(frame, defaultDuration),
-                        DisplayName = "Text Clip"
-                    };
-
-                    clip.TextStyleKey.SetTargetResourceId(text.UniqueId);
-                    newClip = clip;
-                    break;
-                }
-                case ResourceComposition comp: {
-                    CompositionVideoClip clip = new CompositionVideoClip() {
-                        FrameSpan = new FrameSpan(frame, defaultDuration),
-                        DisplayName = "Composition clip"
-                    };
-
-                    clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
-                    newClip = clip;
-                    break;
-                }
-                default: return;
-            }
-
-            newClip.AddEffect(new MotionEffect());
-            this.CreateAndAddViewModel(newClip);
-            if (newClip is VideoClip videoClipModel) {
-                videoClipModel.InvalidateRender();
-            }
+            });
         }
 
         public VideoClipRangeRemoval GetRangeRemoval(long spanBegin, long spanDuration) {

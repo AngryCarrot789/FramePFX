@@ -57,8 +57,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         /// <summary>
-        /// Attempts to load this resource (by setting it to offline, then loading it again). This
-        /// just invokes <see cref="TryLoadResource"/> passing the current instance as a parameter
+        /// Attempts to load this resource. This just invokes <see cref="TryLoadResource"/> passing the current instance as a parameter
         /// </summary>
         /// <param name="checker">An optional checker to use</param>
         /// <returns>The value of <see cref="IsOnline"/></returns>

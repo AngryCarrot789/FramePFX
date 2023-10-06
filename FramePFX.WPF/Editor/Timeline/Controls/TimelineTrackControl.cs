@@ -6,7 +6,11 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Actions.Contexts;
 using FramePFX.Editor;
+using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
@@ -15,6 +19,7 @@ using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Track;
 using FramePFX.WPF.Editor.Timeline.Utils;
 using FramePFX.WPF.Interactivity;
+using SkiaSharp;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
     [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(TimelineClipControl))]
@@ -55,7 +60,43 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         protected override void OnKeyDown(KeyEventArgs e) {
             base.OnKeyDown(e);
-            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && e.Key == Key.V) {
+            ResourceManagerViewModel manager;
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && e.Key == Key.V && this.DataContext is TrackViewModel track && (manager = track.Project?.ResourceManager) != null) {
+                IDataObject dataObject = Clipboard.GetDataObject();
+                if (dataObject == null) {
+                    return;
+                }
+
+                IDataObjekt objekt = new DataObjectWrapper(dataObject);
+                if (!objekt.GetBitmap(out SKBitmap bitmap)) {
+                    return;
+                }
+
+                ResourceImage image = new ResourceImage();
+                image.DisplayName = "NewImage_" + RandomUtils.RandomLetters(6);
+                image.IsRawBitmapMode = true;
+                image.bitmap = bitmap;
+                image.image = SKImage.FromBitmap(bitmap);
+                ResourceItemViewModel resource = (ResourceItemViewModel) ResourceTypeFactory.Instance.CreateViewModelFromModel(image);
+                manager.CurrentFolder.AddItem(resource);
+
+                ulong id = manager.Model.RegisterEntry(image);
+
+                ImageVideoClip imageClip = new ImageVideoClip();
+                imageClip.DisplayName = "an image!!! for " + image.DisplayName;
+                imageClip.FrameSpan = track.GetSpanUntilClipOrFuckIt(track.Timeline.PlayHeadFrame, maximumDurationToClip: 300);
+                imageClip.ResourceImageKey.SetTargetResourceId(id);
+                ClipViewModel newClip = track.CreateAndAddViewModel(imageClip, true);
+                newClip.IsSelected = true;
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(new List<ClipViewModel>() {newClip});
+
+                Services.Application.Invoke(async () => {
+                    await resource.LoadResourceAsync();
+                    VideoEditorViewModel editor = track.Editor;
+                    if (editor?.SelectedTimeline != null) {
+                        await track.Editor.DoDrawRenderFrame(editor.SelectedTimeline);
+                    }
+                });
             }
         }
 

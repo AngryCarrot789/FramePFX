@@ -9,9 +9,7 @@ using System.Windows.Controls.Primitives;
 using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
-using ListBox = System.Windows.Controls.ListBox;
-using MessageBox = System.Windows.Forms.MessageBox;
-using SelectionMode = System.Windows.Controls.SelectionMode;
+using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.AttachedProperties {
     /// <summary>
@@ -155,6 +153,12 @@ namespace FramePFX.WPF.AttachedProperties {
         // A view model's observable collection changed
         private static void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             // Here we need to get the binding target(s) from the source
+            if (!DispatcherUtils.IsOnMainThread()) {
+                // log just in case the exception gets eaten up by a black hole
+                AppLogger.WriteLine("Received collection changed event while not on the application thread");
+                throw new Exception("Cannot process observable collection changes while off the main thread");
+            }
+
             IList sourceList = (IList) sender;
             for (int i = ActiveUpdateList.Count - 1; i >= 0; i--) {
                 if (ReferenceEquals(ActiveUpdateList[i], sourceList)) {
@@ -236,7 +240,8 @@ namespace FramePFX.WPF.AttachedProperties {
                                 if (index == -1) {
                                     index = targetListCount;
                                 }
-                                else if (index > targetListCount) {
+
+                                if (index > targetListCount) {
                                     // weird selection setup; possibly bound a MultiSelectTreeView to a ListBox?
                                     foreach (object item in e.NewItems) {
                                         targetList.Add(item);

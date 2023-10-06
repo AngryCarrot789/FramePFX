@@ -1,5 +1,7 @@
 using System.Windows;
+using System.Windows.Interop;
 using FramePFX.Interactivity;
+using SkiaSharp;
 
 namespace FramePFX.WPF.Interactivity {
     public class DataObjectWrapper : IDataObjekt {
@@ -43,6 +45,23 @@ namespace FramePFX.WPF.Interactivity {
 
         public void SetData(string format, object data, bool autoConvert) {
             this.mObject.SetData(format, data, autoConvert);
+        }
+
+        public bool GetBitmap(out SKBitmap bitmap) {
+            if (!(this.GetData(NativeDropTypes.Bitmap) is InteropBitmap bmp)) {
+                bitmap = null;
+                return false;
+            }
+
+            if (bmp.Format.ToString() != "Bgra32") {
+                bitmap = null;
+                return false;
+            }
+
+            SKImageInfo info = new SKImageInfo(bmp.PixelWidth, bmp.PixelHeight);
+            bitmap = new SKBitmap(info);
+            bmp.CopyPixels(new Int32Rect(0, 0, info.Width, info.Height), bitmap.GetPixels(), info.BytesSize, info.RowBytes);
+            return true;
         }
     }
 }

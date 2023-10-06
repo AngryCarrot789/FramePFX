@@ -9,7 +9,6 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines;
-using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.Removals;
@@ -218,7 +217,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                             DisplayName = "Image Clip"
                         };
 
-                        clip.ImageKey.SetTargetResourceId(img.UniqueId);
+                        clip.ResourceImageKey.SetTargetResourceId(img.UniqueId);
                         newClip = clip;
                         break;
                     }
@@ -245,8 +244,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     default: return;
                 }
 
-                newClip.AddEffect(new MotionEffect());
-                track.CreateAndAddViewModel(newClip);
+                track.CreateAndAddViewModel(newClip, true);
                 if (newClip is VideoClip videoClipModel) {
                     videoClipModel.InvalidateRender();
                 }
@@ -306,35 +304,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.DoAutomationTickAndRenderToPlayback(true);
             }
-        }
-
-        public bool GetSpanUntilClip(long frame, out FrameSpan span, long unlimitedDuration = 300) {
-            long minimum = long.MaxValue;
-            if (this.Clips.Count > 0) {
-                foreach (ClipViewModel clip in this.Clips) {
-                    if (clip.FrameBegin > frame) {
-                        if (clip.IntersectsFrameAt(frame)) {
-                            span = default;
-                            return false;
-                        }
-                        else {
-                            minimum = Math.Min(clip.FrameBegin, minimum);
-                            if (minimum <= frame) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (minimum > frame && minimum != long.MaxValue) {
-                span = FrameSpan.FromIndex(frame, minimum);
-            }
-            else {
-                span = new FrameSpan(frame, unlimitedDuration);
-            }
-
-            return true;
         }
     }
 }

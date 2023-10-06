@@ -9,7 +9,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
 
         public bool IsRawBitmapMode { get; set; }
 
-        private SKBitmap bitmap;
+        public SKBitmap bitmap;
         public SKImage image;
 
         public ResourceImage() {

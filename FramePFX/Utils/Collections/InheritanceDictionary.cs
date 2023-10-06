@@ -113,8 +113,13 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         /// <param name="type">The starting type</param>
         /// <returns>The first available entry as the given type or as one of its base types</returns>
-        public ITypeEntry<T> FindNearestBaseType(Type type) {
-            return this.FindNearestBaseTypeEntryOrSelf(type) ?? this.GetOrCreateEntry(type);
+        public ITypeEntry<T> FindNearestBaseType(Type type, bool requireHasLocalValue = false) {
+            TypeEntry entry = this.FindNearestBaseTypeEntryOrSelf(type) ?? this.GetOrCreateEntry(type);
+            if (!requireHasLocalValue || entry.HasLocalValue) {
+                return entry;
+            }
+
+            return entry.nearestBaseTypeToExplicitValue;
         }
 
         /// <summary>
@@ -166,19 +171,84 @@ namespace FramePFX.Utils.Collections {
         /// (includes the value of the key, if it has a value associated with it)
         /// </param>
         /// <returns>An enumerable instance</returns>
-        public IEnumerable<ITypeEntry<T>> GetLocalValueEnumerator(Type key) {
-            TypeEntry entry = this.FindNearestBaseTypeEntryOrSelf(key);
-            if (entry == null) {
-                yield break;
+        public LocalValueEntryEnumerator GetLocalValueEnumerator(Type key) {
+            return new LocalValueEntryEnumerator(this, key);
+        }
+
+        /// <summary>
+        /// Gets a new enumerator struct whose GetEnumerator function returns a <see cref="LocalValueEntryEnumerator"/>
+        /// </summary>
+        /// <param name="key">The starting key</param>
+        /// <returns>The enumerable struct</returns>
+        public LocalValueEntryEnumerable GetLocalValueEnumerable(Type key) {
+            return new LocalValueEntryEnumerable(this, key);
+        }
+
+        public struct LocalValueEntryEnumerator {
+            public ITypeEntry<T> Current => this.currentEntry;
+
+            private readonly InheritanceDictionary<T> dictionary;
+            private readonly Type startingKey;
+            private TypeEntry currentEntry;
+            private int state;
+
+            public LocalValueEntryEnumerator(InheritanceDictionary<T> dictionary, Type key) {
+                this.dictionary = dictionary;
+                this.startingKey = key;
+                this.currentEntry = null;
+                this.state = 1;
             }
 
-            for (TypeEntry type = entry; type != null; type = type.nearestBaseTypeToExplicitValue) {
-                if (type.HasLocalValue) {
-                    yield return type;
+            public bool MoveNext() {
+                switch (this.state) {
+                    case 0: return false;
+                    case 1: {
+                        TypeEntry entry = this.dictionary.FindNearestBaseTypeEntryOrSelf(this.startingKey);
+                        if (entry == null || !entry.HasLocalValue && (entry = entry.nearestBaseTypeToExplicitValue) == null) {
+                            this.state = -1;
+                            return false;
+                        }
+
+                        this.currentEntry = entry;
+                        this.state = 2;
+                        return true;
+                    }
+                    case 2: {
+                        if ((this.currentEntry = this.currentEntry.nearestBaseTypeToExplicitValue) != null) {
+                            if (this.currentEntry.HasLocalValue) {
+                                return true;
+                            }
+
+                            throw new Exception("Fatal error: nearest base type did not have an explicitly set value");
+                        }
+
+                        this.state = 3;
+                        return false;
+                    }
+                    default: return false;
                 }
-                else {
-                    throw new Exception("Fatal error: nearest base type did not have an explicitly set value");
-                }
+            }
+
+            public void Reset() {
+                this.state = 1;
+                this.currentEntry = null;
+            }
+
+            public void Dispose() {
+            }
+        }
+
+        public struct LocalValueEntryEnumerable {
+            private readonly InheritanceDictionary<T> dictionary;
+            private readonly Type startingKey;
+
+            public LocalValueEntryEnumerable(InheritanceDictionary<T> dictionary, Type key) {
+                this.dictionary = dictionary;
+                this.startingKey = key;
+            }
+
+            public LocalValueEntryEnumerator GetEnumerator() {
+                return new LocalValueEntryEnumerator(this.dictionary, this.startingKey);
             }
         }
 

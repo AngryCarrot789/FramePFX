@@ -10,6 +10,8 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Effects.Video;
+using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
@@ -122,7 +124,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public virtual void OnProjectModified() => this.Project?.OnProjectModified();
 
-        public ClipViewModel CreateAndAddViewModel(Clip model) {
+        public ClipViewModel CreateAndAddViewModel(Clip model, bool addStandardAttachments = false) {
+            if (addStandardAttachments) {
+                if (model is VideoClip) {
+                    model.AddEffect(new MotionEffect());
+                }
+            }
+
             ClipViewModel vm = ClipFactory.Instance.CreateViewModelFromModel(model);
             this.AddClip(vm);
             return vm;
@@ -375,6 +383,61 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public ClipViewModel GetClipByModel(Clip clip) {
             return this.Model.TryGetIndexOfClip(clip, out int index) ? this.clips[index] : null;
+        }
+
+        public bool GetSpanUntilClip(long frame, out FrameSpan span, long unlimitedDuration = 300, ulong maxDuration = 100000000U) {
+            long minimum = long.MaxValue;
+            if (this.Clips.Count > 0) {
+                foreach (ClipViewModel clip in this.Clips) {
+                    if (clip.FrameBegin > frame) {
+                        if (clip.IntersectsFrameAt(frame)) {
+                            span = default;
+                            return false;
+                        }
+                        else {
+                            minimum = Math.Min(clip.FrameBegin, minimum);
+                            if (minimum <= frame) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (minimum > frame && minimum != long.MaxValue) {
+                span = new FrameSpan(frame, (long) Math.Min((ulong) (minimum - frame), maxDuration));
+            }
+            else {
+                span = new FrameSpan(frame, unlimitedDuration);
+            }
+
+            return true;
+        }
+
+        public FrameSpan GetSpanUntilClipOrFuckIt(long frame, long defaultDuration = 300, long maximumDurationToClip = long.MaxValue) {
+            long minimum = long.MaxValue;
+            if (this.Clips.Count > 0) {
+                foreach (ClipViewModel clip in this.Clips) {
+                    if (clip.FrameBegin > frame) {
+                        if (clip.IntersectsFrameAt(frame)) {
+                            return new FrameSpan(frame, defaultDuration);
+                        }
+                        else {
+                            minimum = Math.Min(clip.FrameBegin, minimum);
+                            if (minimum <= frame) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (minimum > frame && minimum != long.MaxValue) {
+                return new FrameSpan(frame, Math.Min(minimum - frame, Math.Max(maximumDurationToClip, 0)));
+            }
+            else {
+                return new FrameSpan(frame, defaultDuration);
+            }
         }
     }
 }

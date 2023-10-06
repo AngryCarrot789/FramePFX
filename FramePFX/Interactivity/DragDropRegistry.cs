@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FFmpeg.AutoGen;
 using FramePFX.Actions.Contexts;
-using FramePFX.Utils;
 using FramePFX.Utils.Collections;
 
 namespace FramePFX.Interactivity {
@@ -18,7 +16,7 @@ namespace FramePFX.Interactivity {
         private delegate EnumDropType NativeCanDropDelegate(object target, IDataObjekt drop, EnumDropType dropType, IDataContext context);
         private delegate Task NativeOnDroppedDelegate(object target, IDataObjekt drop, EnumDropType dropType, IDataContext context);
 
-        // [dropType -> [handler -> func]]
+        // [dropType -> [handlerType -> func]]
         private readonly Dictionary<Type, InheritanceDictionary<CustomHandlerPair>> registryCustom;
         private readonly Dictionary<string, InheritanceDictionary<NativeHandlerPair>> registryNative;
 
@@ -71,16 +69,14 @@ namespace FramePFX.Interactivity {
         /// <param name="dropType">The drag drop type</param>
         /// <returns>True if the drag can occur (and show the appropriate icon based on the dropType), otherwise false</returns>
         public EnumDropType CanDrop(THandler target, object value, EnumDropType dropType, IDataContext context = null) {
+            Type targetType = target.GetType();
             for (Type valueType = value.GetType(); valueType != null; valueType = valueType.BaseType) {
                 if (this.registryCustom.TryGetValue(valueType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
-                    ITypeEntry<CustomHandlerPair> entry = handlerMap.FindNearestBaseType(target.GetType());
-                    while (entry != null) {
+                    foreach (ITypeEntry<CustomHandlerPair> entry in handlerMap.GetLocalValueEnumerable(targetType)) {
                         EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
                         if (dt != EnumDropType.None) {
                             return dt;
                         }
-
-                        entry = entry.NearestBaseTypeWithLocalValue;
                     }
                 }
             }
@@ -96,12 +92,13 @@ namespace FramePFX.Interactivity {
         /// <param name="dropType">The drag drop type</param>
         /// <returns>True if the drag can occur (and show the appropriate icon based on the dropType), otherwise false</returns>
         public EnumDropType CanDropNative(THandler target, IDataObjekt value, EnumDropType dropType, IDataContext context = null) {
+            Type targetType = target.GetType();
             foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> pair in this.registryNative) {
                 if (!value.GetDataPresent(pair.Key)) {
                     continue;
                 }
 
-                for (ITypeEntry<NativeHandlerPair> entry = pair.Value.FindNearestBaseType(target.GetType()); entry != null; entry = entry.NearestBaseTypeWithLocalValue) {
+                foreach (ITypeEntry<NativeHandlerPair> entry in pair.Value.GetLocalValueEnumerable(targetType)) {
                     EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
                     if (dt != EnumDropType.None) {
                         return dt;
@@ -129,17 +126,16 @@ namespace FramePFX.Interactivity {
                 context = EmptyContext.Instance;
             }
 
+            Type targetType = target.GetType();
             for (Type valueType = value.GetType(); valueType != null; valueType = valueType.BaseType) {
                 if (this.registryCustom.TryGetValue(valueType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
-                    ITypeEntry<CustomHandlerPair> entry = handlerMap.FindNearestBaseType(target.GetType());
-                    while (entry != null) {
+                    foreach (ITypeEntry<CustomHandlerPair> entry in handlerMap.GetLocalValueEnumerable(targetType)) {
                         CustomHandlerPair pair = entry.LocalValue;
-                        if (pair.CanDrop(target, value, dropType, context) != EnumDropType.None) {
-                            await pair.OnDropped(target, value, dropType, context);
+                        EnumDropType dt = pair.CanDrop(target, value, dropType, context);
+                        if (dt != EnumDropType.None) {
+                            await pair.OnDropped(target, value, dt, context);
                             return true;
                         }
-
-                        entry = entry.NearestBaseTypeWithLocalValue;
                     }
                 }
             }
@@ -156,20 +152,19 @@ namespace FramePFX.Interactivity {
         /// <param name="dropType">The type of drop</param>
         /// <returns>True if a drop handler was called, otherwise false</returns>
         public async Task<bool> OnDroppedNative(THandler target, IDataObjekt value, EnumDropType dropType, IDataContext context = null) {
+            Type targetType = target.GetType();
             foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> registryPair in this.registryNative) {
                 if (!value.GetDataPresent(registryPair.Key)) {
                     continue;
                 }
 
-                ITypeEntry<NativeHandlerPair> entry = registryPair.Value.FindNearestBaseType(target.GetType());
-                while (entry != null) {
+                foreach (ITypeEntry<NativeHandlerPair> entry in registryPair.Value.GetLocalValueEnumerable(targetType)) {
                     NativeHandlerPair pair = entry.LocalValue;
-                    if (pair.CanDrop(target, value, dropType, context) != EnumDropType.None) {
-                        await pair.OnDropped(target, value, dropType, context);
+                    EnumDropType dt = pair.CanDrop(target, value, dropType, context);
+                    if (dt != EnumDropType.None) {
+                        await pair.OnDropped(target, value, dt, context);
                         return true;
                     }
-
-                    entry = entry.NearestBaseTypeWithLocalValue;
                 }
             }
 

@@ -133,5 +133,14 @@ namespace FramePFX.WPF.Utils {
                 dispatcher.Invoke(action);
             }
         }
+
+        public static bool IsOnMainThread() {
+            Dispatcher dispatcher;
+            if ((dispatcher = Application.Current?.Dispatcher) != null) {
+                return dispatcher.CheckAccess();
+            }
+
+            throw new Exception("Application has not started or has shut down");
+        }
     }
 }

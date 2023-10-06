@@ -15,6 +15,9 @@ namespace FramePFX.Actions {
         private readonly List<CanExecuteChangedEventHandler> globalUpdateEventMap;
         private readonly Dictionary<string, AnAction> actions;
 
+        /// <summary>
+        /// Gets the number of actions registered
+        /// </summary>
         public int Count => this.actions.Count;
 
         public IEnumerable<KeyValuePair<string, AnAction>> Actions => this.actions;
@@ -23,38 +26,6 @@ namespace FramePFX.Actions {
             this.actions = new Dictionary<string, AnAction>();
             this.updateEventMap = new Dictionary<string, LinkedList<CanExecuteChangedEventHandler>>();
             this.globalUpdateEventMap = new List<CanExecuteChangedEventHandler>();
-        }
-
-        /// <summary>
-        /// Searches all assemblies in the current app domain
-        /// </summary>
-        /// <exception cref="Exception"></exception>
-        public static void SearchAndRegisterActions(ActionManager manager) {
-            List<(TypeInfo, ActionRegistrationAttribute)> attributes = new List<(TypeInfo, ActionRegistrationAttribute)>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                foreach (TypeInfo typeInfo in assembly.DefinedTypes) {
-                    ActionRegistrationAttribute attribute = typeInfo.GetCustomAttribute<ActionRegistrationAttribute>();
-                    if (attribute != null) {
-                        attributes.Add((typeInfo, attribute));
-                    }
-                }
-            }
-
-            foreach ((TypeInfo type, ActionRegistrationAttribute attribute) in attributes.OrderBy(x => x.Item2.RegistrationOrder)) {
-                AnAction action;
-                try {
-                    action = (AnAction) Activator.CreateInstance(type, true);
-                }
-                catch (Exception e) {
-                    throw new Exception($"Failed to create an instance of the registered action '{type.FullName}'", e);
-                }
-
-                if (attribute.OverrideExisting && manager.GetAction(attribute.ActionId) != null) {
-                    manager.Unregister(attribute.ActionId);
-                }
-
-                manager.Register(attribute.ActionId, action);
-            }
         }
 
         public AnAction Unregister(string id) {

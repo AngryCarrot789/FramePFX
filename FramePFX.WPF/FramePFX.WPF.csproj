@@ -314,6 +314,7 @@
     <Compile Include="Explorer\Icons\ShellUtils.cs" />
     <Compile Include="Highlighting\HighlightableString.cs" />
     <Compile Include="Highlighting\InlineHelper.cs" />
+    <Compile Include="Interactivity\DataObjectWrapper.cs" />
     <Compile Include="Interactivity\FileDropAttachments.cs" />
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />

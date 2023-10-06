@@ -96,12 +96,12 @@ namespace FramePFX.Editor.ResourceManaging {
             BaseResource item = this.items[index];
             ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
             ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
-            this.items.RemoveAt(index);
             if (item.Manager != null) {
                 item.OnDetatchedFromManager();
                 item.Manager = null;
             }
 
+            this.items.RemoveAt(index);
             SetParent(item, null);
         }
 
@@ -113,9 +113,19 @@ namespace FramePFX.Editor.ResourceManaging {
             BaseResource item = this.items[srcIndex];
             ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
             ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
+            bool isManagerDifferent = !ReferenceEquals(item.Manager, target.Manager);
+            if (isManagerDifferent && item.Manager != null) {
+                item.OnDetatchedFromManager();
+                item.Manager = null;
+            }
+
             this.items.RemoveAt(srcIndex);
             target.items.Insert(dstIndex, item);
             SetParent(item, target);
+            if (isManagerDifferent && target.Manager != null) {
+                item.Manager = target.Manager;
+                item.OnAttachedToManager();
+            }
         }
 
         /// <summary>

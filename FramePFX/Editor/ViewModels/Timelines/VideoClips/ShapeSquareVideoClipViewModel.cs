@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Interactivity;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
@@ -47,7 +48,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         static ShapeSquareVideoClipViewModel() {
-            DropRegistry.Register<ShapeSquareVideoClipViewModel, ResourceColourViewModel>((c, h, dt) => true, (c, h, dt) => {
+            DropRegistry.Register<ShapeSquareVideoClipViewModel, ResourceColourViewModel>((c, h, dt) => EnumDropType.Link, (c, h, dt) => {
                 c.Model.ColourKey.SetTargetResourceId(h.UniqueId);
                 return Task.CompletedTask;
             });

@@ -13,6 +13,7 @@ using FramePFX.Editor.Timelines;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
+using FramePFX.Interactivity;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ViewModels.Timelines {
@@ -85,6 +86,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Track Model { get; }
 
+        public static DragDropRegistry DropRegistry { get; }
+
         protected TrackViewModel(Track model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
@@ -102,6 +105,16 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             for (int i = 0; i < model.Clips.Count; i++) {
                 this.InsertClipInternal(i, ClipFactory.Instance.CreateViewModelFromModel(model.Clips[i]), false);
             }
+        }
+
+        static TrackViewModel() {
+            DropRegistry = new DragDropRegistry();
+            DropRegistry.RegisterNative<TrackViewModel>(NativeDropTypes.FileDrop, (handler, objekt, type) => {
+                return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
+            }, async (model, objekt, type) => {
+                string[] files = (string[]) objekt.GetData(NativeDropTypes.FileDrop);
+                await Services.DialogService.ShowDialogAsync("TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
+            });
         }
 
         private static Comparison<ClipViewModel> SortClip = (a, b) => a.FrameBegin.CompareTo(b.FrameBegin);

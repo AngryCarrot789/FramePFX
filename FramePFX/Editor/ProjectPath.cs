@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor {
@@ -98,7 +97,7 @@ namespace FramePFX.Editor {
 
         private static void ValidateEnum(EnumPathFlags value) {
             int i32 = (int) value;
-            if (i32 < 0 || i32 > 1) {
+            if (i32 < 0 || i32 > 2) {
                 throw new Exception("Invalid project path flags: " + value);
             }
         }

@@ -255,7 +255,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
 
         private Task lastRenderTask = Task.CompletedTask;
 
-        public async Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender) {
+        public async Task RenderToViewPortAsync(TimelineViewModel timeline, bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderActive, 1, 0) != 0) {
                 return;
             }
@@ -315,11 +315,9 @@ namespace FramePFX.WPF.Editor.MainWindow {
                         }
 
                         List<(VideoClip, SKRect)> list = new List<(VideoClip, SKRect)>();
-                        using (SKPaint paint = new SKPaint() {StrokeWidth = 5, Color = SKColors.Orange, Style = SKPaintStyle.Stroke, StrokeCap = SKStrokeCap.Round}) {
-                            foreach ((VideoClip clip, SKRect rect) in context.ClipBoundingBoxes) {
-                                if (timeline.Tracks.Any(x => x.SelectedClips.Any(y => y.Model == clip))) {
-                                    list.Add((clip, rect));
-                                }
+                        foreach ((VideoClip clip, SKRect rect) in context.ClipBoundingBoxes) {
+                            if (timeline.Tracks[clip.Track.IndexInTimeline].Clips[clip.IndexInTrack].IsSelected) {
+                                list.Add((clip, rect));
                             }
                         }
 

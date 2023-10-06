@@ -121,8 +121,6 @@ namespace FramePFX.WPF {
             this.bitmap.Lock();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
-            this.targetSurface.Canvas.Restore();
-
             this.targetSurface.Dispose();
             this.targetSurface = null;
 
@@ -130,6 +128,8 @@ namespace FramePFX.WPF {
             this.InvalidateVisual();
         }
 
+        private const double thickness = 2.5d;
+        private const double half_thickness = thickness / 2d;
         private readonly Pen OutlinePen = new Pen(Brushes.Orange, 2.5f);
 
         protected override void OnRender(DrawingContext dc) {
@@ -138,13 +138,12 @@ namespace FramePFX.WPF {
                 dc.DrawImage(bmp, new Rect(0d, 0d, this.ActualWidth, this.ActualHeight));
             }
 
-            if (this.OutlineList == null)
-                return;
+            if (this.OutlineList != null) {
+                foreach ((VideoClip clip, SKRect rect) in this.OutlineList) {
+                    dc.DrawRectangle(null, this.OutlinePen, new Rect(rect.Left - half_thickness, rect.Top - half_thickness, rect.Width + thickness, rect.Height + thickness));
+                }
 
-            const double thickness = 2.5d;
-            const double half = thickness / 2d;
-            foreach ((VideoClip clip, SKRect rect) in this.OutlineList) {
-                dc.DrawRectangle(null, OutlinePen, new Rect(rect.Left - half, rect.Top - half, rect.Width + thickness, rect.Height + thickness));
+                this.OutlineList = null;
             }
         }
 

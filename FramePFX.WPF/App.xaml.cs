@@ -106,135 +106,7 @@ namespace FramePFX.WPF {
             // });
         }
 
-        public static void RefreshControlsDictionary() {
-            ResourceDictionary resource = Current.Resources.MergedDictionaries[2];
-            Current.Resources.MergedDictionaries.RemoveAt(2);
-            Current.Resources.MergedDictionaries.Insert(2, resource);
-        }
-
-        public void RegisterActions() {
-            // ActionManager.SearchAndRegisterActions(ActionManager.Instance);
-            // TODO: Maybe use an XML file to store this, similar to how intellij registers actions?
-            ActionManager.Instance.Register("actions.general.RenameItem", new RenameAction());
-            ActionManager.Instance.Register("actions.project.Open", new OpenProjectAction());
-            ActionManager.Instance.Register("actions.project.Save", new SaveProjectAction());
-            ActionManager.Instance.Register("actions.project.SaveAs", new SaveProjectAsAction());
-            ActionManager.Instance.Register("actions.project.history.Undo", new UndoAction());
-            ActionManager.Instance.Register("actions.project.history.Redo", new RedoAction());
-            ActionManager.Instance.Register("actions.automation.AddKeyFrame", new AddKeyFrameAction());
-            ActionManager.Instance.Register("actions.editor.timeline.TogglePlayPause", new TogglePlayPauseAction());
-            ActionManager.Instance.Register("actions.editor.timeline.PlayAtLastStopFrame", new PlayAtLastFrameAction());
-            ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
-            ActionManager.Instance.Register("actions.resources.GroupSelectionIntoFolder", new GroupSelectedResourcesAction());
-            ActionManager.Instance.Register("actions.resources.ToggleOnlineState", new ToggleResourceOnlineStateAction());
-            ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedClips", new DeleteSelectedClips());
-            ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());
-            ActionManager.Instance.Register("actions.editor.NewAudioTrack", new NewAudioTrackAction());
-            ActionManager.Instance.Register("actions.editor.timeline.SliceClips", new SliceClipsAction());
-        }
-
-        private async Task SetActivity(string activity) {
-            AppLogger.WriteLine(activity);
-            this.splash.CurrentActivity = activity;
-            await this.Dispatcher.InvokeAsync(() => {
-            }, DispatcherPriority.ApplicationIdle);
-        }
-
-        public async Task InitApp() {
-            await this.SetActivity("Loading services...");
-            this.processor.RegisterProcessor<ServiceImplementationAttribute>((typeInfo, attribute) => {
-                object instance;
-                try {
-                    instance = Activator.CreateInstance(typeInfo);
-                }
-                catch (Exception e) {
-                    throw new Exception($"Failed to create implementation of {attribute.Type} as {typeInfo}", e);
-                }
-
-                Services.ServiceManager.Register(attribute.Type, instance);
-            });
-
-            this.processor.RegisterProcessor<ActionRegistrationAttribute>((typeInfo, attribute) => {
-                AnAction action;
-                try {
-                    action = (AnAction) Activator.CreateInstance(typeInfo, true);
-                }
-                catch (Exception e) {
-                    throw new Exception($"Failed to create an instance of the registered action '{typeInfo.FullName}'", e);
-                }
-
-                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null) {
-                    ActionManager.Instance.Unregister(attribute.ActionId);
-                }
-
-                ActionManager.Instance.Register(attribute.ActionId, action);
-            });
-
-            string[] envArgs = Environment.GetCommandLineArgs();
-            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
-                Directory.SetCurrentDirectory(dir);
-            }
-
-            await AppLogger.FlushEntries();
-            this.processor.Run();
-            this.processor.Process(typeof(ServiceImplementationAttribute));
-
-            await this.SetActivity("Loading localization...");
-            LocalizationController.SetLang(LangType.En);
-
-            await this.SetActivity("Loading shortcuts and the action manager...");
-            ShortcutManager.Instance = new WPFShortcutManager();
-            ShortcutManager.Instance.ShortcutModified += (sender, value) => {
-                GlobalUpdateShortcutGestureConverter.BroadcastChange();
-            };
-
-            RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
-
-            ActionManager.Instance = new ActionManager();
-            InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
-            InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
-
-            this.processor.Process(typeof(ActionRegistrationAttribute));
-            this.RegisterActions();
-            AppLogger.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);
-            foreach (KeyValuePair<string, AnAction> pair in ActionManager.Instance.Actions) {
-                AppLogger.WriteLine($"{pair.Key}: {pair.Value.GetType()}");
-            }
-
-            AppLogger.PopHeader();
-
-            // TODO: user modifiable keymap, and also save it to user documents
-            // also, use version attribute to check out of date keymap, and offer to
-            // overwrite while backing up old file... or just try to convert file
-
-            await this.SetActivity("Loading keymap...");
-            string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
-            if (File.Exists(keymapFilePath)) {
-                try {
-                    using (FileStream stream = File.OpenRead(keymapFilePath)) {
-                        WPFShortcutManager.WPFInstance.DeserialiseRoot(stream);
-                    }
-                }
-                catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Invalid keymap", "Failed to read keymap file: " + keymapFilePath, e.GetToString());
-                }
-            }
-            else {
-                await Services.DialogService.ShowMessageAsync("No keymap available", "Keymap file does not exist: " + keymapFilePath + $".\nCurrent directory: {Directory.GetCurrentDirectory()}\nCommand line args:{string.Join("\n", Environment.GetCommandLineArgs())}");
-            }
-
-            await this.SetActivity("Loading FFmpeg...");
-
-            try {
-                ffmpeg.avdevice_register_all();
-            }
-            catch (Exception e) {
-                await Services.DialogService.ShowMessageAsync("FFmpeg not found", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the project's build folder, e.g. FramePFX/FramePFX.WPF/bin/Debug");
-                throw new Exception("FFmpeg Unavailable. Copy FFmpeg DLLs into the same folder as the app's .exe", e);
-            }
-        }
-
-        private async void Application_Startup(object sender, StartupEventArgs e) {
+private async void Application_Startup(object sender, StartupEventArgs e) {
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
 
@@ -285,6 +157,127 @@ namespace FramePFX.WPF {
             }, DispatcherPriority.Loaded);
         }
 
+        public async Task InitApp() {
+            await this.SetActivity("Loading services...");
+            this.processor.RegisterProcessor<ServiceImplementationAttribute>((typeInfo, attribute) => {
+                object instance;
+                try {
+                    instance = Activator.CreateInstance(typeInfo);
+                }
+                catch (Exception e) {
+                    throw new Exception($"Failed to create implementation of {attribute.Type} as {typeInfo}", e);
+                }
+
+                Services.ServiceManager.Register(attribute.Type, instance);
+            });
+
+            this.processor.RegisterProcessor<ActionRegistrationAttribute>((typeInfo, attribute) => {
+                AnAction action;
+                try {
+                    action = (AnAction) Activator.CreateInstance(typeInfo, true);
+                }
+                catch (Exception e) {
+                    throw new Exception($"Failed to create an instance of the registered action '{typeInfo.FullName}'", e);
+                }
+
+                if (attribute.OverrideExisting && ActionManager.Instance.GetAction(attribute.ActionId) != null) {
+                    ActionManager.Instance.Unregister(attribute.ActionId);
+                }
+
+                ActionManager.Instance.Register(attribute.ActionId, action);
+            });
+
+            string[] envArgs = Environment.GetCommandLineArgs();
+            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
+                Directory.SetCurrentDirectory(dir);
+            }
+
+            await AppLogger.FlushEntries();
+            this.processor.ScanProcess();
+            this.processor.Process(typeof(ServiceImplementationAttribute));
+
+            await this.SetActivity("Loading localization...");
+            LocalizationController.SetLang(LangType.En);
+
+            await this.SetActivity("Loading shortcuts and the action manager...");
+            ShortcutManager.Instance = new WPFShortcutManager();
+            ShortcutManager.Instance.ShortcutModified += (sender, value) => {
+                GlobalUpdateShortcutGestureConverter.BroadcastChange();
+            };
+
+            RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
+
+            ActionManager.Instance = new ActionManager();
+            InputStrokeViewModel.KeyToReadableString = KeyStrokeStringConverter.ToStringFunction;
+            InputStrokeViewModel.MouseToReadableString = MouseStrokeStringConverter.ToStringFunction;
+
+            this.processor.Process(typeof(ActionRegistrationAttribute));
+
+            {
+                // ActionManager.SearchAndRegisterActions(ActionManager.Instance);
+                // TODO: Maybe use an XML file to store this, similar to how intellij registers actions?
+                ActionManager.Instance.Register("actions.general.RenameItem", new RenameAction());
+                ActionManager.Instance.Register("actions.project.Open", new OpenProjectAction());
+                ActionManager.Instance.Register("actions.project.Save", new SaveProjectAction());
+                ActionManager.Instance.Register("actions.project.SaveAs", new SaveProjectAsAction());
+                ActionManager.Instance.Register("actions.project.history.Undo", new UndoAction());
+                ActionManager.Instance.Register("actions.project.history.Redo", new RedoAction());
+                ActionManager.Instance.Register("actions.automation.AddKeyFrame", new AddKeyFrameAction());
+                ActionManager.Instance.Register("actions.editor.timeline.TogglePlayPause", new TogglePlayPauseAction());
+                ActionManager.Instance.Register("actions.editor.timeline.PlayAtLastStopFrame", new PlayAtLastFrameAction());
+                ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
+                ActionManager.Instance.Register("actions.resources.GroupSelectionIntoFolder", new GroupSelectedResourcesAction());
+                ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedClips", new DeleteSelectedClips());
+                ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());
+                ActionManager.Instance.Register("actions.editor.NewAudioTrack", new NewAudioTrackAction());
+                ActionManager.Instance.Register("actions.editor.timeline.SliceClips", new SliceClipsAction());
+            }
+
+            AppLogger.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);
+            foreach (KeyValuePair<string, AnAction> pair in ActionManager.Instance.Actions) {
+                AppLogger.WriteLine($"{pair.Key}: {pair.Value.GetType()}");
+            }
+
+            AppLogger.PopHeader();
+
+            // TODO: user modifiable keymap, and also save it to user documents
+            // also, use version attribute to check out of date keymap, and offer to
+            // overwrite while backing up old file... or just try to convert file
+
+            await this.SetActivity("Loading keymap...");
+            string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
+            if (File.Exists(keymapFilePath)) {
+                try {
+                    using (FileStream stream = File.OpenRead(keymapFilePath)) {
+                        WPFShortcutManager.WPFInstance.DeserialiseRoot(stream);
+                    }
+                }
+                catch (Exception e) {
+                    await Services.DialogService.ShowMessageExAsync("Invalid keymap", "Failed to read keymap file: " + keymapFilePath, e.GetToString());
+                }
+            }
+            else {
+                await Services.DialogService.ShowMessageAsync("No keymap available", "Keymap file does not exist: " + keymapFilePath + $".\nCurrent directory: {Directory.GetCurrentDirectory()}\nCommand line args:{string.Join("\n", Environment.GetCommandLineArgs())}");
+            }
+
+            await this.SetActivity("Loading FFmpeg...");
+
+            try {
+                ffmpeg.avdevice_register_all();
+            }
+            catch (Exception e) {
+                await Services.DialogService.ShowMessageAsync("FFmpeg not found", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the project's build folder, e.g. FramePFX/FramePFX.WPF/bin/Debug");
+                throw new Exception("FFmpeg Unavailable. Copy FFmpeg DLLs into the same folder as the app's .exe", e);
+            }
+        }
+
+        private async Task SetActivity(string activity) {
+            AppLogger.WriteLine(activity);
+            this.splash.CurrentActivity = activity;
+            await this.Dispatcher.InvokeAsync(() => {
+            }, DispatcherPriority.ApplicationIdle);
+        }
+
         public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
             await editor.FileExplorer.LoadDefaultLocation();
 
@@ -303,6 +296,12 @@ namespace FramePFX.WPF {
             await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
             ((EditorMainWindow) this.MainWindow)?.ViewPortControl.VPViewBox.FitContentToCenter();
             await editor.ActiveProject.Timeline.DoAutomationTickAndRenderToPlayback();
+        }
+
+        public static void RefreshControlsDictionary() {
+            ResourceDictionary resource = Current.Resources.MergedDictionaries[2];
+            Current.Resources.MergedDictionaries.RemoveAt(2);
+            Current.Resources.MergedDictionaries.Insert(2, resource);
         }
 
         public static void PlaySineWave() {

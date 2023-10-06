@@ -10,14 +10,12 @@ namespace FramePFX {
     /// </summary>
     public class AttributeProcessor {
         private readonly Dictionary<Type, List<(TypeInfo, Attribute)>> AccumulationMap;
-        private readonly List<Type> OrderedAttributeTypeList;
 
         private readonly Dictionary<Type, Action<TypeInfo, Attribute>> ProcessorMap;
 
         public AttributeProcessor() {
             this.AccumulationMap = new Dictionary<Type, List<(TypeInfo, Attribute)>>();
             this.ProcessorMap = new Dictionary<Type, Action<TypeInfo, Attribute>>();
-            this.OrderedAttributeTypeList = new List<Type>();
         }
 
         public void RegisterProcessor<T>(Action<Type, T> processor) where T : Attribute {
@@ -25,19 +23,21 @@ namespace FramePFX {
         }
 
         private void RegisterProcessorInternal(Type attributeType, Action<TypeInfo, Attribute> processor) {
-            if (this.AccumulationMap.ContainsKey(attributeType)) {
+            if (!typeof(Attribute).IsAssignableFrom(attributeType))
+                throw new ArgumentException($"Attribute type does not extend {nameof(Attribute)}", nameof(attributeType));
+            if (processor == null)
+                throw new ArgumentNullException(nameof(processor));
+            if (this.AccumulationMap.ContainsKey(attributeType))
                 throw new Exception("Attribute already registered:" + attributeType);
-            }
 
-            this.OrderedAttributeTypeList.Add(attributeType);
             this.AccumulationMap[attributeType] = new List<(TypeInfo, Attribute)>();
             this.ProcessorMap[attributeType] = processor;
         }
 
         /// <summary>
-        /// Runs this attribute processor, which scans all assemblies and their types for their attributes
+        /// Runs this attribute processor on the current <see cref="AppDomain"/>, which scans all assemblies and their types for their attributes
         /// </summary>
-        public void Run() {
+        public void ScanProcess() {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
                 this.ScanAssembly(assembly);
             }
@@ -59,7 +59,7 @@ namespace FramePFX {
                         AppLogger.PopHeader();
                     }
                     else if (ex is FileLoadException loadException && !string.IsNullOrEmpty(str = loadException.FusionLog)) {
-                        AppLogger.PushHeader("An assembly file was not found");
+                        AppLogger.PushHeader("Failed to load an assembly file");
                         AppLogger.WriteLine(ex.ToString());
                         AppLogger.WriteLine("Fusion logs: " + str);
                         AppLogger.PopHeader();
@@ -77,6 +77,10 @@ namespace FramePFX {
             }
         }
 
+        /// <summary>
+        /// Scans all attributes on the given type
+        /// </summary>
+        /// <param name="type"></param>
         public void ScanType(TypeInfo type) {
             foreach (KeyValuePair<Type, List<(TypeInfo, Attribute)>> pair in this.AccumulationMap) {
                 if (!Attribute.IsDefined(type, pair.Key)) {
@@ -92,8 +96,20 @@ namespace FramePFX {
             }
         }
 
+        /// <summary>
+        /// Processes all attributes that were found (during the scan phase) of the given generic attribute
+        /// </summary>
+        /// <typeparam name="T">The type of attribute to process</typeparam>
+        /// <exception cref="ArgumentNullException">Attribute type is null</exception>
+        /// <exception cref="Exception">Attribute type was not registered with this processor</exception>
         public void Process<T>() where T : Attribute => this.Process(typeof(T));
 
+        /// <summary>
+        /// Processes all attributes that were found (during the scan phase) of the given type
+        /// </summary>
+        /// <param name="attributeType">The type of attribute to process</param>
+        /// <exception cref="ArgumentNullException">Attribute type is null</exception>
+        /// <exception cref="Exception">Attribute type was not registered with this processor</exception>
         public void Process(Type attributeType) {
             if (attributeType == null)
                 throw new ArgumentNullException(nameof(attributeType));
@@ -109,6 +125,8 @@ namespace FramePFX {
         }
 
         public void Clear() {
+            foreach (KeyValuePair<Type,List<(TypeInfo, Attribute)>> pair in this.AccumulationMap)
+                pair.Value.Clear();
             this.AccumulationMap.Clear();
             this.ProcessorMap.Clear();
         }

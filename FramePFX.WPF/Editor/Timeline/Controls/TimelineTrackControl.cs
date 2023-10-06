@@ -7,11 +7,13 @@ using System.Windows.Input;
 using FramePFX.Editor;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
+using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Track;
 using FramePFX.WPF.Editor.Timeline.Utils;
+using FramePFX.WPF.Interactivity;
 
 namespace FramePFX.WPF.Editor.Timeline.Controls {
     [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(TimelineClipControl))]
@@ -128,17 +130,10 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
         public IEnumerable<TimelineClipControl> GetClipsThatIntersect(FrameSpan span) => this.GetClipContainers().Where(x => x.Span.Intersects(span));
 
-        private void OnDragDropEnter(object sender, DragEventArgs e) {
-            if (this.isProcessingDrop || this.ResourceItemDropHandler == null) {
-                e.Effects = DragDropEffects.None;
-            }
-
-            e.Handled = true;
-        }
+        private void OnDragDropEnter(object sender, DragEventArgs e) => this.OnDragOver(sender, e);
 
         private void OnDragOver(object sender, DragEventArgs e) {
-            ITrackResourceDropHandler handler;
-            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null) {
+            if (this.isProcessingDrop || !(this.DataContext is TrackViewModel track)) {
                 goto end;
             }
 
@@ -148,8 +143,18 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                     goto end;
                 }
 
-                if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item)) {
+                if (resources[0] is ResourceItemViewModel item && track.CanDropResource(item)) {
                     e.Effects = DragDropEffects.Copy;
+                    e.Handled = true;
+                    return;
+                }
+            }
+            else {
+                DataObjectWrapper obj = new DataObjectWrapper(e.Data);
+                EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+                EnumDropType outputEffects = TrackViewModel.DropRegistry.CanDropNative(track, obj, effects);
+                if (outputEffects != EnumDropType.None) {
+                    e.Effects = (DragDropEffects) outputEffects;
                     e.Handled = true;
                     return;
                 }
@@ -161,8 +166,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private void OnDrop(object sender, DragEventArgs e) {
-            ITrackResourceDropHandler handler;
-            if (this.isProcessingDrop || (handler = this.ResourceItemDropHandler) == null) {
+            if (this.isProcessingDrop || !(this.DataContext is TrackViewModel track)) {
                 e.Effects = DragDropEffects.None;
                 e.Handled = true;
                 return;
@@ -171,10 +175,19 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             if (e.Data.GetDataPresent(ResourceListControl.ResourceDropType)) {
                 object obj = e.Data.GetData(ResourceListControl.ResourceDropType);
                 if (obj is List<BaseResourceViewModel> resources && resources.Count == 1) {
-                    if (resources[0] is ResourceItemViewModel item && handler.CanDropResource(item)) {
+                    if (resources[0] is ResourceItemViewModel item && track.CanDropResource(item)) {
                         this.isProcessingDrop = true;
-                        this.OnDropResource(handler, item, e.GetPosition(this));
+                        this.OnDropResource(track, item, e.GetPosition(this));
                     }
+                }
+            }
+            else {
+                DataObjectWrapper obj = new DataObjectWrapper(e.Data);
+                EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+                EnumDropType outputEffects = TrackViewModel.DropRegistry.CanDropNative(track, obj, effects);
+                if (outputEffects != EnumDropType.None) {
+                    this.isProcessingDrop = true;
+                    this.HandleDropNativeObject(track, obj, outputEffects);
                 }
             }
         }
@@ -183,6 +196,11 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             long frame = TimelineUtils.PixelToFrame(mouse.X, this.UnitZoom);
             frame = Maths.Clamp(frame, 0, this.Timeline?.MaxDuration ?? 0);
             await handler.OnResourceDropped(item, frame);
+            this.isProcessingDrop = false;
+        }
+
+        private async void HandleDropNativeObject(TrackViewModel handler, IDataObjekt drop, EnumDropType dropType) {
+            await TrackViewModel.DropRegistry.OnDroppedNative(handler, drop, dropType, true);
             this.isProcessingDrop = false;
         }
 

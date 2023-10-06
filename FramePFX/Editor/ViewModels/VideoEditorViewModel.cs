@@ -427,7 +427,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public Task DoDrawRenderFrame(TimelineViewModel timeline, bool schedule = false) {
-            return this.View.RenderTimelineAsync(timeline, schedule);
+            return this.View.RenderToViewPortAsync(timeline, schedule);
         }
     }
 }

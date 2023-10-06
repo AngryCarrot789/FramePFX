@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
@@ -16,17 +17,13 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!e.DataContext.TryGetContext(out BaseResourceViewModel resItem))
+            if (!ResourceActionUtils.GetSelectedResources(e.DataContext, out List<BaseResourceViewModel> selection))
                 return false;
-
-            if (!(resItem is BaseResourceViewModel item))
-                return false;
-
-            if (item.Manager.SelectedItems.Count < 1 || item.Parent == null)
-                return true;
 
             try {
-                item.Parent.RemoveRange(item.Manager.SelectedItems.ToList());
+                foreach (BaseResourceViewModel item in selection) {
+                    item.Parent?.RemoveItem(item);
+                }
             }
             catch (Exception ex) {
                 await Services.DialogService.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());

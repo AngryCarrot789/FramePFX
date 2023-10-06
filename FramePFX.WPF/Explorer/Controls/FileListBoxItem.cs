@@ -30,13 +30,26 @@ namespace FramePFX.WPF.Explorer.Controls {
                 }
             }
 
+            bool hasToggledSelection = false;
+            if (this.ParentFileListBox is FileListBox listBox) {
+                if (KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control)) {
+                    this.IsSelected = !this.IsSelected;
+                    hasToggledSelection = true;
+                }
+                else if (!this.IsSelected) {
+                    listBox.SelectedItems.Clear();
+                    this.IsSelected = true;
+                }
+            }
+
             if (!e.Handled && (this.IsFocused || this.Focus())) {
                 if (!this.isDragDropping) {
                     this.CaptureMouse();
                     this.originMousePoint = e.GetPosition(this);
                     this.isDragActive = true;
                     e.Handled = true;
-                    this.IsSelected = true;
+                    if (!hasToggledSelection)
+                        this.IsSelected = true;
                 }
             }
 
@@ -53,14 +66,6 @@ namespace FramePFX.WPF.Explorer.Controls {
                 if (this.IsMouseCaptured) {
                     this.ReleaseMouseCapture();
                 }
-            }
-
-            if (KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control)) {
-                this.IsSelected = true;
-            }
-            else if (this.ParentFileListBox is FileListBox listBox && listBox.SelectionMode != SelectionMode.Single) {
-                listBox.SelectedItems.Clear();
-                this.IsSelected = true;
             }
 
             base.OnMouseLeftButtonUp(e);

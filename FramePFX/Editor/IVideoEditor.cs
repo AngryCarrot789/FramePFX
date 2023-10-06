@@ -19,7 +19,7 @@ namespace FramePFX.Editor {
         /// <param name="timeline">The timeline to render</param>
         /// <param name="scheduleRender">True to schedule for some point in the future, false to render immediately</param>
         /// <returns>A task to await for the render to complete</returns>
-        Task RenderTimelineAsync(TimelineViewModel timeline, bool scheduleRender = false);
+        Task RenderToViewPortAsync(TimelineViewModel timeline, bool scheduleRender = false);
 
         /// <summary>
         /// Opens and selects the UI element representing the given timeline. If it is not open,
@@ -30,7 +30,7 @@ namespace FramePFX.Editor {
         void OpenAndSelectTimeline(TimelineViewModel timeline);
 
         /// <summary>
-        /// Invoked when the project frame rate changes, in order to try to adjust the timeline zoom
+        /// Called by the editor when the project frame rate changes, in order to try to adjust the timeline zoom
         /// level and scroll such that it looks like nothing visually changed (apart from the ruler times which will change)
         /// </summary>
         /// <param name="timeline"></param>

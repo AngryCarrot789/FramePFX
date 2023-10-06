@@ -14,6 +14,7 @@ namespace FramePFX.Editor.Timelines {
     /// </summary>
     public abstract class Track : ZObject, IProjectBound, IAutomatable {
         private readonly List<Clip> clips;
+        public int IndexInTimeline;
 
         /// <summary>
         /// The timeline that created this track
@@ -124,15 +125,18 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="index">The index of the clip</param>
         /// <returns>True if the clip is stored in this track, or false if it is not</returns>
         public bool GetClipIndex(Clip clip, out int index) {
-            index = -1;
-            if (clip.IndexInTrack == -1)
+            index = clip.IndexInTrack;
+            if (index == -1) {
                 return false;
-            // wrong track
-            if (clip.IndexInTrack < this.clips.Count && ReferenceEquals(clip, this.clips[clip.IndexInTrack])) {
-                index = clip.IndexInTrack;
+            }
+            else if (index < this.clips.Count && ReferenceEquals(clip, this.clips[index])) {
                 return true;
             }
-            else if (clip.Track == this) {
+            else if (!ReferenceEquals(clip.Track, this)) {
+                index = -1;
+                return false;
+            }
+            else {
                 // this section down here shouldn't really be reachable... but who knows
                 index = this.clips.IndexOf(clip);
                 if (index == -1) {
@@ -144,9 +148,6 @@ namespace FramePFX.Editor.Timelines {
                     clip.IndexInTrack = index;
                     return true;
                 }
-            }
-            else {
-                return false;
             }
         }
 
@@ -163,33 +164,23 @@ namespace FramePFX.Editor.Timelines {
 
         public Clip GetClipAtFrame(long frame) {
             return this.cache.GetPrimaryClipAt(frame);
-
             // cannot use binary search until Clips is ordered
-            //List<Clip> src = this.Clips;
-            //int a = 0, b = src.Count - 1;
-            //while (a <= b) {
-            //    int mid = (a + b) / 2;
-            //    Clip clip = src[mid];
-            //    if (clip.IntersectsFrameAt(frame)) {
-            //        return clip;
-            //    }
-            //    else if (frame < clip.FrameBegin) {
-            //        b = mid - 1;
-            //    }
-            //    else {
-            //        a = mid + 1;
-            //    }
-            //}
-            //return null;
-        }
-
-        public void GetClipIndicesAt(long frame, ICollection<int> indices) {
-            List<Clip> list = this.clips;
-            for (int i = 0, count = list.Count; i < count; i++) {
-                if (list[i].IntersectsFrameAt(frame)) {
-                    indices.Add(i);
-                }
-            }
+            // List<Clip> src = this.Clips;
+            // int a = 0, b = src.Count - 1;
+            // while (a <= b) {
+            //     int mid = (a + b) / 2;
+            //     Clip clip = src[mid];
+            //     if (clip.IntersectsFrameAt(frame)) {
+            //         return clip;
+            //     }
+            //     else if (frame < clip.FrameBegin) {
+            //         b = mid - 1;
+            //     }
+            //     else {
+            //         a = mid + 1;
+            //     }
+            // }
+            // return null;
         }
 
         public void AddClip(Clip clip) => this.InsertClip(this.clips.Count, clip);

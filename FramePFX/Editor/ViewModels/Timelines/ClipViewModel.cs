@@ -221,7 +221,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         static ClipViewModel() {
             DropRegistry = new DragDropRegistry();
-            DropRegistry.Register<ClipViewModel, EffectProviderViewModel>((clip, x, dt) => true, async (clip, x, dt) => {
+            DropRegistry.Register<ClipViewModel, EffectProviderViewModel>((clip, x, dt) => EnumDropType.Copy, async (clip, x, dt) => {
                 BaseEffect effect;
                 try {
                     effect = EffectFactory.Instance.CreateModel(x.EffectFactoryId);

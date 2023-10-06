@@ -10,7 +10,7 @@ using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
-    public class ResourceFolderViewModel : BaseResourceViewModel, IDisplayName, INavigatableResource, IResourceDropHandler {
+    public class ResourceFolderViewModel : BaseResourceViewModel, IDisplayName, INavigatableResource {
         internal readonly ObservableCollection<BaseResourceViewModel> items;
 
         public ReadOnlyObservableCollection<BaseResourceViewModel> Items { get; }
@@ -54,35 +54,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target, int dstIndex) {
-            if (target == this)
-                throw new Exception("Cannot move item to the same instance");
-
-            BaseResourceViewModel item = this.items[srcIndex];
-            if (!ReferenceEquals(this, item.Parent))
-                throw new Exception("Item does not belong to this group, but it contained in the list");
-            if (!ReferenceEquals(item.Model, this.Model.Items[srcIndex]))
-                throw new Exception("View model and model list de-synced");
-
-            this.Model.MoveItemTo(srcIndex, target.Model, dstIndex);
-
-            this.items.RemoveAt(srcIndex);
-            PreSetParent(item, target);
-            target.items.Insert(dstIndex, item);
-            PostSetParent(item, target, true);
-        }
-
-        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target) {
-            this.MoveItemTo(srcIndex, target, target.items.Count);
-        }
-
-        public void MoveItemTo(BaseResourceViewModel item, ResourceFolderViewModel target) {
-            int index = this.items.IndexOf(item);
-            if (index == -1)
-                throw new Exception("Resource was not stored in this group");
-            this.MoveItemTo(index, target);
-        }
-
         public void AddItem(BaseResourceViewModel item, bool addToModel = true) {
             this.InsertItem(this.items.Count, item, addToModel);
         }
@@ -98,10 +69,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public bool RemoveItem(BaseResourceViewModel item, bool removeFromModel = true, bool unregisterHierarcy = true) {
             int index = this.items.IndexOf(item);
-            if (index < 0) {
+            if (index < 0)
                 return false;
-            }
-
             this.RemoveItemAt(index, removeFromModel, unregisterHierarcy);
             return true;
         }
@@ -122,6 +91,35 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             this.items.RemoveAt(index);
             SetParent(item, null);
             item.SetManager(null);
+        }
+
+        public void MoveItemTo(BaseResourceViewModel item, ResourceFolderViewModel target) {
+            int index = this.items.IndexOf(item);
+            if (index == -1)
+                throw new Exception("Resource was not stored in this group");
+            this.MoveItemTo(index, target);
+        }
+
+        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target) {
+            this.MoveItemTo(srcIndex, target, target.items.Count);
+        }
+
+        public void MoveItemTo(int srcIndex, ResourceFolderViewModel target, int dstIndex) {
+            if (target == this)
+                throw new Exception("Cannot move item to the same instance");
+
+            BaseResourceViewModel item = this.items[srcIndex];
+            if (!ReferenceEquals(this, item.Parent))
+                throw new Exception("Item does not belong to this group, but it contained in the list");
+            if (!ReferenceEquals(item.Model, this.Model.Items[srcIndex]))
+                throw new Exception("View model and model list de-synced");
+
+            this.Model.MoveItemTo(srcIndex, target.Model, dstIndex);
+
+            this.items.RemoveAt(srcIndex);
+            PreSetParent(item, target);
+            target.items.Insert(dstIndex, item);
+            PostSetParent(item, target, true);
         }
 
         /// <summary>
@@ -229,20 +227,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public void OnNavigate() {
             this.Manager?.NavigateToGroup(this);
-        }
-
-        public bool CanDropResource(BaseResourceViewModel resource) {
-            if (resource is ResourceFolderViewModel group && this.IsParentInHierarchy(group)) {
-                return false;
-            }
-
-            return resource is ResourceFolderViewModel || resource is ResourceItemViewModel;
-        }
-
-        public Task OnDropResource(BaseResourceViewModel resource, EnumDropType dropType) {
-            resource.Parent?.RemoveItem(resource, true, false);
-            this.AddItem(resource);
-            return Task.CompletedTask;
         }
 
         public Task OnDropResources(List<BaseResourceViewModel> resources, EnumDropType dropType) {

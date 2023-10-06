@@ -157,23 +157,24 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public static bool CanDropItems(List<BaseResourceViewModel> items, ResourceFolderViewModel target, EnumDropType dropType) {
+        public static EnumDropType CanDropItems(List<BaseResourceViewModel> items, ResourceFolderViewModel target, EnumDropType dropType) {
+            if (dropType == EnumDropType.None || dropType == EnumDropType.Link) {
+                return EnumDropType.None;
+            }
+
             if (items.Count == 1) {
                 BaseResourceViewModel item = items[0];
                 if (item is ResourceFolderViewModel folder && folder.IsParentInHierarchy(target)) {
-                    return false;
+                    return EnumDropType.None;
                 }
-                else if (ReferenceEquals(item, target)) {
-                    return false;
-                }
-                else if (dropType != EnumDropType.Copy && dropType != EnumDropType.Link) {
+                else if (dropType != EnumDropType.Copy) {
                     if (target.Items.Contains(item)) {
-                        return false;
+                        return EnumDropType.None;
                     }
                 }
             }
 
-            return true;
+            return dropType;
         }
     }
 }

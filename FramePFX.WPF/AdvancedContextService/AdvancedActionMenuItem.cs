@@ -7,7 +7,9 @@ using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
 using FramePFX.Utils;
+using FramePFX.WPF.Shortcuts;
 using FramePFX.WPF.Shortcuts.Converters;
+using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.AdvancedContextService {
     public class AdvancedActionMenuItem : AdvancedMenuItem {
@@ -129,8 +131,7 @@ namespace FramePFX.WPF.AdvancedContextService {
 
         protected DataContext GetDataContext(bool includeToggleState = true) {
             DataContext context = new DataContext();
-            object dc = this.DataContext;
-            if (dc != null) {
+            if (VisualTreeUtils.GetDataContext(this, out object dc) && !context.InternalContext.Contains(dc)) {
                 if (dc is IDataContext ctx) {
                     context.Merge(ctx);
                 }
@@ -142,30 +143,24 @@ namespace FramePFX.WPF.AdvancedContextService {
                 }
             }
 
-            context.AddContext(this);
-            IInputElement focused = Keyboard.FocusedElement;
-            if (focused != null && !ReferenceEquals(focused, this) && focused is DependencyObject obj) {
-                if (obj is FrameworkElement element && element.DataContext is object dc1) {
-                    context.AddContext(dc1);
-                }
+            ItemsControl itemsControl = VisualTreeUtils.GetItemsControlFromObject(this);
+            if (itemsControl != null && (dc = itemsControl.DataContext) != null && !context.InternalContext.Contains(dc)) {
+                context.AddContext(dc);
+            }
 
-                context.AddContext(obj);
-                ItemsControl itemsControl = ItemsControlFromItemContainer(obj);
-                if (itemsControl != null && itemsControl.IsItemItsOwnContainer(obj)) {
-                    if (itemsControl.DataContext is object dc2) {
-                        context.AddContext(dc2);
-                    }
-
-                    context.AddContext(itemsControl);
+            if (Window.GetWindow(this) is Window root && VisualTreeUtils.GetDataContext(root, out dc)) {
+                if (!context.InternalContext.Contains(dc)) {
+                    context.AddContext(dc);
                 }
             }
 
-            if (Window.GetWindow(this) is Window win) {
-                if (win.DataContext is object dc1) {
-                    context.AddContext(dc1);
+            DependencyObject pathObject = this;
+            while ((pathObject = VisualTreeUtils.FindNearestInheritedPropertyDefinition(UIInputManager.FocusPathProperty, pathObject)) != null) {
+                if (pathObject is FrameworkElement element && !context.InternalContext.Contains(dc = element.DataContext)) {
+                    context.AddContext(dc);
                 }
 
-                context.AddContext(win);
+                pathObject = VisualTreeUtils.GetParent(pathObject);
             }
 
             if (includeToggleState && this.IsCheckable) {

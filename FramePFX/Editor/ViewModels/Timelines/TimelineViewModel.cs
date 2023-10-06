@@ -11,6 +11,8 @@ using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
+using FramePFX.FFmpegWrapper.Containers;
+using FramePFX.Interactivity;
 using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 using FramePFX.ServiceManaging;
@@ -21,6 +23,7 @@ using FramePFX.Views.Dialogs.UserInputs;
 namespace FramePFX.Editor.ViewModels.Timelines {
     public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound {
         public static readonly MessageDialog DeleteTracksDialog;
+        private readonly PropertyChangedEventHandler CachedTrackPropertyChangedHandler;
         private readonly RapidDispatchCallback rapidOnRenderCompleted;
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         private TrackViewModel primarySelectedTrack;
@@ -153,8 +156,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public Rational FPS => this.Project.Settings.FrameRate;
 
         public bool IsHistoryChanging { get; set; }
-
-        private readonly PropertyChangedEventHandler CachedTrackPropertyChangedHandler;
 
         public TimelineViewModel(Timeline model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));

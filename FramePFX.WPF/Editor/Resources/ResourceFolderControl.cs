@@ -48,13 +48,8 @@ namespace FramePFX.WPF.Editor.Resources {
 
             e.Handled = true;
             EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-            if (BaseResourceViewModel.CanDropItems(resources, folder, effects)) {
-                e.Effects = (DragDropEffects) effects;
-                return true;
-            }
-
-            e.Effects = DragDropEffects.None;
-            return false;
+            e.Effects = (DragDropEffects) BaseResourceViewModel.CanDropItems(resources, folder, effects);
+            return e.Effects != DragDropEffects.None;
         }
 
         public static bool CanHandleDrop(ResourceFolderViewModel folder, DragEventArgs e, out List<BaseResourceViewModel> resources, out EnumDropType effects) {
@@ -68,7 +63,8 @@ namespace FramePFX.WPF.Editor.Resources {
             if ((resources = obj as List<BaseResourceViewModel>) != null) {
                 e.Handled = true;
                 effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                return BaseResourceViewModel.CanDropItems(resources, folder, effects);
+                effects = BaseResourceViewModel.CanDropItems(resources, folder, effects);
+                return effects != EnumDropType.None;
             }
 
             effects = EnumDropType.None;

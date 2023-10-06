@@ -13,7 +13,7 @@ namespace FramePFX.Editor.Actions {
         public static bool GetClipWithSelection(IDataContext context, out List<ClipViewModel> clips) {
             TimelineViewModel timeline;
             if (context.TryGetContext(out ClipViewModel clip)) {
-                if (GetTimeline(context, out timeline)) {
+                if ((timeline = clip.Timeline) != null || GetTimeline(context, out timeline)) {
                     clips = timeline.GetSelectedClips().ToList();
                     if (!clips.Contains(clip)) {
                         clips.Add(clip);

@@ -184,11 +184,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             else {
                 DataObjectWrapper obj = new DataObjectWrapper(e.Data);
                 EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-                EnumDropType outputEffects = TrackViewModel.DropRegistry.CanDropNative(track, obj, effects);
-                if (outputEffects != EnumDropType.None) {
-                    this.isProcessingDrop = true;
-                    this.HandleDropNativeObject(track, obj, outputEffects);
-                }
+                this.isProcessingDrop = true;
+                this.HandleDropNativeObject(track, obj, effects);
             }
         }
 
@@ -200,7 +197,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         private async void HandleDropNativeObject(TrackViewModel handler, IDataObjekt drop, EnumDropType dropType) {
-            await TrackViewModel.DropRegistry.OnDroppedNative(handler, drop, dropType, true);
+            await TrackViewModel.DropRegistry.OnDroppedNative(handler, drop, dropType);
             this.isProcessingDrop = false;
         }
 

@@ -97,20 +97,20 @@ namespace FramePFX.Interactivity {
         }
 
         /// <summary>
-        /// Called when a CLR object is dropped onto the given target with the given dropType
+        /// Called when a CLR object is dropped onto the given target with the given dropType.
+        /// This will always check the CanDrop handler first before calling the OnDropped handler
         /// </summary>
         /// <param name="target">The target object that the value was dropped onto</param>
         /// <param name="dropped">The dropped CLR object</param>
         /// <param name="dropType">The type of drop</param>
-        /// <param name="unsafeSkipCanDropCheck">Unsafely skips the method that checks if a drop can occur and directly calls the drop handler</param>
         /// <returns>True if a drop handler was called, otherwise false</returns>
-        public async Task<bool> OnDropped(object target, object dropped, EnumDropType dropType, bool unsafeSkipCanDropCheck = false) {
+        public async Task<bool> OnDropped(object target, object dropped, EnumDropType dropType) {
             if (!this.registryCustom.TryGetValue(dropped.GetType(), out Dictionary<Type, CustomHandlerPair> handlerMap)) {
                 return false;
             }
 
             for (Type type = target.GetType(); type != null; type = type.BaseType) {
-                if (handlerMap.TryGetValue(type, out CustomHandlerPair pair) && (unsafeSkipCanDropCheck || (dropType = pair.CanDrop(target, dropped, dropType)) != EnumDropType.None)) {
+                if (handlerMap.TryGetValue(type, out CustomHandlerPair pair) && (dropType = pair.CanDrop(target, dropped, dropType)) != EnumDropType.None) {
                     await pair.OnDropped(target, dropped, dropType);
                     return true;
                 }
@@ -120,14 +120,14 @@ namespace FramePFX.Interactivity {
         }
 
         /// <summary>
-        /// Called when an unknown native object is dropped onto the given target object with the given dropType
+        /// Called when an unknown native object is dropped onto the given target object with the
+        /// given dropType. This will always check the CanDrop handler first before calling the OnDropped handler
         /// </summary>
         /// <param name="target">The target object that the data object was dropped onto</param>
         /// <param name="dropped">The dropped data object containing operating system data (or a CLR object(s))</param>
         /// <param name="dropType">The type of drop</param>
-        /// <param name="unsafeSkipCanDropCheck">Unsafely skips the method that checks if a drop can occur and directly calls the drop handler</param>
         /// <returns>True if a drop handler was called, otherwise false</returns>
-        public async Task<bool> OnDroppedNative(object target, IDataObjekt dropped, EnumDropType dropType, bool unsafeSkipCanDropCheck = false) {
+        public async Task<bool> OnDroppedNative(object target, IDataObjekt dropped, EnumDropType dropType) {
             foreach (KeyValuePair<string, Dictionary<Type, NativeHandlerPair>> entry in this.registryNative) {
                 if (!dropped.GetDataPresent(entry.Key)) {
                     continue;
@@ -135,7 +135,7 @@ namespace FramePFX.Interactivity {
 
                 Dictionary<Type, NativeHandlerPair> handlerMap = entry.Value;
                 for (Type type = target.GetType(); type != null; type = type.BaseType) {
-                    if (handlerMap.TryGetValue(type, out NativeHandlerPair pair) && (unsafeSkipCanDropCheck || (dropType = pair.CanDrop(target, dropped, dropType)) != EnumDropType.None)) {
+                    if (handlerMap.TryGetValue(type, out NativeHandlerPair pair) && (dropType = pair.CanDrop(target, dropped, dropType)) != EnumDropType.None) {
                         await pair.OnDropped(target, dropped, dropType);
                         return true;
                     }
@@ -146,8 +146,8 @@ namespace FramePFX.Interactivity {
         }
 
         private readonly struct CustomHandlerPair {
-            public readonly CustomCanDropDelegate CanDrop;
-            public readonly CustomOnDroppedDelegate OnDropped;
+            internal readonly CustomCanDropDelegate CanDrop;
+            internal readonly CustomOnDroppedDelegate OnDropped;
 
             public CustomHandlerPair(CustomCanDropDelegate a, CustomOnDroppedDelegate b) {
                 this.CanDrop = a;
@@ -156,8 +156,8 @@ namespace FramePFX.Interactivity {
         }
 
         private readonly struct NativeHandlerPair {
-            public readonly NativeCanDropDelegate CanDrop;
-            public readonly NativeOnDroppedDelegate OnDropped;
+            internal readonly NativeCanDropDelegate CanDrop;
+            internal readonly NativeOnDroppedDelegate OnDropped;
 
             public NativeHandlerPair(NativeCanDropDelegate a, NativeOnDroppedDelegate b) {
                 this.CanDrop = a;

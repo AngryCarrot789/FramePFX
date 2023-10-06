@@ -666,25 +666,17 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 return;
             }
 
-            EnumDropType outputEffects;
             if (e.Data.GetData(ResourceListControl.ResourceDropType) is List<BaseResourceViewModel> items && items.Count == 1 && items[0] is ResourceItemViewModel) {
-                if ((outputEffects = ClipViewModel.DropRegistry.CanDrop(drop, items[0], effects)) != EnumDropType.None) {
-                    e.Handled = true;
-                    this.HandleDropObject(drop, items[0], outputEffects);
-                }
+                e.Handled = true;
+                this.HandleDropObject(drop, items[0], effects);
             }
             else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProviderViewModel provider) {
-                if ((outputEffects = ClipViewModel.DropRegistry.CanDrop(drop, provider, effects)) != EnumDropType.None) {
-                    e.Handled = true;
-                    this.HandleDropObject(drop, provider, outputEffects);
-                }
+                e.Handled = true;
+                this.HandleDropObject(drop, provider, effects);
             }
             else {
-                DataObjectWrapper obj = new DataObjectWrapper(e.Data);
-                if ((outputEffects = ClipViewModel.DropRegistry.CanDropNative(drop, obj, effects)) != EnumDropType.None) {
-                    e.Handled = true;
-                    this.HandleDropNativeObject(drop, obj, outputEffects);
-                }
+                e.Handled = true;
+                this.HandleDropNativeObject(drop, new DataObjectWrapper(e.Data), effects);
             }
         }
 

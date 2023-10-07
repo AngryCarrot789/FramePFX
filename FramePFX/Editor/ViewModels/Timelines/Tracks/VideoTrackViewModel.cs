@@ -167,7 +167,12 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
                 Clip newClip;
                 switch (resource.Model) {
-                    case ResourceAVMedia media when media.IsValidMediaFile: {
+                    case ResourceAVMedia media: {
+                        if (media.IsValidMediaFile) {
+                            await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
+                            return;
+                        }
+
                         TimeSpan span = media.GetDuration();
 
                         long dur = (long) Math.Floor(span.TotalSeconds * fps);
@@ -196,9 +201,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
                         break;
                     }
-                    case ResourceAVMedia media:
-                        await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
-                        return;
                     case ResourceColour argb: {
                         ShapeSquareVideoClip clip = new ShapeSquareVideoClip() {
                             FrameSpan = defaultSpan,

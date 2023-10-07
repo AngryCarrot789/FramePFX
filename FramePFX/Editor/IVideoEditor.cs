@@ -47,5 +47,7 @@ namespace FramePFX.Editor {
         /// Invoked on the export thread when an export ends
         /// </summary>
         void OnExportEnd();
+
+        void CloseAllTimelinesExcept(TimelineViewModel timeline);
     }
 }

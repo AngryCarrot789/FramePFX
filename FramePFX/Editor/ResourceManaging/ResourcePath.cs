@@ -51,7 +51,7 @@ namespace FramePFX.Editor.ResourceManaging {
         public event ResourceAndManagerEventHandler OnlineStateChanged;
 
         /// <summary>
-        /// Gets the path key that owns this resource path
+        /// Gets the resource path key that owns this resource path
         /// </summary>
         public IBaseResourcePathKey Owner { get; }
 

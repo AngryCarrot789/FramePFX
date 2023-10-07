@@ -139,13 +139,13 @@ namespace FramePFX.Automation {
         }
 
         public static void ConvertResourceManagerFrameRateRecursive(BaseResourceViewModel resource, double ratio) {
-            if (resource is ResourceFolderViewModel folder) {
-                foreach (BaseResourceViewModel item in folder.Items) {
+            if (resource is ResourceFolderViewModel) {
+                foreach (BaseResourceViewModel item in ((ResourceFolderViewModel) resource).Items) {
                     ConvertResourceManagerFrameRateRecursive(item, ratio);
                 }
             }
-            else if (resource is ResourceCompositionViewModel composition) {
-                ConvertTimelineFrameRate(composition.Timeline, ratio);
+            else if (resource is ResourceCompositionViewModel) {
+                ConvertTimelineFrameRate(((ResourceCompositionViewModel) resource).Timeline, ratio);
             }
         }
 

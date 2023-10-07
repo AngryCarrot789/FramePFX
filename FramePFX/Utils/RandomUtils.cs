@@ -65,12 +65,12 @@ namespace FramePFX.Utils {
         /// <param name="count">The number of chars to generate</param>
         /// <param name="canAccept">A predicate to determine whether the string can be accepted</param>
         /// <returns>The accepted string</returns>
-        public static string RandomLettersWhere(string prefix, int count, Predicate<string> canAccept) {
-            return RandomLettersWhere(prefix, count, canAccept, RandomLettersFunc);
+        public static string RandomPrefixedLettersWhere(string prefix, int count, Predicate<string> canAccept) {
+            return RandomPrefixedLettersWhere(prefix, count, canAccept, RandomLettersFunc);
         }
 
-        public static string RandomLettersAndNumbersWhere(string prefix, int count, Predicate<string> canAccept) {
-            return RandomLettersWhere(prefix, count, canAccept, RandomLettersAndNumbersFunc);
+        public static string RandomPrefixedLettersAndNumbersWhere(string prefix, int count, Predicate<string> canAccept) {
+            return RandomPrefixedLettersWhere(prefix, count, canAccept, RandomLettersAndNumbersFunc);
         }
 
         public static string RandomLettersAndNumbersWhere(int count, Predicate<string> canAccept) {
@@ -88,7 +88,7 @@ namespace FramePFX.Utils {
             return str;
         }
 
-        private static string RandomLettersWhere(string prefix, int count, Predicate<string> canAccept, Action<char[], int, int> random) {
+        private static string RandomPrefixedLettersWhere(string prefix, int count, Predicate<string> canAccept, Action<char[], int, int> random) {
             string str;
             int len = prefix.Length;
             char[] chars = new char[len + count];
@@ -97,7 +97,6 @@ namespace FramePFX.Utils {
                 random(chars, len, count);
                 str = new string(chars);
             } while (!canAccept(str));
-
             return str;
         }
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using FramePFX.Editor.ResourceManaging.Events;
+using FramePFX.Editor.Timelines;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -50,6 +51,21 @@ namespace FramePFX.Editor.ResourceManaging {
             this.references = new List<ResourcePath>();
         }
 
+        public void GetReferenceInfo(out int clips, out int unknown) {
+            int nClips = 0, nUnknown = 0;
+            foreach (ResourcePath reference in this.references) {
+                if (reference.Owner.Helper.Owner is Clip) {
+                    nClips++;
+                }
+                else {
+                    nUnknown++;
+                }
+            }
+
+            clips = nClips;
+            unknown = nUnknown;
+        }
+
         public void AddReference(ResourcePath reference) {
             if (reference == null)
                 throw new ArgumentNullException(nameof(reference));
@@ -61,7 +77,7 @@ namespace FramePFX.Editor.ResourceManaging {
             if (reference == null)
                 throw new ArgumentNullException(nameof(reference));
             if (!this.references.Remove(reference))
-                throw new Exception("Clip is not referenced");
+                throw new Exception("Object is not referenced");
             this.ReferenceCountChanged?.Invoke(this, reference, false);
         }
 

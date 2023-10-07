@@ -1,6 +1,6 @@
 namespace FramePFX.Editor.Timelines.ResourceHelpers {
     /// <summary>
-    /// An interface for a clip that can have multiple resources associated with it
+    /// An interface for a project-bound object that can have resources associated with it
     /// </summary>
     public interface IResourceHolder : IProjectBound {
         /// <summary>

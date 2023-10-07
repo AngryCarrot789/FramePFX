@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Media;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels.Keyframe;
-using FramePFX.Editor.ViewModels;
 using FramePFX.Logger;
 using FramePFX.Utils;
 using Rect = System.Windows.Rect;
@@ -12,7 +11,6 @@ using Rect = System.Windows.Rect;
 namespace FramePFX.WPF.Editor.Automation {
     public class KeyFramePoint {
         private readonly AutomationSequenceEditor editor;
-        private readonly ProjectViewModel project;
         public readonly KeyFrameViewModel keyFrame;
         private Point? renderPoint;
 
@@ -47,7 +45,6 @@ namespace FramePFX.WPF.Editor.Automation {
         protected KeyFramePoint(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {
             this.editor = editor;
             this.keyFrame = keyFrame;
-            this.project = keyFrame.OwnerSequence.AutomationData.Owner.Project ?? throw new Exception("Could not get project from key frame");
         }
 
         public static KeyFramePoint ForKeyFrame(AutomationSequenceEditor editor, KeyFrameViewModel keyFrame) {

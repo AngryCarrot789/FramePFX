@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -161,6 +162,18 @@ namespace FramePFX.WPF.Editor.MainWindow {
         }
 
         private IEnumerable<PreAnchoredTimelineControl> PreAnchoredTimelineControls => this.TimelineLayoutPane.Children.Select(x => (PreAnchoredTimelineControl) x.Content);
+
+        public void CloseAllTimelinesExcept(TimelineViewModel timeline) {
+            ObservableCollection<LayoutAnchorable> list = this.TimelineLayoutPane.Children;
+            for (int i = list.Count - 1; i >= 0; i--) {
+                if (((PreAnchoredTimelineControl) list[i].Content).DataContext == timeline) {
+                    continue;
+                }
+                else {
+                    list.RemoveAt(i);
+                }
+            }
+        }
 
         public void OpenAndSelectTimeline(TimelineViewModel timeline) {
             int i = 0;

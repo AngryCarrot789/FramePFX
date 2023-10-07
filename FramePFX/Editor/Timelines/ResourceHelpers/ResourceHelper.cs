@@ -35,12 +35,12 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         public event EntryResourceOnlineStateChangedEventHandler OnlineStateChanged;
 
         /// <summary>
-        /// The clip that owns this helper
+        /// The resource holder object that owns this helper. This is typically an object that extends <see cref="Clip"/>
         /// </summary>
-        public IResourceHolder Clip { get; }
+        public IResourceHolder Owner { get; }
 
         public ResourceHelper(IResourceHolder clip) {
-            this.Clip = clip ?? throw new ArgumentNullException(nameof(clip));
+            this.Owner = clip ?? throw new ArgumentNullException(nameof(clip));
             this.ResourceMap = new Dictionary<string, BaseResourcePathEntry>();
         }
 
@@ -143,7 +143,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         }
 
         private void TriggerClipRender() {
-            if (this.Clip is VideoClip clip && clip.Project != null)
+            if (this.Owner is VideoClip clip && clip.Project != null)
                 clip.InvalidateRender();
         }
 
@@ -211,7 +211,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
                     oldPath.ResourceChanged -= this.resourceChangedHandler;
                 }
 
-                this.path = new ResourcePath(this, this.helper.Clip.Project?.ResourceManager, id);
+                this.path = new ResourcePath(this, this.helper.Owner.Project?.ResourceManager, id);
                 this.path.ResourceChanged += this.resourceChangedHandler;
             }
 

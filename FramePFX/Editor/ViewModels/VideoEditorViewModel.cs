@@ -144,7 +144,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public void OnTimelinesCleared() {
             this.activeTimelines.Clear();
-            OnSelectedTimelineChangedInternal(this, null);
+            OnSelectedTimelineChangedInternal(this, null, null);
         }
 
         public void OpenAndSelectTimeline(TimelineViewModel timeline) {
@@ -192,7 +192,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         private async Task NewProjectAction() {
-            if (this.ActiveProject != null && !await this.PromptSaveProjectAction()) {
+            if (this.ActiveProject != null && !await this.PromptAndSaveProjectAction()) {
                 return;
             }
 
@@ -208,36 +208,15 @@ namespace FramePFX.Editor.ViewModels {
 
         public async Task OpenProjectAction() {
             string[] result = await Services.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
-            if (result == null)
-                return;
-
-            if (this.ActiveProject != null && !await this.PromptSaveProjectAction())
-                return;
-
-            string path = result[0];
-            string parentFolder;
-            string projectFileName;
-            try {
-                parentFolder = Path.GetDirectoryName(path);
-            }
-            catch (ArgumentException) {
-                await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
+            if (result == null || this.ActiveProject != null && !await this.PromptAndSaveProjectAction()) {
                 return;
             }
 
-            try {
-                projectFileName = Path.GetFileName(path);
-            }
-            catch (ArgumentException) {
-                await Services.DialogService.ShowMessageAsync("Invalid file", "The project file contains invalid characters");
-                return;
-            }
-
+            string filePath = result[0];
             AppLogger.WriteLine("Reading packed RBE project from file");
             RBEDictionary dictionary;
-
             try {
-                dictionary = RBEUtils.ReadFromFilePacked(path) as RBEDictionary;
+                dictionary = RBEUtils.ReadFromFilePacked(filePath) as RBEDictionary;
             }
             catch (Exception e) {
                 AppLogger.WriteLine("Failed to read packed RBE data");
@@ -255,7 +234,7 @@ namespace FramePFX.Editor.ViewModels {
             ProjectViewModel pvm;
 
             try {
-                projectModel.ReadFromRBE(dictionary, parentFolder, projectFileName);
+                projectModel.ReadFromRBE(dictionary, filePath);
                 pvm = new ProjectViewModel(projectModel);
             }
             catch (Exception e) {
@@ -281,12 +260,12 @@ namespace FramePFX.Editor.ViewModels {
 
             if (!await ResourceCheckerViewModel.LoadProjectResources(checker, pvm, true)) {
                 AppLogger.WriteLine("Project load cancelled due to invalid resources. Unloading newly loaded project...");
-                await this.LoadProject(null);
+                await this.CloseProjectAction();
                 return;
             }
 
             this.ActiveProject.SetHasUnsavedChanges(false);
-            AppLogger.WriteLine("Loaded project at " + pvm.FullProjectFilePath);
+            AppLogger.WriteLine("Loaded project at " + pvm.ProjectFilePath);
         }
 
         /// <summary>
@@ -302,10 +281,9 @@ namespace FramePFX.Editor.ViewModels {
             PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null) {
-                OnSelectedTimelineChangedInternal(this, null, null);
+                this.View.CloseAllTimelinesExcept(this.activeProject.Timeline);
                 this.Model.ClearTimelines();
                 this.activeTimelines.Clear();
-
                 this.activeProject.OnDisconnectFromEditor();
                 this.Model.SetProject(null);
                 try {
@@ -370,7 +348,7 @@ namespace FramePFX.Editor.ViewModels {
                 throw new Exception("No active project");
             }
 
-            if (!await this.PromptSaveProjectAction()) {
+            if (!await this.PromptAndSaveProjectAction()) {
                 return false;
             }
 
@@ -378,7 +356,7 @@ namespace FramePFX.Editor.ViewModels {
             return true;
         }
 
-        public async Task<bool> PromptSaveProjectAction() {
+        public async Task<bool> PromptAndSaveProjectAction() {
             if (this.ActiveProject == null) {
                 throw new Exception("No active project");
             }
@@ -397,8 +375,12 @@ namespace FramePFX.Editor.ViewModels {
         public async Task CloseProjectAction() {
             if (this.ActiveProject != null) {
                 this.IsClosingProject = true;
-                await this.LoadProject(null);
-                this.IsClosingProject = false;
+                try {
+                    await this.LoadProject(null);
+                }
+                finally {
+                    this.IsClosingProject = false;
+                }
             }
         }
 

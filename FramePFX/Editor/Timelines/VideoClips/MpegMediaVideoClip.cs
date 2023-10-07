@@ -9,9 +9,11 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public ResourceHelper ResourceHelper { get; }
 
+        public IResourcePathKey<ResourceMpegMedia> MpegMediaKey { get; }
+
         public MpegMediaVideoClip() {
             this.ResourceHelper = new ResourceHelper(this);
-            this.ResourceHelper.RegisterKeyByTypeName<ResourceMpegMedia>();
+            this.MpegMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceMpegMedia>();
         }
 
         protected override Clip NewInstanceForClone() {

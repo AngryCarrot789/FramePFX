@@ -140,6 +140,8 @@ namespace FramePFX.Utils {
         // Took this from a minecraft plugin I made, because java's built in format function was annoying to
         // use so I made my own that outperformed it by about 2x... not to toot my own horn or anything ;)
 
+        private static readonly object[] EmptyArray = new object[0];
+
         public static String Format(String format, params Object[] args) {
             // return splice(format, Appender.forArray(args)); // just as fast as below once JIT'd
             // Remaking this by accepting format.toCharArray() would not make it any faster,
@@ -147,6 +149,9 @@ namespace FramePFX.Utils {
             int i, j, k, num;
             if (format == null || (i = format.IndexOf('{', j = 0)) == -1)
                 return format;
+            if (args == null)
+                args = EmptyArray ?? new object[0];
+
             // buffer of 2x format is typically the best result
             FastStringBuf sb = new FastStringBuf(format.Length * 2);
             do {

@@ -50,7 +50,8 @@
         <MultiBinding Converter="{StaticResource TitleConverter}">
             <Binding Path="ActiveProject" />
             <Binding Path="ActiveProject.HasUnsavedChanges" />
-            <Binding Path="ActiveProject.FullProjectFilePath" />
+            <Binding Path="ActiveProject.ProjectFilePath" />
+            <Binding Path="ActiveProject.ProjectFileName" />
         </MultiBinding>
     </Window.Title>
     <Grid>

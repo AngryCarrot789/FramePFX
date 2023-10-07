@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editor.ResourceManaging.ViewModels;
@@ -21,9 +20,30 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                 return false;
             }
 
-            int totalRefs = selection.Sum(x => x is ResourceItemViewModel res ? res.ReferenceCount : 0);
-            if (totalRefs > 0 && !await Services.DialogService.ShowYesNoDialogAsync("Delete resources", $"There are {totalRefs} object references to these resources. Do you want to delete these resources?")) {
+            if (selection.Count < 1) {
                 return true;
+            }
+
+            int clips = 0, unknown = 0, resCount = selection.Count;
+            foreach (BaseResourceViewModel resource in selection) {
+                if (resource.Model is ResourceItem) {
+                    ((ResourceItem) resource.Model).GetReferenceInfo(out int nClips, out int nUnknown);
+                    clips += nClips;
+                    unknown += nUnknown;
+                }
+            }
+
+            if (clips + unknown > 0) {
+                // is there even a better way to do this?
+                string msg = string.Format("There {0} {1} clip{2}reference{3} to {4} resource{5}. Do you want to delete {4} resource{5}?",
+                    Lang.IsAre(clips), clips,
+                    unknown < 1 ? " " : $" and {unknown} unknown ",
+                    Lang.S(unknown > 0 ? unknown : clips),
+                    Lang.ThisThese(resCount),
+                    Lang.S(resCount));
+                if (!await Services.DialogService.ShowYesNoDialogAsync("Delete resources", msg)) {
+                    return true;
+                }
             }
 
             try {

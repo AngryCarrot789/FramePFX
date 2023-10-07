@@ -79,11 +79,11 @@ namespace FramePFX.Editor.Exporting {
 
             this.SelectedExporter = collection[0];
             string folder;
-            if (project.Model.IsTempDataFolder || !Directory.Exists(project.TheProjectDataFolder)) {
+            if (project.Model.IsUsingTempFolder || !Directory.Exists(project.ProjectFolder)) {
                 folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
             else {
-                folder = project.TheProjectDataFolder;
+                folder = project.ProjectFolder;
             }
 
             string defaultPath = Path.Combine(folder, "Video.mp4");
